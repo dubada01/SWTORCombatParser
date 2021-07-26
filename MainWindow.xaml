@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SWTORCombatParser"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <Grid Background="Gray">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width=".25*"/>
             <ColumnDefinition Width="*"/>
@@ -17,40 +17,48 @@
             <RowDefinition Height=".75*"/>
             <RowDefinition Height=".1*"/>
         </Grid.RowDefinitions>
-        <WpfPlot Name="GridView" Grid.RowSpan="2" Grid.ColumnSpan="2"></WpfPlot>
-        <Border Background="White" BorderBrush="Black" BorderThickness="0,0,2,2">
+        <WpfPlot Margin="5" Name="GridView" Grid.RowSpan="2" Grid.ColumnSpan="2"></WpfPlot>
+        <Border Grid.Row="2" Background="CadetBlue" BorderBrush="DimGray" Margin="2" BorderThickness="2,2,2,2">
             <Viewbox>
-                <TextBlock x:Name="CharacterName" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"></TextBlock>
+                <TextBlock Foreground="LightGray" x:Name="CharacterName" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"></TextBlock>
             </Viewbox>
         </Border>
-        <Border Grid.Row="2" Grid.ColumnSpan="3" BorderBrush="Black" BorderThickness="0,2,0,0">
+        <Border Grid.Row="2" Grid.ColumnSpan="3" BorderBrush="Black">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Duration: "></TextBlock>
-                    <TextBlock Width="50" x:Name="DurationValue"></TextBlock>
+                    <TextBlock Foreground="LightGray" Text="Duration: "></TextBlock>
+                    <TextBlock Foreground="LightGray" Width="50" x:Name="DurationValue"></TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="APM: "></TextBlock>
-                    <TextBlock Width="50" x:Name="APMValue"></TextBlock>
+                    <TextBlock Foreground="LightGray" Text="APM: "></TextBlock>
+                    <TextBlock Foreground="LightGray" Width="50" x:Name="APMValue"></TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Damage: "></TextBlock>
-                    <TextBlock Width="50" x:Name="DamageValue"></TextBlock>
+                    <TextBlock Foreground="LightGray" Text="Damage: "></TextBlock>
+                    <TextBlock Foreground="LightGray" Width="50" x:Name="DamageValue"></TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Max Hit: "></TextBlock>
-                    <TextBlock Width="50" x:Name="MaxDamageValue"></TextBlock>
+                    <TextBlock Foreground="LightGray" Text="Max Hit: "></TextBlock>
+                    <TextBlock Foreground="LightGray" Width="50" x:Name="MaxDamageValue"></TextBlock>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="DPS: "></TextBlock>
-                    <TextBlock Width="50" x:Name="DPSValue"></TextBlock>
+                    <TextBlock Foreground="LightGray" Text="DPS: "></TextBlock>
+                    <TextBlock Foreground="LightGray" Width="50" x:Name="DPSValue"></TextBlock>
                 </StackPanel>
             </StackPanel>
         </Border>
-        <ScrollViewer Margin="5,25,5,5" Grid.Column="2" Grid.RowSpan="2">
-            <ItemsControl>
+        <Viewbox Grid.Column="2" Margin="20" Grid.RowSpan="2" VerticalAlignment="Top">
+            <TextBlock Text="Previous Combats" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+        </Viewbox>
+        
+        <ScrollViewer  Margin="5,75,5,5" Grid.Column="2" Grid.RowSpan="2">
+            <ItemsControl Name="PastCombats">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
+                        <DockPanel >
+                            <TextBlock VerticalAlignment="Center" Foreground="LawnGreen" Text="{Binding SelectedCheck}"></TextBlock>
+                            <Button Foreground="DimGray" Margin="5,0,5,0" Height="30" Command="{Binding SelectCombatCommand}" Content="{Binding CombatLabel}"></Button>
+                        </DockPanel>
                         
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

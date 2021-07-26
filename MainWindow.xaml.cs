@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,12 +24,79 @@ namespace SWTORCombatParser
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    public class CommandHandler : ICommand
+    {
+        private Action _action;
+        private Func<bool> _canExecute;
+
+        /// <summary>
+        /// Creates instance of the command handler
+        /// </summary>
+        /// <param name="action">Action to be executed by the command</param>
+        /// <param name="canExecute">A bolean property to containing current permissions to execute the command</param>
+        public CommandHandler(Action action, Func<bool> canExecute)
+        {
+            _action = action;
+            _canExecute = canExecute;
+        }
+
+        /// <summary>
+        /// Wires CanExecuteChanged event 
+        /// </summary>
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        /// <summary>
+        /// Forcess checking if execute is allowed
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        public bool CanExecute(object parameter)
+        {
+            return _canExecute.Invoke();
+        }
+
+        public void Execute(object parameter)
+        {
+            _action();
+        }
+    }
+    public class PastCombat:INotifyPropertyChanged
+    {
+        public event Action<PastCombat> PastCombatSelected =  delegate { };
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public Combat Combat;
+        public string CombatLabel { get; set; }
+        public ICommand SelectCombatCommand => new CommandHandler(SelectCombat, ()=>true);
+        public string SelectedCheck { get; set; } = " ";
+        public void Reset()
+        {
+            SelectedCheck = " ";
+            OnPropertyChanged("SelectedCheck");
+        }
+        private void SelectCombat()
+        {
+            PastCombatSelected(this);
+            SelectedCheck = "✓";
+            OnPropertyChanged("SelectedCheck");
+            Trace.WriteLine("Selected " + CombatLabel);
+        }
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+    }
     public partial class MainWindow : Window
     {
         private string _logPath = @"C:\Users\duban\Documents\Star Wars - The Old Republic\CombatLogs";
         private string _currentLogName = "";
         private CombatLogStreamer _combatLogStreamer;
         private List<ParsedLogEntry> _totalLogsDuringCombat = new List<ParsedLogEntry>();
+        private ObservableCollection<PastCombat> _listOfPreviousCombats = new ObservableCollection<PastCombat>();
         public MainWindow()
         {
             
@@ -37,7 +107,13 @@ namespace SWTORCombatParser
             InitializeComponent();
             TestIdentifyCombat();
             VerifyUsingMostRecentLogFile();
-            GridView.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 2);
+            GridView.Plot.XLabel("Combat Duration (ms)");
+            GridView.Plot.YLabel("Damage");
+            
+            GridView.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 2,title:"DPS");
+            GridView.Plot.Style(ScottPlot.Style.Gray2);
+            PastCombats.ItemsSource = _listOfPreviousCombats;
+
         }
         private void CombatStarted(string characterName)
         {
@@ -50,9 +126,28 @@ namespace SWTORCombatParser
         }
         private void CombatStopped(List<ParsedLogEntry> obj)
         {
+            if (obj.Count == 0)
+                return;
             Trace.WriteLine("CombatStopped");
             _totalLogsDuringCombat.AddRange(obj);
             UpdateUI();
+            var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat.ToList());
+            var combatUI = new PastCombat() { Combat = combatInfo, CombatLabel = combatInfo.StartTime.ToString() };
+            combatUI.PastCombatSelected += SelectCombat;
+            Dispatcher.Invoke(() => {
+                _listOfPreviousCombats.Insert(0,combatUI);
+            });
+            
+            _totalLogsDuringCombat.Clear();
+            
+        }
+        private void SelectCombat(PastCombat selectedCombat)
+        {
+            foreach (var combat in _listOfPreviousCombats)
+                combat.Reset();
+
+            Trace.WriteLine("Selected " + selectedCombat.CombatLabel + " confirmed!");
+            PlotCombat(selectedCombat.Combat);
         }
         private void UpdateLog(List<ParsedLogEntry> obj)
         {
@@ -65,40 +160,40 @@ namespace SWTORCombatParser
         {
             if (_totalLogsDuringCombat.Count == 0)
                 return;
-            //var startTime = DateTime.Now;
             var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat);
-
-            var startPoint = _totalLogsDuringCombat[0].TimeStamp;
-            //Trace.WriteLine("Got MetaData in: " + (DateTime.Now - startTime).TotalMilliseconds);
+            PlotCombat(combatInfo);
+        }
+        private void PlotCombat(Combat combatToPlot)
+        {
+            var startPoint = combatToPlot.StartTime;
             Dispatcher.Invoke(() =>
             {
                 GridView.Plot.Clear();
-                PlotDamage(startPoint);
-                PlotDamageTaken(startPoint);
-                PlotCompanionDamage(startPoint);
+                PlotDamage(combatToPlot);
+                PlotDamageTaken(combatToPlot);
+                PlotCompanionDamage(combatToPlot);
                 GridView.Plot.Legend();
-                DurationValue.Text = combatInfo.DurationSeconds.ToString("0.00");
-                APMValue.Text = combatInfo.APM.ToString("0.00");
-                DamageValue.Text = combatInfo.TotalDamage.ToString("0.00");
-                DPSValue.Text = combatInfo.DPS.ToString("0.00");
-                MaxDamageValue.Text = combatInfo.MaxDamage.ToString("0.00");
+                DurationValue.Text = combatToPlot.DurationSeconds.ToString("0.00");
+                APMValue.Text = combatToPlot.APM.ToString("0.00");
+                DamageValue.Text = combatToPlot.TotalDamage.ToString("0.00");
+                DPSValue.Text = combatToPlot.DPS.ToString("0.00");
+                MaxDamageValue.Text = combatToPlot.MaxDamage.ToString("0.00");
             });
         }
-
-        private void PlotDamage(DateTime startPoint)
+        private void PlotDamage(Combat combat)
         {
-            var damageEntries = _totalLogsDuringCombat.Where(l => l.Effect.EffectName == "Damage" && l.Source.IsCharacter).ToList();
-            PlotData(damageEntries, startPoint, "Damage Output", System.Drawing.Color.Red);
+            var damageEntries = combat.Logs.Where(l => l.Effect.EffectName == "Damage" && l.Source.IsCharacter).ToList();
+            PlotData(damageEntries, combat.StartTime, "Damage Output", System.Drawing.Color.Red);
         }
-        private void PlotDamageTaken(DateTime startPoint)
+        private void PlotDamageTaken(Combat combat)
         {
-            var damageEntries = _totalLogsDuringCombat.Where(l => l.Effect.EffectName == "Damage" && l.Target.IsCharacter).ToList();
-            PlotData(damageEntries, startPoint, "Incoming Damage", System.Drawing.Color.Blue);
+            var damageEntries = combat.Logs.Where(l => l.Effect.EffectName == "Damage" && l.Target.IsCharacter).ToList();
+            PlotData(damageEntries, combat.StartTime, "Incoming Damage", System.Drawing.Color.Blue);
         }
-        private void PlotCompanionDamage(DateTime startPoint)
+        private void PlotCompanionDamage(Combat combat)
         {
-            var damageEntries = _totalLogsDuringCombat.Where(l => l.Effect.EffectName == "Damage" && l.Source.IsCompanion).ToList();
-            PlotData(damageEntries, startPoint, "Companion Damage", System.Drawing.Color.Magenta);
+            var damageEntries = combat.Logs.Where(l => l.Effect.EffectName == "Damage" && l.Source.IsCompanion).ToList();
+            PlotData(damageEntries, combat.StartTime, "Companion Damage", System.Drawing.Color.Magenta);
         }
         private void PlotData(List<ParsedLogEntry> data, DateTime startPoint, string label, System.Drawing.Color color)
         {

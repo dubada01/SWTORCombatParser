@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -106,6 +107,7 @@ namespace SWTORCombatParser
         }
         public static Combat ParseOngoingCombat(List<ParsedLogEntry> ongoingLogs)
         {
+            Trace.WriteLine("Length: " + ongoingLogs.Count);
             var newCombat = new Combat()
             {
                 StartTime = ongoingLogs.First().TimeStamp,

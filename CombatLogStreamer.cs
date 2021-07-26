@@ -19,10 +19,10 @@ namespace SWTORCombatParser
         private long _newNumberOfEntries;
         private string _logToMonitor;
         private List<ParsedLogEntry> _currentFrameData;
+        private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
         public void MonitorLog(string logToMonitor)
         {
             _logToMonitor = logToMonitor;
-            GenerateNewFrame();
             PollForUpdates();
         }
         private void PollForUpdates()
@@ -30,9 +30,7 @@ namespace SWTORCombatParser
             Task.Run(() => {
                 while (true)
                 {
-                    //var startTime = DateTime.Now;
                     GenerateNewFrame();
-                    //Trace.WriteLine("Frame Parsed In: " + (DateTime.Now - startTime).TotalMilliseconds);
                     Thread.Sleep(250);
                 }
             });
@@ -85,7 +83,10 @@ namespace SWTORCombatParser
             }
             CheckForCombatEnd(lineIndex);
             if (_isInCombat)
+            { 
                 _currentFrameData.Add(parsedLine);
+                _currentCombatData.Add(parsedLine);
+            }
         }
 
         private void CheckForCombatEnd(long lineIndex)
@@ -94,7 +95,9 @@ namespace SWTORCombatParser
             {
                 _isInCombat = false;
                 _combatEnding = false;
-                CombatStopped(_currentFrameData);
+                
+                CombatStopped(_currentCombatData);
+                _currentCombatData.Clear();
             }
         }
     }
