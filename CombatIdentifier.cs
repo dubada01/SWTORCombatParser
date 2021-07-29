@@ -6,42 +6,7 @@ using System.Text;
 
 namespace SWTORCombatParser
 {
-    public class Combat
-    {
-        public DateTime StartTime;
-        public DateTime EndTime;
-        public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
-        public double DurationSeconds => DurationMS / 1000f;
-        public List<string> Targets;
-        public List<ParsedLogEntry> Logs;
 
-        public double TotalAbilites;
-        public double TotalDamage;
-        public double TotalHealing;
-        public double TotalEffectiveHealing;
-        public double TotalSheilding;
-        public double TotalDamageTaken;
-        public double TotalHealingReceived;
-        public double TotalEffectiveHealingReceived;
-
-        public double DPS => TotalDamage / DurationSeconds;
-        public double APM => TotalAbilites / (DurationSeconds / 60);
-        public double HPS => TotalHealing / DurationSeconds;
-        public double EHPS => TotalEffectiveHealing / DurationSeconds;
-        public double SPS => TotalSheilding / DurationSeconds;
-
-        public double DTPS => TotalDamageTaken / DurationSeconds;
-        public double HTPS => TotalHealingReceived / DurationSeconds;
-        public double EHTPS => TotalEffectiveHealingReceived / DurationSeconds;
-
-        public double MaxDamage;
-        public double MaxIncomingDamage;
-        public double MaxHeal;
-        public double MaxEffectiveHeal;
-        public double MaxIncomingHeal;
-        public double MaxIncomingEffectiveHeal;
-
-    }
     public class LogContents
     {
         public string Error;
@@ -51,6 +16,14 @@ namespace SWTORCombatParser
     }
     public static class CombatIdentifier
     {
+        public static LogContents GetSpecificCombats(string logName)
+        {
+            var log = CombatLogLoader.LoadSpecificLog(logName);
+            var parsedLogs = CombatLogParser.ParseAllLines(log);
+            if (parsedLogs.Count == 0)
+                return new LogContents() { SourceLog = log.Name, Error = "No valid logs in log file " + log.Name };
+            return GetActiveCombatLogs(parsedLogs);
+        }
         public static LogContents GetMostRecentLogsCombat()
         {
             var log = CombatLogLoader.LoadMostRecentLog();
@@ -63,7 +36,7 @@ namespace SWTORCombatParser
         {
             var output = new LogContents() { SourceLog = allLogs[0].LogName, Character = GetCharacter(allLogs)};
             var listOfCombatStartEvents = allLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "EnterCombat").ToList();
-            var listOfCombatExitEvents = allLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "ExitCombat").ToList();
+            var listOfCombatExitEvents = allLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "ExitCombat" || l.Effect.EffectName == "Death").ToList();
 
             if (listOfCombatStartEvents.Count == 0)
                 return output;
@@ -120,7 +93,7 @@ namespace SWTORCombatParser
         }
         private static string GetCharacter(List<ParsedLogEntry> logs)
         {
-            return logs.First(f => f.Source.IsCharacter).Source.Name;
+            return logs.First(f => f.Source.IsPlayer).Source.Name;
         }
         private static List<string> GetTargets(List<ParsedLogEntry> logs)
         {

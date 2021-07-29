@@ -31,7 +31,7 @@ namespace SWTORCombatParser
                 while (true)
                 {
                     GenerateNewFrame();
-                    Thread.Sleep(250);
+                    Thread.Sleep(5000);
                 }
             });
         }
@@ -56,7 +56,7 @@ namespace SWTORCombatParser
                 NewLogEntries(_currentFrameData);
             }
         }
-        private long _linesAtCombatEnd;
+        private long _combatEndLineIndex;
         private void ProcessNewLine(string line,long lineIndex)
         {
             if (string.IsNullOrEmpty(line))
@@ -65,7 +65,6 @@ namespace SWTORCombatParser
                 return;
             }
             var parsedLine = CombatLogParser.ParseLine(line);
-            //Trace.WriteLine(line);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
                 Trace.WriteLine("Received an incomplete line");
@@ -79,8 +78,10 @@ namespace SWTORCombatParser
             if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat")
             {
                 _combatEnding = true;
-                _linesAtCombatEnd = lineIndex;
+                _combatEndLineIndex = lineIndex;
             }
+            if ((parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsPlayer))
+                EndCombat();
             CheckForCombatEnd(lineIndex);
             if (_isInCombat)
             { 
@@ -91,14 +92,18 @@ namespace SWTORCombatParser
 
         private void CheckForCombatEnd(long lineIndex)
         {
-            if ((lineIndex - _linesAtCombatEnd > 10 || (lineIndex == _newNumberOfEntries - 1)) && _combatEnding)
+            if ((lineIndex - _combatEndLineIndex > 10 || (lineIndex == _newNumberOfEntries - 1)) && _combatEnding)
             {
-                _isInCombat = false;
-                _combatEnding = false;
-                
-                CombatStopped(_currentCombatData);
-                _currentCombatData.Clear();
+                EndCombat();
             }
+        }
+        private void EndCombat()
+        {
+            _isInCombat = false;
+            _combatEnding = false;
+
+            CombatStopped(_currentCombatData);
+            _currentCombatData.Clear();
         }
     }
 }

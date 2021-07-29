@@ -27,6 +27,7 @@ namespace SWTORCombatParser
     {
         public string Name;
         public bool IsCharacter;
+        public bool IsPlayer;
         public bool IsCompanion;
     }
     public class Effect
@@ -67,7 +68,8 @@ namespace SWTORCombatParser
         immune,
         resist,
         cover,
-        unknown
+        unknown,
+        absorbed
     }
     public enum ValueType
     {

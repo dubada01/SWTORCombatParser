@@ -13,39 +13,129 @@
             <ColumnDefinition Width=".3*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.1*"/>
-            <RowDefinition Height=".75*"/>
+            <RowDefinition Height=".85*"/>
+            <RowDefinition Height="0.05*"/>
             <RowDefinition Height=".1*"/>
         </Grid.RowDefinitions>
-        <WpfPlot Margin="5" Name="GridView" Grid.RowSpan="2" Grid.ColumnSpan="2"></WpfPlot>
+        <WpfPlot MouseMove="GridView_MouseMove" Margin="5" Name="GridView" Grid.RowSpan="1" Grid.ColumnSpan="2"></WpfPlot>
+        <Border Grid.Row="1" HorizontalAlignment="Center" BorderBrush="LightGray" Grid.ColumnSpan="2" BorderThickness="2">
+            <Viewbox MaxHeight="75" MaxWidth="600" Margin="5,0,5,0">
+                <StackPanel  Orientation="Horizontal">
+                    <Grid VerticalAlignment="Center" Margin="5,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width=".25*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="DamageToggle" Margin="5" VerticalAlignment="Center" Grid.Column="0"></CheckBox>
+                        <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Outgoing Damage" Foreground="PaleVioletRed"></TextBlock>
+                    </Grid>
+                    <Grid VerticalAlignment="Center" Margin="5,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width=".25*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="DamageTakenToggle" Margin="5" VerticalAlignment="Center" Grid.Column="0"></CheckBox>
+                        <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Incoming Damage" Foreground="DeepSkyBlue"></TextBlock>
+                    </Grid>
+                    <Grid VerticalAlignment="Center" Margin="5,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width=".25*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <CheckBox x:Name="HealingToggle"  Margin="5" VerticalAlignment="Center" Grid.Column="0"></CheckBox>
+                        <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Outgoing Healing" Foreground="LightGreen"></TextBlock>
+
+                        <CheckBox  Grid.Row="1" x:Name="EffectiveHealing"  Margin="5" VerticalAlignment="Center" Grid.Column="0"></CheckBox>
+                        <TextBlock HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Show effective" Foreground="WhiteSmoke"></TextBlock>
+                    </Grid>
+                    <Grid VerticalAlignment="Center" Margin="5,0,5,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width=".25*"/>
+                            <ColumnDefinition Width="0.75*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <CheckBox x:Name="HealingTaken"  Margin="5" VerticalAlignment="Center" Grid.Column="0"></CheckBox>
+                        <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Incoming Healing" Foreground="LightSeaGreen"></TextBlock>
+                        <CheckBox  Grid.Row="1" x:Name="EffectiveHealingTaken"  Margin="5" VerticalAlignment="Center" Grid.Column="0"></CheckBox>
+                        <TextBlock HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Show effective" Foreground="WhiteSmoke"></TextBlock>
+                    </Grid>
+                </StackPanel>
+            </Viewbox>
+
+        </Border>
         <Border Grid.Row="2" Background="CadetBlue" BorderBrush="DimGray" Margin="2" BorderThickness="2,2,2,2">
             <Viewbox>
                 <TextBlock Foreground="LightGray" x:Name="CharacterName" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"></TextBlock>
             </Viewbox>
         </Border>
-        <Border Grid.Row="2" Grid.ColumnSpan="3" BorderBrush="Black">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="LightGray" Text="Duration: "></TextBlock>
-                    <TextBlock Foreground="LightGray" Width="50" x:Name="DurationValue"></TextBlock>
+        <Border Margin="10,0,10,0" Grid.Row="2"  Grid.Column="1" Grid.ColumnSpan="2" BorderBrush="Black">
+            <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <StackPanel  Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Foreground="LightGray" Text="APM: "></TextBlock>
+                        <TextBlock Foreground="LightGreen" Width="50" x:Name="APMValue"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Foreground="LightGray" Text="Damage: "></TextBlock>
+                        <TextBlock Foreground="PaleVioletRed" Width="50" x:Name="DamageValue"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Foreground="LightGray" Text="Max Hit: "></TextBlock>
+                        <TextBlock Foreground="PaleVioletRed" Width="50" x:Name="MaxDamageValue"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Foreground="LightGray" Text="DPS: "></TextBlock>
+                        <TextBlock Foreground="PaleVioletRed" Width="50" x:Name="DPSValue"></TextBlock>
+                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" HorizontalAlignment="Right" Grid.Column="0" Foreground="LightGray" Text="Healing: "></TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Foreground="LightGreen" Width="50" x:Name="HealingValue"></TextBlock>
+
+
+                        <TextBlock Grid.Row="0"  HorizontalAlignment="Right" Grid.Column="2" Foreground="LightGray" Text="Max Heal: "></TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Foreground="LightGreen" Width="50" x:Name="MaxHealingValue"></TextBlock>
+
+
+                        <TextBlock Grid.Row="0"  HorizontalAlignment="Right" Grid.Column="4" Foreground="LightGray" Text="HPS: "></TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="5" Foreground="LightGreen" Width="50" x:Name="HPSValue"></TextBlock>
+
+
+
+
+                        <TextBlock Grid.Row="1"  HorizontalAlignment="Right" Grid.Column="0" Foreground="LightGray" Text="Effective Healing: "></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Foreground="LightGreen" Width="50" x:Name="EffectiveHealingValue"></TextBlock>
+
+
+                        <TextBlock Grid.Row="1"  HorizontalAlignment="Right" Grid.Column="2" Foreground="LightGray" Text="Max Effective Heal: "></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="3" Foreground="LightGreen" Width="50" x:Name="MaxEffectiveHealingValue"></TextBlock>
+
+
+                        <TextBlock Grid.Row="1"  HorizontalAlignment="Right" Grid.Column="4" Foreground="LightGray" Text="EHPS: "></TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="5" Foreground="LightGreen" Width="50" x:Name="EHPSValue"></TextBlock>
+                        
+                    </Grid>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="LightGray" Text="APM: "></TextBlock>
-                    <TextBlock Foreground="LightGray" Width="50" x:Name="APMValue"></TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="LightGray" Text="Damage: "></TextBlock>
-                    <TextBlock Foreground="LightGray" Width="50" x:Name="DamageValue"></TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="LightGray" Text="Max Hit: "></TextBlock>
-                    <TextBlock Foreground="LightGray" Width="50" x:Name="MaxDamageValue"></TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="LightGray" Text="DPS: "></TextBlock>
-                    <TextBlock Foreground="LightGray" Width="50" x:Name="DPSValue"></TextBlock>
-                </StackPanel>
-            </StackPanel>
+            </Viewbox>
         </Border>
         <Viewbox Grid.Column="2" Margin="20" Grid.RowSpan="2" VerticalAlignment="Top">
             <TextBlock Text="Previous Combats" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
@@ -57,7 +147,20 @@
                     <DataTemplate>
                         <DockPanel >
                             <TextBlock VerticalAlignment="Center" Foreground="LawnGreen" Text="{Binding SelectedCheck}"></TextBlock>
-                            <Button Foreground="DimGray" Margin="5,0,5,0" Height="30" Command="{Binding SelectCombatCommand}" Content="{Binding CombatLabel}"></Button>
+                            <Button Foreground="DimGray" Margin="5,0,5,0" Height="40" Command="{Binding SelectCombatCommand}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Center" Text="{Binding CombatLabel}"></TextBlock>
+                                    <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                                        <TextBlock Grid.Row="1"  Text="{Binding CombatDuration}"></TextBlock>
+                                        <TextBlock Grid.Row="1" HorizontalAlignment="Center" Text=" sec"></TextBlock>
+                                    </StackPanel>
+
+                                </Grid>
+                            </Button>
                         </DockPanel>
                         
                     </DataTemplate>

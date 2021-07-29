@@ -1,0 +1,300 @@
+[00:22:12.998] [@Zarn Ciel] [@Zarn Ciel] [Discipline Stat Package {4311159322705920}] [ApplyEffect {836045448945477}: iRating Adjustment {4311159322706201}] ()
+[00:22:12.998] [@Zarn Ciel] [@Zarn Ciel] [Discipline Stat Package {4311159322705920}] [ApplyEffect {836045448945477}: iRating Adjustment {4311159322706201}] ()
+[00:22:12.998] [@Zarn Ciel] [@Zarn Ciel] [Safe Login {973870949466112}] [ApplyEffect {836045448945477}: Safe Login Immunity {973870949466372}] ()
+[00:22:13.098] [@Zarn Ciel] [@Zarn Ciel] [Shien Form {1280806492307456}] [ApplyEffect {836045448945477}: Shien Form {1280806492307456}] ()
+[00:22:13.099] [@Zarn Ciel] [@Zarn Ciel] [Sprint {810670782152704}] [ApplyEffect {836045448945477}: Sprint {810670782152704}] ()
+[00:22:20.109] [@Zarn Ciel] [@Zarn Ciel] [Safe Login {973870949466112}] [RemoveEffect {836045448945478}: Safe Login Immunity {973870949466372}] ()
+[00:22:21.746] [@Zarn Ciel] [@Zarn Ciel] [] [Event {836045448945472}: Revived {836045448945494}] ()
+[00:22:29.766] [@Zarn Ciel] [@Zarn Ciel] [Blade Blitz {3618351033090048}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:29.766] [@Zarn Ciel] [@Zarn Ciel] [Blade Blitz {3618351033090048}] [ApplyEffect {836045448945477}: Blade Blitz {3618351033090048}] ()
+[00:22:30.849] [@Zarn Ciel] [@Zarn Ciel] [Blade Blitz {3618351033090048}] [RemoveEffect {836045448945478}: Blade Blitz {3618351033090048}] ()
+[00:22:32.862] [@Zarn Ciel] [@Zarn Ciel] [] [Event {836045448945472}: EnterCombat {836045448945489}] (Balmorra)
+[00:22:32.888] [@Zarn Ciel] [@Zarn Ciel] [Force Leap {812105301229568}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:32.889] [@Zarn Ciel] [@Zarn Ciel] [Robust {3588479535546368}] [ApplyEffect {836045448945477}: Robust {3588479535546368}] ()
+[00:22:32.889] [@Zarn Ciel] [@Zarn Ciel] [Ardent Advocate {3621516423987200}] [ApplyEffect {836045448945477}: Ardent Advocate {3621516423987200}] ()
+[00:22:32.890] [@Zarn Ciel] [@Zarn Ciel] [Sprint {810670782152704}] [RemoveEffect {836045448945478}: Sprint {810670782152704}] ()
+[00:22:32.890] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Force Leap {812105301229568}] [ApplyEffect {836045448945477}: Immobilized (Physical) {812105301229840}] ()
+[00:22:32.892] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (3)
+[00:22:33.456] [Imperial Removal Droid {2074026822336512}:72660636451701] [@Zarn Ciel] [Retractable Blade {811778883715072}] [ApplyEffect {836045448945477}: Bleeding (Physical) {811778883715340}] ()
+[00:22:33.456] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:22:33.504] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Force Leap {812105301229568}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (394 energy {836045448940874}) <394>
+[00:22:33.855] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Protective Barrier {4238389691809792}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:33.855] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Protective Barrier {4238389691809792}] ()
+[00:22:33.928] [Imperial Removal Droid {2074026822336512}:72660636451701] [@Zarn Ciel] [Retractable Blade {811778883715072}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (92 kinetic {836045448940873}) <92>
+[00:22:34.154] [Imperial Service Droid {975339828281344}:72660636451653] [@Zarn Ciel] [Toxic Dart {2288062222565376}] [ApplyEffect {836045448945477}: Poisoned (Physical) {2288062222565633}] ()
+[00:22:34.362] [@Zarn Ciel] [@Zarn Ciel] [Overhead Slash {2210512293068800}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:34.362] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (4)
+[00:22:34.362] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [ApplyEffect {836045448945477}: Force Rush {1280780722503680}] ()
+[00:22:34.362] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:22:34.363] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Burning Purpose {3429814853697536}] [ApplyEffect {836045448945477}: Burning (Burning Purpose) {3429814853697796}] ()
+[00:22:34.363] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Burning Purpose {3429814853697536}] [ApplyEffect {836045448945477}: Beat Down (Physical) {3429814853697820}] ()
+[00:22:34.560] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (505) <23>
+[00:22:34.560] [Imperial Removal Droid {2074026822336512}:72660636451701] [@Zarn Ciel] [Bleeding (Physical) {811778883715340}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (27 internal {836045448940876}) <27>
+[00:22:34.561] [Imperial Service Droid {975339828281344}:72660636451747] [@Zarn Ciel] [Toxic Dart {2288062222565376}] [ApplyEffect {836045448945477}: Poisoned (Physical) {2288062222565633}] ()
+[00:22:34.958] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Force Leap {812105301229568}] [RemoveEffect {836045448945478}: Immobilized (Physical) {812105301229840}] ()
+[00:22:35.030] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Overhead Slash {2210512293068800}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1201 energy {836045448940874}) <1201>
+[00:22:35.374] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Burning (Burning Purpose) {3429814853697796}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (47 elemental {836045448940875}) <47>
+[00:22:35.550] [Imperial Removal Droid {2074026822336512}:72660636451701] [@Zarn Ciel] [Bleeding (Physical) {811778883715340}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (27 internal {836045448940876}) <27>
+[00:22:35.730] [Imperial Removal Droid {2074026822336512}:72660636451701] [@Zarn Ciel] [Wrist Laser {2166437338677248}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (279 energy {836045448940874}) <279>
+[00:22:35.761] [Imperial Service Droid {975339828281344}:72660636451653] [@Zarn Ciel:Kira Carsen {349412769398784}] [Ion Blast {2282946916515840}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (166 elemental {836045448940875}) <166>
+[00:22:36.056] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Force Detain {3696235970035712}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:36.057] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Service Droid {975339828281344}:72660636451653] [Force Detain {3696235970035712}] [ApplyEffect {836045448945477}: Detained (Force) {3696235970035990}] ()
+[00:22:36.279] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Self Preservation {4238737584160768}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (660)
+[00:22:36.279] [@Zarn Ciel] [@Zarn Ciel] [Sundering Strike {998060205277184}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:36.279] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (2)
+[00:22:36.279] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Sundering Strike {998060205277184}] [ApplyEffect {836045448945477}: Sundered (Physical) {998060205277557}] ()
+[00:22:36.280] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Sundering Strike {998060205277184}] [RemoveEffect {836045448945478}: Sundered (Physical) {998060205277557}] ()
+[00:22:36.280] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Burning Purpose {3429814853697536}] [RemoveEffect {836045448945478}: Burning (Burning Purpose) {3429814853697796}] ()
+[00:22:36.280] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Burning Purpose {3429814853697536}] [RemoveEffect {836045448945478}: Beat Down (Physical) {3429814853697820}] ()
+[00:22:36.280] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (4)
+[00:22:36.280] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:22:36.287] [Imperial Service Droid {975339828281344}:72660636451747] [@Zarn Ciel] [Ion Blast {2282946916515840}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (133 elemental {836045448940875}) <133>
+[00:22:36.557] [Imperial Removal Droid {2074026822336512}:72660636451701] [@Zarn Ciel] [Bleeding (Physical) {811778883715340}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (27 internal {836045448940876})
+[00:22:36.968] [@Zarn Ciel] [@Zarn Ciel] [Robust {3588479535546368}] [RemoveEffect {836045448945478}: Robust {3588479535546368}] ()
+[00:22:37.012] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [Sundering Strike {998060205277184}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (523 energy {836045448940874}) <523>
+[00:22:37.012] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451701] [] [Event {836045448945472}: Death {836045448945493}] ()
+[00:22:37.286] [Imperial Service Droid {975339828281344}:72660636451653] [@Zarn Ciel] [Poisoned (Physical) {2288062222565633}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (81 internal {836045448940876}) <81>
+[00:22:37.422] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel] [Wrist Laser {2166437338677248}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (254 energy {836045448940874}) <254>
+[00:22:37.469] [Imperial Service Droid {975339828281344}:72660636451747] [@Zarn Ciel] [Ranged Attack {813479690764288}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (419 energy {836045448940874}) <419>
+[00:22:37.506] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (491) <98>
+[00:22:37.506] [Imperial Removal Droid {2074026822336512}:72660636451701] [@Zarn Ciel] [Bleeding (Physical) {811778883715340}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (34 internal {836045448940876})
+[00:22:37.606] [Imperial Service Droid {975339828281344}:72660636451747] [@Zarn Ciel] [Poisoned (Physical) {2288062222565633}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (81 internal {836045448940876}) <81>
+[00:22:38.205] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Mending {3569512959967232}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:38.205] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Mending {3569512959967232}] ()
+[00:22:38.205] [Imperial Removal Droid {2074026822336512}:72660636451701] [@Zarn Ciel] [Retractable Blade {811778883715072}] [RemoveEffect {836045448945478}: Bleeding (Physical) {811778883715340}] ()
+[00:22:38.206] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (328) <65>
+[00:22:38.314] [@Zarn Ciel] [@Zarn Ciel] [Whirling Blade {4083955552747520}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:38.314] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (3)
+[00:22:38.314] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:22:38.905] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636451747] [Whirling Blade {4083955552747520}] [ApplyEffect {836045448945477}: Slowed (Physical) {4083955552747806}] ()
+[00:22:38.905] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636451747] [Whirling Blade {4083955552747520}] [RemoveEffect {836045448945478}: Slowed (Physical) {4083955552747806}] ()
+[00:22:38.925] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636451747] [Whirling Blade {4083955552747520}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1186* energy {836045448940874} -shield {836045448945509} (618 absorbed {836045448945511})) <1186>
+[00:22:38.925] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636451747] [] [Event {836045448945472}: Death {836045448945493}] ()
+[00:22:40.110] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel:Kira Carsen {349412769398784}] [Wrist Laser {2166437338677248}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (393 energy {836045448940874}) <393>
+[00:22:40.236] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:22:40.236] [Imperial Service Droid {975339828281344}:72660636451653] [@Zarn Ciel] [Poisoned (Physical) {2288062222565633}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (81 internal {836045448940876}) <81>
+[00:22:40.237] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Ameliorating Force {3770719292882944}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:40.238] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Ameliorating Force {3770719292882944}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (294) <58>
+[00:22:40.622] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (764*) <76>
+[00:22:40.623] [Imperial Service Droid {975339828281344}:72660636451747] [@Zarn Ciel] [Poisoned (Physical) {2288062222565633}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (81 internal {836045448940876})
+[00:22:41.046] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Self Preservation {4238737584160768}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (660)
+[00:22:41.144] [Imperial Service Droid {975339828281344}:72660636451653] [@Zarn Ciel] [Toxic Dart {2288062222565376}] [RemoveEffect {836045448945478}: Poisoned (Physical) {2288062222565633}] ()
+[00:22:41.145] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (328)
+[00:22:41.245] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Ameliorating Force {3770719292882944}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (306)
+[00:22:41.753] [@Zarn Ciel] [@Zarn Ciel] [Blade Storm {1191698805817344}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:41.753] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (4)
+[00:22:41.753] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:22:42.055] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636451653] [Blade Storm {1191698805817344}] [ApplyEffect {836045448945477}: Stunned (Force) {1191698805817822}] ()
+[00:22:42.056] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Ameliorating Force {3770719292882944}] [Event {836045448945472}: AbilityCancel {836045448945481}] ()
+[00:22:42.056] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Service Droid {975339828281344}:72660636451653] [Force Detain {3696235970035712}] [ApplyEffect {836045448945477}: Grounded {3696235970035996}] ()
+[00:22:42.057] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Service Droid {975339828281344}:72660636451653] [Force Detain {3696235970035712}] [RemoveEffect {836045448945478}: Detained (Force) {3696235970035990}] ()
+[00:22:42.057] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636451653] [Blade Storm {1191698805817344}] [RemoveEffect {836045448945478}: Stunned (Force) {1191698805817822}] ()
+[00:22:42.057] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Service Droid {975339828281344}:72660636451653] [Force Detain {3696235970035712}] [RemoveEffect {836045448945478}: Grounded {3696235970035996}] ()
+[00:22:42.057] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [RemoveEffect {836045448945478}: Force Rush {1280780722503680}] ()
+[00:22:42.278] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636451653] [Blade Storm {1191698805817344}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1285* kinetic {836045448940873}) <1285>
+[00:22:42.278] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636451653] [] [Event {836045448945472}: Death {836045448945493}] ()
+[00:22:43.158] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel] [Wrist Laser {2166437338677248}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (0 -miss {836045448945502}) <1>
+[00:22:43.640] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (496) <16>
+[00:22:43.640] [Imperial Service Droid {975339828281344}:72660636451747] [@Zarn Ciel] [Poisoned (Physical) {2288062222565633}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (81 internal {836045448940876})
+[00:22:44.040] [Imperial Service Droid {975339828281344}:72660636451747] [@Zarn Ciel] [Toxic Dart {2288062222565376}] [RemoveEffect {836045448945478}: Poisoned (Physical) {2288062222565633}] ()
+[00:22:44.041] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (328)
+[00:22:44.650] [@Zarn Ciel] [@Zarn Ciel] [Saber Throw {812165430771712}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:44.651] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (3)
+[00:22:45.106] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel:Kira Carsen {349412769398784}] [Wrist Laser {2166437338677248}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (463 energy {836045448940874}) <463>
+[00:22:45.252] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451795] [Sundering Throw {2848894757109760}] [ApplyEffect {836045448945477}: Sundered (Physical) {2848894757110042}] ()
+[00:22:45.257] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451795] [Saber Throw {812165430771712}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (668 energy {836045448940874}) <668>
+[00:22:45.953] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Self Preservation {4238737584160768}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (660)
+[00:22:46.753] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Removal Droid {2074026822336512}:72660636451795] [Melee Attack {813625719652352}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (328* energy {836045448940874}) <131>
+[00:22:46.964] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (328)
+[00:22:46.965] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [RemoveEffect {836045448945478}: Mending {3569512959967232}] ()
+[00:22:47.005] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Removal Droid {2074026822336512}:72660636451795] [Melee Attack {813625719652352}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (215 energy {836045448940874}) <86>
+[00:22:47.159] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:22:47.160] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (502) <9>
+[00:22:47.261] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel] [Wrist Laser Burst {2166527532990464}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (47 energy {836045448940874}) <47>
+[00:22:47.524] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel] [Wrist Laser Burst {2166527532990464}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (47 energy {836045448940874}) <47>
+[00:22:47.774] [@Zarn Ciel] [@Zarn Ciel] [Vigilant Thrust {3503417708249088}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:47.774] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [ApplyEffect {836045448945477}: Force Rush {1280780722503680}] ()
+[00:22:47.774] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:22:47.811] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel] [Wrist Laser Burst {2166527532990464}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (54 energy {836045448940874}) <54>
+[00:22:47.967] [@Zarn Ciel] [@Zarn Ciel] [Ardent Advocate {3621516423987200}] [RemoveEffect {836045448945478}: Ardent Advocate {3621516423987200}] ()
+[00:22:47.968] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Ameliorating Force {3770719292882944}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:22:47.968] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Ameliorating Force {3770719292882944}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (302) <20>
+[00:22:48.073] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel] [Wrist Laser Burst {2166527532990464}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (48 energy {836045448940874}) <48>
+[00:22:48.369] [@Zarn Ciel] [@Zarn Ciel] [] [Event {836045448945472}: ExitCombat {836045448945490}] (Balmorra)
+[00:22:48.375] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451795] [Vigilant Thrust {3503417708249088}] [ApplyEffect {836045448945477}: Stunned (Physical) {3503417708249364}] ()
+[00:22:48.376] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451795] [Sundering Throw {2848894757109760}] [RemoveEffect {836045448945478}: Sundered (Physical) {2848894757110042}] ()
+[00:22:48.377] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451795] [Vigilant Thrust {3503417708249088}] [RemoveEffect {836045448945478}: Stunned (Physical) {3503417708249364}] ()
+[00:22:48.378] [@Zarn Ciel] [@Zarn Ciel] [Sprint {810670782152704}] [ApplyEffect {836045448945477}: Sprint {810670782152704}] ()
+[00:22:48.380] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451795] [Vigilant Thrust {3503417708249088}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (959 energy {836045448940874}) <959>
+[00:22:48.380] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636451795] [] [Event {836045448945472}: Death {836045448945493}] ()
+[00:22:48.387] [Imperial Removal Droid {2074026822336512}:72660636451795] [@Zarn Ciel] [Wrist Laser Burst {2166527532990464}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (53 energy {836045448940874}) <53>
+[00:22:48.964] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Ameliorating Force {3770719292882944}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (307) <20>
+[00:22:49.975] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Ameliorating Force {3770719292882944}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (293)
+[00:22:50.975] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Ameliorating Force {3770719292882944}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (300)
+[00:23:02.838] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [RemoveEffect {836045448945478}: Force Rush {1280780722503680}] ()
+[00:23:43.859] [@Zarn Ciel] [@Zarn Ciel] [] [Event {836045448945472}: EnterCombat {836045448945489}] (Balmorra)
+[00:23:43.879] [@Zarn Ciel] [@Zarn Ciel] [Force Leap {812105301229568}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:43.879] [@Zarn Ciel] [@Zarn Ciel] [Robust {3588479535546368}] [ApplyEffect {836045448945477}: Robust {3588479535546368}] ()
+[00:23:43.880] [@Zarn Ciel] [@Zarn Ciel] [Ardent Advocate {3621516423987200}] [ApplyEffect {836045448945477}: Ardent Advocate {3621516423987200}] ()
+[00:23:43.880] [@Zarn Ciel] [@Zarn Ciel] [Sprint {810670782152704}] [RemoveEffect {836045448945478}: Sprint {810670782152704}] ()
+[00:23:43.880] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Force Leap {812105301229568}] [ApplyEffect {836045448945477}: Immobilized (Physical) {812105301229840}] ()
+[00:23:43.881] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (3)
+[00:23:43.952] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Self Preservation {4238737584160768}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (660)
+[00:23:44.452] [Imperial Removal Droid {2074026822336512}:72660636093919] [@Zarn Ciel] [Retractable Blade {811778883715072}] [ApplyEffect {836045448945477}: Bleeding (Physical) {811778883715340}] ()
+[00:23:44.452] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:23:44.452] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [RemoveEffect {836045448945478}: Protective Barrier {4238389691809792}] ()
+[00:23:44.453] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (494) <16>
+[00:23:44.490] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Force Leap {812105301229568}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (650* energy {836045448940874}) <650>
+[00:23:44.850] [Imperial Removal Droid {2074026822336512}:72660636094013] [@Zarn Ciel] [Retractable Blade {811778883715072}] [ApplyEffect {836045448945477}: Bleeding (Physical) {811778883715340}] ()
+[00:23:44.933] [Imperial Removal Droid {2074026822336512}:72660636093919] [@Zarn Ciel] [Retractable Blade {811778883715072}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (81 kinetic {836045448940873}) <81>
+[00:23:45.048] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Protective Barrier {4238389691809792}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:45.048] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Protective Barrier {4238389691809792}] ()
+[00:23:45.144] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Mending {3569512959967232}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:45.144] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Mending {3569512959967232}] ()
+[00:23:45.145] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (328) <18>
+[00:23:45.246] [Imperial Service Droid {975339828281344}:72660636093965] [@Zarn Ciel] [Toxic Dart {2288062222565376}] [ApplyEffect {836045448945477}: Poisoned (Physical) {2288062222565633}] ()
+[00:23:45.324] [Imperial Removal Droid {2074026822336512}:72660636094013] [@Zarn Ciel] [Retractable Blade {811778883715072}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (93 kinetic {836045448940873}) <93>
+[00:23:45.350] [@Zarn Ciel] [@Zarn Ciel] [Vigilant Thrust {3503417708249088}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:45.350] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [ApplyEffect {836045448945477}: Force Rush {1280780722503680}] ()
+[00:23:45.351] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:23:45.958] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (491) <5>
+[00:23:45.958] [Imperial Removal Droid {2074026822336512}:72660636094013] [@Zarn Ciel] [Bleeding (Physical) {811778883715340}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (27 internal {836045448940876}) <27>
+[00:23:45.958] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Vigilant Thrust {3503417708249088}] [ApplyEffect {836045448945477}: Stunned (Physical) {3503417708249364}] ()
+[00:23:45.959] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636094013] [Vigilant Thrust {3503417708249088}] [ApplyEffect {836045448945477}: Stunned (Physical) {3503417708249364}] ()
+[00:23:45.959] [@Zarn Ciel] [@Zarn Ciel] [Mastery Surge {3647926177890304}] [ApplyEffect {836045448945477}: Mastery Surge {3647926177890304}] ()
+[00:23:45.959] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Purifying Sweep {3430012422193152}] [ApplyEffect {836045448945477}: Sundered (Physical) {3430012422193458}] ()
+[00:23:45.959] [@Zarn Ciel] [@Zarn Ciel] [Power Surge {3647844573511680}] [ApplyEffect {836045448945477}: Power Surge {3647844573511680}] ()
+[00:23:45.959] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636094013] [Purifying Sweep {3430012422193152}] [ApplyEffect {836045448945477}: Sundered (Physical) {3430012422193458}] ()
+[00:23:45.960] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Vigilant Thrust {3503417708249088}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (913 energy {836045448940874}) <913>
+[00:23:45.960] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636094013] [Vigilant Thrust {3503417708249088}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (889 energy {836045448940874}) <889>
+[00:23:45.962] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Force Leap {812105301229568}] [RemoveEffect {836045448945478}: Immobilized (Physical) {812105301229840}] ()
+[00:23:46.950] [Imperial Removal Droid {2074026822336512}:72660636094013] [@Zarn Ciel] [Bleeding (Physical) {811778883715340}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (27 internal {836045448940876}) <27>
+[00:23:47.043] [Imperial Service Droid {975339828281344}:72660636093965] [@Zarn Ciel] [Ion Blast {2282946916515840}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (123 elemental {836045448940875}) <123>
+[00:23:47.345] [@Zarn Ciel] [@Zarn Ciel] [Blade Storm {1191698805817344}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:47.345] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (4)
+[00:23:47.345] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:23:47.452] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Blade Storm {1191698805817344}] [ApplyEffect {836045448945477}: Stunned (Force) {1191698805817822}] ()
+[00:23:47.452] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Vigilant Thrust {3503417708249088}] [RemoveEffect {836045448945478}: Stunned (Physical) {3503417708249364}] ()
+[00:23:47.453] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Purifying Sweep {3430012422193152}] [RemoveEffect {836045448945478}: Sundered (Physical) {3430012422193458}] ()
+[00:23:47.453] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Blade Storm {1191698805817344}] [RemoveEffect {836045448945478}: Stunned (Force) {1191698805817822}] ()
+[00:23:47.453] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [RemoveEffect {836045448945478}: Force Rush {1280780722503680}] ()
+[00:23:47.868] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [Blade Storm {1191698805817344}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (760 kinetic {836045448940873}) <760>
+[00:23:47.868] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636093919] [] [Event {836045448945472}: Death {836045448945493}] ()
+[00:23:47.945] [Imperial Removal Droid {2074026822336512}:72660636094013] [@Zarn Ciel] [Bleeding (Physical) {811778883715340}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (27 internal {836045448940876}) <27>
+[00:23:47.945] [@Zarn Ciel] [@Zarn Ciel] [Robust {3588479535546368}] [RemoveEffect {836045448945478}: Robust {3588479535546368}] ()
+[00:23:48.141] [Imperial Removal Droid {2074026822336512}:72660636094013] [@Zarn Ciel] [Retractable Blade {811778883715072}] [RemoveEffect {836045448945478}: Bleeding (Physical) {811778883715340}] ()
+[00:23:48.142] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (328) <54>
+[00:23:48.249] [Imperial Service Droid {975339828281344}:72660636093965] [@Zarn Ciel] [Ranged Attack {813479690764288}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (94 energy {836045448940874}) <94>
+[00:23:48.363] [Imperial Service Droid {975339828281344}:72660636093965] [@Zarn Ciel] [Poisoned (Physical) {2288062222565633}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (81 internal {836045448940876}) <81>
+[00:23:48.750] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Force Detain {3696235970035712}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:48.751] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Service Droid {975339828281344}:72660636093965] [Force Detain {3696235970035712}] [ApplyEffect {836045448945477}: Detained (Force) {3696235970035990}] ()
+[00:23:48.845] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Self Preservation {4238737584160768}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (660)
+[00:23:49.052] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636094013] [Vigilant Thrust {3503417708249088}] [RemoveEffect {836045448945478}: Stunned (Physical) {3503417708249364}] ()
+[00:23:49.246] [@Zarn Ciel] [@Zarn Ciel] [Saber Throw {812165430771712}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:49.247] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (3)
+[00:23:49.449] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (767*) <94>
+[00:23:49.849] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636094013] [Purifying Sweep {3430012422193152}] [RemoveEffect {836045448945478}: Sundered (Physical) {3430012422193458}] ()
+[00:23:49.849] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636094013] [Sundering Throw {2848894757109760}] [ApplyEffect {836045448945477}: Sundered (Physical) {2848894757110042}] ()
+[00:23:49.849] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636094013] [Saber Throw {812165430771712}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (696 energy {836045448940874}) <696>
+[00:23:49.920] [Imperial Service Droid {975339828281344}:72660636093965] [@Zarn Ciel] [Ranged Attack {813479690764288}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (0 -miss {836045448945502}) <1>
+[00:23:50.156] [Imperial Removal Droid {2074026822336512}:72660636094013] [@Zarn Ciel] [Wrist Laser {2166437338677248}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (391 energy {836045448940874}) <391>
+[00:23:51.047] [Imperial Service Droid {975339828281344}:72660636093965] [@Zarn Ciel] [Toxic Dart {2288062222565376}] [RemoveEffect {836045448945478}: Poisoned (Physical) {2288062222565633}] ()
+[00:23:51.048] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (328)
+[00:23:51.251] [@Zarn Ciel] [@Zarn Ciel] [Combat Focus {3461146640121856}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:51.251] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (6)
+[00:23:51.549] [@Zarn Ciel] [@Zarn Ciel] [Overhead Slash {2210512293068800}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:23:51.549] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (4)
+[00:23:51.549] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [ApplyEffect {836045448945477}: Force Rush {1280780722503680}] ()
+[00:23:51.549] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:23:51.549] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Ameliorating Force {3770719292882944}] [Event {836045448945472}: AbilityCancel {836045448945481}] ()
+[00:23:51.549] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Service Droid {975339828281344}:72660636093965] [Force Detain {3696235970035712}] [ApplyEffect {836045448945477}: Grounded {3696235970035996}] ()
+[00:23:51.550] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Service Droid {975339828281344}:72660636093965] [Force Detain {3696235970035712}] [RemoveEffect {836045448945478}: Detained (Force) {3696235970035990}] ()
+[00:23:51.550] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Service Droid {975339828281344}:72660636093965] [Force Detain {3696235970035712}] [RemoveEffect {836045448945478}: Grounded {3696235970035996}] ()
+[00:23:52.050] [@Zarn Ciel] [@Zarn Ciel] [Mastery Surge {3647926177890304}] [RemoveEffect {836045448945478}: Mastery Surge {3647926177890304}] ()
+[00:23:52.050] [@Zarn Ciel] [@Zarn Ciel] [Power Surge {3647844573511680}] [RemoveEffect {836045448945478}: Power Surge {3647844573511680}] ()
+[00:23:52.140] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636093965] [Overhead Slash {2210512293068800}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1186 energy {836045448940874}) <1186>
+[00:23:52.141] [@Zarn Ciel] [Imperial Service Droid {975339828281344}:72660636093965] [] [Event {836045448945472}: Death {836045448945493}] ()
+[00:23:52.450] [@Zarn Ciel] [@Zarn Ciel] [] [Event {836045448945472}: ExitCombat {836045448945490}] (Balmorra)
+[00:23:52.458] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:23:52.458] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (747*) <11>
+[00:23:52.459] [@Zarn Ciel] [Imperial Removal Droid {2074026822336512}:72660636094013] [Sundering Throw {2848894757109760}] [RemoveEffect {836045448945478}: Sundered (Physical) {2848894757110042}] ()
+[00:23:52.461] [@Zarn Ciel] [@Zarn Ciel] [Sprint {810670782152704}] [ApplyEffect {836045448945477}: Sprint {810670782152704}] ()
+[00:23:52.616] [Imperial Removal Droid {2074026822336512}:72660636094013] [@Zarn Ciel] [Wrist Laser Burst {2166527532990464}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (55 energy {836045448940874}) <55>
+[00:23:52.989] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Removal Droid {2074026822336512}:72660636094013] [Melee Attack {813625719652352}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (324* energy {836045448940874}) <130>
+[00:23:52.989] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Removal Droid {2074026822336512}:72660636094013] [] [Event {836045448945472}: Death {836045448945493}] ()
+[00:23:53.587] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Removal Droid {2074026822336512}:72660636094013] [Melee Attack {813625719652352}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (209 energy {836045448940874}) <84>
+[00:23:53.952] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (500*)
+[00:23:53.952] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Mending {3569512959967232}] [RemoveEffect {836045448945478}: Mending {3569512959967232}] ()
+[00:23:53.987] [Imperial Service Droid {975339828281344}:72660636093965] [@Zarn Ciel] [Ranged Attack {813479690764288}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (0 -miss {836045448945502}) <1>
+[00:23:58.884] [@Zarn Ciel] [@Zarn Ciel] [Ardent Advocate {3621516423987200}] [RemoveEffect {836045448945478}: Ardent Advocate {3621516423987200}] ()
+[00:24:06.698] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [RemoveEffect {836045448945478}: Force Rush {1280780722503680}] ()
+[00:24:51.375] [@Zarn Ciel] [@Zarn Ciel] [Blade Blitz {3618351033090048}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:24:51.375] [@Zarn Ciel] [@Zarn Ciel] [Blade Blitz {3618351033090048}] [ApplyEffect {836045448945477}: Blade Blitz {3618351033090048}] ()
+[00:24:52.466] [@Zarn Ciel] [@Zarn Ciel] [Blade Blitz {3618351033090048}] [RemoveEffect {836045448945478}: Blade Blitz {3618351033090048}] ()
+[00:24:53.565] [@Zarn Ciel] [@Zarn Ciel] [] [Event {836045448945472}: EnterCombat {836045448945489}] (Balmorra)
+[00:24:53.589] [@Zarn Ciel] [@Zarn Ciel] [Force Leap {812105301229568}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:24:53.590] [@Zarn Ciel] [@Zarn Ciel] [Robust {3588479535546368}] [ApplyEffect {836045448945477}: Robust {3588479535546368}] ()
+[00:24:53.590] [@Zarn Ciel] [@Zarn Ciel] [Ardent Advocate {3621516423987200}] [ApplyEffect {836045448945477}: Ardent Advocate {3621516423987200}] ()
+[00:24:53.590] [@Zarn Ciel] [@Zarn Ciel] [Sprint {810670782152704}] [RemoveEffect {836045448945478}: Sprint {810670782152704}] ()
+[00:24:53.591] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Force Leap {812105301229568}] [ApplyEffect {836045448945477}: Immobilized (Physical) {812105301229840}] ()
+[00:24:53.591] [@Zarn Ciel] [@Zarn Ciel] [Power Surge {3647844573511680}] [ApplyEffect {836045448945477}: Power Surge {3647844573511680}] ()
+[00:24:53.592] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (3)
+[00:24:54.163] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:24:54.163] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (485) <27>
+[00:24:54.209] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Force Leap {812105301229568}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (416 energy {836045448940874}) <416>
+[00:24:54.263] [@Zarn Ciel] [@Zarn Ciel] [Combat Focus {3461146640121856}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:24:54.264] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (6)
+[00:24:54.281] [Imperial Excavation Droid {2055159031005184}:72660633988960] [@Zarn Ciel] [Ranged Attack {813514050502656}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (139 energy {836045448940874}) <139>
+[00:24:54.296] [Imperial Excavation Droid {2055159031005184}:72660633988960] [@Zarn Ciel] [Ranged Attack {813514050502656}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (0 -miss {836045448945502}) <1>
+[00:24:54.560] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Force Detain {3696235970035712}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:24:54.561] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Force Detain {3696235970035712}] [ApplyEffect {836045448945477}: Detained (Force) {3696235970035990}] ()
+[00:24:55.079] [@Zarn Ciel] [@Zarn Ciel] [Overhead Slash {2210512293068800}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:24:55.080] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (4)
+[00:24:55.080] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [ApplyEffect {836045448945477}: Force Rush {1280780722503680}] ()
+[00:24:55.080] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:24:55.080] [@Zarn Ciel] [@Zarn Ciel] [Mastery Surge {3647926177890304}] [ApplyEffect {836045448945477}: Mastery Surge {3647926177890304}] ()
+[00:24:55.081] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Burning Purpose {3429814853697536}] [ApplyEffect {836045448945477}: Burning (Burning Purpose) {3429814853697796}] ()
+[00:24:55.081] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Burning Purpose {3429814853697536}] [ApplyEffect {836045448945477}: Beat Down (Physical) {3429814853697820}] ()
+[00:24:55.664] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Force Leap {812105301229568}] [RemoveEffect {836045448945478}: Immobilized (Physical) {812105301229840}] ()
+[00:24:55.743] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Overhead Slash {2210512293068800}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1260 energy {836045448940874}) <1260>
+[00:24:56.066] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Ameliorating Force {3770719292882944}] [Event {836045448945472}: AbilityCancel {836045448945481}] ()
+[00:24:56.067] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Force Detain {3696235970035712}] [ApplyEffect {836045448945477}: Grounded {3696235970035996}] ()
+[00:24:56.068] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Force Detain {3696235970035712}] [RemoveEffect {836045448945478}: Detained (Force) {3696235970035990}] ()
+[00:24:56.068] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Burning (Burning Purpose) {3429814853697796}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (47 elemental {836045448940875}) <47>
+[00:24:56.574] [@Zarn Ciel] [@Zarn Ciel] [Riposte {812156840837120}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:24:56.574] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (2)
+[00:24:56.574] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:24:56.575] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel:Kira Carsen {349412769398784}] [Self Preservation {4238737584160768}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (660)
+[00:24:57.044] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Riposte {812156840837120}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (776 energy {836045448940874}) <776>
+[00:24:57.061] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Burning (Burning Purpose) {3429814853697796}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (73* elemental {836045448940875}) <73>
+[00:24:57.271] [@Zarn Ciel] [@Zarn Ciel] [Fortuitous Redoubt {4307259492401152}] [ApplyEffect {836045448945477}: Fortuitous Redoubt {4307259492401152}] ()
+[00:24:57.390] [Imperial Excavation Droid {2055159031005184}:72660633988960] [@Zarn Ciel] [Ranged Attack {813514050502656}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (0 -deflect {836045448945508}) <1>
+[00:24:57.663] [@Zarn Ciel] [@Zarn Ciel] [Robust {3588479535546368}] [RemoveEffect {836045448945478}: Robust {3588479535546368}] ()
+[00:24:57.972] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Burning (Burning Purpose) {3429814853697796}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (47 elemental {836045448940875}) <47>
+[00:24:58.070] [@Zarn Ciel] [@Zarn Ciel] [Whirling Blade {4083955552747520}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:24:58.070] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (3)
+[00:24:58.071] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:24:58.672] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Whirling Blade {4083955552747520}] [ApplyEffect {836045448945477}: Slowed (Physical) {4083955552747806}] ()
+[00:24:58.679] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Whirling Blade {4083955552747520}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1209 energy {836045448940874}) <1209>
+[00:24:58.772] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [ApplyEffect {836045448945477}: Heal {836045448945500}] (505) <69>
+[00:24:58.933] [Imperial Excavation Droid {2055159031005184}:72660633988960] [@Zarn Ciel] [Ranged Attack {813514050502656}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (350 energy {836045448940874} (1 absorbed {836045448945511})) <350>
+[00:24:58.963] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Burning (Burning Purpose) {3429814853697796}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (47 elemental {836045448940875}) <47>
+[00:24:59.358] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Melee Attack {813625719652352}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (219 energy {836045448940874}) <88>
+[00:24:59.574] [@Zarn Ciel] [@Zarn Ciel] [Blade Storm {1191698805817344}] [Event {836045448945472}: AbilityActivate {836045448945479}] ()
+[00:24:59.574] [@Zarn Ciel] [@Zarn Ciel] [] [Spend {836045448945473}: focus point {836045448938496}] (4)
+[00:24:59.574] [@Zarn Ciel] [@Zarn Ciel] [] [Restore {836045448945476}: focus point {836045448938496}] (1)
+[00:24:59.580] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Melee Attack {813625719652352}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (232 energy {836045448940874}) <93>
+[00:24:59.668] [@Zarn Ciel] [@Zarn Ciel] [Power Surge {3647844573511680}] [RemoveEffect {836045448945478}: Power Surge {3647844573511680}] ()
+[00:24:59.877] [@Zarn Ciel] [@Zarn Ciel] [] [Event {836045448945472}: ExitCombat {836045448945490}] (Balmorra)
+[00:24:59.882] [@Zarn Ciel:Kira Carsen {349412769398784}] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Force Detain {3696235970035712}] [RemoveEffect {836045448945478}: Grounded {3696235970035996}] ()
+[00:24:59.882] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Whirling Blade {4083955552747520}] [RemoveEffect {836045448945478}: Slowed (Physical) {4083955552747806}] ()
+[00:24:59.882] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Burning Purpose {3429814853697536}] [RemoveEffect {836045448945478}: Burning (Burning Purpose) {3429814853697796}] ()
+[00:24:59.883] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Burning Purpose {3429814853697536}] [RemoveEffect {836045448945478}: Beat Down (Physical) {3429814853697820}] ()
+[00:24:59.884] [@Zarn Ciel] [@Zarn Ciel] [Sprint {810670782152704}] [ApplyEffect {836045448945477}: Sprint {810670782152704}] ()
+[00:24:59.884] [@Zarn Ciel] [@Zarn Ciel] [Force Rush {1280780722503680}] [RemoveEffect {836045448945478}: Force Rush {1280780722503680}] ()
+[00:25:00.194] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [Blade Storm {1191698805817344}] [ApplyEffect {836045448945477}: Damage {836045448945501}] (1316* kinetic {836045448940873}) <1316>
+[00:25:00.195] [@Zarn Ciel] [Imperial Excavation Droid {2055159031005184}:72660633988960] [] [Event {836045448945472}: Death {836045448945493}] ()
+[00:25:01.082] [@Zarn Ciel] [@Zarn Ciel] [Mastery Surge {3647926177890304}] [RemoveEffect {836045448945478}: Mastery Surge {3647926177890304}] ()
+[00:25:02.273] [@Zarn Ciel] [@Zarn Ciel] [Fortuitous Redoubt {4307259492401152}] [RemoveEffect {836045448945478}: Fortuitous Redoubt {4307259492401152}] ()
+[00:25:08.681] [@Zarn Ciel] [@Zarn Ciel] [Ardent Advocate {3621516423987200}] [RemoveEffect {836045448945478}: Ardent Advocate {3621516423987200}] ()
+[00:26:45.118] [@Zarn Ciel:Kira Carsen {349412769398784}] [@Zarn Ciel] [Protective Barrier {4238389691809792}] [RemoveEffect {836045448945478}: Protective Barrier {4238389691809792}] ()

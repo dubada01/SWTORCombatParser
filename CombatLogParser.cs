@@ -9,8 +9,8 @@ namespace SWTORCombatParser
 {
     public static class CombatLogParser
     {
-        private static Entity _characterEntity;
         private static DateTime _logDate;
+        private static string _playerName;
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
             _logDate = combatLog.Time;
@@ -22,7 +22,7 @@ namespace SWTORCombatParser
             {
                 if (logLines[i] == "")
                     break;
-                parsedLog[i] = ParseLine(logLines[i]);
+                parsedLog[i] = ParseLine(logLines[i]); ;
                 parsedLog[i].LogName = combatLog.Name;
             }
            // });
@@ -39,7 +39,17 @@ namespace SWTORCombatParser
             if (logEntryInfos.Count != 5 || value.Count == 0 || string.IsNullOrEmpty(value[0].Value))
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
 
-            return ExtractInfo(logEntryInfos.Select(v=>v.Value).ToArray(), value.Select(v => v.Value).First(),threat.Count == 0?"":threat.Select(v => v.Value).First());
+            var parsedLine =  ExtractInfo(logEntryInfos.Select(v=>v.Value).ToArray(), value.Select(v => v.Value).First(),threat.Count == 0?"":threat.Select(v => v.Value).First());
+            if (parsedLine.Source.Name == parsedLine.Target.Name)
+                _playerName = parsedLine.Target.Name;
+            if (!string.IsNullOrEmpty(_playerName))
+            {
+                if (parsedLine.Target.Name == _playerName)
+                    parsedLine.Target.IsPlayer = true;
+                if (parsedLine.Source.Name == _playerName)
+                    parsedLine.Source.IsPlayer = true;
+            }
+            return parsedLine;
         }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {
@@ -80,6 +90,7 @@ namespace SWTORCombatParser
         {
             var newValue = new Value();
             var valueParts = damageValueString.Replace("(", string.Empty).Replace(")", string.Empty).Split(' ');
+
             if (valueParts.Length == 0)
                 return newValue;
             if(valueParts.Length == 1)
@@ -93,7 +104,7 @@ namespace SWTORCombatParser
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
                 newValue.DamageType = GetValueType(valueParts[1].Replace("-", ""));
             }
-            if (valueParts.Length == 8)
+            if (valueParts.Length == 6)
             {
 
                 newValue.WasCrit = valueParts[0].Contains("*");
@@ -101,8 +112,9 @@ namespace SWTORCombatParser
                 newValue.DamageType = GetValueType(valueParts[1]);
 
                 var modifier = new Value();
-                modifier.DamageType = GetValueType(valueParts[3].Replace("-", ""));
-                modifier.DblValue = double.Parse(valueParts[5].Replace("(", ""));
+                modifier.DamageType = GetValueType(valueParts[4].Replace("-", ""));
+                modifier.DblValue = double.Parse(valueParts[3].Replace("(", ""));
+                newValue.Modifier = modifier;
             }
             return newValue;
         }
@@ -110,8 +122,8 @@ namespace SWTORCombatParser
         {
             if (value.Contains("@") && !value.Contains(":"))
             {
-                if (_characterEntity == null)
-                    _characterEntity = new Entity() { IsCharacter = true, Name = value.Replace("@", "") };
+
+                    var _characterEntity = new Entity() { IsCharacter = true, Name = value.Replace("@", "") };
                 return _characterEntity;
             }
             if (value.Contains("@") && value.Contains(":"))
@@ -159,6 +171,8 @@ namespace SWTORCombatParser
                     return DamageType.elemental;
                 case "shield":
                     return DamageType.shield;
+                case "absorbed":
+                    return DamageType.absorbed;
                 case "miss":
                     return DamageType.miss;
                 case "parry":
