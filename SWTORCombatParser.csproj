@@ -14,6 +14,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="DataStructures\ClassInfos\Classes.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DataStructures\ClassInfos\Classes.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="ScottPlot" Version="4.1.16" />
     <PackageReference Include="ScottPlot.WPF" Version="4.1.16" />

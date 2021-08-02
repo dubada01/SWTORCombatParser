@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,17 +9,34 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser
 {
+    public class CurrentCombatState
+    {
+        public string PlayerName { get; set; }
+        public SWTORClass PlayerClass { get; set; }
+        public List<CombatModifier> Modifiers { get; set; }
+        public double ThreatReductionAmmount { get; set; } = 0.1;
+    }
+    public enum CombatModfierType
+    {
+        Buff, 
+        Debuff,
+        
+    }
+    public class CombatModifier
+    {
+        public string Name { get; set; }
+        public CombatModfierType Type { get; set; }
+    }
     public static class CombatLogParser
     {
         private static DateTime _logDate;
-        private static string _playerName;
+        private static CurrentCombatState _combatState = new CurrentCombatState();
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
             _logDate = combatLog.Time;
             var logLines = combatLog.Data.Split('\n');
             var numberOfLines = logLines.Length;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
-            //Parallel.For(0, numberOfLines, i => {
             for (var i = 0; i < numberOfLines; i++)
             {
                 if (logLines[i] == "")
@@ -25,32 +44,62 @@ namespace SWTORCombatParser
                 parsedLog[i] = ParseLine(logLines[i]); ;
                 parsedLog[i].LogName = combatLog.Name;
             }
-           // });
             return parsedLog.Where(l=>l!=null).OrderBy(l=>l.TimeStamp).ToList();
+        }
+        public static void ResetState()
+        {
+            _combatState = new CurrentCombatState();
         }
         public static ParsedLogEntry ParseLine(string logEntry)
         {
-            var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]",RegexOptions.Compiled);
+            var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
 
             var secondPart = logEntry.Split(']').Last();
-            var value = Regex.Matches(secondPart, @"\(.*?\)",RegexOptions.Compiled);
+            var value = Regex.Matches(secondPart, @"\(.*?\)", RegexOptions.Compiled);
             var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
 
             if (logEntryInfos.Count != 5 || value.Count == 0 || string.IsNullOrEmpty(value[0].Value))
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
 
-            var parsedLine =  ExtractInfo(logEntryInfos.Select(v=>v.Value).ToArray(), value.Select(v => v.Value).First(),threat.Count == 0?"":threat.Select(v => v.Value).First());
-            if (parsedLine.Source.Name == parsedLine.Target.Name)
-                _playerName = parsedLine.Target.Name;
-            if (!string.IsNullOrEmpty(_playerName))
-            {
-                if (parsedLine.Target.Name == _playerName)
-                    parsedLine.Target.IsPlayer = true;
-                if (parsedLine.Source.Name == _playerName)
-                    parsedLine.Source.IsPlayer = true;
-            }
+            var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Select(v => v.Value).First(), threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
+            UpdatePlayerState(parsedLine);
+            UpdateClassState(parsedLine);
+            UpdateCombatModifierState(parsedLine);
+            UpdateEffectiveHealValues(parsedLine);
             return parsedLine;
         }
+        private static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog)
+        {
+            if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsPlayer)
+            {
+                var effectiveAmmount = parsedLog.Threat * (2d / (1-_combatState.ThreatReductionAmmount));
+                parsedLog.Value.EffectiveDblValue = effectiveAmmount;
+            }
+        }
+        private static void UpdateCombatModifierState(ParsedLogEntry parsedLine)
+        {
+            
+        }
+        private static void UpdateClassState(ParsedLogEntry parsedLine)
+        {
+            var swtorClass = ClassIdentifier.IdentifyClass(parsedLine);
+            if (swtorClass == null)
+                return;
+            _combatState.PlayerClass = swtorClass;
+        }
+        private static void UpdatePlayerState(ParsedLogEntry parsedLine)
+        {
+            if (parsedLine.Source.Name == parsedLine.Target.Name)
+                _combatState.PlayerName = parsedLine.Target.Name;
+            if (!string.IsNullOrEmpty(_combatState.PlayerName))
+            {
+                if (parsedLine.Target.Name == _combatState.PlayerName)
+                    parsedLine.Target.IsPlayer = true;
+                if (parsedLine.Source.Name == _combatState.PlayerName)
+                    parsedLine.Source.IsPlayer = true;
+            }
+        }
+
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {
             if (entryInfo.Length == 0)

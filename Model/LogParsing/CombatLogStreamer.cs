@@ -72,6 +72,7 @@ namespace SWTORCombatParser
             }
             if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "EnterCombat")
             {
+                CombatLogParser.ResetState();
                 _isInCombat = true;
                 CombatStarted(parsedLine.Source.Name);
             }

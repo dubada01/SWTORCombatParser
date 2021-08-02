@@ -38,6 +38,7 @@ namespace SWTORCombatParser
     public class Value
     {
         public double DblValue;
+        public double EffectiveDblValue;
         public string StrValue;
 
         public ValueType Type;

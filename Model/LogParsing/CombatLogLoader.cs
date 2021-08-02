@@ -15,7 +15,8 @@ namespace SWTORCombatParser
     }
     public static class CombatLogLoader
     {
-        private static string _logPath = @"C:\Users\duban\Documents\Star Wars - The Old Republic\CombatLogs";
+        private static string _logPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+
         public static CombatLogFile[] LoadAllCombatLogs()
         {
             if (!Directory.Exists(_logPath))
@@ -28,7 +29,7 @@ namespace SWTORCombatParser
                 combatLogsData[i] = LoadCombatLog(filePath);
             });
 
-            return combatLogsData.OrderByDescending(v => v.Time).ToArray();
+            return combatLogsData.Where(l=>l.Data!="").OrderByDescending(v => v.Time).ToArray();
         }
         public static LogContents GetMostRecentCombats()
         {
