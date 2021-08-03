@@ -9,6 +9,7 @@ namespace SWTORCombatParser
         public ErrorType Error;
 
         public string LogName;
+        public string LogText;
         public DateTime TimeStamp;
         public Entity Source;
         public Entity Target;

@@ -25,8 +25,8 @@ namespace SWTORCombatParser
         {
             double sum = 0;
             var sums = new List<double>();
-            if(checkEffective)
-                sums = totalLogsDuringCombat.Select((l) => sum += (l.Value.DblValue-((l.Value.Modifier?.DblValue) ?? 0))).ToList();
+            if(!checkEffective)
+                sums = totalLogsDuringCombat.Select((l) => sum += l.Value.DblValue - ((l.Value.Modifier?.DblValue) ?? 0)).ToList();
             else
                 sums = totalLogsDuringCombat.Select((l) => sum += l.Value.EffectiveDblValue).ToList();
             return sums.Select((s,i)=>s/ (timeStamps[i])).ToArray();

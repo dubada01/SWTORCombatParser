@@ -31,21 +31,12 @@ namespace SWTORCombatParser
 
             return combatLogsData.Where(l=>l.Data!="").OrderByDescending(v => v.Time).ToArray();
         }
-        public static LogContents GetMostRecentCombats()
-        {
-            foreach(var log in LoadAllCombatLogs().Where(l => l.Data != ""))
-            {
-                var currentLogs = CombatLogParser.ParseAllLines(log);
-                var check = currentLogs.Any(l => l.Effect.EffectName == "EnterCombat");
-                if (check)
-                    return CombatIdentifier.GetActiveCombatLogs(currentLogs);
-            }
-            return null;
-        }
-             
+            
         public static CombatLogFile LoadMostRecentLog()
         {
-            return LoadAllCombatLogs()[0];
+            var files = new DirectoryInfo(_logPath).EnumerateFiles();
+            var mostRecentFile = files.OrderByDescending(f => f.LastWriteTime).ToList()[0];
+            return LoadSpecificLog(mostRecentFile.FullName);
         }
         public static CombatLogFile LoadMostRecentPopulatedLog()
         {

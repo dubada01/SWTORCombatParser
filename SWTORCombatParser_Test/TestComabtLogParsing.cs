@@ -20,21 +20,5 @@ namespace SWTORCombatParser_Test
                 , logName));
             var parsedLog = CombatLogParser.ParseAllLines(specificLog);
         }
-        [Test]
-        public void TestIdentifyCombat()
-        {
-            var logName = "combat_2021-07-11_15_39_07_966187.txt";
-            var specificLog = CombatLogLoader.LoadSpecificLog(Path.Combine(_logPath
-                , logName));
-            var parsedLog = CombatLogParser.ParseAllLines(specificLog);
-            var combats = CombatIdentifier.GetActiveCombatLogs(parsedLog);
-
-
-        }
-        [Test]
-        public void TestGetMostRecentCombat()
-        {
-            var recentCombats = CombatLogLoader.GetMostRecentCombats();
-        }
     }
 }

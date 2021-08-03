@@ -1,1 +1,69 @@
-{"Name":"Sorcerer","Discipline":"Corruption", "Abilities":[{"Name":"Heal1","Threatless":true}],"UniqueAbilities":["UniqueAbilitiy1"]}
+{
+  "AllClasses": [
+    {
+      "Name": "Sorcerer",
+      "Discipline": "Corruption",
+      "SpecialThreatAbilities": [
+        {
+          "Name": "Unatrual Prerservation",
+          "Threatless": true
+        },
+        {
+          "Name": "Empowered Restore",
+          "StaticThreat": true
+        },
+        {
+          "Name": "Empowered Restoration",
+          "StaticThreat": true
+        },
+        {
+          "Name": "Unlimited Power",
+          "StaticThreat": true
+        }
+      ],
+      "UniqueAbilities": [ "Dark Infusion", "Innervate", "Revivification", "Roaming Mend" ]
+    },
+    {
+      "Name": "Operative",
+      "Discipline": "Medicine",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Kolto Injection", "Recuperative Nanotech", "Surgical Probe", "Kolto Waves" ]
+    },
+    {
+      "Name": "Mercenary",
+      "Discipline": "Bodyguard",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Healing Scan", "Kolto Shell", "Progressive Scan" ]
+    },
+    {
+      "Name": "Sage",
+      "Discipline": "Seer",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Deliverance", "Healing Trance", "Salvation", "Wandering Mend" ]
+    },
+    {
+      "Name": "Scoundrel",
+      "Discipline": "Sawbones",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Underworld Medicine", "Kolto Cloud", "Emergency Medpac", "Kolto Waves" ]
+    },
+    {
+      "Name": "Commando",
+      "Discipline": "Combat Medic",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Advanced Medical Probe", "Kolto Bomb", "Successive Treatment" ]
+    },
+    {
+      "Name": "Juggernaut",
+      "Discipline": "Immortal",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Aegis Assault", "Crushing Blow", "Backhand","Invicible" ]
+    }
+  ]
+}

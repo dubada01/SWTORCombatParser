@@ -59,14 +59,14 @@ namespace SWTORCombatParser
             
 
             TestIdentifyCombat();
-            VerifyUsingMostRecentLogFile();
+            //VerifyUsingMostRecentLogFile();
             GridView.Plot.XLabel("Combat Duration (s)");
             GridView.Plot.YLabel("Ammount");
             
             GridView.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 2,title:"Rate");
-            GridView.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 3, title: "Estimated HP");
+            //GridView.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 3, title: "Estimated HP");
             GridView.Plot.Style(ScottPlot.Style.Gray2);
-            GridView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 3);
+           // GridView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 3);
             GridView.Plot.Legend();
 
             _plotViewModel.SetUpLegend(new List<PlotType> { PlotType.DamageOutput, PlotType.DamageTaken, PlotType.HealingOutput, PlotType.HealingTaken });
@@ -81,7 +81,13 @@ namespace SWTORCombatParser
                 GridView.Render();
             });
         }
-
+        public void RenderAndResize()
+        {
+            Dispatcher.Invoke(() => {
+                GridView.Plot.AxisAuto();
+                GridView.Render();
+            });
+        }
         private void CombatStarted(string characterName)
         {
             Trace.WriteLine("CombatStarted");
@@ -106,7 +112,12 @@ namespace SWTORCombatParser
             });
             
             _totalLogsDuringCombat.Clear();
-            
+            //var logState = CombatLogParser.BuildLogState(CombatLogLoader.LoadSpecificLog(System.IO.Path.Join("TestCombatLogs", _currentLogName)));
+            //var abilities = logState.Modifiers.Select(m => m.Name).Distinct();
+            //var durations = logState.Modifiers.Where(m=>m.StartTime >= obj.First().TimeStamp && m.StopTime < obj.Last().TimeStamp).GroupBy(v => v.Name, v => v.DurationSeconds, (name, durations) => new { Name = name, SumOfDurations = durations.Sum(), CountOfAbilities = durations.Count() }).OrderByDescending(effect => effect.SumOfDurations);
+            //Trace.WriteLine("------ABILITY DURATIONS------");
+            //Trace.WriteLine(combatInfo.DurationSeconds);
+            //durations.ToList().ForEach(a => Trace.WriteLine("Ability: " + a.Name + " Duration: " + a.SumOfDurations+ " Number of: "+a.CountOfAbilities));
         }
         private void SelectCombat(PastCombat selectedCombat)
         {
@@ -156,46 +167,14 @@ namespace SWTORCombatParser
             MaxEffectiveHealingValue.Text = combatToPlot.MaxEffectiveHeal.ToString("#,##0");
         }
 
-       
-        //private void PlotEstimatedHP(Combat combat)
-        //{
-        //    double currentHP = 300000;
-        //    var damageEntries = combat.Logs.Where(l => l.Effect.EffectName == "Damage" && l.Target.IsPlayer).ToList();
-        //    var healsTaken = combat.Logs.Where(l => l.Effect.EffectName == "Heal" && l.Target.IsPlayer).ToList();
-        //    var damageTimeStamps = damageEntries.Select(d => d.TimeStamp);
-        //    var healsTimeStamps = healsTaken.Select(h => h.TimeStamp);
-        //    var totalTimeStamps = new List<DateTime>();
-        //    totalTimeStamps.AddRange(healsTimeStamps);
-        //    totalTimeStamps.AddRange(damageTimeStamps);
-        //    var orderedTimeStamps = totalTimeStamps.OrderBy(t=>t).ToList();
-
-        //    var hpOverTime = new List<double>();
-        //    foreach(var timeStamp in orderedTimeStamps)
-        //    {
-        //        var tryGetDamage = damageEntries.FirstOrDefault(d => d.TimeStamp == timeStamp);
-        //        if (tryGetDamage != null)
-        //        {
-        //            var modifierValue = ((tryGetDamage.Value.Modifier?.DblValue) ?? 0);
-        //            var resultingDamage = tryGetDamage.Value.DblValue - modifierValue;
-        //            currentHP -= resultingDamage;
-        //        }
-        //        var trygetHealing = healsTaken.FirstOrDefault(d => d.TimeStamp == timeStamp);
-        //        if (trygetHealing != null)
-        //            currentHP += trygetHealing.Threat * 2;
-        //        hpOverTime.Add(currentHP);
-        //    }
-        //    var timeValues = orderedTimeStamps.Select(v => (v-combat.StartTime).TotalSeconds).ToArray();
-        //    var values = GridView.Plot.AddScatter(timeValues, hpOverTime.ToArray(), lineStyle: ScottPlot.LineStyle.Dash, markerShape: ScottPlot.MarkerShape.none, label: "HP", color: System.Drawing.Color.Magenta);
-        //    values.YAxisIndex = 3;
-
-        //}
-
         public void TestIdentifyCombat()
         {
-            var combats = CombatIdentifier.GetMostRecentLogsCombat();
-            //var combats = CombatIdentifier.GetSpecificCombats(System.IO.Path.Join(_logPath,"combat_2021-07-11_19_01_39_463431.txt"));
-            _currentLogName = combats.SourceLog;
-            _combatLogStreamer.MonitorLog(System.IO.Path.Combine(_logPath, _currentLogName));
+            // var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
+            var mostRecentLog = CombatLogLoader.LoadSpecificLog(System.IO.Path.Join("TestCombatLogs", "combat_2021-07-11_20_54_51_389708.txt"));
+            _currentLogName = mostRecentLog.Name;
+            CombatLogParser.BuildLogState(mostRecentLog);
+            //_combatLogStreamer.MonitorLog(System.IO.Path.Join(_logPath, mostRecentLog.Name));
+            _combatLogStreamer.MonitorLog(System.IO.Path.Join("TestCombatLogs", "combat_2021-07-11_20_54_51_389708.txt"));
         }
         private void VerifyUsingMostRecentLogFile()
         {

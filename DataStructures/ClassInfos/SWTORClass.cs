@@ -24,7 +24,7 @@ namespace SWTORCombatParser.DataStructures
         public string Discipline { get; set; }
         public Role Role { get; set; }
         public List<string> UniqueAbilities { get; set; }
-        public List<Ability> Abilities { get; set; }
+        public List<Ability> SpecialThreatAbilities { get; set; }
     }
 
 }

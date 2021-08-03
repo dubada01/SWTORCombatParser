@@ -36,13 +36,13 @@ namespace SWTORCombatParser.Plotting
                         AddSeries(plotType,"Damage Output",Color.MediumVioletRed);
                         break;
                     case PlotType.DamageTaken:
-                        AddSeries(plotType, "Damage Incoming",Color.CornflowerBlue);
+                        AddSeries(plotType, "Damage Incoming",Color.Peru);
                         break;
                     case PlotType.HealingOutput:
-                        AddSeries(plotType, "Heal Output", Color.SeaGreen,true);
+                        AddSeries(plotType, "Heal Output", Color.LimeGreen,true);
                         break;
                     case PlotType.HealingTaken:
-                        AddSeries(plotType, "Heal Incoming", Color.Olive,true);
+                        AddSeries(plotType, "Heal Incoming", Color.CornflowerBlue);
                         break;
                     default:
                         Trace.WriteLine("Invalid Series");
@@ -72,13 +72,15 @@ namespace SWTORCombatParser.Plotting
                 series.Abilities = abilityNames;
                 series.Points = _plotToManage.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: MarkerShape.filledCircle, label: series.Name, color: series.Color, markerSize: 10);
                 series.Line = _plotToManage.Plot.AddScatter(plotXvals, plotYvalSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: series.Name + "/s", color: series.Color);
+                series.Line.YAxisIndex = 2;
                 if (series.Legend.HasEffective)
                 {
                     var effectiveYVals = PlotMaker.GetPlotYVals(applicableData, series.Legend.HasEffective);
                     var effectiveYValSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals, series.Legend.HasEffective);
                     
-                    series.EffectivePoints = _plotToManage.Plot.AddScatter(plotXvals, effectiveYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Effective" + series.Name, color: LightenColor(series.Color), markerSize: 15);
-                    series.EffectiveLine = _plotToManage.Plot.AddScatter(plotXvals, effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + series.Name + "/s", color: LightenColor(series.Color));
+                    series.EffectivePoints = _plotToManage.Plot.AddScatter(plotXvals, effectiveYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Effective" + series.Name, color: Color.WhiteSmoke, markerSize: 15);
+                    series.EffectiveLine = _plotToManage.Plot.AddScatter(plotXvals, effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + series.Name + "/s", color: Color.WhiteSmoke);
+                    series.EffectiveLine.YAxisIndex = 2;
                     series.EffectivePoints.IsVisible = series.Legend.EffectiveChecked;
                     series.EffectiveLine.IsVisible = series.Legend.EffectiveChecked;
                 }
@@ -86,6 +88,7 @@ namespace SWTORCombatParser.Plotting
                 series.Points.IsVisible = series.Legend.Checked;
                 series.Line.IsVisible = series.Legend.Checked;
             }
+            _plotToManage.Plot.AxisAuto();
         }
         public ObservableCollection<InteractiveLegendViewModel> GetLegends()
         {
@@ -157,7 +160,10 @@ namespace SWTORCombatParser.Plotting
             series.Legend = legend;
             series.Annotation = _plotToManage.Plot.PlotAnnotation("test", 0, 0, fontSize: 25, lineColor: series.Color, fillColor: Color.LightGray, fontColor: Color.WhiteSmoke);
             series.Annotation.IsVisible = false;
-            series.TriggerRender += ()=>_gridView.RenderPlot();
+            series.TriggerRender += () =>
+            {
+                _gridView.RenderAndResize();
+            };
             _seriesToPlot.Add(series);
         }
 

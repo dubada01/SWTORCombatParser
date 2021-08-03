@@ -37,6 +37,7 @@ namespace SWTORCombatParser
         }
         private void GenerateNewFrame()
         {
+            CombatLogParser.BuildLogState(CombatLogLoader.LoadSpecificLog(_logToMonitor));
             _currentFrameData = new List<ParsedLogEntry>();
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, Encoding.Default))
@@ -72,7 +73,6 @@ namespace SWTORCombatParser
             }
             if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "EnterCombat")
             {
-                CombatLogParser.ResetState();
                 _isInCombat = true;
                 CombatStarted(parsedLine.Source.Name);
             }
