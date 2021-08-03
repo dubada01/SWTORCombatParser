@@ -16,6 +16,7 @@ namespace SWTORCombatParser
 
         public List<ParsedLogEntry> OutgoingDamageLogs;
         public List<ParsedLogEntry> IncomingDamageLogs;
+        public List<ParsedLogEntry> IncomingSheildedLogs;
         public List<ParsedLogEntry> OutgoingHealingLogs;
         public List<ParsedLogEntry> IncomingHealingLogs;
 

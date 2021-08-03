@@ -42,8 +42,7 @@ namespace SWTORCombatParser
         public double EffectiveDblValue;
         public string StrValue;
 
-        public ValueType Type;
-        public DamageType DamageType;
+        public DamageType ValueType;
 
         public Value Modifier;
         public bool WasCrit;

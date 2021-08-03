@@ -19,6 +19,8 @@ namespace SWTORCombatParser
 
             combatToPopulate.IncomingDamageLogs = incomingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
             combatToPopulate.IncomingHealingLogs = incomingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
+            var test = combatToPopulate.IncomingDamageLogs.Where(l => l.Value.Modifier != null).ToList();
+            combatToPopulate.IncomingSheildedLogs = combatToPopulate.IncomingDamageLogs.Where(l => l.Value.Modifier!=null && l.Value.Modifier.ValueType == DamageType.shield).ToList();
 
             var totalHealing = combatToPopulate.OutgoingHealingLogs.Sum(l => l.Value.DblValue);
             var totalEffectiveHealing = combatToPopulate.OutgoingHealingLogs.Sum(l => l.Value.EffectiveDblValue);
@@ -32,7 +34,7 @@ namespace SWTORCombatParser
 
             var totalDamageTaken = combatToPopulate.IncomingDamageLogs.Sum(l => l.Value.DblValue - (l.Value.Modifier?.DblValue)??0);
 
-            var sheildingLogs = incomingLogs.Where(l => l.Value.Modifier != null && l.Value.Modifier.DamageType == DamageType.shield);
+            var sheildingLogs = incomingLogs.Where(l => l.Value.Modifier != null && l.Value.Modifier.ValueType == DamageType.shield);
 
             var totalSheildingDone = sheildingLogs.Count() == 0 ? 0: sheildingLogs.Sum(l => l.Value.Modifier.DblValue);
 

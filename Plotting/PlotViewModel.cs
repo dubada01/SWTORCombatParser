@@ -15,6 +15,7 @@ namespace SWTORCombatParser.Plotting
         DamageTaken,
         HealingOutput,
         HealingTaken,
+        SheildedDamageTaken
     }
     public class PlotViewModel
     {
@@ -36,7 +37,10 @@ namespace SWTORCombatParser.Plotting
                         AddSeries(plotType,"Damage Output",Color.MediumVioletRed);
                         break;
                     case PlotType.DamageTaken:
-                        AddSeries(plotType, "Damage Incoming",Color.Peru);
+                        AddSeries(plotType, "Damage Incoming",Color.Peru,true);
+                        break;
+                    case PlotType.SheildedDamageTaken:
+                        AddSeries(plotType, "Sheilded Damage Incoming", Color.Magenta);
                         break;
                     case PlotType.HealingOutput:
                         AddSeries(plotType, "Heal Output", Color.LimeGreen,true);
@@ -68,7 +72,7 @@ namespace SWTORCombatParser.Plotting
                 var plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
                 var plotYvals = PlotMaker.GetPlotYVals(applicableData,false);
                 var plotYvalSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals,false);
-                List<string> abilityNames = PlotMaker.GetAbilitityNames(applicableData);
+                List<string> abilityNames = PlotMaker.GetAnnotationString(applicableData);
                 series.Abilities = abilityNames;
                 series.Points = _plotToManage.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: MarkerShape.filledCircle, label: series.Name, color: series.Color, markerSize: 10);
                 series.Line = _plotToManage.Plot.AddScatter(plotXvals, plotYvalSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: series.Name + "/s", color: series.Color);
@@ -141,6 +145,8 @@ namespace SWTORCombatParser.Plotting
                     return combatToPlot.OutgoingHealingLogs;
                 case PlotType.HealingTaken:
                     return combatToPlot.IncomingHealingLogs;
+                case PlotType.SheildedDamageTaken:
+                    return combatToPlot.IncomingSheildedLogs;
 
             }
             return null;

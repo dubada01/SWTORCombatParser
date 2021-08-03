@@ -138,7 +138,7 @@ namespace SWTORCombatParser
 
             if (valueParts.Length == 0)
                 return newValue;
-            if(valueParts.Length == 1)
+            if (valueParts.Length == 1)
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
@@ -147,20 +147,37 @@ namespace SWTORCombatParser
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
-                newValue.DamageType = GetValueType(valueParts[1].Replace("-", ""));
+                newValue.EffectiveDblValue = newValue.DblValue;
+                newValue.ValueType = GetValueType(valueParts[1].Replace("-", ""));
             }
             if (valueParts.Length == 6)
             {
+                var modifier = new Value();
+                modifier.ValueType = GetValueType(valueParts[4].Replace("-", ""));
+                modifier.DblValue = double.Parse(valueParts[3].Replace("(", ""));
+                modifier.EffectiveDblValue = modifier.DblValue;
+                newValue.Modifier = modifier;
+
+                newValue.WasCrit = valueParts[0].Contains("*");
+                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", ""))-modifier.EffectiveDblValue;
+                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
+                newValue.ValueType = GetValueType(valueParts[1]);
+            }
+            if (valueParts.Length == 8)
+            {
+                var modifier = new Value();
+                modifier.ValueType = GetValueType(valueParts[3].Replace("-", ""));
+                modifier.DblValue = double.Parse(valueParts[5].Replace("(", ""));
+                modifier.EffectiveDblValue = Math.Min(double.Parse(valueParts[0].Replace("*", "")),  modifier.DblValue);
+                newValue.Modifier = modifier;
 
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
-                newValue.DamageType = GetValueType(valueParts[1]);
+                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", ""))-modifier.EffectiveDblValue;
+                newValue.ValueType = GetValueType(valueParts[1]);
 
-                var modifier = new Value();
-                modifier.DamageType = GetValueType(valueParts[4].Replace("-", ""));
-                modifier.DblValue = double.Parse(valueParts[3].Replace("(", ""));
-                newValue.Modifier = modifier;
             }
+
             return newValue;
         }
         private static Entity ParseEntity(string value)

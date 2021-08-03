@@ -17,7 +17,7 @@ namespace SWTORCombatParser
         internal static double[] GetPlotYVals(List<ParsedLogEntry> totalLogsDuringCombat,bool checkEffective)
         {
             if(!checkEffective)
-                return totalLogsDuringCombat.Select(l => l.Value.DblValue - ((l.Value.Modifier?.DblValue) ?? 0)).ToArray();
+                return totalLogsDuringCombat.Select(l => l.Value.DblValue).ToArray();
             else
                 return totalLogsDuringCombat.Select(l => l.Value.EffectiveDblValue).ToArray();
         }
@@ -26,15 +26,24 @@ namespace SWTORCombatParser
             double sum = 0;
             var sums = new List<double>();
             if(!checkEffective)
-                sums = totalLogsDuringCombat.Select((l) => sum += l.Value.DblValue - ((l.Value.Modifier?.DblValue) ?? 0)).ToList();
+                sums = totalLogsDuringCombat.Select((l) => sum += l.Value.DblValue).ToList();
             else
                 sums = totalLogsDuringCombat.Select((l) => sum += l.Value.EffectiveDblValue).ToList();
             return sums.Select((s,i)=>s/ (timeStamps[i])).ToArray();
         }
 
-        internal static List<string> GetAbilitityNames(List<ParsedLogEntry> data)
+        internal static List<string> GetAnnotationString(List<ParsedLogEntry> data)
         {
-            return data.Select(d => d.Ability).ToList();
+            return data.Select(d => GetAnnotationForAbilitiy(d)).ToList();
+        }
+        private static string GetAnnotationForAbilitiy(ParsedLogEntry log)
+        {
+            var stringToShow = log.Ability + ": "+ log.Value.DblValue;
+            if(log.Target.IsPlayer && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
+            {
+                stringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
+            }
+            return stringToShow;
         }
     }
 }
