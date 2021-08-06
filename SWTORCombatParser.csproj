@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>SWTORParsingIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove=".gitattributes" />
+    <None Remove=".gitignore" />
     <None Remove="DataStructures\ClassInfos\Classes.json" />
+    <None Remove="resources\SwtorLogo.png" />
     <None Remove="TestCombatLogs\combat_2021-07-11_20_54_51_389708.txt" />
     <None Remove="TestCombatLogs\combat_2021-07-15_20_26_17_454472.txt" />
     <None Remove="TestCombatLogs\combat_2021-07-15_22_11_37_823701.txt" />
@@ -84,10 +88,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.S3" Version="3.7.1.20" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="ScottPlot" Version="4.1.16" />
     <PackageReference Include="ScottPlot.WPF" Version="4.1.16" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="resources\SwtorLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

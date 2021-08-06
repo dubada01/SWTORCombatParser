@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SWTORCombatParser.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -13,5 +14,12 @@ namespace SWTORCombatParser
     /// </summary>
     public partial class App : Application
     {
+        void App_Startup(object sender, StartupEventArgs e)
+        {
+            var mainWindowVM = new MainWindowViewModel();
+            var mainWindow = new MainWindow();
+            mainWindow.DataContext = mainWindowVM;
+            mainWindow.Show();
+        }
     }
 }

@@ -31,6 +31,8 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine, LogState state)
         {
+            if (parsedLine.Error == ErrorType.IncompleteLine)
+                return;
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "AbilityActivate")
             {
                 state.Modifiers.Add(new CombatModifier() { Name = "Guarding", StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Guarding });
@@ -75,6 +77,8 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static void SetPlayerClass(ParsedLogEntry parsedLine, LogState state)
         {
+            if (parsedLine.Error == ErrorType.IncompleteLine)
+                return;
             if (state.PlayerClass != null || parsedLine.Source.Name != state.PlayerName)
                 return;
             var swtorClass = ClassIdentifier.IdentifyClass(parsedLine);
@@ -88,6 +92,8 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static void SetPlayerName(ParsedLogEntry parsedLine, LogState state)
         {
+            if (parsedLine.Error == ErrorType.IncompleteLine)
+                return;
             if (string.IsNullOrEmpty(state.PlayerName) && parsedLine.Source.Name == parsedLine.Target.Name)
             { 
                 state.PlayerName = parsedLine.Target.Name;

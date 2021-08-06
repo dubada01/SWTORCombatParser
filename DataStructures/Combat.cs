@@ -7,6 +7,7 @@ namespace SWTORCombatParser
 {
     public class Combat
     {
+        public string CharacterName;
         public DateTime StartTime;
         public DateTime EndTime;
         public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
@@ -89,6 +90,7 @@ namespace SWTORCombatParser
         public double TotalEffectiveHealing;
         public double TotalSheilding;
         public double TotalDamageTaken;
+        public double TotalEffectiveDamageTaken;
         public double TotalHealingReceived;
         public double TotalEffectiveHealingReceived;
 
@@ -99,11 +101,13 @@ namespace SWTORCombatParser
         public double SPS => TotalSheilding / DurationSeconds;
 
         public double DTPS => TotalDamageTaken / DurationSeconds;
+        public double EDTPS => TotalEffectiveDamageTaken / DurationSeconds;
         public double HTPS => TotalHealingReceived / DurationSeconds;
         public double EHTPS => TotalEffectiveHealingReceived / DurationSeconds;
 
         public double MaxDamage;
         public double MaxIncomingDamage;
+        public double MaxEffectiveIncomingDamage;
         public double MaxHeal;
         public double MaxEffectiveHeal;
         public double MaxIncomingHeal;

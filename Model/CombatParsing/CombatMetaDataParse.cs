@@ -32,7 +32,8 @@ namespace SWTORCombatParser
             var totalHealingReceived = combatToPopulate.IncomingHealingLogs.Sum(l => l.Value.DblValue);
             var totalEffectiveHealingReceived = combatToPopulate.IncomingHealingLogs.Sum(l => l.Value.EffectiveDblValue);
 
-            var totalDamageTaken = combatToPopulate.IncomingDamageLogs.Sum(l => l.Value.DblValue - (l.Value.Modifier?.DblValue)??0);
+            var totalDamageTaken = combatToPopulate.IncomingDamageLogs.Sum(l => l.Value.DblValue);
+            var totalEffectiveDamageTaken = combatToPopulate.IncomingDamageLogs.Sum(l => l.Value.EffectiveDblValue);
 
             var sheildingLogs = incomingLogs.Where(l => l.Value.Modifier != null && l.Value.Modifier.ValueType == DamageType.shield);
 
@@ -49,9 +50,11 @@ namespace SWTORCombatParser
             combatToPopulate.TotalHealing = totalHealing;
             combatToPopulate.TotalEffectiveHealing = totalEffectiveHealing;
             combatToPopulate.TotalDamageTaken = totalDamageTaken;
+            combatToPopulate.TotalEffectiveDamageTaken = totalEffectiveDamageTaken;
             combatToPopulate.TotalHealingReceived = totalHealingReceived;
             combatToPopulate.TotalEffectiveHealingReceived = totalEffectiveHealingReceived;
-            combatToPopulate.MaxIncomingDamage = combatToPopulate.IncomingDamageLogs.Count == 0 ? 0: combatToPopulate.IncomingDamageLogs.Max(l => l.Value.DblValue - (l.Value.Modifier?.DblValue) ?? 0);
+            combatToPopulate.MaxIncomingDamage = combatToPopulate.IncomingDamageLogs.Count == 0 ? 0: combatToPopulate.IncomingDamageLogs.Max(l => l.Value.DblValue);
+            combatToPopulate.MaxEffectiveIncomingDamage = combatToPopulate.IncomingDamageLogs.Count == 0 ? 0 : combatToPopulate.IncomingDamageLogs.Max(l => l.Value.EffectiveDblValue);
             combatToPopulate.MaxIncomingHeal = combatToPopulate.IncomingHealingLogs.Count == 0 ? 0 : combatToPopulate.IncomingHealingLogs.Max(l => l.Value.DblValue);
             combatToPopulate.MaxIncomingEffectiveHeal = combatToPopulate.IncomingHealingLogs.Count == 0 ? 0 : combatToPopulate.IncomingHealingLogs.Max(l => l.Value.EffectiveDblValue);
 

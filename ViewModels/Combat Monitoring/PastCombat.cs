@@ -24,7 +24,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             SelectedCheck = " ";
             OnPropertyChanged("SelectedCheck");
         }
-        private void SelectCombat()
+        public void SelectCombat()
         {
             PastCombatSelected(this);
             SelectedCheck = "✓";

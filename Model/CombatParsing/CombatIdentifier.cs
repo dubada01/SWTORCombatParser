@@ -12,6 +12,7 @@ namespace SWTORCombatParser
         {
             var newCombat = new Combat()
             {
+                CharacterName = ongoingLogs.First(l => l.Source.IsPlayer).Source.Name,
                 StartTime = ongoingLogs.First().TimeStamp,
                 EndTime = ongoingLogs.Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),

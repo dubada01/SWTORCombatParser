@@ -12,7 +12,7 @@ namespace SWTORCombatParser.Plotting
     {
         public event Action TriggerRender = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
-        public InteractiveLegendViewModel Legend { get; set; }
+        public LegendItemViewModel Legend { get; set; }
         public Annotation Annotation { get; internal set; }
         public ScatterPlot Points { get; set; }
         public ScatterPlot Line { get; set; }
@@ -20,6 +20,7 @@ namespace SWTORCombatParser.Plotting
         public ScatterPlot EffectiveLine { get; set; }
         public PlotType Type { get; internal set; }
         public List<string> Abilities { get; internal set; }
+        public Annotation EffectiveAnnotation { get; internal set; }
 
         public string Name;
 

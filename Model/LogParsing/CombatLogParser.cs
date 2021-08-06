@@ -93,6 +93,10 @@ namespace SWTORCombatParser
                 if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
                     throw new Exception();
             }
+            if (parsedLog.Effect.EffectName == "Heal" && parsedLog.Target.IsPlayer)
+            {
+                parsedLog.Value.EffectiveDblValue = parsedLog.Threat * (2/0.9d);
+            }
         }
 
 

@@ -12,6 +12,7 @@ namespace SWTORCombatParser
         public string Data;
         public DateTime Time;
         public string Name;
+        public string Path;
     }
     public static class CombatLogLoader
     {
@@ -50,6 +51,7 @@ namespace SWTORCombatParser
         {
             CombatLogFile fileData = new CombatLogFile();
             fileData.Name = Path.GetFileName(path);
+            fileData.Path = path;
             fileData.Time = new FileInfo(path).LastWriteTime;
             using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, Encoding.Default))

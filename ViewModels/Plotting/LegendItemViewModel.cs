@@ -9,7 +9,7 @@ using System.Windows;
 
 namespace SWTORCombatParser.Plotting
 {
-    public class InteractiveLegendViewModel : INotifyPropertyChanged
+    public class LegendItemViewModel : INotifyPropertyChanged
     {
         public event Action<bool,bool> LegenedToggled = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;

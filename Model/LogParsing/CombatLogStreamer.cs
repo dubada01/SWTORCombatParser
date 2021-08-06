@@ -13,6 +13,10 @@ namespace SWTORCombatParser
         public event Action<List<ParsedLogEntry>> NewLogEntries = delegate { };
         public event Action<string> CombatStarted = delegate { };
         public event Action<List<ParsedLogEntry>> CombatStopped = delegate { };
+        public CombatLogStreamer()
+        {
+
+        }
         private bool _isInCombat = false;
         private bool _combatEnding = false;
         private long _numberOfEntries;
@@ -31,7 +35,7 @@ namespace SWTORCombatParser
                 while (true)
                 {
                     GenerateNewFrame();
-                    Thread.Sleep(5000);
+                    Thread.Sleep(1000);
                 }
             });
         }
