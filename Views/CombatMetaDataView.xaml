@@ -9,8 +9,9 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.1*"/>
-            <RowDefinition Height="0.9*"/>
-            <RowDefinition Height="0.25*"/>
+            <RowDefinition Height="0.75*"/>
+            <RowDefinition Height="0.3*"/>
+            <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
         <Border Grid.Row="0" Grid.Column="2" Background="CadetBlue" BorderBrush="DimGray" Margin="2" BorderThickness="2,2,2,2">
             <Viewbox>
@@ -85,6 +86,10 @@
         <DataGrid Background="Transparent" Grid.Row="2" ItemsSource="{Binding CombatEffects}" IsReadOnly="True" ColumnWidth="*" SelectionMode="Single"  SelectedItem="{Binding SelectedEffect}">
 
         </DataGrid>
+        <Viewbox VerticalAlignment="Top" MaxHeight="30" Margin="0,5,0,5" Grid.Row="3">
+            <Button Width="75" FontSize="10" Padding="5" Content="Clear" Command="{Binding ClearCombatEffectsCommand}"/>
+        </Viewbox>
+        
     </Grid>
 
 </UserControl>

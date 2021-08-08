@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Plotting
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
             legend.FontColor = Color.WhiteSmoke;
             legend.FontSize = 15;
-            SetUpLegend(new List<PlotType> { PlotType.DamageOutput, PlotType.DamageTaken, PlotType.HealingOutput, PlotType.HealingTaken });
+            ConfigureSeries(new List<PlotType> { PlotType.DamageOutput, PlotType.DamageTaken, PlotType.HealingOutput, PlotType.HealingTaken });
             LegendItems = GetLegends();
             GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 20, 20, 20), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
@@ -48,7 +48,7 @@ namespace SWTORCombatParser.Plotting
         public ObservableCollection<LegendItemViewModel> LegendItems { get; set; }
 
         public event Action<AxisLimits> OnPlotMoved = delegate { };
-        public void SetUpLegend(List<PlotType> seriesToPlot)
+        public void ConfigureSeries(List<PlotType> seriesToPlot)
         {
             foreach (var plotType in seriesToPlot)
             {
@@ -81,15 +81,19 @@ namespace SWTORCombatParser.Plotting
             foreach (var effect in obj)
             {
                 var startTime = _currentCombats.OrderBy(c => c.StartTime).ToList()[0].StartTime;
+                var endTime = _currentCombats.OrderByDescending(c => c.EndTime).ToList()[0].EndTime;
+                var maxDuration = (endTime - startTime).TotalSeconds;
                 var effectStart = (effect.StartTime - startTime).TotalSeconds;
                 var effectEnd = (effect.StopTime - startTime).TotalSeconds;
-                GraphView.Plot.AddHorizontalSpan(effectStart, effectEnd,color:Color.FromArgb(50,Color.LightYellow));
+                GraphView.Plot.AddHorizontalSpan(Math.Max(effectStart,0), Math.Min(effectEnd, maxDuration), color:Color.FromArgb(50,Color.LightYellow));
             }
 
         }
         public void UpdateLivePlot(Combat updatedCombat)
         {
             ResetEffectVisuals();
+            if (_currentCombats.Count == 0)
+                return;
             var staleCombat =  _currentCombats.First(c => c.StartTime == updatedCombat.StartTime);
             RemoveCombatPlot(staleCombat);
             _currentCombats.Remove(staleCombat);
@@ -141,7 +145,13 @@ namespace SWTORCombatParser.Plotting
         {
             return new ObservableCollection<LegendItemViewModel>(_seriesToPlot.Select(s => s.Legend));
         }
-
+        public void Reset()
+        {
+            _currentCombats.Clear();
+            GraphView.Plot.Clear();
+            GraphView.Plot.AxisAuto();
+            GraphView.Plot.SetAxisLimits(xMin: 0);
+        }
         public void MousePositionUpdated()
         {
             foreach (var plot in _seriesToPlot)
@@ -154,11 +164,11 @@ namespace SWTORCombatParser.Plotting
                 {
                     if (plot.Points.Count > 0 && plot.Points.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.Points[combat.StartTime]))
                     {
-                        UpdateSeriesAnnotation(plot.Points[combat.StartTime], plot.Tooltip[combat.StartTime], plot.Name, plot.Abilities[combat.StartTime]);
+                        UpdateSeriesAnnotation(plot.Points[combat.StartTime], plot.Tooltip[combat.StartTime], plot.Name, plot.Abilities[combat.StartTime],false);
                     }
                     if (plot.EffectivePoints.Count > 0 && plot.EffectivePoints.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.EffectivePoints.First().Value))
                     {
-                        UpdateSeriesAnnotation(plot.EffectivePoints[combat.StartTime], plot.EffectiveTooltip[combat.StartTime], plot.Name + "Effective", plot.Abilities[combat.StartTime]);
+                        UpdateSeriesAnnotation(plot.EffectivePoints[combat.StartTime], plot.EffectiveTooltip[combat.StartTime], plot.Name + "Effective", plot.Abilities[combat.StartTime], true);
                     }
                 }
 
@@ -183,7 +193,7 @@ namespace SWTORCombatParser.Plotting
                 var plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
                 var plotYvals = PlotMaker.GetPlotYVals(applicableData, false);
                 var plotYvalSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals, false);
-                List<string> abilityNames = PlotMaker.GetAnnotationString(applicableData);
+                List<(string,string)> abilityNames = PlotMaker.GetAnnotationString(applicableData);
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
                 series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot)+1), label: seriesName, color: series.Color, markerSize: 10);
@@ -225,7 +235,7 @@ namespace SWTORCombatParser.Plotting
         {
             OnPlotMoved(GraphView.Plot.GetAxisLimits());
         }
-        private void UpdateSeriesAnnotation(ScatterPlot plot, Tooltip annotation, string name, List<string> annotationTexts)
+        private void UpdateSeriesAnnotation(ScatterPlot plot, Tooltip annotation, string name, List<(string, string)> annotationTexts, bool effective)
         {
             annotation.IsVisible = plot.IsVisible;
             if (!plot.IsVisible)
@@ -235,7 +245,10 @@ namespace SWTORCombatParser.Plotting
             (double pointX, double pointY, int pointIndex) = plot.GetPointNearest(mouseCoordX, mouseCoordY, xyRatio);
 
             var abilities = annotationTexts;
-            annotation.Label = abilities[pointIndex];
+            if(effective)
+                annotation.Label = abilities[pointIndex].Item2;
+            else
+                annotation.Label = abilities[pointIndex].Item1;
 
             annotation.X = pointX;
             annotation.Y = pointY;

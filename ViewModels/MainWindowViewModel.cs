@@ -31,6 +31,7 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel.OnCombatSelected += SelectCombat;
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
             _combatMonitorViewModel.OnLiveCombatUpdate += UpdateLivePlot;
+            _combatMonitorViewModel.OnMonitoringStarted += MonitoringStarted;
             
             _combatMonitorViewModel.OnCharacterNameIdentified += CharacterNameId;
             _combatMonitorViewModel.OnNewLog += NewSoftwareLog;
@@ -51,6 +52,13 @@ namespace SWTORCombatParser.ViewModels
         public LogsView SoftwareLogView { get; set; }
         public PastCombatsView PastCombatsView { get; set; }
         public CombatMetaDataView CombatMetaDataView { get; set; }
+        private void MonitoringStarted()
+        {
+            App.Current.Dispatcher.Invoke(delegate {
+                _plotViewModel.Reset();
+                _tableViewModel.Reset();
+            });
+        }
         private void UnselectCombat(Combat obj)
         {
             App.Current.Dispatcher.Invoke(delegate {

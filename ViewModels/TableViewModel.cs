@@ -16,5 +16,9 @@ namespace SWTORCombatParser.ViewModels
         {
             logsInCombat.ForEach(l => CombatLogs.Remove(l));
         }
+        public void Reset()
+        {
+            CombatLogs.Clear();
+        }
     }
 }

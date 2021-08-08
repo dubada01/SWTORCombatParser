@@ -21,7 +21,7 @@ namespace SWTORCombatParser.Plotting
         public Dictionary<DateTime, ScatterPlot> EffectivePoints { get; set; } = new Dictionary<DateTime, ScatterPlot>();
         public Dictionary<DateTime, ScatterPlot> EffectiveLine { get; set; } = new Dictionary<DateTime, ScatterPlot>();
         public PlotType Type { get; internal set; }
-        public Dictionary<DateTime, List<string>> Abilities { get; internal set; } = new Dictionary<DateTime, List<string>>();
+        public Dictionary<DateTime, List<(string,string)>> Abilities { get; internal set; } = new Dictionary<DateTime, List<(string, string)>>();
         
 
         public string Name;

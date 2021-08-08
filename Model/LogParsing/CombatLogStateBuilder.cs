@@ -45,12 +45,20 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Apply && state.PlayerName != parsedLine.Source.Name)
             {
-                state.Modifiers.Add(new CombatModifier() { Name = "Guarded", Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Guarded });
+                if(!state.Modifiers.Any(m=>m.Type == CombatModfierType.GuardedThreatReduced) || state.Modifiers.Last(m => m.Type == CombatModfierType.GuardedThreatReduced).StopTime != DateTime.MinValue)
+                {
+                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Threat", Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedThreatReduced });
+                }
+                else
+                {
+                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Damage", Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedDamagedRedirected });
+                }
+                
                 return;
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Remove && state.PlayerName != parsedLine.Source.Name)
             {
-                state.Modifiers.Last(m => m.Name == "Guarded").StopTime = parsedLine.TimeStamp;
+                state.Modifiers.Last(m => m.Name.Contains("Guarded") && m.StopTime == DateTime.MinValue).StopTime = parsedLine.TimeStamp;
                 return;
             }
             if(parsedLine.Effect.EffectType == EffectType.Apply && parsedLine.Target.IsPlayer && (parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal"))

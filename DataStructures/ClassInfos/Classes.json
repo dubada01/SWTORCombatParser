@@ -23,6 +23,14 @@
         {
           "Name": "Unlimited Power",
           "StaticThreat": true
+        },
+        {
+          "Name": "Force Barrier",
+          "StaticThreat": true
+        },
+        {
+          "Name": "Enduring Bastion",
+          "StaticThreat": true
         }
       ],
       "UniqueAbilities": [ "Dark Infusion", "Innervate", "Revivification", "Roaming Mend" ]
@@ -31,6 +39,14 @@
       "Name": "Operative",
       "Discipline": "Medicine",
       "SpecialThreatAbilities": [
+        {
+          "Name": "Surprise Comeback",
+          "StaticThreat": true
+        },
+        {
+          "Name": "Surrender",
+          "StaticThreat": true
+        }
       ],
       "UniqueAbilities": [ "Kolto Injection", "Recuperative Nanotech", "Surgical Probe", "Kolto Waves" ]
     },
@@ -45,6 +61,11 @@
       "Name": "Sage",
       "Discipline": "Seer",
       "SpecialThreatAbilities": [
+
+        {
+          "Name": "Force Empowerment",
+          "StaticThreat": true
+        }
       ],
       "UniqueAbilities": [ "Deliverance", "Healing Trance", "Salvation", "Wandering Mend" ]
     },

@@ -25,18 +25,30 @@ namespace SWTORCombatParser
         private long _newNumberOfEntries;
         private string _logToMonitor; 
         private long _combatEndLineIndex;
+        private bool _monitorLog;
         private DateTime _lastUpdateTime;
-        private List<ParsedLogEntry> _currentFrameData;
+        private List<ParsedLogEntry> _currentFrameData = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
         public void MonitorLog(string logToMonitor)
         {
             _logToMonitor = logToMonitor;
+            _monitorLog = true;
             PollForUpdates();
         }
+        public void StopMonitoring()
+        {
+            _newNumberOfEntries = 0;
+            _numberOfEntries = 0;
+            _combatEndLineIndex = 0;
+            _monitorLog = false;
+            EndCombat();
+            _currentFrameData.Clear();
+        }
+
         private void PollForUpdates()
         {
             Task.Run(() => {
-                while (true)
+                while (_monitorLog)
                 {
                     GenerateNewFrame();
                     Thread.Sleep(500);

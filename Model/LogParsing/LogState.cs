@@ -9,7 +9,8 @@ namespace SWTORCombatParser.Model.LogParsing
     public enum CombatModfierType
     {
         Other,
-        Guarded,
+        GuardedThreatReduced,
+        GuardedDamagedRedirected,
         Guarding
     }
     public class CombatModifier
@@ -31,12 +32,14 @@ namespace SWTORCombatParser.Model.LogParsing
         public double GetCurrentHealsPerThreat(DateTime timeStamp)
         {
             double healsPerThreat = 2;
+            if (PlayerClass == null)
+                return healsPerThreat;
             if (_healingDisciplines.Contains(PlayerClass.Discipline))
                 healsPerThreat /= 0.9d;
             if (_tankDisciplines.Contains(PlayerClass.Discipline))
                 healsPerThreat *= 0.4;
-            if (GetCombatModifiersAtTime(timeStamp).Any(m => m.Type == CombatModfierType.Guarded))
-                healsPerThreat *= 1.25;
+            if (GetCombatModifiersAtTime(timeStamp).Any(m => m.Type == CombatModfierType.GuardedThreatReduced))
+                healsPerThreat *= 1; //healsPerThreat *= 1.25;
             return healsPerThreat;
         }
         public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
@@ -45,7 +48,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public List<CombatModifier> GetCombatModifiersBetweenTimes(DateTime startTime, DateTime endTime)
         {
-            return Modifiers.Where(m => m.StartTime > startTime && m.StartTime <= endTime).ToList();
+            return Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime)).ToList();
         }
         public void ResetAll()
         {

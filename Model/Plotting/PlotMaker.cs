@@ -32,11 +32,11 @@ namespace SWTORCombatParser
             return sums.Select((s,i)=>s/ (timeStamps[i])).ToArray();
         }
 
-        internal static List<string> GetAnnotationString(List<ParsedLogEntry> data)
+        internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data)
         {
             return data.Select(d => GetAnnotationForAbilitiy(d)).ToList();
         }
-        private static string GetAnnotationForAbilitiy(ParsedLogEntry log)
+        private static (string,string) GetAnnotationForAbilitiy(ParsedLogEntry log)
         {
             var critMark = log.Value.WasCrit ? "*" : "";
             var stringToShow = log.Ability + ": "+ log.Value.DblValue + critMark;
@@ -44,7 +44,12 @@ namespace SWTORCombatParser
             {
                 stringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
             }
-            return stringToShow;
+            var EffectivestringToShow = log.Ability + ": " + log.Value.EffectiveDblValue + critMark;
+            if (log.Target.IsPlayer && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
+            {
+                EffectivestringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
+            }
+            return (stringToShow, EffectivestringToShow);
         }
     }
 }

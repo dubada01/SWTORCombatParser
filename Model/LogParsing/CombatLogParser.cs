@@ -76,7 +76,7 @@ namespace SWTORCombatParser
 
                 var specialThreatAbilties = _logState.PlayerClass.SpecialThreatAbilities;
 
-                var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => a.Name == parsedLog.Ability);
+                var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => parsedLog.Ability.Contains(a.Name));
 
                 if (parsedLog.Ability.Contains("Medpac"))
                     specialThreatAbilityUsed = new Ability() { StaticThreat = true };

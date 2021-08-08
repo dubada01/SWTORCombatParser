@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.CombatParsing;
+﻿using Microsoft.Win32;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -18,8 +20,9 @@ namespace SWTORCombatParser.ViewModels
     public class CombatMonitorViewModel:INotifyPropertyChanged
     {
         private List<ParsedLogEntry> _totalLogsDuringCombat = new List<ParsedLogEntry>();
-        
+        private bool _liveParseActive;
         private CombatLogStreamer _combatLogStreamer;
+        private int _numberOfSelectedCombats = 0;
         public CombatMonitorViewModel()
         {
             _combatLogStreamer = new CombatLogStreamer();
@@ -28,22 +31,57 @@ namespace SWTORCombatParser.ViewModels
             _combatLogStreamer.NewLogEntries += UpdateLog;
             
         }
+        public event Action OnMonitoringStarted = delegate { };
         public event Action<Combat> OnCombatSelected = delegate { };
         public event Action<Combat> OnCombatUnselected = delegate { };
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
-
         public event Action<string> OnNewLog = delegate { };
         public event Action<string> OnCharacterNameIdentified = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
-        public ICommand StartLiveParseCommand => new CommandHandler(StartLiveParse, () => true);
+        public bool LiveParseActive { get => _liveParseActive; set {
+
+                _liveParseActive = value;
+                OnPropertyChanged();
+            } }
+        public ICommand ToggleLiveParseCommand => new CommandHandler(ToggleLiveParse, () => true);
         public ObservableCollection<PastCombat> PastCombats { get; set; } = new ObservableCollection<PastCombat>();
-        private int _numberOfSelectedCombats = 0;
-        private void StartLiveParse()
+        private void ToggleLiveParse()
         {
-            var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-            var testLog = CombatLogLoader.LoadSpecificLog(@"C:\Users\duban\source\GameDevRepos\SWTORCombatParser\TestCombatLogs\combat_2021-07-11_19_01_39_463431.txt");
-            _combatLogStreamer.MonitorLog(testLog.Path);
-            OnNewLog("Started Monitoring: " + testLog.Path);
+            LiveParseActive = !LiveParseActive;
+            if (LiveParseActive)
+            {
+                
+                PastCombats.Clear();
+                OnMonitoringStarted();
+                var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
+                _combatLogStreamer.MonitorLog(mostRecentLog.Path);
+                OnNewLog("Started Monitoring: " + mostRecentLog.Path);
+                
+            }
+            else
+            {
+                _combatLogStreamer.StopMonitoring();
+                OnNewLog("Stopped Monitoring");
+            }
+            
+        }
+        public string CurrentlySelectedLogName { get; set; }
+        public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog, () => true);
+        private void LoadSpecificLog()
+        {
+            var openFileDialog = new OpenFileDialog();
+            //openFileDialog.DefaultExt = ".txt";
+            openFileDialog.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+            if(openFileDialog.ShowDialog() == true)
+            {
+                OnMonitoringStarted();
+                PastCombats.Clear();
+                CurrentlySelectedLogName = openFileDialog.FileName;
+                OnPropertyChanged("CurrentlySelectedLogName");
+                var logInfo = CombatLogLoader.LoadSpecificLog(CurrentlySelectedLogName);
+                _combatLogStreamer.StopMonitoring();
+                _combatLogStreamer.MonitorLog(logInfo.Path);
+            }
         }
         private void UpdateLog(List<ParsedLogEntry> obj)
         {
