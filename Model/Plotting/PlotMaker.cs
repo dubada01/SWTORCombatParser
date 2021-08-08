@@ -38,7 +38,8 @@ namespace SWTORCombatParser
         }
         private static string GetAnnotationForAbilitiy(ParsedLogEntry log)
         {
-            var stringToShow = log.Ability + ": "+ log.Value.DblValue;
+            var critMark = log.Value.WasCrit ? "*" : "";
+            var stringToShow = log.Ability + ": "+ log.Value.DblValue + critMark;
             if(log.Target.IsPlayer && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
             {
                 stringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;

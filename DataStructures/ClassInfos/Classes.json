@@ -13,6 +13,10 @@
           "StaticThreat": true
         },
         {
+          "Name": "Volt Rush",
+          "StaticThreat": true
+        },
+        {
           "Name": "Empowered Restoration",
           "StaticThreat": true
         },

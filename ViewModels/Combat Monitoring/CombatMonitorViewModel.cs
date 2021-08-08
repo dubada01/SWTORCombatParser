@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.SoftwareLogging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,66 +28,80 @@ namespace SWTORCombatParser.ViewModels
             _combatLogStreamer.NewLogEntries += UpdateLog;
             
         }
-        public event Action<Combat> OnNewCombat = delegate { };
+        public event Action<Combat> OnCombatSelected = delegate { };
+        public event Action<Combat> OnCombatUnselected = delegate { };
+        public event Action<Combat> OnLiveCombatUpdate = delegate { };
+
+        public event Action<string> OnNewLog = delegate { };
         public event Action<string> OnCharacterNameIdentified = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public ICommand StartLiveParseCommand => new CommandHandler(StartLiveParse, () => true);
         public ObservableCollection<PastCombat> PastCombats { get; set; } = new ObservableCollection<PastCombat>();
+        private int _numberOfSelectedCombats = 0;
         private void StartLiveParse()
         {
             var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-            _combatLogStreamer.MonitorLog(mostRecentLog.Path);
+            var testLog = CombatLogLoader.LoadSpecificLog(@"C:\Users\duban\source\GameDevRepos\SWTORCombatParser\TestCombatLogs\combat_2021-07-11_19_01_39_463431.txt");
+            _combatLogStreamer.MonitorLog(testLog.Path);
+            OnNewLog("Started Monitoring: " + testLog.Path);
         }
         private void UpdateLog(List<ParsedLogEntry> obj)
         {
             _totalLogsDuringCombat.AddRange(obj);
             var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat.ToList());
-            OnNewCombat(combatInfo);
+            OnLiveCombatUpdate(combatInfo);
             OnCharacterNameIdentified(combatInfo.CharacterName);
         }
-        private void CombatStarted(string characterName)
+        private void CombatStarted(string characterName, string location)
         {
-            foreach (var combat in PastCombats)
-                combat.Reset();
+            if (PastCombats.Any(pc => pc.CombatLabel == location + " ongoing..."))
+                return;
+
             OnCharacterNameIdentified(characterName);
-            var combatUI = new PastCombat() { CombatLabel = "Ongoing..." };
+            var combatUI = new PastCombat() { CombatLabel = location + " ongoing..." };
             combatUI.PastCombatSelected += SelectCombat;
             App.Current.Dispatcher.Invoke(delegate {
                 PastCombats.Insert(0, combatUI);
             });
             _totalLogsDuringCombat.Clear();
+            OnNewLog("Detected Combat For: " + characterName +" in "+location);
         }
         private void CombatStopped(List<ParsedLogEntry> obj)
         {
-            if(PastCombats.Any(c=>c.CombatLabel == "Ongoing..."))
+            if(PastCombats.Any(c=>c.CombatLabel.Contains("ongoing...")))
                 App.Current.Dispatcher.Invoke(delegate {
-                    PastCombats.Remove(PastCombats.First(c=>c.CombatLabel == "Ongoing..."));
+                    PastCombats.Remove(PastCombats.First(c=>c.CombatLabel.Contains("ongoing...")));
                 });
             if (obj.Count == 0)
                 return;
             _totalLogsDuringCombat.Clear();
             _totalLogsDuringCombat.AddRange(obj);
             var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat.ToList());
-            var combatUI = new PastCombat() { Combat = combatInfo, CombatLabel = string.Join(", ", combatInfo.Targets), CombatDuration = combatInfo.DurationSeconds.ToString() };
+            var combatUI = new PastCombat() { Combat = combatInfo, CombatLabel = combatInfo.RaidBossInfo == ""?string.Join(", ", combatInfo.Targets):combatInfo.RaidBossInfo, CombatDuration = combatInfo.DurationSeconds.ToString() };
             combatUI.PastCombatSelected += SelectCombat;
+            combatUI.PastCombatUnSelected += UnselectCombat;
             App.Current.Dispatcher.Invoke(delegate {
                 PastCombats.Insert(0, combatUI);
             });
-            PastCombats[0].SelectCombat();
+            OnNewLog("Combat with duration " + combatInfo.DurationSeconds +" ended");
             _totalLogsDuringCombat.Clear();
-            //var logState = CombatLogParser.BuildLogState(CombatLogLoader.LoadSpecificLog(System.IO.Path.Join("TestCombatLogs", _currentLogName)));
-            //var abilities = logState.Modifiers.Select(m => m.Name).Distinct();
-            //var durations = logState.Modifiers.Where(m=>m.StartTime >= obj.First().TimeStamp && m.StopTime < obj.Last().TimeStamp).GroupBy(v => v.Name, v => v.DurationSeconds, (name, durations) => new { Name = name, SumOfDurations = durations.Sum(), CountOfAbilities = durations.Count() }).OrderByDescending(effect => effect.SumOfDurations);
-            //Trace.WriteLine("------ABILITY DURATIONS------");
-            //Trace.WriteLine(combatInfo.DurationSeconds);
-            //durations.ToList().ForEach(a => Trace.WriteLine("Ability: " + a.Name + " Duration: " + a.SumOfDurations+ " Number of: "+a.CountOfAbilities));
+        }
+        private void UnselectCombat(PastCombat unslectedCombat)
+        {
+            _numberOfSelectedCombats--;
+            OnNewLog("Removing combat: " + unslectedCombat.CombatLabel +" from plot.");
+            OnCombatUnselected(unslectedCombat.Combat);
         }
         private void SelectCombat(PastCombat selectedCombat)
         {
-            foreach (var combat in PastCombats)
-                combat.Reset();
-
-            OnNewCombat(selectedCombat.Combat);
+            _numberOfSelectedCombats++;
+            if (_numberOfSelectedCombats > 3)
+            {
+                selectedCombat.IsSelected = false;
+                return;
+            }
+            OnNewLog("Displaying new combat: "+selectedCombat.CombatLabel);
+            OnCombatSelected(selectedCombat.Combat);
             OnCharacterNameIdentified(selectedCombat.Combat.CharacterName);
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)

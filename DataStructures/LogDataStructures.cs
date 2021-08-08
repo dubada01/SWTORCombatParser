@@ -10,13 +10,13 @@ namespace SWTORCombatParser
 
         public string LogName;
         public string LogText;
-        public DateTime TimeStamp;
-        public Entity Source;
-        public Entity Target;
-        public string Ability;
-        public Effect Effect;
-        public Value Value;
-        public int Threat;
+        public DateTime TimeStamp { get; set; }
+        public Entity Source { get; set; }
+        public Entity Target { get; set; }
+        public string Ability { get; set; }
+        public Effect Effect { get; set; }
+        public Value Value { get; set; }
+        public int Threat { get; set; }
 
     }
     public enum ErrorType

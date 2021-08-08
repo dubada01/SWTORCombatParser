@@ -7,7 +7,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
     public class MetaDataInstance
     {
         public string Category { get; set; }
-        public System.Windows.Media.Color Color { get; set; }
+        public System.Windows.Media.Brush Color { get; set; }
         public string TotalLabel { get; set; }
         public string TotalValue { get; set; }
         public string MaxLabel { get; set; }

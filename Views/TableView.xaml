@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <DataGrid x:Name="InfoTable" AutoGenerateColumns="True">
+        <DataGrid ItemsSource="{Binding CombatLogs}" AutoGenerateColumns="True">
 
         </DataGrid>
     </Grid>

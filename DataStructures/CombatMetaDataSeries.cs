@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Linq;
 using System.Text;
 
 namespace SWTORCombatParser.Plotting
@@ -13,14 +14,15 @@ namespace SWTORCombatParser.Plotting
         public event Action TriggerRender = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public LegendItemViewModel Legend { get; set; }
-        public Annotation Annotation { get; internal set; }
-        public ScatterPlot Points { get; set; }
-        public ScatterPlot Line { get; set; }
-        public ScatterPlot EffectivePoints { get; set; }
-        public ScatterPlot EffectiveLine { get; set; }
+        public Dictionary<DateTime, Tooltip> Tooltip { get; internal set; } = new Dictionary<DateTime, Tooltip>();
+        public Dictionary<DateTime, Tooltip> EffectiveTooltip { get; internal set; }= new Dictionary<DateTime, Tooltip>();
+        public Dictionary<DateTime, ScatterPlot> Points { get; set; } = new Dictionary<DateTime, ScatterPlot>();
+        public Dictionary<DateTime, ScatterPlot> Line { get; set; } = new Dictionary<DateTime, ScatterPlot>();
+        public Dictionary<DateTime, ScatterPlot> EffectivePoints { get; set; } = new Dictionary<DateTime, ScatterPlot>();
+        public Dictionary<DateTime, ScatterPlot> EffectiveLine { get; set; } = new Dictionary<DateTime, ScatterPlot>();
         public PlotType Type { get; internal set; }
-        public List<string> Abilities { get; internal set; }
-        public Annotation EffectiveAnnotation { get; internal set; }
+        public Dictionary<DateTime, List<string>> Abilities { get; internal set; } = new Dictionary<DateTime, List<string>>();
+        
 
         public string Name;
 
@@ -35,26 +37,26 @@ namespace SWTORCombatParser.Plotting
             if (Points == null)
                 return;
             if (arg1)
-            { 
-                Points.IsVisible = true;
-                Line.IsVisible = true;
+            {
+                Points.Values.ToList().ForEach(v => v.IsVisible = true);
+                Line.Values.ToList().ForEach(v => v.IsVisible = true);
             }
             else
             {
-                Points.IsVisible = false;
-                Line.IsVisible = false;
+                Points.Values.ToList().ForEach(v => v.IsVisible = false);
+                Line.Values.ToList().ForEach(v => v.IsVisible = false);
             }
             if (Legend.HasEffective)
             {
                 if (arg2)
                 {
-                    EffectivePoints.IsVisible = true;
-                    EffectiveLine.IsVisible = true;
+                    EffectivePoints.Values.ToList().ForEach(v => v.IsVisible = true);
+                    EffectiveLine.Values.ToList().ForEach(v => v.IsVisible = true);
                 }
                 else
                 {
-                    EffectivePoints.IsVisible = false;
-                    EffectiveLine.IsVisible = false;
+                    EffectivePoints.Values.ToList().ForEach(v => v.IsVisible = false);
+                    EffectiveLine.Values.ToList().ForEach(v => v.IsVisible = false);
                 }
             }
 

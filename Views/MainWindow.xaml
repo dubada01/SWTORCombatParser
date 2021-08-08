@@ -16,12 +16,15 @@
             <RowDefinition Height=".85*"/>
             <RowDefinition Height=".1*"/>
         </Grid.RowDefinitions>
-        <TabControl Background="Transparent" Grid.RowSpan="3" Grid.Column="1">
-            <TabItem Header="Graph View">
+        <TabControl BorderThickness="3,2,3,0" BorderBrush="DimGray" Background="Transparent" Grid.RowSpan="3" Grid.Column="1">
+            <TabItem FontSize="25" Padding="15,5,15,5" Header="Graph">
                 <ContentPresenter Content="{Binding GraphView}"/>
             </TabItem>
-            <TabItem Header="Table View">
+            <TabItem FontSize="25" Padding="15,5,15,5" Header="Table">
                 <ContentPresenter Content="{Binding TableView}"/>
+            </TabItem>
+            <TabItem FontSize="25" Padding="15,5,15,5" Header="Info Logs">
+                <ContentPresenter Content="{Binding SoftwareLogView}"/>
             </TabItem>
         </TabControl>
 

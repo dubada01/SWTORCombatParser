@@ -1,0 +1,140 @@
+[
+
+  {
+    "LogName": "Eternity Vault",
+    "Name": "Eternity Vault",
+    "BossNames": [
+      "Annihilation Droid XRR-3",
+      "Gharj",
+      "Ancient Pylons",
+      "Infernal Council",
+      "Soa"
+    ]
+  },
+  {
+    "LogName": "Karagga's Palace",
+    "Name": "Karagga’s Palace",
+    "BossNames": [
+      "Bonethrasher",
+      "Jarg & Sorno~?~Jarg,Sorno",
+      "Foreman Crusher",
+      "G4-B3 Fabricator",
+      "Karagga"
+    ]
+  },
+  {
+    "LogName": "Denova",
+    "Name": "Explosive Conflict",
+    "BossNames": [
+      "Zorn & Toth~?~Zorn,Toth",
+      "Firebrand & Stormcaller~?~Firebrand,Stormcaller",
+      "Colonel Vorgath",
+      "Warlord Kephess"
+    ]
+  },
+  {
+    "LogName": "Asation",
+    "Name": "Terror From Beyond",
+    "BossNames": [
+      "The Writhing Horror",
+      "The Dread Guard~?~Kel'sara,Ciphas,Heirad",
+      "Operator IX",
+      "Kephess the Undying",
+      "The Terror From Beyond"
+    ]
+  },
+  {
+    "LogName": "Darvannis",
+    "Name": "Scum and Villainy",
+    "BossNames": [
+      "Dash'Roode",
+      "TITAN 6",
+      "Thrasher",
+      "Operations Chief",
+      "Olok the Shadow",
+      "Cartel Warlords~?~Captain Horic,Sunder,Tu'chuk,Vilus Garr",
+      "Dread Master Styrak"
+    ]
+  },
+  {
+    "LogName": "The Dread Fortress",
+    "Name": "The Dread Fortress",
+    "BossNames": [
+      "Nefra",
+      "Draxus",
+      "Grob’thok",
+      "Corruptor Zero",
+      "Dread Master Brontes"
+    ]
+  },
+  {
+    "LogName": "The Dread Palace",
+    "Name": "The Dread Palace",
+    "BossNames": [
+      "Dread Master Bestia",
+      "Dread Master Tyrans",
+      "Dread Master Calphayus",
+      "Dread Master Raptus",
+      "Dread Council~?~Dread Master Bestia,Dread Master Tyrans,Dread Master Calphayus,Dread Master Raptus,Dread Master Brontes,Dread Master Styrak"
+    ]
+  },
+  {
+    "LogName": "The Ravagers",
+    "Name": "The Ravagers",
+    "BossNames": [
+      "Sparky",
+      "Quartermaster Bulo",
+      "Torque",
+      "Master & Blaster~?~Master,Blaster",
+      "Coratanni"
+    ]
+  },
+  {
+    "LogName": "Temple of Sacrifice",
+    "Name": "Temple of Sacrifice",
+    "BossNames": [
+      "Malaphar",
+      "Sword Squadron~?~Sword Squadron Unit 1,Sword Squadron Unit 2",
+      "Underlurker",
+      "Revanite Commanders~?~",
+      "Revan"
+    ]
+  },
+  {
+    "LogName": "Toborro's Palace Courtyard",
+    "Name": "Toborro's Palace",
+    "BossNames": [
+      "Golden Fury"
+    ]
+  },
+  {
+    "LogName": "Heart of Ruin",
+    "Name": "Colossal Monolith",
+    "BossNames": [
+      "Colossal Monolith"
+    ]
+  },
+  {
+    "LogName": "Valley of the Machine Gods",
+    "Name": "The Gods from the Machine",
+    "BossNames": [
+      "TYTH",
+      "Aivela and Esne~?~AIVELA,ESNE",
+      "NAHUT",
+      "SCYVA",
+      "IZAX"
+    ]
+  },
+  {
+    "LogName": "Dxun - The CI-004 Facility",
+    "Name": "Dxun",
+    "BossNames": [
+      "Red",
+      "Trandosians~?~Hissyphus,Kronissus,Greus,Titax",
+      "Huntmaster",
+      "Apex Vanguard"
+    ]
+  }
+
+]
+

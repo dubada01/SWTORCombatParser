@@ -10,52 +10,81 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="0.1*"/>
             <RowDefinition Height="0.9*"/>
+            <RowDefinition Height="0.25*"/>
         </Grid.RowDefinitions>
         <Border Grid.Row="0" Grid.Column="2" Background="CadetBlue" BorderBrush="DimGray" Margin="2" BorderThickness="2,2,2,2">
             <Viewbox>
                 <TextBlock Foreground="LightGray" Text="{Binding CharacterName}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"></TextBlock>
             </Viewbox>
         </Border>
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding CombatMetaDatas}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <DockPanel >
-                        <Viewbox>
-                            <Border Padding="5,10,5,10" BorderBrush="Black" BorderThickness="1.5" CornerRadius="5" Margin="5,2.5,5,2.5">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="2*"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Row="0" FontSize="25" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,0,0,10" Grid.ColumnSpan="4" Text="{Binding Category}" Foreground="{Binding Color}"></TextBlock>
-                                    <TextBlock Grid.Row="1" Grid.Column="0" FontSize="20" HorizontalAlignment="Right" Margin="5,0,5,0" Text="{Binding TotalLabel}" Foreground="WhiteSmoke"></TextBlock>
-                                    <TextBlock Grid.Row="1" Grid.Column="1" FontSize="20" HorizontalAlignment="Center" Margin="5,0,5,0" Text="{Binding TotalValue}" Foreground="{Binding Color}"></TextBlock>
-                                    <TextBlock Grid.Row="1" Grid.Column="2" FontSize="20" HorizontalAlignment="Right" Margin="5,0,5,0" Text="{Binding MaxLabel}" Foreground="WhiteSmoke"></TextBlock>
-                                    <TextBlock Grid.Row="1" Grid.Column="3" FontSize="20" HorizontalAlignment="Center" Margin="5,0,5,0" Text="{Binding MaxValue}" Foreground="{Binding Color}"></TextBlock>
-                                    <TextBlock Grid.Row="1" Grid.Column="4" FontSize="20" HorizontalAlignment="Right" Margin="5,0,5,0" Text="{Binding RateLabel}" Foreground="WhiteSmoke"></TextBlock>
-                                    <TextBlock Grid.Row="1" Grid.Column="5" FontSize="20" HorizontalAlignment="Center" Margin="5,0,5,0" Text="{Binding RateValue}" Foreground="{Binding Color}"></TextBlock>
-                                    <TextBlock Grid.Row="2" Grid.Column="0" FontSize="20" HorizontalAlignment="Right" Margin="5,0,5,0" Text="{Binding EffectiveTotalLabel}" Foreground="WhiteSmoke"></TextBlock>
-                                    <TextBlock Grid.Row="2" Grid.Column="1" FontSize="20" HorizontalAlignment="Center" Margin="5,0,5,0" Text="{Binding EffectiveTotalValue}" Foreground="{Binding Color}"></TextBlock>
-                                    <TextBlock Grid.Row="2" Grid.Column="2" FontSize="20" HorizontalAlignment="Right" Margin="5,0,5,0" Text="{Binding EffectiveMaxLabel}" Foreground="WhiteSmoke"></TextBlock>
-                                    <TextBlock Grid.Row="2" Grid.Column="3" FontSize="20" HorizontalAlignment="Center" Margin="5,0,5,0" Text="{Binding EffectiveMaxValue}" Foreground="{Binding Color}"></TextBlock>
-                                    <TextBlock Grid.Row="2" Grid.Column="4" FontSize="20" HorizontalAlignment="Right" Margin="5,0,5,0" Text="{Binding EffectiveRateLabel}" Foreground="WhiteSmoke"></TextBlock>
-                                    <TextBlock Grid.Row="2" Grid.Column="5" FontSize="20" HorizontalAlignment="Center" Margin="5,0,5,0" Text="{Binding EffectiveRateValue}" Foreground="{Binding Color}"></TextBlock>
-                                </Grid>
-                            </Border>
-                        </Viewbox>
-                    </DockPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <Viewbox Grid.Row="1"  VerticalAlignment="Top">
+            <ItemsControl ItemsSource="{Binding CombatMetaDatas}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="DimGray" Padding="5,5,5,10" BorderBrush="Black" BorderThickness="1.5" CornerRadius="5" Margin="5,2.5,5,2.5">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Viewbox Grid.Row="0" Grid.ColumnSpan="4" MaxHeight="35" HorizontalAlignment="Left">
+                                    <TextBlock FontWeight="Bold"  Margin="0,0,0,5"  Text="{Binding Category}" Foreground="{Binding Color}"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="30" Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Right">
+                                    <TextBlock  Margin="5,0,5,0" Text="{Binding TotalLabel}" Foreground="WhiteSmoke"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="25" Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Left" >
+                                    <TextBlock Margin="5,0,5,0" Text="{Binding TotalValue}" Foreground="{Binding Color}"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="30" Grid.Row="2" Grid.Column="0"  HorizontalAlignment="Right" >
+                                    <TextBlock Margin="5,0,5,0" Text="{Binding MaxLabel}" Foreground="WhiteSmoke"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="25" Grid.Row="2" Grid.Column="1"  HorizontalAlignment="Left" >
+                                    <TextBlock Margin="5,0,5,0" Text="{Binding MaxValue}" Foreground="{Binding Color}"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="30" Grid.Row="3" Grid.Column="0"  HorizontalAlignment="Right">
+                                    <TextBlock  Margin="5,0,5,0" Text="{Binding RateLabel}" Foreground="WhiteSmoke"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="25" Grid.Row="3" Grid.Column="1"  HorizontalAlignment="Left" >
+                                    <TextBlock Margin="5,0,5,0" Text="{Binding RateValue}" Foreground="{Binding Color}"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="30" Grid.Row="1" Grid.Column="2"  HorizontalAlignment="Right">
+                                    <TextBlock  Margin="5,0,5,0" Text="{Binding EffectiveTotalLabel}" Foreground="WhiteSmoke"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="25" Grid.Row="1" Grid.Column="3"  HorizontalAlignment="Left" >
+                                    <TextBlock Margin="5,0,5,0" Text="{Binding EffectiveTotalValue}" Foreground="{Binding Color}"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="30" Grid.Row="2" Grid.Column="2"  HorizontalAlignment="Right" >
+                                    <TextBlock Margin="5,0,5,0" Text="{Binding EffectiveMaxLabel}" Foreground="WhiteSmoke"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="25" Grid.Row="2" Grid.Column="3"  HorizontalAlignment="Left" >
+                                    <TextBlock Margin="5,0,5,0" Text="{Binding EffectiveMaxValue}" Foreground="{Binding Color}"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="30" Grid.Row="3" Grid.Column="2"  HorizontalAlignment="Right">
+                                    <TextBlock  Margin="5,0,5,0" Text="{Binding EffectiveRateLabel}" Foreground="WhiteSmoke"></TextBlock>
+                                </Viewbox>
+                                <Viewbox MaxHeight="25" Grid.Row="3" Grid.Column="3"  HorizontalAlignment="Left" >
+                                    <TextBlock Margin="5,0,5,0" Text="{Binding EffectiveRateValue}" Foreground="{Binding Color}"></TextBlock>
+                                </Viewbox>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </Viewbox>
+       
+        <DataGrid Background="Transparent" Grid.Row="2" ItemsSource="{Binding CombatEffects}" IsReadOnly="True" ColumnWidth="*" SelectionMode="Single"  SelectedItem="{Binding SelectedEffect}">
+
+        </DataGrid>
     </Grid>
 
 </UserControl>

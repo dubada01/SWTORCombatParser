@@ -1,5 +1,6 @@
 ﻿using ScottPlot;
 using ScottPlot.Plottable;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -22,27 +23,31 @@ namespace SWTORCombatParser.Plotting
     }
     public class PlotViewModel
     {
-        private WpfPlot _plotToManage;
-        
+        private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
+        private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
         private List<CombatMetaDataSeries> _seriesToPlot = new List<CombatMetaDataSeries>();
+        private List<Combat> _currentCombats = new List<Combat>();
         public PlotViewModel()
         {
-            _plotToManage = new WpfPlot();
-            _plotToManage.Plot.XLabel("Combat Duration (s)");
-            _plotToManage.Plot.YLabel("Ammount");
-
-            _plotToManage.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 2, title: "Rate");
-
-            var legend = _plotToManage.Plot.Legend(location: Alignment.UpperRight);
+            GraphView = new WpfPlot();
+            GraphView.Plot.XLabel("Combat Duration (s)");
+            GraphView.Plot.YLabel("Ammount");
+            
+            GraphView.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 2, title: "Rate");
+            GraphView.AxesChanged += UpdatePlotAxis;
+            var legend = GraphView.Plot.Legend(location: Alignment.UpperRight);
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
             legend.FontColor = Color.WhiteSmoke;
             legend.FontSize = 15;
             SetUpLegend(new List<PlotType> { PlotType.DamageOutput, PlotType.DamageTaken, PlotType.HealingOutput, PlotType.HealingTaken });
             LegendItems = GetLegends();
-            _plotToManage.Plot.Style(dataBackground: Color.FromArgb(100, 20, 20, 20), figureBackground: Color.FromArgb(0,10, 10, 10),grid: Color.FromArgb(100, 40, 40, 40));
+            GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 20, 20, 20), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
+            GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
         }
-        public WpfPlot GraphView => _plotToManage;
+        public WpfPlot GraphView { get; set; }
         public ObservableCollection<LegendItemViewModel> LegendItems { get; set; }
+
+        public event Action<AxisLimits> OnPlotMoved = delegate { };
         public void SetUpLegend(List<PlotType> seriesToPlot)
         {
             foreach (var plotType in seriesToPlot)
@@ -50,19 +55,19 @@ namespace SWTORCombatParser.Plotting
                 switch (plotType)
                 {
                     case PlotType.DamageOutput:
-                        AddSeries(plotType,"Damage Output",Color.MediumVioletRed);
+                        AddSeries(plotType, "Damage Output", Color.IndianRed);
                         break;
                     case PlotType.DamageTaken:
-                        AddSeries(plotType, "Damage Incoming",Color.Peru,true);
+                        AddSeries(plotType, "Damage Incoming", Color.Peru, true);
                         break;
                     case PlotType.SheildedDamageTaken:
                         AddSeries(plotType, "Sheilded Damage Incoming", Color.Magenta);
                         break;
                     case PlotType.HealingOutput:
-                        AddSeries(plotType, "Heal Output", Color.LimeGreen,true);
+                        AddSeries(plotType, "Heal Output", Color.LimeGreen, true);
                         break;
                     case PlotType.HealingTaken:
-                        AddSeries(plotType, "Heal Incoming", Color.CornflowerBlue,true);
+                        AddSeries(plotType, "Heal Incoming", Color.CornflowerBlue, true);
                         break;
                     default:
                         Trace.WriteLine("Invalid Series");
@@ -70,92 +75,183 @@ namespace SWTORCombatParser.Plotting
                 }
             }
         }
-        public void PlotData(Combat combatToPlot)
+        public void HighlightEffect(List<CombatModifier> obj)
         {
-            foreach(var series in _seriesToPlot)
+            ResetEffectVisuals();
+            foreach (var effect in obj)
             {
-                _plotToManage.Plot.Remove(series.Points);
-                _plotToManage.Plot.Remove(series.Line);
-                _plotToManage.Plot.Remove(series.EffectivePoints);
-                _plotToManage.Plot.Remove(series.EffectiveLine);
+                var startTime = _currentCombats.OrderBy(c => c.StartTime).ToList()[0].StartTime;
+                var effectStart = (effect.StartTime - startTime).TotalSeconds;
+                var effectEnd = (effect.StopTime - startTime).TotalSeconds;
+                GraphView.Plot.AddHorizontalSpan(effectStart, effectEnd,color:Color.FromArgb(50,Color.LightYellow));
             }
-            
+
+        }
+        public void UpdateLivePlot(Combat updatedCombat)
+        {
+            ResetEffectVisuals();
+            var staleCombat =  _currentCombats.First(c => c.StartTime == updatedCombat.StartTime);
+            RemoveCombatPlot(staleCombat);
+            _currentCombats.Remove(staleCombat);
+            _currentCombats.Add(updatedCombat);
+            GraphView.Plot.Clear();
+            PlotCombat(updatedCombat);
+        }
+        public void AddCombatPlot(Combat combatToPlot)
+        {
+            ResetEffectVisuals();
+            _currentCombats.Add(combatToPlot);
+            PlotCombat(combatToPlot);
+        }
+        public void RemoveCombatPlot(Combat combatToRemove)
+        {
+            ResetEffectVisuals();
+            if (!_currentCombats.Any(c => c.StartTime == combatToRemove.StartTime))
+                return;
+            _currentCombats.Remove(_currentCombats.First(c => c.StartTime == combatToRemove.StartTime));
+
+            foreach (var series in _seriesToPlot)
+            {
+                if (series.Points.ContainsKey(combatToRemove.StartTime))
+                {
+                    series.Points.Remove(combatToRemove.StartTime);
+                    series.Line.Remove(combatToRemove.StartTime);
+                    series.Tooltip.Remove(combatToRemove.StartTime);
+                }
+                if (series.Legend.HasEffective && series.EffectivePoints.ContainsKey(combatToRemove.StartTime))
+                {
+                    series.Tooltip.Remove(combatToRemove.StartTime);
+                    series.EffectivePoints.Remove(combatToRemove.StartTime);
+                    series.EffectiveLine.Remove(combatToRemove.StartTime); 
+                }
+                
+            }
+            GraphView.Plot.Clear();
+
+            foreach (var remainingCombat in _currentCombats)
+            {
+                PlotCombat(remainingCombat);
+            }
+
+            GraphView.Plot.AxisAuto();
+            GraphView.Plot.SetAxisLimits(xMin: 0);
+
+        }
+        public ObservableCollection<LegendItemViewModel> GetLegends()
+        {
+            return new ObservableCollection<LegendItemViewModel>(_seriesToPlot.Select(s => s.Legend));
+        }
+
+        public void MousePositionUpdated()
+        {
+            foreach (var plot in _seriesToPlot)
+            {
+                if(plot.EffectiveTooltip !=null)
+                    plot.EffectiveTooltip.Values.ToList().ForEach(v=>v.IsVisible = false);
+                if(plot.Tooltip !=null)
+                    plot.Tooltip.Values.ToList().ForEach(v => v.IsVisible = false);
+                foreach(var combat in _currentCombats)
+                {
+                    if (plot.Points.Count > 0 && plot.Points.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.Points[combat.StartTime]))
+                    {
+                        UpdateSeriesAnnotation(plot.Points[combat.StartTime], plot.Tooltip[combat.StartTime], plot.Name, plot.Abilities[combat.StartTime]);
+                    }
+                    if (plot.EffectivePoints.Count > 0 && plot.EffectivePoints.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.EffectivePoints.First().Value))
+                    {
+                        UpdateSeriesAnnotation(plot.EffectivePoints[combat.StartTime], plot.EffectiveTooltip[combat.StartTime], plot.Name + "Effective", plot.Abilities[combat.StartTime]);
+                    }
+                }
+
+            }
+            if (previousPointSelected.Any(kvp => kvp.Value != pointSelected[kvp.Key]))
+            {
+                foreach (var key in pointSelected.Keys)
+                    previousPointSelected[key] = pointSelected[key];
+                Dispatcher.CurrentDispatcher.Invoke(() =>
+                {
+                    GraphView.Render();
+                });
+            }
+        }
+        private void PlotCombat(Combat combatToPlot)
+        {
             foreach (var series in _seriesToPlot)
             {
                 List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot);
                 if (applicableData.Count == 0)
                     continue;
                 var plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
-                var plotYvals = PlotMaker.GetPlotYVals(applicableData,false);
-                var plotYvalSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals,false);
+                var plotYvals = PlotMaker.GetPlotYVals(applicableData, false);
+                var plotYvalSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals, false);
                 List<string> abilityNames = PlotMaker.GetAnnotationString(applicableData);
-                series.Abilities = abilityNames;
-                series.Points = _plotToManage.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: MarkerShape.filledCircle, label: series.Name, color: series.Color, markerSize: 10);
-                series.Line = _plotToManage.Plot.AddScatter(plotXvals, plotYvalSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: series.Name + "/s", color: series.Color, lineWidth:2);
-                series.Line.YAxisIndex = 2;
+                series.Abilities[combatToPlot.StartTime] = abilityNames;
+                var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
+                series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot)+1), label: seriesName, color: series.Color, markerSize: 10);
+                series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvalSums, lineStyle: LineStyle.Solid, markerShape:_currentCombats.Count == 1?MarkerShape.none: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
+                series.Line[combatToPlot.StartTime].YAxisIndex = 2;
                 if (series.Legend.HasEffective)
                 {
                     var effectiveYVals = PlotMaker.GetPlotYVals(applicableData, series.Legend.HasEffective);
                     var effectiveYValSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals, series.Legend.HasEffective);
-                    
-                    series.EffectivePoints = _plotToManage.Plot.AddScatter(plotXvals, effectiveYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Effective" + series.Name, color: series.Color.Lerp(Color.White,0.33f), markerSize: 15);
-                    series.EffectiveLine = _plotToManage.Plot.AddScatter(plotXvals, effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + series.Name + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
-                    series.EffectiveLine.YAxisIndex = 2;
-                    series.EffectivePoints.IsVisible = series.Legend.EffectiveChecked;
-                    series.EffectiveLine.IsVisible = series.Legend.EffectiveChecked;
+                    series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, effectiveYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Effective" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 15);
+                    series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + seriesName + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
+                    series.EffectiveLine[combatToPlot.StartTime].YAxisIndex = 2;
+                    series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
+                    series.EffectiveLine[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                 }
 
-                series.Points.IsVisible = series.Legend.Checked;
-                series.Line.IsVisible = series.Legend.Checked;
+                series.Points[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
+                series.Line[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
+                ReInitializeTooltips(series, combatToPlot.StartTime);
             }
-            _plotToManage.Plot.AxisAuto();
+            GraphView.Plot.AxisAuto();
+            GraphView.Plot.SetAxisLimits(xMin: 0);
         }
-        public ObservableCollection<LegendItemViewModel> GetLegends()
+        private MarkerShape GetMarkerFromNumberOfComparisons(int numberOfComparison)
         {
-            return new ObservableCollection<LegendItemViewModel>(_seriesToPlot.Select(s => s.Legend));
+            switch (numberOfComparison)
+            {
+                case 1:
+                    return MarkerShape.filledCircle;
+                case 2:
+                    return MarkerShape.filledDiamond;
+                case 3:
+                    return MarkerShape.filledSquare;
+                default:
+                    return MarkerShape.hashTag;
+            }
         }
-        private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
-        private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
-        public void MousePositionUpdated()
+        private void UpdatePlotAxis(object sender, EventArgs e)
         {
-            foreach(var plot in _seriesToPlot)
-            {
-                if (plot.Points != null)
-                {
-                    UpdateSeriesAnnotation(plot.Points, plot.Annotation, plot.Name, plot.Abilities); 
-                }
-                if (plot.EffectivePoints != null)
-                {
-                    UpdateSeriesAnnotation(plot.EffectivePoints, plot.EffectiveAnnotation, plot.Name + "Effective", plot.Abilities); 
-                }
-            }
-            if (previousPointSelected.Any(kvp => kvp.Value != pointSelected[kvp.Key]))
-            {
-                foreach (var key in pointSelected.Keys)
-                    previousPointSelected[key] = pointSelected[key];
-                Dispatcher.CurrentDispatcher.Invoke(() => {
-                    _plotToManage.Render();
-                });
-            }
+            OnPlotMoved(GraphView.Plot.GetAxisLimits());
         }
-
-        private void UpdateSeriesAnnotation(ScatterPlot plot, Annotation annotation, string name, List<string> annotationTexts)
+        private void UpdateSeriesAnnotation(ScatterPlot plot, Tooltip annotation, string name, List<string> annotationTexts)
         {
             annotation.IsVisible = plot.IsVisible;
-            (double mouseCoordX, double mouseCoordY) = _plotToManage.GetMouseCoordinates();
-            double xyRatio = _plotToManage.Plot.XAxis.Dims.PxPerUnit / _plotToManage.Plot.YAxis.Dims.PxPerUnit;
+            if (!plot.IsVisible)
+                return;
+            (double mouseCoordX, double mouseCoordY) = GraphView.GetMouseCoordinates();
+            double xyRatio = GraphView.Plot.XAxis.Dims.PxPerUnit / GraphView.Plot.YAxis.Dims.PxPerUnit;
             (double pointX, double pointY, int pointIndex) = plot.GetPointNearest(mouseCoordX, mouseCoordY, xyRatio);
 
             var abilities = annotationTexts;
-            annotation.X = (pointX * _plotToManage.Plot.XAxis.Dims.PxPerUnit) - (_plotToManage.Plot.GetAxisLimits().XMin * _plotToManage.Plot.XAxis.Dims.PxPerUnit) + ((_plotToManage.Plot.GetAxisLimits().XSpan * _plotToManage.Plot.XAxis.Dims.PxPerUnit) / 75);
-            annotation.Y = (_plotToManage.Plot.GetAxisLimits().YMax * _plotToManage.Plot.YAxis.Dims.PxPerUnit) - (pointY * _plotToManage.Plot.YAxis.Dims.PxPerUnit) - ((_plotToManage.Plot.GetAxisLimits().YSpan * _plotToManage.Plot.YAxis.Dims.PxPerUnit) / 75);
-
-            
             annotation.Label = abilities[pointIndex];
+
+            annotation.X = pointX;
+            annotation.Y = pointY;
+            
 
             pointSelected[name] = pointIndex;
             if (!previousPointSelected.ContainsKey(name))
                 previousPointSelected[name] = pointIndex;
+        }
+        private void ResetEffectVisuals()
+        {
+            var horizontalSpans = GraphView.Plot.GetPlottables().Where(p => p.GetType() == typeof(HSpan));
+            foreach (var span in horizontalSpans)
+            {
+                GraphView.Plot.Remove(span);
+            }
         }
         private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot)
         {
@@ -175,7 +271,30 @@ namespace SWTORCombatParser.Plotting
             }
             return null;
         }
+        private void ReInitializeTooltips(CombatMetaDataSeries series, DateTime startTime)
+        {
+            
+            if (series.Legend.HasEffective)
+            {
+                series.EffectiveTooltip[startTime] = GraphView.Plot.AddTooltip("test", 0, 0);
+                series.EffectiveTooltip[startTime].BorderColor = series.Color;
+                series.EffectiveTooltip[startTime].LabelPadding = 2;
+                series.EffectiveTooltip[startTime].Font.Size = 15;
+                series.EffectiveTooltip[startTime].FillColor = Color.Gray;
+                series.EffectiveTooltip[startTime].Font.Color = Color.WhiteSmoke;
+                series.EffectiveTooltip[startTime].IsVisible = false;
+                series.EffectiveTooltip[startTime].ArrowSize = 10;
+            }
 
+            series.Tooltip[startTime] = GraphView.Plot.AddTooltip("test", 0, 0);
+            series.Tooltip[startTime].ArrowSize = 10;
+            series.Tooltip[startTime].LabelPadding = 2;
+            series.Tooltip[startTime].BorderColor = series.Color;
+            series.Tooltip[startTime].Font.Size = 15;
+            series.Tooltip[startTime].FillColor = Color.Gray;
+            series.Tooltip[startTime].Font.Color = Color.WhiteSmoke;
+            series.Tooltip[startTime].IsVisible = false;
+        }
         private void AddSeries(PlotType type, string name, Color color, bool hasEffective = false)
         {
             var series = new CombatMetaDataSeries();
@@ -187,20 +306,13 @@ namespace SWTORCombatParser.Plotting
             legend.Color = series.Color;
             legend.LegenedToggled += series.LegenedToggled;
             legend.HasEffective = hasEffective;
-            if (hasEffective)
-            { 
-                series.EffectiveAnnotation = _plotToManage.Plot.PlotAnnotation("test", 0, 0, fontSize: 25, lineColor: series.Color, fillColor: Color.LightGray, fontColor: Color.WhiteSmoke);
-                series.EffectiveAnnotation.IsVisible = false;
-            }
             series.Legend = legend;
-            series.Annotation = _plotToManage.Plot.PlotAnnotation("test", 0, 0, fontSize: 25, lineColor: series.Color, fillColor: Color.LightGray, fontColor: Color.WhiteSmoke);
-            series.Annotation.IsVisible = false;
-            
             series.TriggerRender += () =>
             {
-                Dispatcher.CurrentDispatcher.Invoke(() => {
-                    _plotToManage.Plot.AxisAuto();
-                    _plotToManage.Render();
+                Dispatcher.CurrentDispatcher.Invoke(() =>
+                {
+                    GraphView.Plot.AxisAuto();
+                    GraphView.Render();
                 });
             };
             _seriesToPlot.Add(series);

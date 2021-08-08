@@ -12,24 +12,30 @@ namespace SWTORCombatParser.Model.CombatParsing
     public class PastCombat : INotifyPropertyChanged
     {
         public event Action<PastCombat> PastCombatSelected = delegate { };
+        public event Action<PastCombat> PastCombatUnSelected = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Combat Combat;
+        private bool isSelected;
+
         public string CombatLabel { get; set; }
         public string CombatDuration { get; set; }
-        public ICommand SelectCombatCommand => new CommandHandler(SelectCombat, () => true);
-        public string SelectedCheck { get; set; } = " ";
-        public void Reset()
+        public bool IsSelected { get => isSelected; set {
+                isSelected = value;
+                if (value)
+                    SelectCombat();
+                else
+                    UnselectCombat();
+                OnPropertyChanged();
+            }
+        }
+        public void UnselectCombat()
         {
-            SelectedCheck = " ";
-            OnPropertyChanged("SelectedCheck");
+            PastCombatUnSelected(this);
         }
         public void SelectCombat()
         {
             PastCombatSelected(this);
-            SelectedCheck = "✓";
-            OnPropertyChanged("SelectedCheck");
-            Trace.WriteLine("Selected " + CombatLabel);
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

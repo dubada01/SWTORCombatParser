@@ -35,7 +35,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return;
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "AbilityActivate")
             {
-                state.Modifiers.Add(new CombatModifier() { Name = "Guarding", StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Guarding });
+                state.Modifiers.Add(new CombatModifier() { Name = "Guarding", Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Guarding });
                 return;
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "AbilityDeactivate")
@@ -45,7 +45,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Apply && state.PlayerName != parsedLine.Source.Name)
             {
-                state.Modifiers.Add(new CombatModifier() { Name = "Guarded", StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Guarded });
+                state.Modifiers.Add(new CombatModifier() { Name = "Guarded", Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Guarded });
                 return;
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Remove && state.PlayerName != parsedLine.Source.Name)
@@ -58,7 +58,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 var effectToStart = state.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
                 if (effectToStart == null || effectToStart.StopTime!=DateTime.MinValue)
                 {
-                    state.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability+ AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    state.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability+ AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
             }
             if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Target.IsPlayer && (parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal"))
@@ -85,10 +85,6 @@ namespace SWTORCombatParser.Model.LogParsing
             if (swtorClass == null)
                 return;
             state.PlayerClass = swtorClass;
-            //if (_healingDisciplines.Contains(state.PlayerClass.Discipline))
-            //    _combatState.HealsPerThreat = 2.2d;
-            //if (_tankDisciplines.Contains(state.PlayerClass.Discipline))
-            //    _combatState.HealsPerThreat = 0.8d;
         }
         private static void SetPlayerName(ParsedLogEntry parsedLine, LogState state)
         {

@@ -18,6 +18,7 @@
     <None Remove=".gitattributes" />
     <None Remove=".gitignore" />
     <None Remove="DataStructures\ClassInfos\Classes.json" />
+    <None Remove="DataStructures\RaidInfos\RaidNames.json" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="TestCombatLogs\combat_2021-07-11_20_54_51_389708.txt" />
     <None Remove="TestCombatLogs\combat_2021-07-15_20_26_17_454472.txt" />
@@ -38,6 +39,9 @@
 
   <ItemGroup>
     <Content Include="DataStructures\ClassInfos\Classes.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\RaidInfos\RaidNames.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestCombatLogs\combat_2021-07-11_20_54_51_389708.txt">

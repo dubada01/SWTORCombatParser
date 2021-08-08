@@ -17,7 +17,7 @@ namespace SWTORCombatParser
         private static DateTime _logDate;
 
         private static LogState _logState = new LogState();
-        public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
+        private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
             _logDate = combatLog.Time;
             var logLines = combatLog.Data.Split('\n');
@@ -38,19 +38,22 @@ namespace SWTORCombatParser
             _logState = CombatLogStateBuilder.GetStateDuringLog(ref lines);
             return _logState;
         }
-
+        public static LogState GetCurrentLogState()
+        {
+            return _logState;
+        }
         public static ParsedLogEntry ParseLine(string logEntry)
         {
             var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
 
             var secondPart = logEntry.Split(']').Last();
-            var value = Regex.Matches(secondPart, @"\(.*?\)", RegexOptions.Compiled);
+            var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
             var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
 
-            if (logEntryInfos.Count != 5 || value.Count == 0 || string.IsNullOrEmpty(value[0].Value))
+            if (logEntryInfos.Count != 5 ||  string.IsNullOrEmpty(value.Value))
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
 
-            var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Select(v => v.Value).First(), threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
+            var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
             if (parsedLine.Target.Name == _logState.PlayerName)
                 parsedLine.Target.IsPlayer = true;
             if (parsedLine.Source.Name == _logState.PlayerName)
@@ -74,6 +77,9 @@ namespace SWTORCombatParser
                 var specialThreatAbilties = _logState.PlayerClass.SpecialThreatAbilities;
 
                 var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => a.Name == parsedLog.Ability);
+
+                if (parsedLog.Ability.Contains("Medpac"))
+                    specialThreatAbilityUsed = new Ability() { StaticThreat = true };
 
                 var effectiveAmmount = 0d;
 
