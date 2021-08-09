@@ -31,15 +31,16 @@ namespace SWTORCombatParser
         private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
         public void MonitorLog(string logToMonitor)
         {
+            _newNumberOfEntries = 0;
+            _numberOfEntries = 0;
+            _combatEndLineIndex = 0;
+            _lastUpdateTime = DateTime.MinValue;
             _logToMonitor = logToMonitor;
             _monitorLog = true;
             PollForUpdates();
         }
         public void StopMonitoring()
         {
-            _newNumberOfEntries = 0;
-            _numberOfEntries = 0;
-            _combatEndLineIndex = 0;
             _monitorLog = false;
             EndCombat();
             _currentFrameData.Clear();
@@ -59,26 +60,31 @@ namespace SWTORCombatParser
         {
             if (!CheckIfStale())
                 return;
+            ParseLog(_logToMonitor);
+        }
+
+        internal void ParseLog(string logToMonitor)
+        {
             _currentFrameData = new List<ParsedLogEntry>();
-            using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, Encoding.Default))
             {
                 var currentState = sr.ReadToEnd().Split('\n');
                 _newNumberOfEntries = currentState.Length;
-                if (_newNumberOfEntries-1 == _numberOfEntries)
+                if (_newNumberOfEntries - 1 == _numberOfEntries)
                     return;
-                CombatLogParser.BuildLogState(CombatLogLoader.LoadSpecificLog(_logToMonitor));
-                for (var line = _numberOfEntries;line < currentState.Length;line++)
+                CombatLogParser.BuildLogState(CombatLogLoader.LoadSpecificLog(logToMonitor));
+                for (var line = _numberOfEntries; line < currentState.Length; line++)
                 {
-                    ProcessNewLine(currentState[line],line);
+                    ProcessNewLine(currentState[line], line);
                 }
                 _numberOfEntries = _newNumberOfEntries - 1;
                 if (!_isInCombat)
                     return;
-                Trace.WriteLine("Current Number Of Rows: " + _numberOfEntries);
                 NewLogEntries(_currentFrameData);
             }
         }
+
         private bool CheckIfStale()
         {
             var fileInfo = new FileInfo(_logToMonitor);
@@ -97,7 +103,6 @@ namespace SWTORCombatParser
             var parsedLine = CombatLogParser.ParseLine(line);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
-                Trace.WriteLine("Received an incomplete line");
                 return;
             }
             if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "EnterCombat")

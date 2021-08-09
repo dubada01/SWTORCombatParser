@@ -17,6 +17,7 @@ namespace SWTORCombatParser
         private static DateTime _logDate;
 
         private static LogState _logState = new LogState();
+        public static event Action<string> OnNewLog = delegate { };
         private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
             _logDate = combatLog.Time;
@@ -78,7 +79,7 @@ namespace SWTORCombatParser
 
                 var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => parsedLog.Ability.Contains(a.Name));
 
-                if (parsedLog.Ability.Contains("Medpac"))
+                if (parsedLog.Ability.Contains("Advanced")&&parsedLog.Ability.Contains("Medpac") && _logState.PlayerClass.Role != Role.Tank)
                     specialThreatAbilityUsed = new Ability() { StaticThreat = true };
 
                 var effectiveAmmount = 0d;
@@ -97,7 +98,17 @@ namespace SWTORCombatParser
 
                 parsedLog.Value.EffectiveDblValue = (int)effectiveAmmount;
                 if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
-                    throw new Exception();
+                {
+                    OnNewLog("**************Impossible Heal! " +
+                          "\nTime: " + parsedLog.TimeStamp +
+                          "\nName: " + parsedLog.Ability +
+                          "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
+                          "\nThreat: " + parsedLog.Threat +
+                          "\nRaw: " + parsedLog.Value.DblValue +
+                          "\nThreat Multiplier: " + _logState.GetCurrentHealsPerThreat(parsedLog.TimeStamp));
+                    parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
+                }
+                return;
             }
             if (parsedLog.Effect.EffectName == "Heal" && parsedLog.Target.IsPlayer)
             {

@@ -3,6 +3,7 @@
     {
       "Name": "Sorcerer",
       "Discipline": "Corruption",
+      "Role":"Healer",
       "SpecialThreatAbilities": [
         {
           "Name": "Unatrual Prerservation",
@@ -38,6 +39,7 @@
     {
       "Name": "Operative",
       "Discipline": "Medicine",
+      "Role":"Healer",
       "SpecialThreatAbilities": [
         {
           "Name": "Surprise Comeback",
@@ -53,13 +55,27 @@
     {
       "Name": "Mercenary",
       "Discipline": "Bodyguard",
+      "Role":"Healer",
       "SpecialThreatAbilities": [
+        {
+          "Name": "Responsive Safeguards",
+          "StaticThreat": true
+        },
+        {
+          "Name": "Kolto Overload",
+          "StaticThreat": true
+        },
+       {
+          "Name": "Trauma Regulators",
+          "StaticThreat": true
+        },
       ],
       "UniqueAbilities": [ "Healing Scan", "Kolto Shell", "Progressive Scan" ]
     },
     {
       "Name": "Sage",
       "Discipline": "Seer",
+      "Role":"Healer",
       "SpecialThreatAbilities": [
 
         {
@@ -72,6 +88,7 @@
     {
       "Name": "Scoundrel",
       "Discipline": "Sawbones",
+      "Role":"Healer",
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Underworld Medicine", "Kolto Cloud", "Emergency Medpac", "Kolto Waves" ]
@@ -79,12 +96,14 @@
     {
       "Name": "Commando",
       "Discipline": "Combat Medic",
+      "Role":"Healer",
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Advanced Medical Probe", "Kolto Bomb", "Successive Treatment" ]
     },
     {
       "Name": "Juggernaut",
+      "Role":"Tank",
       "Discipline": "Immortal",
       "SpecialThreatAbilities": [
       ],

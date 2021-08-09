@@ -14,9 +14,9 @@ namespace SWTORCombatParser.DataStructures
     }
     public enum Role
     {
+        DPS,
         Tank,
-        Healer,
-        DPS
+        Healer   
     }
     public class SWTORClass
     {

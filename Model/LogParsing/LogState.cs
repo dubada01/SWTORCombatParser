@@ -32,15 +32,16 @@ namespace SWTORCombatParser.Model.LogParsing
         public double GetCurrentHealsPerThreat(DateTime timeStamp)
         {
             double healsPerThreat = 2;
+            double healsModifier = 1;
             if (PlayerClass == null)
                 return healsPerThreat;
             if (_healingDisciplines.Contains(PlayerClass.Discipline))
-                healsPerThreat /= 0.9d;
+                healsModifier -= 0.1d;
             if (_tankDisciplines.Contains(PlayerClass.Discipline))
-                healsPerThreat *= 0.4;
+                healsModifier += 1.5d;
             if (GetCombatModifiersAtTime(timeStamp).Any(m => m.Type == CombatModfierType.GuardedThreatReduced))
-                healsPerThreat *= 1; //healsPerThreat *= 1.25;
-            return healsPerThreat;
+                healsModifier -= .25d; //healsPerThreat *= 1.25;
+            return healsPerThreat/healsModifier;
         }
         public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
         {

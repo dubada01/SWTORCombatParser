@@ -29,7 +29,20 @@ namespace SWTORCombatParser.ViewModels
             _combatLogStreamer.CombatStopped += CombatStopped;
             _combatLogStreamer.CombatStarted += CombatStarted;
             _combatLogStreamer.NewLogEntries += UpdateLog;
+
             
+        }
+        public void RunTests()
+        {
+            ////test code
+            var allFiles = CombatLogLoader.LoadAllCombatLogs();
+            foreach (var file in allFiles)
+            {
+                _combatLogStreamer.StopMonitoring();
+
+                _combatLogStreamer.ParseLog(file.Path);
+                OnNewLog("**TEST** - Parsed all combats for: " + file.Path);
+            }
         }
         public event Action OnMonitoringStarted = delegate { };
         public event Action<Combat> OnCombatSelected = delegate { };
@@ -50,13 +63,11 @@ namespace SWTORCombatParser.ViewModels
             LiveParseActive = !LiveParseActive;
             if (LiveParseActive)
             {
-                
                 PastCombats.Clear();
                 OnMonitoringStarted();
                 var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
                 _combatLogStreamer.MonitorLog(mostRecentLog.Path);
                 OnNewLog("Started Monitoring: " + mostRecentLog.Path);
-                
             }
             else
             {
@@ -106,6 +117,7 @@ namespace SWTORCombatParser.ViewModels
         }
         private void CombatStopped(List<ParsedLogEntry> obj)
         {
+
             if(PastCombats.Any(c=>c.CombatLabel.Contains("ongoing...")))
                 App.Current.Dispatcher.Invoke(delegate {
                     PastCombats.Remove(PastCombats.First(c=>c.CombatLabel.Contains("ongoing...")));

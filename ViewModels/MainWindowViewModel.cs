@@ -1,5 +1,6 @@
 ﻿using ScottPlot;
 using SWTORCombatParser.DataStructures.RaidInfos;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Plotting;
@@ -18,10 +19,13 @@ namespace SWTORCombatParser.ViewModels
         private CombatMetaDataViewModel _combatMetaDataViewModel;
         private TableViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
+        private RaidViewModel _raidViewModel;
+        private S3Connection _s3Connection;
         public MainWindowViewModel()
         {
             ClassIdentifier.InitializeAvailableClasses();
             RaidNameLoader.LoadAllRaidNames();
+            _s3Connection = new S3Connection();
 
             _plotViewModel = new PlotViewModel();
             _plotViewModel.OnPlotMoved += UpdateDisplayedData;
@@ -32,9 +36,9 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
             _combatMonitorViewModel.OnLiveCombatUpdate += UpdateLivePlot;
             _combatMonitorViewModel.OnMonitoringStarted += MonitoringStarted;
-            
             _combatMonitorViewModel.OnCharacterNameIdentified += CharacterNameId;
             _combatMonitorViewModel.OnNewLog += NewSoftwareLog;
+            
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
 
             _combatMetaDataViewModel = new CombatMetaDataViewModel();
@@ -46,7 +50,17 @@ namespace SWTORCombatParser.ViewModels
 
             _softwareLogViewModel = new SoftwareLogViewModel();
             SoftwareLogView = new LogsView(_softwareLogViewModel);
+
+            _raidViewModel = new RaidViewModel();
+            RaidView = new RaidView(_raidViewModel);
+
+            CombatLogParser.OnNewLog += NewSoftwareLog;
+
+            //_combatMonitorViewModel.RunTests();
+            _s3Connection.UploadLog("testData", "testGroup","testLogName");
+            var data = _s3Connection.GetLogs("testGroup");
         }
+        public RaidView RaidView { get; set; }
         public GraphView GraphView { get; set; }
         public TableView TableView { get; set; }
         public LogsView SoftwareLogView { get; set; }
