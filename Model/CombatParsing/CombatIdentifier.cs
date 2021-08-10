@@ -27,7 +27,7 @@ namespace SWTORCombatParser
         }
         private static List<string> GetTargets(List<ParsedLogEntry> logs)
         {
-            return logs.Select(l=>l.Target).Where(t=>!t.IsCharacter).Select(npc=>npc.Name).Distinct().ToList();
+            return logs.Select(l=>l.Target).Where(t=>!t.IsCharacter && !t.IsCompanion).Select(npc=>npc.Name).Distinct().ToList();
         }
         private static string GetBossInfo(List<ParsedLogEntry> logs)
         {

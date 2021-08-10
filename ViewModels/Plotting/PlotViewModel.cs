@@ -92,13 +92,12 @@ namespace SWTORCombatParser.Plotting
         public void UpdateLivePlot(Combat updatedCombat)
         {
             ResetEffectVisuals();
-            if (_currentCombats.Count == 0)
-                return;
-            var staleCombat =  _currentCombats.First(c => c.StartTime == updatedCombat.StartTime);
-            RemoveCombatPlot(staleCombat);
-            _currentCombats.Remove(staleCombat);
+            var staleCombat =  _currentCombats.FirstOrDefault(c => c.StartTime == updatedCombat.StartTime);
+            if(staleCombat != null)
+            {
+                RemoveCombatPlot(staleCombat);
+            }
             _currentCombats.Add(updatedCombat);
-            GraphView.Plot.Clear();
             PlotCombat(updatedCombat);
         }
         public void AddCombatPlot(Combat combatToPlot)

@@ -71,7 +71,16 @@ namespace SWTORCombatParser
                 { 
                     parsedLog.Value.EffectiveDblValue = parsedLog.Threat * _logState.GetCurrentHealsPerThreat(parsedLog.TimeStamp);
                     if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
-                        throw new Exception();
+                    {
+                        OnNewLog("**************Impossible Heal! " +
+                          "\nTime: " + parsedLog.TimeStamp +
+                          "\nName: " + parsedLog.Ability +
+                          "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
+                          "\nThreat: " + parsedLog.Threat +
+                          "\nRaw: " + parsedLog.Value.DblValue +
+                          "\nThreat Multiplier: " + _logState.GetCurrentHealsPerThreat(parsedLog.TimeStamp));
+                        parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
+                    }
                     return;
                 }
 

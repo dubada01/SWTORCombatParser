@@ -14,12 +14,13 @@ namespace SWTORCombatParser.Model.CombatParsing
         public event Action<PastCombat> PastCombatSelected = delegate { };
         public event Action<PastCombat> PastCombatUnSelected = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
-
+        public bool IsCurrentCombat;
         public Combat Combat;
         private bool isSelected;
 
         public string CombatLabel { get; set; }
         public string CombatDuration { get; set; }
+        public DateTime CombatStartTime { get; set; }
         public bool IsSelected { get => isSelected; set {
                 isSelected = value;
                 if (value)

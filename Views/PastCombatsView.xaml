@@ -76,6 +76,8 @@
                             </Viewbox>
                             <Viewbox MaxHeight="17" Grid.Row="1" HorizontalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" >
+                                    <TextBlock Grid.Row="1" Text="{Binding CombatStartTime}"></TextBlock>
+                                    <TextBlock Grid.Row="1" HorizontalAlignment="Center" Text=": "></TextBlock>
                                     <TextBlock Grid.Row="1" Text="{Binding CombatDuration}"></TextBlock>
                                     <TextBlock Grid.Row="1" HorizontalAlignment="Center" Text=" sec"></TextBlock>
                                 </StackPanel>
