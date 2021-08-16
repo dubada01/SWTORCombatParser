@@ -95,6 +95,7 @@
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.1" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.1.20" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Npgsql" Version="5.0.7" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="ScottPlot" Version="4.1.16" />
     <PackageReference Include="ScottPlot.WPF" Version="4.1.16" />

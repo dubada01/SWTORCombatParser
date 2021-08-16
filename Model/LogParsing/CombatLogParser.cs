@@ -1,6 +1,8 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.ViewModels.Raiding;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +20,19 @@ namespace SWTORCombatParser
 
         private static LogState _logState = new LogState();
         public static event Action<string> OnNewLog = delegate { };
+        public static event Action RaidingStarted = delegate { };
+        public static event Action RaidingStopped = delegate { };
+        public static RaidInfo CurrentRaidGroup;
+        public static void SetCurrentRaidGroup(RaidInfo raidGroup)
+        {
+            CurrentRaidGroup = raidGroup;
+            RaidingStarted();
+        }
+        public static void ClearRaidGroup()
+        {
+            RaidingStopped();
+            CurrentRaidGroup = null;
+        }
         private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
             _logDate = combatLog.Time;

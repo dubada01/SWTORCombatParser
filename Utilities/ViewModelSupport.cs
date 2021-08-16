@@ -21,7 +21,11 @@ namespace SWTORCombatParser.Utilities
             _action = action;
             _canExecute = canExecute;
         }
-
+        public CommandHandler(Action action)
+        {
+            _action = action;
+            _canExecute = () => true;
+        }
         /// <summary>
         /// Wires CanExecuteChanged event 
         /// </summary>

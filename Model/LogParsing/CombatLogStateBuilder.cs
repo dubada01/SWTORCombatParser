@@ -29,6 +29,15 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return logState;
         }
+        public static LogState GetStateOfRaidingLogs(List<ParsedLogEntry> raidingLogs)
+        {
+            var logState = new LogState();
+            foreach (var log in raidingLogs)
+            {
+                UpdateCombatModifierState(log, logState);
+            }
+            return logState;
+        }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine, LogState state)
         {
             if (parsedLine.Error == ErrorType.IncompleteLine)

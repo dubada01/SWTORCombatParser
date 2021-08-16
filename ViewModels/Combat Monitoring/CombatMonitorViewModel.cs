@@ -29,21 +29,10 @@ namespace SWTORCombatParser.ViewModels
             _combatLogStreamer.CombatStopped += CombatStopped;
             _combatLogStreamer.CombatStarted += CombatStarted;
             _combatLogStreamer.NewLogEntries += UpdateLog;
-
-            
+            CombatLogParser.RaidingStarted += ClearCombats;
+            CombatLogParser.RaidingStopped += ClearCombats;
         }
-        public void RunTests()
-        {
-            ////test code
-            var allFiles = CombatLogLoader.LoadAllCombatLogs();
-            foreach (var file in allFiles)
-            {
-                _combatLogStreamer.StopMonitoring();
 
-                _combatLogStreamer.ParseLog(file.Path);
-                OnNewLog("**TEST** - Parsed all combats for: " + file.Path);
-            }
-        }
         public event Action OnMonitoringStarted = delegate { };
         public event Action<Combat> OnCombatSelected = delegate { };
         public event Action<Combat> OnCombatUnselected = delegate { };
@@ -76,12 +65,18 @@ namespace SWTORCombatParser.ViewModels
             }
             
         }
+        public void ClearCombats()
+        {
+            App.Current.Dispatcher.Invoke(() => {
+                PastCombats.Clear();
+            });
+            
+        }
         public string CurrentlySelectedLogName { get; set; }
         public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog, () => true);
         private void LoadSpecificLog()
         {
             var openFileDialog = new OpenFileDialog();
-            //openFileDialog.DefaultExt = ".txt";
             openFileDialog.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
             if(openFileDialog.ShowDialog() == true)
             {

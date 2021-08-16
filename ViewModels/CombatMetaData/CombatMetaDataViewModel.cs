@@ -48,84 +48,14 @@ namespace SWTORCombatParser.ViewModels
             UpdateMetaDataFromCombat(_currentCombat);
 
         }
-        private void UpdateMetaDataFromCombat(Combat combat)
+        public void UpdateMetaDataFromCombat(Combat combat)
         {
             CombatMetaDatas.Clear();
-            var healingMetaData = new MetaDataInstance()
+            var metaDatas = MetaDataFactory.GetMetaDatas(combat);
+            foreach(var metaData in metaDatas)
             {
-                Color = Brushes.LimeGreen,
-                Category = "Healing",
-                TotalLabel = "Total: ",
-                TotalValue = combat.TotalHealing.ToString("#,##0"),
-                MaxLabel = "Max: ",
-                MaxValue = combat.MaxHeal.ToString("#,##0"),
-                RateLabel = "HPS: ",
-                RateValue = combat.HPS.ToString("#,##0.0"),
-                EffectiveTotalLabel = "Total (E): ",
-                EffectiveTotalValue = combat.TotalEffectiveHealing.ToString("#,##0"),
-                EffectiveMaxLabel = "Max (E): ",
-                EffectiveMaxValue = combat.MaxEffectiveHeal.ToString("#,##0"),
-                EffectiveRateLabel = "EHPS: ",
-                EffectiveRateValue = combat.EHPS.ToString("#,##0.0"),
-            };
-
-            var healingTaken = new MetaDataInstance()
-            {
-                Color = Brushes.CornflowerBlue,
-                Category = "Healing Received",
-                TotalLabel = "Total: ",
-                TotalValue = combat.TotalHealingReceived.ToString("#,##0"),
-                MaxLabel = "Max: ",
-                MaxValue = combat.MaxIncomingHeal.ToString("#,##0"),
-                RateLabel = "HRPS: ",
-                RateValue = combat.HTPS.ToString("#,##0.0"),
-                EffectiveTotalLabel = "Total (E): ",
-                EffectiveTotalValue = combat.TotalEffectiveHealingReceived.ToString("#,##0"),
-                EffectiveMaxLabel = "Max (E): ",
-                EffectiveMaxValue = combat.MaxIncomingEffectiveHeal.ToString("#,##0"),
-                EffectiveRateLabel = "EHRPS: ",
-                EffectiveRateValue = combat.EHTPS.ToString("#,##0.0"),
-            };
-
-            var damageTaken = new MetaDataInstance()
-            {
-                Color = Brushes.Peru,
-                Category = "Damage Taken",
-                TotalLabel = "Total: ",
-                TotalValue = combat.TotalDamageTaken.ToString("#,##0"),
-                MaxLabel = "Max: ",
-                MaxValue = combat.MaxIncomingDamage.ToString("#,##0"),
-                RateLabel = "DTPS: ",
-                RateValue = combat.DTPS.ToString("#,##0.0"),
-                EffectiveTotalLabel = "Total (E): ",
-                EffectiveTotalValue = combat.TotalEffectiveDamageTaken.ToString("#,##0"),
-                EffectiveMaxLabel = "Max (E): ",
-                EffectiveMaxValue = combat.MaxEffectiveIncomingDamage.ToString("#,##0"),
-                EffectiveRateLabel = "EDTPS: ",
-                EffectiveRateValue = combat.EDTPS.ToString("#,##0.0"),
-            };
-
-            var damage = new MetaDataInstance()
-            {
-                Color = Brushes.IndianRed,
-                Category = "Damage",
-                TotalLabel = "Total: ",
-                TotalValue = combat.TotalDamage.ToString("#,##0"),
-                MaxLabel = "Max: ",
-                MaxValue = combat.MaxDamage.ToString("#,##0"),
-                RateLabel = "DPS: ",
-                RateValue = combat.DPS.ToString("#,##0.0"),
-                EffectiveTotalLabel = "Total (E)",
-                EffectiveTotalValue = combat.TotalDamage.ToString("#,##0"),
-                EffectiveMaxLabel = "Max (E)",
-                EffectiveMaxValue = combat.MaxDamage.ToString("#,##0"),
-                EffectiveRateLabel = "EDPS",
-                EffectiveRateValue = combat.DPS.ToString("#,##0.0"),
-            };
-            CombatMetaDatas.Add(damage);
-            CombatMetaDatas.Add(damageTaken);
-            CombatMetaDatas.Add(healingMetaData);
-            CombatMetaDatas.Add(healingTaken);
+                CombatMetaDatas.Add(metaData);
+            }
         }
         internal void UpdateBasedOnVisibleData(AxisLimits newAxisLimits)
         {

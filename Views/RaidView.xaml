@@ -7,6 +7,17 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition  Height="125"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ContentPresenter Grid.Row="0" Content="{Binding RaidSelectionContent}"/>
+        <ListView Grid.Row="1" ItemsSource="{Binding CombatsInRaidGroup}" Background="Transparent" BorderBrush="Transparent">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <local:RaidParticipantView/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </UserControl>

@@ -20,12 +20,10 @@ namespace SWTORCombatParser.ViewModels
         private TableViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
         private RaidViewModel _raidViewModel;
-        private S3Connection _s3Connection;
         public MainWindowViewModel()
         {
             ClassIdentifier.InitializeAvailableClasses();
             RaidNameLoader.LoadAllRaidNames();
-            _s3Connection = new S3Connection();
 
             _plotViewModel = new PlotViewModel();
             _plotViewModel.OnPlotMoved += UpdateDisplayedData;
@@ -56,11 +54,6 @@ namespace SWTORCombatParser.ViewModels
 
             CombatLogParser.OnNewLog += NewSoftwareLog;
 
-            //_combatMonitorViewModel.RunTests();
-            //_s3Connection.UploadLog("testData", "testGroup","testLogName");
-            //var data = _s3Connection.GetLogs("testGroup");
-            //var attempt = _s3Connection.TryAddRaidTeam("TestRaidTeam");
-            //var attempt1 = _s3Connection.TryAddRaidTeam("TestRaidTeam1");
 
         }
         public RaidView RaidView { get; set; }

@@ -7,7 +7,7 @@ namespace SWTORCombatParser
     public class ParsedLogEntry
     {
         public ErrorType Error;
-
+        public long RaidLogId;
         public string LogName;
         public string LogText;
         public DateTime TimeStamp { get; set; }

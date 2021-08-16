@@ -32,12 +32,14 @@ namespace SWTORCombatParser
 
             return combatLogsData.Where(l=>l.Data!="").OrderByDescending(v => v.Time).ToArray();
         }
-            
-        public static CombatLogFile LoadMostRecentLog()
+        public static string GetMostRecentCombatFile()
         {
             var files = new DirectoryInfo(_logPath).EnumerateFiles();
-            var mostRecentFile = files.OrderByDescending(f => f.LastWriteTime).ToList()[0];
-            return LoadSpecificLog(mostRecentFile.FullName);
+            return files.OrderByDescending(f => f.LastWriteTime).ToList()[0].FullName;
+        }
+        public static CombatLogFile LoadMostRecentLog()
+        {   
+            return LoadSpecificLog(GetMostRecentCombatFile());
         }
         public static CombatLogFile LoadMostRecentPopulatedLog()
         {

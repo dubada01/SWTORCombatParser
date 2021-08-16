@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures.RaidInfos;
+using SWTORCombatParser.Model.CloudRaiding;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,6 +38,7 @@ namespace SWTORCombatParser
             _lastUpdateTime = DateTime.MinValue;
             _logToMonitor = logToMonitor;
             _monitorLog = true;
+            _firstTimeThroughLog = true;
             PollForUpdates();
         }
         public void StopMonitoring()
@@ -60,10 +62,10 @@ namespace SWTORCombatParser
         {
             if (!CheckIfStale())
                 return;
-            ParseLog(_logToMonitor);
+            ParseLogFile(_logToMonitor);
         }
-
-        internal void ParseLog(string logToMonitor)
+        private bool _firstTimeThroughLog = true;
+        internal void ParseLogFile(string logToMonitor)
         {
             _currentFrameData = new List<ParsedLogEntry>();
             using (var fs = new FileStream(logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -76,12 +78,24 @@ namespace SWTORCombatParser
                 CombatLogParser.BuildLogState(CombatLogLoader.LoadSpecificLog(logToMonitor));
                 for (var line = _numberOfEntries; line < currentState.Length; line++)
                 {
-                    ProcessNewLine(currentState[line], line);
+                    ProcessNewLine(currentState[line], line, logToMonitor);
                 }
                 _numberOfEntries = _newNumberOfEntries - 1;
                 if (!_isInCombat)
                     return;
-                NewLogEntries(_currentFrameData);
+                _firstTimeThroughLog = false;
+                if (CombatLogParser.CurrentRaidGroup != null)
+                {
+                    var cloudRaiding = new PostgresConnection();
+                    Parallel.ForEach(_currentFrameData, log =>
+                    {
+                        cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
+                    });
+                }
+                else
+                {
+                    NewLogEntries(_currentFrameData);
+                }
             }
         }
 
@@ -93,7 +107,7 @@ namespace SWTORCombatParser
             _lastUpdateTime = fileInfo.LastWriteTime;
             return true;
         }
-        private void ProcessNewLine(string line,long lineIndex)
+        private void ProcessNewLine(string line,long lineIndex,string logName)
         {
             if (string.IsNullOrEmpty(line))
             {
@@ -101,15 +115,21 @@ namespace SWTORCombatParser
                 return;
             }
             var parsedLine = CombatLogParser.ParseLine(line);
+            parsedLine.LogName = Path.GetFileName(logName);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
                 return;
             }
+            CheckForCombatState(lineIndex, parsedLine);
+        }
+
+        private void CheckForCombatState(long lineIndex, ParsedLogEntry parsedLine)
+        {
             if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "EnterCombat")
             {
-                _isInCombat = true;
-
-                CombatStarted(parsedLine.Source.Name, parsedLine.Value.StrValue);
+                _isInCombat = true; 
+                if (CombatLogParser.CurrentRaidGroup == null)
+                    CombatStarted(parsedLine.Source.Name, parsedLine.Value.StrValue);
             }
             if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat")
             {
@@ -120,7 +140,7 @@ namespace SWTORCombatParser
                 EndCombat();
             CheckForCombatEnd(lineIndex);
             if (_isInCombat)
-            { 
+            {
                 _currentFrameData.Add(parsedLine);
                 _currentCombatData.Add(parsedLine);
             }
@@ -137,7 +157,20 @@ namespace SWTORCombatParser
         {
             _isInCombat = false;
             _combatEnding = false;
-            CombatStopped(_currentCombatData);
+            if (CombatLogParser.CurrentRaidGroup != null && !_firstTimeThroughLog)
+            {
+                var cloudRaiding = new PostgresConnection();
+                Parallel.ForEach(_currentFrameData, log =>
+                {
+                    cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
+                });
+            }
+            else
+            {
+                if(CombatLogParser.CurrentRaidGroup == null)
+                    CombatStopped(_currentCombatData);
+            }
+            
             _currentCombatData.Clear();
         }
     }
