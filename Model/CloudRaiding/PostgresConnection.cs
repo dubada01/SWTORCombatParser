@@ -11,7 +11,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 {
     public class PostgresConnection
     {
-        private string _dbConnectionString = "Host=swtor-parsing-db-instance-1.cagglk8w6mwm.us-west-2.rds.amazonaws.com;Port=3306;Username=master_user;Password=d5525end;Database=swtor-parse";
+        private string _dbConnectionString = "Host=swtorparse-free.cagglk8w6mwm.us-west-2.rds.amazonaws.com;Port=5432;Username=master_user;Password=d5525end;Database=swtor-parse";
         public PostgresConnection()
         {
         }
