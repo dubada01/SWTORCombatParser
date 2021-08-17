@@ -8,25 +8,30 @@ using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel:INotifyPropertyChanged
     {
         private PlotViewModel _plotViewModel;
         private CombatMonitorViewModel _combatMonitorViewModel;
-        private CombatMetaDataViewModel _combatMetaDataViewModel;
+
         private TableViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
         private RaidViewModel _raidViewModel;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public MainWindowViewModel()
         {
             ClassIdentifier.InitializeAvailableClasses();
             RaidNameLoader.LoadAllRaidNames();
 
             _plotViewModel = new PlotViewModel();
-            _plotViewModel.OnPlotMoved += UpdateDisplayedData;
             GraphView = new GraphView(_plotViewModel);
 
             _combatMonitorViewModel = new CombatMonitorViewModel();
@@ -39,9 +44,7 @@ namespace SWTORCombatParser.ViewModels
             
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
 
-            _combatMetaDataViewModel = new CombatMetaDataViewModel();
-            _combatMetaDataViewModel.OnEffectSelected += NewEffectSelected;
-            CombatMetaDataView = new CombatMetaDataView(_combatMetaDataViewModel);
+
 
             _tableViewModel = new TableViewModel();
             TableView = new TableView(_tableViewModel);
@@ -50,6 +53,7 @@ namespace SWTORCombatParser.ViewModels
             SoftwareLogView = new LogsView(_softwareLogViewModel);
 
             _raidViewModel = new RaidViewModel();
+            _raidViewModel.RaidStateChanged += RaidingStateChaneged;
             RaidView = new RaidView(_raidViewModel);
 
             CombatLogParser.OnNewLog += NewSoftwareLog;
@@ -61,7 +65,13 @@ namespace SWTORCombatParser.ViewModels
         public TableView TableView { get; set; }
         public LogsView SoftwareLogView { get; set; }
         public PastCombatsView PastCombatsView { get; set; }
-        public CombatMetaDataView CombatMetaDataView { get; set; }
+
+        public SolidColorBrush RaidingActiveColor { get; set; }
+        private void RaidingStateChaneged(bool state)
+        {
+            RaidingActiveColor = state ? Brushes.LightGreen : Brushes.Transparent;
+            OnPropertyChanged("RaidingActiveColor");
+        }
         private void MonitoringStarted()
         {
             App.Current.Dispatcher.Invoke(delegate {
@@ -83,7 +93,7 @@ namespace SWTORCombatParser.ViewModels
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.UpdateLivePlot(obj);
                 _tableViewModel.AddCombatLogs(obj.Logs);
-                _combatMetaDataViewModel.PopulateCombatMetaDatas(obj);
+
             });
         }
         private void NewSoftwareLog(string log)
@@ -91,26 +101,26 @@ namespace SWTORCombatParser.ViewModels
             var newLog = new SoftwareLogInstance() { TimeStamp = DateTime.Now, Message = log };
             _softwareLogViewModel.AddNewLog(newLog);
         }
-        private void NewEffectSelected(List<CombatModifier> obj)
-        {
-            _plotViewModel.HighlightEffect(obj);
-        }
         private void SelectCombat(Combat obj)
         {
             App.Current.Dispatcher.Invoke(delegate{
                 _plotViewModel.AddCombatPlot(obj);
                 _tableViewModel.AddCombatLogs(obj.Logs);
-                _combatMetaDataViewModel.PopulateCombatMetaDatas(obj);
+
             });
             
         }
         private void UpdateDisplayedData(AxisLimits newAxisLimits)
         {
-            _combatMetaDataViewModel.UpdateBasedOnVisibleData(newAxisLimits);
+            
         }
         private void CharacterNameId(string obj)
         {
-            _combatMetaDataViewModel.CharacterName = obj;
+            _plotViewModel.SetCharacterName(obj);
+        }
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

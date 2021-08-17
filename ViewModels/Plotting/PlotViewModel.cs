@@ -2,6 +2,7 @@
 using ScottPlot.Plottable;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,8 +28,13 @@ namespace SWTORCombatParser.Plotting
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
         private List<CombatMetaDataSeries> _seriesToPlot = new List<CombatMetaDataSeries>();
         private List<Combat> _currentCombats = new List<Combat>();
+        private CombatMetaDataViewModel _combatMetaDataViewModel;
         public PlotViewModel()
         {
+            _combatMetaDataViewModel = new CombatMetaDataViewModel();
+            _combatMetaDataViewModel.OnEffectSelected += HighlightEffect;
+            CombatMetaDataView = new CombatMetaDataView(_combatMetaDataViewModel);
+
             GraphView = new WpfPlot();
             GraphView.Plot.XLabel("Combat Duration (s)");
             GraphView.Plot.YLabel("Ammount");
@@ -44,10 +50,9 @@ namespace SWTORCombatParser.Plotting
             GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 20, 20, 20), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
         }
+        public CombatMetaDataView CombatMetaDataView { get; set; }
         public WpfPlot GraphView { get; set; }
         public ObservableCollection<LegendItemViewModel> LegendItems { get; set; }
-
-        public event Action<AxisLimits> OnPlotMoved = delegate { };
         public void ConfigureSeries(List<PlotType> seriesToPlot)
         {
             foreach (var plotType in seriesToPlot)
@@ -89,6 +94,12 @@ namespace SWTORCombatParser.Plotting
             }
 
         }
+
+        internal void SetCharacterName(string obj)
+        {
+            _combatMetaDataViewModel.CharacterName = obj;
+        }
+
         public void UpdateLivePlot(Combat updatedCombat)
         {
             ResetEffectVisuals();
@@ -215,6 +226,7 @@ namespace SWTORCombatParser.Plotting
             }
             GraphView.Plot.AxisAuto();
             GraphView.Plot.SetAxisLimits(xMin: 0);
+            _combatMetaDataViewModel.PopulateCombatMetaDatas(combatToPlot);
         }
         private MarkerShape GetMarkerFromNumberOfComparisons(int numberOfComparison)
         {
@@ -232,7 +244,7 @@ namespace SWTORCombatParser.Plotting
         }
         private void UpdatePlotAxis(object sender, EventArgs e)
         {
-            OnPlotMoved(GraphView.Plot.GetAxisLimits());
+            _combatMetaDataViewModel.UpdateBasedOnVisibleData(GraphView.Plot.GetAxisLimits());
         }
         private void UpdateSeriesAnnotation(ScatterPlot plot, Tooltip annotation, string name, List<(string, string)> annotationTexts, bool effective)
         {

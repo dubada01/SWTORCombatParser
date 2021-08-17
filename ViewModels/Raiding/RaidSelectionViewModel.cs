@@ -50,11 +50,11 @@ namespace SWTORCombatParser.ViewModels.Raiding
         public string RaidGroupPassword { get; set; }
         public Guid GroupId { get; set; }
 
-        public ICommand CancelRaiding => new CommandHandler(Cancel);
-
-        private void Cancel()
+        public void Cancel()
         {
+            SelectedRaidGroup = null;
             RaidingStateChanged(false, null);
+            OnPropertyChanged("SelectedRaidGroup");
         }
 
         public ICommand CreateNewGroup => new CommandHandler(NewGroup);

@@ -6,11 +6,11 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border Grid.Row="0" BorderBrush="DimGray" BorderThickness="0,0,0,2">
+    <Border Grid.Row="0" BorderBrush="DimGray" BorderThickness="0,0,0,1">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="2"/>
+                <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
@@ -67,9 +67,7 @@
                         <Button Command="{Binding CreateNewGroup}" MaxHeight="40" Margin="15,0,0,0" VerticalAlignment="Bottom" Content="  Create  "></Button>
                     </StackPanel>
                 </Viewbox>
-
             </Grid>
-
         </Grid>
     </Border>
 </UserControl>

@@ -16,11 +16,16 @@
             <RowDefinition Height=".85*"/>
             <RowDefinition Height=".1*"/>
         </Grid.RowDefinitions>
-        <TabControl BorderThickness="3,2,3,0" BorderBrush="DimGray" Background="Transparent" Grid.RowSpan="3" Grid.Column="1">
+        <TabControl BorderThickness="3,2,3,0" BorderBrush="DimGray" Background="LightGray" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
             <TabItem FontSize="25" Padding="15,5,15,5" Header="Graph">
                 <ContentPresenter Content="{Binding GraphView}"/>
             </TabItem>
-            <TabItem FontSize="25" Padding="15,5,15,5" Header="Raiding">
+            <TabItem FontSize="25" Padding="0,0,0,0">
+                <TabItem.Header>
+                    <Border BorderThickness="4" BorderBrush="{Binding RaidingActiveColor}" Padding="5">
+                        <TextBlock Text="Raiding"></TextBlock>
+                    </Border>
+                </TabItem.Header>
                 <ContentPresenter Content="{Binding RaidView}"/>
             </TabItem>
             <TabItem FontSize="25" Padding="15,5,15,5" Header="Table">
@@ -31,7 +36,7 @@
             </TabItem>
         </TabControl>
 
-        <ContentPresenter Content="{Binding CombatMetaDataView}" Grid.Column="2" Grid.RowSpan="2" Grid.Row="0"></ContentPresenter>
+        
 
         <ContentPresenter Grid.RowSpan="2"  Margin="5,5,5,5" Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
 

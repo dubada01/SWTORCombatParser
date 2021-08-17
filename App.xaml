@@ -10,6 +10,7 @@
             </ResourceDictionary.MergedDictionaries>
             <converters:PastCombatSelectedToBackgroundConverter x:Key="PastCombatSelectedToBackgroundConverter"/>
             <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>
+            <converters:RaidGroupToVisibilityConverter x:Key="RaidGroupToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

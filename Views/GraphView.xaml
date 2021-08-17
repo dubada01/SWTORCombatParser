@@ -11,6 +11,10 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.8*"/>
+            <ColumnDefinition Width="0.2*"/>
+        </Grid.ColumnDefinitions>
         <Image Margin="60,45,70,75" Source="../resources/SwtorLogo.png"></Image>
         <ContentPresenter Content="{Binding GraphView}" MouseMove="GridView_MouseMove" Margin="5" Name="GridView" Grid.RowSpan="1"></ContentPresenter>
         <Border Margin="50,0,50,0" Background="DimGray" CornerRadius="5,5,0,0" Grid.Row="1" HorizontalAlignment="Center" BorderBrush="LightGray" BorderThickness="0">
@@ -44,5 +48,6 @@
             </Viewbox>
 
         </Border>
+        <ContentPresenter Content="{Binding CombatMetaDataView}" Grid.Column="1"></ContentPresenter>
     </Grid>
 </UserControl>
