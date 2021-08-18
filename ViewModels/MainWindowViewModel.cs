@@ -54,6 +54,8 @@ namespace SWTORCombatParser.ViewModels
 
             _raidViewModel = new RaidViewModel();
             _raidViewModel.RaidStateChanged += RaidingStateChaneged;
+            _raidViewModel.OnNewRaidCombat += RaidCombatAdded;
+            _raidViewModel.OnRaidParticipantSelected += RaidPariticpantSelected;
             RaidView = new RaidView(_raidViewModel);
 
             CombatLogParser.OnNewLog += NewSoftwareLog;
@@ -71,6 +73,23 @@ namespace SWTORCombatParser.ViewModels
         {
             RaidingActiveColor = state ? Brushes.LightGreen : Brushes.Transparent;
             OnPropertyChanged("RaidingActiveColor");
+        }
+        private void RaidPariticpantSelected(string name)
+        {
+            App.Current.Dispatcher.Invoke(delegate
+            {
+                _plotViewModel.SetCharacterName(name);
+                _combatMonitorViewModel.ClearCombats();
+            });
+        }
+        private void RaidCombatAdded(Combat combatAdded)
+        {
+            if (combatAdded == null)
+                return;
+            App.Current.Dispatcher.Invoke(delegate
+            {
+                _combatMonitorViewModel.AddRaidCombat(combatAdded);
+            });
         }
         private void MonitoringStarted()
         {

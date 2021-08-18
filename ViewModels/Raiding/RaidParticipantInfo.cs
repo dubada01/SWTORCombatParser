@@ -12,8 +12,9 @@ namespace SWTORCombatParser.ViewModels.Raiding
 {
     public class RaidParticipantInfo:INotifyPropertyChanged
     {
-        public RaidParticipantInfo(List<ParsedLogEntry> logs)
+        public RaidParticipantInfo(List<ParsedLogEntry> logs, string logName)
         {
+            LogName = logName;
             Update(logs);
 
         }
@@ -39,10 +40,12 @@ namespace SWTORCombatParser.ViewModels.Raiding
             });
 
         }
+        public string LogName { get; set; }
         public string PlayerName { get; set; }
         public LogState ParticipantCurrentState { get; set; } 
         public List<ParsedLogEntry> CurrentLogs { get; set; } = new List<ParsedLogEntry>();
         public Combat CurrentCombatInfo { get; set; }
+        public List<Combat> PastCombats { get; set; } = new List<Combat>();
         public ObservableCollection<MetaDataInstance> MetaDatas { get; set; } = new ObservableCollection<MetaDataInstance>();
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -52,6 +55,17 @@ namespace SWTORCombatParser.ViewModels.Raiding
         private List<ParsedLogEntry> GetValidLogs(List<ParsedLogEntry> incomingLogs)
         {
             return incomingLogs.Where(l => !CurrentLogs.Any(cl => cl.RaidLogId == l.RaidLogId)).ToList();
+        }
+        internal void FinishCombat()
+        {
+            if (CurrentLogs.Count > 0)
+                PastCombats.Add(CombatIdentifier.ParseOngoingCombat(CurrentLogs));
+        }
+        internal void ResetCombat()
+        {
+            CurrentLogs.Clear();
+            CurrentCombatInfo = null;
+            MetaDatas.Clear();
         }
     }
 }

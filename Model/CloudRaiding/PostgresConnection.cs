@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">=\'{GetUTCTimeStamp(loggingStarted).ToString("yyyy-MM-dd hh:mm:ss.ms")}\' and raid_group_id='{groupId}'", connection))
+                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">\'{GetUTCTimeStamp(loggingStarted).ToString("yyyy-MM-dd hh:mm:ss.ms")}\' and raid_group_id='{groupId}'", connection))
                 {
                     using (var reader = cmd.ExecuteReaderAsync().Result)
                     {

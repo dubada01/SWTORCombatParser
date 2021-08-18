@@ -12,18 +12,24 @@
             <RowDefinition Height="0.05*"/>
             <RowDefinition Height="0.9*"/>
         </Grid.RowDefinitions>
-        <Border CornerRadius="5" Grid.Row="0" Margin="0,13,0,0" BorderBrush="DimGray" Padding="0,10,0,0" BorderThickness="2">
+        <Border Background="LightGray" CornerRadius="5" Grid.Row="0" Margin="0,13,0,0" BorderBrush="DimGray" Padding="0,0,0,0" BorderThickness="2">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="0.33*"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="0.01*"/>
+                    <RowDefinition Height="1"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Grid>
+                <Viewbox Grid.Row="0"  MaxHeight="50" Margin="10,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <TextBlock IsHitTestVisible="False" FontWeight="DemiBold" Text="Log Selection"></TextBlock>
+                </Viewbox>
+                
+                <Grid Grid.Row="1" VerticalAlignment="Bottom" Margin="0,0,0,10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height=".33*"/>
                         <RowDefinition Height=".66*"/>
                     </Grid.RowDefinitions>
+                    
                     <Viewbox MaxHeight="25" VerticalAlignment="Bottom">
                         <TextBlock  Text="Live Parse" HorizontalAlignment="Center"></TextBlock>
                     </Viewbox>
@@ -31,8 +37,8 @@
                         <Button Width="50" Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}" Command="{Binding  ToggleLiveParseCommand}"></Button>
                     </Viewbox>
                 </Grid>
-                <Rectangle Grid.Row="1" Fill="DimGray" HorizontalAlignment="Stretch" Margin="2,0,2,0"></Rectangle>
-                <Grid Grid.Row="2">
+                <Rectangle Grid.Row="2" Fill="DimGray" HorizontalAlignment="Stretch" Margin="2,0,2,0"></Rectangle>
+                <Grid Grid.Row="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height=".33*"/>
                         <RowDefinition Height=".66*"/>
@@ -46,18 +52,16 @@
                             <ColumnDefinition Width="0.85*"/>
                             <ColumnDefinition Width="0.25*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" MaxHeight="40" Margin="5,15,0,15" IsReadOnly="True"></TextBox>
+                        <TextBox MinHeight="20" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" MaxHeight="40" Margin="5,15,0,15" IsReadOnly="True"></TextBox>
                         <Viewbox VerticalAlignment="Center" Grid.Column="1" MaxHeight="30">
                             <Button Width="40" Margin="5,0,5,0" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
                         </Viewbox>
                     </Grid>
-                        
-                   
                 </Grid>
             </Grid>
-            
         </Border>
-        <TextBlock Background="Gray" Height="26" Width="130" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="20" Text=" Log Selection" Margin="15,0,0,0"></TextBlock>
+        
+       
         <Viewbox Grid.Column="0" Margin="10,0,10,0" Grid.Row="1" VerticalAlignment="Center">
             <TextBlock Text="Previous Combats" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
         </Viewbox>

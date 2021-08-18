@@ -164,6 +164,16 @@ namespace SWTORCombatParser
                 {
                     cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
                 });
+                cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, 
+                    new ParsedLogEntry {
+                        TimeStamp = DateTime.Now,
+                        Ability="SWTOR_PARSING_COMBAT_END",
+                        Source = new Entity(),
+                        Target=new Entity(),
+                        Value = new Value(),
+                        Effect = new Effect(),
+                        LogName = Path.GetFileName(_logToMonitor)
+                    });
             }
             else
             {

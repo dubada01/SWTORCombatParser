@@ -33,7 +33,7 @@
                 <ContentPresenter VerticalAlignment="top" Grid.Row="1" Content="{Binding SelectedRaidGroupView}"/>
             </Grid>
             <Rectangle Grid.Column="1" Fill="DimGray" Margin="0,2,0,2"/>
-            <ListView Grid.Column="2" ItemsSource="{Binding CombatsInRaidGroup}" Background="Transparent" BorderBrush="Transparent">
+            <ListView Grid.Column="2" ItemsSource="{Binding CombatsInRaidGroup}" SelectedItem="{Binding SelectedParticipant}" Background="Transparent" BorderBrush="Transparent">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <local:RaidParticipantView/>

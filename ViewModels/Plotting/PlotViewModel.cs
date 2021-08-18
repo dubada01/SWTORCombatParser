@@ -47,7 +47,7 @@ namespace SWTORCombatParser.Plotting
             legend.FontSize = 15;
             ConfigureSeries(new List<PlotType> { PlotType.DamageOutput, PlotType.DamageTaken, PlotType.HealingOutput, PlotType.HealingTaken });
             LegendItems = GetLegends();
-            GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 20, 20, 20), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
+            GraphView.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
         }
         public CombatMetaDataView CombatMetaDataView { get; set; }
@@ -207,21 +207,31 @@ namespace SWTORCombatParser.Plotting
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
                 series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot)+1), label: seriesName, color: series.Color, markerSize: 10);
-                series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvalSums, lineStyle: LineStyle.Solid, markerShape:_currentCombats.Count == 1?MarkerShape.none: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
-                series.Line[combatToPlot.StartTime].YAxisIndex = 2;
+                if (plotXvals.Length > 1)
+                {
+                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals.Skip(1).ToArray(), plotYvalSums, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
+                    series.Line[combatToPlot.StartTime].YAxisIndex = 2;
+                }
                 if (series.Legend.HasEffective)
                 {
                     var effectiveYVals = PlotMaker.GetPlotYVals(applicableData, series.Legend.HasEffective);
                     var effectiveYValSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals, series.Legend.HasEffective);
                     series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, effectiveYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Effective" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 15);
-                    series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + seriesName + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
-                    series.EffectiveLine[combatToPlot.StartTime].YAxisIndex = 2;
                     series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
-                    series.EffectiveLine[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
+                    if (plotXvals.Length > 1)
+                    {
+                        series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals.Skip(1).ToArray(), effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + seriesName + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
+                        series.EffectiveLine[combatToPlot.StartTime].YAxisIndex = 2;
+                        series.EffectiveLine[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
+                    }
+                   
                 }
 
                 series.Points[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
-                series.Line[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
+                if (plotXvals.Length > 1)
+                {
+                    series.Line[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
+                }
                 ReInitializeTooltips(series, combatToPlot.StartTime);
             }
             GraphView.Plot.AxisAuto();

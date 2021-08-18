@@ -8,6 +8,8 @@ namespace SWTORCombatParser.Utilities
     {
         public static string MakePGSQLSafe(this string str)
         {
+            if (string.IsNullOrEmpty(str))
+                return "";
             return str.Replace("\'", "''");
         }
     }

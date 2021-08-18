@@ -13,7 +13,7 @@
             <RowDefinition Height="0.3*"/>
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
-        <Border Grid.Row="0" Grid.Column="2" Background="CadetBlue" BorderBrush="DimGray" Margin="2" BorderThickness="2,2,2,2">
+        <Border Grid.Row="0" Grid.Column="2" Background="SteelBlue" BorderBrush="DimGray" Margin="2" BorderThickness="2,2,2,2">
             <Viewbox>
                 <TextBlock Foreground="LightGray" Text="{Binding CharacterName}" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"></TextBlock>
             </Viewbox>

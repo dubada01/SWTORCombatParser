@@ -89,6 +89,12 @@ namespace SWTORCombatParser.ViewModels
                 _combatLogStreamer.MonitorLog(logInfo.Path);
             }
         }
+
+        internal void AddRaidCombat(Combat combatAdded)
+        {
+            AddCombat(false, combatAdded);
+        }
+
         private void UpdateLog(List<ParsedLogEntry> obj)
         {
             _totalLogsDuringCombat.AddRange(obj);
@@ -126,8 +132,9 @@ namespace SWTORCombatParser.ViewModels
         {
             var removingOngoing = false;
             if (PastCombats.Any(c => c.IsCurrentCombat))
-                App.Current.Dispatcher.Invoke(delegate {
-                var ongoingCombat = PastCombats.First(c => c.IsCurrentCombat);
+                App.Current.Dispatcher.Invoke(delegate
+                {
+                    var ongoingCombat = PastCombats.First(c => c.IsCurrentCombat);
                     ongoingCombat.IsSelected = false;
                     PastCombats.Remove(ongoingCombat);
                     removingOngoing = true;
@@ -137,17 +144,24 @@ namespace SWTORCombatParser.ViewModels
             _totalLogsDuringCombat.Clear();
             _totalLogsDuringCombat.AddRange(obj);
             var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat.ToList());
-            var combatUI = new PastCombat() { Combat = combatInfo, CombatLabel = combatInfo.RaidBossInfo == ""?string.Join(", ", combatInfo.Targets):combatInfo.RaidBossInfo, CombatDuration = combatInfo.DurationSeconds.ToString(),CombatStartTime = combatInfo.StartTime };
+            AddCombat(removingOngoing, combatInfo);
+            _totalLogsDuringCombat.Clear();
+        }
+
+        public void AddCombat(bool removingOngoing, Combat combatInfo)
+        {
+            var combatUI = new PastCombat() { Combat = combatInfo, CombatLabel = combatInfo.RaidBossInfo == "" ? string.Join(", ", combatInfo.Targets) : combatInfo.RaidBossInfo, CombatDuration = combatInfo.DurationSeconds.ToString(), CombatStartTime = combatInfo.StartTime };
             combatUI.PastCombatSelected += SelectCombat;
             combatUI.PastCombatUnSelected += UnselectCombat;
-            App.Current.Dispatcher.Invoke(delegate {
+            App.Current.Dispatcher.Invoke(delegate
+            {
                 PastCombats.Insert(0, combatUI);
                 if (removingOngoing)
                     combatUI.IsSelected = true;
             });
-            OnNewLog("Combat with duration " + combatInfo.DurationSeconds +" ended");
-            _totalLogsDuringCombat.Clear();
+            OnNewLog("Combat with duration " + combatInfo.DurationSeconds + " ended");
         }
+
         private void UnselectCombat(PastCombat unslectedCombat)
         {
             _numberOfSelectedCombats--;

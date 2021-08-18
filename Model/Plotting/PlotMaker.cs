@@ -26,10 +26,10 @@ namespace SWTORCombatParser
             double sum = 0;
             var sums = new List<double>();
             if(!checkEffective)
-                sums = totalLogsDuringCombat.Select((l) => sum += l.Value.DblValue).ToList();
+                sums = totalLogsDuringCombat.Skip(1).Select((l) => sum += l.Value.DblValue).ToList();
             else
-                sums = totalLogsDuringCombat.Select((l) => sum += l.Value.EffectiveDblValue).ToList();
-            return sums.Select((s,i)=>s/ (timeStamps[i])).ToArray();
+                sums = totalLogsDuringCombat.Skip(1).Select((l) => sum += l.Value.EffectiveDblValue).ToList();
+            return sums.Select((s,i)=>s / (timeStamps.Skip(1).ToArray()[i])).ToArray();
         }
 
         internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data)

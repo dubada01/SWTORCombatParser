@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Utilities.Converters
             switch((bool)value)
             {
                 case true:
-                    return System.Windows.Media.Brushes.PaleGreen;
+                    return System.Windows.Media.Brushes.LightSteelBlue;
                 case false:
                     return System.Windows.Media.Brushes.LightGray;
             }
