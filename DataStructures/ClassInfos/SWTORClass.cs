@@ -14,6 +14,7 @@ namespace SWTORCombatParser.DataStructures
     }
     public enum Role
     {
+        Unknown,
         DPS,
         Tank,
         Healer   

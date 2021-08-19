@@ -6,28 +6,34 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border BorderBrush="Black" BorderThickness="2" CornerRadius="5">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.25*"/>
-                <ColumnDefinition Width="0.75*"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Vertical">
-                <TextBlock Text="{Binding PlayerName}"></TextBlock>
-                <Image Source="{Binding ParticipantCurrentState.PlayerClass.Role}"></Image>
-            </StackPanel>
-            <ItemsControl Grid.Column="1" ItemsSource="{Binding MetaDatas}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Rows="2" Columns="2"></UniformGrid>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <local:CombatMetaDataInstance/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Grid>
-    </Border>
+    <Viewbox MaxHeight="200">
+        <Border BorderBrush="Black" BorderThickness="2" CornerRadius="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="600"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="10" Grid.Column="0" Orientation="Vertical">
+                    <TextBlock Text="{Binding PlayerName}" VerticalAlignment="Top"></TextBlock>
+                    <Image MaxHeight="45" Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding PlayerRole, Converter={StaticResource RoleToImageSourceConverter}}"></Image>
+                </StackPanel>
+                <ItemsControl HorizontalAlignment="Right" Grid.Column="1" ItemsSource="{Binding MetaDatas}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="2" Columns="2"></UniformGrid>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Viewbox>
+                                <local:CombatMetaDataInstance Width="400"/>
+                            </Viewbox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Border>
+    </Viewbox>
+
+
 </UserControl>

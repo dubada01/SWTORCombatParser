@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.LogParsing;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.CombatMetaData;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,11 @@ namespace SWTORCombatParser.ViewModels.Raiding
 
 
             ParticipantCurrentState = CombatLogStateBuilder.GetStateOfRaidingLogs(CurrentLogs);
+            if (ParticipantCurrentState.PlayerClass != null && ParticipantCurrentState.PlayerClass.Role !=  Role.Unknown)
+            {
+                PlayerRole = ParticipantCurrentState.PlayerClass.Role;
+                OnPropertyChanged("PlayerRole");
+            }
             CurrentCombatInfo = CombatIdentifier.ParseOngoingCombat(CurrentLogs);
             var metaDatas = MetaDataFactory.GetMetaDatas(CurrentCombatInfo);
             App.Current.Dispatcher.Invoke(() => {
@@ -42,6 +48,7 @@ namespace SWTORCombatParser.ViewModels.Raiding
         }
         public string LogName { get; set; }
         public string PlayerName { get; set; }
+        public Role PlayerRole { get; set; }
         public LogState ParticipantCurrentState { get; set; } 
         public List<ParsedLogEntry> CurrentLogs { get; set; } = new List<ParsedLogEntry>();
         public Combat CurrentCombatInfo { get; set; }

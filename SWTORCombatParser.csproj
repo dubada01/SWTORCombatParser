@@ -19,7 +19,10 @@
     <None Remove=".gitignore" />
     <None Remove="DataStructures\ClassInfos\Classes.json" />
     <None Remove="DataStructures\RaidInfos\RaidNames.json" />
+    <None Remove="resources\dpsIcon.png" />
+    <None Remove="resources\healingIcon.png" />
     <None Remove="resources\SwtorLogo.png" />
+    <None Remove="resources\tankIcon.png" />
     <None Remove="TestCombatLogs\combat_2021-07-11_20_54_51_389708.txt" />
     <None Remove="TestCombatLogs\combat_2021-07-15_20_26_17_454472.txt" />
     <None Remove="TestCombatLogs\combat_2021-07-15_22_11_37_823701.txt" />
@@ -42,6 +45,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\RaidInfos\RaidNames.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\dpsIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\healingIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\tankIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="TestCombatLogs\combat_2021-07-11_20_54_51_389708.txt">

@@ -69,6 +69,7 @@ namespace SWTORCombatParser.ViewModels
             _raidingActive = isActive;
             if (isActive)
             {
+                CombatsInRaidGroup.Clear();
                 _participantRaidLogs = new Dictionary<string, RaidParticipantInfo>();
                 CombatLogParser.SetCurrentRaidGroup(selectedRaid);
                 CurrentlySelectedGroup = selectedRaid;
@@ -79,12 +80,14 @@ namespace SWTORCombatParser.ViewModels
             }
             else
             {
+                CombatsInRaidGroup.Clear();
                 SelectedRaidGroupView = null;
                 CurrentlySelectedGroup = null;
                 CombatLogParser.ClearRaidGroup();
             }
             RaidStateChanged(isActive);
             OnPropertyChanged("SelectedRaidGroupView");
+            OnPropertyChanged("CombatsInRaidGroup");
         }
         private bool combatEnding;
         private bool combatStarted;
@@ -132,10 +135,6 @@ namespace SWTORCombatParser.ViewModels
                         if (!_participantRaidLogs.ContainsKey(logName))
                         {
                             _participantRaidLogs[logName] = new RaidParticipantInfo(participantLogs,logName);
-                            App.Current.Dispatcher.Invoke(() =>
-                            {
-                                CombatsInRaidGroup.Add(_participantRaidLogs[logName]);
-                            });
                         }
                         else
                         {
@@ -146,20 +145,21 @@ namespace SWTORCombatParser.ViewModels
                             App.Current.Dispatcher.Invoke(() =>
                             {
                                 CombatsInRaidGroup.Add(_participantRaidLogs[logName]);
+                                CombatsInRaidGroup = new ObservableCollection<RaidParticipantInfo>(CombatsInRaidGroup.OrderBy(p => p.PlayerName));
+                                
                             });
                         }
-                        if(combatEnding)
+                    }
+                    if (combatEnding)
+                    {
+                        foreach (var participant in _participantRaidLogs)
                         {
-                            foreach (var participant in _participantRaidLogs)
-                            {
-                                participant.Value.FinishCombat();
-                            }
-                            if(SelectedParticipant==null)
-                                SelectedParticipant = CombatsInRaidGroup.First();
-                            else
-                                OnNewRaidCombat(SelectedParticipant.CurrentCombatInfo);
+                            participant.Value.FinishCombat();
                         }
-
+                        if (SelectedParticipant == null)
+                            SelectedParticipant = CombatsInRaidGroup.First();
+                        else
+                            OnNewRaidCombat(SelectedParticipant.CurrentCombatInfo);
                     }
                 }
             });

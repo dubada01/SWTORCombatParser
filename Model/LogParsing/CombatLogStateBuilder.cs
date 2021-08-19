@@ -35,7 +35,10 @@ namespace SWTORCombatParser.Model.LogParsing
             foreach (var log in raidingLogs)
             {
                 UpdateCombatModifierState(log, logState);
-            }
+                var identifiedClass = ClassIdentifier.IdentifyClass(log);
+                if (identifiedClass != null)
+                    logState.PlayerClass = identifiedClass;
+    }
             return logState;
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine, LogState state)

@@ -79,6 +79,7 @@ namespace SWTORCombatParser.ViewModels
             App.Current.Dispatcher.Invoke(delegate
             {
                 _plotViewModel.SetCharacterName(name);
+                _plotViewModel.Reset();
                 _combatMonitorViewModel.ClearCombats();
             });
         }
