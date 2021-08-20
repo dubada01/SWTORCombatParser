@@ -33,21 +33,7 @@ namespace SWTORCombatParser
             RaidingStopped();
             CurrentRaidGroup = null;
         }
-        private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
-        {
-            _logDate = combatLog.Time;
-            var logLines = combatLog.Data.Split('\n');
-            var numberOfLines = logLines.Length;
-            ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
-            for (var i = 0; i < numberOfLines; i++)
-            {
-                if (logLines[i] == "")
-                    break;
-                parsedLog[i] = ParseLine(logLines[i]); 
-                parsedLog[i].LogName = combatLog.Name;
-            }
-            return parsedLog.Where(l=>l!=null).OrderBy(l=>l.TimeStamp).ToList();
-        }
+
         public static LogState BuildLogState(CombatLogFile file)
         {
             var lines = ParseAllLines(file);
@@ -77,6 +63,26 @@ namespace SWTORCombatParser
             parsedLine.LogText = logEntry;
             UpdateEffectiveHealValues(parsedLine);
             return parsedLine;
+        }
+        public static List<ParsedLogEntry> ParseLast10Mins(CombatLogFile file)
+        {
+            var allLines = ParseAllLines(file);
+            return allLines.Where(l => l.TimeStamp > DateTime.Now.AddMinutes(-10)).ToList();
+        }
+        private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
+        {
+            _logDate = combatLog.Time;
+            var logLines = combatLog.Data.Split('\n');
+            var numberOfLines = logLines.Length;
+            ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
+            for (var i = 0; i < numberOfLines; i++)
+            {
+                if (logLines[i] == "")
+                    break;
+                parsedLog[i] = ParseLine(logLines[i]);
+                parsedLog[i].LogName = combatLog.Name;
+            }
+            return parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp).ToList();
         }
         private static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog)
         {

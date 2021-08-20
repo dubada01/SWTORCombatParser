@@ -69,7 +69,7 @@ namespace SWTORCombatParser
         {
             _currentFrameData = new List<ParsedLogEntry>();
             using (var fs = new FileStream(logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var sr = new StreamReader(fs, Encoding.Default))
+            using (var sr = new StreamReader(fs, Encoding.UTF7))
             {
                 var currentState = sr.ReadToEnd().Split('\n');
                 _newNumberOfEntries = currentState.Length;

@@ -34,6 +34,7 @@ namespace SWTORCombatParser.ViewModels.Raiding
                 OnPropertyChanged("PlayerRole");
             }
             CurrentCombatInfo = CombatIdentifier.ParseOngoingCombat(CurrentLogs);
+            OnPropertyChanged("CurrentCombatInfo");
             var metaDatas = MetaDataFactory.GetMetaDatas(CurrentCombatInfo);
             App.Current.Dispatcher.Invoke(() => {
                 MetaDatas.Clear();
@@ -48,7 +49,7 @@ namespace SWTORCombatParser.ViewModels.Raiding
         }
         public string LogName { get; set; }
         public string PlayerName { get; set; }
-        public Role PlayerRole { get; set; }
+        public Role PlayerRole { get; set; } 
         public LogState ParticipantCurrentState { get; set; } 
         public List<ParsedLogEntry> CurrentLogs { get; set; } = new List<ParsedLogEntry>();
         public Combat CurrentCombatInfo { get; set; }

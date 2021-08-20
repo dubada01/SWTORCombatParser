@@ -12,6 +12,8 @@
             <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>
             <converters:RaidGroupToVisibilityConverter x:Key="RaidGroupToVisibilityConverter"/>
             <converters:RoleToImageSourceConverter x:Key="RoleToImageSourceConverter"/>
+            <converters:LiveParseActiveToBrushConverter x:Key="LiveParseToBrushConverter"/>
+            <converters:OverlayMetricToColorConverter x:Key="OverlayMetricTypeToColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

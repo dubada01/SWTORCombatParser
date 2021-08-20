@@ -14,11 +14,31 @@ using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Raiding
 {
-    public class RaidInfo
+    public class RaidInfo:INotifyPropertyChanged
     {
         public string Name { get; set; }
+        public string DPSLeaderName { get; set; }
+        public string DPSLeaderValue { get; set; }
+        public string EHPSLeaderName { get; set; }
+        public string EHPSLeaderValue { get; set; }
+        public void SetLeaders(string dpsLeader, string dpsVal, string ehpsLeader, string ehpsVal)
+        {
+            DPSLeaderName = dpsLeader;
+            DPSLeaderValue = dpsVal;
+            EHPSLeaderName = ehpsLeader;
+            EHPSLeaderValue = ehpsVal;
+            OnPropertyChanged("DPSLeaderName");
+            OnPropertyChanged("DPSLeaderValue");
+            OnPropertyChanged("EHPSLeaderName");
+            OnPropertyChanged("EHPSLeaderValue");
+        }
         public string Password { get; set; }
         public Guid GroupId { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
     public class RaidSelectionViewModel : INotifyPropertyChanged
     {
@@ -43,6 +63,8 @@ namespace SWTORCombatParser.ViewModels.Raiding
             get => selectedRaidGroup; set
             {
                 selectedRaidGroup = value;
+                if (selectedRaidGroup == null)
+                    return;
                 RaidingStateChanged(true, value);
             }
         }

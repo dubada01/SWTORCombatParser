@@ -17,23 +17,23 @@
         <ContentPresenter Grid.Row="0" Content="{Binding RaidSelectionContent}"/>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.25*"/>
+                <ColumnDefinition Width="0.15*"/>
                 <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="0.75*"/>
             </Grid.ColumnDefinitions>
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="0.15*"/>
-                    <RowDefinition Height="0.15*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.05*"/>
+                    <RowDefinition Height="0.85*"/>
                 </Grid.RowDefinitions>
-                <Viewbox Margin="10,0,10,0" Grid.Row="0" MaxHeight="50">
+                <Viewbox Margin="10,0,10,0" VerticalAlignment="Top" Grid.Row="0" MaxHeight="40">
                     <TextBlock FontWeight="DemiBold" Text="Current Raid Team"/>
                 </Viewbox>
-                <ContentPresenter VerticalAlignment="top" Grid.Row="1" Content="{Binding SelectedRaidGroupView}"/>
+                <ContentPresenter Margin="10,10,10,0" VerticalAlignment="Stretch" Grid.Row="1" Content="{Binding SelectedRaidGroupView}"/>
+
             </Grid>
             <Rectangle Grid.Column="1" Fill="DimGray" Margin="0,2,0,2"/>
-            <ListView ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="2" ItemsSource="{Binding CombatsInRaidGroup}" SelectedItem="{Binding SelectedParticipant}" Background="Transparent" BorderBrush="Transparent">
+            <ListView ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Column="2" ItemsSource="{Binding RaidParticipants}" SelectedItem="{Binding SelectedParticipant}" Background="Transparent" BorderBrush="Transparent">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <local:RaidParticipantView />

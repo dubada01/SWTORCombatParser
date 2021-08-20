@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Plotting;
+using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using System;
@@ -19,7 +20,7 @@ namespace SWTORCombatParser.ViewModels
     {
         private PlotViewModel _plotViewModel;
         private CombatMonitorViewModel _combatMonitorViewModel;
-
+        private OverlayViewModel _overlayViewModel;
         private TableViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
         private RaidViewModel _raidViewModel;
@@ -44,7 +45,8 @@ namespace SWTORCombatParser.ViewModels
             
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
 
-
+            _overlayViewModel = new OverlayViewModel();
+            OverlayView = new OverlayView(_overlayViewModel);
 
             _tableViewModel = new TableViewModel();
             TableView = new TableView(_tableViewModel);
@@ -62,6 +64,7 @@ namespace SWTORCombatParser.ViewModels
 
 
         }
+        public OverlayView OverlayView { get; set; }
         public RaidView RaidView { get; set; }
         public GraphView GraphView { get; set; }
         public TableView TableView { get; set; }
@@ -71,7 +74,11 @@ namespace SWTORCombatParser.ViewModels
         public SolidColorBrush RaidingActiveColor { get; set; }
         private void RaidingStateChaneged(bool state)
         {
-            RaidingActiveColor = state ? Brushes.LightGreen : Brushes.Transparent;
+            if (state)
+                _combatMonitorViewModel.RaidingStarted();
+            else
+                _combatMonitorViewModel.RaidingStopped();
+            RaidingActiveColor = state ? new SolidColorBrush(Color.FromRgb(0,165,156)) : Brushes.Transparent;
             OnPropertyChanged("RaidingActiveColor");
         }
         private void RaidPariticpantSelected(string name)

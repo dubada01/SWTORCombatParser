@@ -9,6 +9,7 @@ namespace SWTORCombatParser
 {
     public static class CombatIdentifier
     {
+        public static event Action<Combat> NewCombatAvailable = delegate { };
         public static Combat ParseOngoingCombat(List<ParsedLogEntry> ongoingLogs)
         {
             if (!ongoingLogs.Any(l => l.Source.IsPlayer))
@@ -23,6 +24,7 @@ namespace SWTORCombatParser
                 Logs = ongoingLogs
             };
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
+            NewCombatAvailable(newCombat);
             return newCombat;
         }
         private static List<string> GetTargets(List<ParsedLogEntry> logs)

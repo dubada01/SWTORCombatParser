@@ -12,9 +12,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public class PostgresConnection
     {
         private string _dbConnectionString = "Host=swtorparse-free.cagglk8w6mwm.us-west-2.rds.amazonaws.com;Port=5432;Username=master_user;Password=d5525end;Database=swtor-parse";
-        public PostgresConnection()
-        {
-        }
         public void AddLog(Guid groupId, ParsedLogEntry logToAdd)
         {
             using (NpgsqlConnection connection = ConnectToDB())
@@ -35,11 +32,29 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
         }
+        public List<ParsedLogEntry> GetLogsFromLast10Mins(Guid groupId)
+        {
+            using (NpgsqlConnection connection = ConnectToDB())
+            {
+                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">\'{GetUTCTimeStamp(DateTime.Now.AddMinutes(-10)):yyyy-MM-dd hh:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
+                {
+                    using (var reader = cmd.ExecuteReaderAsync().Result)
+                    {
+                        List<ParsedLogEntry> logs = new List<ParsedLogEntry>();
+                        while (reader.Read())
+                        {
+                            logs.Add(ParseRow(reader));
+                        }
+                        return logs.OrderBy(l => l.TimeStamp).ToList();
+                    }
+                }
+            }
+        }
         public List<ParsedLogEntry> GetLogsAfterTime(DateTime loggingStarted, Guid groupId)
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">\'{GetUTCTimeStamp(loggingStarted).ToString("yyyy-MM-dd hh:mm:ss.ms")}\' and raid_group_id='{groupId}'", connection))
+                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">\'{GetUTCTimeStamp(loggingStarted):yyyy-MM-dd hh:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
                 {
                     using (var reader = cmd.ExecuteReaderAsync().Result)
                     {
@@ -57,7 +72,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">=\'{GetUTCTimeStamp(from).ToString("yyyy-MM-dd hh:mm:ss.ms")}\' and \"timestamp\"<\'{GetUTCTimeStamp(until).ToString("yyyy-MM-dd hh:mm:ss.ms")}\' and raid_group_id='{groupId}'", connection))
+                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">=\'{GetUTCTimeStamp(from):yyyy-MM-dd hh:mm:ss.ms}\' and \"timestamp\"<\'{GetUTCTimeStamp(until):yyyy-MM-dd hh:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
                 {
                     using (var reader = cmd.ExecuteReaderAsync().Result)
                     {
@@ -71,6 +86,49 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
         }
+        public List<(string,string)> CheckForKeepAlivesInGroupFromTime(Guid groupId, DateTime timeJoined)
+        {
+            using (NpgsqlConnection connection = ConnectToDB())
+            {
+                var alreadyKeepingAlive = false;
+                using (var cmd = new NpgsqlCommand($"SELECT message, log_name FROM public.raid_group_member_keepalive where \"group_id\"=\'{groupId}\' and \"timestamp\">\'{GetUTCTimeStamp(timeJoined):yyyy-MM-dd hh:mm:ss.ms}\'", connection))
+                {
+                    using (var reader = cmd.ExecuteReaderAsync().Result)
+                    {
+                        List<(string,string)> members = new List<(string,string)>();
+                        while (reader.Read())
+                        {
+                            members.Add((reader.GetString(0),reader.GetString(1)));
+                        }
+                        return members;
+                    }
+                }
+            }
+        }
+        public void UploadMemberKeepAlive(Guid groupId, string info, string logName)
+        {
+            using (NpgsqlConnection connection = ConnectToDB())
+            {
+                var alreadyKeepingAlive = false;
+                using (var cmd = new NpgsqlCommand($"SELECT timestamp FROM public.raid_group_member_keepalive where \"group_id\"=\'{groupId}\' and \"log_name\"=\'{logName}\'", connection))
+                {
+                    using (var reader = cmd.ExecuteReaderAsync().Result)
+                    {
+                        alreadyKeepingAlive = reader.HasRows;
+                    }
+                }
+                var command = "";
+                if (alreadyKeepingAlive)
+                    command = $"UPDATE public.raid_group_member_keepalive SET message='{info}', timestamp='{GetUTCTimeStamp(DateTime.Now):yyyy-MM-dd hh:mm:ss.ms}' where \"group_id\"=\'{groupId}\' and \"log_name\"=\'{logName}\'";
+                else
+                    command = $"INSERT INTO public.raid_group_member_keepalive (group_id,message,log_name,timestamp) VALUES('{groupId}','{info}','{logName}','{GetUTCTimeStamp(DateTime.Now):yyyy-MM-dd hh:mm:ss.ms}')";
+                using (var cmd = new NpgsqlCommand(command, connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
         public (bool,Guid) ValidateGroupInfo(string name, string password)
         {
             using (NpgsqlConnection connection = ConnectToDB())

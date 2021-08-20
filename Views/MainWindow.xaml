@@ -16,7 +16,7 @@
             <RowDefinition Height=".85*"/>
             <RowDefinition Height=".1*"/>
         </Grid.RowDefinitions>
-        <TabControl BorderThickness="3,2,3,0" BorderBrush="DimGray" Background="LightGray" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
+        <TabControl BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="LightGray" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
             <TabItem FontSize="25" Padding="15,5,15,5" Header="Combat Info">
                 <ContentPresenter Content="{Binding GraphView}"/>
             </TabItem>
@@ -33,6 +33,9 @@
             </TabItem>
             <TabItem FontSize="25" Padding="15,5,15,5" Header="Info Logs">
                 <ContentPresenter Content="{Binding SoftwareLogView}"/>
+            </TabItem>
+            <TabItem FontSize="25" Padding="15,5,15,5" Header="Overlays">
+                <ContentPresenter Content="{Binding OverlayView}"/>
             </TabItem>
         </TabControl>
 

@@ -96,7 +96,7 @@ namespace SWTORCombatParser
         public double TotalHealingReceived;
         public double TotalEffectiveHealingReceived;
 
-        public double DPS => TotalDamage / DurationSeconds;
+        public double DPS => TotalDamage / DurationSeconds == double.NaN?0: TotalDamage / DurationSeconds;
         public double APM => TotalAbilites / (DurationSeconds / 60);
         public double HPS => TotalHealing / DurationSeconds;
         public double EHPS => TotalEffectiveHealing / DurationSeconds;

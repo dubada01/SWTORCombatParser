@@ -7,11 +7,55 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Center" Orientation="Horizontal">
             <TextBlock VerticalAlignment="Center" Text="{Binding CurrentlySelectedGroup.Name}"/>
             <Viewbox  VerticalAlignment="Center" Margin="10,5,0,0" MaxHeight="15" MaxWidth="15">
-                <Button Content=" X " Command="{Binding RemoveRaidGroupCommand}" Background="OrangeRed"/>
+                <Button Content=" X " Command="{Binding RemoveRaidGroupCommand}" Background="IndianRed">
+                </Button>
             </Viewbox>
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Center" Grid.Row="1">
+            <Viewbox MaxHeight="35">
+                <TextBlock HorizontalAlignment="Center" FontWeight="DemiBold" Foreground="IndianRed" Text="DPS Leader"></TextBlock>
+            </Viewbox>
+           
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox MaxHeight="30" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding CurrentlySelectedGroup.DPSLeaderName}"/>
+                </Viewbox>
+
+                <Viewbox VerticalAlignment="Center" HorizontalAlignment="Center" MaxHeight="30" Grid.Column="1">
+                    <TextBlock Text="{Binding CurrentlySelectedGroup.DPSLeaderValue}"/>
+                </Viewbox>
+            </Grid>
+        </StackPanel>
+        <StackPanel HorizontalAlignment="Center" Grid.Row="2">
+            <Viewbox MaxHeight="35">
+                <TextBlock HorizontalAlignment="Center" FontWeight="DemiBold" Foreground="LimeGreen" Text="EHPS Leader"></TextBlock>
+            </Viewbox>
+           
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox MaxHeight="30" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding CurrentlySelectedGroup.EHPSLeaderName}"/>
+                </Viewbox>
+
+                <Viewbox VerticalAlignment="Center" HorizontalAlignment="Center" MaxHeight="30" Grid.Column="1">
+                    <TextBlock Text="{Binding CurrentlySelectedGroup.EHPSLeaderValue}"/>
+                </Viewbox>
+            </Grid>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -10,23 +10,23 @@
         <Border BorderBrush="Black" BorderThickness="2" CornerRadius="5">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="600"/>
+                    <ColumnDefinition Width=".15*"/>
+                    <ColumnDefinition Width=".85*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Margin="10" Grid.Column="0" Orientation="Vertical">
                     <TextBlock Text="{Binding PlayerName}" VerticalAlignment="Top"></TextBlock>
                     <Image MaxHeight="45" Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding PlayerRole, Converter={StaticResource RoleToImageSourceConverter}}"></Image>
                 </StackPanel>
-                <ItemsControl HorizontalAlignment="Right" Grid.Column="1" ItemsSource="{Binding MetaDatas}">
+                <ItemsControl Grid.Column="1" ItemsSource="{Binding MetaDatas}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Rows="2" Columns="2"></UniformGrid>
+                            <UniformGrid Columns="4"></UniformGrid>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Viewbox>
-                                <local:CombatMetaDataInstance Width="400"/>
+                                <local:CombatMetaDataInstance MaxHeight="125"/>
                             </Viewbox>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

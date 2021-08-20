@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.OverlayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Viewbox HorizontalAlignment="Left" MaxWidth="200">
+            <Button Content="Create DPS Overlay" Padding="5"  Command="{Binding GenerateDPSOverlay}"></Button>
+        </Viewbox>
+        <Viewbox HorizontalAlignment="Center" MaxWidth="200">
+            <Button Content="Create HPS Overlay" Padding="5"  Command="{Binding GenerateHPSOverlay}"></Button>
+        </Viewbox>
+
+    </Grid>
+</UserControl>

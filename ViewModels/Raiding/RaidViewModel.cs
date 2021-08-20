@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MoreLinq;
+using Newtonsoft.Json;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
@@ -23,11 +24,9 @@ namespace SWTORCombatParser.ViewModels
     public class RaidViewModel:INotifyPropertyChanged
     {
         private RaidSelectionViewModel _raidSelectionViewModel;
-        private DateTime _mostRecentLog;
-        private bool _raidingActive;
-        private PostgresConnection _postgresConnection;
-        private Dictionary<string, RaidParticipantInfo> _participantRaidLogs = new Dictionary<string, RaidParticipantInfo>();
+        
         private RaidParticipantInfo selectedParticipant;
+        private RaidStateManagement _raidStateManagement;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<string> OnRaidParticipantSelected = delegate { };
@@ -35,7 +34,9 @@ namespace SWTORCombatParser.ViewModels
         public event Action<bool> RaidStateChanged = delegate { };
         public RaidViewModel()
         {
-            _postgresConnection = new PostgresConnection();
+            _raidStateManagement = new RaidStateManagement();
+            _raidStateManagement.UpdatedParticipants += UpdateParticipants;
+            _raidStateManagement.CombatFinished += RaidCombatFinished;
             _raidSelectionViewModel = new RaidSelectionViewModel();
             _raidSelectionViewModel.RaidingStateChanged += UpdateRaidState;
             RaidSelectionContent = new RaidSelectionView(_raidSelectionViewModel);
@@ -55,7 +56,7 @@ namespace SWTORCombatParser.ViewModels
                 }
             }
         }
-        public ObservableCollection<RaidParticipantInfo> CombatsInRaidGroup { get; set; } = new ObservableCollection<RaidParticipantInfo>();
+        public ObservableCollection<RaidParticipantInfo> RaidParticipants { get; set; } = new ObservableCollection<RaidParticipantInfo>();
         public RaidSelectionView RaidSelectionContent { get; set; }
         public ICommand RemoveRaidGroupCommand => new CommandHandler(RemoveRaidGroup);
 
@@ -63,24 +64,52 @@ namespace SWTORCombatParser.ViewModels
         {
             _raidSelectionViewModel.Cancel();
         }
-
+        private void RaidCombatFinished()
+        {
+            if(SelectedParticipant == null)
+            {
+                var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
+                var attemptedName = CombatLogParser.BuildLogState(mostRecentLog);
+                if (!string.IsNullOrEmpty(attemptedName.PlayerName))
+                {
+                    SelectedParticipant = RaidParticipants.First(p => p.PlayerName == attemptedName.PlayerName);
+                }
+            }
+            OnNewRaidCombat(selectedParticipant.CurrentCombatInfo);
+        }
+        private void UpdateParticipants(List<RaidParticipantInfo> participants)
+        {
+            if (CurrentlySelectedGroup == null)
+                return;
+            foreach(var participant in participants)
+            {
+                if(!RaidParticipants.Any(p=>p.LogName == participant.LogName))
+                {
+                    App.Current.Dispatcher.Invoke(() => {
+                        RaidParticipants.Add(participant);
+                    });
+                }
+            }
+            var maxDpsParticipant = RaidParticipants.Where(p=>p.CurrentCombatInfo!=null).MaxBy(p => p.CurrentCombatInfo.DPS).FirstOrDefault();
+            var maxEHPSParticipant = RaidParticipants.Where(p => p.CurrentCombatInfo != null).MaxBy(p => p.CurrentCombatInfo.EHPS).FirstOrDefault();
+            CurrentlySelectedGroup.SetLeaders(maxDpsParticipant?.PlayerName+": ", maxDpsParticipant?.CurrentCombatInfo.DPS.ToString("#,##0.0"), maxEHPSParticipant?.PlayerName + ": ", maxEHPSParticipant?.CurrentCombatInfo.EHPS.ToString("#,##0.0"));
+        }
         private void UpdateRaidState(bool isActive, RaidInfo selectedRaid)
         {
-            _raidingActive = isActive;
             if (isActive)
             {
-                CombatsInRaidGroup.Clear();
-                _participantRaidLogs = new Dictionary<string, RaidParticipantInfo>();
+                RaidParticipants.Clear();
                 CombatLogParser.SetCurrentRaidGroup(selectedRaid);
                 CurrentlySelectedGroup = selectedRaid;
-                _mostRecentLog = DateTime.Now;
-                PollForRaidUpdates();
+
+                _raidStateManagement.StartRaiding(selectedRaid.GroupId);
                 SelectedRaidGroupView = new SelectedRaidGroup();
                 SelectedRaidGroupView.DataContext = this;
             }
             else
             {
-                CombatsInRaidGroup.Clear();
+                _raidStateManagement.StopRaiding();
+                RaidParticipants.Clear();
                 SelectedRaidGroupView = null;
                 CurrentlySelectedGroup = null;
                 CombatLogParser.ClearRaidGroup();
@@ -89,81 +118,7 @@ namespace SWTORCombatParser.ViewModels
             OnPropertyChanged("SelectedRaidGroupView");
             OnPropertyChanged("CombatsInRaidGroup");
         }
-        private bool combatEnding;
-        private bool combatStarted;
-        private void PollForRaidUpdates()
-        {
-            Task.Run(() =>
-            {
-                while (_raidingActive)
-                {
-                    Thread.Sleep(1000);
-                    if (!_raidingActive)
-                        return;
-                    var logs = _postgresConnection.GetLogsAfterTime(_mostRecentLog, CurrentlySelectedGroup.GroupId);
-                    if (!logs.Any())
-                        continue;
-                    var ordered = logs.OrderBy(t => t.TimeStamp);
-                    if (logs.Any(c => c.Effect.EffectName == "EnterCombat")&&!combatStarted)
-                    {
-                        combatEnding = false;
-                        combatStarted = true;
-                        App.Current.Dispatcher.Invoke(() =>
-                        {
-                            foreach (var participant in _participantRaidLogs)
-                            {
-                                participant.Value.ResetCombat();
-                            }
-                            CombatsInRaidGroup.Clear();
-                        });
 
-                    }
-                    if (logs.Any(c => c.Ability == "SWTOR_PARSING_COMBAT_END"))
-                    {
-                        combatStarted = false;
-                        combatEnding = true;
-                        _mostRecentLog = ordered.Last().TimeStamp;
-                    }
-
-                    var logsByFile = ordered.GroupBy(l => l.LogName);
-
-
-                    foreach (var logFile in logsByFile)
-                    {
-                        var logName = logFile.Key;
-                        var participantLogs = logFile.ToList();
-                        if (!_participantRaidLogs.ContainsKey(logName))
-                        {
-                            _participantRaidLogs[logName] = new RaidParticipantInfo(participantLogs,logName);
-                        }
-                        else
-                        {
-                            _participantRaidLogs[logName].Update(participantLogs);
-                        }
-                        if(!CombatsInRaidGroup.Any(rg=>rg.LogName ==logName))
-                        {
-                            App.Current.Dispatcher.Invoke(() =>
-                            {
-                                CombatsInRaidGroup.Add(_participantRaidLogs[logName]);
-                                CombatsInRaidGroup = new ObservableCollection<RaidParticipantInfo>(CombatsInRaidGroup.OrderBy(p => p.PlayerName));
-                                
-                            });
-                        }
-                    }
-                    if (combatEnding)
-                    {
-                        foreach (var participant in _participantRaidLogs)
-                        {
-                            participant.Value.FinishCombat();
-                        }
-                        if (SelectedParticipant == null)
-                            SelectedParticipant = CombatsInRaidGroup.First();
-                        else
-                            OnNewRaidCombat(SelectedParticipant.CurrentCombatInfo);
-                    }
-                }
-            });
-        }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

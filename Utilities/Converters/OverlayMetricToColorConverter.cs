@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SWTORCombatParser.ViewModels.Overlays;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -7,16 +8,18 @@ using System.Windows.Media;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
-    public class PastCombatSelectedToBackgroundConverter : IValueConverter
+    class OverlayMetricToColorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch((bool)value)
+            switch ((OverlayType)value)
             {
-                case true:
-                    return new SolidColorBrush(Color.FromRgb(0, 165, 156));
-                case false:
-                    return System.Windows.Media.Brushes.Gray;
+                case OverlayType.DPS:
+                    return Brushes.IndianRed;
+                case OverlayType.HPS:
+                    return Brushes.LimeGreen;
+                default:
+                    return Brushes.Transparent;
             }
         }
 
