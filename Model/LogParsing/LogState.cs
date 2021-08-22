@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Model.LogParsing
     {
         public string Name { get; set; }
         public CombatModfierType Type { get; set; }
-        public string Source { get; set; }
+        public Entity Source { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
         public double DurationSeconds => StopTime == DateTime.MinValue? 0:(StopTime - StartTime).TotalSeconds;
@@ -50,17 +50,6 @@ namespace SWTORCombatParser.Model.LogParsing
         public List<CombatModifier> GetCombatModifiersBetweenTimes(DateTime startTime, DateTime endTime)
         {
             return Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime)).ToList();
-        }
-        public void ResetAll()
-        {
-            PlayerName = "";
-            PlayerClass = null;
-            Modifiers = new List<CombatModifier>();
-        }
-        public void ResetCombat()
-        {
-            PlayerClass = null;
-            Modifiers = new List<CombatModifier>();
         }
     }
 }

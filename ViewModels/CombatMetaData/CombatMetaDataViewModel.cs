@@ -80,7 +80,7 @@ namespace SWTORCombatParser.ViewModels
             var currentState = CombatLogParser.GetCurrentLogState();
             var modifiersDuringCombat = currentState.GetCombatModifiersBetweenTimes(newCombat.StartTime, newCombat.EndTime);
             var abilities = modifiersDuringCombat.Select(m => m.Name).Distinct();
-            var durations = modifiersDuringCombat.GroupBy(v => (v.Name,v.Source), v => Math.Min(v.DurationSeconds, (newCombat.EndTime - v.StartTime).TotalSeconds), (info, durations) => new EffectViewModel (){ Name =info.Name,Source = info.Source, Duration = durations.Sum(), Count = durations.Count() }).OrderByDescending(effect => effect.Duration).ToList();
+            var durations = modifiersDuringCombat.GroupBy(v => (v.Name,v.Source), v => Math.Min(v.DurationSeconds, (newCombat.EndTime - v.StartTime).TotalSeconds), (info, durations) => new EffectViewModel (){ Name =info.Name,Source = info.Source.Name, Duration = durations.Sum(), Count = durations.Count() }).OrderByDescending(effect => effect.Duration).ToList();
             CombatEffects.Clear();
             durations.ForEach(ef => CombatEffects.Add(ef));
         }

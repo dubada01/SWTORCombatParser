@@ -25,10 +25,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             _overlayDefaults = DefaultOverlayManager.GetDefaults();
             var enumVals = EnumUtil.GetValues<OverlayType>();
-            foreach(var enumVal in enumVals)
+            var overlayStates = DefaultOverlayManager.GetDefaults();
+            foreach (var enumVal in enumVals)
             {
                 AvailableOverlayTypes.Add(enumVal);
+                if (overlayStates[enumVal].Acive)
+                    CreateOverlay(enumVal);
             }
+
         }
 
 
@@ -38,6 +42,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             if (_currentOverlays.Any(o => o.Type == type))
                 return;
+            DefaultOverlayManager.SetActiveState(type, true);
             var viewModel = new OverlayInstanceViewModel(type);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = overlaysMoveable;

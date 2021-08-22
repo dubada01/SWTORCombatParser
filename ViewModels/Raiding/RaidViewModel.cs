@@ -68,7 +68,7 @@ namespace SWTORCombatParser.ViewModels
         {
             if(SelectedParticipant == null)
             {
-                var playerName = CombatLogStateBuilder.CurrentState.PlayerName;
+                var playerName = CombatLogStateBuilder.GetLocalState().PlayerName;
                 if (!string.IsNullOrEmpty(playerName))
                 {
                     var localParticipant = RaidParticipants.FirstOrDefault(p => p.PlayerName == playerName);

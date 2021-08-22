@@ -21,11 +21,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
         private static void UpdateFriendlyShielding(ref List<RaidParticipantInfo> raidMembers)
         {
-            int combatSeriesIndex = 0;
             foreach (var combat in raidMembers[0].PastCombats)
             {
-                combatSeriesIndex++;
-                Dictionary<string, double> _totalSheildingProvided = new Dictionary<string, double>();
+                Dictionary<Entity, double> _totalSheildingProvided = new Dictionary<Entity, double>();
                 var pastCombats = raidMembers.Skip(1).Select(c =>(c, c.PastCombats)).Select(pc=> new CombatParticipant {Combat = pc.PastCombats.FirstOrDefault(pc => Math.Abs((pc.StartTime - combat.StartTime).TotalMilliseconds) < 1000) ,Participant = pc.c} ).ToList();
                 var validCombats = pastCombats.Where(c => c.Combat != null);
                 if (validCombats.Count() == 0)
@@ -52,7 +50,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     foreach (var source in _totalSheildingProvided.Keys)
                     {
 
-                        var sheildingSource =pastCombats.First(m => m.Participant.PlayerName == source);
+                        var sheildingSource =pastCombats.First(m => m.Participant.PlayerName == source.Name);
                         sheildingSource.Combat.TotalProvidedSheilding = _totalSheildingProvided[source];
                     }
                 }

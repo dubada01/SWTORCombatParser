@@ -28,6 +28,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         private PostgresConnection _postgresConnection;
         private bool combatEnding;
         private bool combatStarted;
+        private Role _currentRole;
+        private string _characterName;
         private List<RaidParticipantInfo> _currentParticipants = new List<RaidParticipantInfo>();
 
         public RaidStateManagement()
@@ -39,6 +41,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public void StopRaiding()
         {
             _raidingActive = false;
+            _currentRole = Role.Unknown;
+            _characterName = "";
         }
 
         public void StartRaiding(Guid groupId)
@@ -89,7 +93,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private List<(string, string)> GetCurrentlyAliveMembers()
         {
-            return _postgresConnection.CheckForKeepAlivesInGroupFromTime(_currentRaidGroup, _timeJoined);
+            return _postgresConnection.CheckForKeepAlivesInGroupFromTime(_currentRaidGroup, _timeJoined.AddSeconds(-1));
         }
         private void CheckForOngoingCombat()
         {
@@ -226,17 +230,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
             return startEvents.MinBy(v => v.TimeStamp).First().TimeStamp;
         }
-        private Role _currentRole;
-        private string _characterName;
+
         private void UploadKeepAlive()
         {
-            if (_currentRole == Role.Unknown || (_characterName == null || _characterName == "Unknown_Player"))
+            if (_currentRole == Role.Unknown || (string.IsNullOrEmpty(_characterName) || _characterName == "Unknown_Player"))
             {
                 var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
 
                 List<ParsedLogEntry> loadedLogs = null;
-                //_currentRole = CombatLogStateBuilder.GetPlayerRole(attemptedName);
-                var currentState = CombatLogStateBuilder.CurrentState;
+
+                var currentState = CombatLogStateBuilder.GetLocalState();
                 if (string.IsNullOrEmpty(currentState.PlayerName))
                 {
                     loadedLogs = CombatLogParser.ParseLast10Mins(mostRecentLog);
@@ -247,7 +250,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 if(currentState.PlayerClass == null)
                     _currentRole = CombatLogStateBuilder.GetPlayerRole(loadedLogs == null?CombatLogParser.ParseLast10Mins(mostRecentLog): loadedLogs);
                 else
-                    _currentRole = CombatLogStateBuilder.CurrentState.PlayerClass.Role;
+                    _currentRole = currentState.PlayerClass.Role;
                 _postgresConnection.UploadMemberKeepAlive(_currentRaidGroup, "HELLO~?~" + _characterName + "~?~" + _currentRole.ToString(), mostRecentLog.Name);
             }
         }

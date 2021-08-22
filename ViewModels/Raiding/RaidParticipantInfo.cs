@@ -12,11 +12,16 @@ using System.Text;
 
 namespace SWTORCombatParser.ViewModels.Raiding
 {
-    public class RaidParticipantInfo:INotifyPropertyChanged
+    public class RaidParticipantInfo : INotifyPropertyChanged
     {
+        private string playerName;
+        private Role playerRole;
+
         public RaidParticipantInfo(List<ParsedLogEntry> logs, string logName)
         {
             LogName = logName;
+            CurrentCombatInfo = new Combat();
+            UpdateMetaDatas();
             Update(logs);
 
         }
@@ -31,28 +36,34 @@ namespace SWTORCombatParser.ViewModels.Raiding
                 PlayerName = playerName.Source.Name;
 
 
-            ParticipantCurrentState = CombatLogStateBuilder.GetStateOfRaidingLogs(newLogs);
-            if (ParticipantCurrentState.PlayerClass != null && ParticipantCurrentState.PlayerClass.Role !=  Role.Unknown)
+            ParticipantCurrentState = CombatLogStateBuilder.GetStateOfRaidingLogs(newLogs, LogName);
+            if (ParticipantCurrentState.PlayerClass != null && ParticipantCurrentState.PlayerClass.Role != Role.Unknown)
             {
                 PlayerRole = ParticipantCurrentState.PlayerClass.Role;
                 OnPropertyChanged("PlayerRole");
             }
             var enterCombatLogs = logs.Where(l => l.Effect.EffectName == "EnterCombat" || l.Ability == "StartCombatMarker").ToList();
-            for(var c=0;c<enterCombatLogs.Count();c++)
+            for (var c = 0; c < enterCombatLogs.Count(); c++)
             {
                 var enterCombatIndex = enterCombatLogs.Count() == 0 ? 0 : logs.IndexOf(enterCombatLogs[c]);
                 var endCombatIndex = LogSearcher.GetIndexOfNextCombatEndLog(enterCombatIndex, logs);
 
-                CurrentCombatInfo = CombatIdentifier.ParseOngoingCombat(logs.GetRange(enterCombatIndex,(endCombatIndex - enterCombatIndex)));
-                if(enterCombatLogs.Count > c - 1)
+                CurrentCombatInfo = CombatIdentifier.ParseOngoingCombat(logs.GetRange(enterCombatIndex, (endCombatIndex - enterCombatIndex)));
+                if (enterCombatLogs.Count > c - 1)
                 {
                     PastCombats.Add(CombatIdentifier.ParseOngoingCombat(logs.GetRange(enterCombatIndex, (endCombatIndex - enterCombatIndex))));
                 }
             }
-            
+
             OnPropertyChanged("CurrentCombatInfo");
+            UpdateMetaDatas();
+
+        }
+        private void UpdateMetaDatas()
+        {
             var metaDatas = MetaDataFactory.GetMetaDatas(CurrentCombatInfo);
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 MetaDatas.Clear();
                 foreach (var metaData in metaDatas)
                 {
@@ -61,12 +72,27 @@ namespace SWTORCombatParser.ViewModels.Raiding
                 OnPropertyChanged("PlayerName");
                 OnPropertyChanged("ParticipantCurrentState");
             });
-
         }
         public string LogName { get; set; }
-        public string PlayerName { get; set; }
-        public Role PlayerRole { get; set; } 
-        public LogState ParticipantCurrentState { get; set; } 
+        public string PlayerName
+        {
+            get => playerName; 
+            set
+            {
+                playerName = value;
+                OnPropertyChanged();
+            }
+        }
+        public Role PlayerRole
+        { 
+            get => playerRole; 
+            set 
+            {
+                playerRole = value;
+                OnPropertyChanged();
+            } 
+        }
+        public LogState ParticipantCurrentState { get; set; }
         public List<ParsedLogEntry> CurrentLogs { get; set; } = new List<ParsedLogEntry>();
         public Combat CurrentCombatInfo { get; set; }
         public List<Combat> PastCombats { get; set; } = new List<Combat>();

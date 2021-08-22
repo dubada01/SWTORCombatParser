@@ -17,8 +17,8 @@ namespace SWTORCombatParser
     public static class CombatLogParser
     {
         private static DateTime _logDate;
-
         private static LogState _logState = new LogState();
+        private static List<Entity> _currentEntities = new List<Entity>();
         public static event Action<string> OnNewLog = delegate { };
         public static event Action RaidingStarted = delegate { };
         public static event Action RaidingStopped = delegate { };
@@ -34,10 +34,10 @@ namespace SWTORCombatParser
             CurrentRaidGroup = null;
         }
 
-        public static LogState BuildLogState(CombatLogFile file)
+        public static LogState InitalizeStateFromLog(CombatLogFile file)
         {
             var lines = ParseAllLines(file);
-            _logState = CombatLogStateBuilder.UpdateCurrentLogState(ref lines);
+            _logState = CombatLogStateBuilder.UpdateCurrentLogState(ref lines,file.Name);
             return _logState;
         }
         public static LogState GetCurrentLogState()
@@ -254,18 +254,33 @@ namespace SWTORCombatParser
         {
             if (value.Contains("@") && !value.Contains(":"))
             {
-
-                    var _characterEntity = new Entity() { IsCharacter = true, Name = value.Replace("@", "") };
-                return _characterEntity;
+                var characterName = value.Replace("@", "");
+                var existingCharacterEntity = _currentEntities.FirstOrDefault(e => e.Name == characterName);
+                if (existingCharacterEntity != null)
+                    return existingCharacterEntity;
+                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName};
+                _currentEntities.Add(characterEntity);
+                return characterEntity;
             }
             if (value.Contains("@") && value.Contains(":"))
             {
-                var companion = new Entity() { IsCharacter = false,IsCompanion = true, Name = value.Split(':')[1] };
+                var compaionName = value.Split(':')[1];
+                var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == compaionName);
+                if (existingCompanionEntity != null)
+                    return existingCompanionEntity;
+                var companion = new Entity() { IsCharacter = false,IsCompanion = true, Name = compaionName };
+                _currentEntities.Add(companion);
                 return companion;
             }
-            var newEntity = new Entity();
             var splitVal = value.Split('{');
-            newEntity.Name = splitVal[0].Trim();
+            var entityName = splitVal[0].Trim();
+            var existingEntity = _currentEntities.FirstOrDefault(e => e.Name == entityName);
+            if (existingEntity != null)
+                return existingEntity;
+
+            var newEntity = new Entity();
+            newEntity.Name = entityName;
+            _currentEntities.Add(newEntity);
             return newEntity;
         }
         private static string ParseAbility(string value)

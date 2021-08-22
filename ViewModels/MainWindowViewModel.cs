@@ -1,17 +1,13 @@
 ﻿using ScottPlot;
 using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Plotting;
 using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels
@@ -111,7 +107,6 @@ namespace SWTORCombatParser.ViewModels
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.RemoveCombatPlot(obj);
                 _tableViewModel.RemoveCombatLogs(obj.Logs);
-                //_combatMetaDataViewModel.PopulateCombatMetaDatas(obj);
             });
         }
 

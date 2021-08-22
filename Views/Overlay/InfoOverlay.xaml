@@ -5,12 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
         mc:Ignorable="d"
-        Height="150" Width="250" AllowsTransparency="True"  WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave">
-    <Window.Background>
-        <SolidColorBrush Opacity="0" Color="DimGray"/>
-    </Window.Background>
+        Height="150" Width="250" AllowsTransparency="True" Background="{x:Null}"  WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave">
+
     <Grid>
-        <Border PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
+        <Border  PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="DimGray" Opacity="0.5" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="LightSteelBlue" BorderThickness="1,1,1,1">
         </Border>
         <Grid>

@@ -76,7 +76,7 @@ namespace SWTORCombatParser
                 _newNumberOfEntries = currentState.Length;
                 if (_newNumberOfEntries - 1 == _numberOfEntries)
                     return;
-                CombatLogParser.BuildLogState(CombatLogLoader.LoadSpecificLog(logToMonitor));
+                CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(logToMonitor));
                 for (var line = _numberOfEntries; line < currentState.Length; line++)
                 {
                     ProcessNewLine(currentState[line], line, logToMonitor);
@@ -85,17 +85,14 @@ namespace SWTORCombatParser
                 if (!_isInCombat)
                     return;
                 _firstTimeThroughLog = false;
+                CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
                 if (CombatLogParser.CurrentRaidGroup != null)
                 {
                     var cloudRaiding = new PostgresConnection();
-                    Parallel.ForEach(_currentFrameData, log =>
-                    {
-                        cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
-                    });
+                    UploadFrameDataToCloudRaiding(cloudRaiding);
                 }
                 else
                 {
-                    CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
                     NewLogEntries(_currentFrameData);
                 }
             }
@@ -155,6 +152,14 @@ namespace SWTORCombatParser
                 EndCombat();
             }
         }
+        private void UploadFrameDataToCloudRaiding(PostgresConnection cloudRaiding)
+        {
+            Parallel.ForEach(_currentFrameData, log =>
+            {
+                cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
+            });
+            _currentFrameData.Clear();
+        }
         private void EndCombat()
         {
             CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
@@ -164,10 +169,7 @@ namespace SWTORCombatParser
             if (CombatLogParser.CurrentRaidGroup != null && !_firstTimeThroughLog)
             {
                 var cloudRaiding = new PostgresConnection();
-                Parallel.ForEach(_currentFrameData, log =>
-                {
-                    cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
-                });
+                UploadFrameDataToCloudRaiding(cloudRaiding);
                 cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, 
                     new ParsedLogEntry {
                         TimeStamp = DateTime.Now,
@@ -184,7 +186,7 @@ namespace SWTORCombatParser
                 if(CombatLogParser.CurrentRaidGroup == null)
                     CombatStopped(_currentCombatData);
             }
-            
+            _currentFrameData.Clear();
             _currentCombatData.Clear();
         }
     }

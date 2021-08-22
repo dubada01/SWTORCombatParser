@@ -11,28 +11,39 @@ namespace SWTORCombatParser.Model.LogParsing
 
     public static class CombatLogStateBuilder
     {
-        public static LogState CurrentState { get; set; } = new LogState();
+        public static Dictionary<string,LogState> CurrentStates { get; set; } = new Dictionary<string, LogState>();
         public static void ClearState()
         {
-            CurrentState = new LogState();
+            CurrentStates = new Dictionary<string, LogState>();
         }
-        public static LogState UpdateCurrentLogState(ref List<ParsedLogEntry> logs)
+        public static LogState GetLocalState()
         {
+            var localLogName = CombatLogLoader.LoadMostRecentLog().Name;
+            if (!CurrentStates.ContainsKey(localLogName))
+                return new LogState();
+            return CurrentStates[localLogName];
+        }
+        public static LogState UpdateCurrentLogState(ref List<ParsedLogEntry> logs, string logName)
+        {
+            if (!CurrentStates.ContainsKey(logName))
+            {
+                CurrentStates[logName] = new LogState();
+            }
             var combatLogs = logs;
             foreach (var log in combatLogs)
             {
-                SetPlayerName(log, CurrentState);
+                SetPlayerName(log, CurrentStates[logName]);
             }
             foreach (var log in combatLogs)
             {
-                if (SetPlayerClass(log, CurrentState))
+                if (SetPlayerClass(log, CurrentStates[logName]))
                     break;
             }
             foreach (var log in combatLogs)
             {
-                UpdateCombatModifierState(log, CurrentState);
+                UpdateCombatModifierState(log, CurrentStates[logName]);
             }
-            return CurrentState;
+            return CurrentStates[logName];
         }
         public static Role GetPlayerRole(List<ParsedLogEntry> logs)
         {
@@ -54,16 +65,20 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return "Unknown_Player";
         }
-        public static LogState GetStateOfRaidingLogs(List<ParsedLogEntry> raidingLogs)
+        public static LogState GetStateOfRaidingLogs(List<ParsedLogEntry> raidingLogs, string logName)
         {
+            if (!CurrentStates.ContainsKey(logName))
+            {
+                CurrentStates[logName] = new LogState();
+            }
             foreach (var log in raidingLogs)
             {
-                UpdateCombatModifierState(log, CurrentState);
+                UpdateCombatModifierState(log, CurrentStates[logName]);
                 var identifiedClass = ClassIdentifier.IdentifyClass(log);
                 if (identifiedClass != null)
-                    CurrentState.PlayerClass = identifiedClass;
+                    CurrentStates[logName].PlayerClass = identifiedClass;
             }
-            return CurrentState;
+            return CurrentStates[logName];
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine, LogState state)
         {
@@ -71,7 +86,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return;
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "AbilityActivate")
             {
-                state.Modifiers.Add(new CombatModifier() { Name = "Guarding", Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Guarding });
+                state.Modifiers.Add(new CombatModifier() { Name = "Guarding", Source = parsedLine.Source, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Guarding });
                 return;
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "AbilityDeactivate")
@@ -85,11 +100,11 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 if(!state.Modifiers.Any(m=>m.Type == CombatModfierType.GuardedThreatReduced) || state.Modifiers.Last(m => m.Type == CombatModfierType.GuardedThreatReduced).StopTime != DateTime.MinValue)
                 {
-                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Threat", Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedThreatReduced });
+                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Threat", Source = parsedLine.Source, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedThreatReduced });
                 }
                 else
                 {
-                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Damage", Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedDamagedRedirected });
+                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Damage", Source = parsedLine.Source, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedDamagedRedirected });
                 }
                 
                 return;
@@ -106,7 +121,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 var effectToStart = state.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
                 if (effectToStart == null || effectToStart.StopTime!=DateTime.MinValue)
                 {
-                    state.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability+ AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source.Name, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    state.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability+ AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
             }
             if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Target.IsPlayer && (parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal"))

@@ -21,6 +21,7 @@ namespace SWTORCombatParser.Model.Overlays
     {
         public Point Position;
         public Point WidthHeight;
+        public bool Acive;
     }
     public static class DefaultOverlayManager
     {
@@ -28,9 +29,16 @@ namespace SWTORCombatParser.Model.Overlays
         public static void SetDefaults(OverlayType type, Point position, Point widthHeight)
         {
             var currentDefaults = GetDefaults();
-            currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidthHeight = widthHeight };
+            currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidthHeight = widthHeight, Acive = currentDefaults[type].Acive };
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
 
+        }
+        public static void SetActiveState(OverlayType type, bool state)
+        {
+            var currentDefaults = GetDefaults();
+            var defaultModified = currentDefaults[type];
+            currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidthHeight = defaultModified.WidthHeight, Acive=state };
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
         public static Dictionary<OverlayType,DefaultOverlayInfo> GetDefaults()
         {
