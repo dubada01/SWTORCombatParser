@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CombatParsing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -94,6 +95,7 @@ namespace SWTORCombatParser
                 }
                 else
                 {
+                    CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
                     NewLogEntries(_currentFrameData);
                 }
             }
@@ -114,13 +116,18 @@ namespace SWTORCombatParser
                 CheckForCombatEnd(lineIndex);
                 return;
             }
-            var parsedLine = CombatLogParser.ParseLine(line);
+            var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
             parsedLine.LogName = Path.GetFileName(logName);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
                 return;
             }
             CheckForCombatState(lineIndex, parsedLine);
+            if (_isInCombat)
+            {
+                _currentFrameData.Add(parsedLine);
+                _currentCombatData.Add(parsedLine);
+            }
         }
 
         private void CheckForCombatState(long lineIndex, ParsedLogEntry parsedLine)
@@ -139,11 +146,6 @@ namespace SWTORCombatParser
             if ((parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsPlayer))
                 EndCombat();
             CheckForCombatEnd(lineIndex);
-            if (_isInCombat)
-            {
-                _currentFrameData.Add(parsedLine);
-                _currentCombatData.Add(parsedLine);
-            }
         }
 
         private void CheckForCombatEnd(long lineIndex)
@@ -155,6 +157,8 @@ namespace SWTORCombatParser
         }
         private void EndCombat()
         {
+            CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
+            CombatTimestampRectifier.RectifyTimeStamps(_currentCombatData);
             _isInCombat = false;
             _combatEnding = false;
             if (CombatLogParser.CurrentRaidGroup != null && !_firstTimeThroughLog)

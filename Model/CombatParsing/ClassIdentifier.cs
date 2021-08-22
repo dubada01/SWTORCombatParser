@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             foreach(var swtorClass in _availableClasses)
             {
-                if (swtorClass.UniqueAbilities.Any(a => combatLog.Ability == a))
+                if (swtorClass.UniqueAbilities.Any(a => combatLog.Ability == a && combatLog.Effect.EffectName == "AbilityActivate"))
                     return swtorClass;
             }
             return null;

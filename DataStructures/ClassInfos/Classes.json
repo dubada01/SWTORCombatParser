@@ -1,9 +1,105 @@
 {
   "AllClasses": [
     {
+      "Name": "Powertech",
+      "Discipline": "Sheild Tech",
+      "Role": "Tank",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Oil Slick", "Heat Blast", "Firestorm" ]
+    },
+    {
+      "Name": "Powertech",
+      "Discipline": "Pyrotech",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Flaming Fist", "Incendiary Missile", "Immolate", "Scorch" ]
+    },
+    {
+      "Name": "Powertech",
+      "Discipline": "Advanced Prototype",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Retractable Blade", "Magnetic Blast", "Thermal Detonator", "Energy Burst" ]
+    },
+    {
+      "Name": "Sniper",
+      "Discipline": "Marksmanship",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Ambush", "Penetrating Blast", "Followthough", "Sniper Volley" ]
+    },
+    {
+      "Name": "Sniper",
+      "Discipline": "Engineering",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Explosive Probe", "Interrogation Probe", "Plasma Probe", "EMP Discharge" ]
+    },
+    {
+      "Name": "Sniper",
+      "Discipline": "Virulance",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Corrosive Grenade", "Cull", "Weakening Blast", "Lethal Shot" ]
+    },
+    {
+      "Name": "Juggernaut",
+      "Role": "Tank",
+      "Discipline": "Immortal",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Aegis Assault", "Crushing Blow", "Backhand", "Invicible" ]
+    },
+    {
+      "Name": "Juggernaut",
+      "Role": "DPS",
+      "Discipline": "Vengance",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Shatter", "Impale", "Hew", "Vengeful Slam" ]
+    },
+    {
+      "Name": "Juggernaut",
+      "Role": "DPS",
+      "Discipline": "Rage",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Raging Burst", "Obliterate", "Force Crush", "Furious Strike" ]
+    },
+    {
+      "Name": "Assassin",
+      "Role": "Tank",
+      "Discipline": "Darkness",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Depredating Volts", "Dark Ward", "Wither", "Force Pull" ]
+    },
+    {
+      "Name": "Assassin",
+      "Role": "DPS",
+      "Discipline": "Deception",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Reaping Strike", "Voltaic Slash", "Low Slash", "Ball Lightning" ]
+    },
+    {
+      "Name": "Assassin",
+      "Role": "DPS",
+      "Discipline": "Hatred",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Death Field", "Eradicate", "Creeping Terror", "Leeching Strike" ]
+    },
+    {
       "Name": "Sorcerer",
       "Discipline": "Corruption",
-      "Role":"Healer",
+      "Role": "Healer",
       "SpecialThreatAbilities": [
         {
           "Name": "Unatrual Prerservation",
@@ -37,9 +133,25 @@
       "UniqueAbilities": [ "Dark Infusion", "Innervate", "Revivification", "Roaming Mend" ]
     },
     {
+      "Name": "Sorcerer",
+      "Discipline": "Lightning",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Chain Lightning", "Thundering Blast", "Lightning Flash", "Lightning Bolt" ]
+    },
+    {
+      "Name": "Sorcerer",
+      "Discipline": "Madness",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Death Field", "Creeping Terror", "Force Leech", "Demolish" ]
+    },
+    {
       "Name": "Operative",
       "Discipline": "Medicine",
-      "Role":"Healer",
+      "Role": "Healer",
       "SpecialThreatAbilities": [
         {
           "Name": "Surprise Comeback",
@@ -53,9 +165,49 @@
       "UniqueAbilities": [ "Kolto Injection", "Recuperative Nanotech", "Surgical Probe", "Kolto Waves" ]
     },
     {
+      "Name": "Operative",
+      "Discipline": "Concealment",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Laceration", "Crippling Slice", "Volatile Substance", "Veiled Strike" ]
+    },
+    {
+      "Name": "Operative",
+      "Discipline": "Lethality",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Corrosive Assault", "Corrosive Grenade", "Toxic Blast", "Lethal Strike" ]
+    },
+    {
+      "Name": "Marauder",
+      "Discipline": "Annihilation",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Force Rend", "Rupture", "Annihilate", "Deadly Saber" ]
+    },
+    {
+      "Name": "Marauder",
+      "Discipline": "Carnage",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Gore", "Massacre", "Ferocity", "Devastating Blast" ]
+    },
+    {
+      "Name": "Marauder",
+      "Discipline": "Fury",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Raging Burst", "Obliterate", "Force Crush", "Furious Strike" ]
+    },
+    {
       "Name": "Mercenary",
       "Discipline": "Bodyguard",
-      "Role":"Healer",
+      "Role": "Healer",
       "SpecialThreatAbilities": [
         {
           "Name": "Responsive Safeguards",
@@ -65,17 +217,35 @@
           "Name": "Kolto Overload",
           "StaticThreat": true
         },
-       {
+        {
           "Name": "Trauma Regulators",
           "StaticThreat": true
-        },
+        }
       ],
       "UniqueAbilities": [ "Healing Scan", "Kolto Shell", "Progressive Scan" ]
     },
     {
+      "Name": "Mercenary",
+      "Discipline": "Arsenal",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+
+      ],
+      "UniqueAbilities": [ "Tracer Missile", "Heatseeker Missiles", "Priming Shot", "Blazing Bolts" ]
+    },
+    {
+      "Name": "Mercenary",
+      "Discipline": "Innovative Ordinance",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+
+      ],
+      "UniqueAbilities": [ "Incendiary Missile", "Thermal Detonator", "Serrated Shot", "Mag Shot" ]
+    },
+    {
       "Name": "Sage",
       "Discipline": "Seer",
-      "Role":"Healer",
+      "Role": "Healer",
       "SpecialThreatAbilities": [
 
         {
@@ -86,28 +256,185 @@
       "UniqueAbilities": [ "Deliverance", "Healing Trance", "Salvation", "Wandering Mend" ]
     },
     {
+      "Name": "Sage",
+      "Discipline": "Telekinetics",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Telekinetic Wave", "Turbulance", "Telekinetic Gust", "Telekinetic Burst" ]
+    },
+    {
+      "Name": "Sage",
+      "Discipline": "Balance",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Force In Balance", "Sever Force", "Force Serentity", "Vanquish" ]
+    },
+    {
       "Name": "Scoundrel",
       "Discipline": "Sawbones",
-      "Role":"Healer",
+      "Role": "Healer",
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Underworld Medicine", "Kolto Cloud", "Emergency Medpac", "Kolto Waves" ]
     },
+
+    {
+      "Name": "Scoundrel",
+      "Discipline": "Scrapper",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Sucker Punch", "Shank Shot", "Blood Boiler", "Bludgon" ]
+    },
+
+    {
+      "Name": "Scoundrel",
+      "Discipline": "Ruffian",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Brutal Shots", "Shrap Bomb", "Sanguinary Shot", "Point Blank Shot" ]
+    },
+
+    {
+      "Name": "Sentinel",
+      "Discipline": "Watchaman",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Force Melt", "Cauterize", "Merciless Slash", "Overload Saber" ]
+    },
+
+    {
+      "Name": "Sentinel",
+      "Discipline": "Combat",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Lance", "Blade Rush", "Precision", "Clashing Blast" ]
+    },
+
+    {
+      "Name": "Sentinel",
+      "Discipline": "Concentration",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Focused Burst", "Zealous Leap", "Force Exhaustion", "Concentration Slice" ]
+    },
     {
       "Name": "Commando",
       "Discipline": "Combat Medic",
-      "Role":"Healer",
+      "Role": "Healer",
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Advanced Medical Probe", "Kolto Bomb", "Successive Treatment" ]
     },
     {
-      "Name": "Juggernaut",
-      "Role":"Tank",
-      "Discipline": "Immortal",
+      "Name": "Commando",
+      "Discipline": "Gunnery",
+      "Role": "DPS",
       "SpecialThreatAbilities": [
       ],
-      "UniqueAbilities": [ "Aegis Assault", "Crushing Blow", "Backhand","Invicible" ]
+      "UniqueAbilities": [ "Grav Round", "Demolition Round", "Vortex Bolt", "Boltstorm" ]
+    },
+    {
+      "Name": "Commando",
+      "Discipline": "Assault Specialist",
+      "Role": "DPS",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Incendiary Round", "Assault Plastique", "Serrated Bolt", "Mag Bolt" ]
+    },
+    {
+      "Name": "Guardian",
+      "Role": "Tank",
+      "Discipline": "Defense",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Warding Strike", "Guardian Slash", "Hilt Bash", "Warding Call" ]
+    },
+    {
+      "Name": "Guardian",
+      "Role": "DPS",
+      "Discipline": "Vigilance",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Plasma Brand", "Overhead Slash", "Vigilant Thrust" ]
+    },
+    {
+      "Name": "Guardian",
+      "Role": "DPS",
+      "Discipline": "Focus",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Focused Burst", "Zealous Leap", "Force Exhaustion", "Concentration Slice" ]
+    },
+    {
+      "Name": "Vanguard",
+      "Role": "Tank",
+      "Discipline": "Sheild Specialist",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Riot Gas", "Energy Blast", "Transpose", "Ion Storm" ]
+    },
+    {
+      "Name": "Vanguard",
+      "Role": "DPS",
+      "Discipline": "Tactics",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Gut", "Tactical Surge", "Assult Plastique", "Cell Burst" ]
+    },
+    {
+      "Name": "Gunslinger",
+      "Role": "DPS",
+      "Discipline": "Sharpshooter",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Aimed Shot", "Trickshot", "Penetrating Round", "Burst Volley" ]
+    },
+    {
+      "Name": "Gunslinger",
+      "Role": "DPS",
+      "Discipline": "Saboteur",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Explosive Charge", "Shock Charge", "Incindeary Grenade", "Sabatoge" ]
+    },
+    {
+      "Name": "Gunslinger",
+      "Role": "DPS",
+      "Discipline": "Dirty Fighting",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Shrap Bomb", "Wounding Shots", "Hemorrhaging Blast", "Dirty Blast" ]
+    },
+    {
+      "Name": "Jedi Shadow",
+      "Role": "Tank",
+      "Discipline": "Kinetic Combat",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Cascading Debris", "Kinetic Ward", "Slow Time", "Force Pull" ]
+    },
+    {
+      "Name": "Jedi Shadow",
+      "Role": "DPS",
+      "Discipline": "Infiltration",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Vaulting Slash", "Clairvoyant", "Low Slash", "Psychokinetic Blast" ]
+    },
+    {
+      "Name": "Jedi Shadow",
+      "Role": "DPS",
+      "Discipline": "Serenity",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Force In Balance", "Squelch", "Sever Force", "Serentity Strike" ]
     }
   ]
 }

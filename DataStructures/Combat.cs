@@ -55,6 +55,10 @@ namespace SWTORCombatParser
         {
             return GetByAbility(OutgoingHealingLogs);
         }
+        public Dictionary<string,List<ParsedLogEntry>> GetShieldingBySource()
+        {
+            return GetBySource(IncomingSheildedLogs);
+        }
         public Dictionary<string, List<ParsedLogEntry>> GetByTarget(List<ParsedLogEntry> logsToCheck)
         {
             var returnDict = new Dictionary<string, List<ParsedLogEntry>>();
@@ -87,21 +91,24 @@ namespace SWTORCombatParser
         }
 
         public double TotalAbilites;
+        public double TotalThreat;
         public double TotalDamage;
         public double TotalHealing;
         public double TotalEffectiveHealing;
         public double TotalSheilding;
+        public double TotalProvidedSheilding;
         public double TotalDamageTaken;
         public double TotalEffectiveDamageTaken;
         public double TotalHealingReceived;
         public double TotalEffectiveHealingReceived;
 
+        public double TPS => TotalThreat / DurationSeconds;
         public double DPS => TotalDamage / DurationSeconds == double.NaN?0: TotalDamage / DurationSeconds;
         public double APM => TotalAbilites / (DurationSeconds / 60);
         public double HPS => TotalHealing / DurationSeconds;
         public double EHPS => TotalEffectiveHealing / DurationSeconds;
         public double SPS => TotalSheilding / DurationSeconds;
-
+        public double PSPS => TotalProvidedSheilding / DurationSeconds;
         public double DTPS => TotalDamageTaken / DurationSeconds;
         public double EDTPS => TotalEffectiveDamageTaken / DurationSeconds;
         public double HTPS => TotalHealingReceived / DurationSeconds;

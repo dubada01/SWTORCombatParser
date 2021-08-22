@@ -20,7 +20,7 @@ namespace SWTORCombatParser
             combatToPopulate.IncomingDamageLogs = incomingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
             combatToPopulate.IncomingHealingLogs = incomingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
             var test = combatToPopulate.IncomingDamageLogs.Where(l => l.Value.Modifier != null).ToList();
-            combatToPopulate.IncomingSheildedLogs = combatToPopulate.IncomingDamageLogs.Where(l => l.Value.Modifier!=null && l.Value.Modifier.ValueType == DamageType.shield).ToList();
+            combatToPopulate.IncomingSheildedLogs = combatToPopulate.IncomingDamageLogs.Where(l => l.Value.Modifier!=null && l.Value.Modifier.ValueType == DamageType.absorbed).ToList();
 
             var totalHealing = combatToPopulate.OutgoingHealingLogs.Sum(l => l.Value.DblValue);
             var totalEffectiveHealing = combatToPopulate.OutgoingHealingLogs.Sum(l => l.Value.EffectiveDblValue);
@@ -37,15 +37,15 @@ namespace SWTORCombatParser
 
             var sheildingLogs = incomingLogs.Where(l => l.Value.Modifier != null && l.Value.Modifier.ValueType == DamageType.shield);
 
-            var totalSheildingDone = sheildingLogs.Count() == 0 ? 0: sheildingLogs.Sum(l => l.Value.Modifier.DblValue);
+            //var totalSheildingDone = sheildingLogs.Count() == 0 ? 0: sheildingLogs.Sum(l => l.Value.Modifier.DblValue);
 
 
-
+            combatToPopulate.TotalThreat = outgoingLogs.Sum(l => l.Threat);
             combatToPopulate.MaxDamage = combatToPopulate.OutgoingDamageLogs.Count == 0 ? 0: combatToPopulate.OutgoingDamageLogs.Max(l => l.Value.DblValue);
             combatToPopulate.MaxHeal = combatToPopulate.OutgoingHealingLogs.Count == 0 ? 0: combatToPopulate.OutgoingHealingLogs.Max(l => l.Value.DblValue);
             combatToPopulate.MaxEffectiveHeal = combatToPopulate.OutgoingHealingLogs.Count == 0 ? 0 : combatToPopulate.OutgoingHealingLogs.Max(l => l.Value.EffectiveDblValue);
             combatToPopulate.TotalDamage = totalDamage;
-            combatToPopulate.TotalSheilding = totalSheildingDone;
+           // combatToPopulate.TotalSheilding = totalSheildingDone;
             combatToPopulate.TotalAbilites = totalAbilitiesDone;
             combatToPopulate.TotalHealing = totalHealing;
             combatToPopulate.TotalEffectiveHealing = totalEffectiveHealing;
@@ -60,71 +60,71 @@ namespace SWTORCombatParser
 
 
         }
-        public static Dictionary<string,double> GetAverage(Dictionary<string,List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)
-        {
-            var returnDict = new Dictionary<string, double>();
-            foreach(var kvp in combatMetaData)
-            {
-                if (!checkEffective)
-                    returnDict[kvp.Key] = kvp.Value.Average(v => v.Value.DblValue);
-                else
-                    returnDict[kvp.Key] = kvp.Value.Average(v => v.Value.EffectiveDblValue);
-            }
-            return returnDict;
-        }
-        public static Dictionary<string, double> GetMax(Dictionary<string, List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)
-        {
-            var returnDict = new Dictionary<string, double>();
-            foreach (var kvp in combatMetaData)
-            {
-                if (!checkEffective)
-                    returnDict[kvp.Key] = kvp.Value.Max(v => v.Value.DblValue);
-                else
-                    returnDict[kvp.Key] = kvp.Value.Max(v => v.Value.EffectiveDblValue);
-            }
-            return returnDict;
-        }
-        public static Dictionary<string, double> GetSum(Dictionary<string, List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)
-        {
-            var returnDict = new Dictionary<string, double>();
-            foreach (var kvp in combatMetaData)
-            {
-                if(!checkEffective)
-                    returnDict[kvp.Key] = kvp.Value.Sum(v => v.Value.DblValue);
-                else
-                    returnDict[kvp.Key] = kvp.Value.Sum(v => v.Value.EffectiveDblValue);
-            }
-            return returnDict;
-        }
-        public static Dictionary<string, double> Getcount(Dictionary<string, List<ParsedLogEntry>> combatMetaData)
-        {
-            var returnDict = new Dictionary<string, double>();
-            foreach (var kvp in combatMetaData)
-            {
-                returnDict[kvp.Key] = kvp.Value.Count();
-            }
-            return returnDict;
-        }
-        public static Dictionary<string, double> GetCritPercent(Dictionary<string, List<ParsedLogEntry>> combatMetaData)
-        {
-            var returnDict = new Dictionary<string, double>();
-            foreach (var kvp in combatMetaData)
-            {
-                returnDict[kvp.Key] = kvp.Value.Count(v => v.Value.WasCrit) / kvp.Value.Count();
-            }
-            return returnDict;
-        }
-        public static Dictionary<string, double> GetEffectiveHealsPercent(Dictionary<string, List<ParsedLogEntry>> combatMetaData)
-        {
-            var sumEffective = GetSum(combatMetaData, true);
-            var sumTotal = GetSum(combatMetaData);
+        //public static Dictionary<string,double> GetAverage(Dictionary<string,List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)
+        //{
+        //    var returnDict = new Dictionary<string, double>();
+        //    foreach(var kvp in combatMetaData)
+        //    {
+        //        if (!checkEffective)
+        //            returnDict[kvp.Key] = kvp.Value.Average(v => v.Value.DblValue);
+        //        else
+        //            returnDict[kvp.Key] = kvp.Value.Average(v => v.Value.EffectiveDblValue);
+        //    }
+        //    return returnDict;
+        //}
+        //public static Dictionary<string, double> GetMax(Dictionary<string, List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)
+        //{
+        //    var returnDict = new Dictionary<string, double>();
+        //    foreach (var kvp in combatMetaData)
+        //    {
+        //        if (!checkEffective)
+        //            returnDict[kvp.Key] = kvp.Value.Max(v => v.Value.DblValue);
+        //        else
+        //            returnDict[kvp.Key] = kvp.Value.Max(v => v.Value.EffectiveDblValue);
+        //    }
+        //    return returnDict;
+        //}
+        //public static Dictionary<string, double> GetSum(Dictionary<string, List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)
+        //{
+        //    var returnDict = new Dictionary<string, double>();
+        //    foreach (var kvp in combatMetaData)
+        //    {
+        //        if(!checkEffective)
+        //            returnDict[kvp.Key] = kvp.Value.Sum(v => v.Value.DblValue);
+        //        else
+        //            returnDict[kvp.Key] = kvp.Value.Sum(v => v.Value.EffectiveDblValue);
+        //    }
+        //    return returnDict;
+        //}
+        //public static Dictionary<string, double> Getcount(Dictionary<string, List<ParsedLogEntry>> combatMetaData)
+        //{
+        //    var returnDict = new Dictionary<string, double>();
+        //    foreach (var kvp in combatMetaData)
+        //    {
+        //        returnDict[kvp.Key] = kvp.Value.Count();
+        //    }
+        //    return returnDict;
+        //}
+        //public static Dictionary<string, double> GetCritPercent(Dictionary<string, List<ParsedLogEntry>> combatMetaData)
+        //{
+        //    var returnDict = new Dictionary<string, double>();
+        //    foreach (var kvp in combatMetaData)
+        //    {
+        //        returnDict[kvp.Key] = kvp.Value.Count(v => v.Value.WasCrit) / kvp.Value.Count();
+        //    }
+        //    return returnDict;
+        //}
+        //public static Dictionary<string, double> GetEffectiveHealsPercent(Dictionary<string, List<ParsedLogEntry>> combatMetaData)
+        //{
+        //    var sumEffective = GetSum(combatMetaData, true);
+        //    var sumTotal = GetSum(combatMetaData);
 
-            var returnDict = new Dictionary<string, double>();
-            foreach (var kvp in combatMetaData)
-            {
-                returnDict[kvp.Key] = sumEffective[kvp.Key] / sumTotal[kvp.Key];
-            }
-            return returnDict;
-        }
+        //    var returnDict = new Dictionary<string, double>();
+        //    foreach (var kvp in combatMetaData)
+        //    {
+        //        returnDict[kvp.Key] = sumEffective[kvp.Key] / sumTotal[kvp.Key];
+        //    }
+        //    return returnDict;
+        //}
     }
 }

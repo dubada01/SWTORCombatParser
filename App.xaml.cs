@@ -21,5 +21,6 @@ namespace SWTORCombatParser
             mainWindow.DataContext = mainWindowVM;
             mainWindow.Show();
         }
+
     }
 }

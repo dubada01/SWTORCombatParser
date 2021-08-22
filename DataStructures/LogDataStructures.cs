@@ -10,6 +10,7 @@ namespace SWTORCombatParser
         public long RaidLogId;
         public string LogName;
         public string LogText;
+        public long LogLineNumber { get; set; }
         public DateTime TimeStamp { get; set; }
         public Entity Source { get; set; }
         public Entity Target { get; set; }

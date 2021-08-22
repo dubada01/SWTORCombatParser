@@ -68,11 +68,11 @@ namespace SWTORCombatParser.ViewModels
         {
             if(SelectedParticipant == null)
             {
-                var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-                var attemptedName = CombatLogParser.BuildLogState(mostRecentLog);
-                if (!string.IsNullOrEmpty(attemptedName.PlayerName))
+                var playerName = CombatLogStateBuilder.CurrentState.PlayerName;
+                if (!string.IsNullOrEmpty(playerName))
                 {
-                    SelectedParticipant = RaidParticipants.First(p => p.PlayerName == attemptedName.PlayerName);
+                    var localParticipant = RaidParticipants.FirstOrDefault(p => p.PlayerName == playerName);
+                    SelectedParticipant = localParticipant == null ? RaidParticipants.First() : localParticipant;
                 }
             }
             OnNewRaidCombat(selectedParticipant.CurrentCombatInfo);

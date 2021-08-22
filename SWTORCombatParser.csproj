@@ -23,21 +23,6 @@
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="resources\tankIcon.png" />
-    <None Remove="TestCombatLogs\combat_2021-07-11_20_54_51_389708.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-15_20_26_17_454472.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-15_22_11_37_823701.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-16_21_28_30_991680.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-17_15_23_10_565316.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-17_17_46_51_958962.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-17_19_30_41_039793.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-17_20_37_44_826288.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-19_21_24_53_688274.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-19_21_46_59_865954.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-20_16_27_11_087751.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-20_17_56_09_814460.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-27_00_21_58_945170.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-27_19_16_34_533396.txt" />
-    <None Remove="TestCombatLogs\combat_2021-07-27_20_47_19_588682.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,57 +41,13 @@
     <Content Include="resources\tankIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-11_20_54_51_389708.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-15_20_26_17_454472.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-15_22_11_37_823701.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-16_21_28_30_991680.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-17_15_23_10_565316.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-17_17_46_51_958962.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-17_19_30_41_039793.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-17_20_37_44_826288.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-19_21_24_53_688274.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-19_21_46_59_865954.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-20_16_27_11_087751.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-20_17_56_09_814460.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-27_00_21_58_945170.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-27_19_16_34_533396.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="TestCombatLogs\combat_2021-07-27_20_47_19_588682.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.1" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.1.20" />
     <PackageReference Include="morelinq" Version="3.3.2" />
+    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Npgsql" Version="5.0.7" />
     <PackageReference Include="NUnit" Version="3.13.2" />

@@ -1,42 +1,71 @@
-﻿using SWTORCombatParser.Utilities;
+﻿using GalaSoft.MvvmLight.Command;
+using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Overlay;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
-    public enum OverlayType
-    {
-        DPS,
-        HPS
-    }
     public class OverlayViewModel : INotifyPropertyChanged
     {
-        public ICommand GenerateDPSOverlay => new CommandHandler(CreateDPSOverlay);
-
-        private void CreateDPSOverlay()
+        private bool overlaysMoveable = true;
+        private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
+        private Dictionary<OverlayType, DefaultOverlayInfo> _overlayDefaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
+        public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
+        public OverlayViewModel()
         {
-            CreateOverlay(OverlayType.DPS);
+            _overlayDefaults = DefaultOverlayManager.GetDefaults();
+            var enumVals = EnumUtil.GetValues<OverlayType>();
+            foreach(var enumVal in enumVals)
+            {
+                AvailableOverlayTypes.Add(enumVal);
+            }
         }
-        public ICommand GenerateHPSOverlay => new CommandHandler(CreateHPSOverlay);
 
-        private void CreateHPSOverlay()
-        {
-            CreateOverlay(OverlayType.HPS);
-        }
+
+        public ICommand GenerateOverlay => new RelayCommand<OverlayType>(CreateOverlay);
+
         private void CreateOverlay(OverlayType type)
         {
+            if (_currentOverlays.Any(o => o.Type == type))
+                return;
             var viewModel = new OverlayInstanceViewModel(type);
+            viewModel.OverlayClosed += RemoveOverlay;
+            viewModel.OverlaysMoveable = overlaysMoveable;
+            _currentOverlays.Add(viewModel);
             var dpsOverlay = new InfoOverlay(viewModel);
+            dpsOverlay.Top = _overlayDefaults[type].Position.Y;
+            dpsOverlay.Left = _overlayDefaults[type].Position.X;
+            dpsOverlay.Width =  _overlayDefaults[type].WidthHeight.X;
+            dpsOverlay.Height = _overlayDefaults[type].WidthHeight.Y;
             dpsOverlay.Show();
-
-
         }
+
+        private void RemoveOverlay(OverlayInstanceViewModel obj)
+        {
+            _currentOverlays.Remove(obj);
+        }
+
+        public ICommand ToggleOverlayLockCommand => new CommandHandler(ToggleOverlayLock);
+
+        private void ToggleOverlayLock()
+        {
+            overlaysMoveable = !overlaysMoveable;
+            if (overlaysMoveable)
+                _currentOverlays.ForEach(o => o.UnlockOverlays());
+            else
+                _currentOverlays.ForEach(o => o.LockOverlays());
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

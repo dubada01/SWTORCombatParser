@@ -6,7 +6,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                
+                <ResourceDictionary Source="Utilities/UIStyles/ThumbStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converters:PastCombatSelectedToBackgroundConverter x:Key="PastCombatSelectedToBackgroundConverter"/>
             <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>
@@ -14,6 +14,7 @@
             <converters:RoleToImageSourceConverter x:Key="RoleToImageSourceConverter"/>
             <converters:LiveParseActiveToBrushConverter x:Key="LiveParseToBrushConverter"/>
             <converters:OverlayMetricToColorConverter x:Key="OverlayMetricTypeToColorConverter"/>
+            <converters:OverlayMoveableToVisibilityConverter x:Key="OverlayMoveableToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

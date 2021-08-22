@@ -11,35 +11,59 @@ namespace SWTORCombatParser.Model.LogParsing
 
     public static class CombatLogStateBuilder
     {
-        public static LogState GetStateDuringLog(ref List<ParsedLogEntry> logs)
+        public static LogState CurrentState { get; set; } = new LogState();
+        public static void ClearState()
         {
-            var logState = new LogState();
+            CurrentState = new LogState();
+        }
+        public static LogState UpdateCurrentLogState(ref List<ParsedLogEntry> logs)
+        {
             var combatLogs = logs;
             foreach (var log in combatLogs)
             {
-                SetPlayerName(log,logState);
+                SetPlayerName(log, CurrentState);
             }
             foreach (var log in combatLogs)
             {
-                SetPlayerClass(log, logState);
+                if (SetPlayerClass(log, CurrentState))
+                    break;
             }
             foreach (var log in combatLogs)
             {
-                UpdateCombatModifierState(log, logState);
+                UpdateCombatModifierState(log, CurrentState);
             }
-            return logState;
+            return CurrentState;
+        }
+        public static Role GetPlayerRole(List<ParsedLogEntry> logs)
+        {
+            foreach (var log in logs)
+            {
+                var role = GetPlayerRole(log);
+                if (role != Role.Unknown)
+                    return role;
+            }
+            return Role.Unknown;
+        }
+        public static string GetPlayerName(List<ParsedLogEntry> logs)
+        {
+            foreach (var log in logs)
+            {
+                var name = GetPlayerName(log);
+                if (!string.IsNullOrEmpty(name))
+                    return name;
+            }
+            return "Unknown_Player";
         }
         public static LogState GetStateOfRaidingLogs(List<ParsedLogEntry> raidingLogs)
         {
-            var logState = new LogState();
             foreach (var log in raidingLogs)
             {
-                UpdateCombatModifierState(log, logState);
+                UpdateCombatModifierState(log, CurrentState);
                 var identifiedClass = ClassIdentifier.IdentifyClass(log);
                 if (identifiedClass != null)
-                    logState.PlayerClass = identifiedClass;
-    }
-            return logState;
+                    CurrentState.PlayerClass = identifiedClass;
+            }
+            return CurrentState;
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine, LogState state)
         {
@@ -52,7 +76,9 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "AbilityDeactivate")
             {
-                state.Modifiers.Last(m => m.Name == "Guarding").StopTime = parsedLine.TimeStamp;
+                var guardedModifer = state.Modifiers.LastOrDefault(m => m.Name == "Guarding");
+                if (guardedModifer != null)
+                    guardedModifer.StopTime = parsedLine.TimeStamp;
                 return;
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Apply && state.PlayerName != parsedLine.Source.Name)
@@ -70,7 +96,9 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Remove && state.PlayerName != parsedLine.Source.Name)
             {
-                state.Modifiers.Last(m => m.Name.Contains("Guarded") && m.StopTime == DateTime.MinValue).StopTime = parsedLine.TimeStamp;
+                var guardedModifer = state.Modifiers.LastOrDefault(m => m.Name.Contains("Guarded") && m.StopTime == DateTime.MinValue);
+                if(guardedModifer!=null)
+                    guardedModifer.StopTime = parsedLine.TimeStamp;
                 return;
             }
             if(parsedLine.Effect.EffectType == EffectType.Apply && parsedLine.Target.IsPlayer && (parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal"))
@@ -95,16 +123,17 @@ namespace SWTORCombatParser.Model.LogParsing
             else
                 return ": " + effectName;
         }
-        private static void SetPlayerClass(ParsedLogEntry parsedLine, LogState state)
+        private static bool SetPlayerClass(ParsedLogEntry parsedLine, LogState state)
         {
             if (parsedLine.Error == ErrorType.IncompleteLine)
-                return;
-            if (state.PlayerClass != null || parsedLine.Source.Name != state.PlayerName)
-                return;
+                return false;
+            if (parsedLine.Source.Name != state.PlayerName)
+                return false;
             var swtorClass = ClassIdentifier.IdentifyClass(parsedLine);
             if (swtorClass == null)
-                return;
+                return false;
             state.PlayerClass = swtorClass;
+            return true;
         }
         private static void SetPlayerName(ParsedLogEntry parsedLine, LogState state)
         {
@@ -121,6 +150,22 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (parsedLine.Source.Name == state.PlayerName)
                     parsedLine.Source.IsPlayer = true;
             }
+        }
+        private static Role GetPlayerRole(ParsedLogEntry log)
+        {
+            if (log.Error == ErrorType.IncompleteLine)
+                return Role.Unknown;
+            var swtorClass = ClassIdentifier.IdentifyClass(log);
+            if (swtorClass == null)
+                return Role.Unknown;
+            return swtorClass.Role;
+        }
+        private static string GetPlayerName(ParsedLogEntry log)
+        {
+            if (log.Source.Name == log.Target.Name)
+                return log.Source.Name;
+            else
+                return "";
         }
     }
 }

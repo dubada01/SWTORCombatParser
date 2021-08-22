@@ -1,4 +1,6 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using MoreLinq;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Raiding;
 using System;
 using System.Collections.Generic;
@@ -9,10 +11,19 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
+    public static class StaticRaidInfo
+    {
+        public static event Action NewRaidCombatStarted = delegate { };
+        public static void FireNewRaidCombatEvent()
+        {
+            NewRaidCombatStarted();
+        }
+    }
     public class RaidStateManagement
     {
         private DateTime _mostRecentLog;
         private DateTime _timeJoined;
+        private Guid _currentRaidGroup;
         private bool _raidingActive;
         private PostgresConnection _postgresConnection;
         private bool combatEnding;
@@ -29,14 +40,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             _raidingActive = false;
         }
-        
+
         public void StartRaiding(Guid groupId)
         {
+            _currentRaidGroup = groupId;
             _raidingActive = true;
-            _mostRecentLog = DateTime.Now;
+            _mostRecentLog = GetMostRecentLog();
             _timeJoined = DateTime.Now;
-            StartKeepAlive(groupId);
-            CheckForOngoingCombat(groupId);
+            _currentParticipants = new List<RaidParticipantInfo>();
+            StartKeepAlive();
+            CheckForOngoingCombat();
             Task.Run(() =>
             {
                 while (_raidingActive)
@@ -44,40 +57,44 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     Thread.Sleep(1000);
                     if (!_raidingActive)
                         return;
-                    var logs = _postgresConnection.GetLogsAfterTime(_mostRecentLog, groupId);
+                    var logs = _postgresConnection.GetLogsAfterTime(_mostRecentLog, _currentRaidGroup);
                     if (!logs.Any())
                         continue;
                     ParseNewRaidLogs(logs);
                 }
             });
         }
-        private void StartKeepAlive(Guid groupId)
+        private void StartKeepAlive()
         {
             Task.Run(() =>
             {
                 while (_raidingActive)
                 {
-                    AddJoinedGroupLog(groupId);
-                    AddMembers(groupId);
+                    UploadKeepAlive();
+                    AddMembers();
                     Thread.Sleep(2000);
                     if (!_raidingActive)
                         return;
                 }
             });
         }
-        private void AddMembers(Guid groupId)
+        private void AddMembers()
         {
-            var currentMembers = _postgresConnection.CheckForKeepAlivesInGroupFromTime(groupId, _timeJoined);
-            foreach(var member in currentMembers)
+            var currentMembers = GetCurrentlyAliveMembers();
+            foreach (var member in currentMembers)
             {
                 TryAddNewParticipant(member.Item2, member.Item1);
             }
 
         }
-        private void CheckForOngoingCombat(Guid groupId)
+        private List<(string, string)> GetCurrentlyAliveMembers()
         {
-            var cloudLogsFrom10Mins = _postgresConnection.GetLogsFromLast10Mins(groupId).OrderBy(l => l.TimeStamp).ToList();
-            CheckForPersonalOngoingCombat(groupId, cloudLogsFrom10Mins);
+            return _postgresConnection.CheckForKeepAlivesInGroupFromTime(_currentRaidGroup, _timeJoined);
+        }
+        private void CheckForOngoingCombat()
+        {
+            var cloudLogsFrom10Mins = _postgresConnection.GetLogsFromLast10Mins(_currentRaidGroup).OrderBy(l => l.TimeStamp).ToList();
+            CheckForPersonalOngoingCombat(cloudLogsFrom10Mins);
 
             var lastCombatEndedLog = cloudLogsFrom10Mins.LastOrDefault(l => l.Ability == "SWTOR_PARSING_COMBAT_END");
             if (lastCombatEndedLog == null)
@@ -87,11 +104,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
             if (combatInProgress)
             {
                 var mostRecentCombat = cloudLogsFrom10Mins.First(l => l.Effect.EffectName == "EnterCombat" && l.TimeStamp > timeToCheck);
-                var logsSinceOngoingCombatStart = _postgresConnection.GetLogsAfterTime(mostRecentCombat.TimeStamp, groupId);
+                var logsSinceOngoingCombatStart = _postgresConnection.GetLogsAfterTime(mostRecentCombat.TimeStamp, _currentRaidGroup);
                 ParseNewRaidLogs(logsSinceOngoingCombatStart);
             }
         }
-        private void CheckForPersonalOngoingCombat(Guid groupId, List<ParsedLogEntry> cloudLogs)
+        private void CheckForPersonalOngoingCombat(List<ParsedLogEntry> cloudLogs)
         {
             var logsForFile = CombatLogParser.ParseLast10Mins(CombatLogLoader.LoadMostRecentLog());
             if (logsForFile.Count == 0)
@@ -110,8 +127,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     cloudLogs.Any(cl => cl.Effect.EffectName != l.Effect.EffectName) &&
                     cloudLogs.Any(cl => cl.Ability != l.Ability)
                     );
-                Parallel.ForEach(logsNotYetInRaidGroup, log => {
-                    _postgresConnection.AddLog(groupId, log);
+                Parallel.ForEach(logsNotYetInRaidGroup, log =>
+                {
+                    _postgresConnection.AddLog(_currentRaidGroup, log);
                 });
             }
         }
@@ -121,7 +139,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
             CheckForCombatStart(ordered);
             CheckForCombatEnd(ordered);
-            var startTime = ordered.FirstOrDefault(l=>l.Effect.EffectName == "EnterCombat")?.TimeStamp;
+            var startTime = ordered.FirstOrDefault(l => l.Effect.EffectName == "EnterCombat")?.TimeStamp;
             var participantData = ordered.GroupBy(l => l.LogName);
             foreach (var participantFile in participantData)
             {
@@ -130,10 +148,17 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 if (startTime.HasValue)
                     participantLogs.Insert(0, ParsedLogEntry.GetDummyLog("StartCombatMarker", startTime.Value, -1));
                 var participant = _currentParticipants.FirstOrDefault(p => p.LogName == logName);
-                if(participant != null)
+                if (participant == null)
+                {
+                    TryAddNewParticipant(logName, _postgresConnection.GetMostRecentInfoFromLogName(_currentRaidGroup, logName));
+                    var secondTry = _currentParticipants.FirstOrDefault(p => p.LogName == logName);
+                    secondTry?.Update(participantLogs);
+                }
+                if (participant != null)
                     participant.Update(participantLogs);
 
             }
+            RaidGroupMetaData.UpdateRaidGroupMetaData(ref _currentParticipants);
             UpdatedParticipants(_currentParticipants);
             if (combatEnding)
             {
@@ -154,7 +179,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 newParticipant.PlayerRole = Enum.Parse<Role>(info.Split("~?~", StringSplitOptions.None)[2]);
 
                 _currentParticipants.Add(newParticipant);
-                
+
             }
             else
             {
@@ -183,28 +208,48 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 combatStarted = true;
                 App.Current.Dispatcher.Invoke(() =>
                 {
+                    var aliveMembers = GetCurrentlyAliveMembers();
+                    _currentParticipants.RemoveAll(cm => !aliveMembers.Any(am => am.Item2 == cm.LogName));
                     _currentParticipants.ForEach(r => r.ResetCombat());
                     UpdatedParticipants(_currentParticipants);
                 });
-
+                StaticRaidInfo.FireNewRaidCombatEvent();
             }
         }
-
-        private void AddJoinedGroupLog(Guid groupId)
+        private DateTime GetMostRecentLog()
         {
-            Role playerRole = Role.Unknown;
             var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-            var attemptedName = CombatLogParser.BuildLogState(mostRecentLog);
-            string playerName;
-            if (string.IsNullOrEmpty(attemptedName.PlayerName))
-                playerName = "Unknown_Player";
-            else
+            var startEvents = CombatLogParser.GetAllCombatStartEvents(mostRecentLog);
+            if (startEvents.Count == 0)
             {
-                playerName = attemptedName.PlayerName;
-                playerRole = attemptedName.PlayerClass == null ? Role.Unknown:attemptedName.PlayerClass.Role;
+                return DateTime.Now;
             }
+            return startEvents.MinBy(v => v.TimeStamp).First().TimeStamp;
+        }
+        private Role _currentRole;
+        private string _characterName;
+        private void UploadKeepAlive()
+        {
+            if (_currentRole == Role.Unknown || (_characterName == null || _characterName == "Unknown_Player"))
+            {
+                var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
 
-            _postgresConnection.UploadMemberKeepAlive(groupId, "HELLO~?~" + playerName + "~?~" + playerRole.ToString(),mostRecentLog.Name);
+                List<ParsedLogEntry> loadedLogs = null;
+                //_currentRole = CombatLogStateBuilder.GetPlayerRole(attemptedName);
+                var currentState = CombatLogStateBuilder.CurrentState;
+                if (string.IsNullOrEmpty(currentState.PlayerName))
+                {
+                    loadedLogs = CombatLogParser.ParseLast10Mins(mostRecentLog);
+                    _characterName = CombatLogStateBuilder.GetPlayerName(loadedLogs);
+                }
+                else
+                    _characterName = currentState.PlayerName;
+                if(currentState.PlayerClass == null)
+                    _currentRole = CombatLogStateBuilder.GetPlayerRole(loadedLogs == null?CombatLogParser.ParseLast10Mins(mostRecentLog): loadedLogs);
+                else
+                    _currentRole = CombatLogStateBuilder.CurrentState.PlayerClass.Role;
+                _postgresConnection.UploadMemberKeepAlive(_currentRaidGroup, "HELLO~?~" + _characterName + "~?~" + _currentRole.ToString(), mostRecentLog.Name);
+            }
         }
     }
 }

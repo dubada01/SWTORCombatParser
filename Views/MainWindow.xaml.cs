@@ -31,12 +31,24 @@ namespace SWTORCombatParser
     /// Interaction logic for MainWindow.xaml
     /// </summary>
 
-
+    public static class MainWindowClosing
+    {
+        public static event Action Closing = delegate { };
+        public static void FireClosing()
+        {
+            Closing();
+        }
+    }
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            MainWindowClosing.FireClosing();
         }
     }
 }

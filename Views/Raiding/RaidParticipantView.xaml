@@ -10,11 +10,14 @@
         <Border BorderBrush="Black" BorderThickness="2" CornerRadius="5">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width=".15*"/>
+                    <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width=".85*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Margin="10" Grid.Column="0" Orientation="Vertical">
-                    <TextBlock Text="{Binding PlayerName}" VerticalAlignment="Top"></TextBlock>
+                    <Viewbox MaxHeight="50" HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding PlayerName}" VerticalAlignment="Top"></TextBlock>
+                    </Viewbox>
+
                     <Image MaxHeight="45" Margin="0,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="{Binding PlayerRole, Converter={StaticResource RoleToImageSourceConverter}}"></Image>
                 </StackPanel>
                 <ItemsControl Grid.Column="1" ItemsSource="{Binding MetaDatas}">
@@ -26,7 +29,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Viewbox>
-                                <local:CombatMetaDataInstance MaxHeight="125"/>
+                                <local:CombatMetaDataInstance Width="300"/>
                             </Viewbox>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

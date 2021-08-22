@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.CombatMetaData;
 using System;
@@ -21,19 +22,34 @@ namespace SWTORCombatParser.ViewModels.Raiding
         }
         public void Update(List<ParsedLogEntry> logs)
         {
+            if (!logs.Any())
+                return;
+            var newLogs = GetValidLogs(logs);
             CurrentLogs.AddRange(GetValidLogs(logs));
             var playerName = logs.FirstOrDefault(l => l.Source.IsPlayer && l.Target.IsPlayer);
             if (string.IsNullOrEmpty(PlayerName) && playerName != null)
                 PlayerName = playerName.Source.Name;
 
 
-            ParticipantCurrentState = CombatLogStateBuilder.GetStateOfRaidingLogs(CurrentLogs);
+            ParticipantCurrentState = CombatLogStateBuilder.GetStateOfRaidingLogs(newLogs);
             if (ParticipantCurrentState.PlayerClass != null && ParticipantCurrentState.PlayerClass.Role !=  Role.Unknown)
             {
                 PlayerRole = ParticipantCurrentState.PlayerClass.Role;
                 OnPropertyChanged("PlayerRole");
             }
-            CurrentCombatInfo = CombatIdentifier.ParseOngoingCombat(CurrentLogs);
+            var enterCombatLogs = logs.Where(l => l.Effect.EffectName == "EnterCombat" || l.Ability == "StartCombatMarker").ToList();
+            for(var c=0;c<enterCombatLogs.Count();c++)
+            {
+                var enterCombatIndex = enterCombatLogs.Count() == 0 ? 0 : logs.IndexOf(enterCombatLogs[c]);
+                var endCombatIndex = LogSearcher.GetIndexOfNextCombatEndLog(enterCombatIndex, logs);
+
+                CurrentCombatInfo = CombatIdentifier.ParseOngoingCombat(logs.GetRange(enterCombatIndex,(endCombatIndex - enterCombatIndex)));
+                if(enterCombatLogs.Count > c - 1)
+                {
+                    PastCombats.Add(CombatIdentifier.ParseOngoingCombat(logs.GetRange(enterCombatIndex, (endCombatIndex - enterCombatIndex))));
+                }
+            }
+            
             OnPropertyChanged("CurrentCombatInfo");
             var metaDatas = MetaDataFactory.GetMetaDatas(CurrentCombatInfo);
             App.Current.Dispatcher.Invoke(() => {
@@ -66,8 +82,8 @@ namespace SWTORCombatParser.ViewModels.Raiding
         }
         internal void FinishCombat()
         {
-            if (CurrentLogs.Count > 0)
-                PastCombats.Add(CombatIdentifier.ParseOngoingCombat(CurrentLogs));
+            //if (CurrentLogs.Count > 0)
+            //    PastCombats.Add(CombatIdentifier.ParseOngoingCombat(CurrentLogs));
         }
         internal void ResetCombat()
         {

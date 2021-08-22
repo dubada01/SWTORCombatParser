@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.ViewModels.Overlays;
+﻿using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.ViewModels.Overlays;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,8 +17,14 @@ namespace SWTORCombatParser.Utilities.Converters
             {
                 case OverlayType.DPS:
                     return Brushes.IndianRed;
-                case OverlayType.HPS:
+                case OverlayType.Healing:
                     return Brushes.LimeGreen;
+                case OverlayType.Sheilding:
+                    return Brushes.WhiteSmoke;
+                case OverlayType.Threat:
+                    return Brushes.Orchid;
+                case OverlayType.DTPS:
+                    return Brushes.Peru;
                 default:
                     return Brushes.Transparent;
             }

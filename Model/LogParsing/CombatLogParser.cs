@@ -37,14 +37,14 @@ namespace SWTORCombatParser
         public static LogState BuildLogState(CombatLogFile file)
         {
             var lines = ParseAllLines(file);
-            _logState = CombatLogStateBuilder.GetStateDuringLog(ref lines);
+            _logState = CombatLogStateBuilder.UpdateCurrentLogState(ref lines);
             return _logState;
         }
         public static LogState GetCurrentLogState()
         {
             return _logState;
         }
-        public static ParsedLogEntry ParseLine(string logEntry)
+        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex)
         {
             var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
 
@@ -61,6 +61,7 @@ namespace SWTORCombatParser
             if (parsedLine.Source.Name == _logState.PlayerName)
                 parsedLine.Source.IsPlayer = true;
             parsedLine.LogText = logEntry;
+            parsedLine.LogLineNumber = lineIndex;
             UpdateEffectiveHealValues(parsedLine);
             return parsedLine;
         }
@@ -68,6 +69,11 @@ namespace SWTORCombatParser
         {
             var allLines = ParseAllLines(file);
             return allLines.Where(l => l.TimeStamp > DateTime.Now.AddMinutes(-10)).ToList();
+        }
+        public static List<ParsedLogEntry> GetAllCombatStartEvents(CombatLogFile log)
+        {
+            var allLines = ParseAllLines(log);
+            return allLines.Where(l => l.Effect.EffectName=="EnterCombat").ToList();
         }
         private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
@@ -79,11 +85,15 @@ namespace SWTORCombatParser
             {
                 if (logLines[i] == "")
                     break;
-                parsedLog[i] = ParseLine(logLines[i]);
+                parsedLog[i] = ParseLine(logLines[i],i);
                 parsedLog[i].LogName = combatLog.Name;
             }
+            CombatTimestampRectifier.RectifyTimeStamps(parsedLog.Where(l => l != null).ToList());
             return parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp).ToList();
         }
+
+
+
         private static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog)
         {
             if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsPlayer)
@@ -153,9 +163,9 @@ namespace SWTORCombatParser
                 return null;
 
             var newEntry = new ParsedLogEntry();
-
-            var date = new DateTime(_logDate.Year, _logDate.Month, _logDate.Day);
             var time = DateTime.Parse(CleanString(entryInfo[0]));
+            var date = new DateTime(_logDate.Year, _logDate.Month, _logDate.Day);
+
             var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
             newEntry.TimeStamp = newDate;
             newEntry.Source = ParseEntity(CleanString(entryInfo[1]));
@@ -201,6 +211,13 @@ namespace SWTORCombatParser
                 newValue.EffectiveDblValue = newValue.DblValue;
                 newValue.ValueType = GetValueType(valueParts[1].Replace("-", ""));
             }
+            if(valueParts.Length == 4)
+            {
+                newValue.WasCrit = valueParts[0].Contains("*");
+                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
+                newValue.EffectiveDblValue = newValue.DblValue;
+                newValue.ValueType = GetValueType(valueParts[1].Replace("-", ""));
+            }
             if (valueParts.Length == 6)
             {
                 var modifier = new Value();
@@ -216,8 +233,10 @@ namespace SWTORCombatParser
             }
             if (valueParts.Length == 8)
             {
+
                 var modifier = new Value();
                 modifier.ValueType = GetValueType(valueParts[3].Replace("-", ""));
+
                 modifier.DblValue = double.Parse(valueParts[5].Replace("(", ""));
                 modifier.EffectiveDblValue = Math.Min(double.Parse(valueParts[0].Replace("*", "")),  modifier.DblValue);
                 newValue.Modifier = modifier;

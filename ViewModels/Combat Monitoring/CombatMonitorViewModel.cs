@@ -17,6 +17,14 @@ using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels
 {
+    public static class CombatSelectionMonitor
+    {
+        public static event Action<Combat> NewCombatSelected = delegate { };
+        public static void FireNewCombat(Combat selectedCombat)
+        {
+            NewCombatSelected(selectedCombat);
+        }
+    }
     public class CombatMonitorViewModel:INotifyPropertyChanged
     {
         private List<ParsedLogEntry> _totalLogsDuringCombat = new List<ParsedLogEntry>();
@@ -205,6 +213,7 @@ namespace SWTORCombatParser.ViewModels
             }
             OnNewLog("Displaying new combat: "+selectedCombat.CombatLabel);
             OnCombatSelected(selectedCombat.Combat);
+            CombatSelectionMonitor.FireNewCombat(selectedCombat.Combat);
             OnCharacterNameIdentified(selectedCombat.Combat.CharacterName);
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)

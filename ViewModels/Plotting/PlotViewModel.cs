@@ -202,14 +202,15 @@ namespace SWTORCombatParser.Plotting
                     continue;
                 var plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
                 var plotYvals = PlotMaker.GetPlotYVals(applicableData, false);
-                var plotYvalSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals, false);
+                var plotYvaRates = PlotMaker.GetPlotYValRates(applicableData, plotXvals, false);
+
                 List<(string,string)> abilityNames = PlotMaker.GetAnnotationString(applicableData);
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
                 series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot)+1), label: seriesName, color: series.Color, markerSize: 10);
                 if (plotXvals.Length > 1)
                 {
-                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals.Skip(1).ToArray(), plotYvalSums, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
+                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals.Skip(1).ToArray(), plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
                     series.Line[combatToPlot.StartTime].YAxisIndex = 2;
                 }
                 if (series.Legend.HasEffective)
@@ -254,7 +255,7 @@ namespace SWTORCombatParser.Plotting
         }
         private void UpdatePlotAxis(object sender, EventArgs e)
         {
-            _combatMetaDataViewModel.UpdateBasedOnVisibleData(GraphView.Plot.GetAxisLimits());
+            //_combatMetaDataViewModel.UpdateBasedOnVisibleData(GraphView.Plot.GetAxisLimits());
         }
         private void UpdateSeriesAnnotation(ScatterPlot plot, Tooltip annotation, string name, List<(string, string)> annotationTexts, bool effective)
         {

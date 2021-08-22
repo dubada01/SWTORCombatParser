@@ -90,7 +90,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                var alreadyKeepingAlive = false;
                 using (var cmd = new NpgsqlCommand($"SELECT message, log_name FROM public.raid_group_member_keepalive where \"group_id\"=\'{groupId}\' and \"timestamp\">\'{GetUTCTimeStamp(timeJoined):yyyy-MM-dd hh:mm:ss.ms}\'", connection))
                 {
                     using (var reader = cmd.ExecuteReaderAsync().Result)
@@ -101,6 +100,23 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             members.Add((reader.GetString(0),reader.GetString(1)));
                         }
                         return members;
+                    }
+                }
+            }
+        }
+        public string GetMostRecentInfoFromLogName(Guid groupId, string logName)
+        {
+            using (NpgsqlConnection connection = ConnectToDB())
+            {
+                using (var cmd = new NpgsqlCommand($"SELECT message FROM public.raid_group_member_keepalive where \"group_id\"=\'{groupId}\' and \"log_name\"=\'{logName}\'", connection))
+                {
+                    using (var reader = cmd.ExecuteReaderAsync().Result)
+                    {
+                        while (reader.Read())
+                        {
+                            return reader.GetString(0);
+                        }
+                        return "";
                     }
                 }
             }

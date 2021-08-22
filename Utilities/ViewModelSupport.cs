@@ -9,6 +9,7 @@ namespace SWTORCombatParser.Utilities
     public class CommandHandler : ICommand
     {
         private Action _action;
+        private Action<object> _parameterAction;
         private Func<bool> _canExecute;
 
         /// <summary>
@@ -24,6 +25,11 @@ namespace SWTORCombatParser.Utilities
         public CommandHandler(Action action)
         {
             _action = action;
+            _canExecute = () => true;
+        }
+        public CommandHandler(Action<object> action, object parameter)
+        {
+            _parameterAction = action;
             _canExecute = () => true;
         }
         /// <summary>
@@ -47,7 +53,10 @@ namespace SWTORCombatParser.Utilities
 
         public void Execute(object parameter)
         {
-            _action();
+            if (parameter == null)
+                _action();
+            else
+                _parameterAction(parameter);
         }
     }
 }
