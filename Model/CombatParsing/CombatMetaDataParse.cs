@@ -37,7 +37,7 @@ namespace SWTORCombatParser
 
             var sheildingLogs = incomingLogs.Where(l => l.Value.Modifier != null && l.Value.Modifier.ValueType == DamageType.shield);
 
-            //var totalSheildingDone = sheildingLogs.Count() == 0 ? 0: sheildingLogs.Sum(l => l.Value.Modifier.DblValue);
+            var totalSheildingDone = sheildingLogs.Count() == 0 ? 0: sheildingLogs.Sum(l => l.Value.Modifier.DblValue);
 
 
             combatToPopulate.TotalThreat = outgoingLogs.Sum(l => l.Threat);
@@ -45,7 +45,7 @@ namespace SWTORCombatParser
             combatToPopulate.MaxHeal = combatToPopulate.OutgoingHealingLogs.Count == 0 ? 0: combatToPopulate.OutgoingHealingLogs.Max(l => l.Value.DblValue);
             combatToPopulate.MaxEffectiveHeal = combatToPopulate.OutgoingHealingLogs.Count == 0 ? 0 : combatToPopulate.OutgoingHealingLogs.Max(l => l.Value.EffectiveDblValue);
             combatToPopulate.TotalDamage = totalDamage;
-           // combatToPopulate.TotalSheilding = totalSheildingDone;
+            combatToPopulate.TotalSheilding = totalSheildingDone;
             combatToPopulate.TotalAbilites = totalAbilitiesDone;
             combatToPopulate.TotalHealing = totalHealing;
             combatToPopulate.TotalEffectiveHealing = totalEffectiveHealing;

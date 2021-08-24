@@ -30,13 +30,15 @@ namespace SWTORCombatParser.ViewModels
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<string> OnRaidParticipantSelected = delegate { };
-        public event Action<Combat> OnNewRaidCombat = delegate { };
+        public event Action<Combat> OnNewRaidCombatFinished = delegate { };
+        public event Action OnNewRaidCombatStarted = delegate { };
         public event Action<bool> RaidStateChanged = delegate { };
         public RaidViewModel()
         {
             _raidStateManagement = new RaidStateManagement();
             _raidStateManagement.UpdatedParticipants += UpdateParticipants;
             _raidStateManagement.CombatFinished += RaidCombatFinished;
+            _raidStateManagement.CombatStarted += RaidCombatStarted;
             _raidSelectionViewModel = new RaidSelectionViewModel();
             _raidSelectionViewModel.RaidingStateChanged += UpdateRaidState;
             RaidSelectionContent = new RaidSelectionView(_raidSelectionViewModel);
@@ -52,7 +54,7 @@ namespace SWTORCombatParser.ViewModels
                 OnRaidParticipantSelected(selectedParticipant.PlayerName);
                 foreach(var combat in SelectedParticipant.PastCombats)
                 {
-                    OnNewRaidCombat(combat);
+                    OnNewRaidCombatFinished(combat);
                 }
             }
         }
@@ -63,6 +65,10 @@ namespace SWTORCombatParser.ViewModels
         private void RemoveRaidGroup()
         {
             _raidSelectionViewModel.Cancel();
+        }
+        private void RaidCombatStarted()
+        {
+            OnNewRaidCombatStarted();
         }
         private void RaidCombatFinished()
         {
@@ -75,7 +81,7 @@ namespace SWTORCombatParser.ViewModels
                     SelectedParticipant = localParticipant == null ? RaidParticipants.First() : localParticipant;
                 }
             }
-            OnNewRaidCombat(selectedParticipant.CurrentCombatInfo);
+            OnNewRaidCombatFinished(selectedParticipant.CurrentCombatInfo);
         }
         private void UpdateParticipants(List<RaidParticipantInfo> participants)
         {
@@ -112,6 +118,7 @@ namespace SWTORCombatParser.ViewModels
                 RaidParticipants.Clear();
                 SelectedRaidGroupView = null;
                 CurrentlySelectedGroup = null;
+                SelectedParticipant = null;
                 CombatLogParser.ClearRaidGroup();
             }
             RaidStateChanged(isActive);

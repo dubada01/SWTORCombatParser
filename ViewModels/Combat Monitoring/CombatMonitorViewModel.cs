@@ -55,7 +55,7 @@ namespace SWTORCombatParser.ViewModels
         public void RaidingStarted()
         {
             ClearCombats();
-            EnableLiveParse();
+            EnableLiveParse(true);
         }
         public void RaidingStopped()
         {
@@ -75,7 +75,7 @@ namespace SWTORCombatParser.ViewModels
             }
             
         }
-        private void EnableLiveParse()
+        private void EnableLiveParse(bool forRaiding = false)
         {
             if (LiveParseActive)
                 return;
@@ -83,7 +83,7 @@ namespace SWTORCombatParser.ViewModels
             ClearCombats();
             OnMonitoringStarted();
             var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-            _combatLogStreamer.MonitorLog(mostRecentLog.Path);
+            _combatLogStreamer.MonitorLog(mostRecentLog.Path, forRaiding);
             OnNewLog("Started Monitoring: " + mostRecentLog.Path);
         }
         private void DisableLiveParse()
@@ -122,7 +122,7 @@ namespace SWTORCombatParser.ViewModels
 
         internal void AddRaidCombat(Combat combatAdded)
         {
-            AddCombat(false, combatAdded);
+            AddCombat(combatAdded);
         }
 
         private void UpdateLog(List<ParsedLogEntry> obj)
@@ -137,49 +137,51 @@ namespace SWTORCombatParser.ViewModels
                 OnLiveCombatUpdate(combatInfo);
             }
         }
+        public void StartCombat(string location)
+        {
+            foreach (var combat in PastCombats)
+                combat.IsSelected = false;
+            var combatUI = new PastCombat() { CombatLabel = location + " ongoing...", IsSelected = true, IsCurrentCombat = true, CombatStartTime = DateTime.Now };
+            combatUI.PastCombatUnSelected += UnselectCombat;
+            combatUI.PastCombatSelected += SelectCombat;
+            App.Current.Dispatcher.Invoke(delegate {
+                PastCombats.Insert(0, combatUI);
+            });
+        }
         private void CombatStarted(string characterName, string location)
         {
             if (!LiveParseActive)
                 return;
             if (PastCombats.Any(pc => pc.IsCurrentCombat))
                 return;
-
-            foreach (var combat in PastCombats)
-                combat.IsSelected = false;
             OnCharacterNameIdentified(characterName);
 
-            var combatUI = new PastCombat() { CombatLabel = location + " ongoing..." ,IsSelected = true, IsCurrentCombat = true, CombatStartTime = DateTime.Now};
-            combatUI.PastCombatUnSelected += UnselectCombat;
-            combatUI.PastCombatSelected += SelectCombat;
-            App.Current.Dispatcher.Invoke(delegate {
-                PastCombats.Insert(0, combatUI);
-            });
+            StartCombat(location);
 
             _totalLogsDuringCombat.Clear();
             OnNewLog("Detected Combat For: " + characterName +" in "+location);
         }
+
         private void CombatStopped(List<ParsedLogEntry> obj)
         {
-            var removingOngoing = false;
+            if (obj.Count == 0)
+                return;
+            _totalLogsDuringCombat.Clear();
+            _totalLogsDuringCombat.AddRange(obj);
+            var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat.ToList());
+            AddCombat(combatInfo);
+            _totalLogsDuringCombat.Clear();
+        }
+
+        public void AddCombat(Combat combatInfo)
+        {
             if (PastCombats.Any(c => c.IsCurrentCombat))
                 App.Current.Dispatcher.Invoke(delegate
                 {
                     var ongoingCombat = PastCombats.First(c => c.IsCurrentCombat);
                     ongoingCombat.IsSelected = false;
                     PastCombats.Remove(ongoingCombat);
-                    //removingOngoing = true;
                 });
-            if (obj.Count == 0)
-                return;
-            _totalLogsDuringCombat.Clear();
-            _totalLogsDuringCombat.AddRange(obj);
-            var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat.ToList());
-            AddCombat(removingOngoing, combatInfo);
-            _totalLogsDuringCombat.Clear();
-        }
-
-        public void AddCombat(bool removingOngoing, Combat combatInfo)
-        {
             if (PastCombats.Any(pc => pc.CombatStartTime == combatInfo.StartTime))
                 return;
             var combatUI = new PastCombat() { Combat = combatInfo, CombatLabel = combatInfo.RaidBossInfo == "" ? string.Join(", ", combatInfo.Targets) : combatInfo.RaidBossInfo, CombatDuration = combatInfo.DurationSeconds.ToString("#,##0.0"), CombatStartTime = combatInfo.StartTime };
@@ -188,8 +190,6 @@ namespace SWTORCombatParser.ViewModels
             App.Current.Dispatcher.Invoke(delegate
             {
                 PastCombats.Insert(0, combatUI);
-                if (removingOngoing)
-                    combatUI.IsSelected = true;
             });
             OnNewLog("Combat with duration " + combatInfo.DurationSeconds + " ended");
         }

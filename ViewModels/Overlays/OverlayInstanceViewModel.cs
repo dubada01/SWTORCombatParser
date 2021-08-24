@@ -16,9 +16,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
     {
         private string playerName;
         private double relativeLength;
-        private string _value;
+        private double _value;
+        private double _secondaryValue;
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
+        public GridLength SecondaryBarWidth { get; set; }
         public string PlayerName { get => playerName; set {
                 playerName = value;
                 OnPropertyChanged();
@@ -27,21 +29,50 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 relativeLength = value;
                 if (double.IsNaN(relativeLength))
                     return;
-                BarWidth = new GridLength(relativeLength, GridUnitType.Star);
-                RemainderWidth = new GridLength(1-relativeLength,GridUnitType.Star);
+                if (Value == 0)
+                    return;
+                if(SecondaryType!= OverlayType.None)
+                {
+                    var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
+                    var secondaryFraction = SecondaryValue / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
+                    BarWidth = new GridLength(relativeLength*primaryFraction, GridUnitType.Star);
+                    SecondaryBarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
+                    RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
+                }
+                else
+                {
+                    BarWidth = new GridLength(relativeLength, GridUnitType.Star);
+                    SecondaryBarWidth = new GridLength(0, GridUnitType.Star);
+                    RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
+                }
                 OnPropertyChanged("RemainderWidth");
                 OnPropertyChanged("BarWidth");
             } }
-        public string Value { get => _value; set {
+        public double Value { get => _value; set {
                 _value = value;
+                if(double.IsNaN(_value))
+                {
+
+                }
                 OnPropertyChanged();
             } }
+        public double SecondaryValue
+        {
+            get => _secondaryValue; set
+            {
+                _secondaryValue = value;
+                OnPropertyChanged();
+            }
+        }
+        public string TotalValue => (Value + SecondaryValue).ToString("#,##0");
         public void Reset()
         {
-            Value = "0";
+            Value = 0;
+            SecondaryValue = 0;
             RelativeLength = 0;
         }
         public OverlayType Type { get; set; }
+        public OverlayType SecondaryType { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
@@ -53,6 +84,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool OverlaysMoveable { get; set; }
         public ObservableCollection<OverlayMetricInfo> MetricBars { get; set; } = new ObservableCollection<OverlayMetricInfo>();
         public OverlayType Type { get; set; }
+        public OverlayType SecondaryType { get; set; }
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
         public void OverlayClosing()
         {
@@ -61,7 +93,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public OverlayInstanceViewModel(OverlayType type)
         {
             Type = type;
+            if(Type == OverlayType.Healing)
+            {
+                SecondaryType = OverlayType.Sheilding;
+            }
             CombatSelectionMonitor.NewCombatSelected += UpdateMetrics;
+            StaticRaidInfo.NewRaidCombatDisplayed += UpdateMetrics;
             CombatIdentifier.NewCombatAvailable += UpdateMetrics;
             StaticRaidInfo.NewRaidCombatStarted += ResetMetrics;
         }
@@ -91,10 +128,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
 
             UpdateMetric(Type, metricToUpdate, obj);
-            var maxValue = MetricBars.MaxBy(m => double.Parse(m.Value)).First().Value;
+            if(SecondaryType!= OverlayType.None)
+            {
+                UpdateSecondary(SecondaryType, metricToUpdate, obj);
+            }
+            var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
             foreach(var metric in MetricBars)
             {
-                metric.RelativeLength = (double.Parse(metric.Value) / double.Parse(maxValue));
+                metric.RelativeLength = (double.Parse(metric.TotalValue) / double.Parse(maxValue));
             }
             App.Current.Dispatcher.Invoke(() =>
             {
@@ -109,6 +150,30 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 metric.Reset();
             }
         }
+        private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat comabat)
+        {
+            double value = 0;
+            switch (type)
+            {
+                case OverlayType.DPS:
+                    value = comabat.DPS;
+                    break;
+                case OverlayType.Healing:
+                    value = comabat.EHPS;
+                    break;
+                case OverlayType.Sheilding:
+                    value = comabat.PSPS;
+                    break;
+                case OverlayType.Threat:
+                    value = comabat.TPS;
+                    break;
+                case OverlayType.DTPS:
+                    value = comabat.DTPS;
+                    break;
+            }
+            metric.SecondaryType = type;
+            metric.SecondaryValue = value;
+        }
         private void UpdateMetric(OverlayType type, OverlayMetricInfo metricToUpdate, Combat obj)
         {
             double value = 0;
@@ -118,19 +183,19 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     value = obj.DPS;
                     break;
                 case OverlayType.Healing:
-                    value = obj.EHPS + obj.PSPS;
+                    value = obj.EHPS;
                     break;
                 case OverlayType.Sheilding:
-                    value = obj.TotalProvidedSheilding;
+                    value = obj.PSPS;
                     break;
                 case OverlayType.Threat:
-                    value = obj.TotalThreat;
+                    value = obj.TPS;
                     break;
                 case OverlayType.DTPS:
                     value = obj.DTPS;
                     break;
             }
-            metricToUpdate.Value = value.ToString("#,##0");
+            metricToUpdate.Value = value;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

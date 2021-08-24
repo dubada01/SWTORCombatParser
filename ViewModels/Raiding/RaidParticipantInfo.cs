@@ -16,48 +16,88 @@ namespace SWTORCombatParser.ViewModels.Raiding
     {
         private string playerName;
         private Role playerRole;
-
+        private List<ParsedLogEntry> _newlyAddedValidLogs;
         public RaidParticipantInfo(List<ParsedLogEntry> logs, string logName)
         {
+            CombatSelectionMonitor.NewCombatSelected += DisplayCombat;
             LogName = logName;
             CurrentCombatInfo = new Combat();
             UpdateMetaDatas();
-            Update(logs);
+            UpdateCombat(logs);
 
         }
-        public void Update(List<ParsedLogEntry> logs)
+        public List<CombatParticipant> UpdateCombat(List<ParsedLogEntry> logs)
         {
             if (!logs.Any())
-                return;
-            var newLogs = GetValidLogs(logs);
-            CurrentLogs.AddRange(GetValidLogs(logs));
-            var playerName = logs.FirstOrDefault(l => l.Source.IsPlayer && l.Target.IsPlayer);
+                return new List<CombatParticipant>();
+            _newlyAddedValidLogs = GetValidLogs(logs);
+            CurrentLogs.AddRange(_newlyAddedValidLogs);
+            var playerName = _newlyAddedValidLogs.FirstOrDefault(l => l.Source.IsPlayer && l.Target.IsPlayer);
             if (string.IsNullOrEmpty(PlayerName) && playerName != null)
                 PlayerName = playerName.Source.Name;
-
-
-            ParticipantCurrentState = CombatLogStateBuilder.GetStateOfRaidingLogs(newLogs, LogName);
+            UpdateState();
+            foreach(var log in _newlyAddedValidLogs)
+            {
+                CombatLogParser.UpdateEffectiveHealValues(log, ParticipantCurrentState);
+            }
+            return UpdateCombats();
+        }
+        public void UpdateState()
+        {
+            ParticipantCurrentState = CombatLogStateBuilder.GetStateOfRaidingLogs(_newlyAddedValidLogs, LogName);
             if (ParticipantCurrentState.PlayerClass != null && ParticipantCurrentState.PlayerClass.Role != Role.Unknown)
             {
                 PlayerRole = ParticipantCurrentState.PlayerClass.Role;
                 OnPropertyChanged("PlayerRole");
             }
-            var enterCombatLogs = logs.Where(l => l.Effect.EffectName == "EnterCombat" || l.Ability == "StartCombatMarker").ToList();
-            for (var c = 0; c < enterCombatLogs.Count(); c++)
+        }
+        public List<CombatParticipant> UpdateCombats()
+        {
+            List<CombatParticipant> _combatsGenerated = new List<CombatParticipant>();
+            var enterCombatLogs = _newlyAddedValidLogs.Where(l => l.Effect.EffectName == "EnterCombat" || l.Ability == "StartCombatMarker").ToList();
+            var distinctEnterLogs = enterCombatLogs.GroupBy(t => t.TimeStamp).Select(g => g.First()).ToList();
+            var hasCombatEnd = _newlyAddedValidLogs.Any(l => l.Ability == "SWTOR_PARSING_COMBAT_END");
+            if(distinctEnterLogs.Any() && hasCombatEnd)
             {
-                var enterCombatIndex = enterCombatLogs.Count() == 0 ? 0 : logs.IndexOf(enterCombatLogs[c]);
-                var endCombatIndex = LogSearcher.GetIndexOfNextCombatEndLog(enterCombatIndex, logs);
+                for (var c = 0; c < distinctEnterLogs.Count(); c++)
+                {  
+                    var enterCombatIndex = distinctEnterLogs.Count() == 0 ? 0 : _newlyAddedValidLogs.IndexOf(distinctEnterLogs[c]);
+                    var endCombatIndex = LogSearcher.GetIndexOfNextCombatEndLog(enterCombatIndex, _newlyAddedValidLogs);
 
-                CurrentCombatInfo = CombatIdentifier.ParseOngoingCombat(logs.GetRange(enterCombatIndex, (endCombatIndex - enterCombatIndex)));
-                if (enterCombatLogs.Count > c - 1)
-                {
-                    PastCombats.Add(CombatIdentifier.ParseOngoingCombat(logs.GetRange(enterCombatIndex, (endCombatIndex - enterCombatIndex))));
+                    CombatIdentifier.UpdateOngoingCombat(_newlyAddedValidLogs.GetRange(enterCombatIndex, (endCombatIndex - enterCombatIndex)), CurrentCombatInfo);
+                    if (distinctEnterLogs.Count > c - 1 && hasCombatEnd)
+                    {
+                        var newCombat = CombatIdentifier.ParseOngoingCombat(CurrentCombatInfo.Logs);
+                        newCombat.TotalProvidedSheilding = CurrentCombatInfo.TotalProvidedSheilding;
+                        PastCombats.Add(newCombat);
+                        _combatsGenerated.Add(new CombatParticipant { Combat = newCombat, Participant = this });
+                        CurrentCombatInfo = new Combat();
+                    }
                 }
+            }
+            else
+            {
+                CombatIdentifier.UpdateOngoingCombat(_newlyAddedValidLogs,CurrentCombatInfo);
+                _combatsGenerated.Add(new CombatParticipant { Combat = CurrentCombatInfo, Participant = this });
             }
 
             OnPropertyChanged("CurrentCombatInfo");
             UpdateMetaDatas();
-
+            return _combatsGenerated;
+        }
+        private void DisplayCombat(Combat clickedCombat)
+        {
+            var nearestCombat = PastCombats.FirstOrDefault(c => Math.Abs((c.StartTime - clickedCombat.StartTime).TotalSeconds) < 3);
+            if(nearestCombat == null)
+            {
+                CurrentCombatInfo = new Combat();
+            }
+            else
+            {
+                CurrentCombatInfo = nearestCombat;
+            }
+            StaticRaidInfo.FireNewRaidCombatDisplayed(CurrentCombatInfo);
+            UpdateMetaDatas();
         }
         private void UpdateMetaDatas()
         {
@@ -108,13 +148,22 @@ namespace SWTORCombatParser.ViewModels.Raiding
         }
         internal void FinishCombat()
         {
-            //if (CurrentLogs.Count > 0)
-            //    PastCombats.Add(CombatIdentifier.ParseOngoingCombat(CurrentLogs));
+
+            if (string.IsNullOrEmpty(CurrentCombatInfo.CharacterName))
+            {
+                CurrentCombatInfo = PastCombats.OrderBy(t => t.EndTime).Last();
+            }
+            else
+            {
+                var newCombat = CombatIdentifier.ParseOngoingCombat(CurrentCombatInfo.Logs);
+                newCombat.TotalProvidedSheilding = CurrentCombatInfo.TotalProvidedSheilding;
+                PastCombats.Add(newCombat);
+            }
         }
         internal void ResetCombat()
         {
             CurrentLogs.Clear();
-            CurrentCombatInfo = null;
+            CurrentCombatInfo = new Combat();
             MetaDatas.Clear();
         }
     }

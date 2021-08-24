@@ -15,6 +15,7 @@
             <converters:LiveParseActiveToBrushConverter x:Key="LiveParseToBrushConverter"/>
             <converters:OverlayMetricToColorConverter x:Key="OverlayMetricTypeToColorConverter"/>
             <converters:OverlayMoveableToVisibilityConverter x:Key="OverlayMoveableToVisibilityConverter"/>
+            <converters:OverlyTypeToVisibilityConverter x:Key="OverlayTypeToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

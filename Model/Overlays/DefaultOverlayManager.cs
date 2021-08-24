@@ -11,6 +11,7 @@ namespace SWTORCombatParser.Model.Overlays
 {
     public enum OverlayType
     {
+        None,
         DPS,
         Healing,
         Sheilding,
@@ -20,16 +21,16 @@ namespace SWTORCombatParser.Model.Overlays
     public class DefaultOverlayInfo
     {
         public Point Position;
-        public Point WidthHeight;
+        public Point WidtHHeight;
         public bool Acive;
     }
     public static class DefaultOverlayManager
     {
         private static string infoPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser", "overlay_info.json");
-        public static void SetDefaults(OverlayType type, Point position, Point widthHeight)
+        public static void SetDefaults(OverlayType type, Point position, Point widtHHeight)
         {
             var currentDefaults = GetDefaults();
-            currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidthHeight = widthHeight, Acive = currentDefaults[type].Acive };
+            currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
 
         }
@@ -37,7 +38,7 @@ namespace SWTORCombatParser.Model.Overlays
         {
             var currentDefaults = GetDefaults();
             var defaultModified = currentDefaults[type];
-            currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidthHeight = defaultModified.WidthHeight, Acive=state };
+            currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state };
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
         public static Dictionary<OverlayType,DefaultOverlayInfo> GetDefaults()
@@ -56,7 +57,7 @@ namespace SWTORCombatParser.Model.Overlays
             var enumVals = EnumUtil.GetValues<OverlayType>();
             foreach(var overlayType in enumVals)
             {
-                defaults[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidthHeight = new Point() { X = 250, Y = 100 } };
+                defaults[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
             }
             File.Create(infoPath).Close();
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));

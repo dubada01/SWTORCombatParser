@@ -57,33 +57,33 @@ namespace SWTORCombatParser.ViewModels
                 CombatMetaDatas.Add(metaData);
             }
         }
-        internal void UpdateBasedOnVisibleData(AxisLimits newAxisLimits)
-        {
-            if (_currentCombat == null)
-                return;
-            var minX = newAxisLimits.XMin;
-            var maxX = newAxisLimits.XMax;
-            var combatLogs = _currentCombat.Logs;
+        //internal void UpdateBasedOnVisibleData(AxisLimits newAxisLimits)
+        //{
+        //    if (_currentCombat == null)
+        //        return;
+        //    var minX = newAxisLimits.XMin;
+        //    var maxX = newAxisLimits.XMax;
+        //    var combatLogs = _currentCombat.Logs;
 
-            var startTime = _currentCombat.StartTime;
+        //    var startTime = _currentCombat.StartTime;
 
-            var combatLogsInView = combatLogs.Where(l => (l.TimeStamp - startTime).TotalSeconds >= minX && (l.TimeStamp - startTime).TotalSeconds <= maxX);
+        //    var combatLogsInView = combatLogs.Where(l => (l.TimeStamp - startTime).TotalSeconds >= minX && (l.TimeStamp - startTime).TotalSeconds <= maxX);
 
-            if (combatLogsInView.Count() == 0)
-            {
-                CombatMetaDatas.Clear();
-                CombatEffects.Clear();
-                return;
-            }
-            var newCombat = CombatIdentifier.ParseOngoingCombat(combatLogsInView.ToList());
-            UpdateMetaDataFromCombat(newCombat);
-            var currentState = CombatLogParser.GetCurrentLogState();
-            var modifiersDuringCombat = currentState.GetCombatModifiersBetweenTimes(newCombat.StartTime, newCombat.EndTime);
-            var abilities = modifiersDuringCombat.Select(m => m.Name).Distinct();
-            var durations = modifiersDuringCombat.GroupBy(v => (v.Name,v.Source), v => Math.Min(v.DurationSeconds, (newCombat.EndTime - v.StartTime).TotalSeconds), (info, durations) => new EffectViewModel (){ Name =info.Name,Source = info.Source.Name, Duration = durations.Sum(), Count = durations.Count() }).OrderByDescending(effect => effect.Duration).ToList();
-            CombatEffects.Clear();
-            durations.ForEach(ef => CombatEffects.Add(ef));
-        }
+        //    if (combatLogsInView.Count() == 0)
+        //    {
+        //        CombatMetaDatas.Clear();
+        //        CombatEffects.Clear();
+        //        return;
+        //    }
+        //    var newCombat = CombatIdentifier.ParseOngoingCombat(combatLogsInView.ToList());
+        //    UpdateMetaDataFromCombat(newCombat);
+        //    var currentState = CombatLogParser.GetCurrentLogState();
+        //    var modifiersDuringCombat = currentState.GetCombatModifiersBetweenTimes(newCombat.StartTime, newCombat.EndTime);
+        //    var abilities = modifiersDuringCombat.Select(m => m.Name).Distinct();
+        //    var durations = modifiersDuringCombat.GroupBy(v => (v.Name,v.Source), v => Math.Min(v.DurationSeconds, (newCombat.EndTime - v.StartTime).TotalSeconds), (info, durations) => new EffectViewModel (){ Name =info.Name,Source = info.Source.Name, Duration = durations.Sum(), Count = durations.Count() }).OrderByDescending(effect => effect.Duration).ToList();
+        //    CombatEffects.Clear();
+        //    durations.ForEach(ef => CombatEffects.Add(ef));
+        //}
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

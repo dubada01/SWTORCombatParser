@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Raiding;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static void FireNewRaidCombatEvent()
         {
             NewRaidCombatStarted();
+        }
+        public static event Action<Combat> NewRaidCombatDisplayed = delegate { };
+        public static void FireNewRaidCombatDisplayed(Combat displayedCombat)
+        {
+            NewRaidCombatDisplayed(displayedCombat);
         }
     }
     public class RaidStateManagement
@@ -38,6 +44,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public event Action<List<RaidParticipantInfo>> UpdatedParticipants = delegate { };
         public event Action CombatFinished = delegate { };
+        public event Action CombatStarted = delegate { };
         public void StopRaiding()
         {
             _raidingActive = false;
@@ -47,13 +54,18 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
         public void StartRaiding(Guid groupId)
         {
-            _currentRaidGroup = groupId;
+            CombatLogStateBuilder.ClearState();
+           _currentRaidGroup = groupId;
             _raidingActive = true;
             _mostRecentLog = GetMostRecentLog();
             _timeJoined = DateTime.Now;
             _currentParticipants = new List<RaidParticipantInfo>();
             StartKeepAlive();
             CheckForOngoingCombat();
+            PollForNewLogs();
+        }
+        private void PollForNewLogs()
+        {
             Task.Run(() =>
             {
                 while (_raidingActive)
@@ -143,26 +155,30 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
             CheckForCombatStart(ordered);
             CheckForCombatEnd(ordered);
+
+            
+            //first start time for all participants
             var startTime = ordered.FirstOrDefault(l => l.Effect.EffectName == "EnterCombat")?.TimeStamp;
+
             var participantData = ordered.GroupBy(l => l.LogName);
+            var _generatedCombats = new List<CombatParticipant>();
             foreach (var participantFile in participantData)
             {
                 var logName = participantFile.Key;
                 var participantLogs = participantFile.ToList();
+                //set the combat start marker at the time of the earliest start of combat for the group
                 if (startTime.HasValue)
                     participantLogs.Insert(0, ParsedLogEntry.GetDummyLog("StartCombatMarker", startTime.Value, -1));
                 var participant = _currentParticipants.FirstOrDefault(p => p.LogName == logName);
-                if (participant == null)
-                {
-                    TryAddNewParticipant(logName, _postgresConnection.GetMostRecentInfoFromLogName(_currentRaidGroup, logName));
-                    var secondTry = _currentParticipants.FirstOrDefault(p => p.LogName == logName);
-                    secondTry?.Update(participantLogs);
-                }
+
                 if (participant != null)
-                    participant.Update(participantLogs);
+                    _generatedCombats.AddRange(participant.UpdateCombat(participantLogs));
 
             }
-            RaidGroupMetaData.UpdateRaidGroupMetaData(ref _currentParticipants);
+            Trace.WriteLine($"{_generatedCombats.Count} combats detected for frame with {logs.Count} logs and {participantData.Count()} participants");
+            RaidGroupMetaData.UpdateRaidGroupMetaData(_generatedCombats);
+
+            
             UpdatedParticipants(_currentParticipants);
             if (combatEnding)
             {
@@ -170,6 +186,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
                 CombatFinished();
             }
+            _currentParticipants.ForEach(p => {
+                StaticRaidInfo.FireNewRaidCombatDisplayed(p.CurrentCombatInfo);
+            });
         }
 
         private void TryAddNewParticipant(string logName, string info)
@@ -181,7 +200,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
                 newParticipant.PlayerName = info.Split("~?~", StringSplitOptions.None)[1];
                 newParticipant.PlayerRole = Enum.Parse<Role>(info.Split("~?~", StringSplitOptions.None)[2]);
-
+                CombatLogStateBuilder.AddParticipant(logName);
                 _currentParticipants.Add(newParticipant);
 
             }
@@ -201,6 +220,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 combatStarted = false;
                 combatEnding = true;
                 _mostRecentLog = ordered.Last().TimeStamp;
+                foreach(var participant in _currentParticipants)
+                {
+                    CombatLogStateBuilder.ClearModifiersExceptGuard(participant.LogName);
+                }
             }
         }
 
@@ -218,6 +241,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     UpdatedParticipants(_currentParticipants);
                 });
                 StaticRaidInfo.FireNewRaidCombatEvent();
+                CombatStarted();
             }
         }
         private DateTime GetMostRecentLog()
@@ -251,8 +275,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     _currentRole = CombatLogStateBuilder.GetPlayerRole(loadedLogs == null?CombatLogParser.ParseLast10Mins(mostRecentLog): loadedLogs);
                 else
                     _currentRole = currentState.PlayerClass.Role;
-                _postgresConnection.UploadMemberKeepAlive(_currentRaidGroup, "HELLO~?~" + _characterName + "~?~" + _currentRole.ToString(), mostRecentLog.Name);
             }
+            _postgresConnection.UploadMemberKeepAlive(_currentRaidGroup, "HELLO~?~" + _characterName + "~?~" + _currentRole.ToString(), CombatLogLoader.GetMostRecentLogName());
         }
     }
 }

@@ -25,11 +25,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             _overlayDefaults = DefaultOverlayManager.GetDefaults();
             var enumVals = EnumUtil.GetValues<OverlayType>();
-            var overlayStates = DefaultOverlayManager.GetDefaults();
-            foreach (var enumVal in enumVals)
+            foreach (var enumVal in enumVals.Where(e=>e != OverlayType.None))
             {
                 AvailableOverlayTypes.Add(enumVal);
-                if (overlayStates[enumVal].Acive)
+                if (_overlayDefaults[enumVal].Acive)
                     CreateOverlay(enumVal);
             }
 
@@ -50,8 +49,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var dpsOverlay = new InfoOverlay(viewModel);
             dpsOverlay.Top = _overlayDefaults[type].Position.Y;
             dpsOverlay.Left = _overlayDefaults[type].Position.X;
-            dpsOverlay.Width =  _overlayDefaults[type].WidthHeight.X;
-            dpsOverlay.Height = _overlayDefaults[type].WidthHeight.Y;
+            dpsOverlay.Width =  _overlayDefaults[type].WidtHHeight.X;
+            dpsOverlay.Height = _overlayDefaults[type].WidtHHeight.Y;
             dpsOverlay.Show();
         }
 

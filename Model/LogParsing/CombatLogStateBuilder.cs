@@ -18,10 +18,19 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public static LogState GetLocalState()
         {
-            var localLogName = CombatLogLoader.LoadMostRecentLog().Name;
-            if (!CurrentStates.ContainsKey(localLogName))
-                return new LogState();
-            return CurrentStates[localLogName];
+            var localState =  new LogState();
+            var localLogEntries = CombatLogParser.ParseLast10Mins(CombatLogLoader.LoadMostRecentLog());
+            foreach (var log in localLogEntries)
+            {
+                if (SetPlayerClass(log, localState))
+                    break;
+            }
+            localState.PlayerName = GetPlayerName(localLogEntries);
+            return localState;
+        }
+        public static void AddParticipant(string log)
+        {
+            CurrentStates[log] = new LogState();
         }
         public static LogState UpdateCurrentLogState(ref List<ParsedLogEntry> logs, string logName)
         {
@@ -79,6 +88,11 @@ namespace SWTORCombatParser.Model.LogParsing
                     CurrentStates[logName].PlayerClass = identifiedClass;
             }
             return CurrentStates[logName];
+        }
+        public static void ClearModifiersExceptGuard(string logName)
+        {
+            var state = CurrentStates[logName];
+            state.Modifiers.RemoveAll(m => m.Type != CombatModfierType.GuardedThreatReduced);
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine, LogState state)
         {

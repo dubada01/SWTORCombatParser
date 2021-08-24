@@ -34,7 +34,6 @@ namespace SWTORCombatParser.Views.Overlay
 
         private void CloseOverlay()
         {
-            DefaultOverlayManager.SetActiveState(viewModel.Type, false);
             Close();
         }
 
@@ -87,6 +86,12 @@ namespace SWTORCombatParser.Views.Overlay
         private void Grid_MouseLeave(object sender, MouseEventArgs e)
         {
             Mouse.OverrideCursor = Cursors.Arrow;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            DefaultOverlayManager.SetActiveState(viewModel.Type, false);
+            CloseOverlay();
         }
     }
 }

@@ -56,19 +56,20 @@ namespace SWTORCombatParser
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
 
             var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
-            if (parsedLine.Target.Name == _logState.PlayerName)
-                parsedLine.Target.IsPlayer = true;
-            if (parsedLine.Source.Name == _logState.PlayerName)
-                parsedLine.Source.IsPlayer = true;
             parsedLine.LogText = logEntry;
             parsedLine.LogLineNumber = lineIndex;
-            UpdateEffectiveHealValues(parsedLine);
+            if (parsedLine.Source.Name == parsedLine.Target.Name && parsedLine.Source.IsCharacter)
+                parsedLine.Source.IsPlayer = true;
+            if (CurrentRaidGroup == null)
+            {
+                UpdateEffectiveHealValues(parsedLine, _logState);
+            }
             return parsedLine;
         }
         public static List<ParsedLogEntry> ParseLast10Mins(CombatLogFile file)
         {
             var allLines = ParseAllLines(file);
-            return allLines.Where(l => l.TimeStamp > DateTime.Now.AddMinutes(-10)).ToList();
+            return allLines.Where(l => l.TimeStamp > allLines.Last().TimeStamp.AddMinutes(-10)).ToList();
         }
         public static List<ParsedLogEntry> GetAllCombatStartEvents(CombatLogFile log)
         {
@@ -94,13 +95,13 @@ namespace SWTORCombatParser
 
 
 
-        private static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog)
+        public static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
         {
             if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsPlayer)
             {
-                if (_logState.PlayerClass == null)
+                if (state.PlayerClass == null)
                 { 
-                    parsedLog.Value.EffectiveDblValue = parsedLog.Threat * _logState.GetCurrentHealsPerThreat(parsedLog.TimeStamp);
+                    parsedLog.Value.EffectiveDblValue = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp);
                     if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
                     {
                         OnNewLog("**************Impossible Heal! " +
@@ -109,24 +110,24 @@ namespace SWTORCombatParser
                           "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
                           "\nThreat: " + parsedLog.Threat +
                           "\nRaw: " + parsedLog.Value.DblValue +
-                          "\nThreat Multiplier: " + _logState.GetCurrentHealsPerThreat(parsedLog.TimeStamp));
+                          "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp));
                         parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
                     }
                     return;
                 }
 
-                var specialThreatAbilties = _logState.PlayerClass.SpecialThreatAbilities;
+                var specialThreatAbilties = state.PlayerClass.SpecialThreatAbilities;
 
                 var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => parsedLog.Ability.Contains(a.Name));
 
-                if (parsedLog.Ability.Contains("Advanced")&&parsedLog.Ability.Contains("Medpac") && _logState.PlayerClass.Role != Role.Tank)
+                if (parsedLog.Ability.Contains("Advanced")&&parsedLog.Ability.Contains("Medpac") && state.PlayerClass.Role != Role.Tank)
                     specialThreatAbilityUsed = new Ability() { StaticThreat = true };
 
                 var effectiveAmmount = 0d;
 
                 if (specialThreatAbilityUsed == null)
                 {
-                    effectiveAmmount = parsedLog.Threat * _logState.GetCurrentHealsPerThreat(parsedLog.TimeStamp);
+                    effectiveAmmount = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp);
                 }
                 else
                 { 
@@ -145,7 +146,7 @@ namespace SWTORCombatParser
                           "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
                           "\nThreat: " + parsedLog.Threat +
                           "\nRaw: " + parsedLog.Value.DblValue +
-                          "\nThreat Multiplier: " + _logState.GetCurrentHealsPerThreat(parsedLog.TimeStamp));
+                          "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp));
                     parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
                 }
                 return;

@@ -52,8 +52,9 @@ namespace SWTORCombatParser.ViewModels
 
             _raidViewModel = new RaidViewModel();
             _raidViewModel.RaidStateChanged += RaidingStateChaneged;
-            _raidViewModel.OnNewRaidCombat += RaidCombatAdded;
+            _raidViewModel.OnNewRaidCombatFinished += RaidCombatAdded;
             _raidViewModel.OnRaidParticipantSelected += RaidPariticpantSelected;
+            _raidViewModel.OnNewRaidCombatStarted += RaidCombatStarted;
             RaidView = new RaidView(_raidViewModel);
 
             CombatLogParser.OnNewLog += NewSoftwareLog;
@@ -85,6 +86,10 @@ namespace SWTORCombatParser.ViewModels
                 _plotViewModel.Reset();
                 _combatMonitorViewModel.ClearCombats();
             });
+        }
+        private void RaidCombatStarted()
+        {
+            _combatMonitorViewModel.StartCombat("Raid Group");
         }
         private void RaidCombatAdded(Combat combatAdded)
         {

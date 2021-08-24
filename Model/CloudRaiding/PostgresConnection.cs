@@ -18,7 +18,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 using (var cmd = new NpgsqlCommand("INSERT INTO public.raid_logs" +
                 " (raid_group_id,\"timestamp\",target_name,target_isplayer,target_ischaracter,source_name,source_isplayer,source_ischaracter,ability,effect_name,effect_type,value_raw,value_effective,value_string,was_crit,modifier_raw,modifier_type,threat,log_file_name)" +
-                $" VALUES ('{groupId}','{GetUTCTimeStamp(logToAdd.TimeStamp).ToString("yyyy-MM-dd hh:mm:ss.ms")}'," +
+                $" VALUES ('{groupId}','{GetUTCTimeStamp(logToAdd.TimeStamp).ToString("yyyy-MM-dd HH:mm:ss.ms")}'," +
                 $"'{logToAdd.Target.Name.MakePGSQLSafe()}',{logToAdd.Target.IsPlayer},{logToAdd.Target.IsCharacter}," +
                 $"'{logToAdd.Source.Name.MakePGSQLSafe()}',{logToAdd.Source.IsPlayer},{logToAdd.Source.IsCharacter}," +
                 $"'{logToAdd.Ability.MakePGSQLSafe()}'," +
@@ -36,7 +36,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">\'{GetUTCTimeStamp(DateTime.Now.AddMinutes(-10)):yyyy-MM-dd hh:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
+                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">\'{GetUTCTimeStamp(DateTime.Now.AddMinutes(-10)):yyyy-MM-dd HH:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
                 {
                     using (var reader = cmd.ExecuteReaderAsync().Result)
                     {
@@ -54,7 +54,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">\'{GetUTCTimeStamp(loggingStarted):yyyy-MM-dd hh:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
+                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">\'{GetUTCTimeStamp(loggingStarted):yyyy-MM-dd HH:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
                 {
                     using (var reader = cmd.ExecuteReaderAsync().Result)
                     {
@@ -72,7 +72,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">=\'{GetUTCTimeStamp(from):yyyy-MM-dd hh:mm:ss.ms}\' and \"timestamp\"<\'{GetUTCTimeStamp(until):yyyy-MM-dd hh:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
+                using (var cmd = new NpgsqlCommand($"SELECT * FROM public.raid_logs where \"timestamp\">=\'{GetUTCTimeStamp(from):yyyy-MM-dd HH:mm:ss.ms}\' and \"timestamp\"<\'{GetUTCTimeStamp(until):yyyy-MM-dd HH:mm:ss.ms}\' and raid_group_id='{groupId}'", connection))
                 {
                     using (var reader = cmd.ExecuteReaderAsync().Result)
                     {
@@ -90,7 +90,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand($"SELECT message, log_name FROM public.raid_group_member_keepalive where \"group_id\"=\'{groupId}\' and \"timestamp\">\'{GetUTCTimeStamp(timeJoined):yyyy-MM-dd hh:mm:ss.ms}\'", connection))
+                using (var cmd = new NpgsqlCommand($"SELECT message, log_name FROM public.raid_group_member_keepalive where \"group_id\"=\'{groupId}\' and \"timestamp\">\'{GetUTCTimeStamp(timeJoined):yyyy-MM-dd HH:mm:ss.ms}\'", connection))
                 {
                     using (var reader = cmd.ExecuteReaderAsync().Result)
                     {
@@ -135,9 +135,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
                 var command = "";
                 if (alreadyKeepingAlive)
-                    command = $"UPDATE public.raid_group_member_keepalive SET message='{info}', timestamp='{GetUTCTimeStamp(DateTime.Now):yyyy-MM-dd hh:mm:ss.ms}' where \"group_id\"=\'{groupId}\' and \"log_name\"=\'{logName}\'";
+                    command = $"UPDATE public.raid_group_member_keepalive SET message='{info.MakePGSQLSafe()}', timestamp='{GetUTCTimeStamp(DateTime.Now):yyyy-MM-dd HH:mm:ss.ms}' where \"group_id\"=\'{groupId}\' and \"log_name\"=\'{logName}\'";
                 else
-                    command = $"INSERT INTO public.raid_group_member_keepalive (group_id,message,log_name,timestamp) VALUES('{groupId}','{info}','{logName}','{GetUTCTimeStamp(DateTime.Now):yyyy-MM-dd hh:mm:ss.ms}')";
+                    command = $"INSERT INTO public.raid_group_member_keepalive (group_id,message,log_name,timestamp) VALUES('{groupId}','{info.MakePGSQLSafe()}','{logName}','{GetUTCTimeStamp(DateTime.Now):yyyy-MM-dd HH:mm:ss.ms}')";
                 using (var cmd = new NpgsqlCommand(command, connection))
                 {
                     cmd.ExecuteNonQuery();
@@ -185,24 +185,18 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return current.Modifier;
             return new Value();
         }
+        private List<Entity> _seenEntities = new List<Entity>();
         private ParsedLogEntry ParseRow(NpgsqlDataReader reader)
         {
+            Entity target = GetTarget(reader);
+            Entity source = GetSource(reader);
+
             var newLog = new ParsedLogEntry
             {
                 RaidLogId = reader.GetInt64(16),
                 TimeStamp = TimeZoneInfo.ConvertTimeFromUtc(reader.GetDateTime(1), TimeZoneInfo.Local),
-                Target = new Entity
-                {
-                    Name = reader.GetString(2),
-                    IsPlayer = reader.GetBoolean(3),
-                    IsCharacter = reader.GetBoolean(4)
-                },
-                Source = new Entity
-                {
-                    Name = reader.GetString(5),
-                    IsPlayer = reader.GetBoolean(6),
-                    IsCharacter = reader.GetBoolean(7)
-                },
+                Target = target,
+                Source = source,
                 Ability = reader.GetString(8),
                 Effect = new Effect
                 {
@@ -226,6 +220,47 @@ namespace SWTORCombatParser.Model.CloudRaiding
             };
             return newLog;
         }
+
+        private Entity GetTarget(NpgsqlDataReader reader)
+        {
+            Entity target;
+            var targetName = reader.GetString(2);
+            if (_seenEntities.Any(e => e.Name == targetName))
+                target = _seenEntities.First(e => e.Name == targetName);
+            else
+            {
+                target = new Entity
+                {
+                    Name = reader.GetString(2),
+                    IsPlayer = reader.GetBoolean(3),
+                    IsCharacter = reader.GetBoolean(4)
+                };
+                _seenEntities.Add(target);
+            }
+
+            return target;
+        }
+
+        private Entity GetSource(NpgsqlDataReader reader)
+        {
+            Entity source;
+            var sourceName = reader.GetString(5);
+            if (_seenEntities.Any(e => e.Name == sourceName))
+                source = _seenEntities.First(e => e.Name == sourceName);
+            else
+            {
+                source = new Entity
+                {
+                    Name = reader.GetString(5),
+                    IsPlayer = reader.GetBoolean(6),
+                    IsCharacter = reader.GetBoolean(7)
+                };
+                _seenEntities.Add(source);
+            }
+
+            return source;
+        }
+
         private DateTime GetUTCTimeStamp(DateTime timeZone)
         {
             return timeZone.ToUniversalTime();

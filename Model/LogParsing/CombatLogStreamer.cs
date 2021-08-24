@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,7 +32,7 @@ namespace SWTORCombatParser
         private DateTime _lastUpdateTime;
         private List<ParsedLogEntry> _currentFrameData = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
-        public void MonitorLog(string logToMonitor)
+        public void MonitorLog(string logToMonitor, bool forRaiding = false)
         {
             _newNumberOfEntries = 0;
             _numberOfEntries = 0;
@@ -40,17 +41,31 @@ namespace SWTORCombatParser
             _logToMonitor = logToMonitor;
             _monitorLog = true;
             _firstTimeThroughLog = true;
-            PollForUpdates();
+            if (!forRaiding)
+                PollForUpdates();
+            else
+                UpdateLogsForRaiding();
         }
+        
         public void StopMonitoring()
         {
             _monitorLog = false;
             EndCombat();
             _currentFrameData.Clear();
         }
-
+        private void UpdateLogsForRaiding()
+        {
+            Task.Run(() => {
+                while (_monitorLog)
+                {
+                    GenerateNewFrame();
+                    Thread.Sleep(1000);
+                }
+            });
+        }
         private void PollForUpdates()
         {
+            CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
             Task.Run(() => {
                 while (_monitorLog)
                 {
@@ -63,29 +78,30 @@ namespace SWTORCombatParser
         {
             if (!CheckIfStale())
                 return;
-            ParseLogFile(_logToMonitor);
+            ParseLogFile();
         }
         private bool _firstTimeThroughLog = true;
-        internal void ParseLogFile(string logToMonitor)
+        internal void ParseLogFile()
         {
             _currentFrameData = new List<ParsedLogEntry>();
-            using (var fs = new FileStream(logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, Encoding.UTF7))
             {
-                var currentState = sr.ReadToEnd().Split('\n');
-                _newNumberOfEntries = currentState.Length;
+                var allLogEntries = sr.ReadToEnd().Split('\n');
+                _newNumberOfEntries = allLogEntries.Length;
                 if (_newNumberOfEntries - 1 == _numberOfEntries)
                     return;
-                CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(logToMonitor));
-                for (var line = _numberOfEntries; line < currentState.Length; line++)
+                
+                for (var line = _numberOfEntries; line < allLogEntries.Length; line++)
                 {
-                    ProcessNewLine(currentState[line], line, logToMonitor);
+                    ProcessNewLine(allLogEntries[line], line, _logToMonitor);
                 }
                 _numberOfEntries = _newNumberOfEntries - 1;
                 if (!_isInCombat)
                     return;
                 _firstTimeThroughLog = false;
                 CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
+
                 if (CombatLogParser.CurrentRaidGroup != null)
                 {
                     var cloudRaiding = new PostgresConnection();
@@ -93,6 +109,7 @@ namespace SWTORCombatParser
                 }
                 else
                 {
+                    CombatLogStateBuilder.UpdateCurrentLogState(ref _currentFrameData, _logToMonitor);
                     NewLogEntries(_currentFrameData);
                 }
             }
@@ -100,6 +117,12 @@ namespace SWTORCombatParser
 
         private bool CheckIfStale()
         {
+            var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
+            if(mostRecentFile != _logToMonitor)
+            {
+                _logToMonitor = mostRecentFile;
+                return true;
+            }
             var fileInfo = new FileInfo(_logToMonitor);
             if (fileInfo.LastWriteTime == _lastUpdateTime)
                 return false;
@@ -129,7 +152,7 @@ namespace SWTORCombatParser
 
         private void CheckForCombatState(long lineIndex, ParsedLogEntry parsedLine)
         {
-            if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "EnterCombat")
+            if (parsedLine.Effect.EffectType == EffectType.Event && (parsedLine.Effect.EffectName == "EnterCombat"))
             {
                 _isInCombat = true; 
                 if (CombatLogParser.CurrentRaidGroup == null)
@@ -141,7 +164,11 @@ namespace SWTORCombatParser
                 _combatEndLineIndex = lineIndex;
             }
             if ((parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsPlayer))
+            {
+                _currentFrameData.Add(parsedLine);
+                _currentCombatData.Add(parsedLine);
                 EndCombat();
+            }
             CheckForCombatEnd(lineIndex);
         }
 
@@ -172,7 +199,7 @@ namespace SWTORCombatParser
                 UploadFrameDataToCloudRaiding(cloudRaiding);
                 cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, 
                     new ParsedLogEntry {
-                        TimeStamp = DateTime.Now,
+                        TimeStamp = _currentCombatData.Last().TimeStamp.AddMilliseconds(1),
                         Ability="SWTOR_PARSING_COMBAT_END",
                         Source = new Entity(),
                         Target=new Entity(),

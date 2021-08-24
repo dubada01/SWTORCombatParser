@@ -13,9 +13,9 @@ namespace SWTORCombatParser
         public DateTime EndTime;
         public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
         public double DurationSeconds => DurationMS / 1000f;
-        public List<string> Targets;
+        public List<string> Targets = new List<string>();
         public string RaidBossInfo;
-        public List<ParsedLogEntry> Logs;
+        public List<ParsedLogEntry> Logs = new List<ParsedLogEntry>();
 
         public List<ParsedLogEntry> OutgoingDamageLogs;
         public List<ParsedLogEntry> IncomingDamageLogs;

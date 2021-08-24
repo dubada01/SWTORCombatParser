@@ -9,7 +9,7 @@ namespace SWTORCombatParser.Model.CombatParsing
     {
         public static void RectifyTimeStamps(List<ParsedLogEntry> parsedLog)
         {
-            var dateChangeIndex = parsedLog.OrderBy(l => l.LogLineNumber).SkipLast(1).Select((l, i) => l.TimeStamp > parsedLog[i + 1].TimeStamp).ToList();
+            var dateChangeIndex = parsedLog.Where(l=>l.Error == ErrorType.None).OrderBy(l => l.LogLineNumber).SkipLast(1).Select((l, i) => l.TimeStamp > parsedLog[i + 1].TimeStamp).ToList();
             if (dateChangeIndex.Any(d => d))
             {
                 var ndx = dateChangeIndex.IndexOf(true);

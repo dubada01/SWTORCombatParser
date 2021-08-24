@@ -10,6 +10,19 @@ namespace SWTORCombatParser
     public static class CombatIdentifier
     {
         public static event Action<Combat> NewCombatAvailable = delegate { };
+        public static void UpdateOngoingCombat(List<ParsedLogEntry> newLogs, Combat combatToUpdate)
+        {
+            var orderdLogs = newLogs.OrderBy(t => t.TimeStamp);
+            combatToUpdate.Logs.AddRange(orderdLogs);
+            combatToUpdate.CharacterName = combatToUpdate.Logs.First(l => l.Source.IsPlayer).Source.Name;
+            combatToUpdate.StartTime = combatToUpdate.Logs.First().TimeStamp;
+            combatToUpdate.EndTime = combatToUpdate.Logs.Last().TimeStamp;
+            combatToUpdate.Targets.AddRange(GetTargets(newLogs));
+            combatToUpdate.Targets = GetTargets(combatToUpdate.Logs);
+            combatToUpdate.RaidBossInfo = GetBossInfo(combatToUpdate.Logs);
+            CombatMetaDataParse.PopulateMetaData(ref combatToUpdate);
+            NewCombatAvailable(combatToUpdate);
+        }
         public static Combat ParseOngoingCombat(List<ParsedLogEntry> ongoingLogs)
         {
             if (!ongoingLogs.Any(l => l.Source.IsPlayer))
