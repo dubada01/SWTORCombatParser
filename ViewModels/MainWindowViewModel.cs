@@ -7,6 +7,7 @@ using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
@@ -22,9 +23,10 @@ namespace SWTORCombatParser.ViewModels
         private RaidViewModel _raidViewModel;
 
         public event PropertyChangedEventHandler PropertyChanged;
-
+        public string Title { get; set; }
         public MainWindowViewModel()
         {
+            Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
             ClassIdentifier.InitializeAvailableClasses();
             RaidNameLoader.LoadAllRaidNames();
 

@@ -45,7 +45,7 @@ namespace SWTORCombatParser.Plotting
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
             legend.FontColor = Color.WhiteSmoke;
             legend.FontSize = 15;
-            ConfigureSeries(new List<PlotType> { PlotType.DamageOutput, PlotType.DamageTaken, PlotType.HealingOutput, PlotType.HealingTaken });
+            ConfigureSeries(new List<PlotType> { PlotType.DamageOutput, PlotType.DamageTaken, PlotType.HealingOutput, PlotType.HealingTaken , PlotType.SheildedDamageTaken });
             LegendItems = GetLegends();
             GraphView.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
@@ -66,7 +66,7 @@ namespace SWTORCombatParser.Plotting
                         AddSeries(plotType, "Damage Incoming", Color.Peru, true);
                         break;
                     case PlotType.SheildedDamageTaken:
-                        AddSeries(plotType, "Sheilded Damage Incoming", Color.Magenta);
+                        AddSeries(plotType, "Sheilding", Color.WhiteSmoke);
                         break;
                     case PlotType.HealingOutput:
                         AddSeries(plotType, "Heal Output", Color.LimeGreen, true);
@@ -255,7 +255,7 @@ namespace SWTORCombatParser.Plotting
         }
         private void UpdatePlotAxis(object sender, EventArgs e)
         {
-            //_combatMetaDataViewModel.UpdateBasedOnVisibleData(GraphView.Plot.GetAxisLimits());
+            _combatMetaDataViewModel.UpdateBasedOnVisibleData(GraphView.Plot.GetAxisLimits());
         }
         private void UpdateSeriesAnnotation(ScatterPlot plot, Tooltip annotation, string name, List<(string, string)> annotationTexts, bool effective)
         {
@@ -301,7 +301,7 @@ namespace SWTORCombatParser.Plotting
                 case PlotType.HealingTaken:
                     return combatToPlot.IncomingHealingLogs;
                 case PlotType.SheildedDamageTaken:
-                    return combatToPlot.IncomingSheildedLogs;
+                    return combatToPlot.SheildingProvidedLogs;
 
             }
             return null;

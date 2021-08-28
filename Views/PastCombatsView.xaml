@@ -58,7 +58,7 @@
         
        
         <Viewbox MaxHeight="60" Grid.Column="0" Margin="10,10,10,0" Grid.Row="1" VerticalAlignment="Center">
-            <TextBlock Foreground="DimGray" Text="Combats" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
+            <TextBlock Foreground="DimGray" Text="Battles" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
         </Viewbox>
 
         <ListBox SelectionMode="Extended" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Row="2" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" ItemsSource="{Binding PastCombats}">

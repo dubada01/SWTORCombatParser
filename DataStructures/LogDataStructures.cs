@@ -35,7 +35,35 @@ namespace SWTORCombatParser
             };
             return dummy;
         }
-
+        public static ParsedLogEntry GetEndCombatLog(DateTime timestamp, string logPath)
+        {
+            return new ParsedLogEntry
+            {
+                TimeStamp = timestamp,
+                Ability = "SWTOR_PARSING_COMBAT_END",
+                Source = new Entity(),
+                Target = new Entity(),
+                Value = new Value(),
+                Effect = new Effect(),
+                LogName = logPath,
+            };
+        }
+        public ParsedLogEntry GetCompanionLog()
+        {
+            return new ParsedLogEntry
+            {
+                LogName = "companion_" + LogName,
+                LogText = LogText,
+                LogLineNumber = LogLineNumber,
+                TimeStamp = TimeStamp,
+                Source = Source,
+                Target = Target,
+                Ability = Ability,
+                Effect = Effect,
+                Value = Value,
+                Threat = Threat
+            };
+        }
     }
     public enum ErrorType
     {

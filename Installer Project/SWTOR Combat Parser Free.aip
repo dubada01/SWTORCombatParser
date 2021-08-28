@@ -7,10 +7,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="SWTORParsingIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{D6EF7F0E-22D0-49BF-A811-0AB965BF40C8} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{68C55D65-E8A4-4183-856A-7C742424BF2A} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
-    <ROW Property="ProductName" Value="SWTOR Combat Parser"/>
-    <ROW Property="ProductVersion" Value="0.0.26" Type="32"/>
+    <ROW Property="ProductName" Value="Orbs (Old Republic Battle Stats)"/>
+    <ROW Property="ProductVersion" Value="0.0.34" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{EACE7B61-9CE9-45B0-94B3-0A543D397288}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -51,12 +51,12 @@
     <ROW Component="MoreLinq.dll" ComponentId="{BA741665-D653-4D6D-A855-7C83DEAFA613}" Directory_="APPDIR" Attributes="0" KeyPath="MoreLinq.dll"/>
     <ROW Component="Newtonsoft.Json.dll" ComponentId="{95D83C20-8E25-425E-812F-CD59ED63B77C}" Directory_="APPDIR" Attributes="0" KeyPath="Newtonsoft.Json.dll"/>
     <ROW Component="Npgsql.dll" ComponentId="{5C30025B-D1D0-4C07-9B9F-8DEC9BC97253}" Directory_="APPDIR" Attributes="0" KeyPath="Npgsql.dll"/>
+    <ROW Component="Orbs.deps.json" ComponentId="{53334A7C-B6B9-4A6F-B45D-0FAC52EBE63A}" Directory_="APPDIR" Attributes="0" KeyPath="Orbs.deps.json" Type="0"/>
+    <ROW Component="Orbs.dll" ComponentId="{584352A8-FB5E-4007-957B-569AEA4A14D6}" Directory_="APPDIR" Attributes="0" KeyPath="Orbs.dll"/>
+    <ROW Component="Orbs.exe" ComponentId="{C0AD93FC-3CB4-4389-B598-28C9463AE0E2}" Directory_="APPDIR" Attributes="256" KeyPath="Orbs.exe"/>
     <ROW Component="ProductInformation" ComponentId="{EF7DD04B-004F-492B-B0D9-954291C45EC2}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="RaidNames.json" ComponentId="{CAF38C5E-5030-4FC6-B61A-F0C2A1196BDE}" Directory_="RaidInfos_Dir" Attributes="0" KeyPath="RaidNames.json" Type="0"/>
-    <ROW Component="SHORTCUTDIR" ComponentId="{620FC9CE-870F-4ED2-BA14-85E890A8C938}" Directory_="SHORTCUTDIR" Attributes="0"/>
-    <ROW Component="SWTORCombatParser.deps.json" ComponentId="{DEC085E5-569E-40AF-94DE-641548A49D95}" Directory_="APPDIR" Attributes="0" KeyPath="SWTORCombatParser.deps.json" Type="0"/>
-    <ROW Component="SWTORCombatParser.dll" ComponentId="{EB918640-E972-41F9-B424-A75A5E364882}" Directory_="APPDIR" Attributes="0" KeyPath="SWTORCombatParser.dll"/>
-    <ROW Component="SWTORCombatParser.exe" ComponentId="{A132865E-4516-4A8A-A9B6-1A64BC85E7A6}" Directory_="APPDIR" Attributes="256" KeyPath="SWTORCombatParser.exe"/>
+    <ROW Component="SHORTCUTDIR" ComponentId="{B39ED280-55FA-4EBD-ABD5-778E42FC8506}" Directory_="SHORTCUTDIR" Attributes="0"/>
     <ROW Component="ScottPlot.WPF.dll" ComponentId="{2062E1E7-7B03-4160-A53F-0566C480E857}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.WPF.dll"/>
     <ROW Component="ScottPlot.dll" ComponentId="{4580BD9A-B9D2-44C2-84A8-365F870E9822}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.dll"/>
     <ROW Component="System.Drawing.Common.dll" ComponentId="{69DEB3CD-F9A3-4049-B927-EEF6DD4F88E2}" Directory_="netcoreapp3.0_Dir" Attributes="0" KeyPath="System.Drawing.Common.dll"/>
@@ -71,39 +71,39 @@
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="Classes.json" Component_="Classes.json" FileName="CLASSE~1.JSO|Classes.json" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\DataStructures\ClassInfos\Classes.json" SelfReg="false"/>
-    <ROW File="RaidNames.json" Component_="RaidNames.json" FileName="RAIDNA~1.JSO|RaidNames.json" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\DataStructures\RaidInfos\RaidNames.json" SelfReg="false"/>
-    <ROW File="dpsIcon.png" Component_="dpsIcon.png" FileName="dpsIcon.png" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\resources\dpsIcon.png" SelfReg="false"/>
-    <ROW File="healingIcon.png" Component_="dpsIcon.png" FileName="HEALIN~1.PNG|healingIcon.png" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\resources\healingIcon.png" SelfReg="false"/>
-    <ROW File="SwtorLogo.png" Component_="dpsIcon.png" FileName="SWTORL~1.PNG|SwtorLogo.png" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\resources\SwtorLogo.png" SelfReg="false"/>
-    <ROW File="tankIcon.png" Component_="dpsIcon.png" FileName="tankIcon.png" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\resources\tankIcon.png" SelfReg="false"/>
-    <ROW File="System.Drawing.Common.dll" Component_="System.Drawing.Common.dll" FileName="SYSTEM~1.DLL|System.Drawing.Common.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp3.0\System.Drawing.Common.dll" SelfReg="false"/>
-    <ROW File="Microsoft.Win32.SystemEvents.dll" Component_="Microsoft.Win32.SystemEvents.dll" FileName="MICROS~1.DLL|Microsoft.Win32.SystemEvents.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp3.0\Microsoft.Win32.SystemEvents.dll" SelfReg="false"/>
-    <ROW File="System.Drawing.Common.dll_1" Component_="System.Drawing.Common.dll_1" FileName="SYSTEM~1.DLL|System.Drawing.Common.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp3.0\System.Drawing.Common.dll" SelfReg="false"/>
-    <ROW File="GalaSoft.MvvmLight.dll" Component_="GalaSoft.MvvmLight.dll" FileName="GALASO~1.DLL|GalaSoft.MvvmLight.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\GalaSoft.MvvmLight.dll" SelfReg="false"/>
-    <ROW File="GalaSoft.MvvmLight.Extras.dll" Component_="GalaSoft.MvvmLight.Extras.dll" FileName="GALASO~2.DLL|GalaSoft.MvvmLight.Extras.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\GalaSoft.MvvmLight.Extras.dll" SelfReg="false"/>
-    <ROW File="GalaSoft.MvvmLight.Platform.dll" Component_="GalaSoft.MvvmLight.Platform.dll" FileName="GALASO~3.DLL|GalaSoft.MvvmLight.Platform.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\GalaSoft.MvvmLight.Platform.dll" SelfReg="false"/>
-    <ROW File="Microsoft.Win32.SystemEvents.dll_1" Component_="Microsoft.Win32.SystemEvents.dll_1" FileName="MICROS~1.DLL|Microsoft.Win32.SystemEvents.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\Microsoft.Win32.SystemEvents.dll" SelfReg="false"/>
-    <ROW File="MoreLinq.dll" Component_="MoreLinq.dll" FileName="MoreLinq.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\MoreLinq.dll" SelfReg="false"/>
-    <ROW File="Newtonsoft.Json.dll" Component_="Newtonsoft.Json.dll" FileName="NEWTON~1.DLL|Newtonsoft.Json.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll" SelfReg="false"/>
-    <ROW File="Npgsql.dll" Component_="Npgsql.dll" FileName="Npgsql.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\Npgsql.dll" SelfReg="false"/>
-    <ROW File="nunit.framework.dll" Component_="nunit.framework.dll" FileName="NUNITF~1.DLL|nunit.framework.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\nunit.framework.dll" SelfReg="false"/>
-    <ROW File="ScottPlot.dll" Component_="ScottPlot.dll" FileName="SCOTTP~1.DLL|ScottPlot.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\ScottPlot.dll" SelfReg="false"/>
-    <ROW File="ScottPlot.WPF.dll" Component_="ScottPlot.WPF.dll" FileName="SCOTTP~2.DLL|ScottPlot.WPF.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\ScottPlot.WPF.dll" SelfReg="false"/>
-    <ROW File="SWTORCombatParser.deps.json" Component_="SWTORCombatParser.deps.json" FileName="SWTORC~1.JSO|SWTORCombatParser.deps.json" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\SWTORCombatParser.deps.json" SelfReg="false"/>
-    <ROW File="SWTORCombatParser.dll" Component_="SWTORCombatParser.dll" FileName="SWTORC~1.DLL|SWTORCombatParser.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\SWTORCombatParser.dll" SelfReg="false"/>
-    <ROW File="SWTORCombatParser.exe" Component_="SWTORCombatParser.exe" FileName="SWTORC~1.EXE|SWTORCombatParser.exe" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\SWTORCombatParser.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="SWTORCombatParser.pdb" Component_="SWTORCombatParser.exe" FileName="SWTORC~1.PDB|SWTORCombatParser.pdb" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\SWTORCombatParser.pdb" SelfReg="false"/>
-    <ROW File="SWTORCombatParser.runtimeconfig.dev.json" Component_="SWTORCombatParser.deps.json" FileName="SWTORC~2.JSO|SWTORCombatParser.runtimeconfig.dev.json" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\SWTORCombatParser.runtimeconfig.dev.json" SelfReg="false"/>
-    <ROW File="SWTORCombatParser.runtimeconfig.json" Component_="SWTORCombatParser.deps.json" FileName="SWTORC~3.JSO|SWTORCombatParser.runtimeconfig.json" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\SWTORCombatParser.runtimeconfig.json" SelfReg="false"/>
-    <ROW File="System.Drawing.Common.dll_2" Component_="System.Drawing.Common.dll_2" FileName="SYSTEM~1.DLL|System.Drawing.Common.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\System.Drawing.Common.dll" SelfReg="false"/>
-    <ROW File="System.Windows.Interactivity.dll" Component_="System.Windows.Interactivity.dll" FileName="SYSTEM~2.DLL|System.Windows.Interactivity.dll" Attributes="0" SourcePath="..\bin\Debug\netcoreapp3.1\System.Windows.Interactivity.dll" SelfReg="false"/>
+    <ROW File="Classes.json" Component_="Classes.json" FileName="CLASSE~1.JSO|Classes.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\DataStructures\ClassInfos\Classes.json" SelfReg="false"/>
+    <ROW File="RaidNames.json" Component_="RaidNames.json" FileName="RAIDNA~1.JSO|RaidNames.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\DataStructures\RaidInfos\RaidNames.json" SelfReg="false"/>
+    <ROW File="dpsIcon.png" Component_="dpsIcon.png" FileName="dpsIcon.png" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\resources\dpsIcon.png" SelfReg="false"/>
+    <ROW File="healingIcon.png" Component_="dpsIcon.png" FileName="HEALIN~1.PNG|healingIcon.png" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\resources\healingIcon.png" SelfReg="false"/>
+    <ROW File="SwtorLogo.png" Component_="dpsIcon.png" FileName="SWTORL~1.PNG|SwtorLogo.png" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\resources\SwtorLogo.png" SelfReg="false"/>
+    <ROW File="tankIcon.png" Component_="dpsIcon.png" FileName="tankIcon.png" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\resources\tankIcon.png" SelfReg="false"/>
+    <ROW File="System.Drawing.Common.dll" Component_="System.Drawing.Common.dll" FileName="SYSTEM~1.DLL|System.Drawing.Common.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\runtimes\unix\lib\netcoreapp3.0\System.Drawing.Common.dll" SelfReg="false"/>
+    <ROW File="Microsoft.Win32.SystemEvents.dll" Component_="Microsoft.Win32.SystemEvents.dll" FileName="MICROS~1.DLL|Microsoft.Win32.SystemEvents.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp3.0\Microsoft.Win32.SystemEvents.dll" SelfReg="false"/>
+    <ROW File="System.Drawing.Common.dll_1" Component_="System.Drawing.Common.dll_1" FileName="SYSTEM~1.DLL|System.Drawing.Common.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\runtimes\win\lib\netcoreapp3.0\System.Drawing.Common.dll" SelfReg="false"/>
+    <ROW File="GalaSoft.MvvmLight.dll" Component_="GalaSoft.MvvmLight.dll" FileName="GALASO~1.DLL|GalaSoft.MvvmLight.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\GalaSoft.MvvmLight.dll" SelfReg="false"/>
+    <ROW File="GalaSoft.MvvmLight.Extras.dll" Component_="GalaSoft.MvvmLight.Extras.dll" FileName="GALASO~2.DLL|GalaSoft.MvvmLight.Extras.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\GalaSoft.MvvmLight.Extras.dll" SelfReg="false"/>
+    <ROW File="GalaSoft.MvvmLight.Platform.dll" Component_="GalaSoft.MvvmLight.Platform.dll" FileName="GALASO~3.DLL|GalaSoft.MvvmLight.Platform.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\GalaSoft.MvvmLight.Platform.dll" SelfReg="false"/>
+    <ROW File="Microsoft.Win32.SystemEvents.dll_1" Component_="Microsoft.Win32.SystemEvents.dll_1" FileName="MICROS~1.DLL|Microsoft.Win32.SystemEvents.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Microsoft.Win32.SystemEvents.dll" SelfReg="false"/>
+    <ROW File="MoreLinq.dll" Component_="MoreLinq.dll" FileName="MoreLinq.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\MoreLinq.dll" SelfReg="false"/>
+    <ROW File="Newtonsoft.Json.dll" Component_="Newtonsoft.Json.dll" FileName="NEWTON~1.DLL|Newtonsoft.Json.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Newtonsoft.Json.dll" SelfReg="false"/>
+    <ROW File="Npgsql.dll" Component_="Npgsql.dll" FileName="Npgsql.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Npgsql.dll" SelfReg="false"/>
+    <ROW File="nunit.framework.dll" Component_="nunit.framework.dll" FileName="NUNITF~1.DLL|nunit.framework.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\nunit.framework.dll" SelfReg="false"/>
+    <ROW File="ScottPlot.dll" Component_="ScottPlot.dll" FileName="SCOTTP~1.DLL|ScottPlot.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\ScottPlot.dll" SelfReg="false"/>
+    <ROW File="ScottPlot.WPF.dll" Component_="ScottPlot.WPF.dll" FileName="SCOTTP~2.DLL|ScottPlot.WPF.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\ScottPlot.WPF.dll" SelfReg="false"/>
+    <ROW File="System.Drawing.Common.dll_2" Component_="System.Drawing.Common.dll_2" FileName="SYSTEM~1.DLL|System.Drawing.Common.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\System.Drawing.Common.dll" SelfReg="false"/>
+    <ROW File="System.Windows.Interactivity.dll" Component_="System.Windows.Interactivity.dll" FileName="SYSTEM~2.DLL|System.Windows.Interactivity.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\System.Windows.Interactivity.dll" SelfReg="false"/>
+    <ROW File="Orbs.deps.json" Component_="Orbs.deps.json" FileName="ORBSDE~1.JSO|Orbs.deps.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.deps.json" SelfReg="false"/>
+    <ROW File="Orbs.dll" Component_="Orbs.dll" FileName="Orbs.dll" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.dll" SelfReg="false"/>
+    <ROW File="Orbs.exe" Component_="Orbs.exe" FileName="Orbs.exe" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="Orbs.pdb" Component_="Orbs.exe" FileName="Orbs.pdb" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.pdb" SelfReg="false"/>
+    <ROW File="Orbs.runtimeconfig.dev.json" Component_="Orbs.deps.json" FileName="ORBSRU~1.JSO|Orbs.runtimeconfig.dev.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.runtimeconfig.dev.json" SelfReg="false"/>
+    <ROW File="Orbs.runtimeconfig.json" Component_="Orbs.deps.json" FileName="ORBSRU~2.JSO|Orbs.runtimeconfig.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.runtimeconfig.json" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="SWTOR Combat Parser Free-SetupFiles" PackageFileName="SWTOR Combat Parse Installer" Languages="en" InstallationType="4" UseLargeSchema="true"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="SWTOR Combat Parser Free-SetupFiles" PackageFileName="Orsbs Installer" Languages="en" InstallationType="4" UseLargeSchema="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
@@ -187,11 +187,11 @@
     <ROW Feature_="MainFeature" Component_="nunit.framework.dll"/>
     <ROW Feature_="MainFeature" Component_="ScottPlot.dll"/>
     <ROW Feature_="MainFeature" Component_="ScottPlot.WPF.dll"/>
-    <ROW Feature_="MainFeature" Component_="SWTORCombatParser.deps.json"/>
-    <ROW Feature_="MainFeature" Component_="SWTORCombatParser.dll"/>
-    <ROW Feature_="MainFeature" Component_="SWTORCombatParser.exe"/>
+    <ROW Feature_="MainFeature" Component_="Orbs.deps.json"/>
     <ROW Feature_="MainFeature" Component_="System.Drawing.Common.dll_2"/>
     <ROW Feature_="MainFeature" Component_="System.Windows.Interactivity.dll"/>
+    <ROW Feature_="MainFeature" Component_="Orbs.dll"/>
+    <ROW Feature_="MainFeature" Component_="Orbs.exe"/>
     <ROW Feature_="MainFeature" Component_="SHORTCUTDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
@@ -222,9 +222,9 @@
     <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
-    <ROW Shortcut="SWTORCombatParser" Directory_="SHORTCUTDIR" Name="SWTORC~1|SWTORCombatParser" Component_="SWTORCombatParser.exe" Target="[#SWTORCombatParser.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
-    <ROW Shortcut="SWTORCombatParser_1" Directory_="DesktopFolder" Name="SWTORC~1|SWTORCombatParser" Component_="SWTORCombatParser.exe" Target="[#SWTORCombatParser.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
-    <ROW Shortcut="SWTORCombatParser_2" Directory_="StartMenuFolder" Name="SWTORC~1|SWTORCombatParser" Component_="SWTORCombatParser.exe" Target="[#SWTORCombatParser.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="OrbsOldRepublicBattleParse" Directory_="SHORTCUTDIR" Name="ORBS(O~2|Orbs (Old Republic Battle Stats" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="OrbsOldRepublicBattleStats" Directory_="DesktopFolder" Name="ORBS(O~1|Orbs (Old Republic Battle Stats)" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="OrbsOldRepublicBattleStats_1" Directory_="StartMenuFolder" Name="ORBS(O~1|Orbs (Old Republic Battle Stats)" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>

@@ -17,7 +17,10 @@ namespace SWTORCombatParser
     public static class CombatLogLoader
     {
         private static string _logPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
-
+        public static string GetLogDirectory()
+        {
+            return _logPath;
+        }
         public static CombatLogFile[] LoadAllCombatLogs()
         {
             if (!Directory.Exists(_logPath))

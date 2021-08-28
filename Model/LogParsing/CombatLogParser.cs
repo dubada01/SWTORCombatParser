@@ -22,8 +22,8 @@ namespace SWTORCombatParser
         public static event Action<string> OnNewLog = delegate { };
         public static event Action RaidingStarted = delegate { };
         public static event Action RaidingStopped = delegate { };
-        public static RaidInfo CurrentRaidGroup;
-        public static void SetCurrentRaidGroup(RaidInfo raidGroup)
+        public static RaidGroupInfo CurrentRaidGroup;
+        public static void SetCurrentRaidGroup(RaidGroupInfo raidGroup)
         {
             CurrentRaidGroup = raidGroup;
             RaidingStarted();
@@ -97,7 +97,7 @@ namespace SWTORCombatParser
 
         public static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
         {
-            if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsPlayer)
+            if(parsedLog.Effect.EffectName == "Heal" && (parsedLog.Source.IsPlayer || parsedLog.Source.IsCompanion))
             {
                 if (state.PlayerClass == null)
                 { 
@@ -266,10 +266,11 @@ namespace SWTORCombatParser
             if (value.Contains("@") && value.Contains(":"))
             {
                 var compaionName = value.Split(':')[1];
-                var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == compaionName);
+                var companionNameComponents = compaionName.Split('{');
+                var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == companionNameComponents[0].Trim());
                 if (existingCompanionEntity != null)
                     return existingCompanionEntity;
-                var companion = new Entity() { IsCharacter = false,IsCompanion = true, Name = compaionName };
+                var companion = new Entity() { IsCharacter = false,IsCompanion = true, Name = companionNameComponents[0].Trim() };
                 _currentEntities.Add(companion);
                 return companion;
             }

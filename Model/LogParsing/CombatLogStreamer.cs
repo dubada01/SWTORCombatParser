@@ -27,24 +27,29 @@ namespace SWTORCombatParser
         private long _numberOfEntries;
         private long _newNumberOfEntries;
         private string _logToMonitor; 
-        private long _combatEndLineIndex;
+        private DateTime _combatEndTime;
         private bool _monitorLog;
         private DateTime _lastUpdateTime;
         private List<ParsedLogEntry> _currentFrameData = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
-        public void MonitorLog(string logToMonitor, bool forRaiding = false)
+        public void MonitorLog(string logToMonitor, bool forRaiding = false, bool isCompleteLog = false)
         {
             _newNumberOfEntries = 0;
             _numberOfEntries = 0;
-            _combatEndLineIndex = 0;
+            _combatEndTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
             _logToMonitor = logToMonitor;
             _monitorLog = true;
             _firstTimeThroughLog = true;
-            if (!forRaiding)
+            if (!forRaiding && !isCompleteLog)
                 PollForUpdates();
             else
-                UpdateLogsForRaiding();
+            {
+                if(forRaiding)
+                    UpdateLogsForRaiding();
+                if (isCompleteLog)
+                    ParseCompleteLog();
+            }
         }
         
         public void StopMonitoring()
@@ -61,6 +66,13 @@ namespace SWTORCombatParser
                     GenerateNewFrame();
                     Thread.Sleep(1000);
                 }
+            });
+        }
+        private void ParseCompleteLog()
+        {
+            Task.Run(() => {
+                CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
+                ParseLogFile();
             });
         }
         private void PollForUpdates()
@@ -133,7 +145,7 @@ namespace SWTORCombatParser
         {
             if (string.IsNullOrEmpty(line))
             {
-                CheckForCombatEnd(lineIndex);
+                CheckForCombatEnd(lineIndex,DateTime.MinValue);
                 return;
             }
             var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
@@ -154,6 +166,7 @@ namespace SWTORCombatParser
         {
             if (parsedLine.Effect.EffectType == EffectType.Event && (parsedLine.Effect.EffectName == "EnterCombat"))
             {
+                _combatEnding = false;
                 _isInCombat = true; 
                 if (CombatLogParser.CurrentRaidGroup == null)
                     CombatStarted(parsedLine.Source.Name, parsedLine.Value.StrValue);
@@ -161,7 +174,7 @@ namespace SWTORCombatParser
             if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat")
             {
                 _combatEnding = true;
-                _combatEndLineIndex = lineIndex;
+                _combatEndTime = parsedLine.TimeStamp;
             }
             if ((parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsPlayer))
             {
@@ -169,12 +182,12 @@ namespace SWTORCombatParser
                 _currentCombatData.Add(parsedLine);
                 EndCombat();
             }
-            CheckForCombatEnd(lineIndex);
+            CheckForCombatEnd(lineIndex,parsedLine.TimeStamp);
         }
 
-        private void CheckForCombatEnd(long lineIndex)
+        private void CheckForCombatEnd(long lineIndex,DateTime currentLogTime)
         {
-            if ((lineIndex - _combatEndLineIndex > 10 || (lineIndex == _newNumberOfEntries - 1)) && _combatEnding)
+            if (((currentLogTime - _combatEndTime).TotalSeconds > 2 || (lineIndex == _newNumberOfEntries - 1)) && _combatEnding)
             {
                 EndCombat();
             }
@@ -183,7 +196,14 @@ namespace SWTORCombatParser
         {
             Parallel.ForEach(_currentFrameData, log =>
             {
-                cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
+                if (log.Source.IsCompanion)
+                {
+                    cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log.GetCompanionLog());
+                }
+                else
+                {
+                    cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
+                }
             });
             _currentFrameData.Clear();
         }
@@ -197,20 +217,13 @@ namespace SWTORCombatParser
             {
                 var cloudRaiding = new PostgresConnection();
                 UploadFrameDataToCloudRaiding(cloudRaiding);
-                cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, 
-                    new ParsedLogEntry {
-                        TimeStamp = _currentCombatData.Last().TimeStamp.AddMilliseconds(1),
-                        Ability="SWTOR_PARSING_COMBAT_END",
-                        Source = new Entity(),
-                        Target=new Entity(),
-                        Value = new Value(),
-                        Effect = new Effect(),
-                        LogName = Path.GetFileName(_logToMonitor)
-                    });
+                cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId,
+                    ParsedLogEntry.GetEndCombatLog(_currentCombatData.Last().TimeStamp.AddMilliseconds(1), Path.GetFileName(_logToMonitor)));
+
             }
             else
             {
-                if(CombatLogParser.CurrentRaidGroup == null)
+                if (CombatLogParser.CurrentRaidGroup == null)
                     CombatStopped(_currentCombatData);
             }
             _currentFrameData.Clear();

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
-    public class MetaDataInstance
+    public class MetaDataInstance:INotifyPropertyChanged
     {
         public string Category { get; set; }
         public System.Windows.Media.Brush Color { get; set; }
@@ -20,5 +22,27 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
         public string EffectiveMaxValue { get; set; }
         public string EffectiveRateLabel { get; set; }
         public string EffectiveRateValue { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void Reset()
+        {
+            TotalValue = "0";
+            OnPropertyChanged("TotalValue");
+            MaxValue = "0";
+            OnPropertyChanged("MaxValue");
+            RateValue = "0";
+            OnPropertyChanged("RateValue");
+            EffectiveMaxValue = "0";
+            OnPropertyChanged("EffectiveMaxValue");
+            EffectiveTotalValue = "0";
+            OnPropertyChanged("EffectiveTotalValue");
+            EffectiveRateValue = "0";
+            OnPropertyChanged("EffectiveRateValue");
+        }
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }

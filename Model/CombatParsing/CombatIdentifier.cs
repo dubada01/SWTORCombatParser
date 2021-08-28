@@ -1,4 +1,8 @@
 ﻿using SWTORCombatParser.DataStructures.RaidInfos;
+using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.ViewModels.Raiding;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +18,7 @@ namespace SWTORCombatParser
         {
             var orderdLogs = newLogs.OrderBy(t => t.TimeStamp);
             combatToUpdate.Logs.AddRange(orderdLogs);
-            combatToUpdate.CharacterName = combatToUpdate.Logs.First(l => l.Source.IsPlayer).Source.Name;
+            combatToUpdate.CharacterName = combatToUpdate.Logs.First(l => l.Source == combatToUpdate.Owner).Source.Name;
             combatToUpdate.StartTime = combatToUpdate.Logs.First().TimeStamp;
             combatToUpdate.EndTime = combatToUpdate.Logs.Last().TimeStamp;
             combatToUpdate.Targets.AddRange(GetTargets(newLogs));
@@ -23,13 +27,13 @@ namespace SWTORCombatParser
             CombatMetaDataParse.PopulateMetaData(ref combatToUpdate);
             NewCombatAvailable(combatToUpdate);
         }
-        public static Combat ParseOngoingCombat(List<ParsedLogEntry> ongoingLogs)
+        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
-            if (!ongoingLogs.Any(l => l.Source.IsPlayer))
+            if (!ongoingLogs.Any(l => l.Source.IsPlayer || l.Source.IsCompanion))
                 return new Combat();
             var newCombat = new Combat()
             {
-                CharacterName = ongoingLogs.First(l => l.Source.IsPlayer).Source.Name,
+                CharacterName = ongoingLogs.First(l => l.Source.IsPlayer || l.Source.IsCompanion).Source.Name,
                 StartTime = ongoingLogs.OrderBy(t=>t.TimeStamp).First().TimeStamp,
                 EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),
@@ -37,6 +41,9 @@ namespace SWTORCombatParser
                 Logs = ongoingLogs
             };
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
+            var sheildLogs = newCombat.IncomingSheildedLogs;
+            AddSheildingToLogs.AddSheildLogs(CombatLogStateBuilder.GetLocalState(), sheildLogs, newCombat);
+            
             NewCombatAvailable(newCombat);
             return newCombat;
         }

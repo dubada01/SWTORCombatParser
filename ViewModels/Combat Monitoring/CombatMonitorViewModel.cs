@@ -116,7 +116,7 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged("CurrentlySelectedLogName");
                 var logInfo = CombatLogLoader.LoadSpecificLog(CurrentlySelectedLogName);
                 _combatLogStreamer.StopMonitoring();
-                _combatLogStreamer.MonitorLog(logInfo.Path);
+                _combatLogStreamer.MonitorLog(logInfo.Path,false,true);
             }
         }
 
@@ -128,7 +128,7 @@ namespace SWTORCombatParser.ViewModels
         private void UpdateLog(List<ParsedLogEntry> obj)
         {
             _totalLogsDuringCombat.AddRange(obj);
-            var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat.ToList());
+            var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat.ToList());
             var combatUI = PastCombats.First(c => c.IsCurrentCombat);
 
             combatUI.Combat = combatInfo;
@@ -168,7 +168,7 @@ namespace SWTORCombatParser.ViewModels
                 return;
             _totalLogsDuringCombat.Clear();
             _totalLogsDuringCombat.AddRange(obj);
-            var combatInfo = CombatIdentifier.ParseOngoingCombat(_totalLogsDuringCombat.ToList());
+            var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat.ToList());
             AddCombat(combatInfo);
             _totalLogsDuringCombat.Clear();
         }

@@ -12,7 +12,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static Dictionary<DateTime, List<CombatParticipant>> GetCommonCombats(List<RaidParticipantInfo> raidMembers)
         {
             Dictionary<DateTime, List<CombatParticipant>> commonCombats = new Dictionary<DateTime, List<CombatParticipant>>();
-            var localPastCombats = raidMembers.First(m=>m.PlayerName == CombatLogStateBuilder.GetLocalState().PlayerName).PastCombats;
+            var localPastCombats = raidMembers.First(m=>m.PlayerName == CombatLogStateBuilder.GetLocalPlayerClassandName().PlayerName).PastCombats;
             foreach (var combat in localPastCombats)
             {
                 Dictionary<Entity, double> _totalSheildingProvided = new Dictionary<Entity, double>();

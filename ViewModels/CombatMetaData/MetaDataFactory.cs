@@ -7,6 +7,10 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
     public static class MetaDataFactory
     {
+        public static List<MetaDataInstance> GetPlaceholders()
+        {
+            return GetMetaDatas(new Combat());
+        }
         public static List<MetaDataInstance> GetMetaDatas(Combat combat)
         {
             var metaDatas = new List<MetaDataInstance>();

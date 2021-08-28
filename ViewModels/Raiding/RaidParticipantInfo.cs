@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -22,11 +23,11 @@ namespace SWTORCombatParser.ViewModels.Raiding
             CombatSelectionMonitor.NewCombatSelected += DisplayCombat;
             LogName = logName;
             CurrentCombatInfo = new Combat();
+            Update(logs); 
             UpdateMetaDatas();
-            UpdateCombat(logs);
 
         }
-        public List<CombatParticipant> UpdateCombat(List<ParsedLogEntry> logs)
+        public List<CombatParticipant> Update(List<ParsedLogEntry> logs)
         {
             if (!logs.Any())
                 return new List<CombatParticipant>();
@@ -67,7 +68,7 @@ namespace SWTORCombatParser.ViewModels.Raiding
                     CombatIdentifier.UpdateOngoingCombat(_newlyAddedValidLogs.GetRange(enterCombatIndex, (endCombatIndex - enterCombatIndex)), CurrentCombatInfo);
                     if (distinctEnterLogs.Count > c - 1 && hasCombatEnd)
                     {
-                        var newCombat = CombatIdentifier.ParseOngoingCombat(CurrentCombatInfo.Logs);
+                        var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(CurrentCombatInfo.Logs);
                         newCombat.TotalProvidedSheilding = CurrentCombatInfo.TotalProvidedSheilding;
                         PastCombats.Add(newCombat);
                         _combatsGenerated.Add(new CombatParticipant { Combat = newCombat, Participant = this });
@@ -101,7 +102,11 @@ namespace SWTORCombatParser.ViewModels.Raiding
         }
         private void UpdateMetaDatas()
         {
-            var metaDatas = MetaDataFactory.GetMetaDatas(CurrentCombatInfo);
+            List<MetaDataInstance> metaDatas;
+            if (CurrentCombatInfo.Logs.Count == 0)
+                metaDatas = MetaDataFactory.GetPlaceholders();
+            else
+                metaDatas = MetaDataFactory.GetMetaDatas(CurrentCombatInfo);
             App.Current.Dispatcher.Invoke(() =>
             {
                 MetaDatas.Clear();
@@ -148,14 +153,26 @@ namespace SWTORCombatParser.ViewModels.Raiding
         }
         internal void FinishCombat()
         {
-
+            CurrentLogs.RemoveAll(l => l.Ability == "StartCombatMarker");
             if (string.IsNullOrEmpty(CurrentCombatInfo.CharacterName))
             {
+                if(PastCombats.Count == 0)
+                {
+                    Trace.WriteLine("Combat ended but not combats detected for " + playerName);
+                    if(CurrentCombatInfo.Logs.Count > 0)
+                    {
+                        Trace.WriteLine("Valid logs detected though, adding combat for " + playerName);
+                        var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(CurrentCombatInfo.Logs);
+                        newCombat.TotalProvidedSheilding = CurrentCombatInfo.TotalProvidedSheilding;
+                        PastCombats.Add(newCombat);
+                    }
+                    return;
+                }
                 CurrentCombatInfo = PastCombats.OrderBy(t => t.EndTime).Last();
             }
             else
             {
-                var newCombat = CombatIdentifier.ParseOngoingCombat(CurrentCombatInfo.Logs);
+                var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(CurrentCombatInfo.Logs);
                 newCombat.TotalProvidedSheilding = CurrentCombatInfo.TotalProvidedSheilding;
                 PastCombats.Add(newCombat);
             }
@@ -164,7 +181,10 @@ namespace SWTORCombatParser.ViewModels.Raiding
         {
             CurrentLogs.Clear();
             CurrentCombatInfo = new Combat();
-            MetaDatas.Clear();
+            foreach(var metaData in MetaDatas)
+            {
+                metaData.Reset();
+            }
         }
     }
 }

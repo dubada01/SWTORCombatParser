@@ -26,11 +26,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             } }
         public double RelativeLength { get => relativeLength; set {
+                
+                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value==0)
+                {
+                    SetBarToZero();
+                    return; 
+                }
                 relativeLength = value;
-                if (double.IsNaN(relativeLength))
-                    return;
-                if (Value == 0)
-                    return;
                 if(SecondaryType!= OverlayType.None)
                 {
                     var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
@@ -48,6 +50,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged("RemainderWidth");
                 OnPropertyChanged("BarWidth");
             } }
+        private void SetBarToZero()
+        {
+            relativeLength = 0;
+            BarWidth = new GridLength(0, GridUnitType.Star);
+            RemainderWidth = new GridLength(1, GridUnitType.Star);
+            OnPropertyChanged("RemainderWidth");
+            OnPropertyChanged("BarWidth");
+        }
         public double Value { get => _value; set {
                 _value = value;
                 if(double.IsNaN(_value))
@@ -115,6 +125,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void UpdateMetrics(Combat obj)
         {
             OverlayMetricInfo metricToUpdate;
+            if (string.IsNullOrEmpty(obj.CharacterName))
+                return;
             if(MetricBars.Any(m=>m.PlayerName == obj.CharacterName))
             {
                 metricToUpdate = MetricBars.First(mb => mb.PlayerName == obj.CharacterName);
@@ -135,7 +147,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
             foreach(var metric in MetricBars)
             {
-                metric.RelativeLength = (double.Parse(metric.TotalValue) / double.Parse(maxValue));
+                if (double.Parse(metric.TotalValue) == 0 || metric.Value == 0 || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
+                    metric.RelativeLength = 0;
+                else
+                    metric.RelativeLength = double.Parse(maxValue)==0?0:(double.Parse(metric.TotalValue) / double.Parse(maxValue));
             }
             App.Current.Dispatcher.Invoke(() =>
             {

@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -16,17 +17,28 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             CurrentStates = new Dictionary<string, LogState>();
         }
-        public static LogState GetLocalState()
+        public static LogState GetLocalPlayerClassandName()
         {
             var localState =  new LogState();
             var localLogEntries = CombatLogParser.ParseLast10Mins(CombatLogLoader.LoadMostRecentLog());
+            localState.PlayerName = GetPlayerName(localLogEntries);
             foreach (var log in localLogEntries)
             {
                 if (SetPlayerClass(log, localState))
                     break;
             }
-            localState.PlayerName = GetPlayerName(localLogEntries);
             return localState;
+        }
+        public static LogState GetLocalState()
+        {
+            var directoryInfo = new DirectoryInfo(CombatLogLoader.GetLogDirectory());
+            var combatFileNames = directoryInfo.EnumerateFiles().Select(f=>f.Name).ToList();
+            foreach(var key in CurrentStates.Keys)
+            {
+                if (combatFileNames.Contains(key))
+                    return CurrentStates[key];
+            }
+            return new LogState();
         }
         public static void AddParticipant(string log)
         {
@@ -56,7 +68,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public static Role GetPlayerRole(List<ParsedLogEntry> logs)
         {
-            foreach (var log in logs)
+            foreach (var log in logs.Where(l=>l.Source.IsPlayer))
             {
                 var role = GetPlayerRole(log);
                 if (role != Role.Unknown)
@@ -191,7 +203,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static string GetPlayerName(ParsedLogEntry log)
         {
-            if (log.Source.Name == log.Target.Name)
+            if (log.Source.Name == log.Target.Name && log.Source.IsPlayer)
                 return log.Source.Name;
             else
                 return "";

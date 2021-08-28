@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             if (dateChangeIndex.Any(d => d))
             {
                 var ndx = dateChangeIndex.IndexOf(true);
-                var previousDaysLogs = parsedLog.Take(ndx);
+                var previousDaysLogs = parsedLog.Take(ndx+1);
                 previousDaysLogs.ToList().ForEach(l => l.TimeStamp = l.TimeStamp.AddDays(-1));
             }
         }

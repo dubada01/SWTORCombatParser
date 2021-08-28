@@ -26,9 +26,12 @@ namespace SWTORCombatParser.Model.Overlays
     }
     public static class DefaultOverlayManager
     {
-        private static string infoPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser", "overlay_info.json");
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string infoPath = Path.Combine(appDataPath, "overlay_info.json");
         public static void SetDefaults(OverlayType type, Point position, Point widtHHeight)
         {
+            if (!Directory.Exists(appDataPath))
+                Directory.CreateDirectory(appDataPath);
             var currentDefaults = GetDefaults();
             currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
@@ -43,6 +46,8 @@ namespace SWTORCombatParser.Model.Overlays
         }
         public static Dictionary<OverlayType,DefaultOverlayInfo> GetDefaults()
         {
+            if (!Directory.Exists(appDataPath))
+                Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
                 InitializeDefaults();

@@ -9,10 +9,11 @@ namespace SWTORCombatParser
     {
         public static void PopulateMetaData(ref Combat combatToPopulate)
         {
+            var combat = combatToPopulate;
             var combatDurationMs = (combatToPopulate.EndTime - combatToPopulate.StartTime).TotalMilliseconds;
 
-            var outgoingLogs = combatToPopulate.Logs.Where(log=>log.Source.IsPlayer).ToList();
-            var incomingLogs = combatToPopulate.Logs.Where(log => log.Target.IsPlayer).ToList();
+            var outgoingLogs = combatToPopulate.Logs.Where(log => log.Source == combat.Owner).ToList();
+            var incomingLogs = combatToPopulate.Logs.Where(log => log.Target == combat.Owner).ToList();
 
             combatToPopulate.OutgoingDamageLogs = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
             combatToPopulate.OutgoingHealingLogs = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();

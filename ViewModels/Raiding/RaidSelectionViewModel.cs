@@ -14,7 +14,7 @@ using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Raiding
 {
-    public class RaidInfo:INotifyPropertyChanged
+    public class RaidGroupInfo:INotifyPropertyChanged
     {
         public string Name { get; set; }
         public string DPSLeaderName { get; set; }
@@ -42,10 +42,10 @@ namespace SWTORCombatParser.ViewModels.Raiding
     }
     public class RaidSelectionViewModel : INotifyPropertyChanged
     {
-        private List<RaidInfo> _raidGroupInfo = new List<RaidInfo>();
+        private List<RaidGroupInfo> _raidGroupInfo = new List<RaidGroupInfo>();
         private string _raidInfoFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser", "raidgroup_info.json");
         private PostgresConnection _databaseConnection;
-        private RaidInfo selectedRaidGroup;
+        private RaidGroupInfo selectedRaidGroup;
 
         public RaidSelectionViewModel()
         {
@@ -56,9 +56,9 @@ namespace SWTORCombatParser.ViewModels.Raiding
             _databaseConnection = new PostgresConnection();
             BuildAvailableList();
         }
-        public event Action<bool, RaidInfo> RaidingStateChanged = delegate { };
-        public ObservableCollection<RaidInfo> AvailableRaidGroups { get; set; } = new ObservableCollection<RaidInfo>();
-        public RaidInfo SelectedRaidGroup
+        public event Action<bool, RaidGroupInfo> RaidingStateChanged = delegate { };
+        public ObservableCollection<RaidGroupInfo> AvailableRaidGroups { get; set; } = new ObservableCollection<RaidGroupInfo>();
+        public RaidGroupInfo SelectedRaidGroup
         {
             get => selectedRaidGroup; set
             {
@@ -115,7 +115,7 @@ namespace SWTORCombatParser.ViewModels.Raiding
         }
         private void UpdateGroups()
         {
-            var addedInfo = new RaidInfo { Name = RaidGroupName, Password = RaidGroupPassword ,GroupId = GroupId};
+            var addedInfo = new RaidGroupInfo { Name = RaidGroupName, Password = RaidGroupPassword ,GroupId = GroupId};
             _raidGroupInfo.Add(addedInfo);
 
             Refresh();
@@ -150,10 +150,10 @@ namespace SWTORCombatParser.ViewModels.Raiding
                 File.Create(_raidInfoFilePath).Close();
             }
             var raidInfoString = File.ReadAllText(_raidInfoFilePath);
-            _raidGroupInfo = JsonConvert.DeserializeObject<List<RaidInfo>>(raidInfoString);
+            _raidGroupInfo = JsonConvert.DeserializeObject<List<RaidGroupInfo>>(raidInfoString);
             if (_raidGroupInfo == null || _raidGroupInfo.Count == 0)
             {
-                _raidGroupInfo = new List<RaidInfo>();
+                _raidGroupInfo = new List<RaidGroupInfo>();
                 return;
             }
 

@@ -8,6 +8,7 @@ namespace SWTORCombatParser
 {
     public class Combat
     {
+        public Entity Owner => Logs.FirstOrDefault(l=>(l.Source == l.Target) && l.Source.IsPlayer || l.Source.IsCompanion)?.Source;
         public string CharacterName;
         public DateTime StartTime;
         public DateTime EndTime;
@@ -22,6 +23,7 @@ namespace SWTORCombatParser
         public List<ParsedLogEntry> IncomingSheildedLogs;
         public List<ParsedLogEntry> OutgoingHealingLogs;
         public List<ParsedLogEntry> IncomingHealingLogs;
+        public List<ParsedLogEntry> SheildingProvidedLogs = new List<ParsedLogEntry>();
 
         public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByTarget()
         {
@@ -102,17 +104,17 @@ namespace SWTORCombatParser
         public double TotalHealingReceived;
         public double TotalEffectiveHealingReceived;
 
-        public double TPS => TotalThreat / DurationSeconds;
-        public double DPS => TotalDamage / DurationSeconds == double.NaN?0: TotalDamage / DurationSeconds;
-        public double APM => TotalAbilites / (DurationSeconds / 60);
-        public double HPS => TotalHealing / DurationSeconds;
-        public double EHPS => TotalEffectiveHealing / DurationSeconds;
-        public double SPS => TotalSheilding / DurationSeconds;
-        public double PSPS => TotalProvidedSheilding / DurationSeconds;
-        public double DTPS => TotalDamageTaken / DurationSeconds;
-        public double EDTPS => TotalEffectiveDamageTaken / DurationSeconds;
-        public double HTPS => TotalHealingReceived / DurationSeconds;
-        public double EHTPS => TotalEffectiveHealingReceived / DurationSeconds;
+        public double TPS => DurationSeconds == 0 ? 0: TotalThreat / DurationSeconds;
+        public double DPS => DurationSeconds == 0 ? 0 : TotalDamage / DurationSeconds == double.NaN?0: TotalDamage / DurationSeconds;
+        public double APM => DurationSeconds == 0 ? 0 : TotalAbilites / (DurationSeconds / 60);
+        public double HPS => DurationSeconds == 0 ? 0 : TotalHealing / DurationSeconds;
+        public double EHPS => DurationSeconds == 0 ? 0 : TotalEffectiveHealing / DurationSeconds;
+        public double SPS => DurationSeconds == 0 ? 0 : TotalSheilding / DurationSeconds;
+        public double PSPS => DurationSeconds == 0 ? 0 : TotalProvidedSheilding / DurationSeconds;
+        public double DTPS => DurationSeconds == 0 ? 0 : TotalDamageTaken / DurationSeconds;
+        public double EDTPS => DurationSeconds == 0 ? 0 : TotalEffectiveDamageTaken / DurationSeconds;
+        public double HTPS => DurationSeconds == 0 ? 0 : TotalHealingReceived / DurationSeconds;
+        public double EHTPS => DurationSeconds == 0 ? 0 : TotalEffectiveHealingReceived / DurationSeconds;
 
         public double MaxDamage;
         public double MaxIncomingDamage;

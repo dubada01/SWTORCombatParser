@@ -35,8 +35,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
         private bool combatEnding;
         private bool combatStarted;
         private Role _currentRole;
+        private string _currentLog;
         private string _characterName;
         private List<RaidParticipantInfo> _currentParticipants = new List<RaidParticipantInfo>();
+        private List<(string, string)> _currentlyAliveMembers = new List<(string, string)>();
 
         public RaidStateManagement()
         {
@@ -87,21 +89,17 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 while (_raidingActive)
                 {
                     UploadKeepAlive();
-                    AddMembers();
+                    UpdatePresentMembers();
                     Thread.Sleep(2000);
                     if (!_raidingActive)
                         return;
                 }
             });
         }
-        private void AddMembers()
+        private void UpdatePresentMembers()
         {
-            var currentMembers = GetCurrentlyAliveMembers();
-            foreach (var member in currentMembers)
-            {
-                TryAddNewParticipant(member.Item2, member.Item1);
-            }
-
+            _currentlyAliveMembers = GetCurrentlyAliveMembers();
+            SyncPresentMembersWithCurrent();
         }
         private List<(string, string)> GetCurrentlyAliveMembers()
         {
@@ -116,10 +114,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
             if (lastCombatEndedLog == null)
                 return;
             var timeToCheck = lastCombatEndedLog == null ? cloudLogsFrom10Mins.First().TimeStamp : lastCombatEndedLog.TimeStamp;
-            var combatInProgress = cloudLogsFrom10Mins.Any(l => l.Effect.EffectName == "EnterCombat" && l.TimeStamp > timeToCheck);
-            if (combatInProgress)
+            var mostRecentCombat = cloudLogsFrom10Mins.FirstOrDefault(l => l.Effect.EffectName == "EnterCombat" && l.TimeStamp > timeToCheck);
+            if(mostRecentCombat!=null && !cloudLogsFrom10Mins.Any(l=>l.Ability == "SWTOR_PARSING_COMBAT_END" && l.TimeStamp > mostRecentCombat.TimeStamp))
             {
-                var mostRecentCombat = cloudLogsFrom10Mins.First(l => l.Effect.EffectName == "EnterCombat" && l.TimeStamp > timeToCheck);
                 var logsSinceOngoingCombatStart = _postgresConnection.GetLogsAfterTime(mostRecentCombat.TimeStamp, _currentRaidGroup);
                 ParseNewRaidLogs(logsSinceOngoingCombatStart);
             }
@@ -129,16 +126,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var logsForFile = CombatLogParser.ParseLast10Mins(CombatLogLoader.LoadMostRecentLog());
             if (logsForFile.Count == 0)
                 return;
-            var lastCombatEndedLog = logsForFile.LastOrDefault(l => l.Effect.EffectName == "ExitCombat" || (l.Effect.EffectName == "Death" && l.Target.IsPlayer));
-            var timeToCheck = lastCombatEndedLog == null ? logsForFile.First().TimeStamp : lastCombatEndedLog.TimeStamp;
-            var combatInProgress = logsForFile.Any(l => l.Effect.EffectName == "EnterCombat" && l.TimeStamp > timeToCheck);
-            if (combatInProgress)
+            var mostRecentCombat = logsForFile.FirstOrDefault(l => l.Effect.EffectName == "EnterCombat");
+            if (mostRecentCombat!=null && !logsForFile.Any(l => l.Effect.EffectName == "ExitCombat" || (l.Effect.EffectName == "Death" && l.Target.IsPlayer && l.TimeStamp > mostRecentCombat.TimeStamp)))
             {
-                var mostRecentCombat = logsForFile.First(l => l.Effect.EffectName == "EnterCombat" && l.TimeStamp > timeToCheck);
-                var logsToUpload = logsForFile.Where(l => l.TimeStamp > timeToCheck);
+                var logsToUpload = logsForFile.Where(l => l.TimeStamp > mostRecentCombat.TimeStamp);
                 var logsNotYetInRaidGroup = logsToUpload.Where(
                     l =>
-                    l.TimeStamp > timeToCheck &&
+                    l.TimeStamp > mostRecentCombat.TimeStamp &&
                     cloudLogs.Any(cl => cl.TimeStamp != l.TimeStamp) &&
                     cloudLogs.Any(cl => cl.Effect.EffectName != l.Effect.EffectName) &&
                     cloudLogs.Any(cl => cl.Ability != l.Ability)
@@ -165,14 +159,28 @@ namespace SWTORCombatParser.Model.CloudRaiding
             foreach (var participantFile in participantData)
             {
                 var logName = participantFile.Key;
-                var participantLogs = participantFile.ToList();
-                //set the combat start marker at the time of the earliest start of combat for the group
+                var participantLogs = participantFile.ToList(); 
+                var participant = _currentParticipants.FirstOrDefault(p => p.LogName == logName);
                 if (startTime.HasValue)
                     participantLogs.Insert(0, ParsedLogEntry.GetDummyLog("StartCombatMarker", startTime.Value, -1));
-                var participant = _currentParticipants.FirstOrDefault(p => p.LogName == logName);
-
+                //set the combat start marker at the time of the earliest start of combat for the group
                 if (participant != null)
-                    _generatedCombats.AddRange(participant.UpdateCombat(participantLogs));
+                {
+                    _generatedCombats.AddRange(participant.Update(participantLogs));
+                }
+                else
+                {
+                    //if (logName.Contains("companion"))
+                    //{
+                    //    TryAddNewParticipant(logName, "HELLO~?~Companion~?~Unknown");
+                    //    var companonParticipant = _currentParticipants.FirstOrDefault(p => p.LogName == logName);
+                    //    if (companonParticipant != null)
+                    //    {
+                    //        _generatedCombats.AddRange(companonParticipant.Update(participantLogs));
+                    //    }
+                            
+                    //}
+                }
 
             }
             Trace.WriteLine($"{_generatedCombats.Count} combats detected for frame with {logs.Count} logs and {participantData.Count()} participants");
@@ -190,7 +198,19 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 StaticRaidInfo.FireNewRaidCombatDisplayed(p.CurrentCombatInfo);
             });
         }
-
+        private void SyncPresentMembersWithCurrent()
+        {
+            lock (_currentlyAliveMembers)
+            {
+                foreach (var member in _currentlyAliveMembers)
+                {
+                    TryAddNewParticipant(member.Item2, member.Item1);
+                }
+                var removed = _currentParticipants.RemoveAll(p => !_currentlyAliveMembers.Select(cm => cm.Item2).Contains(p.LogName));
+                if (removed > 0)
+                    UpdatedParticipants(_currentParticipants);
+            }
+        }
         private void TryAddNewParticipant(string logName, string info)
         {
 
@@ -257,13 +277,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
         private void UploadKeepAlive()
         {
-            if (_currentRole == Role.Unknown || (string.IsNullOrEmpty(_characterName) || _characterName == "Unknown_Player"))
+            if (_currentRole == Role.Unknown || 
+                (string.IsNullOrEmpty(_characterName) ||
+                _characterName == "Unknown_Player") || 
+                _currentLog != CombatLogLoader.GetMostRecentLogName())
             {
                 var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-
+                _currentLog = mostRecentLog.Name;
                 List<ParsedLogEntry> loadedLogs = null;
 
-                var currentState = CombatLogStateBuilder.GetLocalState();
+                var currentState = CombatLogStateBuilder.GetLocalPlayerClassandName();
                 if (string.IsNullOrEmpty(currentState.PlayerName))
                 {
                     loadedLogs = CombatLogParser.ParseLast10Mins(mostRecentLog);
@@ -272,7 +295,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 else
                     _characterName = currentState.PlayerName;
                 if(currentState.PlayerClass == null)
-                    _currentRole = CombatLogStateBuilder.GetPlayerRole(loadedLogs == null?CombatLogParser.ParseLast10Mins(mostRecentLog): loadedLogs);
+                    _currentRole = Role.Unknown;
                 else
                     _currentRole = currentState.PlayerClass.Role;
             }

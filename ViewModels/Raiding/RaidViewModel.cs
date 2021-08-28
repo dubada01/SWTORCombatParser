@@ -44,7 +44,7 @@ namespace SWTORCombatParser.ViewModels
             RaidSelectionContent = new RaidSelectionView(_raidSelectionViewModel);
 
         }
-        public RaidInfo CurrentlySelectedGroup { get; set; }
+        public RaidGroupInfo CurrentlySelectedGroup { get; set; }
         public SelectedRaidGroup SelectedRaidGroupView { get; set; }
         public RaidParticipantInfo SelectedParticipant { get => selectedParticipant; set 
             { 
@@ -74,19 +74,29 @@ namespace SWTORCombatParser.ViewModels
         {
             if(SelectedParticipant == null)
             {
-                var playerName = CombatLogStateBuilder.GetLocalState().PlayerName;
+                var playerName = CombatLogStateBuilder.GetLocalPlayerClassandName().PlayerName;
                 if (!string.IsNullOrEmpty(playerName))
                 {
                     var localParticipant = RaidParticipants.FirstOrDefault(p => p.PlayerName == playerName);
                     SelectedParticipant = localParticipant == null ? RaidParticipants.First() : localParticipant;
                 }
             }
+            if (selectedParticipant.CurrentCombatInfo.Logs.Count == 0)
+                return;
             OnNewRaidCombatFinished(selectedParticipant.CurrentCombatInfo);
         }
         private void UpdateParticipants(List<RaidParticipantInfo> participants)
         {
             if (CurrentlySelectedGroup == null)
                 return;
+            var removedParticpants = RaidParticipants.Where(rp => !participants.Contains(rp)).ToList();
+            foreach (var participant in removedParticpants)
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    RaidParticipants.Remove(participant);
+                });
+            }
             foreach(var participant in participants)
             {
                 if(!RaidParticipants.Any(p=>p.LogName == participant.LogName))
@@ -100,7 +110,7 @@ namespace SWTORCombatParser.ViewModels
             var maxEHPSParticipant = RaidParticipants.Where(p => p.CurrentCombatInfo != null).MaxBy(p => p.CurrentCombatInfo.EHPS).FirstOrDefault();
             CurrentlySelectedGroup.SetLeaders(maxDpsParticipant?.PlayerName+": ", maxDpsParticipant?.CurrentCombatInfo.DPS.ToString("#,##0.0"), maxEHPSParticipant?.PlayerName + ": ", maxEHPSParticipant?.CurrentCombatInfo.EHPS.ToString("#,##0.0"));
         }
-        private void UpdateRaidState(bool isActive, RaidInfo selectedRaid)
+        private void UpdateRaidState(bool isActive, RaidGroupInfo selectedRaid)
         {
             if (isActive)
             {
