@@ -46,25 +46,33 @@ namespace SWTORCombatParser
         }
         public static ParsedLogEntry ParseLine(string logEntry,long lineIndex)
         {
-            var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
-
-            var secondPart = logEntry.Split(']').Last();
-            var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
-            var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
-
-            if (logEntryInfos.Count != 5 ||  string.IsNullOrEmpty(value.Value))
-                return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
-
-            var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
-            parsedLine.LogText = logEntry;
-            parsedLine.LogLineNumber = lineIndex;
-            if (parsedLine.Source.Name == parsedLine.Target.Name && parsedLine.Source.IsCharacter)
-                parsedLine.Source.IsPlayer = true;
-            if (CurrentRaidGroup == null)
+            try
             {
-                UpdateEffectiveHealValues(parsedLine, _logState);
+                var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
+
+                var secondPart = logEntry.Split(']').Last();
+                var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
+                var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
+
+                if (logEntryInfos.Count != 5 || string.IsNullOrEmpty(value.Value))
+                    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+
+                var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
+                parsedLine.LogText = logEntry;
+                parsedLine.LogLineNumber = lineIndex;
+                if (parsedLine.Source.Name == parsedLine.Target.Name && parsedLine.Source.IsCharacter)
+                    parsedLine.Source.IsPlayer = true;
+                if (CurrentRaidGroup == null)
+                {
+                    UpdateEffectiveHealValues(parsedLine, _logState);
+                }
+                return parsedLine;
             }
-            return parsedLine;
+            catch(Exception e)
+            {
+                OnNewLog(e.Message);
+                return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+            }
         }
         public static List<ParsedLogEntry> ParseLast10Mins(CombatLogFile file)
         {

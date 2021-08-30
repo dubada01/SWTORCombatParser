@@ -6,6 +6,8 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>SWTORParsingIcon.ico</ApplicationIcon>
     <AssemblyName>Orbs</AssemblyName>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>ORBS_Signature.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,7 +25,8 @@
     <None Remove=".gitattributes" />
     <None Remove=".gitignore" />
     <None Remove="DataStructures\ClassInfos\Classes.json" />
-    <None Remove="DataStructures\RaidInfos\RaidNames.json" />
+    <None Remove="DataStructures\EncounterInfo\FlashpointInfo.json" />
+    <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
     <None Remove="resources\dpsIcon.png" />
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\SwtorLogo.png" />
@@ -34,7 +37,10 @@
     <Content Include="DataStructures\ClassInfos\Classes.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="DataStructures\RaidInfos\RaidNames.json">
+    <Content Include="DataStructures\EncounterInfo\FlashpointInfo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\EncounterInfo\RaidNames.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\dpsIcon.png">

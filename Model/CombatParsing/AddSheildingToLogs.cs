@@ -17,11 +17,13 @@ namespace SWTORCombatParser.Model.CombatParsing
         public static void AddSheildLogs(LogState state, List<ParsedLogEntry> sheildingLogs, Combat sheildSource)
         {
             var modifiers = state.Modifiers;
-            var healingShieldModifiers = modifiers.Where(m => m.Name == "Static Barrier" || m.Name == "Force Armor").ToList();
+            var healingShieldModifiers = modifiers.Where(m => (m.Name == "Static Barrier" || m.Name == "Force Armor") && m.Source == sheildSource.Owner).ToList();
+            if (healingShieldModifiers.Count == 0)
+                return;
             List<SheildingEvent> _totalSheildingProvided = new List<SheildingEvent>();
             foreach (var sheildEffect in healingShieldModifiers)
             {
-                var absorbsDuringShield = sheildingLogs.Where(l => l.TimeStamp > sheildEffect.StartTime && l.TimeStamp <= sheildEffect.StopTime).ToList();
+                var absorbsDuringShield = sheildingLogs.Where(l => l.TimeStamp > sheildEffect.StartTime && l.TimeStamp <= sheildEffect.StopTime.AddSeconds(1.5)).ToList();
                 if (absorbsDuringShield.Count == 0)
                     continue;
                 _totalSheildingProvided.Add(new SheildingEvent { SheildValue = absorbsDuringShield.Sum(l => l.Value.Modifier.DblValue), SheildingTime = sheildEffect.StopTime });
@@ -29,6 +31,11 @@ namespace SWTORCombatParser.Model.CombatParsing
             //foreach (var source in _totalSheildingProvided.Keys)
             //{
             //var sheildingSource = commonCombats.First(m => m.Participant.PlayerName == source.Name);
+
+            //reset sheilds
+            sheildSource.Logs.RemoveAll(l => l.Ability == "Healer Bubble");
+            sheildSource.SheildingProvidedLogs.Clear();
+            sheildSource.TotalProvidedSheilding = 0;
 
             foreach (var sheild in _totalSheildingProvided)
             {

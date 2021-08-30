@@ -55,34 +55,28 @@
                 </Grid>
             </Grid>
         </Border>
-        
-       
-        <Viewbox MaxHeight="60" Grid.Column="0" Margin="10,10,10,0" Grid.Row="1" VerticalAlignment="Center">
-            <TextBlock Foreground="DimGray" Text="Battles" FontWeight="Bold" HorizontalAlignment="Center"></TextBlock>
-        </Viewbox>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Viewbox MaxHeight="60" Grid.Column="0" Margin="10,10,10,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <TextBlock Foreground="DimGray" Text="Battles" FontWeight="Bold" ></TextBlock>
+            </Viewbox>
+            <Viewbox Grid.Column="1" MaxHeight="60" MaxWidth="100" Margin="10,10,10,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Foreground="DimGray" Text="Show Trash: " FontWeight="Bold" ></TextBlock>
+                    <CheckBox IsChecked="{Binding ShowTrash}" HorizontalAlignment="Right"></CheckBox>
+                </StackPanel>
+            </Viewbox>
+        </Grid>
+
 
         <ListBox SelectionMode="Extended" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Row="2" Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" ItemsSource="{Binding PastCombats}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                        <Border Margin="2,0,2,0" BorderBrush="DarkSlateGray" Background="{Binding IsSelected, Converter={StaticResource PastCombatSelectedToBackgroundConverter},UpdateSourceTrigger=PropertyChanged}" BorderThickness="1" CornerRadius="5" Padding="3" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                            <Viewbox MaxHeight="25">
-                                <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding CombatLabel}"></TextBlock>
-                            </Viewbox>
-                            <Viewbox MaxHeight="20" Margin="0,2,0,2" Grid.Row="1" HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" >
-                                    <TextBlock Foreground="LightGray" Grid.Row="1" Text="{Binding CombatStartTime}"></TextBlock>
-                                    <TextBlock Foreground="LightGray" Grid.Row="1" HorizontalAlignment="Center" Text=": "></TextBlock>
-                                    <TextBlock Foreground="LightGray" Grid.Row="1" Text="{Binding CombatDuration}"></TextBlock>
-                                    <TextBlock Foreground="LightGray" Grid.Row="1" HorizontalAlignment="Center" Text=" sec"></TextBlock>
-                                </StackPanel>
-                            </Viewbox>
-                        </Grid>
-                        </Border>
+                    <local:PastCombatInstanceView/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
             <ListBox.ItemContainerStyle>

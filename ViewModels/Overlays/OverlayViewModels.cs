@@ -28,6 +28,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             foreach (var enumVal in enumVals.Where(e=>e != OverlayType.None))
             {
                 AvailableOverlayTypes.Add(enumVal);
+                if (!_overlayDefaults.ContainsKey(enumVal))
+                    continue;
                 if (_overlayDefaults[enumVal].Acive)
                     CreateOverlay(enumVal);
             }

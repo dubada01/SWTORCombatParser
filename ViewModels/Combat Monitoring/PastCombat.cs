@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Utilities;
+﻿using SWTORCombatParser.DataStructures.RaidInfos;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         public event Action<PastCombat> PastCombatUnSelected = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public bool IsCurrentCombat;
+        public EncounterInfo EncounterInfo { get; set; }
         public Combat Combat;
         private bool isSelected;
 

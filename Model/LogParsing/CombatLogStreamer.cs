@@ -17,11 +17,9 @@ namespace SWTORCombatParser
     {
         public event Action<List<ParsedLogEntry>> NewLogEntries = delegate { };
         public event Action<string,string> CombatStarted = delegate { };
+        public event Action<string> NewSoftwareLog = delegate { };
         public event Action<List<ParsedLogEntry>> CombatStopped = delegate { };
-        public CombatLogStreamer()
-        {
 
-        }
         private bool _isInCombat = false;
         private bool _combatEnding = false;
         private long _numberOfEntries;
@@ -116,8 +114,15 @@ namespace SWTORCombatParser
 
                 if (CombatLogParser.CurrentRaidGroup != null)
                 {
-                    var cloudRaiding = new PostgresConnection();
-                    UploadFrameDataToCloudRaiding(cloudRaiding);
+                    try
+                    {
+                        var cloudRaiding = new PostgresConnection();
+                        UploadFrameDataToCloudRaiding(cloudRaiding);
+                    }
+                    catch (Exception e)
+                    {
+                        NewSoftwareLog(e.Message);
+                    }
                 }
                 else
                 {
@@ -194,7 +199,8 @@ namespace SWTORCombatParser
         }
         private void UploadFrameDataToCloudRaiding(PostgresConnection cloudRaiding)
         {
-            Parallel.ForEach(_currentFrameData, log =>
+            //Parallel.ForEach(_currentFrameData, log =>
+            foreach (var log in _currentFrameData)
             {
                 if (log.Source.IsCompanion)
                 {
@@ -204,7 +210,8 @@ namespace SWTORCombatParser
                 {
                     cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
                 }
-            });
+                //});
+            }
             _currentFrameData.Clear();
         }
         private void EndCombat()
@@ -215,11 +222,14 @@ namespace SWTORCombatParser
             _combatEnding = false;
             if (CombatLogParser.CurrentRaidGroup != null && !_firstTimeThroughLog)
             {
-                var cloudRaiding = new PostgresConnection();
-                UploadFrameDataToCloudRaiding(cloudRaiding);
-                cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId,
-                    ParsedLogEntry.GetEndCombatLog(_currentCombatData.Last().TimeStamp.AddMilliseconds(1), Path.GetFileName(_logToMonitor)));
-
+                try
+                {
+                    UploadLogsToCloud();
+                }
+                catch(Exception e)
+                {
+                    NewSoftwareLog(e.Message);
+                }
             }
             else
             {
@@ -228,6 +238,14 @@ namespace SWTORCombatParser
             }
             _currentFrameData.Clear();
             _currentCombatData.Clear();
+        }
+
+        private void UploadLogsToCloud()
+        {
+            var cloudRaiding = new PostgresConnection();
+            UploadFrameDataToCloudRaiding(cloudRaiding);
+            cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId,
+                ParsedLogEntry.GetEndCombatLog(_currentCombatData.Last().TimeStamp.AddMilliseconds(1), Path.GetFileName(_logToMonitor)));
         }
     }
 }

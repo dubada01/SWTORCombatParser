@@ -13,7 +13,7 @@ using System.Text;
 
 namespace SWTORCombatParser.ViewModels.Raiding
 {
-    public class RaidParticipantInfo : INotifyPropertyChanged
+    public class RaidParticipantInfo : INotifyPropertyChanged, IDisposable
     {
         private string playerName;
         private Role playerRole;
@@ -35,7 +35,10 @@ namespace SWTORCombatParser.ViewModels.Raiding
             CurrentLogs.AddRange(_newlyAddedValidLogs);
             var playerName = _newlyAddedValidLogs.FirstOrDefault(l => l.Source.IsPlayer && l.Target.IsPlayer);
             if (string.IsNullOrEmpty(PlayerName) && playerName != null)
+            { 
                 PlayerName = playerName.Source.Name;
+                CurrentCombatInfo.CharacterName = PlayerName;
+            }
             UpdateState();
             foreach(var log in _newlyAddedValidLogs)
             {
@@ -180,11 +183,17 @@ namespace SWTORCombatParser.ViewModels.Raiding
         internal void ResetCombat()
         {
             CurrentLogs.Clear();
-            CurrentCombatInfo = new Combat();
+            CurrentCombatInfo = new Combat() { CharacterName = playerName};
             foreach(var metaData in MetaDatas)
             {
                 metaData.Reset();
             }
+        }
+
+        public void Dispose()
+        {
+            StaticRaidInfo.FirePlayerRemoved(PlayerName);
+            CombatSelectionMonitor.NewCombatSelected -= DisplayCombat;
         }
     }
 }

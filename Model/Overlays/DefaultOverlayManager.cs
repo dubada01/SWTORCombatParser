@@ -13,6 +13,7 @@ namespace SWTORCombatParser.Model.Overlays
     {
         None,
         DPS,
+        FocusDPS,
         Healing,
         Sheilding,
         Threat,

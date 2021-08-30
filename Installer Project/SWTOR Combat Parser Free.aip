@@ -3,14 +3,17 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_CURRENT_YEAR" Value="2021" ValueLocId="-"/>
+    <ROW Property="AI_PREDEF_LCONDS_PROPS" Value="AI_DETECTED_DOTNET_CORE_VERSION"/>
+    <ROW Property="AI_REQUIRED_DOTNET_CORE_DISPLAY" MultiBuildValue="DefaultBuild:3.1" ValueLocId="-"/>
+    <ROW Property="AI_REQUIRED_DOTNET_CORE_VERSION" MultiBuildValue="DefaultBuild:3.1" ValueLocId="-"/>
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="SWTORParsingIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{68C55D65-E8A4-4183-856A-7C742424BF2A} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{ECB275AF-4202-4793-B1B1-DC8E8FBA873C} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Stats)"/>
-    <ROW Property="ProductVersion" Value="0.0.34" Type="32"/>
+    <ROW Property="ProductVersion" Value="0.0.44" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{EACE7B61-9CE9-45B0-94B3-0A543D397288}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -27,7 +30,7 @@
     <ROW Directory="ClassInfos_Dir" Directory_Parent="DataStructures_Dir" DefaultDir="CLASSI~1|ClassInfos"/>
     <ROW Directory="DataStructures_Dir" Directory_Parent="APPDIR" DefaultDir="DATAST~1|DataStructures"/>
     <ROW Directory="DesktopFolder" Directory_Parent="TARGETDIR" DefaultDir="DESKTO~1|DesktopFolder" IsPseudoRoot="1"/>
-    <ROW Directory="RaidInfos_Dir" Directory_Parent="DataStructures_Dir" DefaultDir="RAIDIN~1|RaidInfos"/>
+    <ROW Directory="EncounterInfo_Dir" Directory_Parent="DataStructures_Dir" DefaultDir="ENCOUN~1|EncounterInfo"/>
     <ROW Directory="SHORTCUTDIR" Directory_Parent="TARGETDIR" DefaultDir="SHORTC~1|SHORTCUTDIR" IsPseudoRoot="1"/>
     <ROW Directory="StartMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="STARTM~1|StartMenuFolder" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
@@ -43,6 +46,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="APPDIR" ComponentId="{D4FA3B5D-B189-415D-935C-770B93C13A9E}" Directory_="APPDIR" Attributes="0"/>
     <ROW Component="Classes.json" ComponentId="{8608CE4C-93FE-4D26-B88D-1D50F5F14FC0}" Directory_="ClassInfos_Dir" Attributes="0" KeyPath="Classes.json" Type="0"/>
+    <ROW Component="FlashpointInfo.json" ComponentId="{A09A2BCB-E044-43D9-AAE2-03450E31EC49}" Directory_="EncounterInfo_Dir" Attributes="0" KeyPath="FlashpointInfo.json" Type="0"/>
     <ROW Component="GalaSoft.MvvmLight.Extras.dll" ComponentId="{AE419EB6-14D5-404E-BB6B-835885D8A8D0}" Directory_="APPDIR" Attributes="0" KeyPath="GalaSoft.MvvmLight.Extras.dll"/>
     <ROW Component="GalaSoft.MvvmLight.Platform.dll" ComponentId="{E48ADD07-DB17-4950-ADDD-FF6A4240A5E1}" Directory_="APPDIR" Attributes="0" KeyPath="GalaSoft.MvvmLight.Platform.dll"/>
     <ROW Component="GalaSoft.MvvmLight.dll" ComponentId="{A85AB223-8667-4843-B3D9-8ECC2B263C82}" Directory_="APPDIR" Attributes="0" KeyPath="GalaSoft.MvvmLight.dll"/>
@@ -55,7 +59,6 @@
     <ROW Component="Orbs.dll" ComponentId="{584352A8-FB5E-4007-957B-569AEA4A14D6}" Directory_="APPDIR" Attributes="0" KeyPath="Orbs.dll"/>
     <ROW Component="Orbs.exe" ComponentId="{C0AD93FC-3CB4-4389-B598-28C9463AE0E2}" Directory_="APPDIR" Attributes="256" KeyPath="Orbs.exe"/>
     <ROW Component="ProductInformation" ComponentId="{EF7DD04B-004F-492B-B0D9-954291C45EC2}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="RaidNames.json" ComponentId="{CAF38C5E-5030-4FC6-B61A-F0C2A1196BDE}" Directory_="RaidInfos_Dir" Attributes="0" KeyPath="RaidNames.json" Type="0"/>
     <ROW Component="SHORTCUTDIR" ComponentId="{B39ED280-55FA-4EBD-ABD5-778E42FC8506}" Directory_="SHORTCUTDIR" Attributes="0"/>
     <ROW Component="ScottPlot.WPF.dll" ComponentId="{2062E1E7-7B03-4160-A53F-0566C480E857}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.WPF.dll"/>
     <ROW Component="ScottPlot.dll" ComponentId="{4580BD9A-B9D2-44C2-84A8-365F870E9822}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.dll"/>
@@ -72,7 +75,6 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="Classes.json" Component_="Classes.json" FileName="CLASSE~1.JSO|Classes.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\DataStructures\ClassInfos\Classes.json" SelfReg="false"/>
-    <ROW File="RaidNames.json" Component_="RaidNames.json" FileName="RAIDNA~1.JSO|RaidNames.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\DataStructures\RaidInfos\RaidNames.json" SelfReg="false"/>
     <ROW File="dpsIcon.png" Component_="dpsIcon.png" FileName="dpsIcon.png" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\resources\dpsIcon.png" SelfReg="false"/>
     <ROW File="healingIcon.png" Component_="dpsIcon.png" FileName="HEALIN~1.PNG|healingIcon.png" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\resources\healingIcon.png" SelfReg="false"/>
     <ROW File="SwtorLogo.png" Component_="dpsIcon.png" FileName="SWTORL~1.PNG|SwtorLogo.png" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\resources\SwtorLogo.png" SelfReg="false"/>
@@ -98,12 +100,17 @@
     <ROW File="Orbs.pdb" Component_="Orbs.exe" FileName="Orbs.pdb" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.pdb" SelfReg="false"/>
     <ROW File="Orbs.runtimeconfig.dev.json" Component_="Orbs.deps.json" FileName="ORBSRU~1.JSO|Orbs.runtimeconfig.dev.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.runtimeconfig.dev.json" SelfReg="false"/>
     <ROW File="Orbs.runtimeconfig.json" Component_="Orbs.deps.json" FileName="ORBSRU~2.JSO|Orbs.runtimeconfig.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\Orbs.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="FlashpointInfo.json" Component_="FlashpointInfo.json" FileName="FLASHP~1.JSO|FlashpointInfo.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\DataStructures\EncounterInfo\FlashpointInfo.json" SelfReg="false"/>
+    <ROW File="RaidNames.json_1" Component_="FlashpointInfo.json" FileName="RAIDNA~1.JSO|RaidNames.json" Attributes="0" SourcePath="..\bin\Release\netcoreapp3.1\DataStructures\EncounterInfo\RaidNames.json" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
+    <ROW Action="AI_DetectSoftware" Sequence="151"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="SWTOR Combat Parser Free-SetupFiles" PackageFileName="Orsbs Installer" Languages="en" InstallationType="4" UseLargeSchema="true"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="0" PackageFolder="SWTOR Combat Parser Free-SetupFiles" PackageFileName="Orsbs Setup v[|ProductVersion]" Languages="en" InstallationType="4" UseLargeSchema="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
@@ -124,6 +131,7 @@
     <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="SoftwareDetector.dll" SourcePath="&lt;AI_CUSTACTS&gt;SoftwareDetector.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
@@ -156,6 +164,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DetectSoftware" Type="257" Source="SoftwareDetector.dll" Target="OnDetectSoftware"/>
     <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
     <ROW Action="AI_EnableDebugLog" Type="321" Source="aicustact.dll" Target="EnableDebugLog"/>
     <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
@@ -172,7 +181,6 @@
     <ROW Feature_="MainFeature" Component_="APPDIR"/>
     <ROW Feature_="MainFeature" Component_="ProductInformation"/>
     <ROW Feature_="MainFeature" Component_="Classes.json"/>
-    <ROW Feature_="MainFeature" Component_="RaidNames.json"/>
     <ROW Feature_="MainFeature" Component_="dpsIcon.png"/>
     <ROW Feature_="MainFeature" Component_="System.Drawing.Common.dll"/>
     <ROW Feature_="MainFeature" Component_="Microsoft.Win32.SystemEvents.dll"/>
@@ -193,6 +201,7 @@
     <ROW Feature_="MainFeature" Component_="Orbs.dll"/>
     <ROW Feature_="MainFeature" Component_="Orbs.exe"/>
     <ROW Feature_="MainFeature" Component_="SHORTCUTDIR"/>
+    <ROW Feature_="MainFeature" Component_="FlashpointInfo.json"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="SWTORParsingIcon.exe" SourcePath="..\SWTORParsingIcon.ico" Index="0"/>
@@ -204,17 +213,20 @@
     <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1399"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_DetectSoftware" Sequence="101"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
     <ROW Action="AI_DpiContentScale" Sequence="52"/>
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_DetectSoftware" Sequence="101"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="((VersionNT &lt;&gt; 501) AND (VersionNT &lt;&gt; 502))" Description="[ProductName] cannot be installed on [WindowsTypeNT5XDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT5X" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on [WindowsTypeNT40Display]." DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="(VersionNT &lt;&gt; 500)" Description="[ProductName] cannot be installed on [WindowsTypeNT50Display]." DescriptionLocId="AI.LaunchCondition.NoNT50" IsPredefined="true" Builds="DefaultBuild"/>
+    <ROW Condition="AI_DETECTED_DOTNET_CORE_VERSION &gt;= AI_REQUIRED_DOTNET_CORE_VERSION" Description="[ProductName] cannot be installed on systems with .NET Core version lower than [AI_REQUIRED_DOTNET_CORE_DISPLAY]." DescriptionLocId="AI.LaunchCondition.DotNETCore" IsPredefined="true" Builds="DefaultBuild"/>
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]." DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">

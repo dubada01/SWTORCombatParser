@@ -1,21 +1,25 @@
 ﻿using Newtonsoft.Json;
+using SWTORCombatParser.DataStructures.RaidInfos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SWTORCombatParser
 {
     public class Combat
     {
-        public Entity Owner => Logs.FirstOrDefault(l=>(l.Source == l.Target) && l.Source.IsPlayer || l.Source.IsCompanion)?.Source;
+        public Entity Owner => Logs.Where(l=>l.Target!=null && l.Source!=null).FirstOrDefault(l=>(l.Source == l.Target) && l.Source.IsPlayer || l.Source.IsCompanion)?.Source;
         public string CharacterName;
         public DateTime StartTime;
         public DateTime EndTime;
         public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
         public double DurationSeconds => DurationMS / 1000f;
+
         public List<string> Targets = new List<string>();
-        public string RaidBossInfo;
+        public EncounterInfo ParentEncounter;
+        public string EncounterBossInfo;
+        public bool IsEncounterBoss;
+
         public List<ParsedLogEntry> Logs = new List<ParsedLogEntry>();
 
         public List<ParsedLogEntry> OutgoingDamageLogs;
@@ -94,7 +98,9 @@ namespace SWTORCombatParser
 
         public double TotalAbilites;
         public double TotalThreat;
-        public double TotalDamage;
+        public double TotalDamage => TotalFluffDamage + TotalFocusDamage;
+        public double TotalFluffDamage;
+        public double TotalFocusDamage;
         public double TotalHealing;
         public double TotalEffectiveHealing;
         public double TotalSheilding;
@@ -106,6 +112,8 @@ namespace SWTORCombatParser
 
         public double TPS => DurationSeconds == 0 ? 0: TotalThreat / DurationSeconds;
         public double DPS => DurationSeconds == 0 ? 0 : TotalDamage / DurationSeconds == double.NaN?0: TotalDamage / DurationSeconds;
+        public double RegDPS => DurationSeconds == 0 ? 0 : TotalFluffDamage / DurationSeconds == double.NaN ? 0 : TotalFluffDamage / DurationSeconds;
+        public double FocusDPS => DurationSeconds == 0 ? 0 : TotalFocusDamage / DurationSeconds == double.NaN ? 0 : TotalFocusDamage / DurationSeconds;
         public double APM => DurationSeconds == 0 ? 0 : TotalAbilites / (DurationSeconds / 60);
         public double HPS => DurationSeconds == 0 ? 0 : TotalHealing / DurationSeconds;
         public double EHPS => DurationSeconds == 0 ? 0 : TotalEffectiveHealing / DurationSeconds;

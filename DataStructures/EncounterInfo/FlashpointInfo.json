@@ -1,0 +1,274 @@
+[
+
+  {
+    "LogName": "The Black Talon",
+    "Name": "The Black Talon",
+    "BossNames": [
+      "Sergeant Boran",
+      "GXR-5 Sabotage Droid",
+      "Commander Ghulil",
+      "Yadira Ban"
+    ]
+  },
+  {
+    "LogName": "The Esseles",
+    "Name": "The Esseles",
+    "BossNames": [
+
+    ]
+  },
+  {
+    "LogName": "Hammer Station",
+    "Name": "Hammer Station",
+    "BossNames": [
+      "DN-314 Tunneler",
+      "Vorgan the Volcano~?~2R-CH, \"Torch\"|Sawbones Gjonfs|Vorgan the Volcano",
+      "Battlelord Kreshan"
+    ]
+  },
+  {
+    "LogName": "Athiss",
+    "Name": "Athiss",
+    "BossNames": [
+      "Professor Ley'arsha",
+      "The Beast of Vodal Kressh",
+      "Ancient Abomination",
+      "Prophet of Vodal"
+    ]
+  },
+  {
+    "LogName": "Mandalorian Raiders",
+    "Name": "Mandalorian Raiders",
+    "BossNames": [
+      "Braxx the Bloodhound",
+      "Republic Boarding Party~?~Taklan|Ezeraline|Magnus|Keenor",
+      "Gil",
+      "Matrix Varad"
+    ]
+  },
+  {
+    "LogName": "Cademimu",
+    "Name": "Cademimu",
+    "BossNames": [
+      "Officer Xander",
+      "Captain Grimyk",
+      "Seperatist Sith",
+      "General Ortol"
+    ]
+  },
+  {
+    "LogName": "The Red Reaper",
+    "Name": "The Red Reaper",
+    "BossNames": [
+      "Lord Kherus",
+      "SV-3 Eradicator",
+      "Darth Ikoral"
+    ]
+  },
+  {
+    "LogName": "Directive 7",
+    "Name": "Directive 7",
+    "BossNames": [
+      "Detector",
+      "Mentor Assasin Droids~?~Mentor Assassin Beta|Mentor Assassin Theta|Mentor Assassin Zeta",
+      "Interrogator",
+      "Bulwark",
+      "Assembler",
+      "Replicator",
+      "Mentor"
+    ]
+  },
+  {
+    "LogName": "The Battle of Ilum",
+    "Name": "The Battle of Ilum",
+    "BossNames": [
+      "Gark the Indomitable",
+      "Velasu Graege & Drinda-Zel~?~Velasu Graege|Drinda-Zel",
+      "Krel Thak",
+      "Commander Folek",
+      "Darth Serevin"
+    ]
+  },
+  {
+    "LogName": "The False Emperor",
+    "Name": "The False Emperor",
+    "BossNames": [
+      "Tregg the Destroyer",
+      "Jindo Krey",
+      "Prototype A-14 & Prototype B-16~?~Prototype A-14|Prototype B-16",
+      "HK-47",
+      "Sith Entity",
+      "Darth Malgus"
+    ]
+  },
+  {
+    "LogName": "Kaon Under Siege",
+    "Name": "Kaon Under Siege",
+    "BossNames": [
+      "Rakghoul Behemoth",
+      "KR-82 Expulser",
+      "Commander Lk’graagth"
+    ]
+  },
+  {
+    "LogName": "Lost Island",
+    "Name": "Lost Island",
+    "BossNames": [
+      "Putrid Shaclaw",
+      "LR-5 Sentinel Droid",
+      "Transgenic Sample Seven",
+      "Project Sav-Rak",
+      "Doctor Lorrick"
+    ]
+  },
+  {
+    "LogName": "Czerka Corporate Labs",
+    "Name": "Czerka Corporate Labs",
+    "BossNames": [
+      "CZ-8X Eradicator Droid",
+      "Chief Zokar",
+      "Rasmus Blys"
+    ]
+  },
+  {
+    "LogName": "Czerka Core Meltdown",
+    "Name": "Czerka Core Meltdown",
+    "BossNames": [
+      "Enhanced Duneclaw",
+      "Enhanced Vrblther",
+      "The Vigilant"
+    ]
+  },
+  {
+    "LogName": "Assault on Tython",
+    "Name": "Assault on Tython",
+    "BossNames": [
+      "Major Imos",
+      "Major Travik",
+      "Master Liam Dentiri",
+      "Lieutenant Kreshin",
+      "Master Oric Traless",
+      "Lord Goh"
+    ]
+  },
+  {
+    "LogName": "Korriban Incursion",
+    "Name": "Korriban Incursion",
+    "BossNames": [
+      "Master Riilna",
+      "Lord Renning",
+      "R-9XR",
+      "I5-T1",
+      "Commander Jensyn",
+      "Darth Soverus"
+    ]
+  },
+  {
+    "LogName": "Depths of Manaan",
+    "Name": "Depths of Manaan",
+    "BossNames": [
+      "Sairisi",
+      "Ortuno",
+      "Stivastin"
+    ]
+  },
+  {
+    "LogName": "Legacy of the Rakata",
+    "Name": "Legacy of the Rakata",
+    "BossNames": [
+      "Savage War Beast and War Chief Rehkta~?~Savage War Beast|War Chief Rehkta",
+      "Commander Rand",
+      "Darth Arkous and Colonel Darok~?~Darth Arkous|Colonel Darok"
+    ]
+  },
+  {
+    "LogName": "Blood Hunt",
+    "Name": "Blood Hunt",
+    "BossNames": [
+      "Kyramla Gemas'rugam",
+      "Valk & Jos~?~Jos Beroya|Valk Beroya",
+      "Shae Vizla"
+    ]
+  },
+  {
+    "LogName": "Battle of Rishi",
+    "Name": "Battle of Rishi",
+    "BossNames": [
+      "Rarrook and Marko Ka~?~Rarrook|Marko Ka",
+      "Master Obai and Lord Vodd~?~Master Obai|Lord Vodd",
+      "Commander Mokan",
+      "Shield Squadron Unit 1"
+    ]
+  },
+  {
+    "LogName": "Crisis on Umbara",
+    "Name": "Crisis on Umbara",
+    "BossNames": [
+      "Technician Canni & Shadow Assassin Elli Vaa~?~Technician Canni|Shadow Assassin Elli Vaa",
+      "Alpha Slybex",
+      "Vixian Mauler",
+      "Umbaran Spider Tank"
+    ]
+  },
+  {
+    "LogName": "A Traitor Among the Chiss",
+    "Name": "A Traitor Among the Chiss",
+    "BossNames": [
+      "Guardian Droid",
+      "Syndic Zenta",
+      "Strike Team Walker",
+      "Valss"
+    ]
+  },
+  {
+    "LogName": "The Nathema Conspiracy",
+    "Name": "The Nathema Conspiracy",
+    "BossNames": [
+      "Voreclaw",
+      "Hands of Zildrog",
+      "Ancient Guardian Droid",
+      "Gemini 16",
+      "Vinn Atrius & Zildrog~?~Vinn Atrius|Zildrog"
+    ]
+  },
+  {
+    "LogName": "Objective Meridian",
+    "Name": "Objective Meridian",
+    "BossNames": [
+      "R10-X6",
+      "Commander Rasha",
+      "Master Jakir & Seldin~?~Master Jakir Halcyon|Seldin",
+      "Tau Idair"
+    ]
+  },
+  {
+    "LogName": "Spirit of Vengeance",
+    "Name": "Spirit of Vengeance",
+    "BossNames": [
+      "Gorga Brak",
+      "Goldie",
+      "Bask Sunn",
+      "Troya Ajak",
+      "Heta Kol"
+    ]
+  },
+  {
+    "LogName": "Dantooine",
+    "Name": "Secrets of the Enclave",
+    "BossNames": [
+      "Graul",
+      "Republic/Imperial Troopers~?~Captain Meinar|Lord Ziliss|Lieutenant Osonu|Captain Dogah|Sergeant Corrick|Sergeant Kodo",
+      "Monstrous Terentatek",
+      "Master Leeha Narezz",
+      "Colonel Barden Golah"
+    ]
+  },
+  {
+    "LogName": "Oricon",
+    "Name": "ORICON TEST",
+    "BossNames": [
+      "Dread Guard Commando"
+    ]
+  }
+]
+

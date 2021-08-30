@@ -55,7 +55,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Foreground="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,10,2"
             Text="{Binding Type}"/>
-                            <TextBlock Text=" and " Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}"></TextBlock>
+                            <TextBlock Foreground="WhiteSmoke" Text=" and " VerticalAlignment="Center" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}"></TextBlock>
                             <TextBlock Foreground="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,10,2"
             Text="{Binding SecondaryType}"/>
                         </StackPanel>

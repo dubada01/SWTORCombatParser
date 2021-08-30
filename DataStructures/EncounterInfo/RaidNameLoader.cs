@@ -8,7 +8,7 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
 {
     public static class RaidNameLoader
     {
-        public static List<RaidInfo> SupportedRaids = new List<RaidInfo>();
+        public static List<EncounterInfo> SupportedEncounters = new List<EncounterInfo>();
         public static List<string> SupportedRaidDifficulties = new List<string>() { "Story", "Veteran", "Master" };
         public static List<string> SupportedNumberOfPlayers = new List<string>() { "8 Player", "16 Player" };
 
@@ -16,7 +16,10 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
         {
             try
             {
-                SupportedRaids = JsonConvert.DeserializeObject<List<RaidInfo>>(File.ReadAllText(@"DataStructures/RaidInfos/RaidNames.json"));
+                var raids = JsonConvert.DeserializeObject<List<EncounterInfo>>(File.ReadAllText(@"DataStructures/EncounterInfo/RaidNames.json"));
+                var flashpoints = JsonConvert.DeserializeObject<List<EncounterInfo>>(File.ReadAllText(@"DataStructures/EncounterInfo/FlashpointInfo.json"));
+                SupportedEncounters.AddRange(raids);
+                SupportedEncounters.AddRange(flashpoints);
             }
             catch(Exception e)
             {

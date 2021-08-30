@@ -27,7 +27,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             } }
         public double RelativeLength { get => relativeLength; set {
                 
-                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value==0)
+                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value+SecondaryValue==0 || TotalValue=="0")
                 {
                     SetBarToZero();
                     return; 
@@ -107,8 +107,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 SecondaryType = OverlayType.Sheilding;
             }
+            if (Type == OverlayType.DPS)
+            {
+                SecondaryType = OverlayType.FocusDPS;
+            }
             CombatSelectionMonitor.NewCombatSelected += UpdateMetrics;
             StaticRaidInfo.NewRaidCombatDisplayed += UpdateMetrics;
+            StaticRaidInfo.OnPlayerRemoved += RemovePlayer;
             CombatIdentifier.NewCombatAvailable += UpdateMetrics;
             StaticRaidInfo.NewRaidCombatStarted += ResetMetrics;
         }
@@ -121,6 +126,17 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             OverlaysMoveable = true;
             OnPropertyChanged("OverlaysMoveable");
+        }
+        private void RemovePlayer(string playerName)
+        {
+            var barToRemove = MetricBars.FirstOrDefault(mb => mb.PlayerName == playerName);
+            if (barToRemove != null)
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    MetricBars.Remove(barToRemove);
+                });
+            }
         }
         private void UpdateMetrics(Combat obj)
         {
@@ -147,7 +163,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
             foreach(var metric in MetricBars)
             {
-                if (double.Parse(metric.TotalValue) == 0 || metric.Value == 0 || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
+                if (double.Parse(metric.TotalValue) == 0 || (metric.Value+metric.SecondaryValue == 0) || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
                     metric.RelativeLength = 0;
                 else
                     metric.RelativeLength = double.Parse(maxValue)==0?0:(double.Parse(metric.TotalValue) / double.Parse(maxValue));
@@ -160,30 +176,37 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void ResetMetrics()
         {
-            foreach(var metric in MetricBars)
+            //foreach(var metric in MetricBars)
+            //{
+            //    metric.Reset();
+            //}
+            App.Current.Dispatcher.Invoke(() =>
             {
-                metric.Reset();
-            }
+                MetricBars.Clear();
+            });
         }
-        private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat comabat)
+        private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat combat)
         {
             double value = 0;
             switch (type)
             {
                 case OverlayType.DPS:
-                    value = comabat.DPS;
+                    value = combat.RegDPS;
                     break;
                 case OverlayType.Healing:
-                    value = comabat.EHPS;
+                    value = combat.EHPS;
                     break;
                 case OverlayType.Sheilding:
-                    value = comabat.PSPS;
+                    value = combat.PSPS;
+                    break;
+                case OverlayType.FocusDPS:
+                    value = combat.FocusDPS;
                     break;
                 case OverlayType.Threat:
-                    value = comabat.TPS;
+                    value = combat.TPS;
                     break;
                 case OverlayType.DTPS:
-                    value = comabat.DTPS;
+                    value = combat.DTPS;
                     break;
             }
             metric.SecondaryType = type;
@@ -195,7 +218,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             switch (type)
             {
                 case OverlayType.DPS:
-                    value = obj.DPS;
+                    value = obj.RegDPS;
+                    break;
+                case OverlayType.FocusDPS:
+                    value = obj.FocusDPS;
                     break;
                 case OverlayType.Healing:
                     value = obj.EHPS;

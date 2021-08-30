@@ -16,6 +16,7 @@
             <converters:OverlayMetricToColorConverter x:Key="OverlayMetricTypeToColorConverter"/>
             <converters:OverlayMoveableToVisibilityConverter x:Key="OverlayMoveableToVisibilityConverter"/>
             <converters:OverlyTypeToVisibilityConverter x:Key="OverlayTypeToVisibilityConverter"/>
+            <converters:EncounterInfoToPastCombatColorConverter x:Key="EncounterInfoToPastCombatColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -17,10 +17,12 @@ namespace SWTORCombatParser.Utilities.Converters
             {
                 case OverlayType.DPS:
                     return Brushes.IndianRed;
+                case OverlayType.FocusDPS:
+                    return Brushes.OrangeRed;
                 case OverlayType.Healing:
                     return Brushes.LimeGreen;
                 case OverlayType.Sheilding:
-                    return Brushes.WhiteSmoke;
+                    return Brushes.CornflowerBlue;
                 case OverlayType.Threat:
                     return Brushes.Orchid;
                 case OverlayType.DTPS:

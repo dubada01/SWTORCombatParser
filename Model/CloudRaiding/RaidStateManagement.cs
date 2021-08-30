@@ -14,6 +14,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class StaticRaidInfo
     {
+        public static event Action<string> OnPlayerRemoved = delegate { };
+        public static void FirePlayerRemoved(string playerName)
+        {
+            OnPlayerRemoved(playerName);
+        }
         public static event Action NewRaidCombatStarted = delegate { };
         public static void FireNewRaidCombatEvent()
         {
@@ -49,6 +54,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public event Action CombatStarted = delegate { };
         public void StopRaiding()
         {
+            _currentParticipants.ForEach(p => p.Dispose());
+            _currentParticipants.Clear();
             _raidingActive = false;
             _currentRole = Role.Unknown;
             _characterName = "";
@@ -60,6 +67,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
            _currentRaidGroup = groupId;
             _raidingActive = true;
             _mostRecentLog = GetMostRecentLog();
+            _mostRecentLog = DateTime.Now;
             _timeJoined = DateTime.Now;
             _currentParticipants = new List<RaidParticipantInfo>();
             StartKeepAlive();
@@ -78,6 +86,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     var logs = _postgresConnection.GetLogsAfterTime(_mostRecentLog, _currentRaidGroup);
                     if (!logs.Any())
                         continue;
+                    _mostRecentLog = logs.MaxBy(l => l.TimeStamp).First().TimeStamp.AddSeconds(-1);
                     ParseNewRaidLogs(logs);
                 }
             });
@@ -103,7 +112,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private List<(string, string)> GetCurrentlyAliveMembers()
         {
-            return _postgresConnection.CheckForKeepAlivesInGroupFromTime(_currentRaidGroup, _timeJoined.AddSeconds(-1));
+            return _postgresConnection.CheckForKeepAlivesInGroupFromTime(_currentRaidGroup, DateTime.Now.AddSeconds(-3));
         }
         private void CheckForOngoingCombat()
         {
@@ -206,8 +215,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 {
                     TryAddNewParticipant(member.Item2, member.Item1);
                 }
-                var removed = _currentParticipants.RemoveAll(p => !_currentlyAliveMembers.Select(cm => cm.Item2).Contains(p.LogName));
-                if (removed > 0)
+                var removed = _currentParticipants.Where(p => !_currentlyAliveMembers.Select(cm => cm.Item2).Contains(p.LogName));
+                removed.ForEach(r => r.Dispose());
+                var  removedCount = _currentParticipants.RemoveAll(p => !_currentlyAliveMembers.Select(cm => cm.Item2).Contains(p.LogName));
+                if (removedCount > 0)
                     UpdatedParticipants(_currentParticipants);
             }
         }
@@ -240,10 +251,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 combatStarted = false;
                 combatEnding = true;
                 _mostRecentLog = ordered.Last().TimeStamp;
-                foreach(var participant in _currentParticipants)
-                {
-                    CombatLogStateBuilder.ClearModifiersExceptGuard(participant.LogName);
-                }
+                //foreach(var participant in _currentParticipants)
+                //{
+                //    CombatLogStateBuilder.ClearModifiersExceptGuard(participant.LogName);
+                //}
             }
         }
 
@@ -284,16 +295,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
                 _currentLog = mostRecentLog.Name;
-                List<ParsedLogEntry> loadedLogs = null;
 
                 var currentState = CombatLogStateBuilder.GetLocalPlayerClassandName();
-                if (string.IsNullOrEmpty(currentState.PlayerName))
-                {
-                    loadedLogs = CombatLogParser.ParseLast10Mins(mostRecentLog);
-                    _characterName = CombatLogStateBuilder.GetPlayerName(loadedLogs);
-                }
-                else
-                    _characterName = currentState.PlayerName;
+                _characterName = currentState.PlayerName;
                 if(currentState.PlayerClass == null)
                     _currentRole = Role.Unknown;
                 else

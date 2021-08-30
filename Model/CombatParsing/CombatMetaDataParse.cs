@@ -28,6 +28,16 @@ namespace SWTORCombatParser
 
             var totalDamage = combatToPopulate.OutgoingDamageLogs.Sum(l => l.Value.DblValue);
 
+            var currentFocusTarget = combatToPopulate.EncounterBossInfo.Split('{')[0].Trim();
+            if (!string.IsNullOrEmpty(currentFocusTarget))
+            {
+                totalDamage = combatToPopulate.OutgoingDamageLogs.Where(d => d.Target.Name != currentFocusTarget).Sum(l => l.Value.DblValue);
+                var focusDamageLogs = combatToPopulate.OutgoingDamageLogs.Where(d => d.Target.Name == currentFocusTarget);
+                var allFocusDamage = focusDamageLogs.Sum(l => l.Value.DblValue);
+                combatToPopulate.TotalFocusDamage = allFocusDamage;
+            }
+
+
             var totalAbilitiesDone = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate").Count();
 
             var totalHealingReceived = combatToPopulate.IncomingHealingLogs.Sum(l => l.Value.DblValue);
@@ -45,7 +55,7 @@ namespace SWTORCombatParser
             combatToPopulate.MaxDamage = combatToPopulate.OutgoingDamageLogs.Count == 0 ? 0: combatToPopulate.OutgoingDamageLogs.Max(l => l.Value.DblValue);
             combatToPopulate.MaxHeal = combatToPopulate.OutgoingHealingLogs.Count == 0 ? 0: combatToPopulate.OutgoingHealingLogs.Max(l => l.Value.DblValue);
             combatToPopulate.MaxEffectiveHeal = combatToPopulate.OutgoingHealingLogs.Count == 0 ? 0 : combatToPopulate.OutgoingHealingLogs.Max(l => l.Value.EffectiveDblValue);
-            combatToPopulate.TotalDamage = totalDamage;
+            combatToPopulate.TotalFluffDamage = totalDamage;
             combatToPopulate.TotalSheilding = totalSheildingDone;
             combatToPopulate.TotalAbilites = totalAbilitiesDone;
             combatToPopulate.TotalHealing = totalHealing;

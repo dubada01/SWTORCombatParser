@@ -18,12 +18,13 @@ namespace SWTORCombatParser
         {
             var orderdLogs = newLogs.OrderBy(t => t.TimeStamp);
             combatToUpdate.Logs.AddRange(orderdLogs);
-            combatToUpdate.CharacterName = combatToUpdate.Logs.First(l => l.Source == combatToUpdate.Owner).Source.Name;
+            //combatToUpdate.CharacterName = combatToUpdate.Logs.First(l => l.Source == combatToUpdate.Owner).Source.Name;
             combatToUpdate.StartTime = combatToUpdate.Logs.First().TimeStamp;
             combatToUpdate.EndTime = combatToUpdate.Logs.Last().TimeStamp;
             combatToUpdate.Targets.AddRange(GetTargets(newLogs));
             combatToUpdate.Targets = GetTargets(combatToUpdate.Logs);
-            combatToUpdate.RaidBossInfo = GetBossInfo(combatToUpdate.Logs);
+            combatToUpdate.ParentEncounter = GetEncounterInfo(combatToUpdate.Logs);
+            combatToUpdate.EncounterBossInfo = GetCurrentBossInfo(combatToUpdate.Logs, combatToUpdate.ParentEncounter);
             CombatMetaDataParse.PopulateMetaData(ref combatToUpdate);
             NewCombatAvailable(combatToUpdate);
         }
@@ -31,13 +32,15 @@ namespace SWTORCombatParser
         {
             if (!ongoingLogs.Any(l => l.Source.IsPlayer || l.Source.IsCompanion))
                 return new Combat();
+            var encounter = GetEncounterInfo(ongoingLogs);
             var newCombat = new Combat()
             {
-                CharacterName = ongoingLogs.First(l => l.Source.IsPlayer || l.Source.IsCompanion).Source.Name,
-                StartTime = ongoingLogs.OrderBy(t=>t.TimeStamp).First().TimeStamp,
+                CharacterName = ongoingLogs.First(l => (l.Source.IsPlayer && l.Target.IsPlayer) || l.Source.IsCompanion).Source.Name,
+                StartTime = ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp,
                 EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),
-                RaidBossInfo = GetBossInfo(ongoingLogs),
+                ParentEncounter = encounter,
+                EncounterBossInfo = GetCurrentBossInfo(ongoingLogs, encounter),
                 Logs = ongoingLogs
             };
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
@@ -51,26 +54,46 @@ namespace SWTORCombatParser
         {
             return logs.Select(l=>l.Target).Where(t=>!t.IsCharacter && !t.IsCompanion).Select(npc=>npc.Name).Distinct().ToList();
         }
-        private static string GetBossInfo(List<ParsedLogEntry> logs)
+        private static EncounterInfo GetEncounterInfo(List<ParsedLogEntry> logs)
         {
-            RaidInfo raidOfInterest = null;
-            string difficulty = "";
-            string numberOfPlayers = "";
+            EncounterInfo raidOfInterest = null;
+
             foreach (var log in logs)
             {
-                var raids = RaidNameLoader.SupportedRaids;
-                if (!string.IsNullOrEmpty(log.Value.StrValue) && raids.Select(r => r.LogName).Any(ln => log.Value.StrValue.Contains(ln)) && raidOfInterest == null)
+                var knownEncounters = RaidNameLoader.SupportedEncounters;
+                if (!string.IsNullOrEmpty(log.Value.StrValue) && knownEncounters.Select(r => r.LogName).Any(ln => log.Value.StrValue.Contains(ln)) && raidOfInterest == null)
                 {
-                    raidOfInterest = raids.First(r => log.Value.StrValue.Contains(r.LogName));
-                    difficulty = RaidNameLoader.SupportedRaidDifficulties.First(f => log.Value.StrValue.Contains(f));
-                    numberOfPlayers = RaidNameLoader.SupportedNumberOfPlayers.First(f => log.Value.StrValue.Contains(f));
+                    raidOfInterest = knownEncounters.First(r => log.Value.StrValue.Contains(r.LogName));
+                    raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.Value.StrValue.Contains(f));
+                    if (string.IsNullOrEmpty(raidOfInterest.Difficutly))
+                    {
+                        raidOfInterest.Difficutly = "Test";
+                        //return null;
+                    }
+                    raidOfInterest.NumberOfPlayer = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.Value.StrValue.Contains(f));
+                    if (string.IsNullOrEmpty(raidOfInterest.NumberOfPlayer))
+                    {
+                        raidOfInterest.NumberOfPlayer = "";
+                        //return null;
+                    }
+                    Trace.WriteLine("Detected: " + raidOfInterest.Name);
+                    return raidOfInterest;
                 }
-                if (raidOfInterest == null)
-                    continue;
-                if (raidOfInterest.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || raidOfInterest.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
+            }
+            return new EncounterInfo { Name="Open World", LogName = "Open World"};
+        }
+        private static string GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        {
+            if (currentEncounter == null || currentEncounter.Name == "Open World")
+                return "";
+            foreach(var log in logs)
+            {
+                if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
                 {
-                    var boss = raidOfInterest.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
-                    return boss.EncounterName + " {" + numberOfPlayers.Replace("Player", "") + difficulty + "}";
+                    var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
+                    var bossTargetString = boss.EncounterName + " {" + currentEncounter.NumberOfPlayer.Replace("Player", "") + currentEncounter.Difficutly + "}";
+                    Trace.WriteLine(bossTargetString);
+                    return bossTargetString;
                 }
             }
             return "";

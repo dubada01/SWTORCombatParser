@@ -198,7 +198,7 @@ namespace SWTORCombatParser.Plotting
             foreach (var series in _seriesToPlot)
             {
                 List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot);
-                if (applicableData.Count == 0)
+                if (applicableData == null || applicableData.Count == 0)
                     continue;
                 var plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
                 var plotYvals = PlotMaker.GetPlotYVals(applicableData, false);

@@ -16,7 +16,7 @@
     "Name": "Karagga’s Palace",
     "BossNames": [
       "Bonethrasher",
-      "Jarg & Sorno~?~Jarg,Sorno",
+      "Jarg & Sorno~?~Jarg|Sorno",
       "Foreman Crusher",
       "G4-B3 Fabricator",
       "Karagga"
@@ -26,8 +26,8 @@
     "LogName": "Denova",
     "Name": "Explosive Conflict",
     "BossNames": [
-      "Zorn & Toth~?~Zorn,Toth",
-      "Firebrand & Stormcaller~?~Firebrand,Stormcaller",
+      "Zorn & Toth~?~Zorn|Toth",
+      "Firebrand & Stormcaller~?~Firebrand|Stormcaller",
       "Colonel Vorgath",
       "Warlord Kephess"
     ]
@@ -37,7 +37,7 @@
     "Name": "Terror From Beyond",
     "BossNames": [
       "The Writhing Horror",
-      "The Dread Guard~?~Kel'sara,Ciphas,Heirad",
+      "The Dread Guard~?~Kel'sara|Ciphas|Heirad",
       "Operator IX",
       "Kephess the Undying",
       "The Terror From Beyond"
@@ -52,7 +52,7 @@
       "Thrasher",
       "Operations Chief",
       "Olok the Shadow",
-      "Cartel Warlords~?~Captain Horic,Sunder,Tu'chuk,Vilus Garr",
+      "Cartel Warlords~?~Captain Horic|Sunder|Tu'chuk|Vilus Garr",
       "Dread Master Styrak"
     ]
   },
@@ -75,7 +75,7 @@
       "Dread Master Tyrans",
       "Dread Master Calphayus",
       "Dread Master Raptus",
-      "Dread Council~?~Dread Master Bestia,Dread Master Tyrans,Dread Master Calphayus,Dread Master Raptus,Dread Master Brontes,Dread Master Styrak"
+      "Dread Council~?~Dread Master Bestia|Dread Master Tyrans|Dread Master Calphayus|Dread Master Raptus|Dread Master Brontes|Dread Master Styrak"
     ]
   },
   {
@@ -85,7 +85,7 @@
       "Sparky",
       "Quartermaster Bulo",
       "Torque",
-      "Master & Blaster~?~Master,Blaster",
+      "Master & Blaster~?~Master|Blaster",
       "Coratanni"
     ]
   },
@@ -94,7 +94,7 @@
     "Name": "Temple of Sacrifice",
     "BossNames": [
       "Malaphar",
-      "Sword Squadron~?~Sword Squadron Unit 1,Sword Squadron Unit 2",
+      "Sword Squadron~?~Sword Squadron Unit 1|Sword Squadron Unit 2",
       "Underlurker",
       "Revanite Commanders~?~",
       "Revan"
@@ -119,7 +119,7 @@
     "Name": "The Gods from the Machine",
     "BossNames": [
       "TYTH",
-      "Aivela and Esne~?~AIVELA,ESNE",
+      "Aivela and Esne~?~AIVELA|ESNE",
       "NAHUT",
       "SCYVA",
       "IZAX"
@@ -130,7 +130,7 @@
     "Name": "Dxun",
     "BossNames": [
       "Red",
-      "Trandosians~?~Hissyphus,Kronissus,Greus,Titax",
+      "Trandosians~?~Hissyphus|Kronissus|Greus|Titax",
       "Huntmaster",
       "Apex Vanguard"
     ]
