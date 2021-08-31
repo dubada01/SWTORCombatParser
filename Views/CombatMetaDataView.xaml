@@ -28,10 +28,27 @@
             </ItemsControl>
 
         </Viewbox>
-
-        <DataGrid Background="Transparent" Grid.Row="2" ItemsSource="{Binding CombatEffects}" IsReadOnly="True" ColumnWidth="*" SelectionMode="Single"  SelectedItem="{Binding SelectedEffect}">
-
-        </DataGrid>
+        <Border Grid.Row="2" BorderBrush="DimGray" BorderThickness="2" Padding="2,15,2,2" CornerRadius="4" Margin="0,15,5,0">
+            <ListView SelectionMode="Single" BorderThickness="0" Background="Transparent"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" ItemsSource="{Binding CombatEffects}" SelectedItem="{Binding SelectedEffect}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Viewbox MaxHeight="20" Margin="0,0,5,0" HorizontalAlignment="Left" Grid.Column="0" >
+                                <TextBlock Text="{Binding Name}"></TextBlock>
+                            </Viewbox>
+                            <Viewbox MaxHeight="20" HorizontalAlignment="Right" Grid.Column="1" >
+                                <TextBlock Text="{Binding Duration, StringFormat={}{0:#} sec}"></TextBlock>
+                            </Viewbox>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Border>
+        <TextBlock Background="LightGray" Foreground="CadetBlue" Width="71" HorizontalAlignment="Left" Text="Effects" FontWeight="DemiBold" FontSize="23" Grid.Row="2" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
         <Viewbox VerticalAlignment="Top" MaxHeight="30" Margin="0,5,0,5" Grid.Row="3">
             <Button Width="75" FontSize="10" Padding="5" Content="Clear" Command="{Binding ClearCombatEffectsCommand}"/>
         </Viewbox>
