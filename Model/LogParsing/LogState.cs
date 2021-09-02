@@ -28,6 +28,8 @@ namespace SWTORCombatParser.Model.LogParsing
         private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
         public string PlayerName { get; set; }
         public SWTORClass PlayerClass { get; set; }
+        public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
+        public long MostRecentLogIndex = 0;
         public List<CombatModifier> Modifiers { get; set; } = new List<CombatModifier>();
         public double GetCurrentHealsPerThreat(DateTime timeStamp)
         {
@@ -49,7 +51,33 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public List<CombatModifier> GetCombatModifiersBetweenTimes(DateTime startTime, DateTime endTime)
         {
-            return Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime)).ToList();
+            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime)).ToList();
+            var correctedModifiers = inScopeModifiers.Select(m => {
+                CombatModifier correctedModifier = new CombatModifier();
+                if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
+                {
+                    correctedModifier.Source = m.Source;
+                    correctedModifier.Type = m.Type; 
+                    correctedModifier.Name = m.Name;
+                    correctedModifier.StartTime = m.StartTime;
+                    correctedModifier.StopTime = m.StopTime;
+                    if (m.StopTime == DateTime.MinValue)
+                    {
+                        correctedModifier.StopTime = endTime;
+                    }
+                    if(m.StopTime > endTime)
+                    {
+                        correctedModifier.StopTime = endTime;
+                    }
+                    if (m.StartTime < startTime)
+                    {
+                        correctedModifier.StartTime = startTime;
+                    }
+                    return correctedModifier;
+                }
+                return m;
+            });
+            return correctedModifiers.Where(m=>m.DurationSeconds > 0).ToList();
         }
     }
 }

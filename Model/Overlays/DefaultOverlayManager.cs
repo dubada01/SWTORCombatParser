@@ -14,10 +14,12 @@ namespace SWTORCombatParser.Model.Overlays
         None,
         DPS,
         FocusDPS,
-        Healing,
-        Sheilding,
-        Threat,
+        EHPS,
+        SPS,
+        TPS,
         DTPS,
+        CompanionDPS,
+        CompanionEHPS
     }
     public class DefaultOverlayInfo
     {
@@ -54,8 +56,17 @@ namespace SWTORCombatParser.Model.Overlays
                 InitializeDefaults();
             }
             var stringInfo = File.ReadAllText(infoPath);
-            
-            return JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(stringInfo);
+            try
+            {
+                return JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(stringInfo);
+            }
+            catch(Exception e)
+            {
+                InitializeDefaults();
+                var resetDefaults = File.ReadAllText(infoPath);
+                return JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(resetDefaults);
+            }
+
         }
         private static void InitializeDefaults()
         {

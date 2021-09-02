@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SWTORCombatParser.Model.CombatParsing;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -21,6 +22,19 @@ namespace SWTORCombatParser.Views
         public PastCombatInstanceView()
         {
             InitializeComponent();
+        }
+
+        private void Border_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var viewModel = DataContext as PastCombat;
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                viewModel.AdditiveSelectionToggle();
+            }
+            else
+            {
+                viewModel.SelectionToggle();
+            }
         }
     }
 }

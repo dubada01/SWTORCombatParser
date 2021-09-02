@@ -33,6 +33,7 @@ namespace SWTORCombatParser.Plotting
         {
             _combatMetaDataViewModel = new CombatMetaDataViewModel();
             _combatMetaDataViewModel.OnEffectSelected += HighlightEffect;
+            _combatMetaDataViewModel.OnEffectsCleared += ResetEffectVisuals;
             CombatMetaDataView = new CombatMetaDataView(_combatMetaDataViewModel);
 
             GraphView = new WpfPlot();
@@ -176,7 +177,7 @@ namespace SWTORCombatParser.Plotting
                     {
                         UpdateSeriesAnnotation(plot.Points[combat.StartTime], plot.Tooltip[combat.StartTime], plot.Name, plot.Abilities[combat.StartTime],false);
                     }
-                    if (plot.EffectivePoints.Count > 0 && plot.EffectivePoints.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.EffectivePoints.First().Value))
+                    if (plot.EffectivePoints.Count > 0 && plot.EffectivePoints.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.EffectivePoints[combat.StartTime]))
                     {
                         UpdateSeriesAnnotation(plot.EffectivePoints[combat.StartTime], plot.EffectiveTooltip[combat.StartTime], plot.Name + "Effective", plot.Abilities[combat.StartTime], true);
                     }

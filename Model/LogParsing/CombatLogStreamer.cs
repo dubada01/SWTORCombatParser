@@ -32,29 +32,40 @@ namespace SWTORCombatParser
         private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
         public void MonitorLog(string logToMonitor, bool forRaiding = false, bool isCompleteLog = false)
         {
-            _newNumberOfEntries = 0;
-            _numberOfEntries = 0;
-            _combatEndTime = DateTime.MinValue;
-            _lastUpdateTime = DateTime.MinValue;
+            ResetMonitoring();
             _logToMonitor = logToMonitor;
             _monitorLog = true;
-            _firstTimeThroughLog = true;
+
             if (!forRaiding && !isCompleteLog)
                 PollForUpdates();
             else
             {
                 if(forRaiding)
                     UpdateLogsForRaiding();
-                if (isCompleteLog)
-                    ParseCompleteLog();
             }
         }
-        
+        public void ParseCompleteLog(string log)
+        {
+            ResetMonitoring();
+            _logToMonitor = log;
+            Task.Run(() => {
+                CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
+                ParseLogFile();
+            });
+        }
         public void StopMonitoring()
         {
             _monitorLog = false;
             EndCombat();
             _currentFrameData.Clear();
+        }
+        private void ResetMonitoring()
+        {
+            _newNumberOfEntries = 0;
+            _numberOfEntries = 0;
+            _combatEndTime = DateTime.MinValue;
+            _lastUpdateTime = DateTime.MinValue;
+            _firstTimeThroughLog = true;
         }
         private void UpdateLogsForRaiding()
         {
@@ -64,13 +75,6 @@ namespace SWTORCombatParser
                     GenerateNewFrame();
                     Thread.Sleep(1000);
                 }
-            });
-        }
-        private void ParseCompleteLog()
-        {
-            Task.Run(() => {
-                CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
-                ParseLogFile();
             });
         }
         private void PollForUpdates()
@@ -104,7 +108,7 @@ namespace SWTORCombatParser
                 
                 for (var line = _numberOfEntries; line < allLogEntries.Length; line++)
                 {
-                    ProcessNewLine(allLogEntries[line], line, _logToMonitor);
+                    ProcessNewLine(allLogEntries[line], line, Path.GetFileName(_logToMonitor));
                 }
                 _numberOfEntries = _newNumberOfEntries - 1;
                 if (!_isInCombat)
@@ -126,7 +130,6 @@ namespace SWTORCombatParser
                 }
                 else
                 {
-                    CombatLogStateBuilder.UpdateCurrentLogState(ref _currentFrameData, _logToMonitor);
                     NewLogEntries(_currentFrameData);
                 }
             }
@@ -159,6 +162,8 @@ namespace SWTORCombatParser
             {
                 return;
             }
+            if(CombatLogParser.CurrentRaidGroup == null)
+                CombatLogParser.SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, logName));
             CheckForCombatState(lineIndex, parsedLine);
             if (_isInCombat)
             {
@@ -171,23 +176,19 @@ namespace SWTORCombatParser
         {
             if (parsedLine.Effect.EffectType == EffectType.Event && (parsedLine.Effect.EffectName == "EnterCombat"))
             {
+                if (_combatEnding)
+                    EndCombat();
                 _combatEnding = false;
-                _isInCombat = true; 
+                _isInCombat = true;
                 if (CombatLogParser.CurrentRaidGroup == null)
                     CombatStarted(parsedLine.Source.Name, parsedLine.Value.StrValue);
             }
-            if (parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat")
+            if ((parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat") || (parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsPlayer))
             {
                 _combatEnding = true;
                 _combatEndTime = parsedLine.TimeStamp;
             }
-            if ((parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsPlayer))
-            {
-                _currentFrameData.Add(parsedLine);
-                _currentCombatData.Add(parsedLine);
-                EndCombat();
-            }
-            CheckForCombatEnd(lineIndex,parsedLine.TimeStamp);
+            CheckForCombatEnd(lineIndex, parsedLine.TimeStamp);
         }
 
         private void CheckForCombatEnd(long lineIndex,DateTime currentLogTime)
@@ -199,7 +200,6 @@ namespace SWTORCombatParser
         }
         private void UploadFrameDataToCloudRaiding(PostgresConnection cloudRaiding)
         {
-            //Parallel.ForEach(_currentFrameData, log =>
             foreach (var log in _currentFrameData)
             {
                 if (log.Source.IsCompanion)
@@ -210,7 +210,6 @@ namespace SWTORCombatParser
                 {
                     cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
                 }
-                //});
             }
             _currentFrameData.Clear();
         }
@@ -234,7 +233,12 @@ namespace SWTORCombatParser
             else
             {
                 if (CombatLogParser.CurrentRaidGroup == null)
-                    CombatStopped(_currentCombatData);
+                {
+                    if (string.IsNullOrEmpty(_logToMonitor))
+                        return;
+                    //CombatLogStateBuilder.UpdateCurrentLogState(ref _currentFrameData, Path.GetFileName(_logToMonitor));
+                    CombatStopped(_currentCombatData); 
+                }
             }
             _currentFrameData.Clear();
             _currentCombatData.Clear();

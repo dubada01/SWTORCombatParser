@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -15,6 +16,9 @@ namespace SWTORCombatParser
             var outgoingLogs = combatToPopulate.Logs.Where(log => log.Source == combat.Owner).ToList();
             var incomingLogs = combatToPopulate.Logs.Where(log => log.Target == combat.Owner).ToList();
 
+            PopulateCompanionData(combatToPopulate);
+            
+
             combatToPopulate.OutgoingDamageLogs = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
             combatToPopulate.OutgoingHealingLogs = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
 
@@ -28,15 +32,24 @@ namespace SWTORCombatParser
 
             var totalDamage = combatToPopulate.OutgoingDamageLogs.Sum(l => l.Value.DblValue);
 
-            var currentFocusTarget = combatToPopulate.EncounterBossInfo.Split('{')[0].Trim();
-            if (!string.IsNullOrEmpty(currentFocusTarget))
+            var currentFocusTarget = combatToPopulate.ParentEncounter?.BossNames;
+            if (currentFocusTarget != null &&  currentFocusTarget.Count > 0)
             {
-                totalDamage = combatToPopulate.OutgoingDamageLogs.Where(d => d.Target.Name != currentFocusTarget).Sum(l => l.Value.DblValue);
-                var focusDamageLogs = combatToPopulate.OutgoingDamageLogs.Where(d => d.Target.Name == currentFocusTarget);
+                var bosses = currentFocusTarget.SelectMany(boss => {
+                    if (!boss.Contains("~?~"))
+                        return new List<string> { boss};
+                    else
+                    {
+                        var names = boss.Split("~?~", StringSplitOptions.None)[1];
+                        return new List<string>(names.Split('|'));
+                    }
+                }).ToList();
+
+                totalDamage = combatToPopulate.OutgoingDamageLogs.Where(d => !bosses.Contains(d.Target.Name)).Sum(l => l.Value.DblValue);
+                var focusDamageLogs = combatToPopulate.OutgoingDamageLogs.Where(d => currentFocusTarget.Any(boss => boss.Split('|').Contains(d.Target.Name)));
                 var allFocusDamage = focusDamageLogs.Sum(l => l.Value.DblValue);
                 combatToPopulate.TotalFocusDamage = allFocusDamage;
             }
-
 
             var totalAbilitiesDone = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate").Count();
 
@@ -69,6 +82,18 @@ namespace SWTORCombatParser
             combatToPopulate.MaxIncomingHeal = combatToPopulate.IncomingHealingLogs.Count == 0 ? 0 : combatToPopulate.IncomingHealingLogs.Max(l => l.Value.DblValue);
             combatToPopulate.MaxIncomingEffectiveHeal = combatToPopulate.IncomingHealingLogs.Count == 0 ? 0 : combatToPopulate.IncomingHealingLogs.Max(l => l.Value.EffectiveDblValue);
 
+
+        }
+        private static void PopulateCompanionData(Combat combatToUpdate)
+        {
+            var companionOutgoing = combatToUpdate.Logs.Where(log => log.Source.IsCompanion);
+            
+            var companionDamageLogs = companionOutgoing.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
+            var companionHealLogs = companionOutgoing.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
+
+            combatToUpdate.TotalCompanionDamage = companionDamageLogs.Sum(l => l.Value.DblValue);
+            combatToUpdate.TotalCompanionHealing = companionHealLogs.Sum(l => l.Value.DblValue);
+            combatToUpdate.TotalEffectiveCompanionHealing = companionHealLogs.Sum(l => l.Value.EffectiveDblValue);
 
         }
         //public static Dictionary<string,double> GetAverage(Dictionary<string,List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)

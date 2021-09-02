@@ -30,18 +30,18 @@ namespace SWTORCombatParser
         }
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
-            if (!ongoingLogs.Any(l => l.Source.IsPlayer || l.Source.IsCompanion))
+            if (!ongoingLogs.Any(l => (l.Source.IsPlayer && l.Target.IsPlayer)))
                 return new Combat();
             var encounter = GetEncounterInfo(ongoingLogs);
             var newCombat = new Combat()
             {
-                CharacterName = ongoingLogs.First(l => (l.Source.IsPlayer && l.Target.IsPlayer) || l.Source.IsCompanion).Source.Name,
+                CharacterName = ongoingLogs.First(l => (l.Source.IsPlayer && l.Target.IsPlayer)).Source.Name,
                 StartTime = ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp,
                 EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),
                 ParentEncounter = encounter,
                 EncounterBossInfo = GetCurrentBossInfo(ongoingLogs, encounter),
-                Logs = ongoingLogs
+                Logs = ongoingLogs,
             };
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
             var sheildLogs = newCombat.IncomingSheildedLogs;
@@ -80,11 +80,17 @@ namespace SWTORCombatParser
                     return raidOfInterest;
                 }
             }
-            return new EncounterInfo { Name="Open World", LogName = "Open World"};
+            var openWorldLocation = "";
+            var enterCombatLog = logs.FirstOrDefault(l => l.Effect.EffectName == "EnterCombat");
+            if (enterCombatLog != null)
+            {
+                openWorldLocation = ": " + enterCombatLog.Value.StrValue;
+            }
+            return new EncounterInfo { Name="Open World"+openWorldLocation, LogName = "Open World"};
         }
         private static string GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
-            if (currentEncounter == null || currentEncounter.Name == "Open World")
+            if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return "";
             foreach(var log in logs)
             {

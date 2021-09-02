@@ -112,7 +112,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private List<(string, string)> GetCurrentlyAliveMembers()
         {
-            return _postgresConnection.CheckForKeepAlivesInGroupFromTime(_currentRaidGroup, DateTime.Now.AddSeconds(-3));
+            return _postgresConnection.CheckForKeepAlivesInGroupFromTime(_currentRaidGroup, DateTime.Now.AddSeconds(-10));
         }
         private void CheckForOngoingCombat()
         {
@@ -177,20 +177,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 {
                     _generatedCombats.AddRange(participant.Update(participantLogs));
                 }
-                else
-                {
-                    //if (logName.Contains("companion"))
-                    //{
-                    //    TryAddNewParticipant(logName, "HELLO~?~Companion~?~Unknown");
-                    //    var companonParticipant = _currentParticipants.FirstOrDefault(p => p.LogName == logName);
-                    //    if (companonParticipant != null)
-                    //    {
-                    //        _generatedCombats.AddRange(companonParticipant.Update(participantLogs));
-                    //    }
-                            
-                    //}
-                }
-
             }
             Trace.WriteLine($"{_generatedCombats.Count} combats detected for frame with {logs.Count} logs and {participantData.Count()} participants");
             RaidGroupMetaData.UpdateRaidGroupMetaData(_generatedCombats);

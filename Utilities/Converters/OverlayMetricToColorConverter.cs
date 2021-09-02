@@ -19,14 +19,18 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.IndianRed;
                 case OverlayType.FocusDPS:
                     return Brushes.OrangeRed;
-                case OverlayType.Healing:
+                case OverlayType.EHPS:
                     return Brushes.LimeGreen;
-                case OverlayType.Sheilding:
+                case OverlayType.SPS:
                     return Brushes.CornflowerBlue;
-                case OverlayType.Threat:
+                case OverlayType.TPS:
                     return Brushes.Orchid;
                 case OverlayType.DTPS:
                     return Brushes.Peru;
+                case OverlayType.CompanionDPS:
+                    return new SolidColorBrush(Brushes.IndianRed.Color.Lerp(Color.FromRgb(255,255,255), 0.33f));
+                case OverlayType.CompanionEHPS:
+                    return new SolidColorBrush(Brushes.LimeGreen.Color.Lerp(Color.FromRgb(255, 255, 255), 0.33f));
                 default:
                     return Brushes.Transparent;
             }

@@ -13,6 +13,7 @@ namespace SWTORCombatParser.Model.CombatParsing
     public class PastCombat : INotifyPropertyChanged
     {
         public event Action<PastCombat> PastCombatSelected = delegate { };
+        public event Action UnselectAll = delegate { };
         public event Action<PastCombat> PastCombatUnSelected = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public bool IsCurrentCombat;
@@ -23,6 +24,15 @@ namespace SWTORCombatParser.Model.CombatParsing
         public string CombatLabel { get; set; }
         public string CombatDuration { get; set; }
         public DateTime CombatStartTime { get; set; }
+        public void SelectionToggle()
+        {
+            UnselectAll();
+            IsSelected = !IsSelected;
+        }
+        public void AdditiveSelectionToggle()
+        {
+            IsSelected = !IsSelected;
+        }
         public bool IsSelected { get => isSelected; set {
                 isSelected = value;
                 if (value)

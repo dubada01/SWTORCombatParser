@@ -103,19 +103,24 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public OverlayInstanceViewModel(OverlayType type)
         {
             Type = type;
-            if(Type == OverlayType.Healing)
+            if(Type == OverlayType.EHPS)
             {
-                SecondaryType = OverlayType.Sheilding;
+                SecondaryType = OverlayType.SPS;
             }
             if (Type == OverlayType.DPS)
             {
                 SecondaryType = OverlayType.FocusDPS;
             }
-            CombatSelectionMonitor.NewCombatSelected += UpdateMetrics;
+            CombatSelectionMonitor.NewCombatSelected += Refresh;
             StaticRaidInfo.NewRaidCombatDisplayed += UpdateMetrics;
             StaticRaidInfo.OnPlayerRemoved += RemovePlayer;
             CombatIdentifier.NewCombatAvailable += UpdateMetrics;
             StaticRaidInfo.NewRaidCombatStarted += ResetMetrics;
+        }
+        public void Refresh(Combat comb)
+        {
+            ResetMetrics();
+            UpdateMetrics(comb);
         }
         public void LockOverlays()
         {
@@ -176,10 +181,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void ResetMetrics()
         {
-            //foreach(var metric in MetricBars)
-            //{
-            //    metric.Reset();
-            //}
             App.Current.Dispatcher.Invoke(() =>
             {
                 MetricBars.Clear();
@@ -193,20 +194,26 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.DPS:
                     value = combat.RegDPS;
                     break;
-                case OverlayType.Healing:
+                case OverlayType.EHPS:
                     value = combat.EHPS;
                     break;
-                case OverlayType.Sheilding:
+                case OverlayType.SPS:
                     value = combat.PSPS;
                     break;
                 case OverlayType.FocusDPS:
                     value = combat.FocusDPS;
                     break;
-                case OverlayType.Threat:
+                case OverlayType.TPS:
                     value = combat.TPS;
                     break;
                 case OverlayType.DTPS:
                     value = combat.DTPS;
+                    break;
+                case OverlayType.CompanionDPS:
+                    value = combat.CompDPS;
+                    break;
+                case OverlayType.CompanionEHPS:
+                    value = combat.CompEHPS;
                     break;
             }
             metric.SecondaryType = type;
@@ -223,17 +230,23 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.FocusDPS:
                     value = obj.FocusDPS;
                     break;
-                case OverlayType.Healing:
+                case OverlayType.EHPS:
                     value = obj.EHPS;
                     break;
-                case OverlayType.Sheilding:
+                case OverlayType.SPS:
                     value = obj.PSPS;
                     break;
-                case OverlayType.Threat:
+                case OverlayType.TPS:
                     value = obj.TPS;
                     break;
                 case OverlayType.DTPS:
                     value = obj.DTPS;
+                    break;
+                case OverlayType.CompanionDPS:
+                    value = obj.CompDPS;
+                    break;
+                case OverlayType.CompanionEHPS:
+                    value = obj.CompEHPS;
                     break;
             }
             metricToUpdate.Value = value;

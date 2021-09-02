@@ -44,6 +44,10 @@ namespace SWTORCombatParser
         {
             return _logState;
         }
+        public static void SetCurrentState(LogState currentState)
+        {
+            _logState = currentState;
+        }
         public static ParsedLogEntry ParseLine(string logEntry,long lineIndex)
         {
             try

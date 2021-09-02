@@ -46,25 +46,54 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public static LogState UpdateCurrentLogState(ref List<ParsedLogEntry> logs, string logName)
         {
+            //if (!CurrentStates.ContainsKey(logName))
+            //{
+            //    CurrentStates[logName] = new LogState();
+            //}
+            //var state = CurrentStates[logName];
+            //var combatLogs = logs;
+            //var currentLogs = state.RawLogs;
+            //var newLogs = combatLogs.Where(l => !currentLogs.Any(cl=>cl.LogLineNumber == l.LogLineNumber)).ToList();
+            //state.RawLogs.AddRange(newLogs);
+            //foreach (var log in newLogs)
+            //{
+            //    SetPlayerName(log, state);
+            //}
+            //foreach (var log in newLogs)
+            //{
+            //    if (SetPlayerClass(log, state))
+            //        break;
+            //}
+            //foreach (var log in newLogs)
+            //{
+            //    UpdateCombatModifierState(log, state);
+            //}
+            foreach(var log in logs)
+            {
+                UpdateCurrentStateWithSingleLog(log, logName);
+            }
+            return CurrentStates[logName];
+        }
+        public static LogState UpdateCurrentStateWithSingleLog(ParsedLogEntry log, string logName)
+        {
             if (!CurrentStates.ContainsKey(logName))
             {
                 CurrentStates[logName] = new LogState();
             }
-            var combatLogs = logs;
-            foreach (var log in combatLogs)
-            {
-                SetPlayerName(log, CurrentStates[logName]);
-            }
-            foreach (var log in combatLogs)
-            {
-                if (SetPlayerClass(log, CurrentStates[logName]))
-                    break;
-            }
-            foreach (var log in combatLogs)
-            {
-                UpdateCombatModifierState(log, CurrentStates[logName]);
-            }
-            return CurrentStates[logName];
+            var state = CurrentStates[logName];
+
+            if (state.MostRecentLogIndex > log.LogLineNumber)
+                return state;
+            state.MostRecentLogIndex = log.LogLineNumber;
+            //var newLogs = combatLogs.Where(l => !currentLogs.Any(cl => cl.LogLineNumber == l.LogLineNumber)).ToList();
+            state.RawLogs.Add(log);
+
+            SetPlayerName(log, state);
+
+            SetPlayerClass(log, state);
+
+            UpdateCombatModifierState(log, state);
+            return state;
         }
         public static Role GetPlayerRole(List<ParsedLogEntry> logs)
         {
@@ -145,7 +174,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if(parsedLine.Effect.EffectType == EffectType.Apply && parsedLine.Target.IsPlayer && (parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal"))
             {
                 var effectToStart = state.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
-                if (effectToStart == null || effectToStart.StopTime!=DateTime.MinValue)
+                if (effectToStart == null || (effectToStart.StopTime!=DateTime.MinValue && effectToStart.StartTime != parsedLine.TimeStamp))
                 {
                     state.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability+ AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }

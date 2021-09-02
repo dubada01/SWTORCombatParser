@@ -12,6 +12,7 @@ namespace SWTORCombatParser
         public string CharacterName;
         public DateTime StartTime;
         public DateTime EndTime;
+        public string LogFileName => Logs.Where(l=>!string.IsNullOrEmpty(l.LogName)).FirstOrDefault()?.LogName;
         public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
         public double DurationSeconds => DurationMS / 1000f;
 
@@ -101,8 +102,11 @@ namespace SWTORCombatParser
         public double TotalDamage => TotalFluffDamage + TotalFocusDamage;
         public double TotalFluffDamage;
         public double TotalFocusDamage;
+        public double TotalCompanionDamage;
         public double TotalHealing;
+        public double TotalCompanionHealing;
         public double TotalEffectiveHealing;
+        public double TotalEffectiveCompanionHealing;
         public double TotalSheilding;
         public double TotalProvidedSheilding;
         public double TotalDamageTaken;
@@ -114,9 +118,11 @@ namespace SWTORCombatParser
         public double DPS => DurationSeconds == 0 ? 0 : TotalDamage / DurationSeconds == double.NaN?0: TotalDamage / DurationSeconds;
         public double RegDPS => DurationSeconds == 0 ? 0 : TotalFluffDamage / DurationSeconds == double.NaN ? 0 : TotalFluffDamage / DurationSeconds;
         public double FocusDPS => DurationSeconds == 0 ? 0 : TotalFocusDamage / DurationSeconds == double.NaN ? 0 : TotalFocusDamage / DurationSeconds;
+        public double CompDPS => DurationSeconds == 0 ? 0 : TotalCompanionDamage / DurationSeconds == double.NaN ? 0 : TotalCompanionDamage / DurationSeconds;
         public double APM => DurationSeconds == 0 ? 0 : TotalAbilites / (DurationSeconds / 60);
         public double HPS => DurationSeconds == 0 ? 0 : TotalHealing / DurationSeconds;
         public double EHPS => DurationSeconds == 0 ? 0 : TotalEffectiveHealing / DurationSeconds;
+        public double CompEHPS => DurationSeconds == 0 ? 0 : TotalEffectiveCompanionHealing / DurationSeconds;
         public double SPS => DurationSeconds == 0 ? 0 : TotalSheilding / DurationSeconds;
         public double PSPS => DurationSeconds == 0 ? 0 : TotalProvidedSheilding / DurationSeconds;
         public double DTPS => DurationSeconds == 0 ? 0 : TotalDamageTaken / DurationSeconds;
