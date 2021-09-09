@@ -32,6 +32,7 @@ namespace SWTORCombatParser.Plotting
         public PlotViewModel()
         {
             _combatMetaDataViewModel = new CombatMetaDataViewModel();
+            _combatMetaDataViewModel.OnNewParticipantSelected += SeletedParticipant;
             _combatMetaDataViewModel.OnEffectSelected += HighlightEffect;
             _combatMetaDataViewModel.OnEffectsCleared += ResetEffectVisuals;
             CombatMetaDataView = new CombatMetaDataView(_combatMetaDataViewModel);
@@ -51,6 +52,12 @@ namespace SWTORCombatParser.Plotting
             GraphView.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
         }
+
+        private void SeletedParticipant(Entity obj)
+        {
+            //PlotCombat();
+        }
+
         public CombatMetaDataView CombatMetaDataView { get; set; }
         public WpfPlot GraphView { get; set; }
         public ObservableCollection<LegendItemViewModel> LegendItems { get; set; }
@@ -96,9 +103,9 @@ namespace SWTORCombatParser.Plotting
 
         }
 
-        internal void SetCharacterName(string obj)
+        internal void UpdateParticipants(List<Entity> obj)
         {
-            _combatMetaDataViewModel.CharacterName = obj;
+            _combatMetaDataViewModel.AvailableParticipants = obj;
         }
 
         public void UpdateLivePlot(Combat updatedCombat)
@@ -110,13 +117,13 @@ namespace SWTORCombatParser.Plotting
                 RemoveCombatPlot(staleCombat);
             }
             _currentCombats.Add(updatedCombat);
-            PlotCombat(updatedCombat);
+            PlotCombat(updatedCombat, updatedCombat.CharacterParticipants.First());
         }
         public void AddCombatPlot(Combat combatToPlot)
         {
             ResetEffectVisuals();
             _currentCombats.Add(combatToPlot);
-            PlotCombat(combatToPlot);
+            PlotCombat(combatToPlot, combatToPlot.CharacterParticipants.First());
         }
         public void RemoveCombatPlot(Combat combatToRemove)
         {
@@ -145,7 +152,7 @@ namespace SWTORCombatParser.Plotting
 
             foreach (var remainingCombat in _currentCombats)
             {
-                PlotCombat(remainingCombat);
+                PlotCombat(remainingCombat, remainingCombat.CharacterParticipants.First());
             }
 
             GraphView.Plot.AxisAuto();
@@ -194,11 +201,11 @@ namespace SWTORCombatParser.Plotting
                 });
             }
         }
-        private void PlotCombat(Combat combatToPlot)
+        private void PlotCombat(Combat combatToPlot, Entity seletedEntity)
         {
             foreach (var series in _seriesToPlot)
             {
-                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot);
+                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, seletedEntity);
                 if (applicableData == null || applicableData.Count == 0)
                     continue;
                 var plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
@@ -289,20 +296,20 @@ namespace SWTORCombatParser.Plotting
                 GraphView.Plot.Remove(span);
             }
         }
-        private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot)
+        private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
         {
             switch (type)
             {
                 case PlotType.DamageOutput:
-                    return combatToPlot.OutgoingDamageLogs;
+                    return combatToPlot.OutgoingDamageLogs[selectedParticipant];
                 case PlotType.DamageTaken:
-                    return combatToPlot.IncomingDamageLogs;
+                    return combatToPlot.IncomingDamageLogs[selectedParticipant];
                 case PlotType.HealingOutput:
-                    return combatToPlot.OutgoingHealingLogs;
+                    return combatToPlot.OutgoingHealingLogs[selectedParticipant];
                 case PlotType.HealingTaken:
-                    return combatToPlot.IncomingHealingLogs;
-                case PlotType.SheildedDamageTaken:
-                    return combatToPlot.SheildingProvidedLogs;
+                    return combatToPlot.IncomingHealingLogs[selectedParticipant];
+                //case PlotType.SheildedDamageTaken:
+                //    return combatToPlot.SheildingProvidedLogs[selectedParticipant];
 
             }
             return null;

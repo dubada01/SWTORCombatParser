@@ -8,63 +8,63 @@ namespace SWTORCombatParser
 {
     public class Combat
     {
-        public Entity Owner => Logs.Where(l=>l.Target!=null && l.Source!=null).FirstOrDefault(l=>(l.Source == l.Target) && l.Source.IsPlayer || l.Source.IsCompanion)?.Source;
-        public string CharacterName;
+        public List<Entity> CharacterParticipants = new List<Entity>();
+        public List<Entity> Targets = new List<Entity>();
         public DateTime StartTime;
         public DateTime EndTime;
-        public string LogFileName => Logs.Where(l=>!string.IsNullOrEmpty(l.LogName)).FirstOrDefault()?.LogName;
+        public string LogFileName => Logs.Where(l=>!string.IsNullOrEmpty(l.Value.First().LogName)).FirstOrDefault().Value.First().LogName;
         public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
         public double DurationSeconds => DurationMS / 1000f;
 
-        public List<string> Targets = new List<string>();
+        
         public EncounterInfo ParentEncounter;
         public string EncounterBossInfo;
         public bool IsEncounterBoss;
 
-        public List<ParsedLogEntry> Logs = new List<ParsedLogEntry>();
+        public Dictionary<Entity, List<ParsedLogEntry>> Logs = new Dictionary<Entity, List<ParsedLogEntry>>();
 
-        public List<ParsedLogEntry> OutgoingDamageLogs;
-        public List<ParsedLogEntry> IncomingDamageLogs;
-        public List<ParsedLogEntry> IncomingSheildedLogs;
-        public List<ParsedLogEntry> OutgoingHealingLogs;
-        public List<ParsedLogEntry> IncomingHealingLogs;
-        public List<ParsedLogEntry> SheildingProvidedLogs = new List<ParsedLogEntry>();
+        public Dictionary<Entity,List<ParsedLogEntry>> OutgoingDamageLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public Dictionary<Entity, List<ParsedLogEntry>> IncomingDamageLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public Dictionary<Entity, List<ParsedLogEntry>> IncomingSheildedLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public Dictionary<Entity, List<ParsedLogEntry>> OutgoingHealingLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public Dictionary<Entity, List<ParsedLogEntry>> IncomingHealingLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public Dictionary<Entity, List<ParsedLogEntry>> SheildingProvidedLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
 
-        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByTarget()
+        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByTarget(Entity source)
         {
-            return GetByTarget(OutgoingDamageLogs);
+            return GetByTarget(OutgoingDamageLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetIncomingDamageBySource()
+        public Dictionary<string, List<ParsedLogEntry>> GetIncomingDamageBySource(Entity source)
         {
-            return GetBySource(IncomingDamageLogs);
+            return GetBySource(IncomingDamageLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByAbility()
+        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByAbility(Entity source)
         {
-            return GetByAbility(OutgoingDamageLogs);
+            return GetByAbility(OutgoingDamageLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetIncomingDamageByAbility()
+        public Dictionary<string, List<ParsedLogEntry>> GetIncomingDamageByAbility(Entity source)
         {
-            return GetByAbility(IncomingDamageLogs);
+            return GetByAbility(IncomingDamageLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetIncomingHealingBySource()
+        public Dictionary<string, List<ParsedLogEntry>> GetIncomingHealingBySource(Entity source)
         {
-            return GetBySource(IncomingHealingLogs);
+            return GetBySource(IncomingHealingLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetIncomingHealingByAbility()
+        public Dictionary<string, List<ParsedLogEntry>> GetIncomingHealingByAbility(Entity source)
         {
-            return GetByAbility(IncomingHealingLogs);
+            return GetByAbility(IncomingHealingLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingHealingByTarget()
+        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingHealingByTarget(Entity source)
         {
-            return GetByTarget(OutgoingHealingLogs);
+            return GetByTarget(OutgoingHealingLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingHealingByAbility()
+        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingHealingByAbility(Entity source)
         {
-            return GetByAbility(OutgoingHealingLogs);
+            return GetByAbility(OutgoingHealingLogs[source]);
         }
-        public Dictionary<string,List<ParsedLogEntry>> GetShieldingBySource()
+        public Dictionary<string,List<ParsedLogEntry>> GetShieldingBySource(Entity source)
         {
-            return GetBySource(IncomingSheildedLogs);
+            return GetBySource(IncomingSheildedLogs[source]);
         }
         public Dictionary<string, List<ParsedLogEntry>> GetByTarget(List<ParsedLogEntry> logsToCheck)
         {
@@ -97,46 +97,46 @@ namespace SWTORCombatParser
             return returnDict;
         }
 
-        public double TotalAbilites;
-        public double TotalThreat;
-        public double TotalDamage => TotalFluffDamage + TotalFocusDamage;
-        public double TotalFluffDamage;
-        public double TotalFocusDamage;
-        public double TotalCompanionDamage;
-        public double TotalHealing;
-        public double TotalCompanionHealing;
-        public double TotalEffectiveHealing;
-        public double TotalEffectiveCompanionHealing;
-        public double TotalSheilding;
-        public double TotalProvidedSheilding;
-        public double TotalDamageTaken;
-        public double TotalEffectiveDamageTaken;
-        public double TotalHealingReceived;
-        public double TotalEffectiveHealingReceived;
+        public Dictionary<Entity,double> TotalAbilites = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> TotalThreat = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> TotalDamage => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value+TotalFocusDamage[kvp.Key]);
+        public Dictionary<Entity,double> TotalFluffDamage = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalFocusDamage = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalCompanionDamage = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalHealing = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalCompanionHealing = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalEffectiveHealing = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalEffectiveCompanionHealing = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalSheilding = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalProvidedSheilding = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalDamageTaken = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalEffectiveDamageTaken = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalHealingReceived = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> TotalEffectiveHealingReceived = new Dictionary<Entity, double>();
 
-        public double TPS => DurationSeconds == 0 ? 0: TotalThreat / DurationSeconds;
-        public double DPS => DurationSeconds == 0 ? 0 : TotalDamage / DurationSeconds == double.NaN?0: TotalDamage / DurationSeconds;
-        public double RegDPS => DurationSeconds == 0 ? 0 : TotalFluffDamage / DurationSeconds == double.NaN ? 0 : TotalFluffDamage / DurationSeconds;
-        public double FocusDPS => DurationSeconds == 0 ? 0 : TotalFocusDamage / DurationSeconds == double.NaN ? 0 : TotalFocusDamage / DurationSeconds;
-        public double CompDPS => DurationSeconds == 0 ? 0 : TotalCompanionDamage / DurationSeconds == double.NaN ? 0 : TotalCompanionDamage / DurationSeconds;
-        public double APM => DurationSeconds == 0 ? 0 : TotalAbilites / (DurationSeconds / 60);
-        public double HPS => DurationSeconds == 0 ? 0 : TotalHealing / DurationSeconds;
-        public double EHPS => DurationSeconds == 0 ? 0 : TotalEffectiveHealing / DurationSeconds;
-        public double CompEHPS => DurationSeconds == 0 ? 0 : TotalEffectiveCompanionHealing / DurationSeconds;
-        public double SPS => DurationSeconds == 0 ? 0 : TotalSheilding / DurationSeconds;
-        public double PSPS => DurationSeconds == 0 ? 0 : TotalProvidedSheilding / DurationSeconds;
-        public double DTPS => DurationSeconds == 0 ? 0 : TotalDamageTaken / DurationSeconds;
-        public double EDTPS => DurationSeconds == 0 ? 0 : TotalEffectiveDamageTaken / DurationSeconds;
-        public double HTPS => DurationSeconds == 0 ? 0 : TotalHealingReceived / DurationSeconds;
-        public double EHTPS => DurationSeconds == 0 ? 0 : TotalEffectiveHealingReceived / DurationSeconds;
+        public Dictionary<Entity,double> TPS => DurationSeconds == 0 ? TotalThreat.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalThreat.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> DPS => DurationSeconds == 0 ? TotalDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> RegDPS => DurationSeconds == 0 ? TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> FocusDPS => DurationSeconds == 0 ? TotalFocusDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalFocusDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> CompDPS => DurationSeconds == 0 ? TotalCompanionDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalCompanionDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> APM => DurationSeconds == 0 ? TotalAbilites.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalAbilites.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds/60);
+        public Dictionary<Entity,double> HPS => DurationSeconds == 0 ? TotalHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> EHPS => DurationSeconds == 0 ? TotalEffectiveHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> CompEHPS => DurationSeconds == 0 ? TotalEffectiveCompanionHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveCompanionHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> SPS => DurationSeconds == 0 ? TotalSheilding.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalSheilding.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> PSPS => DurationSeconds == 0 ? TotalProvidedSheilding.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalProvidedSheilding.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> DTPS => DurationSeconds == 0 ? TotalDamageTaken.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> EDTPS => DurationSeconds == 0 ?TotalEffectiveDamageTaken.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalEffectiveDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> HTPS => DurationSeconds == 0 ? TotalHealingReceived.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalHealingReceived.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> EHTPS => DurationSeconds == 0 ? TotalEffectiveHealingReceived.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveHealingReceived.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
 
-        public double MaxDamage;
-        public double MaxIncomingDamage;
-        public double MaxEffectiveIncomingDamage;
-        public double MaxHeal;
-        public double MaxEffectiveHeal;
-        public double MaxIncomingHeal;
-        public double MaxIncomingEffectiveHeal;
+        public Dictionary<Entity,double> MaxDamage = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> MaxIncomingDamage = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> MaxEffectiveIncomingDamage = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> MaxHeal = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> MaxEffectiveHeal = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> MaxIncomingHeal = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> MaxIncomingEffectiveHeal = new Dictionary<Entity, double>();
         public string Serialize()
         {
             return JsonConvert.SerializeObject(this);

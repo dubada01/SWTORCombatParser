@@ -58,14 +58,17 @@ namespace SWTORCombatParser
                 var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
                 var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
 
-                if (logEntryInfos.Count != 5 || string.IsNullOrEmpty(value.Value))
+                if (logEntryInfos.Count != 6 || string.IsNullOrEmpty(value.Value))
                     return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
-
+                if (logEntry.Contains("v7."))
+                {
+                    ParseLogStartLine(logEntryInfos.Select(v => v.Value).ToArray(), value.Value);
+                    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+                }
                 var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
                 parsedLine.LogText = logEntry;
                 parsedLine.LogLineNumber = lineIndex;
-                if (parsedLine.Source.Name == parsedLine.Target.Name && parsedLine.Source.IsCharacter)
-                    parsedLine.Source.IsPlayer = true;
+
                 if (CurrentRaidGroup == null)
                 {
                     UpdateEffectiveHealValues(parsedLine, _logState);
@@ -88,6 +91,7 @@ namespace SWTORCombatParser
             var allLines = ParseAllLines(log);
             return allLines.Where(l => l.Effect.EffectName=="EnterCombat").ToList();
         }
+
         private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
             _logDate = combatLog.Time;
@@ -98,7 +102,10 @@ namespace SWTORCombatParser
             {
                 if (logLines[i] == "")
                     break;
-                parsedLog[i] = ParseLine(logLines[i],i);
+                var parsedLine= ParseLine(logLines[i], i);
+                if (parsedLine.Error == ErrorType.IncompleteLine)
+                    continue;
+                parsedLog[i] = parsedLine;
                 parsedLog[i].LogName = combatLog.Name;
             }
             CombatTimestampRectifier.RectifyTimeStamps(parsedLog.Where(l => l != null).ToList());
@@ -169,26 +176,39 @@ namespace SWTORCombatParser
             }
         }
 
-
+        private static void ParseLogStartLine(string[] entryInfos, string version)
+        {
+            var player = _currentEntities.FirstOrDefault(e => CleanString(entryInfos[2]).Split(':')[0].Split('#')[0].Replace("@", "") == e.Name);
+            if (player == null)
+                ParseEntity(entryInfos[2], true);
+            else
+                player.IsPlayer = true;
+        }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {
             if (entryInfo.Length == 0)
                 return null;
 
             var newEntry = new ParsedLogEntry();
-            var time = DateTime.Parse(CleanString(entryInfo[0]));
+            var time = DateTime.Parse(CleanString(entryInfo[1]));
             var date = new DateTime(_logDate.Year, _logDate.Month, _logDate.Day);
 
             var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
             newEntry.TimeStamp = newDate;
-            newEntry.Source = ParseEntity(CleanString(entryInfo[1]));
-            newEntry.Target = ParseEntity(CleanString(entryInfo[2]));
-            newEntry.Ability = ParseAbility(CleanString(entryInfo[3]));
-            newEntry.Effect = ParseEffect(CleanString(entryInfo[4]));
+            newEntry.Position= ParsePositionData(entryInfo[0]);
+            newEntry.Source = ParseEntity(CleanString(entryInfo[2]));
+            newEntry.Target = ParseEntity(CleanString(entryInfo[3]));
+            newEntry.Ability = ParseAbility(CleanString(entryInfo[4]));
+            newEntry.Effect = ParseEffect(CleanString(entryInfo[5]));
 
             newEntry.Value = ParseValues(value, newEntry.Effect);
             newEntry.Threat =string.IsNullOrEmpty(threat) ? 0 : int.Parse(threat.Replace("<","").Replace(">",""));
             return newEntry;
+        }
+        private static PositionData ParsePositionData(string positionString)
+        {
+            var elements = CleanString(positionString).Replace("{","").Replace("}","").Split(',');
+            return new PositionData { X = double.Parse(elements[1]), Y = double.Parse(elements[2]), Facing = double.Parse(elements[0]) };
         }
         private static Value ParseValues(string valueString, Effect currentEffect)
         {
@@ -263,15 +283,15 @@ namespace SWTORCombatParser
 
             return newValue;
         }
-        private static Entity ParseEntity(string value)
+        private static Entity ParseEntity(string value, bool isPlayer =false)
         {
             if (value.Contains("@") && !value.Contains(":"))
             {
-                var characterName = value.Replace("@", "");
+                var characterName = value.Split('#')[0].Replace("@", "");
                 var existingCharacterEntity = _currentEntities.FirstOrDefault(e => e.Name == characterName);
                 if (existingCharacterEntity != null)
                     return existingCharacterEntity;
-                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName};
+                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName, IsPlayer = isPlayer};
                 _currentEntities.Add(characterEntity);
                 return characterEntity;
             }

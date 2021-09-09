@@ -14,45 +14,57 @@ namespace SWTORCombatParser
     public static class CombatIdentifier
     {
         public static event Action<Combat> NewCombatAvailable = delegate { };
-        public static void UpdateOngoingCombat(List<ParsedLogEntry> newLogs, Combat combatToUpdate)
-        {
-            var orderdLogs = newLogs.OrderBy(t => t.TimeStamp);
-            combatToUpdate.Logs.AddRange(orderdLogs);
-            //combatToUpdate.CharacterName = combatToUpdate.Logs.First(l => l.Source == combatToUpdate.Owner).Source.Name;
-            combatToUpdate.StartTime = combatToUpdate.Logs.First().TimeStamp;
-            combatToUpdate.EndTime = combatToUpdate.Logs.Last().TimeStamp;
-            combatToUpdate.Targets.AddRange(GetTargets(newLogs));
-            combatToUpdate.Targets = GetTargets(combatToUpdate.Logs);
-            combatToUpdate.ParentEncounter = GetEncounterInfo(combatToUpdate.Logs);
-            combatToUpdate.EncounterBossInfo = GetCurrentBossInfo(combatToUpdate.Logs, combatToUpdate.ParentEncounter);
-            CombatMetaDataParse.PopulateMetaData(ref combatToUpdate);
-            NewCombatAvailable(combatToUpdate);
-        }
+        //public static void UpdateOngoingCombat(List<ParsedLogEntry> newLogs, Combat combatToUpdate)
+        //{
+        //    var orderdLogs = newLogs.OrderBy(t => t.TimeStamp);
+        //    combatToUpdate.Logs.AddRange(orderdLogs);
+        //    //combatToUpdate.CharacterName = combatToUpdate.Logs.First(l => l.Source == combatToUpdate.Owner).Source.Name;
+        //    combatToUpdate.StartTime = combatToUpdate.Logs.First().TimeStamp;
+        //    combatToUpdate.EndTime = combatToUpdate.Logs.Last().TimeStamp;
+        //    combatToUpdate.Targets.AddRange(GetTargets(newLogs));
+        //    combatToUpdate.Targets = GetTargets(combatToUpdate.Logs);
+        //    combatToUpdate.ParentEncounter = GetEncounterInfo(combatToUpdate.Logs);
+        //    combatToUpdate.EncounterBossInfo = GetCurrentBossInfo(combatToUpdate.Logs, combatToUpdate.ParentEncounter);
+        //    CombatMetaDataParse.PopulateMetaData(ref combatToUpdate);
+        //    NewCombatAvailable(combatToUpdate);
+        //}
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
             if (!ongoingLogs.Any(l => (l.Source.IsPlayer && l.Target.IsPlayer)))
                 return new Combat();
             var encounter = GetEncounterInfo(ongoingLogs);
+            var currentPariticpants = ongoingLogs.Where(l => l.Source.IsCharacter).Select(p => p.Source).Distinct().ToList();
             var newCombat = new Combat()
             {
-                CharacterName = ongoingLogs.First(l => (l.Source.IsPlayer && l.Target.IsPlayer)).Source.Name,
+                CharacterParticipants = currentPariticpants,
                 StartTime = ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp,
                 EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),
                 ParentEncounter = encounter,
                 EncounterBossInfo = GetCurrentBossInfo(ongoingLogs, encounter),
-                Logs = ongoingLogs,
+                Logs = SplitLogsByParticipant(ongoingLogs, currentPariticpants)
             };
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
             var sheildLogs = newCombat.IncomingSheildedLogs;
-            AddSheildingToLogs.AddSheildLogs(CombatLogStateBuilder.GetLocalState(), sheildLogs, newCombat);
+            //AddSheildingToLogs.AddSheildLogs(CombatLogStateBuilder.GetLocalState(), sheildLogs, newCombat);
             
             NewCombatAvailable(newCombat);
             return newCombat;
         }
-        private static List<string> GetTargets(List<ParsedLogEntry> logs)
+
+        private static Dictionary<Entity, List<ParsedLogEntry>> SplitLogsByParticipant(List<ParsedLogEntry> ongoingLogs, List<Entity> currentPariticpants)
         {
-            return logs.Select(l=>l.Target).Where(t=>!t.IsCharacter && !t.IsCompanion).Select(npc=>npc.Name).Distinct().ToList();
+            var logsByParticipant = new Dictionary<Entity, List<ParsedLogEntry>>();
+            foreach(var particpant in currentPariticpants)
+            {
+                logsByParticipant[particpant] = ongoingLogs.Where(l => l.Source == particpant || l.Target == particpant).ToList();
+            }
+            return logsByParticipant;
+        }
+
+        private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
+        {
+            return logs.Select(l=>l.Target).Where(t=>!t.IsCharacter && !t.IsCompanion).Distinct().ToList();
         }
         private static EncounterInfo GetEncounterInfo(List<ParsedLogEntry> logs)
         {

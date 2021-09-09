@@ -33,7 +33,7 @@ namespace SWTORCombatParser.ViewModels
         public List<Combat> Combats { get; set; }
         private Combat GetOverallCombat()
         {
-            var overallCombat = CombatIdentifier.GenerateNewCombatFromLogs(Combats.SelectMany(c => c.Logs).ToList());
+            var overallCombat = CombatIdentifier.GenerateNewCombatFromLogs(Combats.SelectMany(c => c.Logs.SelectMany(kvp=>kvp.Value)).ToList());
             overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);
             return overallCombat;
         }
@@ -60,7 +60,7 @@ namespace SWTORCombatParser.ViewModels
         public event Action<Combat> OnCombatUnselected = delegate { };
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
         public event Action<string> OnNewLog = delegate { };
-        public event Action<string> OnCharacterNameIdentified = delegate { };
+        public event Action<List<Entity>> ParticipantsUpdated = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public bool ShowTrash { get => showTrash; set
             {
@@ -209,7 +209,7 @@ namespace SWTORCombatParser.ViewModels
                 return;
             if (_allCombats.Any(pc => pc.IsCurrentCombat))
                 return;
-            OnCharacterNameIdentified(characterName);
+           // ParticipantsUpdated(characterName);
 
             StartCombat(location);
 
@@ -305,7 +305,7 @@ namespace SWTORCombatParser.ViewModels
         private string GetCombatLabel(Combat combat, bool isEncounter)
         {
             if (!isEncounter)
-                return combat.EncounterBossInfo == "" ? string.Join(", ", combat.Targets.Where(t => !string.IsNullOrEmpty(t))) : combat.EncounterBossInfo;
+                return combat.EncounterBossInfo == "" ? string.Join(", ", combat.Targets.Select(t=>t.Name).Where(t => !string.IsNullOrEmpty(t))) : combat.EncounterBossInfo;
             else
                 return combat.ParentEncounter.Name;
         }
@@ -329,7 +329,7 @@ namespace SWTORCombatParser.ViewModels
             OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
             OnCombatSelected(selectedCombat.Combat);
             CombatSelectionMonitor.FireNewCombat(selectedCombat.Combat);
-            OnCharacterNameIdentified(selectedCombat.Combat.CharacterName);
+            ParticipantsUpdated(selectedCombat.Combat.CharacterParticipants);
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

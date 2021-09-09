@@ -6,6 +6,7 @@ using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -20,7 +21,7 @@ namespace SWTORCombatParser.ViewModels
         private OverlayViewModel _overlayViewModel;
         private TableViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
-        private RaidViewModel _raidViewModel;
+       // private RaidViewModel _raidViewModel;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public string Title { get; set; }
@@ -38,7 +39,7 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
             _combatMonitorViewModel.OnLiveCombatUpdate += UpdateLivePlot;
             _combatMonitorViewModel.OnMonitoringStarted += MonitoringStarted;
-            _combatMonitorViewModel.OnCharacterNameIdentified += CharacterNameId;
+            _combatMonitorViewModel.ParticipantsUpdated += CharacterNameId;
             _combatMonitorViewModel.OnNewLog += NewSoftwareLog;
             
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
@@ -52,19 +53,19 @@ namespace SWTORCombatParser.ViewModels
             _softwareLogViewModel = new SoftwareLogViewModel();
             SoftwareLogView = new LogsView(_softwareLogViewModel);
 
-            _raidViewModel = new RaidViewModel();
-            _raidViewModel.RaidStateChanged += RaidingStateChaneged;
-            _raidViewModel.OnNewRaidCombatFinished += RaidCombatAdded;
-            _raidViewModel.OnRaidParticipantSelected += RaidPariticpantSelected;
-            _raidViewModel.OnNewRaidCombatStarted += RaidCombatStarted;
-            RaidView = new RaidView(_raidViewModel);
+            //_raidViewModel = new RaidViewModel();
+            //_raidViewModel.RaidStateChanged += RaidingStateChaneged;
+            //_raidViewModel.OnNewRaidCombatFinished += RaidCombatAdded;
+            //_raidViewModel.OnRaidParticipantSelected += RaidPariticpantSelected;
+            //_raidViewModel.OnNewRaidCombatStarted += RaidCombatStarted;
+            //RaidView = new RaidView(_raidViewModel);
 
             CombatLogParser.OnNewLog += NewSoftwareLog;
 
 
         }
         public OverlayView OverlayView { get; set; }
-        public RaidView RaidView { get; set; }
+        //public RaidView RaidView { get; set; }
         public GraphView GraphView { get; set; }
         public TableView TableView { get; set; }
         public LogsView SoftwareLogView { get; set; }
@@ -84,7 +85,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate
             {
-                _plotViewModel.SetCharacterName(name);
+                //_plotViewModel.UpdateParticipants(name);
                 _plotViewModel.Reset();
                 _combatMonitorViewModel.ClearCombats();
             });
@@ -113,7 +114,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.RemoveCombatPlot(obj);
-                _tableViewModel.RemoveCombatLogs(obj.Logs);
+                //_tableViewModel.RemoveCombatLogs(obj.Logs);
             });
         }
 
@@ -121,7 +122,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.UpdateLivePlot(obj);
-                _tableViewModel.AddCombatLogs(obj.Logs);
+               // _tableViewModel.AddCombatLogs(obj.Logs);
 
             });
         }
@@ -134,7 +135,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate{
                 _plotViewModel.AddCombatPlot(obj);
-                _tableViewModel.AddCombatLogs(obj.Logs);
+               // _tableViewModel.AddCombatLogs(obj.Logs);
 
             });
             
@@ -143,9 +144,9 @@ namespace SWTORCombatParser.ViewModels
         {
             
         }
-        private void CharacterNameId(string obj)
+        private void CharacterNameId(List<Entity> obj)
         {
-            _plotViewModel.SetCharacterName(obj);
+            _plotViewModel.UpdateParticipants(obj);
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

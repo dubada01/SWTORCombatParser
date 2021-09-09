@@ -21,10 +21,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
-        public string PlayerName { get => playerName; set {
-                playerName = value;
-                OnPropertyChanged();
-            } }
+        public Entity Player { get; set; }
+        public string PlayerName => Player.Name;
         public double RelativeLength { get => relativeLength; set {
                 
                 if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value+SecondaryValue==0 || TotalValue=="0")
@@ -112,10 +110,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SecondaryType = OverlayType.FocusDPS;
             }
             CombatSelectionMonitor.NewCombatSelected += Refresh;
-            StaticRaidInfo.NewRaidCombatDisplayed += UpdateMetrics;
-            StaticRaidInfo.OnPlayerRemoved += RemovePlayer;
+            //StaticRaidInfo.NewRaidCombatDisplayed += UpdateMetrics;
+            //StaticRaidInfo.OnPlayerRemoved += RemovePlayer;
             CombatIdentifier.NewCombatAvailable += UpdateMetrics;
-            StaticRaidInfo.NewRaidCombatStarted += ResetMetrics;
+            //StaticRaidInfo.NewRaidCombatStarted += ResetMetrics;
         }
         public void Refresh(Combat comb)
         {
@@ -146,38 +144,42 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void UpdateMetrics(Combat obj)
         {
             OverlayMetricInfo metricToUpdate;
-            if (string.IsNullOrEmpty(obj.CharacterName))
+            if (obj.CharacterParticipants.Count == 0)
                 return;
-            if(MetricBars.Any(m=>m.PlayerName == obj.CharacterName))
+            foreach(var participant in obj.CharacterParticipants)
             {
-                metricToUpdate = MetricBars.First(mb => mb.PlayerName == obj.CharacterName);
-            }
-            else
-            {
-                metricToUpdate = new OverlayMetricInfo() { PlayerName = obj.CharacterName, Type = Type };
-                App.Current.Dispatcher.Invoke(() => {
-                    MetricBars.Add(metricToUpdate);
-                });
-            }
-
-            UpdateMetric(Type, metricToUpdate, obj);
-            if(SecondaryType!= OverlayType.None)
-            {
-                UpdateSecondary(SecondaryType, metricToUpdate, obj);
-            }
-            var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
-            foreach(var metric in MetricBars)
-            {
-                if (double.Parse(metric.TotalValue) == 0 || (metric.Value+metric.SecondaryValue == 0) || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
-                    metric.RelativeLength = 0;
+                if (MetricBars.Any(m => m.Player == participant))
+                {
+                    metricToUpdate = MetricBars.First(mb => mb.Player == participant);
+                }
                 else
-                    metric.RelativeLength = double.Parse(maxValue)==0?0:(double.Parse(metric.TotalValue) / double.Parse(maxValue));
+                {
+                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type };
+                    App.Current.Dispatcher.Invoke(() => {
+                        MetricBars.Add(metricToUpdate);
+                    });
+                }
+
+                UpdateMetric(Type, metricToUpdate, obj, participant);
+                if (SecondaryType != OverlayType.None)
+                {
+                    UpdateSecondary(SecondaryType, metricToUpdate, obj,participant);
+                }
+                var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
+                foreach (var metric in MetricBars)
+                {
+                    if (double.Parse(metric.TotalValue) == 0 || (metric.Value + metric.SecondaryValue == 0) || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
+                        metric.RelativeLength = 0;
+                    else
+                        metric.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.TotalValue) / double.Parse(maxValue));
+                }
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    MetricBars = new ObservableCollection<OverlayMetricInfo>(MetricBars.OrderByDescending(mb => mb.RelativeLength));
+                });
+                OnPropertyChanged("MetricBars");
             }
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                MetricBars = new ObservableCollection<OverlayMetricInfo>(MetricBars.OrderByDescending(mb => mb.RelativeLength));
-            });
-            OnPropertyChanged("MetricBars");
+            
         }
         private void ResetMetrics()
         {
@@ -186,67 +188,67 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 MetricBars.Clear();
             });
         }
-        private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat combat)
+        private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat combat, Entity participant)
         {
             double value = 0;
             switch (type)
             {
                 case OverlayType.DPS:
-                    value = combat.RegDPS;
+                    value = combat.RegDPS[participant];
                     break;
                 case OverlayType.EHPS:
-                    value = combat.EHPS;
+                    value = combat.EHPS[participant];
                     break;
-                case OverlayType.SPS:
-                    value = combat.PSPS;
-                    break;
+                //case OverlayType.SPS:
+                //    //value = combat.PSPS[participant];
+                //    break;
                 case OverlayType.FocusDPS:
-                    value = combat.FocusDPS;
+                    value = combat.FocusDPS[participant];
                     break;
                 case OverlayType.TPS:
-                    value = combat.TPS;
+                    value = combat.TPS[participant];
                     break;
                 case OverlayType.DTPS:
-                    value = combat.DTPS;
+                    value = combat.DTPS[participant];
                     break;
                 case OverlayType.CompanionDPS:
-                    value = combat.CompDPS;
+                    value = combat.CompDPS[participant];
                     break;
                 case OverlayType.CompanionEHPS:
-                    value = combat.CompEHPS;
+                    value = combat.CompEHPS[participant];
                     break;
             }
             metric.SecondaryType = type;
             metric.SecondaryValue = value;
         }
-        private void UpdateMetric(OverlayType type, OverlayMetricInfo metricToUpdate, Combat obj)
+        private void UpdateMetric(OverlayType type, OverlayMetricInfo metricToUpdate, Combat obj, Entity participant)
         {
             double value = 0;
             switch (type)
             {
                 case OverlayType.DPS:
-                    value = obj.RegDPS;
+                    value = obj.RegDPS[participant];
                     break;
                 case OverlayType.FocusDPS:
-                    value = obj.FocusDPS;
+                    value = obj.FocusDPS[participant];
                     break;
                 case OverlayType.EHPS:
-                    value = obj.EHPS;
+                    value = obj.EHPS[participant];
                     break;
-                case OverlayType.SPS:
-                    value = obj.PSPS;
-                    break;
+                //case OverlayType.SPS:
+                //    value = obj.PSPS[participant];
+                //    break;
                 case OverlayType.TPS:
-                    value = obj.TPS;
+                    value = obj.TPS[participant];
                     break;
                 case OverlayType.DTPS:
-                    value = obj.DTPS;
+                    value = obj.DTPS[participant];
                     break;
                 case OverlayType.CompanionDPS:
-                    value = obj.CompDPS;
+                    value = obj.CompDPS[participant];
                     break;
                 case OverlayType.CompanionEHPS:
-                    value = obj.CompEHPS;
+                    value = obj.CompEHPS[participant];
                     break;
             }
             metricToUpdate.Value = value;

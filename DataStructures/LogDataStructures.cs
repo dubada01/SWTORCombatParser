@@ -11,6 +11,7 @@ namespace SWTORCombatParser
         public string LogName;
         public string LogText;
         public long LogLineNumber { get; set; }
+        public PositionData Position { get; set; }
         public DateTime TimeStamp { get; set; }
         public Entity Source { get; set; }
         public Entity Target { get; set; }
@@ -64,6 +65,12 @@ namespace SWTORCombatParser
                 Threat = Threat
             };
         }
+    }
+    public class PositionData
+    {
+        public double X;
+        public double Y;
+        public double Facing;
     }
     public enum ErrorType
     {

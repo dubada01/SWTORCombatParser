@@ -68,7 +68,11 @@ namespace SWTORCombatParser.Model.LogParsing
             //{
             //    UpdateCombatModifierState(log, state);
             //}
-            foreach(var log in logs)
+            if (!CurrentStates.ContainsKey(logName))
+            {
+                CurrentStates[logName] = new LogState();
+            }
+            foreach (var log in logs)
             {
                 UpdateCurrentStateWithSingleLog(log, logName);
             }
@@ -213,13 +217,13 @@ namespace SWTORCombatParser.Model.LogParsing
             { 
                 state.PlayerName = parsedLine.Target.Name;
             }
-            if (!string.IsNullOrEmpty(state.PlayerName))
-            {
-                if (parsedLine.Target.Name == state.PlayerName)
-                    parsedLine.Target.IsPlayer = true;
-                if (parsedLine.Source.Name == state.PlayerName)
-                    parsedLine.Source.IsPlayer = true;
-            }
+            //if (!string.IsNullOrEmpty(state.PlayerName))
+            //{
+            //    if (parsedLine.Target.Name == state.PlayerName)
+            //        parsedLine.Target.IsPlayer = true;
+            //    if (parsedLine.Source.Name == state.PlayerName)
+            //        parsedLine.Source.IsPlayer = true;
+            //}
         }
         private static Role GetPlayerRole(ParsedLogEntry log)
         {
