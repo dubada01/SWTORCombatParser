@@ -79,7 +79,7 @@ namespace SWTORCombatParser
     }
     public class Entity
     {
-        public string Name;
+        public string Name { get; set; }
         public bool IsCharacter;
         public bool IsPlayer;
         public bool IsCompanion;

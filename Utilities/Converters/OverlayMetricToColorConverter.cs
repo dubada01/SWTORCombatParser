@@ -31,8 +31,10 @@ namespace SWTORCombatParser.Utilities.Converters
                     return new SolidColorBrush(Brushes.IndianRed.Color.Lerp(Color.FromRgb(255,255,255), 0.33f));
                 case OverlayType.CompanionEHPS:
                     return new SolidColorBrush(Brushes.LimeGreen.Color.Lerp(Color.FromRgb(255, 255, 255), 0.33f));
+                case OverlayType.HealthDeficit:
+                    return Brushes.DimGray;
                 default:
-                    return Brushes.Transparent;
+                    return Brushes.Gray;
             }
         }
 

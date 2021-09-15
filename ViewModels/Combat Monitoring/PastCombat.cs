@@ -17,6 +17,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         public event Action<PastCombat> PastCombatUnSelected = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public bool IsCurrentCombat;
+        public bool IsMostRecentCombat = false;
         public EncounterInfo EncounterInfo { get; set; }
         public Combat Combat;
         private bool isSelected;

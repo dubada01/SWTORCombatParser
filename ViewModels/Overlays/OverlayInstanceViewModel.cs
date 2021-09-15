@@ -110,10 +110,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SecondaryType = OverlayType.FocusDPS;
             }
             CombatSelectionMonitor.NewCombatSelected += Refresh;
-            //StaticRaidInfo.NewRaidCombatDisplayed += UpdateMetrics;
-            //StaticRaidInfo.OnPlayerRemoved += RemovePlayer;
+            CombatIdentifier.NewCombatStarted += Reset;
             CombatIdentifier.NewCombatAvailable += UpdateMetrics;
-            //StaticRaidInfo.NewRaidCombatStarted += ResetMetrics;
+        }
+        public void Reset()
+        {
+            ResetMetrics();
         }
         public void Refresh(Combat comb)
         {
@@ -249,6 +251,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case OverlayType.CompanionEHPS:
                     value = obj.CompEHPS[participant];
+                    break;
+                case OverlayType.HealthDeficit:
+                    value = obj.CurrentHealthDeficit[participant];
                     break;
             }
             metricToUpdate.Value = value;

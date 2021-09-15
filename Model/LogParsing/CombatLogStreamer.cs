@@ -16,7 +16,7 @@ namespace SWTORCombatParser
     public class CombatLogStreamer
     {
         public event Action<List<ParsedLogEntry>> NewLogEntries = delegate { };
-        public event Action<string,string> CombatStarted = delegate { };
+        public event Action<string,string,bool> CombatStarted = delegate { };
         public event Action<string> NewSoftwareLog = delegate { };
         public event Action<List<ParsedLogEntry>> CombatStopped = delegate { };
 
@@ -105,33 +105,17 @@ namespace SWTORCombatParser
                 _newNumberOfEntries = allLogEntries.Length;
                 if (_newNumberOfEntries - 1 == _numberOfEntries)
                     return;
-                
+
                 for (var line = _numberOfEntries; line < allLogEntries.Length; line++)
                 {
                     ProcessNewLine(allLogEntries[line], line, Path.GetFileName(_logToMonitor));
                 }
+                _firstTimeThroughLog = false;
                 _numberOfEntries = _newNumberOfEntries - 1;
                 if (!_isInCombat)
-                    return;
-                _firstTimeThroughLog = false;
+                    return; 
                 CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
-
-                if (CombatLogParser.CurrentRaidGroup != null)
-                {
-                    try
-                    {
-                        var cloudRaiding = new PostgresConnection();
-                        UploadFrameDataToCloudRaiding(cloudRaiding);
-                    }
-                    catch (Exception e)
-                    {
-                        NewSoftwareLog(e.Message);
-                    }
-                }
-                else
-                {
-                    NewLogEntries(_currentFrameData);
-                }
+                NewLogEntries(_currentFrameData);
             }
         }
 
@@ -162,8 +146,7 @@ namespace SWTORCombatParser
             {
                 return;
             }
-            if(CombatLogParser.CurrentRaidGroup == null)
-                CombatLogParser.SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, logName));
+            CombatLogParser.SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, logName));
             CheckForCombatState(lineIndex, parsedLine);
             if (_isInCombat)
             {
@@ -180,8 +163,7 @@ namespace SWTORCombatParser
                     EndCombat();
                 _combatEnding = false;
                 _isInCombat = true;
-                if (CombatLogParser.CurrentRaidGroup == null)
-                    CombatStarted(parsedLine.Source.Name, parsedLine.Value.StrValue);
+                CombatStarted(parsedLine.Source.Name, parsedLine.Value.StrValue, _firstTimeThroughLog);
             }
             if ((parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat") || (parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsPlayer))
             {
@@ -198,58 +180,20 @@ namespace SWTORCombatParser
                 EndCombat();
             }
         }
-        private void UploadFrameDataToCloudRaiding(PostgresConnection cloudRaiding)
-        {
-            foreach (var log in _currentFrameData)
-            {
-                if (log.Source.IsCompanion)
-                {
-                    cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log.GetCompanionLog());
-                }
-                else
-                {
-                    cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId, log);
-                }
-            }
-            _currentFrameData.Clear();
-        }
         private void EndCombat()
         {
             CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
             CombatTimestampRectifier.RectifyTimeStamps(_currentCombatData);
             _isInCombat = false;
             _combatEnding = false;
-            if (CombatLogParser.CurrentRaidGroup != null && !_firstTimeThroughLog)
-            {
-                try
-                {
-                    UploadLogsToCloud();
-                }
-                catch(Exception e)
-                {
-                    NewSoftwareLog(e.Message);
-                }
-            }
-            else
-            {
-                if (CombatLogParser.CurrentRaidGroup == null)
-                {
-                    if (string.IsNullOrEmpty(_logToMonitor))
-                        return;
-                    //CombatLogStateBuilder.UpdateCurrentLogState(ref _currentFrameData, Path.GetFileName(_logToMonitor));
-                    CombatStopped(_currentCombatData); 
-                }
-            }
+
+            if (string.IsNullOrEmpty(_logToMonitor))
+                return;
+            //CombatLogStateBuilder.UpdateCurrentLogState(ref _currentFrameData, Path.GetFileName(_logToMonitor));
+            CombatStopped(_currentCombatData);
+
             _currentFrameData.Clear();
             _currentCombatData.Clear();
-        }
-
-        private void UploadLogsToCloud()
-        {
-            var cloudRaiding = new PostgresConnection();
-            UploadFrameDataToCloudRaiding(cloudRaiding);
-            cloudRaiding.AddLog(CombatLogParser.CurrentRaidGroup.GroupId,
-                ParsedLogEntry.GetEndCombatLog(_currentCombatData.Last().TimeStamp.AddMilliseconds(1), Path.GetFileName(_logToMonitor)));
         }
     }
 }

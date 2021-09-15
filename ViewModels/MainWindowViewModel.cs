@@ -71,50 +71,43 @@ namespace SWTORCombatParser.ViewModels
         public LogsView SoftwareLogView { get; set; }
         public PastCombatsView PastCombatsView { get; set; }
 
-        public SolidColorBrush RaidingActiveColor { get; set; }
-        private void RaidingStateChaneged(bool state)
-        {
-            if (state)
-                _combatMonitorViewModel.RaidingStarted();
-            else
-                _combatMonitorViewModel.RaidingStopped();
-            RaidingActiveColor = state ? new SolidColorBrush(Color.FromRgb(0,165,156)) : Brushes.Transparent;
-            OnPropertyChanged("RaidingActiveColor");
-        }
-        private void RaidPariticpantSelected(string name)
-        {
-            App.Current.Dispatcher.Invoke(delegate
-            {
-                //_plotViewModel.UpdateParticipants(name);
-                _plotViewModel.Reset();
-                _combatMonitorViewModel.ClearCombats();
-            });
-        }
-        private void RaidCombatStarted()
-        {
-            _combatMonitorViewModel.StartCombat("Raid Group");
-        }
-        private void RaidCombatAdded(Combat combatAdded)
-        {
-            if (combatAdded == null)
-                return;
-            App.Current.Dispatcher.Invoke(delegate
-            {
-                _combatMonitorViewModel.AddRaidCombat(combatAdded);
-            });
-        }
+        //public SolidColorBrush RaidingActiveColor { get; set; }
+        //private void RaidingStateChaneged(bool state)
+        //{
+        //    if (state)
+        //        _combatMonitorViewModel.RaidingStarted();
+        //    else
+        //        _combatMonitorViewModel.RaidingStopped();
+        //    RaidingActiveColor = state ? new SolidColorBrush(Color.FromRgb(0,165,156)) : Brushes.Transparent;
+        //    OnPropertyChanged("RaidingActiveColor");
+        //}
+        //private void RaidPariticpantSelected(string name)
+        //{
+        //    App.Current.Dispatcher.Invoke(delegate
+        //    {
+        //        //_plotViewModel.UpdateParticipants(name);
+        //        _plotViewModel.Reset();
+        //        _combatMonitorViewModel.ClearCombats();
+        //    });
+        //}
+        //private void RaidCombatStarted()
+        //{
+        //    _combatMonitorViewModel.StartCombat("Raid Group");
+        //}
+        //private void RaidCombatAdded(Combat combatAdded)
+        //{
+        //    if (combatAdded == null)
+        //        return;
+        //    App.Current.Dispatcher.Invoke(delegate
+        //    {
+        //        _combatMonitorViewModel.AddRaidCombat(combatAdded);
+        //    });
+        //}
         private void MonitoringStarted()
         {
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.Reset();
                 _tableViewModel.Reset();
-            });
-        }
-        private void UnselectCombat(Combat obj)
-        {
-            App.Current.Dispatcher.Invoke(delegate {
-                _plotViewModel.RemoveCombatPlot(obj);
-                //_tableViewModel.RemoveCombatLogs(obj.Logs);
             });
         }
 
@@ -138,7 +131,14 @@ namespace SWTORCombatParser.ViewModels
                // _tableViewModel.AddCombatLogs(obj.Logs);
 
             });
-            
+
+        }
+        private void UnselectCombat(Combat obj)
+        {
+            App.Current.Dispatcher.Invoke(delegate {
+                _plotViewModel.RemoveCombatPlot(obj);
+                //_tableViewModel.RemoveCombatLogs(obj.Logs);
+            });
         }
         private void UpdateDisplayedData(AxisLimits newAxisLimits)
         {

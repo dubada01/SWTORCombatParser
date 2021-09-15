@@ -75,18 +75,23 @@ namespace SWTORCombatParser.ViewModels
         {
             _currentCombat = combat;
             var currentState = CombatLogParser.GetCurrentLogState();
-            _currentCombatModifiers = currentState.GetCombatModifiersBetweenTimes(_currentCombat.StartTime, _currentCombat.EndTime);
+            _currentCombatModifiers = currentState.GetCombatModifiersBetweenTimes(_currentCombat.StartTime, _currentCombat.EndTime, SelectedParticipant);
             UpdateMetaDataFromCombat(_currentCombat);
 
         }
         public void UpdateMetaDataFromCombat(Combat combat)
         {
-            CombatMetaDatas.Clear();
+            App.Current.Dispatcher.Invoke(() => { CombatMetaDatas.Clear(); 
+            
+            if (!combat.CharacterParticipants.Contains(SelectedParticipant))
+                SelectedParticipant = combat.CharacterParticipants.First();
             var metaDatas = MetaDataFactory.GetMetaDatas(combat, SelectedParticipant);
             foreach (var metaData in metaDatas)
             {
                 CombatMetaDatas.Add(metaData);
             }
+            }
+            );
         }
         internal void UpdateBasedOnVisibleData(AxisLimits newAxisLimits)
         {
@@ -108,10 +113,10 @@ namespace SWTORCombatParser.ViewModels
                 CombatEffects.Clear();
                 return;
             }
-            var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(combatLogsInView.ToList());
+            var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(combatLogsInView.ToList( ));
             UpdateMetaDataFromCombat(newCombat);
             var currentState = CombatLogStateBuilder.CurrentStates[newCombat.LogFileName];
-            var modifiersDuringCombat = currentState.GetCombatModifiersBetweenTimes(newCombat.StartTime, newCombat.EndTime);
+            var modifiersDuringCombat = currentState.GetCombatModifiersBetweenTimes(newCombat.StartTime, newCombat.EndTime, SelectedParticipant);
             var abilities = modifiersDuringCombat.Select(m => m.Name).Distinct();
             var durations = modifiersDuringCombat.GroupBy(v => (v.Name, v.Source),
                 v => Math.Min(v.DurationSeconds, (newCombat.EndTime - v.StartTime).TotalSeconds), (info, durations) =>

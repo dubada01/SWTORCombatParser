@@ -15,7 +15,10 @@
         </Grid.RowDefinitions>
         <Border Grid.Row="0" Grid.Column="2" Background="SteelBlue" BorderBrush="DimGray" Margin="2" BorderThickness="2,2,2,2">
             <Viewbox>
-                <ComboBox Background="Transparent" BorderThickness="0" Width="150" Foreground="LightGray" ItemsSource="{Binding AvailableParticipants}" DisplayMemberPath="Name" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"></ComboBox>
+                <ComboBox Width="200" Foreground="DimGray" 
+                          ItemsSource="{Binding AvailableParticipants, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" 
+                          SelectedItem="{Binding SelectedParticipant, UpdateSourceTrigger=PropertyChanged}"
+                          Margin="5" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="20"></ComboBox>
             </Viewbox>
         </Border>
         <Viewbox Grid.Row="1" VerticalAlignment="top">

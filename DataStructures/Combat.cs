@@ -110,6 +110,7 @@ namespace SWTORCombatParser
         public Dictionary<Entity,double> TotalSheilding = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalProvidedSheilding = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalDamageTaken = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> CurrentHealthDeficit => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>Math.Max(0, TotalEffectiveDamageTaken[kvp.Key]-TotalEffectiveHealingReceived[kvp.Key]));
         public Dictionary<Entity,double> TotalEffectiveDamageTaken = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalHealingReceived = new Dictionary<Entity, double>();
         public Dictionary<Entity, double> TotalEffectiveHealingReceived = new Dictionary<Entity, double>();

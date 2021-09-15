@@ -19,7 +19,8 @@ namespace SWTORCombatParser.Model.Overlays
         TPS,
         DTPS,
         CompanionDPS,
-        CompanionEHPS
+        CompanionEHPS,
+        HealthDeficit
     }
     public class DefaultOverlayInfo
     {
@@ -43,6 +44,10 @@ namespace SWTORCombatParser.Model.Overlays
         public static void SetActiveState(OverlayType type, bool state)
         {
             var currentDefaults = GetDefaults();
+            if (!currentDefaults.ContainsKey(type))
+            {
+                currentDefaults[type] = new DefaultOverlayInfo() { Position = new Point(0,0), WidtHHeight = new Point(100,50), Acive=state };
+            }
             var defaultModified = currentDefaults[type];
             currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state };
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));

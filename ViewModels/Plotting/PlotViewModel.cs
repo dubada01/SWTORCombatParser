@@ -55,7 +55,10 @@ namespace SWTORCombatParser.Plotting
 
         private void SeletedParticipant(Entity obj)
         {
-            //PlotCombat();
+            GraphView.Plot.Clear();
+            GraphView.Plot.AxisAuto();
+            GraphView.Plot.SetAxisLimits(xMin: 0);
+            PlotCombat(_currentCombats[0], obj);
         }
 
         public CombatMetaDataView CombatMetaDataView { get; set; }
@@ -105,7 +108,7 @@ namespace SWTORCombatParser.Plotting
 
         internal void UpdateParticipants(List<Entity> obj)
         {
-            _combatMetaDataViewModel.AvailableParticipants = obj;
+            _combatMetaDataViewModel.AvailableParticipants = obj; 
         }
 
         public void UpdateLivePlot(Combat updatedCombat)

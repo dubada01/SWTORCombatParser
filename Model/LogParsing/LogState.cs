@@ -26,20 +26,20 @@ namespace SWTORCombatParser.Model.LogParsing
     {
         private static List<string> _healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
-        public string PlayerName { get; set; }
-        public SWTORClass PlayerClass { get; set; }
+        public Dictionary<Entity, SWTORClass> PlayerClasses = new Dictionary<Entity, SWTORClass>();
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public long MostRecentLogIndex = 0;
         public List<CombatModifier> Modifiers { get; set; } = new List<CombatModifier>();
-        public double GetCurrentHealsPerThreat(DateTime timeStamp)
+        public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
         {
+            var classOfSource = PlayerClasses[source];
             double healsPerThreat = 2;
             double healsModifier = 1;
-            if (PlayerClass == null)
+            if (classOfSource == null)
                 return healsPerThreat;
-            if (_healingDisciplines.Contains(PlayerClass.Discipline))
+            if (_healingDisciplines.Contains(classOfSource.Discipline))
                 healsModifier -= 0.1d;
-            if (_tankDisciplines.Contains(PlayerClass.Discipline))
+            if (_tankDisciplines.Contains(classOfSource.Discipline))
                 healsModifier += 1.5d;
             if (GetCombatModifiersAtTime(timeStamp).Any(m => m.Type == CombatModfierType.GuardedThreatReduced))
                 healsModifier -= .25d; //healsPerThreat *= 1.25;
@@ -49,9 +49,9 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             return Modifiers.Where(m => m.StartTime < timeStamp && m.StopTime >= timeStamp).ToList();
         }
-        public List<CombatModifier> GetCombatModifiersBetweenTimes(DateTime startTime, DateTime endTime)
+        public List<CombatModifier> GetCombatModifiersBetweenTimes(DateTime startTime, DateTime endTime, Entity owner)
         {
-            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime)).ToList();
+            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner).ToList();
             var correctedModifiers = inScopeModifiers.Select(m => {
                 CombatModifier correctedModifier = new CombatModifier();
                 if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
