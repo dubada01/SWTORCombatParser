@@ -2,6 +2,7 @@
 using SWTORCombatParser.DataStructures.RaidInfos;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SWTORCombatParser
@@ -22,14 +23,26 @@ namespace SWTORCombatParser
         public bool IsEncounterBoss;
 
         public Dictionary<Entity, List<ParsedLogEntry>> Logs = new Dictionary<Entity, List<ParsedLogEntry>>();
-
+        public List<ParsedLogEntry> AllLogs => GetJoinedDictionary(Logs);
         public Dictionary<Entity,List<ParsedLogEntry>> OutgoingDamageLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public List<ParsedLogEntry> AllDamageLogs => GetJoinedDictionary(OutgoingDamageLogs);
         public Dictionary<Entity, List<ParsedLogEntry>> IncomingDamageLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
-        public Dictionary<Entity, List<ParsedLogEntry>> IncomingSheildedLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public List<ParsedLogEntry> AllDamageTakenLogs => GetJoinedDictionary(IncomingDamageLogs);
+        public Dictionary<Entity, List<ParsedLogEntry>> IncomingDamageMitigatedLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
         public Dictionary<Entity, List<ParsedLogEntry>> OutgoingHealingLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public List<ParsedLogEntry> AllHealingLogs => GetJoinedDictionary(OutgoingHealingLogs);
         public Dictionary<Entity, List<ParsedLogEntry>> IncomingHealingLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
+        public List<ParsedLogEntry> AllIncomingHealingLogs => GetJoinedDictionary(IncomingHealingLogs);
         public Dictionary<Entity, List<ParsedLogEntry>> SheildingProvidedLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
-
+        private List<ParsedLogEntry> GetJoinedDictionary(Dictionary<Entity, List<ParsedLogEntry>> input)
+        {
+            List<ParsedLogEntry> logsToReturn = new List<ParsedLogEntry>();
+            foreach(var entity in input)
+            {
+                logsToReturn.AddRange(entity.Value);
+            }
+            return logsToReturn;
+        }
         public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByTarget(Entity source)
         {
             return GetByTarget(OutgoingDamageLogs[source]);
@@ -64,7 +77,7 @@ namespace SWTORCombatParser
         }
         public Dictionary<string,List<ParsedLogEntry>> GetShieldingBySource(Entity source)
         {
-            return GetBySource(IncomingSheildedLogs[source]);
+            return GetBySource(IncomingDamageMitigatedLogs[source]);
         }
         public Dictionary<string, List<ParsedLogEntry>> GetByTarget(List<ParsedLogEntry> logsToCheck)
         {
@@ -111,10 +124,14 @@ namespace SWTORCombatParser
         public Dictionary<Entity,double> TotalProvidedSheilding = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalDamageTaken = new Dictionary<Entity, double>();
         public Dictionary<Entity, double> CurrentHealthDeficit => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>Math.Max(0, TotalEffectiveDamageTaken[kvp.Key]-TotalEffectiveHealingReceived[kvp.Key]));
+        public Dictionary<Entity, double> TimeSpentBelowFullHealth = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalEffectiveDamageTaken = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalHealingReceived = new Dictionary<Entity, double>();
         public Dictionary<Entity, double> TotalEffectiveHealingReceived = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> TotalInterrupts = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> TotalMitigation = new Dictionary<Entity, double>();
 
+        public Dictionary<Entity, double> PercentageOfFightBelowFullHP => DurationSeconds == 0 ? TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => 0d) : TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value / DurationSeconds)*100);
         public Dictionary<Entity,double> TPS => DurationSeconds == 0 ? TotalThreat.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalThreat.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> DPS => DurationSeconds == 0 ? TotalDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> RegDPS => DurationSeconds == 0 ? TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
@@ -127,6 +144,7 @@ namespace SWTORCombatParser
         public Dictionary<Entity,double> SPS => DurationSeconds == 0 ? TotalSheilding.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalSheilding.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> PSPS => DurationSeconds == 0 ? TotalProvidedSheilding.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalProvidedSheilding.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> DTPS => DurationSeconds == 0 ? TotalDamageTaken.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
+        public Dictionary<Entity, double> AbsPS => DurationSeconds == 0 ? TotalMitigation.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalMitigation.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> EDTPS => DurationSeconds == 0 ?TotalEffectiveDamageTaken.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalEffectiveDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> HTPS => DurationSeconds == 0 ? TotalHealingReceived.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalHealingReceived.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> EHTPS => DurationSeconds == 0 ? TotalEffectiveHealingReceived.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveHealingReceived.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);

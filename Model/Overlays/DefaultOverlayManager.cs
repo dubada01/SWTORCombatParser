@@ -15,12 +15,15 @@ namespace SWTORCombatParser.Model.Overlays
         DPS,
         FocusDPS,
         EHPS,
-        SPS,
-        TPS,
-        DTPS,
+        Tank_Sheilding,
+        Sheilding,
+        Mitigation,
+        Threat,
+        DamageTaken,
         CompanionDPS,
         CompanionEHPS,
-        HealthDeficit
+        PercentOfFightBelowFullHP,
+        InterruptCount
     }
     public class DefaultOverlayInfo
     {

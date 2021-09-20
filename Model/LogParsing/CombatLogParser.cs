@@ -35,7 +35,7 @@ namespace SWTORCombatParser
         {
             _logState = currentState;
         }
-        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex)
+        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex,bool buildingState)
         {
             try
             {
@@ -55,8 +55,10 @@ namespace SWTORCombatParser
                 var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
                 parsedLine.LogText = logEntry;
                 parsedLine.LogLineNumber = lineIndex;
-
-                UpdateEffectiveHealValues(parsedLine, _logState);
+                if (!is7_0Logs && parsedLine.Source == parsedLine.Target && parsedLine.Source.IsCharacter)
+                    parsedLine.Source.IsLocalPlayer = true;
+                if(!buildingState)
+                    UpdateEffectiveHealValues(parsedLine, _logState);
 
                 return parsedLine;
             }
@@ -87,7 +89,7 @@ namespace SWTORCombatParser
             {
                 if (logLines[i] == "")
                     break;
-                var parsedLine= ParseLine(logLines[i], i);
+                var parsedLine= ParseLine(logLines[i], i,true);
                 if (parsedLine.Error == ErrorType.IncompleteLine)
                     continue;
                 parsedLog[i] = parsedLine;
@@ -101,7 +103,7 @@ namespace SWTORCombatParser
 
         public static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
         {
-            if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsPlayer)
+            if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCharacter)
             {
                 if (state.PlayerClasses[parsedLog.Source] == null)
                 { 
@@ -164,14 +166,15 @@ namespace SWTORCombatParser
             //    parsedLog.Value.EffectiveDblValue = parsedLog.Threat * (2/0.9d);
             //}
         }
-
+        private static bool is7_0Logs = false;
         private static void ParseLogStartLine(string[] entryInfos, string version)
         {
+            is7_0Logs = true;
             var player = _currentEntities.FirstOrDefault(e => CleanString(entryInfos[2]).Split(':')[0].Split('#')[0].Replace("@", "") == e.Name);
             if (player == null)
                 ParseEntity(entryInfos[2], true);
             else
-                player.IsPlayer = true;
+                player.IsLocalPlayer = true;
         }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {
@@ -286,13 +289,20 @@ namespace SWTORCombatParser
                 var existingCharacterEntity = _currentEntities.FirstOrDefault(e => e.Name == characterName);
                 if (existingCharacterEntity != null)
                     return existingCharacterEntity;
-                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName, IsPlayer = isPlayer};
+                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName, IsLocalPlayer = isPlayer};
                 _currentEntities.Add(characterEntity);
                 return characterEntity;
             }
             if (value.Contains("@") && value.Contains(":"))
             {
-                var compaionName = value.Split(':')[1];
+                var valueToUse = value; 
+                var compaionName = valueToUse.Split(':')[1];
+                if (value.Contains("/"))
+                { 
+                    valueToUse = value.Split('/')[1]; 
+                    compaionName = valueToUse.Split(':')[0];
+                }
+                
                 var companionNameComponents = compaionName.Split('{');
                 var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == companionNameComponents[0].Trim());
                 if (existingCompanionEntity != null)

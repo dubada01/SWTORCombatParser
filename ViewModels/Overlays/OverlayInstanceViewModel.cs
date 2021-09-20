@@ -18,9 +18,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double relativeLength;
         private double _value;
         private double _secondaryValue;
+        public string InfoText => $"{Type}: {(int)Value}"+ (SecondaryType!=OverlayType.None? $"\n{SecondaryType}: {(int)SecondaryValue}":"");
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
+        public bool AddSecondayToValue { get; set; }
         public Entity Player { get; set; }
         public string PlayerName => Player.Name;
         public double RelativeLength { get => relativeLength; set {
@@ -72,7 +74,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public string TotalValue => (Value + SecondaryValue).ToString("#,##0");
+        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue:0)).ToString("#,##0");
         public void Reset()
         {
             Value = 0;
@@ -93,7 +95,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public ObservableCollection<OverlayMetricInfo> MetricBars { get; set; } = new ObservableCollection<OverlayMetricInfo>();
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }
+        public bool AddSecondaryToValue { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
+        public event Action<bool> OnLocking = delegate { };
         public void OverlayClosing()
         {
             OverlayClosed(this);
@@ -103,11 +107,18 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Type = type;
             if(Type == OverlayType.EHPS)
             {
-                SecondaryType = OverlayType.SPS;
+                SecondaryType = OverlayType.Sheilding;
+                AddSecondaryToValue = true;
             }
             if (Type == OverlayType.DPS)
             {
                 SecondaryType = OverlayType.FocusDPS;
+                AddSecondaryToValue = true;
+            }
+            if (Type == OverlayType.DamageTaken)
+            {
+                SecondaryType = OverlayType.Mitigation;
+                AddSecondaryToValue = true;
             }
             CombatSelectionMonitor.NewCombatSelected += Refresh;
             CombatIdentifier.NewCombatStarted += Reset;
@@ -124,11 +135,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void LockOverlays()
         {
-            OverlaysMoveable = false;
+            OnLocking(true);
+               OverlaysMoveable = false;
             OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
+            OnLocking(false);
             OverlaysMoveable = true;
             OnPropertyChanged("OverlaysMoveable");
         }
@@ -156,7 +169,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 else
                 {
-                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type };
+                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue };
                     App.Current.Dispatcher.Invoke(() => {
                         MetricBars.Add(metricToUpdate);
                     });
@@ -201,16 +214,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.EHPS:
                     value = combat.EHPS[participant];
                     break;
-                //case OverlayType.SPS:
-                //    //value = combat.PSPS[participant];
-                //    break;
+                case OverlayType.Sheilding:
+                    value = combat.PSPS[participant];
+                    break;
                 case OverlayType.FocusDPS:
                     value = combat.FocusDPS[participant];
                     break;
-                case OverlayType.TPS:
+                case OverlayType.Threat:
                     value = combat.TPS[participant];
                     break;
-                case OverlayType.DTPS:
+                case OverlayType.DamageTaken:
                     value = combat.DTPS[participant];
                     break;
                 case OverlayType.CompanionDPS:
@@ -218,6 +231,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case OverlayType.CompanionEHPS:
                     value = combat.CompEHPS[participant];
+                    break;
+                case OverlayType.Mitigation:
+                    value = combat.AbsPS[participant];
                     break;
             }
             metric.SecondaryType = type;
@@ -237,14 +253,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.EHPS:
                     value = obj.EHPS[participant];
                     break;
-                //case OverlayType.SPS:
-                //    value = obj.PSPS[participant];
-                //    break;
-                case OverlayType.TPS:
+                case OverlayType.Tank_Sheilding:
+                    value = obj.SPS[participant];
+                    break;
+                case OverlayType.Threat:
                     value = obj.TPS[participant];
                     break;
-                case OverlayType.DTPS:
-                    value = obj.DTPS[participant];
+                case OverlayType.DamageTaken:
+                    value = obj.EDTPS[participant];
                     break;
                 case OverlayType.CompanionDPS:
                     value = obj.CompDPS[participant];
@@ -252,8 +268,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.CompanionEHPS:
                     value = obj.CompEHPS[participant];
                     break;
-                case OverlayType.HealthDeficit:
-                    value = obj.CurrentHealthDeficit[participant];
+                case OverlayType.PercentOfFightBelowFullHP:
+                    value = obj.PercentageOfFightBelowFullHP[participant];
+                    break;
+                case OverlayType.InterruptCount:
+                    value = obj.TotalInterrupts[participant];
                     break;
             }
             metricToUpdate.Value = value;

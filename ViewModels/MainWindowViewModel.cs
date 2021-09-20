@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
             _combatMonitorViewModel.OnLiveCombatUpdate += UpdateLivePlot;
             _combatMonitorViewModel.OnMonitoringStarted += MonitoringStarted;
-            _combatMonitorViewModel.ParticipantsUpdated += CharacterNameId;
+            _combatMonitorViewModel.ParticipantsUpdated += UpdateAvailableParticipants;
             _combatMonitorViewModel.OnNewLog += NewSoftwareLog;
             
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
@@ -115,7 +115,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.UpdateLivePlot(obj);
-               // _tableViewModel.AddCombatLogs(obj.Logs);
+                _tableViewModel.AddCombatLogs(obj);
 
             });
         }
@@ -128,7 +128,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate{
                 _plotViewModel.AddCombatPlot(obj);
-               // _tableViewModel.AddCombatLogs(obj.Logs);
+                _tableViewModel.AddCombatLogs(obj);
 
             });
 
@@ -137,14 +137,14 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.RemoveCombatPlot(obj);
-                //_tableViewModel.RemoveCombatLogs(obj.Logs);
+                _tableViewModel.Reset();
             });
         }
         private void UpdateDisplayedData(AxisLimits newAxisLimits)
         {
             
         }
-        private void CharacterNameId(List<Entity> obj)
+        private void UpdateAvailableParticipants(List<Entity> obj)
         {
             _plotViewModel.UpdateParticipants(obj);
         }

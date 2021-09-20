@@ -140,7 +140,7 @@ namespace SWTORCombatParser
                 CheckForCombatEnd(lineIndex,DateTime.MinValue);
                 return;
             }
-            var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
+            var parsedLine = CombatLogParser.ParseLine(line,lineIndex,false);
             parsedLine.LogName = Path.GetFileName(logName);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
@@ -165,7 +165,7 @@ namespace SWTORCombatParser
                 _isInCombat = true;
                 CombatStarted(parsedLine.Source.Name, parsedLine.Value.StrValue, _firstTimeThroughLog);
             }
-            if ((parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat") || (parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsPlayer))
+            if ((parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat") || (parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsLocalPlayer))
             {
                 _combatEnding = true;
                 _combatEndTime = parsedLine.TimeStamp;

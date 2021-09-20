@@ -25,7 +25,10 @@ namespace SWTORCombatParser.ViewModels
         public event Action<Entity> OnNewParticipantSelected = delegate { };
         public List<Entity> AvailableParticipants { get => availableParticipants; set { 
                 availableParticipants = value;
-                SelectedParticipant = availableParticipants[0];
+                if(!availableParticipants.Contains(SelectedParticipant))
+                    SelectedParticipant = availableParticipants[0];
+                else
+                    OnNewParticipantSelected(SelectedParticipant);
                 OnPropertyChanged();
             } }
         public Entity SelectedParticipant

@@ -41,8 +41,8 @@ namespace SWTORCombatParser
                 Logs = SplitLogsByParticipant(ongoingLogs, participants)
             };
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
-            var sheildLogs = newCombat.IncomingSheildedLogs;
-            //AddSheildingToLogs.AddSheildLogs(CombatLogStateBuilder.GetLocalState(), sheildLogs, newCombat);
+            var sheildLogs = newCombat.IncomingDamageMitigatedLogs;
+            AddSheildingToLogs.AddSheildLogs(sheildLogs, newCombat);
 
             return newCombat;
         }
@@ -59,7 +59,9 @@ namespace SWTORCombatParser
 
         private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
         {
-            return logs.Select(l=>l.Target).Where(t=>!t.IsCharacter && !t.IsCompanion).Distinct().ToList();
+            var targets = logs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion).ToList();
+            targets.AddRange(logs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion));
+            return targets.Distinct().ToList();
         }
         private static EncounterInfo GetEncounterInfo(List<ParsedLogEntry> logs)
         {

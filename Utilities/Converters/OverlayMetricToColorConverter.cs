@@ -21,18 +21,24 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.OrangeRed;
                 case OverlayType.EHPS:
                     return Brushes.LimeGreen;
-                case OverlayType.SPS:
+                case OverlayType.Tank_Sheilding:
                     return Brushes.CornflowerBlue;
-                case OverlayType.TPS:
+                case OverlayType.Sheilding:
+                    return Brushes.CadetBlue;
+                case OverlayType.Threat:
                     return Brushes.Orchid;
-                case OverlayType.DTPS:
+                case OverlayType.DamageTaken:
                     return Brushes.Peru;
                 case OverlayType.CompanionDPS:
                     return new SolidColorBrush(Brushes.IndianRed.Color.Lerp(Color.FromRgb(255,255,255), 0.33f));
                 case OverlayType.CompanionEHPS:
                     return new SolidColorBrush(Brushes.LimeGreen.Color.Lerp(Color.FromRgb(255, 255, 255), 0.33f));
-                case OverlayType.HealthDeficit:
+                case OverlayType.PercentOfFightBelowFullHP:
                     return Brushes.DimGray;
+                case OverlayType.Mitigation:
+                    return Brushes.Sienna;
+                case OverlayType.InterruptCount:
+                    return Brushes.SteelBlue;
                 default:
                     return Brushes.Gray;
             }

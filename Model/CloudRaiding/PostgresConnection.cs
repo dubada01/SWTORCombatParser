@@ -19,8 +19,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (var cmd = new NpgsqlCommand("INSERT INTO public.raid_logs" +
                 " (raid_group_id,\"timestamp\",target_name,target_isplayer,target_ischaracter,target_iscompanion,source_name,source_isplayer,source_ischaracter,source_iscompanion,ability,effect_name,effect_type,value_raw,value_effective,value_string,was_crit,modifier_raw,modifier_type,threat,log_file_name)" +
                 $" VALUES ('{groupId}','{GetUTCTimeStamp(logToAdd.TimeStamp).ToString("yyyy-MM-dd HH:mm:ss.ms")}'," +
-                $"'{logToAdd.Target.Name.MakePGSQLSafe()}',{logToAdd.Target.IsPlayer},{logToAdd.Target.IsCharacter},{logToAdd.Target.IsCompanion}," +
-                $"'{logToAdd.Source.Name.MakePGSQLSafe()}',{logToAdd.Source.IsPlayer},{logToAdd.Source.IsCharacter},{logToAdd.Source.IsCompanion}," +
+                $"'{logToAdd.Target.Name.MakePGSQLSafe()}',{logToAdd.Target.IsLocalPlayer},{logToAdd.Target.IsCharacter},{logToAdd.Target.IsCompanion}," +
+                $"'{logToAdd.Source.Name.MakePGSQLSafe()}',{logToAdd.Source.IsLocalPlayer},{logToAdd.Source.IsCharacter},{logToAdd.Source.IsCompanion}," +
                 $"'{logToAdd.Ability.MakePGSQLSafe()}'," +
                 $"'{logToAdd.Effect.EffectName.MakePGSQLSafe()}','{logToAdd.Effect.EffectType}'," +
                 $"{logToAdd.Value.DblValue},{logToAdd.Value.EffectiveDblValue},'{logToAdd.Value.StrValue}',{logToAdd.Value.WasCrit}," +
@@ -227,14 +227,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var targetName = reader.GetString(2);
             var isPlayer = reader.GetBoolean(3);
             var isCharacter = reader.GetBoolean(4);
-            if (_seenEntities.Any(e => e.Name == targetName && e.IsCharacter == isCharacter && e.IsPlayer == isPlayer))
+            if (_seenEntities.Any(e => e.Name == targetName && e.IsCharacter == isCharacter && e.IsLocalPlayer == isPlayer))
                 target = _seenEntities.First(e => e.Name == targetName);
             else
             {
                 target = new Entity
                 {
                     Name = reader.GetString(2),
-                    IsPlayer = reader.GetBoolean(3),
+                    IsLocalPlayer = reader.GetBoolean(3),
                     IsCharacter = reader.GetBoolean(4),
                     IsCompanion = reader.GetBoolean(20)
                     
@@ -256,7 +256,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 source = new Entity
                 {
                     Name = reader.GetString(5),
-                    IsPlayer = reader.GetBoolean(6),
+                    IsLocalPlayer = reader.GetBoolean(6),
                     IsCharacter = reader.GetBoolean(7),
                     IsCompanion = reader.GetBoolean(21)
                 };

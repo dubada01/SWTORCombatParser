@@ -95,15 +95,20 @@ namespace SWTORCombatParser.Model.LogParsing
             else
                 return ": " + effectName;
         }
-        private static bool SetPlayerClass(ParsedLogEntry parsedLine, LogState state)
+        private static void SetPlayerClass(ParsedLogEntry parsedLine, LogState state)
         {
+            if (!parsedLine.Source.IsCharacter)
+                return;
+            if (!state.PlayerClasses.ContainsKey(parsedLine.Source))
+                state.PlayerClasses[parsedLine.Source] = null;
+
             if (parsedLine.Error == ErrorType.IncompleteLine)
-                return false;
+                return;
             var swtorClass = ClassIdentifier.IdentifyClass(parsedLine);
             if (swtorClass == null)
-                return false;
+                return;
             state.PlayerClasses[parsedLine.Source] = swtorClass;
-            return true;
+
         }
         private static Role GetPlayerRole(ParsedLogEntry log)
         {
@@ -116,7 +121,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static string GetPlayerName(ParsedLogEntry log)
         {
-            if (log.Source.Name == log.Target.Name && log.Source.IsPlayer)
+            if (log.Source.Name == log.Target.Name && log.Source.IsLocalPlayer)
                 return log.Source.Name;
             else
                 return "";

@@ -81,7 +81,7 @@ namespace SWTORCombatParser
     {
         public string Name { get; set; }
         public bool IsCharacter;
-        public bool IsPlayer;
+        public bool IsLocalPlayer;
         public bool IsCompanion;
     }
     public class Effect
