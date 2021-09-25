@@ -21,6 +21,11 @@ namespace SWTORCombatParser
             else
                 return totalLogsDuringCombat.Select(l => l.Value.EffectiveDblValue).ToArray();
         }
+        internal static double[] GetPlotXValsRates(double[] timeStamps)
+        {
+            var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last() - timeStamps.First())).ToList();
+            return timeStampsSpread.Select(d=>(double)d).ToArray();
+        }
         internal static double[] GetPlotYValRates(List<ParsedLogEntry> totalLogsDuringCombat,double[] timeStamps, bool checkEffective)
         {
             //double sum = 0;
@@ -30,7 +35,7 @@ namespace SWTORCombatParser
             //else
             //    sums = totalLogsDuringCombat.Skip(1).Select((l) => sum += l.Value.EffectiveDblValue).ToList();
             //return sums.Select((s,i) => s / ((timeStamps.Skip(1).ToArray()[i]) == 0 ? 0.1d : (timeStamps.Skip(1).ToArray()[i]))).ToArray();
-            var movingAverageCalc = new MovingAverage(TimeSpan.FromSeconds(30));
+            var movingAverageCalc = new MovingAverage(TimeSpan.FromSeconds(10));
 
             var values = new List<double>();
             if (!checkEffective)
@@ -38,9 +43,27 @@ namespace SWTORCombatParser
             else
                 values = totalLogsDuringCombat.Select((l) => l.Value.EffectiveDblValue).ToList();
             var movingaverage = new List<double>();
-            for(var i =0;i<values.Count;i++)
+            var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last()- timeStamps.First())).ToList();
+
+            foreach(var denseTime in timeStampsSpread)
             {
-                movingaverage.Add(movingAverageCalc.ComputeAverage(values[i],timeStamps[i]));
+                var indexes = timeStamps.Select((v, i) => new { v, i })
+                    .Where(x => x.v > denseTime && x.v <= denseTime+1)
+                    .Select(x => x.i);
+                if (indexes.Any())
+                {
+                    var valSum = 0d;
+                    foreach(var ind in indexes)
+                    {
+                        valSum += values[ind];
+                    }
+                    movingaverage.Add(movingAverageCalc.ComputeAverage(valSum, denseTime));
+                }
+                else
+                {
+                    movingaverage.Add(movingAverageCalc.ComputeAverage(0, denseTime));
+                }
+                
             }
             return movingaverage.ToArray();
         }
@@ -91,7 +114,8 @@ namespace SWTORCombatParser
                 sampleAccumulator -= samples.Dequeue().Item1;
             }
 
-            Average = sampleAccumulator / samples.Count;
+            Average = sampleAccumulator / (samples.Count == 1?1:(samples.Last().Item2 - samples.First().Item2));
+
             return Average;
         }
     }

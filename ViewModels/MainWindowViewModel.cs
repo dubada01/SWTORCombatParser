@@ -21,6 +21,7 @@ namespace SWTORCombatParser.ViewModels
         private OverlayViewModel _overlayViewModel;
         private TableViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
+        private HistogramViewModel _histViewModel;
        // private RaidViewModel _raidViewModel;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -53,6 +54,9 @@ namespace SWTORCombatParser.ViewModels
             _softwareLogViewModel = new SoftwareLogViewModel();
             SoftwareLogView = new LogsView(_softwareLogViewModel);
 
+            _histViewModel = new HistogramViewModel();
+            HistogramView = new HistogramView(_histViewModel);
+
             //_raidViewModel = new RaidViewModel();
             //_raidViewModel.RaidStateChanged += RaidingStateChaneged;
             //_raidViewModel.OnNewRaidCombatFinished += RaidCombatAdded;
@@ -68,6 +72,7 @@ namespace SWTORCombatParser.ViewModels
         //public RaidView RaidView { get; set; }
         public GraphView GraphView { get; set; }
         public TableView TableView { get; set; }
+        public HistogramView HistogramView { get; set; }
         public LogsView SoftwareLogView { get; set; }
         public PastCombatsView PastCombatsView { get; set; }
 
@@ -116,6 +121,7 @@ namespace SWTORCombatParser.ViewModels
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.UpdateLivePlot(obj);
                 _tableViewModel.AddCombatLogs(obj);
+                _histViewModel.AddCombat(obj);
 
             });
         }
@@ -129,7 +135,7 @@ namespace SWTORCombatParser.ViewModels
             App.Current.Dispatcher.Invoke(delegate{
                 _plotViewModel.AddCombatPlot(obj);
                 _tableViewModel.AddCombatLogs(obj);
-
+                _histViewModel.AddCombat(obj);
             });
 
         }
@@ -138,6 +144,7 @@ namespace SWTORCombatParser.ViewModels
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.RemoveCombatPlot(obj);
                 _tableViewModel.Reset();
+                _histViewModel.RemoveCombat(obj);
             });
         }
         private void UpdateDisplayedData(AxisLimits newAxisLimits)

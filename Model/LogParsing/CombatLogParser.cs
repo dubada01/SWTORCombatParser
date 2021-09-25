@@ -23,7 +23,7 @@ namespace SWTORCombatParser
 
         public static LogState InitalizeStateFromLog(CombatLogFile file)
         {
-            var lines = ParseAllLines(file);
+            var lines = ParseAllLines(file,true);
             _logState = CombatLogStateBuilder.UpdateCurrentLogState(ref lines,file.Name);
             return _logState;
         }
@@ -68,40 +68,29 @@ namespace SWTORCombatParser
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
             }
         }
-        public static List<ParsedLogEntry> ParseLast10Mins(CombatLogFile file)
-        {
-            var allLines = ParseAllLines(file);
-            return allLines.Where(l => l.TimeStamp > allLines.Last().TimeStamp.AddMinutes(-10)).ToList();
-        }
-        public static List<ParsedLogEntry> GetAllCombatStartEvents(CombatLogFile log)
-        {
-            var allLines = ParseAllLines(log);
-            return allLines.Where(l => l.Effect.EffectName=="EnterCombat").ToList();
-        }
 
-        private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
+        public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog,bool buildingState)
         {
             _logDate = combatLog.Time;
             var logLines = combatLog.Data.Split('\n');
             var numberOfLines = logLines.Length;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
             for (var i = 0; i < numberOfLines; i++)
-            {
-                if (logLines[i] == "")
-                    break;
-                var parsedLine= ParseLine(logLines[i], i,true);
-                if (parsedLine.Error == ErrorType.IncompleteLine)
-                    continue;
-                parsedLog[i] = parsedLine;
-                parsedLog[i].LogName = combatLog.Name;
-            }
+           // Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
+              {
+                  if (logLines[i] == "")
+                      break;
+                  var parsedLine = ParseLine(logLines[i], i, buildingState);
+                  if (parsedLine.Error == ErrorType.IncompleteLine)
+                      continue;
+                  parsedLog[i] = parsedLine;
+                  parsedLog[i].LogName = combatLog.Name;
+              }
             CombatTimestampRectifier.RectifyTimeStamps(parsedLog.Where(l => l != null).ToList());
             return parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp).ToList();
         }
 
-
-
-        public static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
+        private static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
         {
             if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCharacter)
             {
@@ -161,10 +150,6 @@ namespace SWTORCombatParser
             {
                 parsedLog.Value.EffectiveDblValue = parsedLog.Threat * (5);
             }
-            //if (parsedLog.Effect.EffectName == "Heal" && parsedLog.Target.IsPlayer)
-            //{
-            //    parsedLog.Value.EffectiveDblValue = parsedLog.Threat * (2/0.9d);
-            //}
         }
         private static bool is7_0Logs = false;
         private static void ParseLogStartLine(string[] entryInfos, string version)
@@ -198,9 +183,7 @@ namespace SWTORCombatParser
 
             newEntry.Value = ParseValues(value, newEntry.Effect);
             newEntry.Threat =string.IsNullOrEmpty(threat) ? 0 : int.Parse(threat.Replace("<","").Replace(">",""));
-            //if (extractionOffset == 1 && newEntry.Target == newEntry.Source)
-            //    newEntry.Target.IsPlayer = true;
-                
+               
             return newEntry;
         }
         private static PositionData ParsePositionData(string positionString)

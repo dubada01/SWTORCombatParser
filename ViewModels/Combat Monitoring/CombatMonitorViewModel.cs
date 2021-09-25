@@ -46,13 +46,14 @@ namespace SWTORCombatParser.ViewModels
         private int _numberOfSelectedCombats = 0; 
         private bool showTrash;
         private List<PastCombat> _allCombats = new List<PastCombat>();
-
+        private bool usingHistoricalData = false;
         public CombatMonitorViewModel()
         {
             _combatLogStreamer = new CombatLogStreamer();
             _combatLogStreamer.CombatStopped += CombatStopped;
             _combatLogStreamer.CombatStarted += CombatStarted;
             _combatLogStreamer.NewLogEntries += UpdateLog;
+            _combatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
         }
 
         public event Action OnMonitoringStarted = delegate { };
@@ -83,19 +84,10 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged();
             }
         }
-        public void RaidingStarted()
-        {
-            ClearCombats();
-            EnableLiveParse(true);
-        }
-        public void RaidingStopped()
-        {
-            ClearCombats();
-            LiveParseActive = false;
-        }
-        public ICommand ToggleLiveParseCommand => new CommandHandler(ToggleLiveParse, () => true);
 
-        private void ToggleLiveParse()
+        public ICommand ToggleLiveParseCommand => new CommandHandler(ToggleLiveParse);
+
+        private void ToggleLiveParse(object test)
         {
             if (!LiveParseActive)
             {
@@ -107,7 +99,7 @@ namespace SWTORCombatParser.ViewModels
             }
 
         }
-        private void EnableLiveParse(bool forRaiding = false)
+        private void EnableLiveParse()
         {
             if (LiveParseActive)
                 return;
@@ -116,7 +108,7 @@ namespace SWTORCombatParser.ViewModels
             ClearCombats();
             OnMonitoringStarted();
             var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-            _combatLogStreamer.MonitorLog(mostRecentLog.Path, forRaiding);
+            _combatLogStreamer.MonitorLog(mostRecentLog.Path);
             OnNewLog("Started Monitoring: " + mostRecentLog.Path);
         }
         private void DisableLiveParse()
@@ -142,12 +134,11 @@ namespace SWTORCombatParser.ViewModels
             foreach (var combat in PastCombats.Where(c => c.IsSelected))
             {
                 combat.IsSelected = false;
-                Trace.WriteLine("Unselected " + combat.CombatStartTime);
             }
         }
         public string CurrentlySelectedLogName { get; set; }
-        public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog, () => true);
-        private void LoadSpecificLog()
+        public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog);
+        private void LoadSpecificLog(object test)
         {
             var openFileDialog = new OpenFileDialog();
             openFileDialog.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
@@ -196,11 +187,11 @@ namespace SWTORCombatParser.ViewModels
                 UpdateVisibleData();
             });
         }
-        private bool isLogUpdatedLive = false;
+        
         private void UpdateLog(List<ParsedLogEntry> obj)
         {
             _totalLogsDuringCombat.AddRange(obj);
-            isLogUpdatedLive = true;
+            usingHistoricalData = true;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat.ToList());
             CombatIdentifier.UpdateOverlays(combatInfo);
             var combatUI = _allCombats.First(c => c.IsCurrentCombat);
@@ -219,9 +210,15 @@ namespace SWTORCombatParser.ViewModels
             _totalLogsDuringCombat.Clear();
             _totalLogsDuringCombat.AddRange(obj);
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat.ToList());
-            CombatIdentifier.UpdateOverlays(combatInfo);
+            if(usingHistoricalData)
+                CombatIdentifier.UpdateOverlays(combatInfo);
             AddCombat(combatInfo);
             ManageEncounter(combatInfo);
+        }
+        private void HistoricalLogsFinished()
+        {
+            _numberOfSelectedCombats = 0;
+            UpdateVisibleData();
         }
         private void ManageEncounter(Combat combat)
         {
@@ -257,23 +254,25 @@ namespace SWTORCombatParser.ViewModels
             combatUI.PastCombatSelected += SelectCombat;
             combatUI.PastCombatUnSelected += UnselectCombat;
             combatUI.UnselectAll += UnSelectAll;
-            App.Current.Dispatcher.Invoke(delegate
+            _allCombats.Insert(0, combatUI);
+            if (!isEncounter)
             {
-                _allCombats.Insert(0, combatUI);
-                if (!isEncounter)
+                _allCombats.ForEach(c => c.IsMostRecentCombat = false);
+                combatUI.IsMostRecentCombat = true;
+            }
+            if (usingHistoricalData)
+            {
+                App.Current.Dispatcher.Invoke(delegate
                 {
-                    _allCombats.ForEach(c => c.IsMostRecentCombat = false);
-                    combatUI.IsMostRecentCombat = true;
-                }
-                UpdateVisibleData();
-            });
-
+                    UpdateVisibleData();
+                });
+            }
                 
-            if (isLogUpdatedLive && !isEncounter)
+            if (usingHistoricalData && !isEncounter)
             {
                 UnSelectAll();
                 combatUI.IsSelected = true;
-                isLogUpdatedLive = false;
+                usingHistoricalData = false;
             }
             OnNewLog("Combat with duration " + combatInfo.DurationSeconds + " ended");
         }
@@ -286,7 +285,8 @@ namespace SWTORCombatParser.ViewModels
                 {
                     var encounterToUpdate = _allCombats.FirstOrDefault(pc => pc.EncounterInfo == CurrentEncounter.Info);
                     _allCombats.Remove(encounterToUpdate);
-                    UpdateVisibleData();
+                    if(usingHistoricalData)
+                        UpdateVisibleData();
                 });
             }
         }

@@ -14,10 +14,17 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
     {
         public string Difficutly;
         public string NumberOfPlayer;
+        private List<string> bossNames;
+
         public string LogName { get; set; }
         public string Name { get; set; }
-        public List<string> BossNames { get; set; }
-        public List<BossInfo> BossInfos => BossNames.Select(b => new BossInfo() { EncounterName = b.Contains("~?~") ? b.Split("~?~", StringSplitOptions.None)[0] : b, TargetNames = b.Contains("~?~") ? b.Split("~?~", StringSplitOptions.None)[1].Split('|').ToList() : new List<string>() { b } }).ToList();
+        public List<string> BossNames { get => bossNames; set
+            {
+                bossNames = value;
+                BossInfos = BossNames.Select(b => new BossInfo() { EncounterName = b.Contains("~?~") ? b.Split("~?~", StringSplitOptions.None)[0] : b, TargetNames = b.Contains("~?~") ? b.Split("~?~", StringSplitOptions.None)[1].Split('|').ToList() : new List<string>() { b } }).ToList();
+            } 
+        }
+        public List<BossInfo> BossInfos { get; set; } 
 
     }
 }

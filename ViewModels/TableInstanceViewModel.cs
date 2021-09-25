@@ -21,7 +21,8 @@ namespace SWTORCombatParser.ViewModels
     {
         Damage,
         Healing,
-        DamageTaken
+        DamageTaken,
+        HealingReceived
     }
     public enum SortingOption
     {
@@ -32,7 +33,7 @@ namespace SWTORCombatParser.ViewModels
     public class TableInstanceViewModel : INotifyPropertyChanged
     {
         private SortingOption sortingOption;
-
+        private Entity _selectedEntity;
         public SortingOption SortingOption { get => sortingOption; set
             { 
                 sortingOption = value;
@@ -41,9 +42,17 @@ namespace SWTORCombatParser.ViewModels
         }
         public TableDataType Type { get; set; }
         public List<CombatInfoInstance> DataToView { get; set; }
-        public Combat SeletedCombat;
+        public Combat SelectedCombat;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        internal void UpdateEntity(Entity selectedEntity)
+        {
+            
+            _selectedEntity = selectedEntity;
+            Update();
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -54,7 +63,7 @@ namespace SWTORCombatParser.ViewModels
         }
         public void DisplayNewData(Combat combat)
         {
-            SeletedCombat = combat;
+            SelectedCombat = combat;
             Update();
         }
         public void Reset()
@@ -64,17 +73,22 @@ namespace SWTORCombatParser.ViewModels
         }
         private void Update()
         {
+            if (_selectedEntity == null || SelectedCombat == null)
+                return;
             DataToView = new List<CombatInfoInstance>();
             switch (Type)
             {
                 case TableDataType.Damage:
-                    DisplayDamageData(SeletedCombat);
+                    DisplayDamageData(SelectedCombat);
                     break;
                 case TableDataType.Healing:
-                    DisplayHealingData(SeletedCombat);
+                    DisplayHealingData(SelectedCombat);
                     break;
                 case TableDataType.DamageTaken:
-                    DisplayDamageTakenData(SeletedCombat);
+                    DisplayDamageTakenData(SelectedCombat);
+                    break;
+                case TableDataType.HealingReceived:
+                    DisplayHealingReceived(SelectedCombat);
                     break;
             }
             OnPropertyChanged("DataToView");
@@ -82,7 +96,7 @@ namespace SWTORCombatParser.ViewModels
         private void DisplayDamageTakenData(Combat combat)
         {
 
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.AllDamageTakenLogs);
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingDamageLogs[_selectedEntity]);
             foreach (var orderedKey in splitOutdata)
             {
                 PoppulateRows(orderedKey);
@@ -91,7 +105,7 @@ namespace SWTORCombatParser.ViewModels
 
         private void DisplayHealingData(Combat combat)
         {
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.AllHealingLogs);
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingHealingLogs[_selectedEntity]);
             foreach (var orderedKey in splitOutdata)
             {
                 PoppulateRows(orderedKey);
@@ -100,7 +114,16 @@ namespace SWTORCombatParser.ViewModels
 
         private void DisplayDamageData(Combat combat)
         {
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.AllDamageLogs);
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingDamageLogs[_selectedEntity]);
+            foreach (var orderedKey in splitOutdata)
+            {
+                PoppulateRows(orderedKey);
+            }
+        }
+        private void DisplayHealingReceived(Combat combat)
+        {
+
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingHealingLogs[_selectedEntity]);
             foreach (var orderedKey in splitOutdata)
             {
                 PoppulateRows(orderedKey);
@@ -113,7 +136,7 @@ namespace SWTORCombatParser.ViewModels
             {
                 SortItem = orderedKey.Key,
                 Total = (int)orderedKey.Value.Sum(v => v.Value.EffectiveDblValue),
-                Rate = (int)(orderedKey.Value.Sum(v => v.Value.EffectiveDblValue)/SeletedCombat.DurationSeconds),
+                Rate = (int)(orderedKey.Value.Sum(v => v.Value.EffectiveDblValue)/SelectedCombat.DurationSeconds),
                 Average = (int)orderedKey.Value.Average(v => v.Value.EffectiveDblValue),
                 Max = (int)orderedKey.Value.Max(v => v.Value.EffectiveDblValue),
                 Count = (int)orderedKey.Value.Count(),

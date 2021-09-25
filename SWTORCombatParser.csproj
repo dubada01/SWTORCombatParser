@@ -14,11 +14,28 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+
   <ItemGroup>
+    <Compile Remove="Installer Project\**" />
+    <Compile Remove="Orbs Package Builder\**" />
     <Compile Remove="SWTORCombatParser_Test\**" />
+    <Compile Remove="UWP Images\**" />
+    <EmbeddedResource Remove="Installer Project\**" />
+    <EmbeddedResource Remove="Orbs Package Builder\**" />
     <EmbeddedResource Remove="SWTORCombatParser_Test\**" />
+    <EmbeddedResource Remove="UWP Images\**" />
+    <None Remove="Installer Project\**" />
+    <None Remove="Orbs Package Builder\**" />
     <None Remove="SWTORCombatParser_Test\**" />
+    <None Remove="UWP Images\**" />
+    <Page Remove="Installer Project\**" />
+    <Page Remove="Orbs Package Builder\**" />
     <Page Remove="SWTORCombatParser_Test\**" />
+    <Page Remove="UWP Images\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -56,10 +73,7 @@
 
   <ItemGroup>
     <PackageReference Include="morelinq" Version="3.3.2" />
-    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Npgsql" Version="5.0.7" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="ScottPlot" Version="4.1.16" />
     <PackageReference Include="ScottPlot.WPF" Version="4.1.16" />
   </ItemGroup>

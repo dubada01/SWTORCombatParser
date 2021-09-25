@@ -1,5 +1,4 @@
-﻿using GalaSoft.MvvmLight.Command;
-using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Overlay;
 using System;
@@ -37,22 +36,23 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
 
 
-        public ICommand GenerateOverlay => new RelayCommand<OverlayType>(CreateOverlay);
+        public ICommand GenerateOverlay => new CommandHandler(CreateOverlay);
 
-        private void CreateOverlay(OverlayType type)
+        private void CreateOverlay(object type)
         {
-            if (_currentOverlays.Any(o => o.Type == type))
+            OverlayType overlayType = (OverlayType)type;
+            if (_currentOverlays.Any(o => o.Type == overlayType))
                 return;
-            DefaultOverlayManager.SetActiveState(type, true);
-            var viewModel = new OverlayInstanceViewModel(type);
+            DefaultOverlayManager.SetActiveState(overlayType, true);
+            var viewModel = new OverlayInstanceViewModel(overlayType);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = overlaysMoveable;
             _currentOverlays.Add(viewModel);
             var dpsOverlay = new InfoOverlay(viewModel);
-            dpsOverlay.Top = _overlayDefaults[type].Position.Y;
-            dpsOverlay.Left = _overlayDefaults[type].Position.X;
-            dpsOverlay.Width =  _overlayDefaults[type].WidtHHeight.X;
-            dpsOverlay.Height = _overlayDefaults[type].WidtHHeight.Y;
+            dpsOverlay.Top = _overlayDefaults[overlayType].Position.Y;
+            dpsOverlay.Left = _overlayDefaults[overlayType].Position.X;
+            dpsOverlay.Width =  _overlayDefaults[overlayType].WidtHHeight.X;
+            dpsOverlay.Height = _overlayDefaults[overlayType].WidtHHeight.Y;
             dpsOverlay.Show();
         }
 
@@ -63,7 +63,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         public ICommand ToggleOverlayLockCommand => new CommandHandler(ToggleOverlayLock);
 
-        private void ToggleOverlayLock()
+        private void ToggleOverlayLock(object test)
         {
             overlaysMoveable = !overlaysMoveable;
             if (overlaysMoveable)

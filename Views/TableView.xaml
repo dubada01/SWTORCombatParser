@@ -23,6 +23,9 @@
             <TabItem Header="Damage Taken">
                 <ContentPresenter Content="{Binding DamageTakenTableContent}"></ContentPresenter>
             </TabItem>
+            <TabItem Header="Healing Received">
+                <ContentPresenter Content="{Binding HealingReceivedTableContent}"></ContentPresenter>
+            </TabItem>
         </TabControl>
 
     </Grid>

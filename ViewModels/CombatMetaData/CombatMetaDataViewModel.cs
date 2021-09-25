@@ -42,7 +42,7 @@ namespace SWTORCombatParser.ViewModels
         }
         public ICommand ClearCombatEffectsCommand => new CommandHandler(ClearCombatEffects);
 
-        private void ClearCombatEffects()
+        private void ClearCombatEffects(object test)
         {
             foreach (var effect in CombatEffects)
             {
