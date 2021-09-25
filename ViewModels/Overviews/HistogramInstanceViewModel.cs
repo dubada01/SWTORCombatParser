@@ -7,21 +7,16 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace SWTORCombatParser.ViewModels.Histogram
+namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public class HistogramInstanceViewModel : INotifyPropertyChanged
+    public class HistogramInstanceViewModel :OverviewInstanceViewModel, INotifyPropertyChanged
     {
-        private TableDataType _type;
         private Dictionary<string, Dictionary<string, List<double>>> _combatDatas;
         private Dictionary<string, Combat> _selectedCombats;
         private string selectedAbility;
-        private Entity _selectedEntity;
+        private SortingOption sortingOption;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        public override SortingOption SortingOption { get { return sortingOption; }set { sortingOption = value; } }
         public string SelectedAbility
         {
             get => selectedAbility; set
@@ -34,16 +29,10 @@ namespace SWTORCombatParser.ViewModels.Histogram
             }
         }
 
-        internal void UpdateEntity(Entity selectedEntity)
-        {
-            _selectedEntity = selectedEntity;
-        }
-
         public List<string> AvailableAbilities { get; set; }
         public WpfPlot HistogramPlot { get; set; }
-        public HistogramInstanceViewModel(TableDataType type)
+        public HistogramInstanceViewModel(OverviewDataType type): base(type)
         {
-            _type = type;
             HistogramPlot = new WpfPlot();
             HistogramPlot.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             OnPropertyChanged("HistogramPlot");
@@ -51,16 +40,30 @@ namespace SWTORCombatParser.ViewModels.Histogram
             _selectedCombats = new Dictionary<string, Combat>();
             _combatDatas = new Dictionary<string, Dictionary<string, List<double>>>();
         }
-        public void DisplayNewData(Combat combat)
+        public override void UpdateData(Combat combat)
         {
             AvailableAbilities = new List<string>();
             _selectedCombats[combat.StartTime.ToString()] = combat;
             Update();
         }
-        public void UnselectCombat(Combat combat)
+        public override void RemoveData(Combat combat)
         {
             _selectedCombats.Remove(combat.StartTime.ToString());
             _combatDatas.Remove(combat.StartTime.ToString());
+            Update();
+        }
+        public override void Reset()
+        {
+            AvailableAbilities.Clear();
+            _selectedEntity = null;
+            HistogramPlot.Plot.Clear();
+            _selectedCombats = new Dictionary<string, Combat>();
+            _combatDatas = new Dictionary<string, Dictionary<string, List<double>>>();
+        }
+        internal override void UpdateParticipant()
+        {
+            AvailableAbilities.Clear();
+            HistogramPlot.Plot.Clear();
             Update();
         }
         private void PlotData()
@@ -82,31 +85,32 @@ namespace SWTORCombatParser.ViewModels.Histogram
             }
             HistogramPlot.Plot.Legend();
         }
-        private void Update()
+        internal override void Update()
         {
             if (_selectedEntity == null)
                 return;
+            
             foreach (var kvp in _selectedCombats)
             {
                 switch (_type)
                 {
-                    case TableDataType.Damage:
+                    case OverviewDataType.Damage:
                         DisplayDamageData(kvp);
                         break;
-                    case TableDataType.Healing:
+                    case OverviewDataType.Healing:
                         DisplayHealingData(kvp);
                         break;
-                    case TableDataType.DamageTaken:
+                    case OverviewDataType.DamageTaken:
                         DisplayDamageTakenData(kvp);
                         break;
-                    case TableDataType.HealingReceived:
+                    case OverviewDataType.HealingReceived:
                         DisplayHealingReceived(kvp);
                         break;
                 }
             }
             PlotData();
-            //OnPropertyChanged("DataToView");
         }
+        
         private void DisplayDamageTakenData(KeyValuePair<string, Combat> combat)
         {
             var comb = combat.Value;

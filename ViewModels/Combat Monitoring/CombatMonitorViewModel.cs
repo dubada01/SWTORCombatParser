@@ -13,6 +13,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -107,10 +109,40 @@ namespace SWTORCombatParser.ViewModels
             CombatLogStateBuilder.ClearState();
             ClearCombats();
             OnMonitoringStarted();
-            var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-            _combatLogStreamer.MonitorLog(mostRecentLog.Path);
-            OnNewLog("Started Monitoring: " + mostRecentLog.Path);
+            var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
+            //var mostRecentLog = @"C:\Users\David\source\repos\SWTORCombatParser\SWTORCombatParser_Test\bin\Debug\netcoreapp3.1\testLog.txt";
+            //File.Create(mostrecentLog).Close();
+            _combatLogStreamer.MonitorLog(mostRecentLog);
+            OnNewLog("Started Monitoring: " + mostRecentLog);
+            //Task.Run(() => {
+            //    TransferLogData(mostrecentLog);
+            //});
         }
+
+        //TEST CODE
+        private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+        private void TransferLogData(string testLogPath)
+        {
+            
+            var logLines = File.ReadAllLines(Path.Combine(_logPath, "combat_2021-07-11_19_01_39_463431.txt"), new UTF7Encoding());
+            using (var fs = new FileStream(testLogPath, FileMode.Open, FileAccess.Write, FileShare.Read))
+            {
+                var logIndex = 0;
+                while (logIndex < logLines.Length)
+                {
+                    var logsToMove = Math.Min(logLines.Length - logIndex, new Random().Next(1, 30));
+                    for (var i = 0; i < logsToMove; i++)
+                    {
+                        var stringBytes = new UTF7Encoding(true).GetBytes(logLines[logIndex + i] + '\n');
+                        fs.Write(stringBytes);
+                        fs.Flush();
+                    }
+                    logIndex += logsToMove;
+                    Thread.Sleep(5);
+                }
+            }
+        }
+        ///
         private void DisableLiveParse()
         {
             if (!LiveParseActive)
@@ -194,8 +226,9 @@ namespace SWTORCombatParser.ViewModels
             usingHistoricalData = true;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat.ToList());
             CombatIdentifier.UpdateOverlays(combatInfo);
-            var combatUI = _allCombats.First(c => c.IsCurrentCombat);
-
+            var combatUI = _allCombats.FirstOrDefault(c => c.IsCurrentCombat);
+            if (combatUI == null)
+                return;
             combatUI.Combat = combatInfo;
             if (combatUI.IsSelected)
             {

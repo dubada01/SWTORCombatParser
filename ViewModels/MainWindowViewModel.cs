@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Plotting;
 using SWTORCombatParser.ViewModels.Overlays;
+using SWTORCombatParser.ViewModels.Overviews;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using System;
@@ -19,9 +20,9 @@ namespace SWTORCombatParser.ViewModels
         private PlotViewModel _plotViewModel;
         private CombatMonitorViewModel _combatMonitorViewModel;
         private OverlayViewModel _overlayViewModel;
-        private TableViewModel _tableViewModel;
+        private OverviewViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
-        private HistogramViewModel _histViewModel;
+        private OverviewViewModel _histViewModel;
        // private RaidViewModel _raidViewModel;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -49,20 +50,13 @@ namespace SWTORCombatParser.ViewModels
             OverlayView = new OverlayView(_overlayViewModel);
 
             _tableViewModel = new TableViewModel();
-            TableView = new TableView(_tableViewModel);
+            TableView = new OverviewView(_tableViewModel);
 
             _softwareLogViewModel = new SoftwareLogViewModel();
             SoftwareLogView = new LogsView(_softwareLogViewModel);
 
-            _histViewModel = new HistogramViewModel();
-            HistogramView = new HistogramView(_histViewModel);
-
-            //_raidViewModel = new RaidViewModel();
-            //_raidViewModel.RaidStateChanged += RaidingStateChaneged;
-            //_raidViewModel.OnNewRaidCombatFinished += RaidCombatAdded;
-            //_raidViewModel.OnRaidParticipantSelected += RaidPariticpantSelected;
-            //_raidViewModel.OnNewRaidCombatStarted += RaidCombatStarted;
-            //RaidView = new RaidView(_raidViewModel);
+            _histViewModel = new HistogramVeiewModel();
+            HistogramView = new OverviewView(_histViewModel);
 
             CombatLogParser.OnNewLog += NewSoftwareLog;
 
@@ -71,48 +65,18 @@ namespace SWTORCombatParser.ViewModels
         public OverlayView OverlayView { get; set; }
         //public RaidView RaidView { get; set; }
         public GraphView GraphView { get; set; }
-        public TableView TableView { get; set; }
-        public HistogramView HistogramView { get; set; }
+        public OverviewView TableView { get; set; }
+        public OverviewView HistogramView { get; set; }
         public LogsView SoftwareLogView { get; set; }
         public PastCombatsView PastCombatsView { get; set; }
 
-        //public SolidColorBrush RaidingActiveColor { get; set; }
-        //private void RaidingStateChaneged(bool state)
-        //{
-        //    if (state)
-        //        _combatMonitorViewModel.RaidingStarted();
-        //    else
-        //        _combatMonitorViewModel.RaidingStopped();
-        //    RaidingActiveColor = state ? new SolidColorBrush(Color.FromRgb(0,165,156)) : Brushes.Transparent;
-        //    OnPropertyChanged("RaidingActiveColor");
-        //}
-        //private void RaidPariticpantSelected(string name)
-        //{
-        //    App.Current.Dispatcher.Invoke(delegate
-        //    {
-        //        //_plotViewModel.UpdateParticipants(name);
-        //        _plotViewModel.Reset();
-        //        _combatMonitorViewModel.ClearCombats();
-        //    });
-        //}
-        //private void RaidCombatStarted()
-        //{
-        //    _combatMonitorViewModel.StartCombat("Raid Group");
-        //}
-        //private void RaidCombatAdded(Combat combatAdded)
-        //{
-        //    if (combatAdded == null)
-        //        return;
-        //    App.Current.Dispatcher.Invoke(delegate
-        //    {
-        //        _combatMonitorViewModel.AddRaidCombat(combatAdded);
-        //    });
-        //}
+
         private void MonitoringStarted()
         {
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.Reset();
                 _tableViewModel.Reset();
+                _histViewModel.Reset();
             });
         }
 
@@ -120,7 +84,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.UpdateLivePlot(obj);
-                _tableViewModel.AddCombatLogs(obj);
+                _tableViewModel.AddCombat(obj);
                 _histViewModel.AddCombat(obj);
 
             });
@@ -134,7 +98,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate{
                 _plotViewModel.AddCombatPlot(obj);
-                _tableViewModel.AddCombatLogs(obj);
+                _tableViewModel.AddCombat(obj);
                 _histViewModel.AddCombat(obj);
             });
 
@@ -143,7 +107,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate {
                 _plotViewModel.RemoveCombatPlot(obj);
-                _tableViewModel.Reset();
+                _tableViewModel.RemoveCombat(obj);
                 _histViewModel.RemoveCombat(obj);
             });
         }

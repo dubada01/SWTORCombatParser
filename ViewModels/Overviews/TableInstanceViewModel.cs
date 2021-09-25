@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace SWTORCombatParser.ViewModels
+namespace SWTORCombatParser.ViewModels.Overviews
 {
     public class CombatInfoInstance
     {
@@ -17,7 +17,7 @@ namespace SWTORCombatParser.ViewModels
         public double CritPercent { get; set; }
         public int Max { get; set; }
     }
-    public enum TableDataType
+    public enum OverviewDataType
     {
         Damage,
         Healing,
@@ -30,64 +30,58 @@ namespace SWTORCombatParser.ViewModels
         ByAbility,
         ByTarget
     }
-    public class TableInstanceViewModel : INotifyPropertyChanged
+    public class TableInstanceViewModel :OverviewInstanceViewModel, INotifyPropertyChanged
     {
         private SortingOption sortingOption;
-        private Entity _selectedEntity;
-        public SortingOption SortingOption { get => sortingOption; set
+        public override SortingOption SortingOption { get => sortingOption; set
             { 
                 sortingOption = value;
                 Update();
             } 
         }
-        public TableDataType Type { get; set; }
         public List<CombatInfoInstance> DataToView { get; set; }
-        public Combat SelectedCombat;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public TableInstanceViewModel(OverviewDataType type) : base(type)
+        {
 
-        internal void UpdateEntity(Entity selectedEntity)
-        {
-            
-            _selectedEntity = selectedEntity;
-            Update();
         }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-        public TableInstanceViewModel(TableDataType type)
-        {
-            Type = type;
-        }
-        public void DisplayNewData(Combat combat)
+        public override void UpdateData(Combat combat)
         {
             SelectedCombat = combat;
             Update();
         }
-        public void Reset()
+        public override void RemoveData(Combat combat)
         {
+            SelectedCombat = null;
+        }
+        public override void Reset()
+        {
+            _selectedEntity = null;
+            SelectedCombat = null;
             DataToView = new List<CombatInfoInstance>();
             OnPropertyChanged("DataToView");
         }
-        private void Update()
+        internal override void UpdateParticipant()
+        {
+            Update();
+        }
+        internal override void Update()
         {
             if (_selectedEntity == null || SelectedCombat == null)
                 return;
             DataToView = new List<CombatInfoInstance>();
-            switch (Type)
+            switch (_type)
             {
-                case TableDataType.Damage:
+                case OverviewDataType.Damage:
                     DisplayDamageData(SelectedCombat);
                     break;
-                case TableDataType.Healing:
+                case OverviewDataType.Healing:
                     DisplayHealingData(SelectedCombat);
                     break;
-                case TableDataType.DamageTaken:
+                case OverviewDataType.DamageTaken:
                     DisplayDamageTakenData(SelectedCombat);
                     break;
-                case TableDataType.HealingReceived:
+                case OverviewDataType.HealingReceived:
                     DisplayHealingReceived(SelectedCombat);
                     break;
             }

@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.ViewModels;
+using SWTORCombatParser.ViewModels.Overviews;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,13 +16,13 @@ using System.Windows.Shapes;
 namespace SWTORCombatParser.Views
 {
     /// <summary>
-    /// Interaction logic for TableView.xaml
+    /// Interaction logic for HistogramView.xaml
     /// </summary>
-    public partial class TableView : UserControl
+    public partial class OverviewView : UserControl
     {
-        public TableView(TableViewModel dataContext)
+        public OverviewView(OverviewViewModel vm)
         {
-            DataContext = dataContext;
+            DataContext = vm;
             InitializeComponent();
         }
     }

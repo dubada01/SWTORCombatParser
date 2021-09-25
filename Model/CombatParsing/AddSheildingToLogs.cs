@@ -16,6 +16,8 @@ namespace SWTORCombatParser.Model.CombatParsing
     {
         public static void AddSheildLogs(Dictionary<Entity,List<ParsedLogEntry>> allPriticipantSheildingLogs, Combat combat)
         {
+            if (!CombatLogStateBuilder.CurrentStates.ContainsKey(combat.LogFileName))
+                return;
             var state = CombatLogStateBuilder.CurrentStates[combat.LogFileName];
             var modifiers = state.Modifiers;
 

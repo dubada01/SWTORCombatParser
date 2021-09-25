@@ -73,7 +73,10 @@ namespace SWTORCombatParser.ViewModels
         }
 
 
-
+        public void Reset()
+        {
+            _currentCombat = null;
+        }
         public void PopulateCombatMetaDatas(Combat combat)
         {
             _currentCombat = combat;
@@ -84,17 +87,18 @@ namespace SWTORCombatParser.ViewModels
         }
         public void UpdateMetaDataFromCombat(Combat combat)
         {
-            App.Current.Dispatcher.Invoke(() => { CombatMetaDatas.Clear(); 
-            
-            if (!combat.CharacterParticipants.Contains(SelectedParticipant))
-                SelectedParticipant = combat.CharacterParticipants.First();
-            var metaDatas = MetaDataFactory.GetMetaDatas(combat, SelectedParticipant);
-            foreach (var metaData in metaDatas)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                CombatMetaDatas.Add(metaData);
-            }
-            }
-            );
+                CombatMetaDatas.Clear();
+
+                if (!combat.CharacterParticipants.Contains(SelectedParticipant))
+                    SelectedParticipant = combat.CharacterParticipants.First();
+                var metaDatas = MetaDataFactory.GetMetaDatas(combat, SelectedParticipant);
+                foreach (var metaData in metaDatas)
+                {
+                    CombatMetaDatas.Add(metaData);
+                }
+            });
         }
         internal void UpdateBasedOnVisibleData(AxisLimits newAxisLimits)
         {
