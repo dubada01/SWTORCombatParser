@@ -14,6 +14,7 @@ namespace SWTORCombatParser.Model.Overlays
         None,
         DPS,
         FocusDPS,
+        HPS,
         EHPS,
         Tank_Sheilding,
         Sheilding,

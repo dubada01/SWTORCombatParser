@@ -122,7 +122,7 @@ namespace SWTORCombatParser.ViewModels
             }
             var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(combatLogsInView.ToList( ));
             UpdateMetaDataFromCombat(newCombat);
-            var currentState = CombatLogStateBuilder.CurrentStates[newCombat.LogFileName];
+            var currentState = CombatLogStateBuilder.CurrentState;
             var modifiersDuringCombat = currentState.GetCombatModifiersBetweenTimes(newCombat.StartTime, newCombat.EndTime, SelectedParticipant);
             var abilities = modifiersDuringCombat.Select(m => m.Name).Distinct();
             var durations = modifiersDuringCombat.GroupBy(v => (v.Name, v.Source),

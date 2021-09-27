@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
@@ -23,7 +24,10 @@ namespace SWTORCombatParser
         {
             NewCombatStarted();
         }
+        public static void ResetLeaderboardOverlay()
+        {
 
+        }
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
             var encounter = GetEncounterInfo(ongoingLogs);
@@ -43,7 +47,6 @@ namespace SWTORCombatParser
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
             var sheildLogs = newCombat.IncomingDamageMitigatedLogs;
             AddSheildingToLogs.AddSheildLogs(sheildLogs, newCombat);
-
             return newCombat;
         }
 
@@ -70,6 +73,18 @@ namespace SWTORCombatParser
             foreach (var log in logs)
             {
                 var knownEncounters = RaidNameLoader.SupportedEncounters;
+                if(log.Target.Name == "Operations Training Dummy")
+                {
+                    raidOfInterest = new EncounterInfo() { BossInfos = new List<BossInfo>() };
+                    raidOfInterest.Name = "Parsing";
+                    raidOfInterest.BossInfos.Add(new BossInfo { 
+                        EncounterName = "Training Dummy",
+                        TargetNames = new List<string> { "Operations Training Dummy" }
+                    });
+                    raidOfInterest.Difficutly = "Parsing";
+                    raidOfInterest.NumberOfPlayer = "";
+                    return raidOfInterest;
+                }
                 if (!string.IsNullOrEmpty(log.Value.StrValue) && knownEncounters.Select(r => r.LogName).Any(ln => log.Value.StrValue.Contains(ln)) && raidOfInterest == null)
                 {
                     raidOfInterest = knownEncounters.First(r => log.Value.StrValue.Contains(r.LogName));
@@ -85,7 +100,6 @@ namespace SWTORCombatParser
                         raidOfInterest.NumberOfPlayer = "";
                         //return null;
                     }
-                    Trace.WriteLine("Detected: " + raidOfInterest.Name);
                     return raidOfInterest;
                 }
             }

@@ -9,6 +9,7 @@ namespace SWTORCombatParser
 {
     public class Combat
     {
+        public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.IsLocalPlayer);
         public List<Entity> CharacterParticipants = new List<Entity>();
         public List<Entity> Targets = new List<Entity>();
         public DateTime StartTime;
@@ -20,7 +21,7 @@ namespace SWTORCombatParser
         
         public EncounterInfo ParentEncounter;
         public string EncounterBossInfo;
-        public bool IsEncounterBoss;
+        public bool IsEncounterBoss => !string.IsNullOrEmpty(EncounterBossInfo);
 
         public Dictionary<Entity, List<ParsedLogEntry>> Logs = new Dictionary<Entity, List<ParsedLogEntry>>();
         public List<ParsedLogEntry> AllLogs => GetJoinedDictionary(Logs);

@@ -232,8 +232,11 @@ namespace SWTORCombatParser.Plotting
                 {
                     foreach (var key in pointSelected.Keys)
                         previousPointSelected[key] = pointSelected[key];
+                    Dispatcher.CurrentDispatcher.Invoke(() =>
+                    {
+                        GraphView.Render();
+                    });
 
-                    GraphView.Plot.Render();
 
                 }
             }
@@ -250,8 +253,7 @@ namespace SWTORCombatParser.Plotting
                 var plotYvals = PlotMaker.GetPlotYVals(applicableData, false);
                 var plotXValRates = PlotMaker.GetPlotXValsRates(plotXvals);
                 var plotYvaRates = PlotMaker.GetPlotYValRates(applicableData, plotXvals, false);
-                if (plotXValRates.Count() == 0)
-                    continue;
+
                 List<(string, string)> abilityNames = PlotMaker.GetAnnotationString(applicableData);
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
@@ -284,8 +286,9 @@ namespace SWTORCombatParser.Plotting
                 ReInitializeTooltips(series, combatToPlot.StartTime);
             }
             GraphView.Plot.AxisAuto();
-            GraphView.Plot.SetAxisLimits(xMin: 0);
+            GraphView.Plot.SetAxisLimits(xMin: 0, xMax:(combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
             _combatMetaDataViewModel.PopulateCombatMetaDatas(combatToPlot);
+            GraphView.Plot.Render();
         }
         private MarkerShape GetMarkerFromNumberOfComparisons(int numberOfComparison)
         {

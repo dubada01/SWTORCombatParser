@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using SWTORCombatParser.DataStructures.RaidInfos;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
@@ -178,6 +179,7 @@ namespace SWTORCombatParser.ViewModels
             {
                 OnMonitoringStarted();
                 _allCombats.Clear();
+                CombatLogStateBuilder.ClearState();
                 CurrentlySelectedLogName = openFileDialog.FileName;
                 OnPropertyChanged("CurrentlySelectedLogName");
                 var logInfo = CombatLogLoader.LoadSpecificLog(CurrentlySelectedLogName);
@@ -226,6 +228,7 @@ namespace SWTORCombatParser.ViewModels
             usingHistoricalData = true;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat.ToList());
             CombatIdentifier.UpdateOverlays(combatInfo);
+           
             var combatUI = _allCombats.FirstOrDefault(c => c.IsCurrentCombat);
             if (combatUI == null)
                 return;
@@ -243,8 +246,13 @@ namespace SWTORCombatParser.ViewModels
             _totalLogsDuringCombat.Clear();
             _totalLogsDuringCombat.AddRange(obj);
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat.ToList());
-            if(usingHistoricalData)
+            if (usingHistoricalData)
+            { 
                 CombatIdentifier.UpdateOverlays(combatInfo);
+                if (combatInfo.IsEncounterBoss)
+                    Leaderboards.TryAddLeaderboardEntry(combatInfo);
+            }
+
             AddCombat(combatInfo);
             ManageEncounter(combatInfo);
         }
@@ -363,6 +371,7 @@ namespace SWTORCombatParser.ViewModels
             }
             OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
             OnCombatSelected(selectedCombat.Combat);
+            
             CombatSelectionMonitor.FireNewCombat(selectedCombat.Combat);
             ParticipantsUpdated(selectedCombat.Combat.CharacterParticipants);
         }

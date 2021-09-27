@@ -69,7 +69,7 @@ namespace SWTORCombatParser
                 while (_monitorLog)
                 {
                     GenerateNewFrame();
-                    Thread.Sleep(2);
+                    Thread.Sleep(250);
                 }
             });
         }
@@ -123,12 +123,12 @@ namespace SWTORCombatParser
         }
         private bool CheckIfStale()
         {
-            //var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
-            //if(mostRecentFile != _logToMonitor)
-            //{
-            //    _logToMonitor = mostRecentFile;
-            //    return true;
-            //}
+            var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
+            if (mostRecentFile != _logToMonitor)
+            {
+                _logToMonitor = mostRecentFile;
+                return true;
+            }
             var fileInfo = new FileInfo(_logToMonitor);
             if (fileInfo.LastWriteTime == _lastUpdateTime)
                 return false;

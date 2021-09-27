@@ -20,7 +20,9 @@ namespace SWTORCombatParser.Utilities.Converters
                 case OverlayType.FocusDPS:
                     return Brushes.OrangeRed;
                 case OverlayType.EHPS:
-                    return Brushes.LimeGreen;
+                    return Brushes.Green;
+                case OverlayType.HPS:
+                    return Brushes.ForestGreen;
                 case OverlayType.Tank_Sheilding:
                     return Brushes.CornflowerBlue;
                 case OverlayType.Sheilding:

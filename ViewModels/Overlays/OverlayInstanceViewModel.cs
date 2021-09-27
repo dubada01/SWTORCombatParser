@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -22,6 +23,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
+        public double BorderThickness => PlayerName.Contains("Top:") ? 3 : 0;
+        public Thickness CornerRaidus => SecondaryType == OverlayType.None ? new Thickness(3, 3, 3,3) : new Thickness(3, 3, 0, 0);
+        public Thickness CornerRaidusSecondary => SecondaryType == OverlayType.None ? new Thickness(3,3,3,3) : new Thickness(0,0,3,3);
+        public SolidColorBrush BarOutline => PlayerName.Contains("Top:") ? Brushes.Gold : Brushes.Transparent;
         public bool AddSecondayToValue { get; set; }
         public Entity Player { get; set; }
         public string PlayerName => Player.Name;
@@ -110,6 +115,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SecondaryType = OverlayType.Sheilding;
                 AddSecondaryToValue = true;
             }
+            if (Type == OverlayType.HPS)
+            {
+                SecondaryType = OverlayType.Sheilding;
+                AddSecondaryToValue = true;
+            }
             if (Type == OverlayType.DPS)
             {
                 SecondaryType = OverlayType.FocusDPS;
@@ -124,12 +134,34 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatIdentifier.NewCombatStarted += Reset;
             CombatIdentifier.NewCombatAvailable += UpdateMetrics;
         }
+
+        private void UpdateLeaderboardValues(Dictionary<LeaderboardEntryType, (string, double)> obj)
+        {
+            var damageLeaderboardValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Damage);
+            var focusDamageValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.FocusDPS);
+            var healingValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Healing);
+            var effectiveHealingValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.EffectiveHealing);
+            var mitigationValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Mitigation);
+            if(Type == OverlayType.DPS && damageLeaderboardValues.Value.Item1 != null)
+                AddLeaderboardBar(damageLeaderboardValues.Value.Item1, damageLeaderboardValues.Value.Item2);
+            if (Type == OverlayType.FocusDPS && focusDamageValues.Value.Item1 != null)
+                AddLeaderboardBar(focusDamageValues.Value.Item1, focusDamageValues.Value.Item2);
+            if (Type == OverlayType.EHPS && effectiveHealingValues.Value.Item1 != null)
+                AddLeaderboardBar(effectiveHealingValues.Value.Item1, effectiveHealingValues.Value.Item2);
+            if (Type == OverlayType.HPS && healingValues.Value.Item1 != null)
+                AddLeaderboardBar(healingValues.Value.Item1, healingValues.Value.Item2);
+            if (Type == OverlayType.Mitigation && mitigationValues.Value.Item1 != null)
+                AddLeaderboardBar(mitigationValues.Value.Item1, mitigationValues.Value.Item2);
+        }
+
         public void Reset()
         {
+            Leaderboards.Reset();
             ResetMetrics();
         }
         public void Refresh(Combat comb)
         {
+            Leaderboards.Reset();
             ResetMetrics();
             UpdateMetrics(comb);
         }
@@ -145,19 +177,22 @@ namespace SWTORCombatParser.ViewModels.Overlays
             OverlaysMoveable = true;
             OnPropertyChanged("OverlaysMoveable");
         }
-        private void RemovePlayer(string playerName)
+        private void AddLeaderboardBar(string characterName, double value)
         {
-            var barToRemove = MetricBars.FirstOrDefault(mb => mb.PlayerName == playerName);
-            if (barToRemove != null)
-            {
-                App.Current.Dispatcher.Invoke(() =>
+            if (MetricBars.Any(mb => mb.PlayerName.Contains("Top:")))
+                return;
+            App.Current.Dispatcher.Invoke(() => {
+                MetricBars.Add(new OverlayMetricInfo
                 {
-                    MetricBars.Remove(barToRemove);
+                    Type = Type,
+                    Player = new Entity { Name = "Top: " + characterName },
+                    Value = value,
                 });
-            }
+            });
         }
         private void UpdateMetrics(Combat obj)
         {
+            UpdateLeaderboardValues(Leaderboards.GetLeaderboardInfo(obj));
             OverlayMetricInfo metricToUpdate;
             if (obj.CharacterParticipants.Count == 0)
                 return;
@@ -252,6 +287,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case OverlayType.EHPS:
                     value = obj.EHPS[participant];
+                    break;
+                case OverlayType.HPS:
+                    value = obj.HPS[participant];
                     break;
                 case OverlayType.Tank_Sheilding:
                     value = obj.SPS[participant];

@@ -12,41 +12,32 @@ namespace SWTORCombatParser.Model.LogParsing
 
     public static class CombatLogStateBuilder
     {
-        public static Dictionary<string,LogState> CurrentStates { get; set; } = new Dictionary<string, LogState>();
+        public static LogState CurrentState { get; set; } = new LogState();
+
         public static void ClearState()
         {
-            CurrentStates = new Dictionary<string, LogState>();
+            CurrentState = new LogState();
         }
         public static LogState UpdateCurrentLogState(ref List<ParsedLogEntry> logs, string logName)
         {
-            if (!CurrentStates.ContainsKey(logName))
-            {
-                CurrentStates[logName] = new LogState();
-            }
             foreach (var log in logs)
             {
                 UpdateCurrentStateWithSingleLog(log, logName);
             }
-            return CurrentStates[logName];
+            return CurrentState;
         }
         public static LogState UpdateCurrentStateWithSingleLog(ParsedLogEntry log, string logName)
         {
-            if (!CurrentStates.ContainsKey(logName))
-            {
-                CurrentStates[logName] = new LogState();
-            }
-            var state = CurrentStates[logName];
+            if (CurrentState.MostRecentLogIndex > log.LogLineNumber)
+                return CurrentState;
+            CurrentState.MostRecentLogIndex = log.LogLineNumber;
 
-            if (state.MostRecentLogIndex > log.LogLineNumber)
-                return state;
-            state.MostRecentLogIndex = log.LogLineNumber;
-            //var newLogs = combatLogs.Where(l => !currentLogs.Any(cl => cl.LogLineNumber == l.LogLineNumber)).ToList();
-            state.RawLogs.Add(log);
+            CurrentState.RawLogs.Add(log);
 
-            SetPlayerClass(log, state);
+            SetPlayerClass(log, CurrentState);
 
-            UpdateCombatModifierState(log, state);
-            return state;
+            UpdateCombatModifierState(log, CurrentState);
+            return CurrentState;
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine, LogState state)
         {

@@ -34,8 +34,8 @@
                                             <ColumnDefinition Width="{Binding SecondaryBarWidth, Mode=TwoWay}"/>
                                             <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Margin="0,0,0,0" CornerRadius="3,3,3,3" Background="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
-                                        <Border Grid.Column="1" CornerRadius="3,3,3,3" Background="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
+                                        <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Margin="0,0,0,0" CornerRadius="{Binding CornerRaidus}" Background="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
+                                        <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Grid.Column="1" CornerRadius="{Binding CornerRaidusSecondary}" Background="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
                                     </Grid>
                                     <Viewbox Margin="0,0,20,0" Grid.Column="1" HorizontalAlignment="Right" >
                                         <TextBlock Margin="0,0,0,1" Foreground="NavajoWhite" Text="{Binding TotalValue}"></TextBlock>
