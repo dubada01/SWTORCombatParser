@@ -21,10 +21,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var currentValidEntry = GetEntriesForBossAndCharacterWithClass(newEntry.Boss, newEntry.Character, newEntry.Class, newEntry.Type);
             if(currentValidEntry.Count == 0 || newEntry.Value > currentValidEntry.First().Value)
             {
-                if(currentValidEntry.Count > 0)
-                {
-                    RemoveLeaderBoardEntry(newEntry);
-                }
+                //if(currentValidEntry.Count > 0)
+                //{
+                //    RemoveLeaderBoardEntry(newEntry);
+                //}
                 AddLeaderboardEntry(newEntry);
                 return true;
             }
@@ -54,7 +54,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
         }
-        public static LeaderboardEntry GetTopLeaderboard(string bossName, string className, LeaderboardEntryType type)
+        public static LeaderboardEntry GetTopLeaderboard(string bossName, LeaderboardEntryType type)
+        {
+            var entries = GetEntriesForBossOfType(bossName, type);
+            if (entries.Count == 0)
+                return new LeaderboardEntry();
+            return entries.MaxBy(l => l.Value).First();
+        }
+        public static LeaderboardEntry GetTopLeaderboardForClass(string bossName, string className, LeaderboardEntryType type)
         {
             var entries = GetEntriesForBossWithClass(bossName, className, type);
             if (entries.Count == 0)

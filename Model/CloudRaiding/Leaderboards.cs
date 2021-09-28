@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.LogParsing;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,7 +19,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
-                var topParse = PostgresConnection.GetTopLeaderboard(bossName, className, enumVal);
+                //var topParse = PostgresConnection.GetTopLeaderboardForClass(bossName, className, enumVal);
+                var topParse = PostgresConnection.GetTopLeaderboard(bossName, enumVal);
                 if (string.IsNullOrEmpty(topParse.Character))
                     continue;
                 TopLeaderboards[enumVal] = (topParse.Character, topParse.Value);
@@ -32,37 +34,50 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
         public static void TryAddLeaderboardEntry(Combat combat)
         {
-            var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[combat.LocalPlayer];
+            
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
-                var leaderboardEntry = new LeaderboardEntry()
+                foreach(var player in combat.CharacterParticipants)
                 {
-                    Boss = combat.EncounterBossInfo,
-                    Character = combat.LocalPlayer.Name,
-                    Class = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline,
-                    Value = GetValueForLeaderboardEntry(enumVal, combat),
-                    Type = enumVal,
-                    Duration = (int)combat.DurationSeconds
-                };
-                if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing"))
-                    PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                    SWTORClass playerClass;
+                    if (!CombatLogStateBuilder.CurrentState.PlayerClasses.ContainsKey(player))
+                    {
+                        playerClass = null;
+                    }
+                    else
+                    {
+                        playerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[player];
+                    }
+                     
+                    var leaderboardEntry = new LeaderboardEntry()
+                    {
+                        Boss = combat.EncounterBossInfo,
+                        Character = player.Name,
+                        Class = playerClass == null ? "Unknown" : playerClass.Name + "/" + playerClass.Discipline,
+                        Value = GetValueForLeaderboardEntry(enumVal, combat, player),
+                        Type = enumVal,
+                        Duration = (int)combat.DurationSeconds
+                    };
+                    if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled[player])
+                        PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                }
             }
         }
 
-        private static double GetValueForLeaderboardEntry(LeaderboardEntryType role, Combat combat)
+        private static double GetValueForLeaderboardEntry(LeaderboardEntryType role, Combat combat, Entity player)
         {
             switch (role)
             {
                 case (LeaderboardEntryType.Damage):
-                    return combat.DPS[combat.LocalPlayer];
+                    return combat.DPS[player];
                 case (LeaderboardEntryType.FocusDPS):
-                    return combat.FocusDPS[combat.LocalPlayer];
+                    return combat.FocusDPS[player];
                 case (LeaderboardEntryType.Healing):
-                    return combat.HPS[combat.LocalPlayer] + combat.PSPS[combat.LocalPlayer];
+                    return combat.HPS[player] + combat.PSPS[player];
                 case (LeaderboardEntryType.EffectiveHealing):
-                    return combat.EHPS[combat.LocalPlayer] + combat.PSPS[combat.LocalPlayer];
+                    return combat.EHPS[player] + combat.PSPS[player];
                 case (LeaderboardEntryType.Mitigation):
-                    return combat.TotalMitigation[combat.LocalPlayer] / combat.DurationSeconds;
+                    return combat.TotalMitigation[player] / combat.DurationSeconds;
                 default:
                     return 0;
             }

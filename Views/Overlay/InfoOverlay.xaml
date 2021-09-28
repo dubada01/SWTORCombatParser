@@ -12,62 +12,73 @@
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
         <Grid>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="0.15*"/>
-                    <RowDefinition Height="0.85*"/>
-                </Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.15*"/>
+                <RowDefinition Height="0.85*"/>
+                <RowDefinition Height="0.15*"/>
+            </Grid.RowDefinitions>
 
-                <ScrollViewer x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" MouseLeftButtonDown="DragWindow" Margin="10,0,0,30" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-                    <ItemsControl ItemsSource="{Binding MetricBars, UpdateSourceTrigger=PropertyChanged}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <!--<Viewbox  MouseLeftButtonDown="DragWindow" Margin="0,2,2,2" MaxHeight="30" HorizontalAlignment="Left">-->
-                                <Grid ToolTip="{Binding InfoText}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults"  Margin="0,2,2,2" MaxHeight="30">
+            <ScrollViewer x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" MouseLeftButtonDown="DragWindow" Margin="10,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding MetricBars, UpdateSourceTrigger=PropertyChanged}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!--<Viewbox  MouseLeftButtonDown="DragWindow" Margin="0,2,2,2" MaxHeight="30" HorizontalAlignment="Left">-->
+                            <Grid ToolTip="{Binding InfoText}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults"  Margin="0,2,2,2" MaxHeight="35">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.5*"/>
+                                    <ColumnDefinition Width="0.5*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="0.5*"/>
-                                        <ColumnDefinition Width="0.5*"/>
+                                        <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
+                                        <ColumnDefinition Width="{Binding SecondaryBarWidth, Mode=TwoWay}"/>
+                                        <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
                                     </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
-                                            <ColumnDefinition Width="{Binding SecondaryBarWidth, Mode=TwoWay}"/>
-                                            <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Margin="0,0,0,0" CornerRadius="{Binding CornerRaidus}" Background="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
-                                        <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Grid.Column="1" CornerRadius="{Binding CornerRaidusSecondary}" Background="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
-                                    </Grid>
-                                    <Viewbox Margin="0,0,20,0" Grid.Column="1" HorizontalAlignment="Right" >
-                                        <TextBlock Margin="0,0,0,1" Foreground="NavajoWhite" Text="{Binding TotalValue}"></TextBlock>
-                                    </Viewbox>
-                                    <Viewbox HorizontalAlignment="Left" Margin="5,0,2,0">
-                                        <TextBlock Grid.Row="0" HorizontalAlignment="Right" Foreground="NavajoWhite" Text="{Binding PlayerName}" ></TextBlock>
-                                    </Viewbox>
+                                    <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Margin="0,0,0,0" CornerRadius="{Binding BarRadius}" Background="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
+                                    <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Grid.Column="1" CornerRadius="{Binding BarRadiusSecondary}" Background="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
                                 </Grid>
-                                <!--</Viewbox>-->
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-                <Grid MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
-                    <Viewbox HorizontalAlignment="Left" MaxHeight="50">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Foreground="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,10,2"
+                                <Viewbox Margin="0,0,20,0" Grid.Column="1" HorizontalAlignment="Right" >
+                                    <TextBlock Margin="0,0,0,1" Foreground="NavajoWhite" Text="{Binding TotalValue}"></TextBlock>
+                                </Viewbox>
+                                <Viewbox HorizontalAlignment="Left" Margin="5,0,2,4">
+                                    <TextBlock Grid.Row="0" HorizontalAlignment="Right" Foreground="NavajoWhite" Text="{Binding PlayerName}" ></TextBlock>
+                                </Viewbox>
+                            </Grid>
+                            <!--</Viewbox>-->
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            <Grid MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+                <Viewbox HorizontalAlignment="Left" MaxHeight="50">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Foreground="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,10,2"
             Text="{Binding Type}"/>
-                            <TextBlock Foreground="NavajoWhite" Text=" and " VerticalAlignment="Center" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}"></TextBlock>
-                            <TextBlock Foreground="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,10,2"
+                        <TextBlock Foreground="NavajoWhite" Text=" and " VerticalAlignment="Center" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}"></TextBlock>
+                        <TextBlock Foreground="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,10,2"
             Text="{Binding SecondaryType}"/>
-                        </StackPanel>
+                    </StackPanel>
 
-                    </Viewbox>
+                </Viewbox>
 
-                    <Button Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Content="X" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,1,0" FontSize="7"
+                <Button Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Content="X" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,1,0" FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
-                </Grid>
             </Grid>
 
-        </Grid>
-        <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
+            <StackPanel Margin="15,2,2,2" Grid.Row="2" Orientation="Horizontal">
+                <Viewbox MaxHeight="25" HorizontalAlignment="Left" >
+                    <Image Opacity="1" Source="../../resources/SwtorLogo.png"/>
+                </Viewbox>
+                <Viewbox MaxHeight="30" Margin="7,0,0,0" HorizontalAlignment="Left" >
+                    <TextBlock Opacity=".44" Foreground="Black" Text="Leaderboard"/>
+                </Viewbox>
+            </StackPanel>
+
+
+
+
+            <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
+        </Grid>
     </Grid>
 </Window>

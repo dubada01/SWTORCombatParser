@@ -104,11 +104,34 @@ namespace SWTORCombatParser.ViewModels
         }
         private void EnableLiveParse()
         {
+            if (!CombatLogLoader.CheckIfCombatLoggingPresent())
+            {
+                OnNewLog("Failed to locate combat log folder: " + CombatLogLoader.GetLogDirectory() );
+                return;
+            }
+            CurrentlySelectedLogName = "";
+            OnPropertyChanged("CurrentlySelectedLogName");
             if (LiveParseActive)
                 return;
-            LiveParseActive = true;
             CombatLogStateBuilder.ClearState();
             ClearCombats();
+            LiveParseActive = true;
+            Task.Run(() => {
+                while (!CombatLogLoader.CheckIfCombatLogsArePresent() && LiveParseActive)
+                {
+                    Thread.Sleep(100);
+                }
+                if (!LiveParseActive)
+                    return;
+                else
+                {
+                    MonitorMostRecentLog();
+                }
+            });
+        }
+        private void MonitorMostRecentLog()
+        {
+
             OnMonitoringStarted();
             var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
             //var mostRecentLog = @"C:\Users\David\source\repos\SWTORCombatParser\SWTORCombatParser_Test\bin\Debug\netcoreapp3.1\testLog.txt";
@@ -119,7 +142,6 @@ namespace SWTORCombatParser.ViewModels
             //    TransferLogData(mostrecentLog);
             //});
         }
-
         //TEST CODE
         private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
         private void TransferLogData(string testLogPath)
@@ -173,6 +195,11 @@ namespace SWTORCombatParser.ViewModels
         public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog);
         private void LoadSpecificLog(object test)
         {
+            if (!CombatLogLoader.CheckIfCombatLoggingPresent())
+            {
+                OnNewLog("Failed to locate combat log folder: " + CombatLogLoader.GetLogDirectory());
+                return;
+            }
             var openFileDialog = new OpenFileDialog();
             openFileDialog.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
             if (openFileDialog.ShowDialog() == true)

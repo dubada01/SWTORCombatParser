@@ -21,7 +21,10 @@ namespace SWTORCombatParser
         
         public EncounterInfo ParentEncounter;
         public string EncounterBossInfo;
+        public List<string> RequiredDeadTargetsForKill { get; set; }
         public bool IsEncounterBoss => !string.IsNullOrEmpty(EncounterBossInfo);
+        public bool WasBossKilled => RequiredDeadTargetsForKill.All(t => Logs[LocalPlayer].Any(l => l.Target.Name == t && l.Effect.EffectName == "Death"));
+        public Dictionary<Entity,bool> WasPlayerKilled => Logs.ToDictionary(kvp =>kvp.Key,kvp=> kvp.Value.Any(l=> l.Target == LocalPlayer && l.Effect.EffectName == "Death"));
 
         public Dictionary<Entity, List<ParsedLogEntry>> Logs = new Dictionary<Entity, List<ParsedLogEntry>>();
         public List<ParsedLogEntry> AllLogs => GetJoinedDictionary(Logs);
@@ -145,7 +148,7 @@ namespace SWTORCombatParser
         public Dictionary<Entity,double> SPS => DurationSeconds == 0 ? TotalSheilding.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalSheilding.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> PSPS => DurationSeconds == 0 ? TotalProvidedSheilding.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalProvidedSheilding.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> DTPS => DurationSeconds == 0 ? TotalDamageTaken.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
-        public Dictionary<Entity, double> AbsPS => DurationSeconds == 0 ? TotalMitigation.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalMitigation.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity, double> MPS => DurationSeconds == 0 ? TotalMitigation.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalMitigation.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> EDTPS => DurationSeconds == 0 ?TotalEffectiveDamageTaken.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalEffectiveDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> HTPS => DurationSeconds == 0 ? TotalHealingReceived.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalHealingReceived.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> EHTPS => DurationSeconds == 0 ? TotalEffectiveHealingReceived.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveHealingReceived.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);

@@ -48,11 +48,11 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 if(!state.Modifiers.Any(m=>m.Type == CombatModfierType.GuardedThreatReduced) || state.Modifiers.Last(m => m.Type == CombatModfierType.GuardedThreatReduced).StopTime != DateTime.MinValue)
                 {
-                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Threat", Source = parsedLine.Source, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedThreatReduced });
+                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Threat", Source = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedThreatReduced });
                 }
                 else
                 {
-                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Damage", Source = parsedLine.Source, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedDamagedRedirected });
+                    state.Modifiers.Add(new CombatModifier() { Name = "Guarded-Damage", Source = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedDamagedRedirected });
                 }
                 
                 return;

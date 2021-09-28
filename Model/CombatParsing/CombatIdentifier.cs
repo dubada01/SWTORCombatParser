@@ -40,10 +40,14 @@ namespace SWTORCombatParser
                 StartTime = ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp,
                 EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),
-                ParentEncounter = encounter,
-                EncounterBossInfo = GetCurrentBossInfo(ongoingLogs, encounter),
                 Logs = SplitLogsByParticipant(ongoingLogs, participants)
             };
+            if (encounter !=  null)
+            {
+                newCombat.ParentEncounter = encounter;
+                newCombat.EncounterBossInfo = GetCurrentBossInfo(ongoingLogs,encounter);
+                newCombat.RequiredDeadTargetsForKill = GetCurrentBossNames(ongoingLogs, encounter);
+            }
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
             var sheildLogs = newCombat.IncomingDamageMitigatedLogs;
             AddSheildingToLogs.AddSheildLogs(sheildLogs, newCombat);
@@ -121,11 +125,24 @@ namespace SWTORCombatParser
                 {
                     var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
                     var bossTargetString = boss.EncounterName + " {" + currentEncounter.NumberOfPlayer.Replace("Player", "") + currentEncounter.Difficutly + "}";
-                    Trace.WriteLine(bossTargetString);
                     return bossTargetString;
                 }
             }
             return "";
+        }
+        private static List<string> GetCurrentBossNames(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        {
+            if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
+                return new List<string>();
+            foreach (var log in logs)
+            {
+                if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
+                {
+                    var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
+                    return boss.TargetNames;
+                }
+            }
+            return new List<string>();
         }
     }
 }

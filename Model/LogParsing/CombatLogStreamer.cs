@@ -161,6 +161,8 @@ namespace SWTORCombatParser
         {
             if (parsedLine.Effect.EffectType == EffectType.Event && (parsedLine.Effect.EffectName == "EnterCombat"))
             {
+                if(!_firstTimeThroughLog)
+                    CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
                 if (_combatEnding)
                     EndCombat();
                 _combatEnding = false;

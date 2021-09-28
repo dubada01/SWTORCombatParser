@@ -15,7 +15,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
 {
     public class OverlayMetricInfo : INotifyPropertyChanged
     {
-        private string playerName;
         private double relativeLength;
         private double _value;
         private double _secondaryValue;
@@ -23,26 +22,31 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
-        public double BorderThickness => PlayerName.Contains("Top:") ? 3 : 0;
-        public Thickness CornerRaidus => SecondaryType == OverlayType.None ? new Thickness(3, 3, 3,3) : new Thickness(3, 3, 0, 0);
-        public Thickness CornerRaidusSecondary => SecondaryType == OverlayType.None ? new Thickness(3,3,3,3) : new Thickness(0,0,3,3);
-        public SolidColorBrush BarOutline => PlayerName.Contains("Top:") ? Brushes.Gold : Brushes.Transparent;
+        public double BorderThickness => IsLeaderboardValue ? 3 : 0;
+        public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
+        public CornerRadius BarRadiusSecondary { get; set; } = new CornerRadius(3, 3, 3, 3);
+        public SolidColorBrush BarOutline => IsLeaderboardValue ? Brushes.NavajoWhite : Brushes.Transparent;
         public bool AddSecondayToValue { get; set; }
         public Entity Player { get; set; }
         public string PlayerName => Player.Name;
-        public double RelativeLength { get => relativeLength; set {
-                
-                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value+SecondaryValue==0 || TotalValue=="0")
+        public bool IsLeaderboardValue = false;
+        public double RelativeLength
+        {
+            get => relativeLength; 
+            set
+            {
+
+                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue == 0 || TotalValue == "0")
                 {
                     SetBarToZero();
-                    return; 
+                    return;
                 }
                 relativeLength = value;
-                if(SecondaryType!= OverlayType.None)
+                if (SecondaryType != OverlayType.None)
                 {
                     var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
                     var secondaryFraction = SecondaryValue / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
-                    BarWidth = new GridLength(relativeLength*primaryFraction, GridUnitType.Star);
+                    BarWidth = new GridLength(relativeLength * primaryFraction, GridUnitType.Star);
                     SecondaryBarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
                     RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
                 }
@@ -54,7 +58,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 OnPropertyChanged("RemainderWidth");
                 OnPropertyChanged("BarWidth");
-            } }
+                BarRadius = SecondaryType == OverlayType.None || SecondaryValue == 0 ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(3, 0, 0, 3);
+                BarRadiusSecondary = SecondaryType == OverlayType.None ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(0, 3, 3, 0);
+                OnPropertyChanged("BarRadius");
+                OnPropertyChanged("BarRadiusSecondary");
+            }
+        }
         private void SetBarToZero()
         {
             relativeLength = 0;
@@ -179,14 +188,15 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void AddLeaderboardBar(string characterName, double value)
         {
-            if (MetricBars.Any(mb => mb.PlayerName.Contains("Top:")))
+            if (MetricBars.Any(mb => mb.IsLeaderboardValue))
                 return;
             App.Current.Dispatcher.Invoke(() => {
                 MetricBars.Add(new OverlayMetricInfo
                 {
                     Type = Type,
-                    Player = new Entity { Name = "Top: " + characterName },
+                    Player = new Entity { Name = "1. " + characterName },
                     Value = value,
+                    IsLeaderboardValue = true
                 });
             });
         }
@@ -268,7 +278,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     value = combat.CompEHPS[participant];
                     break;
                 case OverlayType.Mitigation:
-                    value = combat.AbsPS[participant];
+                    value = combat.MPS[participant];
                     break;
             }
             metric.SecondaryType = type;
@@ -311,6 +321,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case OverlayType.InterruptCount:
                     value = obj.TotalInterrupts[participant];
+                    break;
+                case OverlayType.Mitigation:
+                    value = obj.MPS[participant];
                     break;
             }
             metricToUpdate.Value = value;

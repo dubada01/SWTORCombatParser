@@ -258,7 +258,7 @@ namespace SWTORCombatParser.Plotting
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
                 series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), label: seriesName, color: series.Color, markerSize: 10);
-                if (plotXvals.Length > 1)
+                if (plotXValRates.Length > 1)
                 {
                     series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
                     series.Line[combatToPlot.StartTime].YAxisIndex = 2;
@@ -269,7 +269,7 @@ namespace SWTORCombatParser.Plotting
                     var effectiveYValSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals, series.Legend.HasEffective);
                     series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, effectiveYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Effective" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 15);
                     series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
-                    if (plotXvals.Length > 1)
+                    if (plotXValRates.Length > 1)
                     {
                         series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + seriesName + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
                         series.EffectiveLine[combatToPlot.StartTime].YAxisIndex = 2;
@@ -279,7 +279,7 @@ namespace SWTORCombatParser.Plotting
                 }
 
                 series.Points[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
-                if (plotXvals.Length > 1)
+                if (plotXValRates.Length > 1)
                 {
                     series.Line[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
                 }
