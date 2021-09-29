@@ -15,7 +15,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class PostgresConnection
     {
-        private static string _dbConnectionString => JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@"connectionConfig.json"))["ConnectionString"].ToString();
+        private static string _dbConnectionString => ReadEncryptedString(JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@"connectionConfig.json"))["ConnectionString"].ToString());
         public static bool TryAddLeaderboardEntry(LeaderboardEntry newEntry)
         {
             var currentValidEntry = GetEntriesForBossAndCharacterWithClass(newEntry.Boss, newEntry.Character, newEntry.Class, newEntry.Type);
@@ -158,6 +158,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var conn = new NpgsqlConnection(_dbConnectionString);
             conn.Open();
             return conn;
+        }
+        private static string ReadEncryptedString(string encryptedString)
+        {
+            var secret = "obscureButNotSecure";
+            var decryptedString = Crypto.DecryptStringAES(encryptedString, secret);
+            return decryptedString;
         }
     }
 }
