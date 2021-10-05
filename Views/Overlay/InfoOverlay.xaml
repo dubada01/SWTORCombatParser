@@ -40,9 +40,16 @@
                                 <Viewbox Margin="0,0,20,0" Grid.Column="1" HorizontalAlignment="Right" >
                                     <TextBlock Margin="0,0,0,1" Foreground="NavajoWhite" Text="{Binding TotalValue}"></TextBlock>
                                 </Viewbox>
-                                <Viewbox HorizontalAlignment="Left" Margin="5,0,2,4">
-                                    <TextBlock Grid.Row="0" HorizontalAlignment="Right" Foreground="NavajoWhite" Text="{Binding PlayerName}" ></TextBlock>
-                                </Viewbox>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Visibility="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,5,0,5" Source="{Binding MedalIconPath}"></Image>
+                                    <Viewbox HorizontalAlignment="Left" Margin="5,0,2,4">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Grid.Row="0" HorizontalAlignment="Left" Foreground="NavajoWhite" Text="{Binding LeaderboardRank}" ></TextBlock>
+                                            <TextBlock Grid.Row="0" HorizontalAlignment="Right" Foreground="NavajoWhite" Text="{Binding PlayerName}" ></TextBlock>
+                                        </StackPanel>
+                                    </Viewbox>
+                                </StackPanel>
+
                             </Grid>
                             <!--</Viewbox>-->
                         </DataTemplate>
@@ -65,13 +72,14 @@
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
             </Grid>
 
-            <StackPanel Margin="15,2,2,2" Grid.Row="2" Orientation="Horizontal">
-                <Viewbox MaxHeight="25" HorizontalAlignment="Left" >
-                    <Image Opacity="1" Source="../../resources/SwtorLogo.png"/>
+            <StackPanel Visibility="{Binding HasLeaderboard, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="15,2,2,2" Grid.Row="2" Orientation="Horizontal">
+                <Viewbox MaxHeight="30"  HorizontalAlignment="Left" >
+                    <TextBlock Foreground="WhiteSmoke" Text="Leaderboard:"/>
                 </Viewbox>
-                <Viewbox MaxHeight="30" Margin="7,0,0,0" HorizontalAlignment="Left" >
-                    <TextBlock Opacity=".44" Foreground="Black" Text="Leaderboard"/>
+                <Viewbox MaxHeight="20" Margin="7,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" >
+                    <Image Opacity="1" Source="../../resources/SwtorLogo_opaque.png"/>
                 </Viewbox>
+
             </StackPanel>
 
 

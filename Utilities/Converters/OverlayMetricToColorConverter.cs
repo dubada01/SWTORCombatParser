@@ -39,6 +39,10 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.DimGray;
                 case OverlayType.Mitigation:
                     return Brushes.Sienna;
+                case OverlayType.SheildAbsorb:
+                    return Brushes.SkyBlue;
+                case OverlayType.DamageAvoided:
+                    return Brushes.DeepSkyBlue;
                 case OverlayType.InterruptCount:
                     return Brushes.SteelBlue;
                 default:

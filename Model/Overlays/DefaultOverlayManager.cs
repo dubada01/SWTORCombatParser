@@ -19,6 +19,8 @@ namespace SWTORCombatParser.Model.Overlays
         Tank_Sheilding,
         Sheilding,
         Mitigation,
+        SheildAbsorb,
+        DamageAvoided,
         Threat,
         DamageTaken,
         CompanionDPS,
@@ -67,7 +69,14 @@ namespace SWTORCombatParser.Model.Overlays
             var stringInfo = File.ReadAllText(infoPath);
             try
             {
-                return JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(stringInfo);
+                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(stringInfo);
+                var enumVals = EnumUtil.GetValues<OverlayType>();
+                foreach (var overlayType in enumVals)
+                {
+                    if(!currentDefaults.ContainsKey(overlayType))
+                        currentDefaults[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                }
+                return currentDefaults;
             }
             catch(Exception e)
             {

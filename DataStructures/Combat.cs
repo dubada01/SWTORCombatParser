@@ -124,7 +124,7 @@ namespace SWTORCombatParser
         public Dictionary<Entity,double> TotalCompanionHealing = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalEffectiveHealing = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalEffectiveCompanionHealing = new Dictionary<Entity, double>();
-        public Dictionary<Entity,double> TotalSheilding = new Dictionary<Entity, double>();
+        public Dictionary<Entity,double> TotalTankSheilding = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalProvidedSheilding = new Dictionary<Entity, double>();
         public Dictionary<Entity,double> TotalDamageTaken = new Dictionary<Entity, double>();
         public Dictionary<Entity, double> CurrentHealthDeficit => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>Math.Max(0, TotalEffectiveDamageTaken[kvp.Key]-TotalEffectiveHealingReceived[kvp.Key]));
@@ -133,7 +133,10 @@ namespace SWTORCombatParser
         public Dictionary<Entity,double> TotalHealingReceived = new Dictionary<Entity, double>();
         public Dictionary<Entity, double> TotalEffectiveHealingReceived = new Dictionary<Entity, double>();
         public Dictionary<Entity, double> TotalInterrupts = new Dictionary<Entity, double>();
-        public Dictionary<Entity, double> TotalMitigation = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> TotalSheildAndAbsorb = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> TotalEstimatedAvoidedDamage = new Dictionary<Entity, double>();
+        public Dictionary<Entity, double> MitigationPercent => TotalDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value == 0?0:(EstimatedTotalMitigation[kvp.Key]/kvp.Value) * 100);
+        public Dictionary<Entity, double> EstimatedTotalMitigation =>  TotalSheildAndAbsorb.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value + TotalEstimatedAvoidedDamage[kvp.Key]));
 
         public Dictionary<Entity, double> PercentageOfFightBelowFullHP => DurationSeconds == 0 ? TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => 0d) : TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value / DurationSeconds)*100);
         public Dictionary<Entity,double> TPS => DurationSeconds == 0 ? TotalThreat.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalThreat.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
@@ -145,10 +148,12 @@ namespace SWTORCombatParser
         public Dictionary<Entity,double> HPS => DurationSeconds == 0 ? TotalHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> EHPS => DurationSeconds == 0 ? TotalEffectiveHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> CompEHPS => DurationSeconds == 0 ? TotalEffectiveCompanionHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveCompanionHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
-        public Dictionary<Entity,double> SPS => DurationSeconds == 0 ? TotalSheilding.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalSheilding.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity,double> SPS => DurationSeconds == 0 ? TotalTankSheilding.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalTankSheilding.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> PSPS => DurationSeconds == 0 ? TotalProvidedSheilding.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalProvidedSheilding.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> DTPS => DurationSeconds == 0 ? TotalDamageTaken.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
-        public Dictionary<Entity, double> MPS => DurationSeconds == 0 ? TotalMitigation.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalMitigation.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity, double> SAPS => DurationSeconds == 0 ? TotalSheildAndAbsorb.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalSheildAndAbsorb.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity, double> DAPS => DurationSeconds == 0 ? TotalEstimatedAvoidedDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEstimatedAvoidedDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity, double> MPS => DurationSeconds == 0 ? EstimatedTotalMitigation.ToDictionary(kvp => kvp.Key, kvp => 0d) : EstimatedTotalMitigation.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> EDTPS => DurationSeconds == 0 ?TotalEffectiveDamageTaken.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalEffectiveDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> HTPS => DurationSeconds == 0 ? TotalHealingReceived.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalHealingReceived.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> EHTPS => DurationSeconds == 0 ? TotalEffectiveHealingReceived.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveHealingReceived.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);

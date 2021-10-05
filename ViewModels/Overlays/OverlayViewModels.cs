@@ -43,16 +43,17 @@ namespace SWTORCombatParser.ViewModels.Overlays
             OverlayType overlayType = (OverlayType)type;
             if (_currentOverlays.Any(o => o.Type == overlayType))
                 return;
-            DefaultOverlayManager.SetActiveState(overlayType, true);
+           
             var viewModel = new OverlayInstanceViewModel(overlayType);
+            DefaultOverlayManager.SetActiveState(viewModel.Type, true);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = overlaysMoveable;
             _currentOverlays.Add(viewModel);
             var dpsOverlay = new InfoOverlay(viewModel);
-            dpsOverlay.Top = _overlayDefaults[overlayType].Position.Y;
-            dpsOverlay.Left = _overlayDefaults[overlayType].Position.X;
-            dpsOverlay.Width =  _overlayDefaults[overlayType].WidtHHeight.X;
-            dpsOverlay.Height = _overlayDefaults[overlayType].WidtHHeight.Y;
+            dpsOverlay.Top = _overlayDefaults[viewModel.Type].Position.Y;
+            dpsOverlay.Left = _overlayDefaults[viewModel.Type].Position.X;
+            dpsOverlay.Width =  _overlayDefaults[viewModel.Type].WidtHHeight.X;
+            dpsOverlay.Height = _overlayDefaults[viewModel.Type].WidtHHeight.Y;
             dpsOverlay.Show();
         }
 
