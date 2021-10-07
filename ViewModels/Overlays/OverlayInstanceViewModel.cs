@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -122,6 +123,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
     }
     public class OverlayInstanceViewModel : INotifyPropertyChanged
     {
+        private object _refreshLock = new object();
+        private Combat _currentCombat;
         private Dictionary<Entity, Dictionary<LeaderboardEntryType, double>> _leaderboardInfo = new Dictionary<Entity, Dictionary<LeaderboardEntryType, double>>();
         public bool OverlaysMoveable { get; set; }
         public ObservableCollection<OverlayMetricInfo> MetricBars { get; set; } = new ObservableCollection<OverlayMetricInfo>();
@@ -164,28 +167,51 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SecondaryType = OverlayType.DamageAvoided;
                 AddSecondaryToValue = true;
             }
+            if (Type == OverlayType.SheildAbsorb)
+            {
+                SecondaryType = OverlayType.DamageAvoided;
+                AddSecondaryToValue = true;
+            }
             CombatSelectionMonitor.NewCombatSelected += Refresh;
             CombatIdentifier.NewCombatStarted += Reset;
             CombatIdentifier.NewCombatAvailable += UpdateMetrics;
+            Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
+            Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
+        }
+
+        private void UpdateTopEntries(Dictionary<LeaderboardEntryType, (string, double)> obj)
+        {
+            UpdateLeaderboardValues(obj);
+            RefreshBarViews();
+        }
+
+        private void UpdateStandings(Dictionary<Entity, Dictionary<LeaderboardEntryType, double>> obj)
+        {
+            _leaderboardInfo = obj;
+            RefreshBarViews();
         }
 
         private void UpdateLeaderboardValues(Dictionary<LeaderboardEntryType, (string, double)> obj)
         {
-            var damageLeaderboardValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Damage);
-            var focusDamageValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.FocusDPS);
-            var healingValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Healing);
-            var effectiveHealingValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.EffectiveHealing);
-            var mitigationValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Mitigation);
-            if(Type == OverlayType.DPS && damageLeaderboardValues.Value.Item1 != null)
-                AddLeaderboardBar(damageLeaderboardValues.Value.Item1, damageLeaderboardValues.Value.Item2);
-            if (Type == OverlayType.FocusDPS && focusDamageValues.Value.Item1 != null)
-                AddLeaderboardBar(focusDamageValues.Value.Item1, focusDamageValues.Value.Item2);
-            if (Type == OverlayType.EHPS && effectiveHealingValues.Value.Item1 != null)
-                AddLeaderboardBar(effectiveHealingValues.Value.Item1, effectiveHealingValues.Value.Item2);
-            if (Type == OverlayType.HPS && healingValues.Value.Item1 != null)
-                AddLeaderboardBar(healingValues.Value.Item1, healingValues.Value.Item2);
-            if (Type == OverlayType.SheildAbsorb && SecondaryType == OverlayType.DamageAvoided && mitigationValues.Value.Item1 != null)
-                AddLeaderboardBar(mitigationValues.Value.Item1, mitigationValues.Value.Item2);
+            lock (Leaderboards._updateLock)
+            {
+
+                var damageLeaderboardValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Damage);
+                var focusDamageValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.FocusDPS);
+                var healingValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Healing);
+                var effectiveHealingValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.EffectiveHealing);
+                var mitigationValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Mitigation);
+                if (Type == OverlayType.DPS && damageLeaderboardValues.Value.Item1 != null)
+                    AddLeaderboardBar(damageLeaderboardValues.Value.Item1, damageLeaderboardValues.Value.Item2);
+                if (Type == OverlayType.FocusDPS && focusDamageValues.Value.Item1 != null)
+                    AddLeaderboardBar(focusDamageValues.Value.Item1, focusDamageValues.Value.Item2);
+                if (Type == OverlayType.EHPS && effectiveHealingValues.Value.Item1 != null)
+                    AddLeaderboardBar(effectiveHealingValues.Value.Item1, effectiveHealingValues.Value.Item2);
+                if (Type == OverlayType.HPS && healingValues.Value.Item1 != null)
+                    AddLeaderboardBar(healingValues.Value.Item1, healingValues.Value.Item2);
+                if (Type == OverlayType.SheildAbsorb && SecondaryType == OverlayType.DamageAvoided && mitigationValues.Value.Item1 != null)
+                    AddLeaderboardBar(mitigationValues.Value.Item1, mitigationValues.Value.Item2);
+            }
         }
 
         public void Reset()
@@ -195,7 +221,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void Refresh(Combat comb)
         {
-            Leaderboards.Reset();
             ResetMetrics();
             UpdateMetrics(comb);
         }
@@ -241,55 +266,56 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void UpdateMetrics(Combat obj)
         {
-            UpdateLeaderboardValues(Leaderboards.GetTopLeaderboardEntries(obj));
-            if (obj.IsEncounterBoss && HasLeaderboard)
-            {
-                _leaderboardInfo = Leaderboards.GetyPlayerLeaderboardStandings(obj);  
-            }
-            OverlayMetricInfo metricToUpdate;
-            if (obj.CharacterParticipants.Count == 0)
-                return;
-            foreach(var participant in obj.CharacterParticipants)
-            {
-                
-                if (MetricBars.Any(m => m.Player == participant))
-                {
-                    metricToUpdate = MetricBars.First(mb => mb.Player == participant);
-                }
-                else
-                {
-                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue };
-                    App.Current.Dispatcher.Invoke(() => {
-                        MetricBars.Add(metricToUpdate);
-                    });
-                }
-                if (obj.IsEncounterBoss && HasLeaderboard)
-                {
-                    AddLeaderboardStanding(metricToUpdate, _leaderboardInfo[participant]);
-                }
-                UpdateMetric(Type, metricToUpdate, obj, participant);
-                if (SecondaryType != OverlayType.None)
-                {
-                    UpdateSecondary(SecondaryType, metricToUpdate, obj,participant);
-                }
-                var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
-                foreach (var metric in MetricBars)
-                {
-                    if (double.Parse(metric.TotalValue) == 0 || (metric.Value + metric.SecondaryValue == 0) || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
-                        metric.RelativeLength = 0;
-                    else
-                        metric.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.TotalValue) / double.Parse(maxValue));
-                }
-                
-                App.Current.Dispatcher.Invoke(() =>
-                {
-                    MetricBars = new ObservableCollection<OverlayMetricInfo>(MetricBars.OrderByDescending(mb => mb.RelativeLength));
-                });
-                OnPropertyChanged("MetricBars");
-            }
+            _currentCombat = obj;
+            RefreshBarViews();
             
         }
+        private void RefreshBarViews()
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                OverlayMetricInfo metricToUpdate;
+                if (_currentCombat.CharacterParticipants.Count == 0)
+                    return;
+                foreach (var participant in _currentCombat.CharacterParticipants)
+                {
+                    if (MetricBars.Any(m => m.Player == participant))
+                    {
+                        metricToUpdate = MetricBars.First(mb => mb.Player == participant);
+                    }
+                    else
+                    {
+                        metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue };
+                        App.Current.Dispatcher.Invoke(() =>
+                        {
+                            MetricBars.Add(metricToUpdate);
+                        });
+                    }
+                    if (_currentCombat.IsEncounterBoss && HasLeaderboard && _leaderboardInfo.ContainsKey(participant))
+                    {
+                        AddLeaderboardStanding(metricToUpdate, _leaderboardInfo[participant]);
+                    }
+                    UpdateMetric(Type, metricToUpdate, _currentCombat, participant);
+                    if (SecondaryType != OverlayType.None)
+                    {
+                        UpdateSecondary(SecondaryType, metricToUpdate, _currentCombat, participant);
+                    }
+                    var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
+                    foreach (var metric in MetricBars)
+                    {
+                        if (double.Parse(metric.TotalValue) == 0 || (metric.Value + metric.SecondaryValue == 0) || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
+                            metric.RelativeLength = 0;
+                        else
+                            metric.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.TotalValue) / double.Parse(maxValue));
+                    }
 
+
+                    MetricBars = new ObservableCollection<OverlayMetricInfo>(MetricBars.OrderByDescending(mb => mb.RelativeLength));
+
+                    OnPropertyChanged("MetricBars");
+                }
+            });
+        }
 
 
         private void ResetMetrics()

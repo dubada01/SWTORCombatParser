@@ -69,7 +69,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 var effectToStart = state.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
                 if (effectToStart == null || (effectToStart.StopTime!=DateTime.MinValue && effectToStart.StartTime != parsedLine.TimeStamp))
                 {
-                    state.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability+ AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    state.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability+ AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
             }
             if (parsedLine.Effect.EffectType == EffectType.Remove && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && (parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal"))
@@ -101,21 +101,6 @@ namespace SWTORCombatParser.Model.LogParsing
             state.PlayerClasses[parsedLine.Source] = swtorClass;
 
         }
-        private static Role GetPlayerRole(ParsedLogEntry log)
-        {
-            if (log.Error == ErrorType.IncompleteLine)
-                return Role.Unknown;
-            var swtorClass = ClassIdentifier.IdentifyClass(log);
-            if (swtorClass == null)
-                return Role.Unknown;
-            return swtorClass.Role;
-        }
-        private static string GetPlayerName(ParsedLogEntry log)
-        {
-            if (log.Source.Name == log.Target.Name && log.Source.IsLocalPlayer)
-                return log.Source.Name;
-            else
-                return "";
-        }
+
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SWTORCombatParser
 {
@@ -18,6 +19,13 @@ namespace SWTORCombatParser
         public static event Action NewCombatStarted = delegate { };
         public static void UpdateOverlays(Combat combat)
         {
+            if (combat.IsEncounterBoss)
+            {
+                Task.Run(() => {
+                    Leaderboards.StartGetPlayerLeaderboardStandings(combat);
+                    Leaderboards.StartGetTopLeaderboardEntries(combat);
+                });
+            }
             NewCombatAvailable(combat);
         }
         public static void NotifyNewCombatStarted()

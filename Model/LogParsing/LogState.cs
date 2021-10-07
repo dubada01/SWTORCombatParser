@@ -18,6 +18,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public string Name { get; set; }
         public CombatModfierType Type { get; set; }
         public Entity Source { get; set; }
+        public Entity Target { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
         public double DurationSeconds => StopTime == DateTime.MinValue? 0:(StopTime - StartTime).TotalSeconds;
@@ -49,15 +50,31 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             return Modifiers.Where(m => m.StartTime < timeStamp && m.StopTime >= timeStamp).ToList();
         }
-        public List<CombatModifier> GetCombatModifiersBetweenTimes(DateTime startTime, DateTime endTime, Entity owner)
+        public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
             var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner).ToList();
-            var correctedModifiers = inScopeModifiers.Select(m => {
+            return GetEffects(startTime, endTime, inScopeModifiers);
+        }
+        public List<CombatModifier> GetEffectsWithTarget(DateTime startTime, DateTime endTime, Entity owner)
+        {
+            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Target == owner).ToList();
+            return GetEffects(startTime, endTime, inScopeModifiers);
+        }
+        public List<CombatModifier> GetPersonalEffects(DateTime startTime, DateTime endTime, Entity owner)
+        {
+            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner && m.Target == owner).ToList();
+            return GetEffects(startTime, endTime, inScopeModifiers);
+        }
+
+        private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, List<CombatModifier> inScopeModifiers)
+        {
+            var correctedModifiers = inScopeModifiers.Select(m =>
+            {
                 CombatModifier correctedModifier = new CombatModifier();
                 if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
                 {
                     correctedModifier.Source = m.Source;
-                    correctedModifier.Type = m.Type; 
+                    correctedModifier.Type = m.Type;
                     correctedModifier.Name = m.Name;
                     correctedModifier.StartTime = m.StartTime;
                     correctedModifier.StopTime = m.StopTime;
@@ -65,7 +82,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     {
                         correctedModifier.StopTime = endTime;
                     }
-                    if(m.StopTime > endTime)
+                    if (m.StopTime > endTime)
                     {
                         correctedModifier.StopTime = endTime;
                     }
@@ -77,7 +94,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 return m;
             });
-            return correctedModifiers.Where(m=>m.DurationSeconds > 0).ToList();
+            return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
         }
     }
 }

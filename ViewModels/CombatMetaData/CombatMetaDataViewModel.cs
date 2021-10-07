@@ -81,7 +81,7 @@ namespace SWTORCombatParser.ViewModels
         {
             _currentCombat = combat;
             var currentState = CombatLogParser.GetCurrentLogState();
-            _currentCombatModifiers = currentState.GetCombatModifiersBetweenTimes(_currentCombat.StartTime, _currentCombat.EndTime, SelectedParticipant);
+            _currentCombatModifiers = currentState.GetPersonalEffects(_currentCombat.StartTime, _currentCombat.EndTime, SelectedParticipant);
             UpdateMetaDataFromCombat(_currentCombat);
 
         }
@@ -123,9 +123,9 @@ namespace SWTORCombatParser.ViewModels
             var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(combatLogsInView.ToList( ));
             UpdateMetaDataFromCombat(newCombat);
             var currentState = CombatLogStateBuilder.CurrentState;
-            var modifiersDuringCombat = currentState.GetCombatModifiersBetweenTimes(newCombat.StartTime, newCombat.EndTime, SelectedParticipant);
-            var abilities = modifiersDuringCombat.Select(m => m.Name).Distinct();
-            var durations = modifiersDuringCombat.GroupBy(v => (v.Name, v.Source),
+            var modifiersDuringCombat = currentState.GetPersonalEffects(newCombat.StartTime, newCombat.EndTime, SelectedParticipant);
+            var uniqueEffects = modifiersDuringCombat.Distinct(new EffectEquivelentComparison());
+            var effectsList = uniqueEffects.GroupBy(v => (v.Name, v.Source),
                 v => Math.Min(v.DurationSeconds, (newCombat.EndTime - v.StartTime).TotalSeconds), (info, durations) =>
                 new EffectViewModel()
                 {
@@ -135,7 +135,7 @@ namespace SWTORCombatParser.ViewModels
                     Count = durations.Count()
                 }).OrderByDescending(effect => effect.Duration).ToList();
             CombatEffects.Clear();
-            durations.ForEach(ef => CombatEffects.Add(ef));
+            effectsList.ForEach(ef => CombatEffects.Add(ef));
         }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

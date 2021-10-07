@@ -3,19 +3,27 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class Leaderboards
     {
+        public static object _updateLock = new object();
+        public static event Action<Dictionary<Entity, Dictionary<LeaderboardEntryType, double>>> LeaderboardStandingsAvailable = delegate { };
+        public static event Action<Dictionary<LeaderboardEntryType, (string, double)>> TopLeaderboardEntriesAvailable = delegate { };
+
         public static Dictionary<LeaderboardEntryType, (string, double)> TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
         public static Dictionary<LeaderboardEntryType, List<LeaderboardEntry>> CurrentFightLeaderboard = new Dictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
-        public static Dictionary<LeaderboardEntryType, (string, double)> GetTopLeaderboardEntries(Combat newCombat, bool filterClass = false)
+        public static void StartGetTopLeaderboardEntries(Combat newCombat, bool filterClass = false)
         {
+
+
             if (TopLeaderboards.Count > 0)
-                return TopLeaderboards;
+                TopLeaderboardEntriesAvailable(TopLeaderboards);
             var bossName = newCombat.EncounterBossInfo;
             var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
@@ -23,7 +31,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
                 LeaderboardEntry topParse;
-                if(filterClass)
+                if (filterClass)
                     topParse = PostgresConnection.GetTopLeaderboardForClass(bossName, className, enumVal);
                 else
                     topParse = PostgresConnection.GetTopLeaderboard(bossName, enumVal);
@@ -31,10 +39,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     continue;
                 TopLeaderboards[enumVal] = (topParse.Character, topParse.Value);
             }
-            return TopLeaderboards;
+            TopLeaderboardEntriesAvailable(TopLeaderboards);
+
+
         }
         public static void GetCurrentLeaderboard(Combat newCombat, bool filterClass = false)
         {
+
             var bossName = newCombat.EncounterBossInfo;
             var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
@@ -44,18 +55,20 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossWithClass(bossName, className, enumVal);
                 else
                     CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossOfType(bossName, enumVal);
-            }
 
+            }
         }
-        public static Dictionary<Entity,Dictionary<LeaderboardEntryType, double>> GetyPlayerLeaderboardStandings(Combat newCombat, bool filterClass = false)
+        public static void StartGetPlayerLeaderboardStandings(Combat newCombat, bool filterClass = false)
         {
+
             if (CurrentFightLeaderboard.Count == 0)
                 GetCurrentLeaderboard(newCombat, filterClass);
+
             var returnData = new Dictionary<Entity, Dictionary<LeaderboardEntryType, double>>();
             var bossName = newCombat.EncounterBossInfo;
             var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
-            foreach(var participant in newCombat.CharacterParticipants)
+            foreach (var participant in newCombat.CharacterParticipants)
             {
                 if (filterClass)
                 {
@@ -78,13 +91,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     else
                     {
                         var currentValue = GetValueForLeaderboardEntry(enumVal, newCombat, participant);
-                        var parsesWithVal = parses.Select(v=>v.Value).ToList();
+                        var parsesWithVal = parses.Select(v => v.Value).ToList();
                         parsesWithVal.Add(currentValue);
-                        returnData[participant][enumVal] = parsesWithVal.OrderByDescending(v=>v).ToList().IndexOf(currentValue);
+                        returnData[participant][enumVal] = parsesWithVal.OrderByDescending(v => v).ToList().IndexOf(currentValue) + 1;
                     }
                 }
             }
-            return returnData;
+            LeaderboardStandingsAvailable(returnData);
 
         }
         public static void Reset()
@@ -141,7 +154,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 case (LeaderboardEntryType.EffectiveHealing):
                     return combat.EHPS[player] + combat.PSPS[player];
                 case (LeaderboardEntryType.Mitigation):
-                    return combat.MitigationPercent[player];
+                    return combat.MPS[player];
                 default:
                     return 0;
             }

@@ -26,6 +26,15 @@ namespace SWTORCombatParser.ViewModels
         public static event Action<Combat> NewCombatSelected = delegate { };
         public static void FireNewCombat(Combat selectedCombat)
         {
+            if (selectedCombat.IsEncounterBoss)
+            {
+                Task.Run(() => {
+                    Leaderboards.Reset();
+                    Leaderboards.StartGetPlayerLeaderboardStandings(selectedCombat);
+                    Leaderboards.StartGetTopLeaderboardEntries(selectedCombat);
+                });
+            }
+
             NewCombatSelected(selectedCombat);
         }
     }
