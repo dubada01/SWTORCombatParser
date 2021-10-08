@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
@@ -8,51 +9,74 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SWTORCombatParser
 {
     public static class CombatIdentifier
     {
         public static event Action<Combat> NewCombatAvailable = delegate { };
-        public static void UpdateOngoingCombat(List<ParsedLogEntry> newLogs, Combat combatToUpdate)
+        public static event Action NewCombatStarted = delegate { };
+        public static void UpdateOverlays(Combat combat)
         {
-            var orderdLogs = newLogs.OrderBy(t => t.TimeStamp);
-            combatToUpdate.Logs.AddRange(orderdLogs);
-            //combatToUpdate.CharacterName = combatToUpdate.Logs.First(l => l.Source == combatToUpdate.Owner).Source.Name;
-            combatToUpdate.StartTime = combatToUpdate.Logs.First().TimeStamp;
-            combatToUpdate.EndTime = combatToUpdate.Logs.Last().TimeStamp;
-            combatToUpdate.Targets.AddRange(GetTargets(newLogs));
-            combatToUpdate.Targets = GetTargets(combatToUpdate.Logs);
-            combatToUpdate.ParentEncounter = GetEncounterInfo(combatToUpdate.Logs);
-            combatToUpdate.EncounterBossInfo = GetCurrentBossInfo(combatToUpdate.Logs, combatToUpdate.ParentEncounter);
-            CombatMetaDataParse.PopulateMetaData(ref combatToUpdate);
-            NewCombatAvailable(combatToUpdate);
+            if (combat.IsEncounterBoss)
+            {
+                Task.Run(() => {
+                    Leaderboards.StartGetPlayerLeaderboardStandings(combat);
+                    Leaderboards.StartGetTopLeaderboardEntries(combat);
+                });
+            }
+            NewCombatAvailable(combat);
+        }
+        public static void NotifyNewCombatStarted()
+        {
+            NewCombatStarted();
+        }
+        public static void ResetLeaderboardOverlay()
+        {
+
         }
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
-            if (!ongoingLogs.Any(l => (l.Source.IsPlayer && l.Target.IsPlayer)))
-                return new Combat();
             var encounter = GetEncounterInfo(ongoingLogs);
+            var currentPariticpants = ongoingLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Select(p => p.Source).Distinct().ToList();
+            currentPariticpants.AddRange(ongoingLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Select(p => p.Target).Distinct().ToList());
+            var participants = currentPariticpants.Distinct().ToList();
             var newCombat = new Combat()
             {
-                CharacterName = ongoingLogs.First(l => (l.Source.IsPlayer && l.Target.IsPlayer)).Source.Name,
+                CharacterParticipants = participants,
                 StartTime = ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp,
                 EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),
-                ParentEncounter = encounter,
-                EncounterBossInfo = GetCurrentBossInfo(ongoingLogs, encounter),
-                Logs = ongoingLogs,
+                Logs = SplitLogsByParticipant(ongoingLogs, participants)
             };
+            if (encounter !=  null)
+            {
+                newCombat.ParentEncounter = encounter;
+                newCombat.EncounterBossInfo = GetCurrentBossInfo(ongoingLogs,encounter);
+                newCombat.RequiredDeadTargetsForKill = GetCurrentBossNames(ongoingLogs, encounter);
+            }
             CombatMetaDataParse.PopulateMetaData(ref newCombat);
-            var sheildLogs = newCombat.IncomingSheildedLogs;
-            AddSheildingToLogs.AddSheildLogs(CombatLogStateBuilder.GetLocalState(), sheildLogs, newCombat);
-            
-            NewCombatAvailable(newCombat);
+            var sheildLogs = newCombat.IncomingDamageMitigatedLogs;
+            AddSheildingToLogs.AddSheildLogs(sheildLogs, newCombat);
             return newCombat;
         }
-        private static List<string> GetTargets(List<ParsedLogEntry> logs)
+
+        private static Dictionary<Entity, List<ParsedLogEntry>> SplitLogsByParticipant(List<ParsedLogEntry> ongoingLogs, List<Entity> currentPariticpants)
         {
-            return logs.Select(l=>l.Target).Where(t=>!t.IsCharacter && !t.IsCompanion).Select(npc=>npc.Name).Distinct().ToList();
+            var logsByParticipant = new Dictionary<Entity, List<ParsedLogEntry>>();
+            foreach(var particpant in currentPariticpants)
+            {
+                logsByParticipant[particpant] = ongoingLogs.Where(l => l.Source == particpant || l.Target == particpant).ToList();
+            }
+            return logsByParticipant;
+        }
+
+        private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
+        {
+            var targets = logs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion).ToList();
+            targets.AddRange(logs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion));
+            return targets.Distinct().ToList();
         }
         private static EncounterInfo GetEncounterInfo(List<ParsedLogEntry> logs)
         {
@@ -61,6 +85,18 @@ namespace SWTORCombatParser
             foreach (var log in logs)
             {
                 var knownEncounters = RaidNameLoader.SupportedEncounters;
+                if(log.Target.Name == "Operations Training Dummy")
+                {
+                    raidOfInterest = new EncounterInfo() { BossInfos = new List<BossInfo>() };
+                    raidOfInterest.Name = "Parsing";
+                    raidOfInterest.BossInfos.Add(new BossInfo { 
+                        EncounterName = "Training Dummy",
+                        TargetNames = new List<string> { "Operations Training Dummy" }
+                    });
+                    raidOfInterest.Difficutly = "Parsing";
+                    raidOfInterest.NumberOfPlayer = "";
+                    return raidOfInterest;
+                }
                 if (!string.IsNullOrEmpty(log.Value.StrValue) && knownEncounters.Select(r => r.LogName).Any(ln => log.Value.StrValue.Contains(ln)) && raidOfInterest == null)
                 {
                     raidOfInterest = knownEncounters.First(r => log.Value.StrValue.Contains(r.LogName));
@@ -76,7 +112,6 @@ namespace SWTORCombatParser
                         raidOfInterest.NumberOfPlayer = "";
                         //return null;
                     }
-                    Trace.WriteLine("Detected: " + raidOfInterest.Name);
                     return raidOfInterest;
                 }
             }
@@ -98,11 +133,24 @@ namespace SWTORCombatParser
                 {
                     var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
                     var bossTargetString = boss.EncounterName + " {" + currentEncounter.NumberOfPlayer.Replace("Player", "") + currentEncounter.Difficutly + "}";
-                    Trace.WriteLine(bossTargetString);
                     return bossTargetString;
                 }
             }
             return "";
+        }
+        private static List<string> GetCurrentBossNames(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        {
+            if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
+                return new List<string>();
+            foreach (var log in logs)
+            {
+                if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
+                {
+                    var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
+                    return boss.TargetNames;
+                }
+            }
+            return new List<string>();
         }
     }
 }

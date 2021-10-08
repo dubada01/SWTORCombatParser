@@ -9,9 +9,9 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
     {
         public static List<MetaDataInstance> GetPlaceholders()
         {
-            return GetMetaDatas(new Combat());
+            return GetMetaDatas(new Combat(), new Entity());
         }
-        public static List<MetaDataInstance> GetMetaDatas(Combat combat)
+        public static List<MetaDataInstance> GetMetaDatas(Combat combat, Entity currentParticipant)
         {
             var metaDatas = new List<MetaDataInstance>();
             var healingMetaData = new MetaDataInstance()
@@ -19,17 +19,17 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 Color = Brushes.LimeGreen,
                 Category = "Healing",
                 TotalLabel = "Total: ",
-                TotalValue = combat.TotalHealing.ToString("#,##0"),
+                TotalValue = string.IsNullOrEmpty(currentParticipant.Name)?"0": combat.TotalHealing[currentParticipant].ToString("#,##0"),
                 MaxLabel = "Max: ",
-                MaxValue = combat.MaxHeal.ToString("#,##0"),
+                MaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxHeal[currentParticipant].ToString("#,##0"),
                 RateLabel = "HPS: ",
-                RateValue = combat.HPS.ToString("#,##0.0"),
+                RateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.HPS[currentParticipant].ToString("#,##0.0"),
                 EffectiveTotalLabel = "Total (E): ",
-                EffectiveTotalValue = combat.TotalEffectiveHealing.ToString("#,##0"),
+                EffectiveTotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalEffectiveHealing[currentParticipant].ToString("#,##0"),
                 EffectiveMaxLabel = "Max (E): ",
-                EffectiveMaxValue = combat.MaxEffectiveHeal.ToString("#,##0"),
+                EffectiveMaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxEffectiveHeal[currentParticipant].ToString("#,##0"),
                 EffectiveRateLabel = "EHPS: ",
-                EffectiveRateValue = combat.EHPS.ToString("#,##0.0"),
+                EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.EHPS[currentParticipant].ToString("#,##0.0"),
             };
             
             var healingTaken = new MetaDataInstance()
@@ -37,17 +37,17 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 Color = Brushes.CornflowerBlue,
                 Category = "Healing Received",
                 TotalLabel = "Total: ",
-                TotalValue = combat.TotalHealingReceived.ToString("#,##0"),
+                TotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalHealingReceived[currentParticipant].ToString("#,##0"),
                 MaxLabel = "Max: ",
-                MaxValue = combat.MaxIncomingHeal.ToString("#,##0"),
+                MaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxIncomingHeal[currentParticipant].ToString("#,##0"),
                 RateLabel = "HRPS: ",
-                RateValue = combat.HTPS.ToString("#,##0.0"),
+                RateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.HTPS[currentParticipant].ToString("#,##0.0"),
                 EffectiveTotalLabel = "Total (E): ",
-                EffectiveTotalValue = combat.TotalEffectiveHealingReceived.ToString("#,##0"),
+                EffectiveTotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalEffectiveHealingReceived[currentParticipant].ToString("#,##0"),
                 EffectiveMaxLabel = "Max (E): ",
-                EffectiveMaxValue = combat.MaxIncomingEffectiveHeal.ToString("#,##0"),
+                EffectiveMaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxIncomingEffectiveHeal[currentParticipant].ToString("#,##0"),
                 EffectiveRateLabel = "EHRPS: ",
-                EffectiveRateValue = combat.EHTPS.ToString("#,##0.0"),
+                EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.EHTPS[currentParticipant].ToString("#,##0.0"),
             };
             
             var damageTaken = new MetaDataInstance()
@@ -55,17 +55,17 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 Color = Brushes.Peru,
                 Category = "Damage Taken",
                 TotalLabel = "Total: ",
-                TotalValue = combat.TotalDamageTaken.ToString("#,##0"),
+                TotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalDamageTaken[currentParticipant].ToString("#,##0"),
                 MaxLabel = "Max: ",
-                MaxValue = combat.MaxIncomingDamage.ToString("#,##0"),
+                MaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxIncomingDamage[currentParticipant].ToString("#,##0"),
                 RateLabel = "DTPS: ",
-                RateValue = combat.DTPS.ToString("#,##0.0"),
+                RateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.DTPS[currentParticipant].ToString("#,##0.0"),
                 EffectiveTotalLabel = "Total (E): ",
-                EffectiveTotalValue = combat.TotalEffectiveDamageTaken.ToString("#,##0"),
+                EffectiveTotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalEffectiveDamageTaken[currentParticipant].ToString("#,##0"),
                 EffectiveMaxLabel = "Max (E): ",
-                EffectiveMaxValue = combat.MaxEffectiveIncomingDamage.ToString("#,##0"),
+                EffectiveMaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxEffectiveIncomingDamage[currentParticipant].ToString("#,##0"),
                 EffectiveRateLabel = "EDTPS: ",
-                EffectiveRateValue = combat.EDTPS.ToString("#,##0.0"),
+                EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.EDTPS[currentParticipant].ToString("#,##0.0"),
             };
             
             var damage = new MetaDataInstance()
@@ -73,17 +73,17 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 Color = Brushes.IndianRed,
                 Category = "Damage",
                 TotalLabel = "Total: ",
-                TotalValue = combat.TotalDamage.ToString("#,##0"),
+                TotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalDamage[currentParticipant].ToString("#,##0"),
                 MaxLabel = "Max: ",
-                MaxValue = combat.MaxDamage.ToString("#,##0"),
+                MaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxDamage[currentParticipant].ToString("#,##0"),
                 RateLabel = "DPS: ",
-                RateValue = combat.DPS.ToString("#,##0.0"),
+                RateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.DPS[currentParticipant].ToString("#,##0.0"),
                 EffectiveTotalLabel = "Total (E)",
-                EffectiveTotalValue = combat.TotalDamage.ToString("#,##0"),
+                EffectiveTotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalDamage[currentParticipant].ToString("#,##0"),
                 EffectiveMaxLabel = "Max (E)",
-                EffectiveMaxValue = combat.MaxDamage.ToString("#,##0"),
+                EffectiveMaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxDamage[currentParticipant].ToString("#,##0"),
                 EffectiveRateLabel = "EDPS",
-                EffectiveRateValue = combat.DPS.ToString("#,##0.0"),
+                EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.DPS[currentParticipant].ToString("#,##0.0"),
             };
             metaDatas.Add(damage);
             metaDatas.Add(damageTaken);

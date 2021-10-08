@@ -18,6 +18,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public string Name { get; set; }
         public CombatModfierType Type { get; set; }
         public Entity Source { get; set; }
+        public Entity Target { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
         public double DurationSeconds => StopTime == DateTime.MinValue? 0:(StopTime - StartTime).TotalSeconds;
@@ -26,20 +27,20 @@ namespace SWTORCombatParser.Model.LogParsing
     {
         private static List<string> _healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
-        public string PlayerName { get; set; }
-        public SWTORClass PlayerClass { get; set; }
+        public Dictionary<Entity, SWTORClass> PlayerClasses = new Dictionary<Entity, SWTORClass>();
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public long MostRecentLogIndex = 0;
         public List<CombatModifier> Modifiers { get; set; } = new List<CombatModifier>();
-        public double GetCurrentHealsPerThreat(DateTime timeStamp)
+        public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
         {
+            var classOfSource = PlayerClasses[source];
             double healsPerThreat = 2;
             double healsModifier = 1;
-            if (PlayerClass == null)
+            if (classOfSource == null)
                 return healsPerThreat;
-            if (_healingDisciplines.Contains(PlayerClass.Discipline))
+            if (_healingDisciplines.Contains(classOfSource.Discipline))
                 healsModifier -= 0.1d;
-            if (_tankDisciplines.Contains(PlayerClass.Discipline))
+            if (_tankDisciplines.Contains(classOfSource.Discipline))
                 healsModifier += 1.5d;
             if (GetCombatModifiersAtTime(timeStamp).Any(m => m.Type == CombatModfierType.GuardedThreatReduced))
                 healsModifier -= .25d; //healsPerThreat *= 1.25;
@@ -49,15 +50,31 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             return Modifiers.Where(m => m.StartTime < timeStamp && m.StopTime >= timeStamp).ToList();
         }
-        public List<CombatModifier> GetCombatModifiersBetweenTimes(DateTime startTime, DateTime endTime)
+        public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
-            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime)).ToList();
-            var correctedModifiers = inScopeModifiers.Select(m => {
+            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner).ToList();
+            return GetEffects(startTime, endTime, inScopeModifiers);
+        }
+        public List<CombatModifier> GetEffectsWithTarget(DateTime startTime, DateTime endTime, Entity owner)
+        {
+            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Target == owner).ToList();
+            return GetEffects(startTime, endTime, inScopeModifiers);
+        }
+        public List<CombatModifier> GetPersonalEffects(DateTime startTime, DateTime endTime, Entity owner)
+        {
+            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner && m.Target == owner).ToList();
+            return GetEffects(startTime, endTime, inScopeModifiers);
+        }
+
+        private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, List<CombatModifier> inScopeModifiers)
+        {
+            var correctedModifiers = inScopeModifiers.Select(m =>
+            {
                 CombatModifier correctedModifier = new CombatModifier();
                 if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
                 {
                     correctedModifier.Source = m.Source;
-                    correctedModifier.Type = m.Type; 
+                    correctedModifier.Type = m.Type;
                     correctedModifier.Name = m.Name;
                     correctedModifier.StartTime = m.StartTime;
                     correctedModifier.StopTime = m.StopTime;
@@ -65,7 +82,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     {
                         correctedModifier.StopTime = endTime;
                     }
-                    if(m.StopTime > endTime)
+                    if (m.StopTime > endTime)
                     {
                         correctedModifier.StopTime = endTime;
                     }
@@ -77,7 +94,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 return m;
             });
-            return correctedModifiers.Where(m=>m.DurationSeconds > 0).ToList();
+            return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
         }
     }
 }

@@ -16,22 +16,33 @@ namespace SWTORCombatParser.ViewModels
 {
     public class CombatMetaDataViewModel : INotifyPropertyChanged
     {
-        private string characterName;
+        private Entity characterName = new Entity();
         private Combat _currentCombat;
         private List<CombatModifier> _currentCombatModifiers;
         private EffectViewModel selectedEffect;
+        private List<Entity> availableParticipants = new List<Entity>();
 
-        public string CharacterName
+        public event Action<Entity> OnNewParticipantSelected = delegate { };
+        public List<Entity> AvailableParticipants { get => availableParticipants; set { 
+                availableParticipants = value;
+                if(!availableParticipants.Contains(SelectedParticipant))
+                    SelectedParticipant = availableParticipants[0];
+                else
+                    OnNewParticipantSelected(SelectedParticipant);
+                OnPropertyChanged();
+            } }
+        public Entity SelectedParticipant
         {
             get => characterName; set
             {
                 characterName = value;
+                OnNewParticipantSelected(SelectedParticipant);
                 OnPropertyChanged();
             }
         }
         public ICommand ClearCombatEffectsCommand => new CommandHandler(ClearCombatEffects);
 
-        private void ClearCombatEffects()
+        private void ClearCombatEffects(object test)
         {
             foreach (var effect in CombatEffects)
             {
@@ -45,11 +56,14 @@ namespace SWTORCombatParser.ViewModels
         public ObservableCollection<EffectViewModel> CombatEffects { get; set; } = new ObservableCollection<EffectViewModel>();
         public event Action<List<CombatModifier>> OnEffectSelected = delegate { };
         public event Action OnEffectsCleared = delegate { };
-        public EffectViewModel SelectedEffect { get => selectedEffect; set { 
+        public EffectViewModel SelectedEffect
+        {
+            get => selectedEffect; set
+            {
                 selectedEffect = value;
                 if (selectedEffect == null)
                     return;
-                foreach(var effect in CombatEffects)
+                foreach (var effect in CombatEffects)
                 {
                     effect.Selected = false;
                 }
@@ -59,26 +73,36 @@ namespace SWTORCombatParser.ViewModels
         }
 
 
-
+        public void Reset()
+        {
+            _currentCombat = null;
+        }
         public void PopulateCombatMetaDatas(Combat combat)
         {
             _currentCombat = combat;
             var currentState = CombatLogParser.GetCurrentLogState();
-            _currentCombatModifiers = currentState.GetCombatModifiersBetweenTimes(_currentCombat.StartTime, _currentCombat.EndTime);
+            _currentCombatModifiers = currentState.GetPersonalEffects(_currentCombat.StartTime, _currentCombat.EndTime, SelectedParticipant);
             UpdateMetaDataFromCombat(_currentCombat);
 
         }
         public void UpdateMetaDataFromCombat(Combat combat)
         {
-            CombatMetaDatas.Clear();
-            var metaDatas = MetaDataFactory.GetMetaDatas(combat);
-            foreach(var metaData in metaDatas)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                CombatMetaDatas.Add(metaData);
-            }
+                CombatMetaDatas.Clear();
+
+                if (!combat.CharacterParticipants.Contains(SelectedParticipant))
+                    SelectedParticipant = combat.CharacterParticipants.First();
+                var metaDatas = MetaDataFactory.GetMetaDatas(combat, SelectedParticipant);
+                foreach (var metaData in metaDatas)
+                {
+                    CombatMetaDatas.Add(metaData);
+                }
+            });
         }
         internal void UpdateBasedOnVisibleData(AxisLimits newAxisLimits)
         {
+
             if (_currentCombat == null)
                 return;
             var minX = newAxisLimits.XMin;
@@ -86,8 +110,9 @@ namespace SWTORCombatParser.ViewModels
             var combatLogs = _currentCombat.Logs;
 
             var startTime = _currentCombat.StartTime;
-
-            var combatLogsInView = combatLogs.Where(l => (l.TimeStamp - startTime).TotalSeconds >= minX && (l.TimeStamp - startTime).TotalSeconds <= maxX);
+            if (string.IsNullOrEmpty(SelectedParticipant.Name))
+                return;
+            var combatLogsInView = combatLogs[SelectedParticipant].Where(l => (l.TimeStamp - startTime).TotalSeconds >= minX && (l.TimeStamp - startTime).TotalSeconds <= maxX);
 
             if (combatLogsInView.Count() == 0)
             {
@@ -95,20 +120,22 @@ namespace SWTORCombatParser.ViewModels
                 CombatEffects.Clear();
                 return;
             }
-            var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(combatLogsInView.ToList());
+            var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(combatLogsInView.ToList( ));
             UpdateMetaDataFromCombat(newCombat);
-            var currentState = CombatLogStateBuilder.CurrentStates[newCombat.LogFileName];
-            var modifiersDuringCombat = currentState.GetCombatModifiersBetweenTimes(newCombat.StartTime, newCombat.EndTime);
-            var abilities = modifiersDuringCombat.Select(m => m.Name).Distinct();
-            var durations = modifiersDuringCombat.GroupBy(v => (v.Name, v.Source), 
+            var currentState = CombatLogStateBuilder.CurrentState;
+            var modifiersDuringCombat = currentState.GetPersonalEffects(newCombat.StartTime, newCombat.EndTime, SelectedParticipant);
+            var uniqueEffects = modifiersDuringCombat.Distinct(new EffectEquivelentComparison());
+            var effectsList = uniqueEffects.GroupBy(v => (v.Name, v.Source),
                 v => Math.Min(v.DurationSeconds, (newCombat.EndTime - v.StartTime).TotalSeconds), (info, durations) =>
-                new EffectViewModel() 
-                { Name = info.Name, 
+                new EffectViewModel()
+                {
+                    Name = info.Name,
                     Source = info.Source.Name,
-                    Duration = durations.Sum(), 
-                    Count = durations.Count() }).OrderByDescending(effect => effect.Duration).ToList();
+                    Duration = durations.Sum(),
+                    Count = durations.Count()
+                }).OrderByDescending(effect => effect.Duration).ToList();
             CombatEffects.Clear();
-            durations.ForEach(ef => CombatEffects.Add(ef));
+            effectsList.ForEach(ef => CombatEffects.Add(ef));
         }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

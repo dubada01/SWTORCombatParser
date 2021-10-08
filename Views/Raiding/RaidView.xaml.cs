@@ -17,12 +17,12 @@ namespace SWTORCombatParser.Views
     /// <summary>
     /// Interaction logic for RaidView.xaml
     /// </summary>
-    public partial class RaidView : UserControl
-    {
-        public RaidView(RaidViewModel viewModel)
-        {
-            DataContext = viewModel;
-            InitializeComponent();
-        }
-    }
+    //public partial class RaidView : UserControl
+    //{
+    //    public RaidView(RaidViewModel viewModel)
+    //    {
+    //        DataContext = viewModel;
+    //        InitializeComponent();
+    //    }
+    //}
 }

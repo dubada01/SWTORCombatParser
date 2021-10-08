@@ -41,9 +41,9 @@
     "Name": "Mandalorian Raiders",
     "BossNames": [
       "Braxx the Bloodhound",
-      "Republic Boarding Party~?~Taklan|Ezeraline|Magnus|Keenor",
+      "Boarding Party~?~Taklan|Ezeraline|Magnus|Keenor|Rotham|Vincine|Kyrenic|Andan",
       "Gil",
-      "Matrix Varad"
+      "Mavrix Varad"
     ]
   },
   {
@@ -164,7 +164,7 @@
     ]
   },
   {
-    "LogName": "Depths of Manaan",
+    "LogName": "Manaan Research Facility",
     "Name": "Depths of Manaan",
     "BossNames": [
       "Sairisi",

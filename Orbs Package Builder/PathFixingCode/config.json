@@ -1,0 +1,14 @@
+{
+    "applications": [
+        {
+            "id": "App",
+            "executable": "SWTORCombatParser/Orbs.exe",
+            "workingDirectory": "SWTORCombatParser/"
+        }
+    ],
+    "processes": [
+        {
+            "executable": "Orbs"
+        }
+    ]
+}

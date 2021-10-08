@@ -7,20 +7,30 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <ItemsControl ItemsSource="{Binding AvailableOverlayTypes}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Available Overlays" HorizontalAlignment="Center"></TextBlock>
+        <ItemsControl Margin="0,20,0,0" ItemsSource="{Binding AvailableOverlayTypes}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Viewbox HorizontalAlignment="Center" Margin="0,25,0,0" MaxWidth="350">
-                        <Button Padding="5" CommandParameter="{Binding .}" Width="350" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                        <Button Padding="5" CommandParameter="{Binding .}" Height="50" Width="200" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                             <Button.Content>
-                                <TextBlock Text="{Binding ., StringFormat= 'Show \{0\} overlay'}"></TextBlock>
+                                <Viewbox MaxHeight="25">
+                                    <TextBlock Text="{Binding .}"></TextBlock>
+                                </Viewbox>
                             </Button.Content>
                         </Button>
-                    </Viewbox>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="2"></UniformGrid>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <Viewbox HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" MaxWidth="200">
+        <Viewbox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" MaxWidth="200">
             <Button Content="Toggle Overlay Lock" Padding="5"  Command="{Binding ToggleOverlayLockCommand}"></Button>
         </Viewbox>
     </Grid>

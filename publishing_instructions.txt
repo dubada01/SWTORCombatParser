@@ -1,0 +1,19 @@
+Steps To Publish Package To Windows Store: 
+1. associate app with store
+2. modify the packaging project to remove any lingering keys that will conflict with  signing
+3. publish the package without signing
+4. on my PC, navigate to "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64"
+5. open powershell at this location
+6. Run this command: $AppPath = "<msix file path>"
+7. Run this command: $StagingFolder = "<unpacked files target path>"
+8. Run this command: .\makeappx.exe unpack /p "$AppPath" /d "$StagingFolder"
+9. Navigate to your newly unpacked files
+10. Copy/paste the files from this path: C:\Users\duban\source\GameDevRepos\SWTORCombatParser\Orbs Package Builder\PathFixingCode
+11. Modify the AppManifest.xml to have these: Executable="PSFLauncher32.exe" EntryPoint="Windows.FullTrustApplication"
+12. Run this command: .\makeappx.exe pack /p "$AppPath" /d "$StagingFolder"
+-------- if debugging and need to sign ----------
+13. Run this command: $CodeSigningCert = "C:\Users\duban\source\GameDevRepos\SWTORCombatParser\TestCert.pfx" (or whatever path your cert you want to sign is)
+14. Run this command: $CodeSigningPass = "<password>"
+15. Run this command: .\signtool.exe sign /v /fd sha256 /f $CodeSigningCert /p $CodeSigningPass $AppPath
+
+The package is now signed and if the certificate is in the correct location you should be good to install it. 
