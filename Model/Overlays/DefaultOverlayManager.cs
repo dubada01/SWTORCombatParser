@@ -14,12 +14,19 @@ namespace SWTORCombatParser.Model.Overlays
         None,
         DPS,
         FocusDPS,
+        HPS,
         EHPS,
-        SPS,
-        TPS,
-        DTPS,
+        Tank_Sheilding,
+        Sheilding,
+        Mitigation,
+        SheildAbsorb,
+        DamageAvoided,
+        Threat,
+        DamageTaken,
         CompanionDPS,
-        CompanionEHPS
+        CompanionEHPS,
+        PercentOfFightBelowFullHP,
+        InterruptCount
     }
     public class DefaultOverlayInfo
     {
@@ -43,6 +50,10 @@ namespace SWTORCombatParser.Model.Overlays
         public static void SetActiveState(OverlayType type, bool state)
         {
             var currentDefaults = GetDefaults();
+            if (!currentDefaults.ContainsKey(type))
+            {
+                currentDefaults[type] = new DefaultOverlayInfo() { Position = new Point(0,0), WidtHHeight = new Point(100,50), Acive=state };
+            }
             var defaultModified = currentDefaults[type];
             currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state };
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
@@ -58,7 +69,14 @@ namespace SWTORCombatParser.Model.Overlays
             var stringInfo = File.ReadAllText(infoPath);
             try
             {
-                return JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(stringInfo);
+                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(stringInfo);
+                var enumVals = EnumUtil.GetValues<OverlayType>();
+                foreach (var overlayType in enumVals)
+                {
+                    if(!currentDefaults.ContainsKey(overlayType))
+                        currentDefaults[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                }
+                return currentDefaults;
             }
             catch(Exception e)
             {

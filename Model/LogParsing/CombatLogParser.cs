@@ -20,23 +20,10 @@ namespace SWTORCombatParser
         private static LogState _logState = new LogState();
         private static List<Entity> _currentEntities = new List<Entity>();
         public static event Action<string> OnNewLog = delegate { };
-        public static event Action RaidingStarted = delegate { };
-        public static event Action RaidingStopped = delegate { };
-        public static RaidGroupInfo CurrentRaidGroup;
-        public static void SetCurrentRaidGroup(RaidGroupInfo raidGroup)
-        {
-            CurrentRaidGroup = raidGroup;
-            RaidingStarted();
-        }
-        public static void ClearRaidGroup()
-        {
-            RaidingStopped();
-            CurrentRaidGroup = null;
-        }
 
         public static LogState InitalizeStateFromLog(CombatLogFile file)
         {
-            var lines = ParseAllLines(file);
+            var lines = ParseAllLines(file,true);
             _logState = CombatLogStateBuilder.UpdateCurrentLogState(ref lines,file.Name);
             return _logState;
         }
@@ -48,7 +35,7 @@ namespace SWTORCombatParser
         {
             _logState = currentState;
         }
-        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex)
+        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex,bool buildingState)
         {
             try
             {
@@ -58,62 +45,58 @@ namespace SWTORCombatParser
                 var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
                 var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
 
-                if (logEntryInfos.Count != 5 || string.IsNullOrEmpty(value.Value))
+                if (logEntryInfos.Count < 5 || string.IsNullOrEmpty(value.Value))
                     return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
-
+                if (logEntry.Contains("v7."))
+                {
+                    ParseLogStartLine(logEntryInfos.Select(v => v.Value).ToArray(), value.Value);
+                    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+                }
                 var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
                 parsedLine.LogText = logEntry;
                 parsedLine.LogLineNumber = lineIndex;
-                if (parsedLine.Source.Name == parsedLine.Target.Name && parsedLine.Source.IsCharacter)
-                    parsedLine.Source.IsPlayer = true;
-                if (CurrentRaidGroup == null)
-                {
+                if (!is7_0Logs && parsedLine.Source == parsedLine.Target && parsedLine.Source.IsCharacter)
+                    parsedLine.Source.IsLocalPlayer = true;
+                if(!buildingState)
                     UpdateEffectiveHealValues(parsedLine, _logState);
-                }
+
                 return parsedLine;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 OnNewLog(e.Message);
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
             }
         }
-        public static List<ParsedLogEntry> ParseLast10Mins(CombatLogFile file)
-        {
-            var allLines = ParseAllLines(file);
-            return allLines.Where(l => l.TimeStamp > allLines.Last().TimeStamp.AddMinutes(-10)).ToList();
-        }
-        public static List<ParsedLogEntry> GetAllCombatStartEvents(CombatLogFile log)
-        {
-            var allLines = ParseAllLines(log);
-            return allLines.Where(l => l.Effect.EffectName=="EnterCombat").ToList();
-        }
-        private static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
+
+        public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog,bool buildingState)
         {
             _logDate = combatLog.Time;
             var logLines = combatLog.Data.Split('\n');
             var numberOfLines = logLines.Length;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
             for (var i = 0; i < numberOfLines; i++)
-            {
-                if (logLines[i] == "")
-                    break;
-                parsedLog[i] = ParseLine(logLines[i],i);
-                parsedLog[i].LogName = combatLog.Name;
-            }
+           // Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
+              {
+                  if (logLines[i] == "")
+                      break;
+                  var parsedLine = ParseLine(logLines[i], i, buildingState);
+                  if (parsedLine.Error == ErrorType.IncompleteLine)
+                      continue;
+                  parsedLog[i] = parsedLine;
+                  parsedLog[i].LogName = combatLog.Name;
+              }
             CombatTimestampRectifier.RectifyTimeStamps(parsedLog.Where(l => l != null).ToList());
             return parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp).ToList();
         }
 
-
-
-        public static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
+        private static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
         {
-            if(parsedLog.Effect.EffectName == "Heal" && (parsedLog.Source.IsPlayer || parsedLog.Source.IsCompanion))
+            if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCharacter)
             {
-                if (state.PlayerClass == null)
+                if (state.PlayerClasses[parsedLog.Source] == null)
                 { 
-                    parsedLog.Value.EffectiveDblValue = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp);
+                    parsedLog.Value.EffectiveDblValue = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source);
                     if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
                     {
                         OnNewLog("**************Impossible Heal! " +
@@ -122,24 +105,24 @@ namespace SWTORCombatParser
                           "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
                           "\nThreat: " + parsedLog.Threat +
                           "\nRaw: " + parsedLog.Value.DblValue +
-                          "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp));
+                          "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source));
                         parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
                     }
                     return;
                 }
 
-                var specialThreatAbilties = state.PlayerClass.SpecialThreatAbilities;
+                var specialThreatAbilties = state.PlayerClasses[parsedLog.Source].SpecialThreatAbilities;
 
                 var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => parsedLog.Ability.Contains(a.Name));
 
-                if (parsedLog.Ability.Contains("Advanced")&&parsedLog.Ability.Contains("Medpac") && state.PlayerClass.Role != Role.Tank)
+                if (parsedLog.Ability.Contains("Advanced")&&parsedLog.Ability.Contains("Medpac") && state.PlayerClasses[parsedLog.Source].Role != Role.Tank)
                     specialThreatAbilityUsed = new Ability() { StaticThreat = true };
 
                 var effectiveAmmount = 0d;
 
                 if (specialThreatAbilityUsed == null)
                 {
-                    effectiveAmmount = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp);
+                    effectiveAmmount = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source);
                 }
                 else
                 { 
@@ -158,37 +141,55 @@ namespace SWTORCombatParser
                           "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
                           "\nThreat: " + parsedLog.Threat +
                           "\nRaw: " + parsedLog.Value.DblValue +
-                          "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp));
+                          "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source));
                     parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
                 }
                 return;
             }
-            if (parsedLog.Effect.EffectName == "Heal" && parsedLog.Target.IsPlayer)
+            if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCompanion)
             {
-                parsedLog.Value.EffectiveDblValue = parsedLog.Threat * (2/0.9d);
+                parsedLog.Value.EffectiveDblValue = parsedLog.Threat * (5);
             }
         }
-
-
+        private static bool is7_0Logs = false;
+        private static void ParseLogStartLine(string[] entryInfos, string version)
+        {
+            is7_0Logs = true;
+            var player = _currentEntities.FirstOrDefault(e => CleanString(entryInfos[2]).Split(':')[0].Split('#')[0].Replace("@", "") == e.Name);
+            if (player == null)
+                ParseEntity(entryInfos[2], true);
+            else
+                player.IsLocalPlayer = true;
+        }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {
             if (entryInfo.Length == 0)
                 return null;
 
             var newEntry = new ParsedLogEntry();
-            var time = DateTime.Parse(CleanString(entryInfo[0]));
+
+            var extractionOffset = entryInfo.Count() == 6 ? 0 : 1;
+            if(extractionOffset == 0)
+                newEntry.Position= ParsePositionData(entryInfo[0]);
+            var time = DateTime.Parse(CleanString(entryInfo[1-extractionOffset]));
             var date = new DateTime(_logDate.Year, _logDate.Month, _logDate.Day);
 
             var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
             newEntry.TimeStamp = newDate;
-            newEntry.Source = ParseEntity(CleanString(entryInfo[1]));
-            newEntry.Target = ParseEntity(CleanString(entryInfo[2]));
-            newEntry.Ability = ParseAbility(CleanString(entryInfo[3]));
-            newEntry.Effect = ParseEffect(CleanString(entryInfo[4]));
+            newEntry.Source = ParseEntity(CleanString(entryInfo[2 - extractionOffset]));
+            newEntry.Target = ParseEntity(CleanString(entryInfo[3 - extractionOffset]));
+            newEntry.Ability = ParseAbility(CleanString(entryInfo[4 - extractionOffset]));
+            newEntry.Effect = ParseEffect(CleanString(entryInfo[5 - extractionOffset]));
 
             newEntry.Value = ParseValues(value, newEntry.Effect);
             newEntry.Threat =string.IsNullOrEmpty(threat) ? 0 : int.Parse(threat.Replace("<","").Replace(">",""));
+               
             return newEntry;
+        }
+        private static PositionData ParsePositionData(string positionString)
+        {
+            var elements = CleanString(positionString).Replace("{","").Replace("}","").Split(',');
+            return new PositionData { X = double.Parse(elements[1]), Y = double.Parse(elements[2]), Facing = double.Parse(elements[0]) };
         }
         private static Value ParseValues(string valueString, Effect currentEffect)
         {
@@ -263,21 +264,28 @@ namespace SWTORCombatParser
 
             return newValue;
         }
-        private static Entity ParseEntity(string value)
+        private static Entity ParseEntity(string value, bool isPlayer =false)
         {
             if (value.Contains("@") && !value.Contains(":"))
             {
-                var characterName = value.Replace("@", "");
+                var characterName = value.Split('#')[0].Replace("@", "");
                 var existingCharacterEntity = _currentEntities.FirstOrDefault(e => e.Name == characterName);
                 if (existingCharacterEntity != null)
                     return existingCharacterEntity;
-                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName};
+                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName, IsLocalPlayer = isPlayer};
                 _currentEntities.Add(characterEntity);
                 return characterEntity;
             }
             if (value.Contains("@") && value.Contains(":"))
             {
-                var compaionName = value.Split(':')[1];
+                var valueToUse = value; 
+                var compaionName = valueToUse.Split(':')[1];
+                if (value.Contains("/"))
+                { 
+                    valueToUse = value.Split('/')[1]; 
+                    compaionName = valueToUse.Split(':')[0];
+                }
+                
                 var companionNameComponents = compaionName.Split('{');
                 var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == companionNameComponents[0].Trim());
                 if (existingCompanionEntity != null)

@@ -30,8 +30,37 @@ namespace SWTORCombatParser.Views.Overlay
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close,
                 new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;
+            vm.OnLocking += makeTransparent;
         }
+        public const int WS_EX_TRANSPARENT = 0x00000020;
+        public const int GWL_EXSTYLE = (-20);
 
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hwnd, int index);
+
+        [DllImport("user32.dll")]
+        public static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
+
+        public void makeTransparent(bool shouldLock)
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            if (shouldLock)
+            {
+                Background.Opacity = 0.1f;
+                ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+                SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
+            }
+            else
+            {
+                Background.Opacity = 0.45f;
+                ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+                //Remove the WS_EX_TRANSPARENT flag from the extended window style
+                int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+                SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);
+
+            }
+        }
         private void CloseOverlay()
         {
             Close();

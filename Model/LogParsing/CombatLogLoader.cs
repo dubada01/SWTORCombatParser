@@ -16,16 +16,16 @@ namespace SWTORCombatParser
     }
     public static class CombatLogLoader
     {
-        private static string _logPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+        public static string LoggingPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
         public static string GetLogDirectory()
         {
-            return _logPath;
+            return LoggingPath;
         }
         public static CombatLogFile[] LoadAllCombatLogs()
         {
-            if (!Directory.Exists(_logPath))
+            if (!Directory.Exists(LoggingPath))
                 return new CombatLogFile[0];
-            var filePaths = Directory.GetFiles(_logPath);
+            var filePaths = Directory.GetFiles(LoggingPath);
             CombatLogFile[] combatLogsData = new CombatLogFile[filePaths.Length];
             Parallel.For(0, filePaths.Length, i => 
             {
@@ -34,6 +34,25 @@ namespace SWTORCombatParser
             });
 
             return combatLogsData.Where(l=>l.Data!="").OrderByDescending(v => v.Time).ToArray();
+        }
+        public static bool CheckIfCombatLoggingPresent()
+        {
+            if (!Directory.Exists(LoggingPath))
+            {
+                return false;
+            }
+            return true;
+        }
+        public static bool CheckIfCombatLogsArePresent()
+        {
+            if (CheckIfCombatLoggingPresent())
+            {
+                var files = new DirectoryInfo(LoggingPath).EnumerateFiles();
+                if (files.Count() > 0)
+                    return true;
+                return false;
+            }
+            return false;
         }
         public static string GetMostRecentLogName()
         {
@@ -57,7 +76,7 @@ namespace SWTORCombatParser
         }
         private static string GetMostRecentCombatFile()
         {
-            var files = new DirectoryInfo(_logPath).EnumerateFiles();
+            var files = new DirectoryInfo(LoggingPath).EnumerateFiles();
             return files.OrderByDescending(f => f.LastWriteTime).ToList()[0].FullName;
         }
         private static CombatLogFile LoadCombatLog(string path)

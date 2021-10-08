@@ -18,6 +18,7 @@
             <converters:OverlyTypeToVisibilityConverter x:Key="OverlayTypeToVisibilityConverter"/>
             <converters:EncounterInfoToPastCombatColorConverter x:Key="EncounterInfoToPastCombatColorConverter"/>
             <converters:EffectSelectedToTextConverter x:Key="EffectSelectedToTextConverter"/>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibiityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -20,16 +20,19 @@
             <TabItem FontSize="25" Padding="15,5,15,5" Header="Battle Stats">
                 <ContentPresenter Content="{Binding GraphView}"/>
             </TabItem>
-            <TabItem FontSize="25" Padding="0,0,0,0">
+            <!--<TabItem FontSize="25" Padding="0,0,0,0">
                 <TabItem.Header>
                     <Border BorderThickness="4" BorderBrush="{Binding RaidingActiveColor}" Padding="5">
                         <TextBlock Text="Raiding"></TextBlock>
                     </Border>
                 </TabItem.Header>
                 <ContentPresenter Content="{Binding RaidView}"/>
-            </TabItem>
+            </TabItem>-->
             <TabItem FontSize="25" Padding="15,5,15,5" Header="Table">
                 <ContentPresenter Content="{Binding TableView}"/>
+            </TabItem>
+            <TabItem FontSize="25" Padding="15,5,15,5" Header="Histogram">
+                <ContentPresenter Content="{Binding HistogramView}"/>
             </TabItem>
             <TabItem FontSize="25" Padding="15,5,15,5" Header="Info Logs">
                 <ContentPresenter Content="{Binding SoftwareLogView}"/>

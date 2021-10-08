@@ -1,5 +1,4 @@
-﻿using SWTORCombatParser.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -12,16 +11,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SWTORCombatParser.Views
+namespace SWTORCombatParser.Views.Histogram
 {
     /// <summary>
-    /// Interaction logic for TableView.xaml
+    /// Interaction logic for HistogramInstanceView.xaml
     /// </summary>
-    public partial class TableView : UserControl
+    public partial class HistogramInstanceView : UserControl
     {
-        public TableView(TableViewModel dataContext)
+        public HistogramInstanceView()
         {
-            DataContext = dataContext;
             InitializeComponent();
         }
     }

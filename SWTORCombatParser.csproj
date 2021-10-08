@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
+    <VersionPrefix>0.54.23</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -14,26 +15,49 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+
   <ItemGroup>
+    <Compile Remove="Installer Project\**" />
+    <Compile Remove="Orbs Package Builder\**" />
     <Compile Remove="SWTORCombatParser_Test\**" />
+    <Compile Remove="UWP Images\**" />
+    <EmbeddedResource Remove="Installer Project\**" />
+    <EmbeddedResource Remove="Orbs Package Builder\**" />
     <EmbeddedResource Remove="SWTORCombatParser_Test\**" />
+    <EmbeddedResource Remove="UWP Images\**" />
+    <None Remove="Installer Project\**" />
+    <None Remove="Orbs Package Builder\**" />
     <None Remove="SWTORCombatParser_Test\**" />
+    <None Remove="UWP Images\**" />
+    <Page Remove="Installer Project\**" />
+    <Page Remove="Orbs Package Builder\**" />
     <Page Remove="SWTORCombatParser_Test\**" />
+    <Page Remove="UWP Images\**" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove=".gitattributes" />
     <None Remove=".gitignore" />
+    <None Remove="connectionConfig.json" />
     <None Remove="DataStructures\ClassInfos\Classes.json" />
     <None Remove="DataStructures\EncounterInfo\FlashpointInfo.json" />
     <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
     <None Remove="resources\dpsIcon.png" />
+    <None Remove="resources\firstPlaceLeaderboardIcon.png" />
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\SwtorLogo.png" />
+    <None Remove="resources\SwtorLogo_opaque.png" />
     <None Remove="resources\tankIcon.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="connectionConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="DataStructures\ClassInfos\Classes.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -46,7 +70,13 @@
     <Content Include="resources\dpsIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\firstPlaceLeaderboardIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\healingIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\SwtorLogo_opaque.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\tankIcon.png">
@@ -55,11 +85,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
-    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Npgsql" Version="5.0.7" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="Npgsql" Version="5.0.10" />
     <PackageReference Include="ScottPlot" Version="4.1.16" />
     <PackageReference Include="ScottPlot.WPF" Version="4.1.16" />
   </ItemGroup>
