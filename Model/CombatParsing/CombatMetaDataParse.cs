@@ -34,7 +34,7 @@ namespace SWTORCombatParser
                 var totalEffectiveHealing = combatToPopulate.OutgoingHealingLogs[participant].Sum(l => l.Value.EffectiveDblValue);
 
                 var totalDamage = combatToPopulate.OutgoingDamageLogs[participant].Sum(l => l.Value.DblValue);
-
+                var totalEffectiveDamage = combatToPopulate.OutgoingDamageLogs[participant].Sum(l => l.Value.EffectiveDblValue);
                 var currentFocusTarget = combatToPopulate.ParentEncounter?.BossNames;
                 if (currentFocusTarget != null && currentFocusTarget.Count > 0)
                 {
@@ -52,11 +52,14 @@ namespace SWTORCombatParser
                     totalDamage = combatToPopulate.OutgoingDamageLogs[participant].Where(d => !bosses.Contains(d.Target.Name)).Sum(l => l.Value.DblValue);
                     var focusDamageLogs = combatToPopulate.OutgoingDamageLogs[participant].Where(d => bosses.Contains(d.Target.Name));
                     var allFocusDamage = focusDamageLogs.Sum(l => l.Value.DblValue);
+                    var allEffectiveFocusDamage = focusDamageLogs.Sum(l => l.Value.EffectiveDblValue);
                     combatToPopulate.TotalFocusDamage[participant] = allFocusDamage;
+                    combatToPopulate.TotalEffectiveFocusDamage[participant] = allEffectiveFocusDamage;
                 }
                 else
                 {
                     combatToPopulate.TotalFocusDamage[participant] = 0;
+                    combatToPopulate.TotalEffectiveFocusDamage[participant] = 0;
                 }
 
                 var totalAbilitiesDone = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate").Count();
@@ -78,9 +81,11 @@ namespace SWTORCombatParser
                 combatToPopulate.TotalInterrupts[participant] = interruptLogs.Count();
                 combatToPopulate.TotalThreat[participant] = outgoingLogs.Sum(l => l.Threat);
                 combatToPopulate.MaxDamage[participant] = combatToPopulate.OutgoingDamageLogs[participant].Count == 0 ? 0 : combatToPopulate.OutgoingDamageLogs[participant].Max(l => l.Value.DblValue);
+                combatToPopulate.MaxEffectiveDamage[participant] = combatToPopulate.OutgoingDamageLogs[participant].Count == 0 ? 0 : combatToPopulate.OutgoingDamageLogs[participant].Max(l => l.Value.EffectiveDblValue);
                 combatToPopulate.MaxHeal[participant] = combatToPopulate.OutgoingHealingLogs[participant].Count == 0 ? 0 : combatToPopulate.OutgoingHealingLogs[participant].Max(l => l.Value.DblValue);
                 combatToPopulate.MaxEffectiveHeal[participant] = combatToPopulate.OutgoingHealingLogs[participant].Count == 0 ? 0 : combatToPopulate.OutgoingHealingLogs[participant].Max(l => l.Value.EffectiveDblValue);
                 combatToPopulate.TotalFluffDamage[participant] = totalDamage;
+                combatToPopulate.TotalEffectiveFluffDamage[participant] = totalEffectiveDamage;
                 combatToPopulate.TotalTankSheilding[participant] = totalSheildingDone;
                 combatToPopulate.TotalEstimatedAvoidedDamage[participant] = _parriedAttackSums.Sum(kvp => kvp.Value);
                 combatToPopulate.TotalSheildAndAbsorb[participant] = combatToPopulate.IncomingDamageMitigatedLogs[participant].Count == 0 ? 0 : combatToPopulate.IncomingDamageMitigatedLogs[participant].Sum(l => l.Value.Modifier.EffectiveDblValue);

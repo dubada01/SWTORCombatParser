@@ -7,9 +7,17 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser
 {
-    public class PlotMaker
-    {
+    public class PlotMaker {
 
+        public static double[] GetHPPercentages(List<ParsedLogEntry> logs,Entity sourcePlayer)
+        {
+            return logs.Where(l=>l.Target == sourcePlayer).Select(l => l.TargetInfo.CurrentHP ).ToArray();
+        }
+        internal static double[] GetPlotHPXVals(List<ParsedLogEntry> totalLogsDuringCombat, DateTime startPoint, Entity sourcePlayer)
+        {
+            var startTime = startPoint;
+            return totalLogsDuringCombat.Where(l => l.Target == sourcePlayer).Select(l => (l.TimeStamp - startTime).TotalSeconds).ToArray();
+        }
         internal static double[] GetPlotXVals(List<ParsedLogEntry> totalLogsDuringCombat,DateTime startPoint)
         {
             var startTime = startPoint;
@@ -28,22 +36,9 @@ namespace SWTORCombatParser
             var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last() - timeStamps.First())).ToList();
             return timeStampsSpread.Select(d=>(double)d).ToArray();
         }
-        internal static double[] GetPlotYValRates(List<ParsedLogEntry> totalLogsDuringCombat,double[] timeStamps, bool checkEffective)
+        internal static double[] GetPlotYValRates(double[] yValues ,double[] timeStamps)
         {
-            //double sum = 0;
-            //var sums = new List<double>();
-            //if (!checkEffective)
-            //    sums = totalLogsDuringCombat.Skip(0).Select((l) => sum += l.Value.DblValue).ToList();
-            //else
-            //    sums = totalLogsDuringCombat.Skip(0).Select((l) => sum += l.Value.EffectiveDblValue).ToList();
-            //return sums.Select((s, i) => s / ((timeStamps.Skip(0).ToArray()[i]) == 0 ? 0.1d : (timeStamps.Skip(0).ToArray()[i]))).ToArray();
             var movingAverageCalc = new MovingAverage(TimeSpan.FromSeconds(10));
-
-            var values = new List<double>();
-            if (!checkEffective)
-                values = totalLogsDuringCombat.Select((l) => l.Value.DblValue).ToList();
-            else
-                values = totalLogsDuringCombat.Select((l) => l.Value.EffectiveDblValue).ToList();
             
             var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last()- timeStamps.First())).ToList();
 
@@ -62,7 +57,7 @@ namespace SWTORCombatParser
                     var valSum = 0d;
                     foreach(var ind in indexes)
                     {
-                        valSum += values[ind];
+                        valSum += yValues[ind];
                     }
                     movingaverage[i]=(movingAverageCalc.ComputeAverage(valSum, denseTime));
                 }
@@ -94,6 +89,7 @@ namespace SWTORCombatParser
             }
             return (stringToShow, EffectivestringToShow);
         }
+       
     }
     public class MovingAverage
     {

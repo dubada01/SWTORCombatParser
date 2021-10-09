@@ -21,7 +21,8 @@ namespace SWTORCombatParser.Plotting
         DamageTaken,
         HealingOutput,
         HealingTaken,
-        SheildedDamageTaken
+        SheildedDamageTaken,
+        HPPercent
     }
     public class PlotViewModel
     {
@@ -50,7 +51,7 @@ namespace SWTORCombatParser.Plotting
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
             legend.FontColor = Color.WhiteSmoke;
             legend.FontSize = 15;
-            ConfigureSeries(new List<PlotType> { PlotType.DamageOutput, PlotType.DamageTaken, PlotType.HealingOutput, PlotType.HealingTaken , PlotType.SheildedDamageTaken });
+            ConfigureSeries(Enum.GetValues(typeof(PlotType)).Cast<PlotType>().ToList());
             LegendItems = GetLegends();
             GraphView.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
@@ -84,7 +85,7 @@ namespace SWTORCombatParser.Plotting
                 switch (plotType)
                 {
                     case PlotType.DamageOutput:
-                        AddSeries(plotType, "Damage Output", Color.IndianRed);
+                        AddSeries(plotType, "Damage Output", Color.IndianRed,true);
                         break;
                     case PlotType.DamageTaken:
                         AddSeries(plotType, "Damage Incoming", Color.Peru, true);
@@ -97,6 +98,9 @@ namespace SWTORCombatParser.Plotting
                         break;
                     case PlotType.HealingTaken:
                         AddSeries(plotType, "Heal Incoming", Color.CornflowerBlue, true);
+                        break;
+                    case PlotType.HPPercent:
+                        AddSeries(plotType, "Health Percentage", Color.LightGoldenrodYellow,false,false);
                         break;
                     default:
                         Trace.WriteLine("Invalid Series");
@@ -241,18 +245,32 @@ namespace SWTORCombatParser.Plotting
                 }
             }
         }
-        private void PlotCombat(Combat combatToPlot, Entity seletedEntity)
+        private void PlotCombat(Combat combatToPlot, Entity selectedEntity)
         {
 
             foreach (var series in _seriesToPlot)
             {
-                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, seletedEntity);
+                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, selectedEntity);
                 if (applicableData == null || applicableData.Count == 0)
                     continue;
-                var plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
-                var plotYvals = PlotMaker.GetPlotYVals(applicableData, false);
-                var plotXValRates = PlotMaker.GetPlotXValsRates(plotXvals);
-                var plotYvaRates = PlotMaker.GetPlotYValRates(applicableData, plotXvals, false);
+                double[] plotXvals;
+                double[] plotYvals;
+                double[] plotXValRates;
+                double[] plotYvaRates;
+                if (series.Type != PlotType.HPPercent)
+                {
+                    plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
+                    plotYvals = PlotMaker.GetPlotYVals(applicableData, false);
+                    plotXValRates = PlotMaker.GetPlotXValsRates(plotXvals);
+                    plotYvaRates = PlotMaker.GetPlotYValRates(plotYvals, plotXvals);
+                }
+                else
+                {
+                    plotXvals = PlotMaker.GetPlotHPXVals(applicableData, combatToPlot.StartTime, selectedEntity);
+                    plotYvals = PlotMaker.GetHPPercentages(applicableData, selectedEntity);
+                    plotXValRates = plotXvals;
+                    plotYvaRates = plotYvals;
+                }
 
                 List<(string, string)> abilityNames = PlotMaker.GetAnnotationString(applicableData);
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
@@ -266,7 +284,7 @@ namespace SWTORCombatParser.Plotting
                 if (series.Legend.HasEffective)
                 {
                     var effectiveYVals = PlotMaker.GetPlotYVals(applicableData, series.Legend.HasEffective);
-                    var effectiveYValSums = PlotMaker.GetPlotYValRates(applicableData, plotXvals, series.Legend.HasEffective);
+                    var effectiveYValSums = PlotMaker.GetPlotYValRates(effectiveYVals, plotXvals);
                     series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, effectiveYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Effective" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 15);
                     series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     if (plotXValRates.Length > 1)
@@ -356,6 +374,8 @@ namespace SWTORCombatParser.Plotting
                     return combatToPlot.IncomingHealingLogs[selectedParticipant];
                 case PlotType.SheildedDamageTaken:
                     return combatToPlot.SheildingProvidedLogs[selectedParticipant];
+                case PlotType.HPPercent:
+                    return combatToPlot.Logs[selectedParticipant];
 
             }
             return null;
@@ -384,13 +404,14 @@ namespace SWTORCombatParser.Plotting
             series.Tooltip[startTime].Font.Color = Color.WhiteSmoke;
             series.Tooltip[startTime].IsVisible = false;
         }
-        private void AddSeries(PlotType type, string name, Color color, bool hasEffective = false)
+        private void AddSeries(PlotType type, string name, Color color, bool hasEffective = false, bool selectedByDefault = true)
         {
             var series = new CombatMetaDataSeries();
             series.Type = type;
             series.Name = name;
             series.Color = color;
             var legend = new LegendItemViewModel();
+            legend.Checked = selectedByDefault;
             legend.Name = series.Name;
             legend.Color = series.Color;
             legend.LegenedToggled += series.LegenedToggled;

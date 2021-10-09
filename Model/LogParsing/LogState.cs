@@ -29,6 +29,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
         public Dictionary<Entity, SWTORClass> PlayerClasses = new Dictionary<Entity, SWTORClass>();
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
+        public string CurrentLocation { get; set; }
         public long MostRecentLogIndex = 0;
         public List<CombatModifier> Modifiers { get; set; } = new List<CombatModifier>();
         public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)

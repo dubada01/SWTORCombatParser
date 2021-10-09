@@ -21,11 +21,11 @@ namespace SWTORCombatParser
         private static List<Entity> _currentEntities = new List<Entity>();
         public static event Action<string> OnNewLog = delegate { };
 
-        public static LogState InitalizeStateFromLog(CombatLogFile file)
+        public static void InitalizeStateFromLog(CombatLogFile file)
         {
-            var lines = ParseAllLines(file,true);
-            _logState = CombatLogStateBuilder.UpdateCurrentLogState(ref lines,file.Name);
-            return _logState;
+            //var lines = ParseAllLines(file,true);
+            //_logState = CombatLogStateBuilder.UpdateCurrentLogState(ref lines,file.Name);
+            //return _logState;
         }
         public static LogState GetCurrentLogState()
         {
@@ -39,7 +39,12 @@ namespace SWTORCombatParser
         {
             try
             {
+                if (_logDate == DateTime.MinValue)
+                _logDate = DateTime.Now;
                 var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
+
+                if (logEntry.Contains('|'))
+                    return _7_0LogParsing.ParseLog(logEntry, lineIndex, buildingState, _logDate,_currentEntities);
 
                 var secondPart = logEntry.Split(']').Last();
                 var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
@@ -47,11 +52,7 @@ namespace SWTORCombatParser
 
                 if (logEntryInfos.Count < 5 || string.IsNullOrEmpty(value.Value))
                     return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
-                if (logEntry.Contains("v7."))
-                {
-                    ParseLogStartLine(logEntryInfos.Select(v => v.Value).ToArray(), value.Value);
-                    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
-                }
+
                 var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
                 parsedLine.LogText = logEntry;
                 parsedLine.LogLineNumber = lineIndex;
@@ -176,8 +177,8 @@ namespace SWTORCombatParser
 
             var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
             newEntry.TimeStamp = newDate;
-            newEntry.Source = ParseEntity(CleanString(entryInfo[2 - extractionOffset]));
-            newEntry.Target = ParseEntity(CleanString(entryInfo[3 - extractionOffset]));
+            newEntry.SourceInfo = new EntityInfo { Entity = ParseEntity(CleanString(entryInfo[2 - extractionOffset])) };
+            newEntry.TargetInfo = new EntityInfo { Entity = ParseEntity(CleanString(entryInfo[3 - extractionOffset])) };
             newEntry.Ability = ParseAbility(CleanString(entryInfo[4 - extractionOffset]));
             newEntry.Effect = ParseEffect(CleanString(entryInfo[5 - extractionOffset]));
 

@@ -33,6 +33,10 @@ namespace SWTORCombatParser.Model.LogParsing
             CurrentState.MostRecentLogIndex = log.LogLineNumber;
 
             CurrentState.RawLogs.Add(log);
+            if(log.Effect.EffectType == EffectType.AreaEntered)
+            {
+                CurrentState.CurrentLocation = log.Effect.EffectName;
+            }
 
             SetPlayerClass(log, CurrentState);
 

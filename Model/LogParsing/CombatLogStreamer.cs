@@ -43,7 +43,7 @@ namespace SWTORCombatParser
             ResetMonitoring();
             _logToMonitor = log;
             Task.Run(() => {
-                var state = CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
+                CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
                 ParseHistoricalLog(CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor),false));
             });
         }
