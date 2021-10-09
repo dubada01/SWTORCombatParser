@@ -54,6 +54,7 @@ namespace SWTORCombatParser.Plotting
             LegendItems = GetLegends();
             GraphView.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
+            GraphView.Refresh();
         }
 
         private void SeletedParticipant(Entity obj)
