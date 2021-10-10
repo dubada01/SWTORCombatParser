@@ -332,7 +332,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             switch (type)
             {
                 case OverlayType.DPS:
-                    value = combat.RegDPS[participant];
+                    value = combat.ERegDPS[participant];
                     break;
                 case OverlayType.EHPS:
                     value = combat.EHPS[participant];
@@ -374,10 +374,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             switch (type)
             {
                 case OverlayType.DPS:
-                    value = obj.RegDPS[participant];
+                    value = obj.ERegDPS[participant];
                     break;
                 case OverlayType.FocusDPS:
-                    value = obj.FocusDPS[participant];
+                    value = obj.EFocusDPS[participant];
                     break;
                 case OverlayType.EHPS:
                     value = obj.EHPS[participant];

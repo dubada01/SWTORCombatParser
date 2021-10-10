@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <VersionPrefix>0.54.25</VersionPrefix>
+    <VersionPrefix>0.54.26</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>SWTORParsingIcon.ico</ApplicationIcon>
     <AssemblyName>Orbs</AssemblyName>
     <SignAssembly>false</SignAssembly>
