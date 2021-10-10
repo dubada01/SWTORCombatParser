@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Alerts;
 using SWTORCombatParser.Views.Overlay;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool overlaysMoveable = true;
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
         private Dictionary<OverlayType, DefaultOverlayInfo> _overlayDefaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
+        private AlertsViewModel _alertsViewModel;
+        public ObservableCollection<AlertTypeOption> AvailableAlerts => new ObservableCollection<AlertTypeOption>(_alertsViewModel.AvailableAlertTypes);
         public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
         public OverlayViewModel()
         {
+            _alertsViewModel = new AlertsViewModel();
             _overlayDefaults = DefaultOverlayManager.GetDefaults();
             var enumVals = EnumUtil.GetValues<OverlayType>();
             foreach (var enumVal in enumVals.Where(e=>e != OverlayType.None))

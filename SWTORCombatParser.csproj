@@ -3,8 +3,9 @@
   <PropertyGroup>
     <VersionPrefix>0.54.26</VersionPrefix>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>SWTORParsingIcon.ico</ApplicationIcon>
     <AssemblyName>Orbs</AssemblyName>
     <SignAssembly>false</SignAssembly>
@@ -89,8 +90,10 @@
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Npgsql" Version="5.0.10" />
-    <PackageReference Include="ScottPlot" Version="4.1.16" />
-    <PackageReference Include="ScottPlot.WPF" Version="4.1.16" />
+    <PackageReference Include="ScottPlot" Version="4.1.25" />
+    <PackageReference Include="ScottPlot.WPF" Version="4.1.25" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

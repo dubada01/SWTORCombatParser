@@ -32,6 +32,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public string CurrentLocation { get; set; }
         public long MostRecentLogIndex = 0;
         public List<CombatModifier> Modifiers { get; set; } = new List<CombatModifier>();
+        public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
         {
             var classOfSource = PlayerClasses[source];

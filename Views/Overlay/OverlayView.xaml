@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views"
+             xmlns:local1="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -30,6 +31,21 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
+        <TextBlock Grid.Column="1" Text="Available Alerts" HorizontalAlignment="Center"></TextBlock>
+        <ItemsControl Grid.Column="1" Margin="0,20,0,0" ItemsSource="{Binding AvailableAlerts}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <local1:AlertOption/>
+                </DataTemplate>
+                
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="2"></UniformGrid>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
         <Viewbox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" MaxWidth="200">
             <Button Content="Toggle Overlay Lock" Padding="5"  Command="{Binding ToggleOverlayLockCommand}"></Button>
         </Viewbox>

@@ -76,14 +76,18 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     continue;
                 var combatTag = kvp.Key;
                 var selectedAbilityData = abilityData[SelectedAbility];
-                var hist = new ScottPlot.Statistics.Histogram(selectedAbilityData.ToArray(), min: selectedAbilityData.Min() - 20, max: selectedAbilityData.Max() + 20);
-                var barWidth = hist.binSize * 1.2d;
-                var barPlot = HistogramPlot.Plot.AddBar(hist.counts, hist.bins);
-                barPlot.FillColor = System.Drawing.Color.FromArgb(100, barPlot.FillColor);
-                barPlot.BarWidth = barWidth;
+                var binSize = Math.Max(1, (selectedAbilityData.Max() - selectedAbilityData.Min()) / 50);
+                (double[] counts, double[] binEdges) = ScottPlot.Statistics.Common.Histogram(selectedAbilityData.ToArray(), min: selectedAbilityData.Min() - 20, max: selectedAbilityData.Max() + 20, binSize);
+                double[] leftEdges = binEdges.Take(binEdges.Length - 1).ToArray();
+                var barPlot = HistogramPlot.Plot.AddBar(counts, leftEdges);
+                barPlot.FillColor = Color.FromArgb(100, barPlot.FillColor);
                 barPlot.Label = combatTag;
+                barPlot.BarWidth = binSize;
+                barPlot.BorderColor = ColorTranslator.FromHtml("#82add9");
+
             }
             HistogramPlot.Plot.Legend();
+            HistogramPlot.Refresh();
         }
         internal override void Update()
         {

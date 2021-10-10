@@ -82,7 +82,8 @@ namespace SWTORCombatParser
                   if (logLines[i] == "")
                       break;
                   var parsedLine = ParseLine(logLines[i], i, buildingState);
-                  if (parsedLine.Error == ErrorType.IncompleteLine)
+                SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, combatLog.Name));
+                if (parsedLine.Error == ErrorType.IncompleteLine)
                       continue;
                   parsedLog[i] = parsedLine;
                   parsedLog[i].LogName = combatLog.Name;

@@ -145,12 +145,12 @@ namespace SWTORCombatParser.Model.LogParsing
                 modifier.ValueType = GetValueType(valueParts[3].Replace("-", ""));
 
                 modifier.DblValue = double.Parse(valueParts[5].Replace("(", ""));
-                modifier.EffectiveDblValue = Math.Min(double.Parse(valueParts[0].Replace("*", "")), modifier.DblValue);
+                modifier.EffectiveDblValue = modifier.DblValue;
                 newValue.Modifier = modifier;
 
                 newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
-                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", "")) - modifier.EffectiveDblValue;
+                newValue.DblValue = double.Parse(valueParts[0].Replace("*", "")) + modifier.EffectiveDblValue;
+                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", ""));
                 newValue.ValueType = GetValueType(valueParts[1]);
 
             }
@@ -194,8 +194,8 @@ namespace SWTORCombatParser.Model.LogParsing
             entityInfo.Position = new PositionData()
             {
                 X = double.Parse(positionParts[0]),
-                Y = double.Parse(positionParts[1]),
-                Z = double.Parse(positionParts[2]),
+                Z = double.Parse(positionParts[1]),
+                Y = double.Parse(positionParts[2]),
                 Facing = double.Parse(positionParts[3])
             };
         }
