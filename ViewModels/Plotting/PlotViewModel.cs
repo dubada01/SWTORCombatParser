@@ -123,6 +123,7 @@ namespace SWTORCombatParser.Plotting
                     var effectEnd = (effect.StopTime - startTime).TotalSeconds;
                     GraphView.Plot.AddHorizontalSpan(Math.Max(effectStart, 0), Math.Min(effectEnd, maxDuration), color: Color.FromArgb(50, Color.LightYellow));
                 }
+                GraphView.Refresh();
             }
         }
 
@@ -208,6 +209,7 @@ namespace SWTORCombatParser.Plotting
                 GraphView.Plot.Clear();
                 GraphView.Plot.AxisAuto();
                 GraphView.Plot.SetAxisLimits(xMin: 0);
+                GraphView.Refresh();
             }
         }
         public void MousePositionUpdated()
@@ -308,6 +310,7 @@ namespace SWTORCombatParser.Plotting
             GraphView.Plot.SetAxisLimits(xMin: 0, xMax:(combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
             _combatMetaDataViewModel.PopulateCombatMetaDatas(combatToPlot);
             GraphView.Plot.Render();
+            GraphView.Refresh();
         }
         private MarkerShape GetMarkerFromNumberOfComparisons(int numberOfComparison)
         {
@@ -359,6 +362,7 @@ namespace SWTORCombatParser.Plotting
                 {
                     GraphView.Plot.Remove(span);
                 }
+                GraphView.Refresh();
             }
         }
         private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)

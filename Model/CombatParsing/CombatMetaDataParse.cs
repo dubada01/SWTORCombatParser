@@ -50,6 +50,7 @@ namespace SWTORCombatParser
                     }).ToList();
 
                     totalDamage = combatToPopulate.OutgoingDamageLogs[participant].Where(d => !bosses.Contains(d.Target.Name)).Sum(l => l.Value.DblValue);
+                    totalEffectiveDamage = combatToPopulate.OutgoingDamageLogs[participant].Where(d => !bosses.Contains(d.Target.Name)).Sum(l => l.Value.EffectiveDblValue);
                     var focusDamageLogs = combatToPopulate.OutgoingDamageLogs[participant].Where(d => bosses.Contains(d.Target.Name));
                     var allFocusDamage = focusDamageLogs.Sum(l => l.Value.DblValue);
                     var allEffectiveFocusDamage = focusDamageLogs.Sum(l => l.Value.EffectiveDblValue);
