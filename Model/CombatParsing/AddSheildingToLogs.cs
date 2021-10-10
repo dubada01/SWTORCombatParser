@@ -55,8 +55,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                             EffectType = EffectType.Apply,
                             EffectName = "Sheild"
                         },
-                        Source = participant,
-                        Target = new Entity(),
+                        SourceInfo = new EntityInfo { Entity = participant },
+                        TargetInfo = new EntityInfo(),
                         Value = new Value
                         {
                             DblValue = sheild.SheildValue,

@@ -79,11 +79,11 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 RateLabel = "DPS: ",
                 RateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.DPS[currentParticipant].ToString("#,##0.0"),
                 EffectiveTotalLabel = "Total (E)",
-                EffectiveTotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalDamage[currentParticipant].ToString("#,##0"),
+                EffectiveTotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalEffectiveDamage[currentParticipant].ToString("#,##0"),
                 EffectiveMaxLabel = "Max (E)",
-                EffectiveMaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxDamage[currentParticipant].ToString("#,##0"),
+                EffectiveMaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxEffectiveDamage[currentParticipant].ToString("#,##0"),
                 EffectiveRateLabel = "EDPS",
-                EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.DPS[currentParticipant].ToString("#,##0.0"),
+                EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.EDPS[currentParticipant].ToString("#,##0.0"),
             };
             metaDatas.Add(damage);
             metaDatas.Add(damageTaken);

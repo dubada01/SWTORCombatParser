@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures.RaidInfos;
+using SWTORCombatParser.Model.Alerts;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
@@ -43,7 +44,7 @@ namespace SWTORCombatParser
             ResetMonitoring();
             _logToMonitor = log;
             Task.Run(() => {
-                var state = CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
+                CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
                 ParseHistoricalLog(CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor),false));
             });
         }
@@ -161,8 +162,6 @@ namespace SWTORCombatParser
         {
             if (parsedLine.Effect.EffectType == EffectType.Event && (parsedLine.Effect.EffectName == "EnterCombat"))
             {
-                if(!_firstTimeThroughLog)
-                    CombatLogParser.InitalizeStateFromLog(CombatLogLoader.LoadSpecificLog(_logToMonitor));
                 if (_combatEnding)
                     EndCombat();
                 _combatEnding = false;

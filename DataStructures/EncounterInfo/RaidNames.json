@@ -108,6 +108,13 @@
     ]
   },
   {
+    "LogName": "Hive of the Mountain Queen",
+    "Name": "Queen's Hive",
+    "BossNames": [
+      "Mutated Geonosian Queen"
+    ]
+  },
+  {
     "LogName": "Heart of Ruin",
     "Name": "Colossal Monolith",
     "BossNames": [
