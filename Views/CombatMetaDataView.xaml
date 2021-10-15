@@ -13,14 +13,12 @@
             <RowDefinition Height="0.3*"/>
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
-        <Border Grid.Row="0" Grid.Column="2" Background="SteelBlue" BorderBrush="DimGray" Margin="2" BorderThickness="2,2,2,2">
-            <Viewbox>
-                <ComboBox Width="200" Foreground="DimGray" 
+        <Viewbox>
+            <ComboBox Style="{StaticResource NewComboStyle}" Width="200" Foreground="DimGray" 
                           ItemsSource="{Binding AvailableParticipants, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" 
                           SelectedItem="{Binding SelectedParticipant, UpdateSourceTrigger=PropertyChanged}"
                           Margin="5" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="20"></ComboBox>
-            </Viewbox>
-        </Border>
+        </Viewbox>
         <Viewbox Grid.Row="1" VerticalAlignment="top">
             <ItemsControl ItemsSource="{Binding CombatMetaDatas}">
                 <ItemsControl.ItemTemplate>
@@ -57,7 +55,7 @@
         </Border>
         <TextBlock Background="LightGray" Foreground="CadetBlue" Width="71" HorizontalAlignment="Left" Text="Effects" FontWeight="DemiBold" FontSize="23" Grid.Row="2" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
         <Viewbox VerticalAlignment="Top" MaxHeight="30" Margin="0,5,0,5" Grid.Row="3">
-            <Button Width="75" FontSize="10" Padding="5" Content="Clear" Command="{Binding ClearCombatEffectsCommand}"/>
+            <Button Style="{StaticResource RoundCornerButton}" Width="75" FontSize="10" Padding="5" Content="Clear" Command="{Binding ClearCombatEffectsCommand}"/>
         </Viewbox>
         
     </Grid>

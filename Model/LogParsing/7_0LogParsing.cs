@@ -97,12 +97,14 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
+                newValue.ValueType = DamageType.heal;
                 newValue.EffectiveDblValue = newValue.DblValue;
             }
             if (valueParts.Length == 2) // partially effective heal
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
+                newValue.ValueType = DamageType.heal;
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""));
             }
             if (valueParts.Length == 3) // fully effective damage or parry

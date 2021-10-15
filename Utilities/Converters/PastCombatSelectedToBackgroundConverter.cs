@@ -14,7 +14,7 @@ namespace SWTORCombatParser.Utilities.Converters
             switch((bool)value)
             {
                 case true:
-                    return new SolidColorBrush(Color.FromRgb(0, 165, 156));
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#565956"));
                 case false:
                     return System.Windows.Media.Brushes.Gray;
             }
