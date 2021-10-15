@@ -13,6 +13,7 @@ namespace SWTORCombatParser
         public long LogLineNumber { get; set; }
         public PositionData Position { get; set; }
         public DateTime TimeStamp { get; set; }
+        public double SecondsSinceCombatStart { get; set; }
         public Entity Source => SourceInfo.Entity;
         public EntityInfo SourceInfo { get; set; }
         public Entity Target => TargetInfo.Entity;
@@ -52,14 +53,14 @@ namespace SWTORCombatParser
     public class Effect
     {
         public EffectType EffectType;
-        public string EffectName;
+        public string EffectName { get; set; }
     }
     public class Value
     {
         public double DblValue;
         public double EffectiveDblValue;
         public string StrValue;
-
+        public string DisplayValue => string.IsNullOrEmpty(StrValue) ? ValueType == DamageType.none?"N/A": EffectiveDblValue.ToString("0.0") : StrValue;
         public DamageType ValueType;
 
         public Value Modifier;
@@ -77,6 +78,8 @@ namespace SWTORCombatParser
     }
     public enum DamageType
     {
+        none,
+        heal,
         kinetic,
         energy,
         intern,

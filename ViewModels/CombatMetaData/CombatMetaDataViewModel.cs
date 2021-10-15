@@ -107,12 +107,12 @@ namespace SWTORCombatParser.ViewModels
                 return;
             var minX = newAxisLimits.XMin;
             var maxX = newAxisLimits.XMax;
-            var combatLogs = _currentCombat.Logs;
+            var combatLogs = _currentCombat.GetLogsInvolvingEntity(SelectedParticipant);
 
             var startTime = _currentCombat.StartTime;
             if (string.IsNullOrEmpty(SelectedParticipant.Name))
                 return;
-            var combatLogsInView = combatLogs[SelectedParticipant].Where(l => (l.TimeStamp - startTime).TotalSeconds >= minX && (l.TimeStamp - startTime).TotalSeconds <= maxX);
+            var combatLogsInView = combatLogs.Where(l => (l.TimeStamp - startTime).TotalSeconds >= minX && (l.TimeStamp - startTime).TotalSeconds <= maxX);
 
             if (combatLogsInView.Count() == 0)
             {

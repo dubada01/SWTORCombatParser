@@ -219,6 +219,7 @@ namespace SWTORCombatParser
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
+                newValue.ValueType = DamageType.heal;
             }
             if (valueParts.Length == 3)
             {

@@ -17,29 +17,25 @@
             <RowDefinition Height=".1*"/>
         </Grid.RowDefinitions>
         <TabControl BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="LightGray" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
-            <TabItem FontSize="25" Padding="15,5,15,5" Header="Battle Stats">
+            <TabItem Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Battle Stats">
                 <ContentPresenter Content="{Binding GraphView}"/>
             </TabItem>
-            <!--<TabItem FontSize="25" Padding="0,0,0,0">
-                <TabItem.Header>
-                    <Border BorderThickness="4" BorderBrush="{Binding RaidingActiveColor}" Padding="5">
-                        <TextBlock Text="Raiding"></TextBlock>
-                    </Border>
-                </TabItem.Header>
-                <ContentPresenter Content="{Binding RaidView}"/>
-            </TabItem>-->
-            <TabItem FontSize="25" Padding="15,5,15,5" Header="Table">
+            <TabItem Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Battle Review">
+                <ContentPresenter Content="{Binding BattleReviewView}"/>
+            </TabItem>
+            <TabItem Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Table">
                 <ContentPresenter Content="{Binding TableView}"/>
             </TabItem>
-            <TabItem FontSize="25" Padding="15,5,15,5" Header="Histogram">
+            <TabItem Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Histogram">
                 <ContentPresenter Content="{Binding HistogramView}"/>
             </TabItem>
-            <TabItem FontSize="25" Padding="15,5,15,5" Header="Info Logs">
+            <TabItem Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Info Logs">
                 <ContentPresenter Content="{Binding SoftwareLogView}"/>
             </TabItem>
-            <TabItem FontSize="25" Padding="15,5,15,5" Header="Overlays">
+            <TabItem Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Overlays">
                 <ContentPresenter Content="{Binding OverlayView}"/>
             </TabItem>
+
         </TabControl>
 
         

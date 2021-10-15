@@ -6,7 +6,12 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Utilities/UIStyles/Colors.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/ThumbStyle.xaml"/>
+                <ResourceDictionary Source="Utilities/UIStyles/SliderStyles.xaml"/>
+                <ResourceDictionary Source="Utilities/UIStyles/Buttons.xaml"/>
+                <ResourceDictionary Source="Utilities/UIStyles/TabHeader.xaml"/>
+                <ResourceDictionary Source="Utilities/UIStyles/ComboBox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converters:PastCombatSelectedToBackgroundConverter x:Key="PastCombatSelectedToBackgroundConverter"/>
             <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>
@@ -19,6 +24,7 @@
             <converters:EncounterInfoToPastCombatColorConverter x:Key="EncounterInfoToPastCombatColorConverter"/>
             <converters:EffectSelectedToTextConverter x:Key="EffectSelectedToTextConverter"/>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibiityConverter"/>
+            <converters:LiveParseActiveToButtonColorConverter x:Key="LiveParseActiveToButtonColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

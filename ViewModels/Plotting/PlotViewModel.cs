@@ -43,7 +43,7 @@ namespace SWTORCombatParser.Plotting
 
             GraphView = new WpfPlot();
             GraphView.Plot.XLabel("Combat Duration (s)");
-            GraphView.Plot.YLabel("Ammount");
+            GraphView.Plot.YLabel("Amount");
             
             GraphView.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 2, title: "Rate");
             GraphView.AxesChanged += UpdatePlotAxis;
@@ -57,7 +57,7 @@ namespace SWTORCombatParser.Plotting
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
             GraphView.Refresh();
         }
-
+        private Entity SelectedParticipant => _currentParticipant == null || !_currentCombats.First().CharacterParticipants.Contains(_currentParticipant) ? _currentCombats.First().CharacterParticipants.First() : _currentParticipant;
         private void SeletedParticipant(Entity obj)
         {
             if (_currentParticipant == obj)
@@ -144,7 +144,7 @@ namespace SWTORCombatParser.Plotting
                 }
 
                 _currentCombats.Add(updatedCombat);
-                PlotCombat(updatedCombat, updatedCombat.CharacterParticipants.First());
+                PlotCombat(updatedCombat, SelectedParticipant);
             }
         }
         public void AddCombatPlot(Combat combatToPlot)
@@ -153,7 +153,7 @@ namespace SWTORCombatParser.Plotting
             {
                 ResetEffectVisuals();
                 _currentCombats.Add(combatToPlot);
-                PlotCombat(combatToPlot, combatToPlot.CharacterParticipants.First());
+                PlotCombat(combatToPlot, SelectedParticipant);
             }
         }
         public void RemoveCombatPlot(Combat combatToRemove)
@@ -189,7 +189,7 @@ namespace SWTORCombatParser.Plotting
 
                 foreach (var remainingCombat in _currentCombats)
                 {
-                    PlotCombat(remainingCombat, remainingCombat.CharacterParticipants.First());
+                    PlotCombat(remainingCombat, SelectedParticipant);
                 }
 
                 GraphView.Plot.AxisAuto();
@@ -380,7 +380,7 @@ namespace SWTORCombatParser.Plotting
                 case PlotType.SheildedDamageTaken:
                     return combatToPlot.SheildingProvidedLogs[selectedParticipant];
                 case PlotType.HPPercent:
-                    return combatToPlot.Logs[selectedParticipant];
+                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant);
 
             }
             return null;

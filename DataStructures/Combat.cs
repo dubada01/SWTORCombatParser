@@ -12,9 +12,10 @@ namespace SWTORCombatParser
         public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.IsLocalPlayer);
         public List<Entity> CharacterParticipants = new List<Entity>();
         public List<Entity> Targets = new List<Entity>();
+        public List<Entity> AllEntities => new List<Entity>().Concat(Targets).Concat(CharacterParticipants).ToList();
         public DateTime StartTime;
         public DateTime EndTime;
-        public string LogFileName => Logs.Where(l=>!string.IsNullOrEmpty(l.Value.First().LogName)).FirstOrDefault().Value.First().LogName;
+        public string LogFileName => AllLogs.Where(l=>!string.IsNullOrEmpty(l.LogName)).First().LogName;
         public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
         public double DurationSeconds => DurationMS / 1000f;
 
@@ -23,30 +24,36 @@ namespace SWTORCombatParser
         public string EncounterBossInfo;
         public List<string> RequiredDeadTargetsForKill { get; set; }
         public bool IsEncounterBoss => !string.IsNullOrEmpty(EncounterBossInfo);
-        public bool WasBossKilled => RequiredDeadTargetsForKill.All(t => Logs[LocalPlayer].Any(l => l.Target.Name == t && l.Effect.EffectName == "Death"));
-        public Dictionary<Entity,bool> WasPlayerKilled => Logs.ToDictionary(kvp =>kvp.Key,kvp=> kvp.Value.Any(l=> l.Target == LocalPlayer && l.Effect.EffectName == "Death"));
-
-        public Dictionary<Entity, List<ParsedLogEntry>> Logs = new Dictionary<Entity, List<ParsedLogEntry>>();
-        public List<ParsedLogEntry> AllLogs => GetJoinedDictionary(Logs);
+        public bool WasBossKilled => RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => l.Target.Name == t && l.Effect.EffectName == "Death"));
+        public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
+        public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
+        {
+            return AllLogs.Where(l => l.Source == e || l.Target == e).ToList();
+        }
+        public bool WasPlayerKilled(Entity player)
+        {
+            return GetLogsInvolvingEntity(player).Any(l => l.Target == LocalPlayer && l.Effect.EffectName == "Death");
+        }
+        //public List<ParsedLogEntry> AllLogs => GetJoinedDictionary(Logs);
         public Dictionary<Entity,List<ParsedLogEntry>> OutgoingDamageLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
-        public List<ParsedLogEntry> AllDamageLogs => GetJoinedDictionary(OutgoingDamageLogs);
+        //public List<ParsedLogEntry> AllDamageLogs => GetJoinedDictionary(OutgoingDamageLogs);
         public Dictionary<Entity, List<ParsedLogEntry>> IncomingDamageLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
-        public List<ParsedLogEntry> AllDamageTakenLogs => GetJoinedDictionary(IncomingDamageLogs);
+       // public List<ParsedLogEntry> AllDamageTakenLogs => GetJoinedDictionary(IncomingDamageLogs);
         public Dictionary<Entity, List<ParsedLogEntry>> IncomingDamageMitigatedLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
         public Dictionary<Entity, List<ParsedLogEntry>> OutgoingHealingLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
-        public List<ParsedLogEntry> AllHealingLogs => GetJoinedDictionary(OutgoingHealingLogs);
+       // public List<ParsedLogEntry> AllHealingLogs => GetJoinedDictionary(OutgoingHealingLogs);
         public Dictionary<Entity, List<ParsedLogEntry>> IncomingHealingLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
-        public List<ParsedLogEntry> AllIncomingHealingLogs => GetJoinedDictionary(IncomingHealingLogs);
+       // public List<ParsedLogEntry> AllIncomingHealingLogs => GetJoinedDictionary(IncomingHealingLogs);
         public Dictionary<Entity, List<ParsedLogEntry>> SheildingProvidedLogs = new Dictionary<Entity, List<ParsedLogEntry>>();
-        private List<ParsedLogEntry> GetJoinedDictionary(Dictionary<Entity, List<ParsedLogEntry>> input)
-        {
-            List<ParsedLogEntry> logsToReturn = new List<ParsedLogEntry>();
-            foreach(var entity in input)
-            {
-                logsToReturn.AddRange(entity.Value);
-            }
-            return logsToReturn;
-        }
+        //private List<ParsedLogEntry> GetJoinedDictionary(Dictionary<Entity, List<ParsedLogEntry>> input)
+        //{
+        //    List<ParsedLogEntry> logsToReturn = new List<ParsedLogEntry>();
+        //    foreach(var entity in input)
+        //    {
+        //        logsToReturn.AddRange(entity.Value);
+        //    }
+        //    return logsToReturn;
+        //}
         public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByTarget(Entity source)
         {
             return GetByTarget(OutgoingDamageLogs[source]);

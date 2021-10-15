@@ -48,7 +48,7 @@ namespace SWTORCombatParser
                 StartTime = ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp,
                 EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),
-                Logs = SplitLogsByParticipant(ongoingLogs, participants)
+                AllLogs = ongoingLogs
             };
             if (encounter !=  null)
             {
@@ -62,20 +62,10 @@ namespace SWTORCombatParser
             return newCombat;
         }
 
-        private static Dictionary<Entity, List<ParsedLogEntry>> SplitLogsByParticipant(List<ParsedLogEntry> ongoingLogs, List<Entity> currentPariticpants)
-        {
-            var logsByParticipant = new Dictionary<Entity, List<ParsedLogEntry>>();
-            foreach(var particpant in currentPariticpants)
-            {
-                logsByParticipant[particpant] = ongoingLogs.Where(l => l.Source == particpant || l.Target == particpant).ToList();
-            }
-            return logsByParticipant;
-        }
-
         private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
         {
-            var targets = logs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion).ToList();
-            targets.AddRange(logs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion));
+            var targets = logs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null).ToList();
+            targets.AddRange(logs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null));
             return targets.Distinct().ToList();
         }
         private static EncounterInfo GetEncounterInfo(List<ParsedLogEntry> logs)

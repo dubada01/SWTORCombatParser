@@ -109,7 +109,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static void TryAddLeaderboardEntry(Combat combat)
         {
             //// REMOVE WITH 7.0
-            if (combat.WasPlayerKilled[combat.LocalPlayer])
+            if (combat.WasPlayerKilled(combat.LocalPlayer))
                 return;
             
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
@@ -133,9 +133,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         Class = playerClass == null ? "Unknown" : playerClass.Name + "/" + playerClass.Discipline,
                         Value = GetValueForLeaderboardEntry(enumVal, combat, player),
                         Type = enumVal,
-                        Duration = (int)combat.DurationSeconds
+                        Duration = (int)combat.DurationSeconds,
+                        VerifiedKill = combat.WasBossKilled
                     };
-                    if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled[player])
+                    if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled(player))
                         PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
                 }
             }

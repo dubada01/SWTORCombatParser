@@ -45,7 +45,7 @@ namespace SWTORCombatParser.ViewModels
         public List<Combat> Combats { get; set; }
         private Combat GetOverallCombat()
         {
-            var overallCombat = CombatIdentifier.GenerateNewCombatFromLogs(Combats.SelectMany(c => c.Logs.SelectMany(kvp=>kvp.Value)).ToList());
+            var overallCombat = CombatIdentifier.GenerateNewCombatFromLogs(Combats.SelectMany(c => c.AllLogs).ToList());
             overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);
             return overallCombat;
         }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <VersionPrefix>0.54.26</VersionPrefix>
+    <VersionPrefix>0.55.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -46,6 +46,7 @@
     <None Remove="DataStructures\ClassInfos\Classes.json" />
     <None Remove="DataStructures\EncounterInfo\FlashpointInfo.json" />
     <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
+    <None Remove="resources\BossMaps\ZornToth.png" />
     <None Remove="resources\dpsIcon.png" />
     <None Remove="resources\firstPlaceLeaderboardIcon.png" />
     <None Remove="resources\healingIcon.png" />
@@ -65,6 +66,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\EncounterInfo\RaidNames.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\BossMaps\ZornToth.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\dpsIcon.png">
@@ -91,6 +95,8 @@
     <PackageReference Include="Npgsql" Version="5.0.10" />
     <PackageReference Include="ScottPlot" Version="4.1.25" />
     <PackageReference Include="ScottPlot.WPF" Version="4.1.25" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

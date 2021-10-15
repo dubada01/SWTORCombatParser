@@ -2,6 +2,7 @@
 using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Plotting;
+using SWTORCombatParser.ViewModels.BattleReview;
 using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.Overviews;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
@@ -23,6 +24,7 @@ namespace SWTORCombatParser.ViewModels
         private OverviewViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
         private OverviewViewModel _histViewModel;
+        private BattleReviewViewModel _reviewViewModel;
        // private RaidViewModel _raidViewModel;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -58,6 +60,9 @@ namespace SWTORCombatParser.ViewModels
             _histViewModel = new HistogramVeiewModel();
             HistogramView = new OverviewView(_histViewModel);
 
+            _reviewViewModel = new BattleReviewViewModel();
+            BattleReviewView = new BattleReviewView(_reviewViewModel);
+
             CombatLogParser.OnNewLog += NewSoftwareLog;
 
 
@@ -69,6 +74,8 @@ namespace SWTORCombatParser.ViewModels
         public OverviewView HistogramView { get; set; }
         public LogsView SoftwareLogView { get; set; }
         public PastCombatsView PastCombatsView { get; set; }
+
+        public BattleReviewView BattleReviewView { get; set; }
 
 
         private void MonitoringStarted()
@@ -100,6 +107,7 @@ namespace SWTORCombatParser.ViewModels
                 _plotViewModel.AddCombatPlot(obj);
                 _tableViewModel.AddCombat(obj);
                 _histViewModel.AddCombat(obj);
+                _reviewViewModel.CombatSelected(obj);
             });
 
         }
