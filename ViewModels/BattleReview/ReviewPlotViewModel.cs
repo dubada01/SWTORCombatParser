@@ -71,11 +71,16 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                         continue;
                     var xVals = PlotMaker.GetPlotXValsRates(PlotMaker.GetPlotXVals(relaventData, _startTime));
                     var yVals = PlotMaker.GetPlotYValRates(PlotMaker.GetPlotYVals(relaventData, true), PlotMaker.GetPlotXVals(relaventData, _startTime), _windowSize);
-                    var plt = Plot.Plot.AddScatter(xVals, yVals, markerShape: MarkerShape.none, lineWidth:5, label:entitiy.Name+$" ({_windowSize}s average)");
-                    plt.YAxisIndex = 3;
+                    Color? dotColor = null;
+                    if (xVals.Count() > 0)
+                    {
+                        var plt = Plot.Plot.AddScatter(xVals, yVals, markerShape: MarkerShape.none, lineWidth: 5, label: entitiy.Name + $" ({_windowSize}s average)");
+                        plt.YAxisIndex = 3;
+                        dotColor = plt.Color.Lerp(Color.White, 0.25f);
+                    }
                     var xPoints = PlotMaker.GetPlotXVals(relaventData, _startTime);
                     var yPoints = PlotMaker.GetPlotYVals(relaventData, true);
-                    Plot.Plot.AddScatter(xPoints, yPoints, markerShape: MarkerShape.filledCircle, markerSize:10, lineStyle: LineStyle.None, color: plt.Color.Lerp(Color.White,0.25f), label: entitiy.Name);
+                    Plot.Plot.AddScatter(xPoints, yPoints, markerShape: MarkerShape.filledCircle, markerSize:10, lineStyle: LineStyle.None, color: dotColor, label: entitiy.Name);
                 }
                 Plot.Plot.Legend();
                 Plot.Refresh();

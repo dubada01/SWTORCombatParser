@@ -52,7 +52,7 @@
     "BossNames": [
       "Officer Xander",
       "Captain Grimyk",
-      "Seperatist Sith",
+      "Garold the Dark One",
       "General Ortol"
     ]
   },
@@ -63,6 +63,14 @@
       "Lord Kherus",
       "SV-3 Eradicator",
       "Darth Ikoral"
+    ]
+  },
+  {
+    "LogName": "Taral V",
+    "Name": "Taral V",
+    "BossNames": [
+      "Captain Shivanek & Ripper~?~Captain Shivanek|Ripper",
+      "General Edikar"
     ]
   },
   {
@@ -131,7 +139,7 @@
     ]
   },
   {
-    "LogName": "Czerka Core Meltdown",
+    "LogName": "Czerka Research Biomes",
     "Name": "Czerka Core Meltdown",
     "BossNames": [
       "Enhanced Duneclaw",

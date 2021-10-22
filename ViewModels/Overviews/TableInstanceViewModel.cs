@@ -134,7 +134,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 Average = (int)orderedKey.Value.Average(v => v.Value.EffectiveDblValue),
                 Max = (int)orderedKey.Value.Max(v => v.Value.EffectiveDblValue),
                 Count = (int)orderedKey.Value.Count(),
-                CritPercent = (orderedKey.Value.Count(v=>v.Value.WasCrit) / (double)orderedKey.Value.Count()) * 100d,
+                CritPercent = orderedKey.Value.Count(v=>v.Value.WasCrit) / (double)orderedKey.Value.Count() * 100d,
             });
         }
 
@@ -144,13 +144,13 @@ namespace SWTORCombatParser.ViewModels.Overviews
             switch (SortingOption)
             {
                 case SortingOption.ByAbility:
-                    splitOutdata = combat.GetByAbility(logsInScope);
+                    splitOutdata = combat.GetByAbility(logsInScope).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value);
                     break;
                 case SortingOption.BySource:
-                    splitOutdata = combat.GetBySource(logsInScope);
+                    splitOutdata = combat.GetBySource(logsInScope).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
                     break;
                 case SortingOption.ByTarget:
-                    splitOutdata = combat.GetByTarget(logsInScope);
+                    splitOutdata = combat.GetByTarget(logsInScope).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
                     break;
             }
             return splitOutdata;

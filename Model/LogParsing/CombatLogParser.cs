@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Raiding;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace SWTORCombatParser
     {
         private static DateTime _logDate;
         private static LogState _logState = new LogState();
-        private static List<Entity> _currentEntities = new List<Entity>();
+        private static ConcurrentBag<Entity> _currentEntities = new ConcurrentBag<Entity>();
         public static event Action<string> OnNewLog = delegate { };
 
         public static void InitalizeStateFromLog(CombatLogFile file)
@@ -35,7 +36,7 @@ namespace SWTORCombatParser
         {
             _logState = currentState;
         }
-        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex,bool buildingState)
+        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex)
         {
             try
             {
@@ -44,7 +45,7 @@ namespace SWTORCombatParser
                 var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
 
                 if (logEntry.Contains('|'))
-                    return _7_0LogParsing.ParseLog(logEntry, lineIndex, buildingState, _logDate,_currentEntities);
+                    return _7_0LogParsing.ParseLog(logEntry, lineIndex, _logDate,_currentEntities);
 
                 var secondPart = logEntry.Split(']').Last();
                 var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
@@ -56,11 +57,8 @@ namespace SWTORCombatParser
                 var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
                 parsedLine.LogText = logEntry;
                 parsedLine.LogLineNumber = lineIndex;
-                if (!is7_0Logs && parsedLine.Source == parsedLine.Target && parsedLine.Source.IsCharacter)
+                if (parsedLine.Source == parsedLine.Target && parsedLine.Source.IsCharacter)
                     parsedLine.Source.IsLocalPlayer = true;
-                if(!buildingState)
-                    UpdateEffectiveHealValues(parsedLine, _logState);
-
                 return parsedLine;
             }
             catch (Exception e)
@@ -70,26 +68,34 @@ namespace SWTORCombatParser
             }
         }
 
-        public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog,bool buildingState)
+        public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
             _logDate = combatLog.Time;
             var logLines = combatLog.Data.Split('\n');
             var numberOfLines = logLines.Length;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
-            for (var i = 0; i < numberOfLines; i++)
-           // Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
+            //for (var i = 0; i < numberOfLines; i++)
+            Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
               {
                   if (logLines[i] == "")
-                      break;
-                  var parsedLine = ParseLine(logLines[i], i, buildingState);
-                SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, combatLog.Name));
-                if (parsedLine.Error == ErrorType.IncompleteLine)
-                      continue;
+                      return;
+                  var parsedLine = ParseLine(logLines[i], i);
+
+                  if (parsedLine.Error == ErrorType.IncompleteLine)
+                      return;
                   parsedLog[i] = parsedLine;
                   parsedLog[i].LogName = combatLog.Name;
-              }
-            CombatTimestampRectifier.RectifyTimeStamps(parsedLog.Where(l => l != null).ToList());
-            return parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp).ToList();
+              });
+            var orderdedLog = parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp);
+
+            foreach (var line in orderdedLog)
+            {
+                SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(line,false));
+                UpdateEffectiveHealValues(line, _logState);
+            }
+
+            CombatTimestampRectifier.RectifyTimeStamps(orderdedLog.ToList());
+            return orderdedLog.ToList();
         }
 
         private static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
@@ -152,16 +158,6 @@ namespace SWTORCombatParser
             {
                 parsedLog.Value.EffectiveDblValue = parsedLog.Threat * (5);
             }
-        }
-        private static bool is7_0Logs = false;
-        private static void ParseLogStartLine(string[] entryInfos, string version)
-        {
-            is7_0Logs = true;
-            var player = _currentEntities.FirstOrDefault(e => CleanString(entryInfos[2]).Split(':')[0].Split('#')[0].Replace("@", "") == e.Name);
-            if (player == null)
-                ParseEntity(entryInfos[2], true);
-            else
-                player.IsLocalPlayer = true;
         }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {

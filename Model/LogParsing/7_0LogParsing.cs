@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,9 @@ namespace SWTORCombatParser.Model.LogParsing
 {
     public static class _7_0LogParsing
     {
-        private static  List<Entity> _currentEntities = new List<Entity>();
+        private static ConcurrentBag<Entity> _currentEntities = new ConcurrentBag<Entity>();
         private static DateTime _dateTime;
-        public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, bool buildingState, DateTime logDate, List<Entity> currentEntities)
+        public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, ConcurrentBag<Entity> currentEntities)
         {
             _dateTime = logDate;
             _currentEntities = currentEntities;

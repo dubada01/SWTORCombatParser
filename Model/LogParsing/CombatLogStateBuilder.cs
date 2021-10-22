@@ -19,41 +19,35 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             CurrentState = new LogState();
         }
-        public static void NewCombatStarted()
+        public static void ResetCombatSpecific()
         {
             CurrentState.PlayerClasses = new Dictionary<Entity, SWTORClass>();
             CurrentState.CurrentCharacterPositions = new Dictionary<Entity, PositionData>();
         }
-        public static LogState UpdateCurrentLogState(ref List<ParsedLogEntry> logs, string logName)
+
+        private static object stateLock = new object();
+        public static LogState UpdateCurrentStateWithSingleLog(ParsedLogEntry log, bool liveLog)
         {
-            foreach (var log in logs)
+            lock (stateLock)
             {
-                UpdateCurrentStateWithSingleLog(log, logName);
-            }
-            return CurrentState;
-        }
-        public static LogState UpdateCurrentStateWithSingleLog(ParsedLogEntry log, string logName)
-        {
-            if (CurrentState.MostRecentLogIndex > log.LogLineNumber)
+                CurrentState.RawLogs.Add(log);
+                if (log.Effect.EffectType == EffectType.AreaEntered)
+                {
+                    CurrentState.CurrentLocation = log.Effect.EffectName;
+                }
+                if (log.Effect.EffectType == EffectType.Event && (log.Effect.EffectName == "EnterCombat"))
+                {
+                    ResetCombatSpecific();
+                }
+
+                SetCharacterPositions(log);
+                if(liveLog)
+                    OutrangedHealerAlert.CheckForOutrangingHealers();
+                SetPlayerClass(log);
+
+                UpdateCombatModifierState(log);
                 return CurrentState;
-            CurrentState.MostRecentLogIndex = log.LogLineNumber;
-
-            CurrentState.RawLogs.Add(log);
-            if(log.Effect.EffectType == EffectType.AreaEntered)
-            {
-                CurrentState.CurrentLocation = log.Effect.EffectName;
             }
-            if (log.Effect.EffectType == EffectType.Event && (log.Effect.EffectName == "EnterCombat"))
-            {
-                NewCombatStarted();
-            }
-
-            SetCharacterPositions(log);
-            OutrangedHealerAlert.CheckForOutrangingHealers();
-            SetPlayerClass(log);
-
-            UpdateCombatModifierState(log);
-            return CurrentState;
         }
 
         private static void SetCharacterPositions(ParsedLogEntry log)
