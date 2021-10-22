@@ -56,8 +56,8 @@ namespace SWTORCombatParser
                 newCombat.EncounterBossInfo = GetCurrentBossInfo(ongoingLogs,encounter);
                 newCombat.RequiredDeadTargetsForKill = GetCurrentBossNames(ongoingLogs, encounter);
             }
-            CombatMetaDataParse.PopulateMetaData(ref newCombat);
-            var sheildLogs = newCombat.IncomingDamageMitigatedLogs;
+            CombatMetaDataParse.PopulateMetaData(newCombat);
+            var sheildLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             AddSheildingToLogs.AddSheildLogs(sheildLogs, newCombat);
             return newCombat;
         }

@@ -21,7 +21,8 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             foreach (var source in combat.CharacterParticipants)
             {
-                combat.GetLogsInvolvingEntity(source).RemoveAll(l => l.Ability == "Healer Bubble");
+                var logs = combat.GetLogsInvolvingEntity(source);
+                logs.RemoveAll(l => l.Ability == "Healer Bubble");
                 combat.SheildingProvidedLogs[source] = new List<ParsedLogEntry>();
                 combat.TotalProvidedSheilding[source] = 0;
 
@@ -44,10 +45,10 @@ namespace SWTORCombatParser.Model.CombatParsing
 
                     foreach (var sheild in _totalSheildingProvided)
                     {
-                        var logToInsertAfter = combat.GetLogsInvolvingEntity(source).FirstOrDefault(l => l.TimeStamp > sheild.SheildingTime);
+                        var logToInsertAfter = logs.FirstOrDefault(l => l.TimeStamp > sheild.SheildingTime);
                         if (logToInsertAfter == null)
                             continue;
-                        var indexToInsert = combat.GetLogsInvolvingEntity(source).IndexOf(logToInsertAfter);
+                        var indexToInsert = logs.IndexOf(logToInsertAfter);
                         var sheildLog = new ParsedLogEntry
                         {
                             TimeStamp = sheild.SheildingTime,
