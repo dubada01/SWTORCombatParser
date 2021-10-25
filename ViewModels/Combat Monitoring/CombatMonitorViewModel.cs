@@ -27,15 +27,7 @@ namespace SWTORCombatParser.ViewModels
         public static event Action<Combat> NewCombatSelected = delegate { };
         public static void FireNewCombat(Combat selectedCombat)
         {
-            if (selectedCombat.IsEncounterBoss)
-            {
-                Task.Run(() => {
-                    Leaderboards.Reset();
-                    Leaderboards.StartGetPlayerLeaderboardStandings(selectedCombat);
-                    Leaderboards.StartGetTopLeaderboardEntries(selectedCombat);
-                });
-            }
-
+            CombatIdentifier.UpdateOverlays(selectedCombat);
             NewCombatSelected(selectedCombat);
         }
     }
@@ -171,7 +163,7 @@ namespace SWTORCombatParser.ViewModels
 
             OnMonitoringStarted();
             //var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-            var mostRecentLog = @"C:\Users\duban\Documents\Star Wars - The Old Republic\CombatLogs\combat_2021-10-19_19_44_04_613644.txt";
+            var mostRecentLog = @"C:\Users\David\Documents\Star Wars - The Old Republic\CombatLogs\combat_2021-07-08_18_01_16_092816.txt";
             File.Create(mostRecentLog).Close();
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
@@ -326,10 +318,13 @@ namespace SWTORCombatParser.ViewModels
         {
             foreach (var combat in _totalLogsDuringCombat.Keys.OrderBy(t => t))
             {
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combat].ToList());
+                var combatLogs = _totalLogsDuringCombat[combat].ToList();
+                if (combatLogs.Count == 0)
+                    continue;
+                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs);
                 AddFinishedCombat(combatInfo);
             }
-            _totalLogsDuringCombat.Clear();
+            //_totalLogsDuringCombat.Clear();
             //Parallel.ForEach(_totalLogsDuringCombat.Keys,startTime=>{
             //    Trace.WriteLine("Creating Non-Encounter Combat for: " + _totalLogsDuringCombat[startTime].Count + " logs");
             //    var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[startTime].ToList());
