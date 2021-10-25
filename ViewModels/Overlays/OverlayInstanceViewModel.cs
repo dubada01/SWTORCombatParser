@@ -221,8 +221,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void Refresh(Combat comb)
         {
-            ResetMetrics();
-            UpdateMetrics(comb);
+            lock (_refreshLock)
+            {
+                ResetMetrics();
+                UpdateMetrics(comb);
+            }
         }
         public void LockOverlays()
         {
@@ -266,9 +269,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void UpdateMetrics(Combat obj)
         {
-            _currentCombat = obj;
-            RefreshBarViews();
-            
+            lock (_refreshLock)
+            {
+                _currentCombat = obj;
+                RefreshBarViews();
+            }
         }
         private void RefreshBarViews()
         {

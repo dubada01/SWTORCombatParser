@@ -17,13 +17,20 @@ namespace SWTORCombatParser
     {
         public static event Action<Combat> NewCombatAvailable = delegate { };
         public static event Action NewCombatStarted = delegate { };
+        private static object leaderboardLock = new object();
+       
         public static void UpdateOverlays(Combat combat)
         {
             if (combat.IsEncounterBoss)
             {
-                Task.Run(() => {
-                    Leaderboards.StartGetPlayerLeaderboardStandings(combat);
-                    Leaderboards.StartGetTopLeaderboardEntries(combat);
+                Task.Run(() =>
+                {
+                    lock (leaderboardLock)
+                    {
+                        Leaderboards.Reset();
+                        Leaderboards.StartGetPlayerLeaderboardStandings(combat);
+                        Leaderboards.StartGetTopLeaderboardEntries(combat);
+                    }
                 });
             }
             NewCombatAvailable(combat);
