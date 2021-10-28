@@ -23,9 +23,9 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.Green;
                 case OverlayType.HPS:
                     return Brushes.ForestGreen;
-                case OverlayType.Tank_Sheilding:
+                case OverlayType.Tank_Shielding:
                     return Brushes.CornflowerBlue;
-                case OverlayType.Sheilding:
+                case OverlayType.Shielding:
                     return Brushes.CadetBlue;
                 case OverlayType.Threat:
                     return Brushes.Orchid;
@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.DimGray;
                 case OverlayType.Mitigation:
                     return Brushes.Sienna;
-                case OverlayType.SheildAbsorb:
+                case OverlayType.ShieldAbsorb:
                     return Brushes.SkyBlue;
                 case OverlayType.DamageAvoided:
                     return Brushes.DeepSkyBlue;

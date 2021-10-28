@@ -17,6 +17,31 @@
             <RowDefinition Height=".1*"/>
         </Grid.RowDefinitions>
         <TabControl BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="LightGray" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
+            <TabControl.Resources>
+                <Style TargetType="{x:Type TabControl}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabControl">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Border BorderThickness="0,0,1,1"  CornerRadius="0,5,5,5" BorderBrush="#D0CEBF" Grid.Row="1">
+                                        <Border CornerRadius="0,5,5,5" BorderThickness="{TemplateBinding BorderThickness}" 
+                BorderBrush="{TemplateBinding BorderBrush}">
+                                            <Border CornerRadius="0,5,5,5"  Background="{TemplateBinding Background}">
+                                                <ContentPresenter ContentSource="SelectedContent"/>
+                                            </Border>
+                                        </Border>
+                                    </Border>
+                                    <TabPanel Background="Transparent" Grid.Row="0" IsItemsHost="true"/>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
             <TabItem Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Battle Stats">
                 <ContentPresenter Content="{Binding GraphView}"/>
             </TabItem>

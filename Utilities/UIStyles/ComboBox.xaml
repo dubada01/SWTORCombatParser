@@ -68,7 +68,7 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="ComboBoxTextBox"
-                 TargetType="{x:Type TextBox}">
+                 TargetType="{x:Type TextBlock}">
         <Border x:Name="PART_ContentHost"
           Focusable="False"
           Background="{TemplateBinding Background}" />
@@ -109,24 +109,6 @@
                                     </Storyboard>
                                 </VisualState>
                             </VisualStateGroup>
-                            <VisualStateGroup x:Name="EditStates">
-                                <VisualState x:Name="Editable">
-                                    <Storyboard>
-                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)"
-                                                 Storyboard.TargetName="PART_EditableTextBox">
-                                            <DiscreteObjectKeyFrame KeyTime="0"
-                                            Value="{x:Static Visibility.Visible}" />
-                                        </ObjectAnimationUsingKeyFrames>
-                                        <ObjectAnimationUsingKeyFrames
-                      Storyboard.TargetProperty="(UIElement.Visibility)"
-                                                 Storyboard.TargetName="ContentSite">
-                                            <DiscreteObjectKeyFrame KeyTime="0"
-                                            Value="{x:Static Visibility.Hidden}" />
-                                        </ObjectAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Uneditable" />
-                            </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
                         <ToggleButton x:Name="ToggleButton"
                         Template="{StaticResource ComboBoxToggleButton}"
@@ -141,19 +123,9 @@
                             ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                             ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
                             Margin="3,3,23,3"
-                            VerticalAlignment="Stretch"
+                            VerticalAlignment="Center"
                             HorizontalAlignment="Left">
                         </ContentPresenter>
-                        <TextBox x:Name="PART_EditableTextBox"
-                   Style="{x:Null}"
-                   Template="{StaticResource ComboBoxTextBox}"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Bottom"
-                   Margin="3,3,23,3"
-                   Focusable="True"
-                   Background="Transparent"
-                   Visibility="Hidden"
-                   IsReadOnly="{TemplateBinding IsReadOnly}" />
                         <Popup x:Name="Popup"
                  Placement="Bottom"
                  IsOpen="{TemplateBinding IsDropDownOpen}"

@@ -9,128 +9,19 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Windows;
-using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
-    public class OverlayMetricInfo : INotifyPropertyChanged
-    {
-        private double relativeLength;
-        private double _value;
-        private double _secondaryValue;
-        private int leaderboardRank;
-        public string MedalIconPath { get; set; }
-        public string InfoText => $"{Type}: {(int)Value}" + (SecondaryType != OverlayType.None ? $"\n{SecondaryType}: {(int)SecondaryValue}" : "");
-        public GridLength RemainderWidth { get; set; }
-        public GridLength BarWidth { get; set; }
-        public GridLength SecondaryBarWidth { get; set; }
-        public double BorderThickness => IsLeaderboardValue ? 3 : 0;
-        public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
-        public CornerRadius BarRadiusSecondary { get; set; } = new CornerRadius(3, 3, 3, 3);
-        public SolidColorBrush BarOutline => IsLeaderboardValue ? Brushes.NavajoWhite : Brushes.Transparent;
-        public bool AddSecondayToValue { get; set; }
-        public Entity Player { get; set; }
-        public string LeaderboardRank
-        {
-            get => leaderboardRank == 0?"":leaderboardRank.ToString()+". ";
-            set
-            {
-                leaderboardRank = int.Parse(value);
-                OnPropertyChanged();
-            }
-        }
-        public string PlayerName => Player.Name;
-        public bool IsLeaderboardValue { get; set; } = false;
-
-
-        public double RelativeLength
-        {
-            get => relativeLength;
-            set
-            {
-
-                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue == 0 || TotalValue == "0")
-                {
-                    SetBarToZero();
-                    return;
-                }
-                relativeLength = value;
-                if (SecondaryType != OverlayType.None)
-                {
-                    var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
-                    var secondaryFraction = SecondaryValue / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
-                    BarWidth = new GridLength(relativeLength * primaryFraction, GridUnitType.Star);
-                    SecondaryBarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
-                    RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
-                }
-                else
-                {
-                    BarWidth = new GridLength(relativeLength, GridUnitType.Star);
-                    SecondaryBarWidth = new GridLength(0, GridUnitType.Star);
-                    RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
-                }
-                OnPropertyChanged("RemainderWidth");
-                OnPropertyChanged("BarWidth");
-                BarRadius = SecondaryType == OverlayType.None || SecondaryValue == 0 ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(3, 0, 0, 3);
-                BarRadiusSecondary = SecondaryType == OverlayType.None ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(0, 3, 3, 0);
-                OnPropertyChanged("BarRadius");
-                OnPropertyChanged("BarRadiusSecondary");
-            }
-        }
-        private void SetBarToZero()
-        {
-            relativeLength = 0;
-            BarWidth = new GridLength(0, GridUnitType.Star);
-            RemainderWidth = new GridLength(1, GridUnitType.Star);
-            OnPropertyChanged("RemainderWidth");
-            OnPropertyChanged("BarWidth");
-        }
-        public double Value
-        {
-            get => _value; set
-            {
-                _value = value;
-                if (double.IsNaN(_value))
-                {
-
-                }
-                OnPropertyChanged();
-            }
-        }
-        public double SecondaryValue
-        {
-            get => _secondaryValue; set
-            {
-                _secondaryValue = value;
-                OnPropertyChanged();
-            }
-        }
-        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue : 0)).ToString("#,##0");
-        public void Reset()
-        {
-            Value = 0;
-            SecondaryValue = 0;
-            RelativeLength = 0;
-        }
-        public OverlayType Type { get; set; }
-        public OverlayType SecondaryType { get; set; }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-    }
     public class OverlayInstanceViewModel : INotifyPropertyChanged
     {
         private object _refreshLock = new object();
         private Combat _currentCombat;
-        private Dictionary<Entity, Dictionary<LeaderboardEntryType, double>> _leaderboardInfo = new Dictionary<Entity, Dictionary<LeaderboardEntryType, double>>();
+        private Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> _leaderboardInfo = new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double,bool)>>();
         public bool OverlaysMoveable { get; set; }
         public ObservableCollection<OverlayMetricInfo> MetricBars { get; set; } = new ObservableCollection<OverlayMetricInfo>();
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }
-        public bool HasLeaderboard => Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.SheildAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS;
+        public bool HasLeaderboard => Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS;
         public bool AddSecondaryToValue { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
         public event Action<bool> OnLocking = delegate { };
@@ -143,12 +34,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Type = type;
             if(Type == OverlayType.EHPS)
             {
-                SecondaryType = OverlayType.Sheilding;
+                SecondaryType = OverlayType.Shielding;
                 AddSecondaryToValue = true;
             }
             if (Type == OverlayType.HPS)
             {
-                SecondaryType = OverlayType.Sheilding;
+                SecondaryType = OverlayType.Shielding;
                 AddSecondaryToValue = true;
             }
             if (Type == OverlayType.DPS)
@@ -163,11 +54,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             if (Type == OverlayType.Mitigation)
             {
-                Type = OverlayType.SheildAbsorb;
+                Type = OverlayType.ShieldAbsorb;
                 SecondaryType = OverlayType.DamageAvoided;
                 AddSecondaryToValue = true;
             }
-            if (Type == OverlayType.SheildAbsorb)
+            if (Type == OverlayType.ShieldAbsorb)
             {
                 SecondaryType = OverlayType.DamageAvoided;
                 AddSecondaryToValue = true;
@@ -185,7 +76,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             RefreshBarViews();
         }
 
-        private void UpdateStandings(Dictionary<Entity, Dictionary<LeaderboardEntryType, double>> obj)
+        private void UpdateStandings(Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> obj)
         {
             _leaderboardInfo = obj;
             RefreshBarViews();
@@ -209,7 +100,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     AddLeaderboardBar(effectiveHealingValues.Value.Item1, effectiveHealingValues.Value.Item2);
                 if (Type == OverlayType.HPS && healingValues.Value.Item1 != null)
                     AddLeaderboardBar(healingValues.Value.Item1, healingValues.Value.Item2);
-                if (Type == OverlayType.SheildAbsorb && SecondaryType == OverlayType.DamageAvoided && mitigationValues.Value.Item1 != null)
+                if (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided && mitigationValues.Value.Item1 != null)
                     AddLeaderboardBar(mitigationValues.Value.Item1, mitigationValues.Value.Item2);
             }
         }
@@ -254,18 +145,32 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 });
             });
         }
-        private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType,double> standings)
+        private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType,(double,bool)> standings)
         {
+            (double, bool) leaderboardRanking = (0,false);
             if (Type == OverlayType.DPS)
-                metricToUpdate.LeaderboardRank = standings[LeaderboardEntryType.Damage].ToString();
+            {
+                leaderboardRanking = standings[LeaderboardEntryType.Damage];
+            }
             if (Type == OverlayType.FocusDPS)
-                metricToUpdate.LeaderboardRank = standings[LeaderboardEntryType.FocusDPS].ToString();
+            {
+                leaderboardRanking = standings[LeaderboardEntryType.FocusDPS];
+
+            }
             if (Type == OverlayType.EHPS)
-                metricToUpdate.LeaderboardRank = standings[LeaderboardEntryType.EffectiveHealing].ToString();
+            {
+                leaderboardRanking = standings[LeaderboardEntryType.EffectiveHealing];
+            }
             if (Type == OverlayType.HPS)
-                metricToUpdate.LeaderboardRank = standings[LeaderboardEntryType.Healing].ToString();
-            if (Type == OverlayType.SheildAbsorb && SecondaryType == OverlayType.DamageAvoided)
-                metricToUpdate.LeaderboardRank = standings[LeaderboardEntryType.Mitigation].ToString();
+            {
+                leaderboardRanking = standings[LeaderboardEntryType.Healing];
+            }
+            if (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided)
+            {
+                leaderboardRanking = standings[LeaderboardEntryType.Mitigation];
+            }
+            metricToUpdate.LeaderboardRank = leaderboardRanking.Item1.ToString();
+            metricToUpdate.RankIsPersonalRecord = leaderboardRanking.Item2;
         }
         private void UpdateMetrics(Combat obj)
         {
@@ -329,9 +234,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 MetricBars.Clear();
             });
-            _leaderboardInfo = new Dictionary<Entity, Dictionary<LeaderboardEntryType, double>>();
+            _leaderboardInfo = new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double,bool)>>();
         }
         private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat combat, Entity participant)
+        {
+            double value = GetValueForMetric(type, combat, participant);
+            metric.SecondaryType = type;
+            metric.SecondaryValue = value;
+        }
+        private void UpdateMetric(OverlayType type, OverlayMetricInfo metricToUpdate, Combat obj, Entity participant)
+        {
+            var value = GetValueForMetric(type, obj, participant);
+            metricToUpdate.Value = value;
+        }
+        private static double GetValueForMetric(OverlayType type, Combat combat, Entity participant)
         {
             double value = 0;
             switch (type)
@@ -342,7 +258,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.EHPS:
                     value = combat.EHPS[participant];
                     break;
-                case OverlayType.Sheilding:
+                case OverlayType.Shielding:
                     value = combat.PSPS[participant];
                     break;
                 case OverlayType.FocusDPS:
@@ -366,63 +282,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.DamageAvoided:
                     value = combat.DAPS[participant];
                     break;
-                case OverlayType.SheildAbsorb:
+                case OverlayType.ShieldAbsorb:
                     value = combat.SAPS[participant];
                     break;
             }
-            metric.SecondaryType = type;
-            metric.SecondaryValue = value;
+            return value;
         }
-        private void UpdateMetric(OverlayType type, OverlayMetricInfo metricToUpdate, Combat obj, Entity participant)
-        {
-            double value = 0;
-            switch (type)
-            {
-                case OverlayType.DPS:
-                    value = obj.ERegDPS[participant];
-                    break;
-                case OverlayType.FocusDPS:
-                    value = obj.EFocusDPS[participant];
-                    break;
-                case OverlayType.EHPS:
-                    value = obj.EHPS[participant];
-                    break;
-                case OverlayType.HPS:
-                    value = obj.HPS[participant];
-                    break;
-                case OverlayType.Tank_Sheilding:
-                    value = obj.SPS[participant];
-                    break;
-                case OverlayType.Threat:
-                    value = obj.TPS[participant];
-                    break;
-                case OverlayType.DamageTaken:
-                    value = obj.EDTPS[participant];
-                    break;
-                case OverlayType.CompanionDPS:
-                    value = obj.CompDPS[participant];
-                    break;
-                case OverlayType.CompanionEHPS:
-                    value = obj.CompEHPS[participant];
-                    break;
-                case OverlayType.PercentOfFightBelowFullHP:
-                    value = obj.PercentageOfFightBelowFullHP[participant];
-                    break;
-                case OverlayType.InterruptCount:
-                    value = obj.TotalInterrupts[participant];
-                    break;
-                case OverlayType.Mitigation:
-                    value = obj.MPS[participant];
-                    break;
-                case OverlayType.DamageAvoided:
-                    value = obj.DAPS[participant];
-                    break;
-                case OverlayType.SheildAbsorb:
-                    value = obj.SAPS[participant];
-                    break;
-            }
-            metricToUpdate.Value = value;
-        }
+
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)

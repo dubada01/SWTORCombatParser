@@ -22,21 +22,11 @@ namespace SWTORCombatParser
         private static ConcurrentBag<Entity> _currentEntities = new ConcurrentBag<Entity>();
         public static event Action<string> OnNewLog = delegate { };
 
-        public static void InitalizeStateFromLog(CombatLogFile file)
-        {
-            //var lines = ParseAllLines(file,true);
-            //_logState = CombatLogStateBuilder.UpdateCurrentLogState(ref lines,file.Name);
-            //return _logState;
-        }
-        public static LogState GetCurrentLogState()
-        {
-            return _logState;
-        }
         public static void SetCurrentState(LogState currentState)
         {
             _logState = currentState;
         }
-        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex)
+        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex, bool realTime = true)
         {
             try
             {
@@ -59,6 +49,10 @@ namespace SWTORCombatParser
                 parsedLine.LogLineNumber = lineIndex;
                 if (parsedLine.Source == parsedLine.Target && parsedLine.Source.IsCharacter)
                     parsedLine.Source.IsLocalPlayer = true;
+                if (realTime)
+                {
+                    UpdateStateAndLog(parsedLine,true);
+                }
                 return parsedLine;
             }
             catch (Exception e)
@@ -79,7 +73,7 @@ namespace SWTORCombatParser
               {
                   if (logLines[i] == "")
                       return;
-                  var parsedLine = ParseLine(logLines[i], i);
+                  var parsedLine = ParseLine(logLines[i], i,false);
 
                   if (parsedLine.Error == ErrorType.IncompleteLine)
                       return;
@@ -90,74 +84,16 @@ namespace SWTORCombatParser
 
             foreach (var line in orderdedLog)
             {
-                SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(line,false));
-                UpdateEffectiveHealValues(line, _logState);
+                UpdateStateAndLog(line,false);
             }
 
             CombatTimestampRectifier.RectifyTimeStamps(orderdedLog.ToList());
             return orderdedLog.ToList();
         }
-
-        private static void UpdateEffectiveHealValues(ParsedLogEntry parsedLog, LogState state)
+        private static void UpdateStateAndLog(ParsedLogEntry logToUpdate, bool liveLog)
         {
-            if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCharacter)
-            {
-                if (state.PlayerClasses[parsedLog.Source] == null)
-                { 
-                    parsedLog.Value.EffectiveDblValue = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source);
-                    if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
-                    {
-                        OnNewLog("**************Impossible Heal! " +
-                          "\nTime: " + parsedLog.TimeStamp +
-                          "\nName: " + parsedLog.Ability +
-                          "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
-                          "\nThreat: " + parsedLog.Threat +
-                          "\nRaw: " + parsedLog.Value.DblValue +
-                          "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source));
-                        parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
-                    }
-                    return;
-                }
-
-                var specialThreatAbilties = state.PlayerClasses[parsedLog.Source].SpecialThreatAbilities;
-
-                var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => parsedLog.Ability.Contains(a.Name));
-
-                if (parsedLog.Ability.Contains("Advanced")&&parsedLog.Ability.Contains("Medpac") && state.PlayerClasses[parsedLog.Source].Role != Role.Tank)
-                    specialThreatAbilityUsed = new Ability() { StaticThreat = true };
-
-                var effectiveAmmount = 0d;
-
-                if (specialThreatAbilityUsed == null)
-                {
-                    effectiveAmmount = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source);
-                }
-                else
-                { 
-                    if(specialThreatAbilityUsed.StaticThreat)
-                        effectiveAmmount = parsedLog.Threat * 2d;
-                    if (specialThreatAbilityUsed.Threatless)
-                        effectiveAmmount = parsedLog.Value.DblValue;
-                }
-
-                parsedLog.Value.EffectiveDblValue = (int)effectiveAmmount;
-                if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
-                {
-                    OnNewLog("**************Impossible Heal! " +
-                          "\nTime: " + parsedLog.TimeStamp +
-                          "\nName: " + parsedLog.Ability +
-                          "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
-                          "\nThreat: " + parsedLog.Threat +
-                          "\nRaw: " + parsedLog.Value.DblValue +
-                          "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source));
-                    parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
-                }
-                return;
-            }
-            if(parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCompanion)
-            {
-                parsedLog.Value.EffectiveDblValue = parsedLog.Threat * (5);
-            }
+            SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(logToUpdate, liveLog));
+            LogModifier.UpdateLogWithState(logToUpdate, _logState);
         }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {

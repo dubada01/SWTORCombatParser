@@ -21,10 +21,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var currentValidEntry = GetEntriesForBossAndCharacterWithClass(newEntry.Boss, newEntry.Character, newEntry.Class, newEntry.Type);
             if(currentValidEntry.Count == 0 || newEntry.Value > currentValidEntry.First().Value)
             {
-                //if(currentValidEntry.Count > 0)
-                //{
-                //    RemoveLeaderBoardEntry(newEntry);
-                //}
+                if (currentValidEntry.Count > 0)
+                {
+                    RemoveLeaderBoardEntry(newEntry);
+                }
                 AddLeaderboardEntry(newEntry);
                 return true;
             }

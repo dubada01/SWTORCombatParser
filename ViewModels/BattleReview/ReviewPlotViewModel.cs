@@ -27,7 +27,6 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             Plot.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             Plot.Plot.XAxis.Label(label: "Duration (s)");
             Plot.Plot.YAxis.Label(label: "Value");
-            Plot.Plot.AddAxis(ScottPlot.Renderable.Edge.Left, 3, "Average");
             Plot.AxesChanged += OnAxisUpdated;
         }
 
@@ -75,7 +74,6 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                     if (xVals.Count() > 0)
                     {
                         var plt = Plot.Plot.AddScatter(xVals, yVals, markerShape: MarkerShape.none, lineWidth: 5, label: entitiy.Name + $" ({_windowSize}s average)");
-                        plt.YAxisIndex = 3;
                         dotColor = plt.Color.Lerp(Color.White, 0.25f);
                     }
                     var xPoints = PlotMaker.GetPlotXVals(relaventData, _startTime);

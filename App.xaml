@@ -25,6 +25,7 @@
             <converters:EffectSelectedToTextConverter x:Key="EffectSelectedToTextConverter"/>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibiityConverter"/>
             <converters:LiveParseActiveToButtonColorConverter x:Key="LiveParseActiveToButtonColorConverter"/>
+            <converters:BooleanToFontStyleConverter x:Key="BooleanToFontStyleConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

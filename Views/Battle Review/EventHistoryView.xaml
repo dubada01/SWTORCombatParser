@@ -6,26 +6,84 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Battle_Review"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <ListView x:Name="EventsList" ItemsSource="{Binding LogsToDisplay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width=".15*"/>
-                            <ColumnDefinition Width=".33*"/>
-                            <ColumnDefinition Width=".33*"/>
-                            <ColumnDefinition Width=".33*"/>
-                            <ColumnDefinition Width=".15*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock FontSize="12" Text = "{Binding SecondsSinceCombatStart}"></TextBlock>
-                        <TextBlock FontSize="12"  Grid.Column = "1" Text = "{Binding Source.Name}"></TextBlock>
-                        <TextBlock FontSize="12" Grid.Column = "2" Text="{Binding Target.Name}"></TextBlock>
-                        <TextBlock FontSize="12" Grid.Column = "3" Text="{Binding Ability}"></TextBlock>
-                        <TextBlock FontSize="12" Grid.Column = "4" Text="{Binding Value.DisplayValue}"></TextBlock>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </Grid>
+    <Border Background="Gray" BorderBrush="DimGray" BorderThickness="2" CornerRadius="3">
+        <Grid Background="Transparent" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Margin="0,0,20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width=".15*"/>
+                    <ColumnDefinition Width=".15*"/>
+                    <ColumnDefinition Width=".25*"/>
+                    <ColumnDefinition Width=".1*"/>
+                    <ColumnDefinition Width=".1*"/>
+                    <ColumnDefinition Width=".1*"/>
+                    <ColumnDefinition Width=".1*"/>
+                    <ColumnDefinition Width=".25*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock FontSize="14" Foreground="White" Text="Sec" FontWeight="Bold" HorizontalAlignment="Left" Margin="2,0,2,0" Grid.Column="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+
+                <TextBlock FontSize="14" Foreground="White" Text="Source" FontWeight="Bold" HorizontalAlignment="Left" Margin="5,0,2,0" Grid.Column="1" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+
+                <TextBlock FontSize="14" Foreground="White" Text="Target" FontWeight="Bold" HorizontalAlignment="Left" Margin="3,0,2,0" Grid.Column="2" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+
+                <TextBlock FontSize="14" Foreground="White" Text="Name" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,0,2,0" Grid.Column="3" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+
+                <TextBlock FontSize="14" Foreground="White" Text="Type" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,0,2,0" Grid.Column="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+
+                <TextBlock FontSize="14" Foreground="White" Text="Value" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,0,2,0" Grid.Column="5" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+                <TextBlock FontSize="14" Foreground="White" Text="Mod" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,0,2,0" Grid.Column="6" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+
+                <TextBlock FontSize="14" Foreground="White" Text="Value" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,0,2,0" Grid.Column="7" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+
+                <TextBlock FontSize="14" Foreground="White" Text="Relevent Buffs" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,0,2,0" Grid.Column="8" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
+
+
+            </Grid>
+
+            <ListView Background="Transparent" BorderBrush="Transparent" Grid.ColumnSpan="11" Grid.Row="1" x:Name="EventsList" ItemsSource="{Binding LogsToDisplay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width=".15*"/>
+                                <ColumnDefinition Width=".15*"/>
+                                <ColumnDefinition Width=".25*"/>
+                                <ColumnDefinition Width=".1*"/>
+                                <ColumnDefinition Width=".1*"/>
+                                <ColumnDefinition Width=".1*"/>
+                                <ColumnDefinition Width=".1*"/>
+                                <ColumnDefinition Width=".25*"/>
+                            </Grid.ColumnDefinitions>
+                            <Viewbox MaxHeight="15" HorizontalAlignment="Left" Margin="0,0,2,0">
+                                <TextBlock Foreground="WhiteSmoke" Text = "{Binding SecondsSinceCombatStart, StringFormat=N1}"></TextBlock>
+                            </Viewbox>
+                            <TextBlock Foreground="WhiteSmoke" VerticalAlignment="Center" FontSize="12" Grid.Column = "1" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"  Margin="0,0,2,0" Text = "{Binding Source.Name}"></TextBlock>
+                            <TextBlock Foreground="WhiteSmoke" VerticalAlignment="Center" FontSize="12" Grid.Column = "2" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"  Margin="0,0,2,0" Text = "{Binding Target.Name}"></TextBlock>
+                            <TextBlock Foreground="WhiteSmoke" VerticalAlignment="Center" FontSize="12" Grid.Column = "3" HorizontalAlignment="Left" Margin="0,0,2,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text = "{Binding Ability}"></TextBlock>
+                            <TextBlock Foreground="WhiteSmoke" VerticalAlignment="Center" FontSize="12" Grid.Column = "4" HorizontalAlignment="Left" Margin="0,0,2,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text = "{Binding Value.ValueType}"></TextBlock>
+                            <Viewbox Grid.Column = "5" HorizontalAlignment="Left" Margin="0,0,2,0" MaxHeight="15">
+                                <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" TextDecorations="{Binding Value.WasCrit, Converter={StaticResource BooleanToFontStyleConverter}}" Text = "{Binding Value.DisplayValue}"></TextBlock>
+                            </Viewbox>
+                            <Viewbox Grid.Column = "6" HorizontalAlignment="Left" Margin="0,0,2,0" MaxHeight="15">
+                                <TextBlock Foreground="WhiteSmoke" Text = "{Binding Value.ModifierType}"></TextBlock>
+                            </Viewbox>
+                            <Viewbox Grid.Column = "7" HorizontalAlignment="Left" MaxHeight="15">
+                                <TextBlock Foreground="WhiteSmoke" Text = "{Binding Value.ModifierDisplayValue}"></TextBlock>
+                            </Viewbox>
+                            <TextBlock Foreground="WhiteSmoke" FontSize="11" Grid.Column = "8" TextWrapping="Wrap" Visibility="{Binding DataContext.DisplayOffensiveBuffs, RelativeSource={RelativeSource AncestorType=ListView},Converter={StaticResource BooleanToVisibiityConverter}}" Text = "{Binding Value.AllBuffs}"></TextBlock>
+                            <TextBlock Foreground="WhiteSmoke"  FontSize="11" Grid.Column = "9"  TextWrapping="Wrap" Visibility="{Binding DataContext.DisplayDefensiveBuffs, RelativeSource={RelativeSource AncestorType=ListView},Converter={StaticResource BooleanToVisibiityConverter}}" Text = "{Binding Value.AllDefensiveBuffs}"></TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Border>
+    
 </UserControl>

@@ -11,7 +11,10 @@ namespace SWTORCombatParser.Model.LogParsing
         Other,
         GuardedThreatReduced,
         GuardedDamagedRedirected,
-        Guarding
+        Guarding,
+        DefensiveBuff,
+        OffensiveBuff,
+        Debuff
     }
     public class CombatModifier
     {
@@ -50,7 +53,11 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
         {
-            return Modifiers.Where(m => m.StartTime < timeStamp && m.StopTime >= timeStamp).ToList();
+            return Modifiers.Where(m => m.StartTime < timeStamp && (m.StopTime >= timeStamp || m.StopTime == DateTime.MinValue)).ToList();
+        }
+        public List<CombatModifier> GetCombatModifiersAtTimeInvolvingParticipants(DateTime timeStamp,Entity source, Entity target)
+        {
+            return GetCombatModifiersAtTime(timeStamp).Where(m => m.Source == source || m.Source == target || m.Target == source || m.Target == target).ToList();
         }
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {

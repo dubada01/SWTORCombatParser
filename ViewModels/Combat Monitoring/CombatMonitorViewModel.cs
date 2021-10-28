@@ -1,66 +1,25 @@
 ﻿using Microsoft.Win32;
-using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.SoftwareLogging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public static class CombatSelectionMonitor
-    {
-        public static event Action<Combat> NewCombatSelected = delegate { };
-        public static void FireNewCombat(Combat selectedCombat)
-        {
-            CombatIdentifier.UpdateOverlays(selectedCombat);
-            NewCombatSelected(selectedCombat);
-        }
-    }
-    public class EncounterCombat
-    {
-        private List<Combat> combats;
-        private object combatAddLock = new object();
-        public EncounterInfo Info { get; set; }
-        public Combat OverallCombat => GetOverallCombat();
-        public List<Combat> Combats { get => combats; set
-            { 
-                    combats = value; 
-            }
-        }
-        public void AddCombat(Combat combat)
-        {
-            lock (combatAddLock)
-            {
-                Combats.Add(combat);
-            }
-        }
-        private Combat GetOverallCombat()
-        {
-            lock (combatAddLock)
-            {
-                Trace.WriteLine("Creating Encounter Combat for: "+ Combats.Count + " combats with " + Combats.SelectMany(c => c.AllLogs).Count() + " logs");
-                var overallCombat = CombatIdentifier.GenerateNewCombatFromLogs(Combats.SelectMany(c => c.AllLogs).ToList());
-                overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);
-                return overallCombat;
-            }
-
-        }
-    }
     public class CombatMonitorViewModel : INotifyPropertyChanged
     {
         private ConcurrentDictionary<DateTime, List<ParsedLogEntry>> _totalLogsDuringCombat = new ConcurrentDictionary<DateTime, List<ParsedLogEntry>>();
@@ -70,14 +29,8 @@ namespace SWTORCombatParser.ViewModels
         private bool showTrash;
         private List<PastCombat> _allCombats = new List<PastCombat>();
         private bool _usingHistoricalData = true;
-        public CombatMonitorViewModel()
-        {
-            _combatLogStreamer = new CombatLogStreamer();
-            _combatLogStreamer.CombatStopped += CombatStopped;
-            _combatLogStreamer.CombatStarted += CombatStarted;
-            _combatLogStreamer.NewLogEntries += UpdateLog;
-            _combatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
-        }
+        private object combatAddLock = new object();
+
 
         public event Action OnMonitoringStarted = delegate { };
         public event Action<Combat> OnCombatSelected = delegate { };
@@ -86,7 +39,10 @@ namespace SWTORCombatParser.ViewModels
         public event Action<string> OnNewLog = delegate { };
         public event Action<List<Entity>> ParticipantsUpdated = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
-        public bool ShowTrash { get => showTrash; set
+        public string CurrentlySelectedLogName { get; set; }
+        public bool ShowTrash
+        {
+            get => showTrash; set
             {
                 showTrash = value;
                 UnSelectAll();
@@ -107,6 +63,18 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        public CombatMonitorViewModel()
+        {
+            _combatLogStreamer = new CombatLogStreamer();
+
+            _combatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
+            Observable.FromEvent<CombatStatusUpdate>(
+                manager => _combatLogStreamer.CombatUpdated += manager,
+                manager => _combatLogStreamer.CombatUpdated -= manager).Subscribe(update => NewCombatStatusAlert(update));
+        }
+
+
         public void Reset()
         {
             _usingHistoricalData = true;
@@ -162,15 +130,15 @@ namespace SWTORCombatParser.ViewModels
         {
 
             OnMonitoringStarted();
-            //var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-            var mostRecentLog = @"C:\Users\David\Documents\Star Wars - The Old Republic\CombatLogs\combat_2021-07-08_18_01_16_092816.txt";
-            File.Create(mostRecentLog).Close();
+            var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
+            //var mostRecentLog = @"C:\Users\duban\Documents\Star Wars - The Old Republic\CombatLogs\test.txt";
+            //File.Create(mostRecentLog).Close();
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
-            Task.Run(() =>
-            {
-                TransferLogData(mostRecentLog);
-            });
+            //Task.Run(() =>
+            //{
+            //    TransferLogData(mostRecentLog);
+            //});
         }
         //TEST CODE
         private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
@@ -207,12 +175,8 @@ namespace SWTORCombatParser.ViewModels
         }
         public void ClearCombats()
         {
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                _numberOfSelectedCombats = 0;
-                _allCombats.Clear();
-            });
-
+            _numberOfSelectedCombats = 0;
+            _allCombats.Clear();
         }
         public void UnSelectAll()
         {
@@ -221,7 +185,7 @@ namespace SWTORCombatParser.ViewModels
                 combat.IsSelected = false;
             }
         }
-        public string CurrentlySelectedLogName { get; set; }
+        
         public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog);
         private void LoadSpecificLog(object test)
         {
@@ -256,31 +220,18 @@ namespace SWTORCombatParser.ViewModels
             });
         } 
 
-        private void CombatStarted(DateTime startTime, string characterName, string location, bool liveLog)
+        private void CombatStarted(DateTime startTime, string location)
         {
             CombatIdentifier.NotifyNewCombatStarted();
             if (!LiveParseActive)
                 return;
             
-            StartCombat(location);
+            AddOngoingCombat(location);
 
             _totalLogsDuringCombat[startTime] = new List<ParsedLogEntry>();
-            OnNewLog("Detected Combat For: " + characterName + " in " + location);
         }
-        private void StartCombat(string location)
-        {
-            UnSelectAll();
-            var combatUI = new PastCombat() { CombatLabel = location + " ongoing...", IsSelected = true, IsCurrentCombat = true, CombatStartTime = DateTime.Now };
-            combatUI.PastCombatUnSelected += UnselectCombat;
-            combatUI.PastCombatSelected += SelectCombat;
-            combatUI.UnselectAll += UnSelectAll;
-
-            _allCombats.Insert(0, combatUI);
-            UpdateVisibleData();
-
-        }
-        
-        private void UpdateLog(List<ParsedLogEntry> obj, DateTime combatStartTime)
+       
+        private void CombatUpdated(List<ParsedLogEntry> obj, DateTime combatStartTime)
         {
             _totalLogsDuringCombat[combatStartTime].AddRange(obj);
             _usingHistoricalData = false;
@@ -301,12 +252,17 @@ namespace SWTORCombatParser.ViewModels
             if (obj.Count == 0)
                 return;
 
-            RemoveCombatInProgress();
+
             _totalLogsDuringCombat[combatStartTime] = obj;
 
             if (!_usingHistoricalData)
             {
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList());
+                RemoveCombatInProgress();
+                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj);
+                if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
+                {
+                    _totalLogsDuringCombat.TryRemove(combatStartTime, out var t);
+                }
                 AddFinishedCombat(combatInfo);
                 CombatIdentifier.UpdateOverlays(combatInfo);
                 if (combatInfo.IsEncounterBoss)
@@ -324,13 +280,6 @@ namespace SWTORCombatParser.ViewModels
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs);
                 AddFinishedCombat(combatInfo);
             }
-            //_totalLogsDuringCombat.Clear();
-            //Parallel.ForEach(_totalLogsDuringCombat.Keys,startTime=>{
-            //    Trace.WriteLine("Creating Non-Encounter Combat for: " + _totalLogsDuringCombat[startTime].Count + " logs");
-            //    var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[startTime].ToList());
-            //    AddFinishedCombat(combatInfo);
-            //    _totalLogsDuringCombat.Remove(startTime, out var t);
-            //});
         }
         private void AddFinishedCombat(Combat combat)
         {
@@ -340,7 +289,8 @@ namespace SWTORCombatParser.ViewModels
         private void HistoricalLogsFinished()
         {
             GenerateHistoricalCombats();
-            AddCombat(CurrentEncounter.OverallCombat, true);
+            if(CurrentEncounter!=null)
+                AddCombat(CurrentEncounter.OverallCombat, true);
             _numberOfSelectedCombats = 0;
             _usingHistoricalData = false;
             UpdateVisibleData();
@@ -360,9 +310,21 @@ namespace SWTORCombatParser.ViewModels
                 CurrentEncounter = newEncounter;
             }
             CurrentEncounter.AddCombat(combat);
-            
+
         }
-        private object combatAddLock = new object();
+        private void AddOngoingCombat(string location)
+        {
+            UnSelectAll();
+            var combatUI = new PastCombat() { CombatLabel = location + " ongoing...", IsSelected = true, IsCurrentCombat = true, CombatStartTime = DateTime.Now };
+            combatUI.PastCombatUnSelected += UnselectCombat;
+            combatUI.PastCombatSelected += SelectCombat;
+            combatUI.UnselectAll += UnSelectAll;
+
+            _allCombats.Insert(0, combatUI);
+            UpdateVisibleData();
+
+        }
+
         public void AddCombat(Combat combatInfo, bool isEncounter = false)
         {
             lock (combatAddLock)
@@ -456,6 +418,22 @@ namespace SWTORCombatParser.ViewModels
             
             CombatSelectionMonitor.FireNewCombat(selectedCombat.Combat);
             ParticipantsUpdated(selectedCombat.Combat.CharacterParticipants);
+        }
+        private void NewCombatStatusAlert(CombatStatusUpdate update)
+        {
+            Trace.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.ffff")}: {update.Type}");
+            switch (update.Type)
+            {
+                case UpdateType.Start:
+                    CombatStarted(update.CombatStartTime, update.CombatLocation);
+                    break;
+                case UpdateType.Stop:
+                    CombatStopped(update.Logs.ToList(), update.CombatStartTime);
+                    break;
+                case UpdateType.Update:
+                    CombatUpdated(update.Logs.ToList(), update.CombatStartTime);
+                    break;
+            }
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
