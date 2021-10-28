@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class Leaderboards
     {
         public static object _updateLock = new object();
-        public static event Action<Dictionary<Entity, Dictionary<LeaderboardEntryType, double>>> LeaderboardStandingsAvailable = delegate { };
+        public static event Action<Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>> LeaderboardStandingsAvailable = delegate { };
         public static event Action<Dictionary<LeaderboardEntryType, (string, double)>> TopLeaderboardEntriesAvailable = delegate { };
 
         public static Dictionary<LeaderboardEntryType, (string, double)> TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
@@ -60,85 +60,92 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static void StartGetPlayerLeaderboardStandings(Combat newCombat, bool filterClass = false)
         {
-
-            if (CurrentFightLeaderboard.Count == 0)
-                GetCurrentLeaderboard(newCombat, filterClass);
-
-            var returnData = new Dictionary<Entity, Dictionary<LeaderboardEntryType, double>>();
-            var bossName = newCombat.EncounterBossInfo;
-            var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
-            var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
-            foreach (var participant in newCombat.CharacterParticipants)
+            lock (_updateLock)
             {
-                if (filterClass)
+                if (CurrentFightLeaderboard.Count == 0)
+                    GetCurrentLeaderboard(newCombat, filterClass);
+
+                var returnData = new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>();
+                var bossName = newCombat.EncounterBossInfo;
+                var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
+                var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
+                foreach (var participant in newCombat.CharacterParticipants)
                 {
-                    var participantClass = CombatLogStateBuilder.CurrentState.PlayerClasses[participant];
-                    var participantClassInfo = participantClass == null ? "Unknown" : participantClass.Name + "/" + participantClass.Discipline;
-                    if (participantClassInfo != className)
+                    if (filterClass)
                     {
-                        returnData[participant] = null;
-                        continue;
+                        var participantClass = CombatLogStateBuilder.CurrentState.PlayerClasses[participant];
+                        var participantClassInfo = participantClass == null ? "Unknown" : participantClass.Name + "/" + participantClass.Discipline;
+                        if (participantClassInfo != className)
+                        {
+                            returnData[participant] = null;
+                            continue;
+                        }
                     }
-                }
-                returnData[participant] = new Dictionary<LeaderboardEntryType, double>();
+                    returnData[participant] = new Dictionary<LeaderboardEntryType, (double, bool)>();
 
 
-                foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
-                {
-                    var parses = CurrentFightLeaderboard[enumVal];
-                    if (!parses.Any(p => p.Character == participant.Name))
-                        returnData[participant][enumVal] = 0;
-                    else
+                    foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
                     {
-                        var currentValue = GetValueForLeaderboardEntry(enumVal, newCombat, participant);
-                        var parsesWithVal = parses.Select(v => v.Value).ToList();
-                        parsesWithVal.Add(currentValue);
-                        returnData[participant][enumVal] = parsesWithVal.OrderByDescending(v => v).ToList().IndexOf(currentValue) + 1;
+                        var parses = CurrentFightLeaderboard[enumVal];
+                        if (!parses.Any(p => p.Character == participant.Name))
+                            returnData[participant][enumVal] = (0,false);
+                        else
+                        {
+                            var currentValue = GetValueForLeaderboardEntry(enumVal, newCombat, participant);
+                            var currentMaxForParticipant = parses.Where(p => p.Character == participant.Name).MaxBy(v => v.Value).First();
+                            var parsesWithVal = parses.Select(v => v.Value).ToList();
+                            parsesWithVal.Add(currentValue);
+                            returnData[participant][enumVal] = (parsesWithVal.OrderByDescending(v => v).ToList().IndexOf(currentValue) + 1,currentValue>=currentMaxForParticipant.Value);
+                        }
                     }
                 }
+                LeaderboardStandingsAvailable(returnData);
             }
-            LeaderboardStandingsAvailable(returnData);
-
         }
         public static void Reset()
         {
-            TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
-            CurrentFightLeaderboard = new Dictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
+            lock (_updateLock)
+            {
+                TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
+                CurrentFightLeaderboard = new Dictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
+            }
         }
 
         public static void TryAddLeaderboardEntry(Combat combat)
         {
             //// REMOVE WITH 7.0
-            if (combat.WasPlayerKilled(combat.LocalPlayer))
-                return;
-            
+            //if (combat.WasPlayerKilled(combat.LocalPlayer))
+            //    return;
+
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
-                foreach(var player in combat.CharacterParticipants)
+                //// ADD WITH 7.0
+                //foreach(var player in combat.CharacterParticipants)
+                //{
+                var player = combat.LocalPlayer;
+                SWTORClass playerClass;
+                if (!CombatLogStateBuilder.CurrentState.PlayerClasses.ContainsKey(player))
                 {
-                    SWTORClass playerClass;
-                    if (!CombatLogStateBuilder.CurrentState.PlayerClasses.ContainsKey(player))
-                    {
-                        playerClass = null;
-                    }
-                    else
-                    {
-                        playerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[player];
-                    }
-                     
-                    var leaderboardEntry = new LeaderboardEntry()
-                    {
-                        Boss = combat.EncounterBossInfo,
-                        Character = player.Name,
-                        Class = playerClass == null ? "Unknown" : playerClass.Name + "/" + playerClass.Discipline,
-                        Value = GetValueForLeaderboardEntry(enumVal, combat, player),
-                        Type = enumVal,
-                        Duration = (int)combat.DurationSeconds,
-                        VerifiedKill = combat.WasBossKilled
-                    };
-                    if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled(player))
-                        PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                    playerClass = null;
                 }
+                else
+                {
+                    playerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[player];
+                }
+
+                var leaderboardEntry = new LeaderboardEntry()
+                {
+                    Boss = combat.EncounterBossInfo,
+                    Character = player.Name,
+                    Class = playerClass == null ? "Unknown" : playerClass.Name + "/" + playerClass.Discipline,
+                    Value = GetValueForLeaderboardEntry(enumVal, combat, player),
+                    Type = enumVal,
+                    Duration = (int)combat.DurationSeconds,
+                    VerifiedKill = combat.WasBossKilled
+                };
+                if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled(player))
+                    PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                //}
             }
         }
 

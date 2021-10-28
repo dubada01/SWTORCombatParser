@@ -44,7 +44,7 @@
                                     <Image Visibility="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,5,0,5" Source="{Binding MedalIconPath}"></Image>
                                     <Viewbox HorizontalAlignment="Left" Margin="5,0,2,4">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Grid.Row="0" HorizontalAlignment="Left" Foreground="NavajoWhite" Text="{Binding LeaderboardRank}" ></TextBlock>
+                                            <TextBlock Grid.Row="0" HorizontalAlignment="Left" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" ></TextBlock>
                                             <TextBlock Grid.Row="0" HorizontalAlignment="Right" Foreground="NavajoWhite" Text="{Binding PlayerName}" ></TextBlock>
                                         </StackPanel>
                                     </Viewbox>

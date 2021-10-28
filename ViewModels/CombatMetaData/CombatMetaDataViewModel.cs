@@ -80,7 +80,7 @@ namespace SWTORCombatParser.ViewModels
         public void PopulateCombatMetaDatas(Combat combat)
         {
             _currentCombat = combat;
-            var currentState = CombatLogParser.GetCurrentLogState();
+            var currentState = CombatLogStateBuilder.CurrentState;
             _currentCombatModifiers = currentState.GetPersonalEffects(_currentCombat.StartTime, _currentCombat.EndTime, SelectedParticipant);
             UpdateMetaDataFromCombat(_currentCombat);
 

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <VersionPrefix>0.55.0</VersionPrefix>
+    <VersionPrefix>0.56.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -50,6 +50,7 @@
     <None Remove="resources\dpsIcon.png" />
     <None Remove="resources\firstPlaceLeaderboardIcon.png" />
     <None Remove="resources\healingIcon.png" />
+    <None Remove="resources\redX.png" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="resources\SwtorLogo_opaque.png" />
     <None Remove="resources\tankIcon.png" />
@@ -78,6 +79,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\healingIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\redX.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\SwtorLogo_opaque.png">

@@ -24,6 +24,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         public ObservableCollection<ParsedLogEntry> LogsToDisplay { get; set; }
+        public bool DisplayOffensiveBuffs { get; set; }
+        public bool DisplayDefensiveBuffs => !DisplayOffensiveBuffs;
         public EventHistoryViewModel()
         {
             _sliderUpdateSubscription = Observable.FromEvent<double>(
@@ -53,6 +55,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 log.SecondsSinceCombatStart = (log.TimeStamp - _startTime).TotalSeconds;
             }
             LogsToDisplay = new ObservableCollection<ParsedLogEntry>(tempLogs.Where(l=> LogFilter(l.Source,l.Target,l.Effect)));
+            //LogsToDisplay = new ObservableCollection<ParsedLogEntry>(tempLogs);
             OnPropertyChanged("LogsToDisplay");
         }
         private bool LogFilter(Entity source, Entity target, Effect effect)
@@ -60,13 +63,25 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             switch (_typeSelected)
             {
                 case DisplayType.Damage:
-                    return _viewingEntities.Contains(source) && effect.EffectType == EffectType.Apply && effect.EffectName == "Damage";
+                    {
+                        DisplayOffensiveBuffs = true;
+                        return _viewingEntities.Contains(source) && effect.EffectType == EffectType.Apply && effect.EffectName == "Damage";
+                    }
                 case DisplayType.DamageTaken:
-                    return _viewingEntities.Contains(target) && effect.EffectType == EffectType.Apply && effect.EffectName == "Damage";
+                    {
+                        DisplayOffensiveBuffs = false;
+                        return _viewingEntities.Contains(target) && effect.EffectType == EffectType.Apply && effect.EffectName == "Damage";
+                    }
                 case DisplayType.Healing:
-                    return _viewingEntities.Contains(source) && effect.EffectType == EffectType.Apply && effect.EffectName == "Heal";
+                    {
+                        DisplayOffensiveBuffs = true;
+                        return _viewingEntities.Contains(source) && effect.EffectType == EffectType.Apply && effect.EffectName == "Heal";
+                    }
                 case DisplayType.HealingReceived:
-                    return _viewingEntities.Contains(target) && effect.EffectType == EffectType.Apply && effect.EffectName == "Heal";
+                    {
+                        DisplayOffensiveBuffs = false;
+                        return _viewingEntities.Contains(target) && effect.EffectType == EffectType.Apply && effect.EffectName == "Heal";
+                    }
                 default:
                     return false;
             }
