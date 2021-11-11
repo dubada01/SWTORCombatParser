@@ -1,6 +1,8 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -30,7 +32,7 @@ namespace SWTORCombatParser.Model.LogParsing
     {
         private static List<string> _healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
-        public Dictionary<Entity, SWTORClass> PlayerClasses = new Dictionary<Entity, SWTORClass>();
+        public ConcurrentDictionary<Entity, SWTORClass> PlayerClasses = new ConcurrentDictionary<Entity, SWTORClass>();
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public string CurrentLocation { get; set; }
         public long MostRecentLogIndex = 0;
@@ -53,7 +55,17 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
         {
-            return Modifiers.Where(m => m.StartTime < timeStamp && (m.StopTime >= timeStamp || m.StopTime == DateTime.MinValue)).ToList();
+            List<CombatModifier> mods = new List<CombatModifier>();
+            foreach(var mod in Modifiers)
+            {
+                if (mod.StartTime > timeStamp)
+                    continue;
+                if (mod.StopTime < timeStamp && mod.StartTime != DateTime.MinValue)
+                    continue;
+                mods.Add(mod);
+            }
+            return mods;
+            //return Modifiers.Where(m => m.StartTime < timeStamp && (m.StopTime >= timeStamp || m.StopTime == DateTime.MinValue)).ToList();
         }
         public List<CombatModifier> GetCombatModifiersAtTimeInvolvingParticipants(DateTime timeStamp,Entity source, Entity target)
         {

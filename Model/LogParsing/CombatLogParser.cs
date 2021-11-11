@@ -51,7 +51,7 @@ namespace SWTORCombatParser
                     parsedLine.Source.IsLocalPlayer = true;
                 if (realTime)
                 {
-                    UpdateStateAndLog(parsedLine,true);
+                    UpdateStateAndLogs(new List<ParsedLogEntry> { parsedLine },true);
                 }
                 return parsedLine;
             }
@@ -70,31 +70,35 @@ namespace SWTORCombatParser
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
             //for (var i = 0; i < numberOfLines; i++)
             Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
-              {
-                  if (logLines[i] == "")
-                      return;
-                  var parsedLine = ParseLine(logLines[i], i,false);
-
-                  if (parsedLine.Error == ErrorType.IncompleteLine)
-                      return;
-                  parsedLog[i] = parsedLine;
-                  parsedLog[i].LogName = combatLog.Name;
-              });
-            var orderdedLog = parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp);
-
-            foreach (var line in orderdedLog)
             {
-                UpdateStateAndLog(line,false);
-            }
+                if (logLines[i] == "")
+                    return;
+                var parsedLine = ParseLine(logLines[i], i, false);
+
+                if (parsedLine.Error == ErrorType.IncompleteLine)
+                    return;
+                parsedLog[i] = parsedLine;
+                parsedLog[i].LogName = combatLog.Name;
+            });
+            var orderdedLog = parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp);
+            UpdateStateAndLogs(orderdedLog.ToList(),false);
 
             CombatTimestampRectifier.RectifyTimeStamps(orderdedLog.ToList());
             return orderdedLog.ToList();
         }
-        private static void UpdateStateAndLog(ParsedLogEntry logToUpdate, bool liveLog)
+
+        private static void UpdateStateAndLogs(List<ParsedLogEntry> orderdedLog, bool realTime)
         {
-            SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(logToUpdate, liveLog));
-            LogModifier.UpdateLogWithState(logToUpdate, _logState);
+            foreach (var line in orderdedLog)
+            {
+                SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(line, realTime));
+            }
+            Parallel.ForEach(orderdedLog, line =>
+            {
+                LogModifier.UpdateLogWithState(line, _logState);
+            });
         }
+
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {
             if (entryInfo.Length == 0)

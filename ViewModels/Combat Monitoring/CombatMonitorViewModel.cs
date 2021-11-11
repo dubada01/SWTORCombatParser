@@ -2,6 +2,7 @@
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.resources;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -67,13 +68,17 @@ namespace SWTORCombatParser.ViewModels
         public CombatMonitorViewModel()
         {
             _combatLogStreamer = new CombatLogStreamer();
-
+            _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
             _combatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
                 manager => _combatLogStreamer.CombatUpdated += manager,
                 manager => _combatLogStreamer.CombatUpdated -= manager).Subscribe(update => NewCombatStatusAlert(update));
         }
 
+        private void LocalPlayerFound(Entity obj)
+        {
+            ParticipantsUpdated(new List<Entity> { obj });
+        }
 
         public void Reset()
         {
@@ -121,14 +126,14 @@ namespace SWTORCombatParser.ViewModels
                 if (!LiveParseActive)
                     return;
                 else
-                {
+                {           
                     MonitorMostRecentLog();
                 }
             });
         }
         private void MonitorMostRecentLog()
         {
-
+            LoadingWindowFactory.ShowLoading();
             OnMonitoringStarted();
             var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
             //var mostRecentLog = @"C:\Users\duban\Documents\Star Wars - The Old Republic\CombatLogs\test.txt";
@@ -205,6 +210,7 @@ namespace SWTORCombatParser.ViewModels
                 _combatLogStreamer.StopMonitoring();
                 LiveParseActive = false;
                 Reset();
+                LoadingWindowFactory.ShowLoading();
                 _combatLogStreamer.ParseCompleteLog(logInfo.Path);
             }
         }
@@ -421,7 +427,6 @@ namespace SWTORCombatParser.ViewModels
         }
         private void NewCombatStatusAlert(CombatStatusUpdate update)
         {
-            Trace.WriteLine($"{DateTime.Now.ToString("HH:mm:ss.ffff")}: {update.Type}");
             switch (update.Type)
             {
                 case UpdateType.Start:

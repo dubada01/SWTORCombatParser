@@ -16,9 +16,9 @@ namespace SWTORCombatParser
         public PositionData Position { get; set; }
         public DateTime TimeStamp { get; set; }
         public double SecondsSinceCombatStart { get; set; }
-        public Entity Source => SourceInfo.Entity;
+        public Entity Source => SourceInfo?.Entity;
         public EntityInfo SourceInfo { get; set; }
-        public Entity Target => TargetInfo.Entity;
+        public Entity Target => TargetInfo?.Entity;
         public EntityInfo TargetInfo { get; set; }
         public string Ability { get; set; }
         public Effect Effect { get; set; }
@@ -84,6 +84,7 @@ namespace SWTORCombatParser
         Restore,
         AreaEntered,
         DisciplineChanged,
+        ModifyCharges
     }
     public enum DamageType
     {

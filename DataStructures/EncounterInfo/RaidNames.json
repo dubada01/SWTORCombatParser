@@ -60,8 +60,8 @@
     "LogName": "The Dread Fortress",
     "Name": "The Dread Fortress",
     "BossNames": [
-      "Nefra",
-      "Draxus",
+      "Nefra, Who Bars the Way",
+      "Gate Commander Draxus",
       "Grob’thok",
       "Corruptor Zero",
       "Dread Master Brontes"
@@ -93,11 +93,11 @@
     "LogName": "Temple of Sacrifice",
     "Name": "Temple of Sacrifice",
     "BossNames": [
-      "Malaphar",
+      "Malaphar the Savage",
       "Sword Squadron~?~Sword Squadron Unit 1|Sword Squadron Unit 2",
       "Underlurker",
-      "Revanite Commanders~?~",
-      "Revan"
+      "Revanite Commanders~?~Deron Cadoruso|Lord Kurse|Sano Thrica",
+      "Revan~?~HK-47|Machine Core|Machine Focus"
     ]
   },
   {

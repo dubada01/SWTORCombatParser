@@ -2,6 +2,7 @@
 using SWTORCombatParser.Model.Alerts;
 using SWTORCombatParser.Model.CombatParsing;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -21,7 +22,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public static void ResetCombatSpecific()
         {
-            CurrentState.PlayerClasses = new Dictionary<Entity, SWTORClass>();
+            CurrentState.PlayerClasses = new ConcurrentDictionary<Entity, SWTORClass>();
             CurrentState.CurrentCharacterPositions = new Dictionary<Entity, PositionData>();
         }
 

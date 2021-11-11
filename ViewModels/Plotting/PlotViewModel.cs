@@ -1,5 +1,6 @@
 ﻿using ScottPlot;
 using ScottPlot.Plottable;
+using ScottPlot.Renderable;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
@@ -43,9 +44,7 @@ namespace SWTORCombatParser.Plotting
 
             GraphView = new WpfPlot();
             GraphView.Plot.XLabel("Combat Duration (s)");
-            GraphView.Plot.YLabel("Amount");
-            
-            GraphView.Plot.AddAxis(ScottPlot.Renderable.Edge.Right, 2, title: "Rate");
+            GraphView.Plot.YLabel("Value");
             GraphView.AxesChanged += UpdatePlotAxis;
             var legend = GraphView.Plot.Legend(location: Alignment.UpperRight);
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
@@ -279,10 +278,15 @@ namespace SWTORCombatParser.Plotting
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
                 series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), label: seriesName, color: series.Color, markerSize: 10);
+                if (series.Type == PlotType.HPPercent)
+                {
+                    series.Points[combatToPlot.StartTime].YAxisIndex = 1;
+                }
                 if (plotXValRates.Length > 1)
                 {
                     series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
-                    series.Line[combatToPlot.StartTime].YAxisIndex = 2;
+                    if (series.Type == PlotType.HPPercent)
+                        series.Line[combatToPlot.StartTime].YAxisIndex = 1;
                 }
                 if (series.Legend.HasEffective)
                 {
@@ -293,7 +297,6 @@ namespace SWTORCombatParser.Plotting
                     if (plotXValRates.Length > 1)
                     {
                         series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + seriesName + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
-                        series.EffectiveLine[combatToPlot.StartTime].YAxisIndex = 2;
                         series.EffectiveLine[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     }
 
@@ -309,7 +312,6 @@ namespace SWTORCombatParser.Plotting
             GraphView.Plot.AxisAuto();
             GraphView.Plot.SetAxisLimits(xMin: 0, xMax:(combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
             _combatMetaDataViewModel.PopulateCombatMetaDatas(combatToPlot);
-            GraphView.Plot.Render();
             GraphView.Refresh();
         }
         private MarkerShape GetMarkerFromNumberOfComparisons(int numberOfComparison)
@@ -422,12 +424,22 @@ namespace SWTORCombatParser.Plotting
             legend.LegenedToggled += series.LegenedToggled;
             legend.HasEffective = hasEffective;
             series.Legend = legend;
-            series.TriggerRender += () =>
+            series.TriggerRender += (toggleState) =>
             {
+                if(toggleState && type == PlotType.HPPercent)
+                {
+                    GraphView.Plot.YAxis2.Label("Health");
+                    GraphView.Plot.YAxis2.Ticks(true);
+                }
+                if(!toggleState && type == PlotType.HPPercent)
+                {
+                    GraphView.Plot.YAxis2.Label("");
+                    GraphView.Plot.YAxis2.Ticks(false);
+                }
                 Dispatcher.CurrentDispatcher.Invoke(() =>
                 {
                     GraphView.Plot.AxisAuto();
-                    GraphView.Render();
+                    GraphView.Refresh();
                 });
             };
             _seriesToPlot.Add(series);

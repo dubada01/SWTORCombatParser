@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.Alerts;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.resources;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,6 +20,7 @@ namespace SWTORCombatParser
         public event Action<CombatStatusUpdate> CombatUpdated = delegate { };
         public event Action<string> NewSoftwareLog = delegate { };
         public event Action HistoricalLogsFinished = delegate { };
+        public event Action<Entity> LocalPlayerIdentified = delegate { };
 
         private bool _isInCombat = false;
         private bool _combatEnding = false;
@@ -41,7 +43,6 @@ namespace SWTORCombatParser
                 var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
                 _numberOfEntries = currentLogs.Count;
                 ParseHistoricalLog(currentLogs);
-                //ParseCompleteLog(logToMonitor);
                 _monitorLog = true;
                 PollForUpdates();
             });
@@ -69,7 +70,7 @@ namespace SWTORCombatParser
             _combatEndTime = DateTime.MinValue;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
-            _monitorLog = true;
+            _monitorLog = false;
         }
 
         private void PollForUpdates()
@@ -117,12 +118,15 @@ namespace SWTORCombatParser
             _currentCombatData.Clear();
             for (var l = 0; l < logs.Count;l++)
             {
+                if (logs[l].Source.IsLocalPlayer)
+                    LocalPlayerIdentified(logs[l].Source);
                 CheckForCombatState(l, logs[l], false);
                 if (_isInCombat)
                 {
                     _currentCombatData.Add(logs[l]);
                 }
             }
+            LoadingWindowFactory.HideLoading();
             HistoricalLogsFinished();
         }
         private bool CheckIfStale()
@@ -147,12 +151,14 @@ namespace SWTORCombatParser
                 return;
             }
             var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
-            parsedLine.LogName = Path.GetFileName(logName);
+
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
                 return;
             }
-            //CombatLogParser.SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, _usingLiveData));
+            if (parsedLine.Source.IsLocalPlayer)
+                LocalPlayerIdentified(parsedLine.Source);
+            parsedLine.LogName = Path.GetFileName(logName);
             CheckForCombatState(lineIndex, parsedLine);
             if (_isInCombat)
             {
