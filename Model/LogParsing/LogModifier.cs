@@ -71,7 +71,8 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCharacter)
             {
-                if (state.PlayerClasses[parsedLog.Source] == null)
+                var swtorClass = state.PlayerClasses.GetOrAdd(parsedLog.Source, e=> null);
+                if (swtorClass == null)
                 {
                     parsedLog.Value.EffectiveDblValue = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source);
                     if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)

@@ -1,6 +1,7 @@
 ﻿using ScottPlot.Plottable;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Plotting;
+using SWTORCombatParser.resources;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.Views;
@@ -44,6 +45,7 @@ namespace SWTORCombatParser
         public MainWindow()
         {
             InitializeComponent();
+            LoadingWindowFactory.SetMainWindow(this);
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)

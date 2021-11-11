@@ -12,6 +12,7 @@ namespace SWTORCombatParser.Model.Overlays
     public enum OverlayType
     {
         None,
+        APM,
         DPS,
         FocusDPS,
         HPS,
@@ -37,65 +38,80 @@ namespace SWTORCombatParser.Model.Overlays
     public static class DefaultOverlayManager
     {
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
-        private static string infoPath = Path.Combine(appDataPath, "overlay_info.json");
-        public static void SetDefaults(OverlayType type, Point position, Point widtHHeight)
+        private static string infoPath = Path.Combine(appDataPath, "character_overlay_info.json");
+        public static void Init()
         {
             if (!Directory.Exists(appDataPath))
                 Directory.CreateDirectory(appDataPath);
-            var currentDefaults = GetDefaults();
-            currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
-
+            if (!File.Exists(infoPath))
+            {
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>>()));
+            }
         }
-        public static void SetActiveState(OverlayType type, bool state)
+        public static void SetDefaults(OverlayType type, Point position, Point widtHHeight, string characterName)
         {
-            var currentDefaults = GetDefaults();
+            var currentDefaults = GetDefaults(characterName);
+            currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
+            SaveResults(characterName, currentDefaults);
+        }
+        public static void SetActiveState(OverlayType type, bool state, string characterName)
+        {
+            var currentDefaults = GetDefaults(characterName);
             if (!currentDefaults.ContainsKey(type))
             {
                 currentDefaults[type] = new DefaultOverlayInfo() { Position = new Point(0,0), WidtHHeight = new Point(100,50), Acive=state };
             }
             var defaultModified = currentDefaults[type];
             currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state };
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            SaveResults(characterName, currentDefaults);
         }
-        public static Dictionary<OverlayType,DefaultOverlayInfo> GetDefaults()
+        public static Dictionary<OverlayType,DefaultOverlayInfo> GetDefaults(string characterName)
         {
-            if (!Directory.Exists(appDataPath))
-                Directory.CreateDirectory(appDataPath);
-            if (!File.Exists(infoPath))
-            {
-                InitializeDefaults();
-            }
             var stringInfo = File.ReadAllText(infoPath);
             try
             {
-                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(stringInfo);
+                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string,Dictionary<OverlayType, DefaultOverlayInfo>>>(stringInfo);
+                if (!currentDefaults.ContainsKey(characterName))
+                {
+                    InitializeDefaults(characterName);
+                }
+                var defaultsForToon = currentDefaults[characterName];
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var overlayType in enumVals)
                 {
-                    if(!currentDefaults.ContainsKey(overlayType))
-                        currentDefaults[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                    if(!defaultsForToon.ContainsKey(overlayType))
+                        defaultsForToon[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
                 }
-                return currentDefaults;
+                return defaultsForToon;
             }
             catch(Exception e)
             {
-                InitializeDefaults();
+                InitializeDefaults(characterName);
                 var resetDefaults = File.ReadAllText(infoPath);
-                return JsonConvert.DeserializeObject<Dictionary<OverlayType, DefaultOverlayInfo>>(resetDefaults);
+                return JsonConvert.DeserializeObject<Dictionary<string,Dictionary<OverlayType, DefaultOverlayInfo>>>(resetDefaults)[characterName];
             }
 
         }
-        private static void InitializeDefaults()
+        private static void SaveResults(string character, Dictionary<OverlayType, DefaultOverlayInfo> data)
         {
+            var stringInfo = File.ReadAllText(infoPath);
+            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>>>(stringInfo);
+            currentDefaults[character] = data;
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+        }
+        private static void InitializeDefaults(string characterName)
+        {
+            var stringInfo = File.ReadAllText(infoPath);
+            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>>>(stringInfo);
+            
             var defaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
             var enumVals = EnumUtil.GetValues<OverlayType>();
             foreach(var overlayType in enumVals)
             {
                 defaults[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
             }
-            File.Create(infoPath).Close();
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
+            currentDefaults[characterName] = defaults;
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
     }
     public static class EnumUtil

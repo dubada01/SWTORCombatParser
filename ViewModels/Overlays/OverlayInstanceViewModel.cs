@@ -24,10 +24,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool HasLeaderboard => Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS;
         public bool AddSecondaryToValue { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
+        public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
+        public event Action<string> OnCharacterDetected = delegate { };
         public void OverlayClosing()
         {
             OverlayClosed(this);
+        }
+        public void RequestClose()
+        {
+            CloseRequested();
         }
         public OverlayInstanceViewModel(OverlayType type)
         {
@@ -103,6 +109,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 if (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided && mitigationValues.Value.Item1 != null)
                     AddLeaderboardBar(mitigationValues.Value.Item1, mitigationValues.Value.Item2);
             }
+        }
+
+        internal void CharacterDetected(string name)
+        {
+            OnCharacterDetected(name);
         }
 
         public void Reset()
@@ -252,6 +263,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             double value = 0;
             switch (type)
             {
+                case OverlayType.APM:
+                    value = combat.APM[participant];
+                    break;
                 case OverlayType.DPS:
                     value = combat.ERegDPS[participant];
                     break;

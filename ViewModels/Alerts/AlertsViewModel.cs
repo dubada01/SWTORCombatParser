@@ -64,16 +64,16 @@ namespace SWTORCombatParser.ViewModels.Alerts
         public AlertsViewModel()
         {
             AvailableAlertTypes.ForEach(at => at.OnSelectionChanged += ConfigureSelectedAlert);
-            AlertDisplayWindow = CreateAlertWindow();
+            //AlertDisplayWindow = CreateAlertWindow();
             AlertDisplayViewModel = new AlertInstanceViewModel();
-            AlertDisplayWindow.DataContext = AlertDisplayViewModel;
+            //AlertDisplayWindow.DataContext = AlertDisplayViewModel;
             MainWindowClosing.Closing += CloseAlertWindow;
         }
 
         private void CloseAlertWindow()
         {
             App.Current.Dispatcher.Invoke(() => {
-                AlertDisplayWindow.Close();
+                //AlertDisplayWindow.Close();
             });
         }
 

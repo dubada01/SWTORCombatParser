@@ -11,7 +11,7 @@ namespace SWTORCombatParser.Plotting
 {
     public class CombatMetaDataSeries : INotifyPropertyChanged
     {
-        public event Action TriggerRender = delegate { };
+        public event Action<bool> TriggerRender = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public LegendItemViewModel Legend { get; set; }
         public Dictionary<DateTime, Tooltip> Tooltip { get; internal set; } = new Dictionary<DateTime, Tooltip>();
@@ -60,7 +60,7 @@ namespace SWTORCombatParser.Plotting
                 }
             }
 
-            TriggerRender();
+            TriggerRender(arg1||arg2);
         }
     }
 }

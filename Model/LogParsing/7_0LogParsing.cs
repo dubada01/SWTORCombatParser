@@ -139,13 +139,13 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""));
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
-                newValue.ValueType = GetValueType(valueParts[1]);
+                newValue.ValueType = GetValueType(valueParts[2]);
             }
             if (valueParts.Length == 8) // tank shielding sheilds more than damage
             {
 
                 var modifier = new Value();
-                modifier.ValueType = GetValueType(valueParts[3].Replace("-", ""));
+                modifier.ValueType = GetValueType(valueParts[6].Replace("-", ""));
 
                 modifier.DblValue = double.Parse(valueParts[5].Replace("(", ""));
                 modifier.EffectiveDblValue = modifier.DblValue;
@@ -170,7 +170,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""));
-                newValue.ValueType = GetValueType(valueParts[1]);
+                newValue.ValueType = GetValueType(valueParts[2]);
 
             }
             return newValue;
@@ -336,6 +336,8 @@ namespace SWTORCombatParser.Model.LogParsing
                     return EffectType.AreaEntered;
                 case "DisciplineChanged":
                     return EffectType.DisciplineChanged;
+                case "ModifyCharges":
+                    return EffectType.ModifyCharges;
                 default:
                     throw new Exception("No valid type");
             }

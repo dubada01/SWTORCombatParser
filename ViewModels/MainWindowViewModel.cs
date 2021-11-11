@@ -68,7 +68,6 @@ namespace SWTORCombatParser.ViewModels
 
         }
         public OverlayView OverlayView { get; set; }
-        //public RaidView RaidView { get; set; }
         public GraphView GraphView { get; set; }
         public OverviewView TableView { get; set; }
         public OverviewView HistogramView { get; set; }
@@ -126,6 +125,7 @@ namespace SWTORCombatParser.ViewModels
         private void UpdateAvailableParticipants(List<Entity> obj)
         {
             _plotViewModel.UpdateParticipants(obj);
+            _overlayViewModel.NewParticipants(obj);
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
