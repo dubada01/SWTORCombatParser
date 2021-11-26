@@ -3,7 +3,6 @@ using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.ViewModels.Raiding;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -78,42 +77,72 @@ namespace SWTORCombatParser
         private static EncounterInfo GetEncounterInfo(List<ParsedLogEntry> logs)
         {
             EncounterInfo raidOfInterest = null;
-
-            foreach (var log in logs)
-            {
-                var knownEncounters = RaidNameLoader.SupportedEncounters;
-                if(log.Target.Name == "Operations Training Dummy")
-                {
-                    raidOfInterest = new EncounterInfo() { BossInfos = new List<BossInfo>() };
-                    raidOfInterest.Name = "Parsing";
-                    raidOfInterest.BossInfos.Add(new BossInfo { 
-                        EncounterName = "Training Dummy",
-                        TargetNames = new List<string> { "Operations Training Dummy" }
-                    });
-                    raidOfInterest.Difficutly = "Parsing";
-                    raidOfInterest.NumberOfPlayer = "";
-                    return raidOfInterest;
-                }
-                if (!string.IsNullOrEmpty(log.Value.StrValue) && knownEncounters.Select(r => r.LogName).Any(ln => log.Value.StrValue.Contains(ln)) && raidOfInterest == null)
-                {
-                    raidOfInterest = knownEncounters.First(r => log.Value.StrValue.Contains(r.LogName));
-                    raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.Value.StrValue.Contains(f));
-                    if (string.IsNullOrEmpty(raidOfInterest.Difficutly))
-                    {
-                        raidOfInterest.Difficutly = "Test";
-                        //return null;
-                    }
-                    raidOfInterest.NumberOfPlayer = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.Value.StrValue.Contains(f));
-                    if (string.IsNullOrEmpty(raidOfInterest.NumberOfPlayer))
-                    {
-                        raidOfInterest.NumberOfPlayer = "";
-                        //return null;
-                    }
-                    return raidOfInterest;
-                }
-            }
-            var openWorldLocation = "";
             var enterCombatLog = logs.FirstOrDefault(l => l.Effect.EffectName == "EnterCombat");
+            var knownEncounters = RaidNameLoader.SupportedEncounters;
+            if (enterCombatLog.Target.Name == "Operations Training Dummy")
+            {
+                raidOfInterest = new EncounterInfo() { BossInfos = new List<BossInfo>() };
+                raidOfInterest.Name = "Parsing";
+                raidOfInterest.BossInfos.Add(new BossInfo
+                {
+                    EncounterName = "Training Dummy",
+                    TargetNames = new List<string> { "Operations Training Dummy" }
+                });
+                raidOfInterest.Difficutly = "Parsing";
+                raidOfInterest.NumberOfPlayer = "";
+                return raidOfInterest;
+            }
+            if (!string.IsNullOrEmpty(enterCombatLog.LogLocation) && knownEncounters.Select(r => r.LogName).Any(ln => enterCombatLog.LogLocation.Contains(ln)) && raidOfInterest == null)
+            {
+                raidOfInterest = knownEncounters.First(r => enterCombatLog.LogLocation.Contains(r.LogName));
+                raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => enterCombatLog.LogLocation.Contains(f));
+                if (string.IsNullOrEmpty(raidOfInterest.Difficutly))
+                {
+                    raidOfInterest.Difficutly = "Test";
+                    //return null;
+                }
+                raidOfInterest.NumberOfPlayer = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => enterCombatLog.LogLocation.Contains(f));
+                if (string.IsNullOrEmpty(raidOfInterest.NumberOfPlayer))
+                {
+                    raidOfInterest.NumberOfPlayer = "";
+                    //return null;
+                }
+                return raidOfInterest;
+            }
+            //foreach (var log in logs)
+            //{
+            //    var knownEncounters = RaidNameLoader.SupportedEncounters;
+            //    if(log.Target.Name == "Operations Training Dummy")
+            //    {
+            //        raidOfInterest = new EncounterInfo() { BossInfos = new List<BossInfo>() };
+            //        raidOfInterest.Name = "Parsing";
+            //        raidOfInterest.BossInfos.Add(new BossInfo { 
+            //            EncounterName = "Training Dummy",
+            //            TargetNames = new List<string> { "Operations Training Dummy" }
+            //        });
+            //        raidOfInterest.Difficutly = "Parsing";
+            //        raidOfInterest.NumberOfPlayer = "";
+            //        return raidOfInterest;
+            //    }
+            //    if (!string.IsNullOrEmpty(log.LogLocation) && knownEncounters.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)) && raidOfInterest == null)
+            //    {
+            //        raidOfInterest = knownEncounters.First(r => log.LogLocation.Contains(r.LogName));
+            //        raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
+            //        if (string.IsNullOrEmpty(raidOfInterest.Difficutly))
+            //        {
+            //            raidOfInterest.Difficutly = "Test";
+            //            //return null;
+            //        }
+            //        raidOfInterest.NumberOfPlayer = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
+            //        if (string.IsNullOrEmpty(raidOfInterest.NumberOfPlayer))
+            //        {
+            //            raidOfInterest.NumberOfPlayer = "";
+            //            //return null;
+            //        }
+            //        return raidOfInterest;
+            //    }
+            //}
+            var openWorldLocation = "";
             if (enterCombatLog != null)
             {
                 openWorldLocation = ": " + enterCombatLog.Value.StrValue;

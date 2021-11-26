@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +11,14 @@ namespace SWTORCombatParser.Model.LogParsing
 {
     public static class _7_0LogParsing
     {
-        private static ConcurrentBag<Entity> _currentEntities = new ConcurrentBag<Entity>();
+        private static ConcurrentDictionary<long,Entity> _currentEntities = new ConcurrentDictionary<long, Entity>();
+
         private static DateTime _dateTime;
-        public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, ConcurrentBag<Entity> currentEntities)
+        public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, List<string> parsedLineInfo)
         {
             _dateTime = logDate;
-            _currentEntities = currentEntities;
 
-            var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
+            var logEntryInfos = parsedLineInfo;
 
             var secondPart = logEntry.Split(']').Last();
             var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
@@ -25,19 +27,11 @@ namespace SWTORCombatParser.Model.LogParsing
             if (logEntryInfos.Count < 5)
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
 
-            var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
+            var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
             parsedLine.LogText = logEntry;
             parsedLine.LogLineNumber = lineIndex;
 
             return parsedLine;
-        }
-        private static void ParseLogStartLine(string[] entryInfos)
-        {
-            var player = _currentEntities.FirstOrDefault(e => CleanString(entryInfos[2]).Split(':')[0].Split('#')[0].Replace("@", "") == e.Name);
-            if (player == null)
-                ParseEntity(CleanString(entryInfos[1]), true);
-            else
-                player.IsLocalPlayer = true;
         }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {
@@ -48,26 +42,41 @@ namespace SWTORCombatParser.Model.LogParsing
 
 
                 
-            var time = DateTime.Parse(CleanString(entryInfo[0]));
+            var time = DateTime.Parse(entryInfo[0]);
             var date = new DateTime(_dateTime.Year, _dateTime.Month, _dateTime.Day);
             var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
             newEntry.TimeStamp = newDate;
 
-            newEntry.SourceInfo = ParseEntity(CleanString(entryInfo[1]));
-            if (CleanString(entryInfo[2]) == "=")
+            newEntry.SourceInfo = ParseEntity(entryInfo[1]);
+            if (entryInfo[2] == "=")
                 newEntry.TargetInfo = newEntry.SourceInfo;
             else
-                newEntry.TargetInfo = ParseEntity(CleanString(entryInfo[2]));
-            newEntry.Ability = ParseAbility(CleanString(entryInfo[3]));
-            newEntry.Effect = ParseEffect(CleanString(entryInfo[4]));
+                newEntry.TargetInfo = ParseEntity(entryInfo[2]);
+            newEntry.Ability = ParseAbility(entryInfo[3]);
+            newEntry.Effect = ParseEffect(entryInfo[4]);
             if (newEntry.Effect.EffectType == EffectType.AreaEntered)
-                newEntry.SourceInfo.Entity.IsLocalPlayer = true;
+            {
+                newEntry.SourceInfo.Entity.IsLocalPlayer = true; 
+            }
+            if(newEntry.Effect.EffectType == EffectType.DisciplineChanged)
+            {
+                newEntry.SourceInfo.Class = GetClassFromDicipline(newEntry.Effect.EffectName);
+            }
             newEntry.Value = ParseValues(value, newEntry.Effect);
             if(!threat.Contains('.'))
                 newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : int.Parse(threat.Replace("<", "").Replace(">", ""));
 
             return newEntry;
         }
+
+        private static SWTORClass GetClassFromDicipline(string effectName)
+        {
+            var parts = effectName.Split('/');
+            var className = parts[0].Split('{')[0];
+            var spec = parts[1].Split('{')[0];
+            return ClassIdentifier.IdentifyClass(spec);
+        }
+
         private static Value ParseValues(string valueString, Effect currentEffect)
         {
             if (currentEffect.EffectType == EffectType.Apply && (currentEffect.EffectName == "Damage" || currentEffect.EffectName == "Heal"))
@@ -184,7 +193,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var name = entityParts[0];
             var position = entityParts[1];
             var hpInfo = entityParts[2];
-
+            
             AddEntity(isPlayer, entityToReturn, name);
             AddPosition(entityToReturn, position);
             AddHPInfo(entityToReturn, hpInfo);
@@ -197,8 +206,8 @@ namespace SWTORCombatParser.Model.LogParsing
             entityInfo.Position = new PositionData()
             {
                 X = double.Parse(positionParts[0]),
-                Z = double.Parse(positionParts[1]),
-                Y = double.Parse(positionParts[2]),
+                Y = double.Parse(positionParts[1]),
+                Z = double.Parse(positionParts[2]),
                 Facing = double.Parse(positionParts[3])
             };
         }
@@ -213,52 +222,68 @@ namespace SWTORCombatParser.Model.LogParsing
             if (name.Contains("@") && !name.Contains(":"))
             {
                 var characterName = name.Split('#')[0].Replace("@", "");
-                var existingCharacterEntity = _currentEntities.FirstOrDefault(e => e.Name == characterName);
-                if (existingCharacterEntity != null)
-                {
-                    entityToReturn.Entity = existingCharacterEntity;
-                }
-                else
-                {
-                    var characterEntity = new Entity() { IsCharacter = true, Name = characterName, IsLocalPlayer = isPlayer };
-                    _currentEntities.Add(characterEntity);
-                    entityToReturn.Entity = characterEntity;
-                }
-            }
-            if (name.Contains("@") && name.Contains(":"))
-            {
-                var valueToUse = name;
-                var compaionName = valueToUse.Split(':')[1];
-                if (name.Contains("/"))
-                {
-                    valueToUse = name.Split('/')[1];
-                    compaionName = valueToUse.Split(':')[0];
-                }
+                var id = long.Parse(name.Split('#')[1]);
 
-                var companionNameComponents = compaionName.Split('{');
-                var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == companionNameComponents[0].Trim());
-                if (existingCompanionEntity != null)
-                    entityToReturn.Entity = existingCompanionEntity;
-                else
-                {
-                    var companion = new Entity() { IsCharacter = false, IsCompanion = true, Name = companionNameComponents[0].Trim() };
-                    _currentEntities.Add(companion);
-                    entityToReturn.Entity = companion;
-                }
+                    if (_currentEntities.ContainsKey(id))
+                    {
+                        entityToReturn.Entity = _currentEntities[id];
+                    }
+                    else
+                    {
+                        var characterEntity = new Entity() { IsCharacter = true, Name = characterName, IsLocalPlayer = isPlayer, Id = id };
+                        _currentEntities[id]=(characterEntity);
+                        entityToReturn.Entity = characterEntity;
+
+                    }
+
             }
+            //if (name.Contains("@") && name.Contains(":"))
+            //{
+            //    var valueToUse = name;
+            //    var compaionName = valueToUse.Split(':')[1];
+            //    if (name.Contains("/"))
+            //    {
+            //        valueToUse = name.Split('/')[1];
+            //        compaionName = valueToUse.Split(':')[0];
+            //    }
+
+            //    var companionNameComponents = compaionName.Split('{');
+            //    var compName = companionNameComponents[0].Trim();
+
+            //        var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == companionNameComponents[0].Trim());
+            //        if (existingCompanionEntity != null)
+            //        {
+            //            entityToReturn.Entity = existingCompanionEntity;
+
+
+            //        }
+            //        else
+            //        {
+            //            var companion = new Entity() { IsCharacter = false, IsCompanion = true, Name = companionNameComponents[0].Trim() };
+            //            _currentEntities.Add(companion);
+            //            entityToReturn.Entity = companion;
+
+            //    }
+
+            //}
             if (entityToReturn.Entity.Name == null)
             {
+                var id = long.Parse(name.Split(':')[1]);
                 var splitVal = name.Split('{');
                 var entityName = splitVal[0].Trim();
-                var existingEntity = _currentEntities.FirstOrDefault(e => e.Name == entityName);
-                if (existingEntity != null)
-                    entityToReturn.Entity = existingEntity;
+                if (_currentEntities.ContainsKey(id))
+                {
+                    entityToReturn.Entity = _currentEntities[id];
+
+                }
                 else
                 {
                     var newEntity = new Entity();
                     newEntity.Name = entityName;
-                    _currentEntities.Add(newEntity);
+                    newEntity.Id = id;
+                    _currentEntities[id]=(newEntity);
                     entityToReturn.Entity = newEntity;
+
                 }
             }
         }
@@ -276,11 +301,17 @@ namespace SWTORCombatParser.Model.LogParsing
             var type = split[0];
             var name = split[1];
             var newEffect = new Effect();
+            newEffect.EffectType = GetEffectType(type.Split('{')[0].Trim());
 
             var splitName = name.Split('{');
-            newEffect.EffectName = splitName[0].Trim();
-
-            newEffect.EffectType = GetEffectType(type.Split('{')[0].Trim());
+            if(newEffect.EffectType == EffectType.AreaEntered)
+            {
+                var difficulty = splitName.Length > 1 ? splitName[1].Split('}')[1].Trim() : "";
+                var areaInfo = splitName[0].Trim() + " " + difficulty;
+                newEffect.EffectName = areaInfo;
+            }
+            else
+                newEffect.EffectName = splitName[0].Trim();
 
             return newEffect;
         }
@@ -341,11 +372,6 @@ namespace SWTORCombatParser.Model.LogParsing
                 default:
                     throw new Exception("No valid type");
             }
-        }
-
-        private static string CleanString(string input)
-        {
-            return input.Replace("[", "").Replace("]", "");
         }
     }
 }

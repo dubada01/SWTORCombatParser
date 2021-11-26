@@ -25,7 +25,6 @@ namespace SWTORCombatParser.ViewModels
         private SoftwareLogViewModel _softwareLogViewModel;
         private OverviewViewModel _histViewModel;
         private BattleReviewViewModel _reviewViewModel;
-       // private RaidViewModel _raidViewModel;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public string Title { get; set; }

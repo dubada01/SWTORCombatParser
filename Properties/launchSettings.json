@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SWTORCombatParser": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

@@ -15,14 +15,9 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             _availableClasses = ClassLoader.LoadAllClasses();
         }
-        public static SWTORClass IdentifyClass(ParsedLogEntry combatLog)
+        public static SWTORClass IdentifyClass(string dicipline)
         {
-            foreach(var swtorClass in _availableClasses)
-            {
-                if (swtorClass.UniqueAbilities.Any(a => combatLog.Ability == a && combatLog.Effect.EffectType == EffectType.Apply))
-                    return swtorClass;
-            }
-            return null;
+            return _availableClasses.FirstOrDefault(c => c.Discipline == dicipline);
         }
     }
 }
