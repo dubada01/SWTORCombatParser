@@ -97,7 +97,7 @@ namespace SWTORCombatParser
             {
                 var allLogEntries = sr.ReadToEnd().Split('\n');
                 _newNumberOfEntries = allLogEntries.Length;
-                if (_newNumberOfEntries - 1 == _numberOfEntries)
+                if (_newNumberOfEntries - 1 <= _numberOfEntries)
                     return;
 
                 for (var line = _numberOfEntries; line < allLogEntries.Length; line++)
@@ -176,7 +176,7 @@ namespace SWTORCombatParser
                 _combatEnding = false;
                 _isInCombat = true;
                 _currentCombatStartTime = parsedLine.TimeStamp;
-                var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = parsedLine.Value.StrValue };
+                var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = parsedLine.LogLocation };
                 if(shouldUpdateOnNewCombat)
                     CombatUpdated(updateMessage);
             }

@@ -1,12 +1,8 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CloudRaiding;
-using SWTORCombatParser.Model.CombatParsing;
+﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.ViewModels.Raiding;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -32,19 +28,21 @@ namespace SWTORCombatParser
             {
                 if (_logDate == DateTime.MinValue)
                 _logDate = DateTime.Now;
-                var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
+                //var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
+                var listEntries = GetInfoComponents(logEntry);
 
                 if (logEntry.Contains('|'))
-                    return _7_0LogParsing.ParseLog(logEntry, lineIndex, _logDate,_currentEntities);
+                    return _7_0LogParsing.ParseLog(logEntry, lineIndex, _logDate, listEntries);
 
                 var secondPart = logEntry.Split(']').Last();
                 var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
                 var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
 
-                if (logEntryInfos.Count < 5 || string.IsNullOrEmpty(value.Value))
+                if (listEntries.Count < 5 || string.IsNullOrEmpty(value.Value))
                     return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
 
-                var parsedLine = ExtractInfo(logEntryInfos.Select(v => v.Value).ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
+                var parsedLine = ExtractInfo(listEntries.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
+
                 parsedLine.LogText = logEntry;
                 parsedLine.LogLineNumber = lineIndex;
                 if (parsedLine.Source == parsedLine.Target && parsedLine.Source.IsCharacter)
@@ -61,7 +59,30 @@ namespace SWTORCombatParser
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
             }
         }
-
+        private static List<string> GetInfoComponents(string log)
+        {
+            var returnValues = new List<string>();
+            int startIndex = 0;
+            int numberOfCloses = 0;
+            for(var i = 0;i<log.Length;i++)
+            {
+                if (log[i] == '[')
+                {
+                    startIndex = i+1;
+                    continue;
+                }
+                if (log[i] == ']')
+                { 
+                    returnValues.Add(log.Substring(startIndex,i-startIndex));
+                    numberOfCloses++;
+                    if (numberOfCloses == 5)
+                        return returnValues;
+                    else
+                        continue;
+                }
+            }
+            return returnValues;
+        }
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
             _logDate = combatLog.Time;
@@ -79,12 +100,33 @@ namespace SWTORCombatParser
                     return;
                 parsedLog[i] = parsedLine;
                 parsedLog[i].LogName = combatLog.Name;
-            });
+            }
+            );
+            UpdateLogLocationsFor7_0(parsedLog);
             var orderdedLog = parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp);
-            UpdateStateAndLogs(orderdedLog.ToList(),false);
+            UpdateStateAndLogs(orderdedLog.ToList(), false);
 
             CombatTimestampRectifier.RectifyTimeStamps(orderdedLog.ToList());
             return orderdedLog.ToList();
+        }
+
+        private static void UpdateLogLocationsFor7_0(ParsedLogEntry[] parsedLog)
+        {
+            var areaChangedLogs = parsedLog.Where(l => l != null && l.Effect.EffectType == EffectType.AreaEntered).ToList();
+            for (var i = 0; i < areaChangedLogs.Count; i++)
+            {
+                List<ParsedLogEntry> logsInScope = new List<ParsedLogEntry>();
+                if (i < areaChangedLogs.Count - 1)
+                {
+                    logsInScope = parsedLog.Where(l => l != null && l.TimeStamp > areaChangedLogs[i].TimeStamp && l.TimeStamp <= areaChangedLogs[i + 1].TimeStamp).ToList();
+                }
+                else
+                {
+                    logsInScope = parsedLog.Where(l => l != null && l.TimeStamp > areaChangedLogs[i].TimeStamp).ToList();
+                }
+                logsInScope.ForEach(l => l.LogLocation = areaChangedLogs[i].Effect.EffectName);
+                logsInScope.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "EnterCombat").ToList().ForEach(l => l.Value.StrValue = areaChangedLogs[i].Effect.EffectName);
+            }
         }
 
         private static void UpdateStateAndLogs(List<ParsedLogEntry> orderdedLog, bool realTime)
@@ -97,6 +139,7 @@ namespace SWTORCombatParser
             {
                 LogModifier.UpdateLogWithState(line, _logState);
             });
+            LogModifier.StartUpdateOfModifiersActiveForLogs(orderdedLog, _logState);
         }
 
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
@@ -105,10 +148,8 @@ namespace SWTORCombatParser
                 return null;
 
             var newEntry = new ParsedLogEntry();
-
             var extractionOffset = entryInfo.Count() == 6 ? 0 : 1;
-            if(extractionOffset == 0)
-                newEntry.Position= ParsePositionData(entryInfo[0]);
+
             var time = DateTime.Parse(CleanString(entryInfo[1-extractionOffset]));
             var date = new DateTime(_logDate.Year, _logDate.Month, _logDate.Day);
 
@@ -123,11 +164,6 @@ namespace SWTORCombatParser
             newEntry.Threat =string.IsNullOrEmpty(threat) ? 0 : int.Parse(threat.Replace("<","").Replace(">",""));
                
             return newEntry;
-        }
-        private static PositionData ParsePositionData(string positionString)
-        {
-            var elements = CleanString(positionString).Replace("{","").Replace("}","").Split(',');
-            return new PositionData { X = double.Parse(elements[1]), Y = double.Parse(elements[2]), Facing = double.Parse(elements[0]) };
         }
         private static Value ParseValues(string valueString, Effect currentEffect)
         {

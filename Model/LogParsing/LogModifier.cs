@@ -53,17 +53,27 @@ namespace SWTORCombatParser.Model.LogParsing
         public static void UpdateLogWithState(ParsedLogEntry parsedLog, LogState state)
         {
             UpdateEffectiveHealing(parsedLog, state);
-            UpdateLogBuffs(parsedLog, state);
         }
-        public static void UpdateLogBuffs(ParsedLogEntry log, LogState state)
+
+        public static void StartUpdateOfModifiersActiveForLogs(List<ParsedLogEntry> logs,LogState state)
         {
-            var modifiers = state.GetCombatModifiersAtTimeInvolvingParticipants(log.TimeStamp, log.Source, log.Target);
-            var usableModifiers = modifiers.Where(m => !_effectsToIgnore.Any(e => m.Name.Contains(e)));
-            var buffs = usableModifiers.Where(m => _offensiveBuffs.Any(b => m.Name==b) || _raidBuffNames.Any(rb=>m.Name ==  rb));
+            Task.Run(() => {
+                Parallel.ForEach(logs, new ParallelOptions { MaxDegreeOfParallelism = 3 }, log =>
+                 {
+                     var modifiers = state.GetCombatModifiersAtTimeInvolvingParticipants(log.TimeStamp, log.Source, log.Target);
+                     var usableModifiers = modifiers.Where(m => !_effectsToIgnore.Any(e => m.Name.Contains(e))).ToList();
+                     if(usableModifiers.Any())
+                        UpdateLogBuffs(log, usableModifiers);
+                 });
+            });
+        }
+        private static void UpdateLogBuffs(ParsedLogEntry log, List<CombatModifier> usableModifiers)
+        {
+            var buffs = usableModifiers.Where(m => _offensiveBuffs.Any(b => m.Name == b) || _raidBuffNames.Any(rb => m.Name == rb));
             var buffsForSource = buffs.Where(b => b.Target == log.Source);
             log.Value.Buffs = buffsForSource.ToList();
 
-            var defbuffs = usableModifiers.Where(m => _defensiveBuffs.Any(b => m.Name == b)|| _tankCooldowns.Any(tc=>tc == m.Name));
+            var defbuffs = usableModifiers.Where(m => _defensiveBuffs.Any(b => m.Name == b) || _tankCooldowns.Any(tc => tc == m.Name));
             var defBuffsForTarget = defbuffs.Where(db => db.Target == log.Target);
             log.Value.DefensiveBuffs = defBuffsForTarget.ToList();
         }

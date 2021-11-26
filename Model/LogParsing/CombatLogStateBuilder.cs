@@ -115,10 +115,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
-            var swtorClass = ClassIdentifier.IdentifyClass(parsedLine);
-            if (swtorClass == null)
-                return;
-            CurrentState.PlayerClasses[parsedLine.Source] = swtorClass;
+            CurrentState.PlayerClasses[parsedLine.Source] = parsedLine.SourceInfo.Class;
 
         }
 

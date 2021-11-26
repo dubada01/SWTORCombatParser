@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.LogParsing;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace SWTORCombatParser
         public string LogName;
         public string LogText;
         public long LogLineNumber { get; set; }
-        public PositionData Position { get; set; }
+        public string LogLocation { get; set; }
         public DateTime TimeStamp { get; set; }
         public double SecondsSinceCombatStart { get; set; }
         public Entity Source => SourceInfo?.Entity;
@@ -24,7 +25,6 @@ namespace SWTORCombatParser
         public Effect Effect { get; set; }
         public Value Value { get; set; }
         public int Threat { get; set; }
-
     }
     public class PositionData
     {
@@ -41,12 +41,14 @@ namespace SWTORCombatParser
     public class Entity
     {
         public string Name { get; set; }
+        public long Id { get; set; }
         public bool IsCharacter;
         public bool IsLocalPlayer;
         public bool IsCompanion;
     }
     public class EntityInfo
     {
+        public SWTORClass Class { get; set; }
         public Entity Entity { get; set; } = new Entity();
         public PositionData Position { get; set; } = new PositionData();
         public double MaxHP { get; set; }

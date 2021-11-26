@@ -49,8 +49,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 healsModifier -= 0.1d;
             if (_tankDisciplines.Contains(classOfSource.Discipline))
                 healsModifier += 1.5d;
-            if (GetCombatModifiersAtTime(timeStamp).Any(m => m.Type == CombatModfierType.GuardedThreatReduced))
-                healsModifier -= .25d; //healsPerThreat *= 1.25;
+            //if (GetCombatModifiersAtTime(timeStamp).Any(m => m.Type == CombatModfierType.GuardedThreatReduced))
+            //    healsModifier -= .25d; //healsPerThreat *= 1.25;
             return healsPerThreat/healsModifier;
         }
         public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
