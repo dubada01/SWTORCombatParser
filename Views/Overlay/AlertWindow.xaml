@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="AlertWindow" Height="450" Width="800" Background="Transparent" WindowStyle="None" AllowsTransparency="True" Topmost="True">
     <Grid>
-        <TextBlock Text="{Binding AlertText}" FontSize="75" Foreground="DarkOrange" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+        <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding AlertText}" FontSize="75" Foreground="DarkOrange" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
     </Grid>
 </Window>

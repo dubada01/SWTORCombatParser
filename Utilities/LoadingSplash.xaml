@@ -10,7 +10,7 @@
     <Border Background="WhiteSmoke" CornerRadius="10" BorderThickness="2" BorderBrush="LightGray">
         <Grid>
             <Image Width="100" gif:ImageBehavior.AnimatedSource="../resources/Loading.gif" HorizontalAlignment="Left" Margin="75,0,0,0"></Image>
-            <TextBlock FontSize="60" FontWeight="DemiBold" Text="Loading..." HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,75,0"></TextBlock>
+            <TextBlock FontFamily="{StaticResource MainFont}" FontSize="60" FontWeight="DemiBold" Text="Loading..." HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,75,0"></TextBlock>
         </Grid>
     </Border>
 

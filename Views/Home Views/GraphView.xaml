@@ -8,6 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="{Binding ParticipantSelectionHeight}"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="0.1*"/>
         </Grid.RowDefinitions>
@@ -15,9 +16,10 @@
             <ColumnDefinition Width="0.8*"/>
             <ColumnDefinition Width="0.2*"/>
         </Grid.ColumnDefinitions>
-        <Image Margin="60,45,70,75" Source="../resources/SwtorLogo.png"></Image>
-        <ContentPresenter Content="{Binding GraphView}" MouseMove="GridView_MouseMove" Margin="5" Name="GridView" Grid.RowSpan="1"></ContentPresenter>
-        <Border Margin="50,0,50,0" Background="DimGray" CornerRadius="5,5,0,0" Grid.Row="1" HorizontalAlignment="Center" BorderBrush="LightGray" BorderThickness="0">
+        <ContentPresenter Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="0" Content="{Binding ParticipantSelectionContent}"></ContentPresenter>
+        <Image Grid.Row="1" Margin="60,45,70,75" Source="../resources/SwtorLogo.png"></Image>
+        <ContentPresenter Grid.Row="1" Content="{Binding GraphView}" MouseMove="GridView_MouseMove" Margin="0" Name="GridView" Grid.RowSpan="1"></ContentPresenter>
+        <Border Margin="50,0,50,0" Background="DimGray" CornerRadius="5,5,0,0" Grid.Row="2" HorizontalAlignment="Center" BorderBrush="LightGray" BorderThickness="0">
             <Viewbox MaxHeight="80" MaxWidth="900" Margin="5,0,5,0">
                 <ItemsControl BorderThickness="0" ItemsSource="{Binding LegendItems}" Background="Transparent">
                     <ItemsControl.ItemsPanel>
@@ -37,10 +39,10 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <CheckBox  Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding Checked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
-                                <TextBlock VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="{Binding Name}" Foreground="{Binding LegendColor}"></TextBlock>
+                                <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="{Binding Name}" Foreground="{Binding LegendColor}"></TextBlock>
 
                                 <CheckBox Visibility="{Binding ShowEffective}"  Grid.Row="1" Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding EffectiveChecked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
-                                <TextBlock Visibility="{Binding ShowEffective}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Show effective" Foreground="WhiteSmoke"></TextBlock>
+                                <TextBlock FontFamily="{StaticResource MainFont}" Visibility="{Binding ShowEffective}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Show effective" Foreground="WhiteSmoke"></TextBlock>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -48,6 +50,6 @@
             </Viewbox>
 
         </Border>
-        <ContentPresenter Content="{Binding CombatMetaDataView}" Grid.Column="1"></ContentPresenter>
+        <ContentPresenter Grid.Row="1" Grid.RowSpan="2" Content="{Binding CombatMetaDataView}" Grid.Column="1"></ContentPresenter>
     </Grid>
 </UserControl>

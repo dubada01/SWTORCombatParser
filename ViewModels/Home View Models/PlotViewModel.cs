@@ -4,14 +4,19 @@ using ScottPlot.Renderable;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
+using SWTORCombatParser.ViewModels.Home_View_Models;
+using SWTORCombatParser.Views.Home_Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace SWTORCombatParser.Plotting
@@ -25,23 +30,36 @@ namespace SWTORCombatParser.Plotting
         SheildedDamageTaken,
         HPPercent
     }
-    public class PlotViewModel
+    public class PlotViewModel:INotifyPropertyChanged
     {
         private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
         private List<CombatMetaDataSeries> _seriesToPlot = new List<CombatMetaDataSeries>();
         private List<Combat> _currentCombats = new List<Combat>();
         private CombatMetaDataViewModel _combatMetaDataViewModel;
+        private ParticipantSelectionViewModel _participantsViewModel;
         private object graphLock = new object();
         private Entity _currentParticipant;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
         public PlotViewModel()
         {
             _combatMetaDataViewModel = new CombatMetaDataViewModel();
-            _combatMetaDataViewModel.OnNewParticipantSelected += SeletedParticipant;
+            //_combatMetaDataViewModel.OnNewParticipantSelected += SelectParticipant;
             _combatMetaDataViewModel.OnEffectSelected += HighlightEffect;
             _combatMetaDataViewModel.OnEffectsCleared += ResetEffectVisuals;
             CombatMetaDataView = new CombatMetaDataView(_combatMetaDataViewModel);
 
+            ParticipantSelectionContent = new ParticipantSelectionView();
+            _participantsViewModel = new ParticipantSelectionViewModel();
+            _participantsViewModel.ParticipantSelected += SelectParticipant;
+
+            ParticipantSelectionContent.DataContext = _participantsViewModel;
             GraphView = new WpfPlot();
             GraphView.Plot.XLabel("Combat Duration (s)");
             GraphView.Plot.YLabel("Value");
@@ -57,11 +75,13 @@ namespace SWTORCombatParser.Plotting
             GraphView.Refresh();
         }
         private Entity SelectedParticipant => _currentParticipant == null || !_currentCombats.First().CharacterParticipants.Contains(_currentParticipant) ? _currentCombats.First().CharacterParticipants.First() : _currentParticipant;
-        private void SeletedParticipant(Entity obj)
+        private void SelectParticipant(Entity obj)
         {
             if (_currentParticipant == obj)
                 return;
+            
             _currentParticipant = obj;
+            _combatMetaDataViewModel.SelectedParticipant = _currentParticipant;
             lock (graphLock)
             {
                 GraphView.Plot.Clear();
@@ -74,7 +94,8 @@ namespace SWTORCombatParser.Plotting
 
             }
         }
-
+        public ParticipantSelectionView ParticipantSelectionContent { get; set; }
+        public GridLength ParticipantSelectionHeight { get; set; }
         public CombatMetaDataView CombatMetaDataView { get; set; }
         public WpfPlot GraphView { get; set; }
         public ObservableCollection<LegendItemViewModel> LegendItems { get; set; }
@@ -128,11 +149,15 @@ namespace SWTORCombatParser.Plotting
 
         internal void UpdateParticipants(List<Entity> obj)
         {
-            _combatMetaDataViewModel.AvailableParticipants = obj; 
+            ParticipantSelectionHeight = obj.Count > 4? new GridLength(0.25, GridUnitType.Star): new GridLength(0.125, GridUnitType.Star);
+            OnPropertyChanged("ParticipantSelectionHeight");
+            _combatMetaDataViewModel.AvailableParticipants = obj;
+            _participantsViewModel.SetParticipants(obj);
         }
 
         public void UpdateLivePlot(Combat updatedCombat)
         {
+            _participantsViewModel.UpdateParticipantsData(updatedCombat);
             lock (graphLock)
             {
                 ResetEffectVisuals();
@@ -148,6 +173,7 @@ namespace SWTORCombatParser.Plotting
         }
         public void AddCombatPlot(Combat combatToPlot)
         {
+            _participantsViewModel.UpdateParticipantsData(combatToPlot);
             lock (graphLock)
             {
                 ResetEffectVisuals();

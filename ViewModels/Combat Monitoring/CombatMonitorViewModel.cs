@@ -295,7 +295,8 @@ namespace SWTORCombatParser.ViewModels
         private void HistoricalLogsFinished()
         {
             GenerateHistoricalCombats();
-            if(CurrentEncounter!=null)
+            LoadingWindowFactory.HideLoading();
+            if (CurrentEncounter!=null)
                 AddCombat(CurrentEncounter.OverallCombat, true);
             _numberOfSelectedCombats = 0;
             _usingHistoricalData = false;
@@ -419,11 +420,12 @@ namespace SWTORCombatParser.ViewModels
                 selectedCombat.IsSelected = false;
                 return;
             }
+            ParticipantsUpdated(selectedCombat.Combat.CharacterParticipants);
             OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
             OnCombatSelected(selectedCombat.Combat);
             
             CombatSelectionMonitor.FireNewCombat(selectedCombat.Combat);
-            ParticipantsUpdated(selectedCombat.Combat.CharacterParticipants);
+            
         }
         private void NewCombatStatusAlert(CombatStatusUpdate update)
         {

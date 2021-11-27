@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.ParticipantInstanceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Home_Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="45" d:DesignWidth="200">
+
+    <Border PreviewMouseDown="Border_PreviewMouseDown" Margin="5" Padding="5,5,5,0"
+                Background="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBackgroundConverter}, UpdateSourceTrigger=PropertyChanged}" 
+                BorderBrush="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBoarderConverter}, UpdateSourceTrigger=PropertyChanged}" BorderThickness="5" CornerRadius="4">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="{Binding RoleImageSource}"></Image>
+                <Viewbox>
+                    <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="{Binding PlayerName}"/>
+                </Viewbox>
+              
+            </StackPanel>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.33*"/>
+                    <ColumnDefinition Width="0.33*"/>
+                    <ColumnDefinition Width="0.33*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox HorizontalAlignment="Left" Grid.Column="0" Margin="2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="DPS:"/>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{StaticResource ParticipantDPSBrush}" Text="{Binding DPS}"/>
+                    </StackPanel>
+                </Viewbox>
+                <Viewbox HorizontalAlignment="Left" Grid.Column="1" Margin="2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="HPS:"/>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{StaticResource ParticipantHPSBrush}" Text="{Binding HPS}"/>
+                    </StackPanel>
+                </Viewbox>
+                <Viewbox HorizontalAlignment="Left" Grid.Column="2" Margin="2">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="DTPS:"/>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{StaticResource ParticipantDTPSBrush}" Text="{Binding DTPS}"/>
+                    </StackPanel>
+                </Viewbox>
+            </Grid>
+            <Image MaxHeight="15" Source="../../resources/LocalPlayerIcon.png" Visibility="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
+        </Grid>
+    </Border>
+</UserControl>

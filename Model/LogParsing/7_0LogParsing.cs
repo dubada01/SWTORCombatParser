@@ -73,7 +73,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             var parts = effectName.Split('/');
             var className = parts[0].Split('{')[0];
-            var spec = parts[1].Split('{')[0];
+            var spec = parts[1].Split('{')[0].Trim();
             return ClassIdentifier.IdentifyClass(spec);
         }
 
@@ -304,15 +304,21 @@ namespace SWTORCombatParser.Model.LogParsing
             newEffect.EffectType = GetEffectType(type.Split('{')[0].Trim());
 
             var splitName = name.Split('{');
-            if(newEffect.EffectType == EffectType.AreaEntered)
+            if (newEffect.EffectType == EffectType.DisciplineChanged)
             {
-                var difficulty = splitName.Length > 1 ? splitName[1].Split('}')[1].Trim() : "";
-                var areaInfo = splitName[0].Trim() + " " + difficulty;
-                newEffect.EffectName = areaInfo;
+                newEffect.EffectName = name;
             }
             else
-                newEffect.EffectName = splitName[0].Trim();
-
+            {
+                if (newEffect.EffectType == EffectType.AreaEntered)
+                {
+                    var difficulty = splitName.Length > 1 ? splitName[1].Split('}')[1].Trim() : "";
+                    var areaInfo = splitName[0].Trim() + " " + difficulty;
+                    newEffect.EffectName = areaInfo;
+                }
+                else
+                    newEffect.EffectName = splitName[0].Trim();
+            }
             return newEffect;
         }
         private static DamageType GetValueType(string val)

@@ -21,43 +21,43 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Viewbox Grid.Row="0" Grid.ColumnSpan="4" MaxHeight="35" HorizontalAlignment="Left">
-                <TextBlock FontWeight="Bold"  Margin="0,0,0,5"  Text="{Binding Category}" Foreground="{Binding Color}"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" FontWeight="Bold"  Margin="0,0,0,5"  Text="{Binding Category}" Foreground="{Binding Color}"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="30" Grid.Row="1" Grid.Column="0"  HorizontalAlignment="Right">
-                <TextBlock  Margin="5,0,5,0" Text="{Binding TotalLabel}" Foreground="WhiteSmoke"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}"  Margin="5,0,5,0" Text="{Binding TotalLabel}" Foreground="WhiteSmoke"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="25" Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Left" >
-                <TextBlock Margin="5,0,5,0" Text="{Binding TotalValue}" Foreground="{Binding Color}"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding TotalValue}" Foreground="{Binding Color}"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="30" Grid.Row="2" Grid.Column="0"  HorizontalAlignment="Right" >
-                <TextBlock Margin="5,0,5,0" Text="{Binding MaxLabel}" Foreground="WhiteSmoke"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding MaxLabel}" Foreground="WhiteSmoke"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="25" Grid.Row="2" Grid.Column="1"  HorizontalAlignment="Left" >
-                <TextBlock Margin="5,0,5,0" Text="{Binding MaxValue}" Foreground="{Binding Color}"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding MaxValue}" Foreground="{Binding Color}"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="30" Grid.Row="3" Grid.Column="0"  HorizontalAlignment="Right">
-                <TextBlock  Margin="5,0,5,0" Text="{Binding RateLabel}" Foreground="WhiteSmoke"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding RateLabel}" Foreground="WhiteSmoke"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="25" Grid.Row="3" Grid.Column="1"  HorizontalAlignment="Left" >
-                <TextBlock Margin="5,0,5,0" Text="{Binding RateValue}" Foreground="{Binding Color}"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding RateValue}" Foreground="{Binding Color}"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="30" Grid.Row="1" Grid.Column="2"  HorizontalAlignment="Right">
-                <TextBlock  Margin="5,0,5,0" Text="{Binding EffectiveTotalLabel}" Foreground="WhiteSmoke"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding EffectiveTotalLabel}" Foreground="WhiteSmoke"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="25" Grid.Row="1" Grid.Column="3"  HorizontalAlignment="Left" >
-                <TextBlock Margin="5,0,5,0" Text="{Binding EffectiveTotalValue}" Foreground="{Binding Color}"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding EffectiveTotalValue}" Foreground="{Binding Color}"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="30" Grid.Row="2" Grid.Column="2"  HorizontalAlignment="Right" >
-                <TextBlock Margin="5,0,5,0" Text="{Binding EffectiveMaxLabel}" Foreground="WhiteSmoke"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding EffectiveMaxLabel}" Foreground="WhiteSmoke"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="25" Grid.Row="2" Grid.Column="3"  HorizontalAlignment="Left" >
-                <TextBlock Margin="5,0,5,0" Text="{Binding EffectiveMaxValue}" Foreground="{Binding Color}"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding EffectiveMaxValue}" Foreground="{Binding Color}"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="30" Grid.Row="3" Grid.Column="2"  HorizontalAlignment="Right">
-                <TextBlock  Margin="5,0,5,0" Text="{Binding EffectiveRateLabel}" Foreground="WhiteSmoke"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding EffectiveRateLabel}" Foreground="WhiteSmoke"></TextBlock>
             </Viewbox>
             <Viewbox MaxHeight="25" Grid.Row="3" Grid.Column="3"  HorizontalAlignment="Left" >
-                <TextBlock Margin="5,0,5,0" Text="{Binding EffectiveRateValue}" Foreground="{Binding Color}"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,0,5,0" Text="{Binding EffectiveRateValue}" Foreground="{Binding Color}"></TextBlock>
             </Viewbox>
         </Grid>
     </Border>
