@@ -24,6 +24,10 @@
     <Color x:Key="GlyphColor">#FF444444</Color>
     <Color x:Key="GlyphMouseOver">sc#1, 0.004391443, 0.002428215, 0.242281124</Color>
 
+    <Color x:Key="ParticipantDPSColor">#5e3232</Color>
+    <Color x:Key="ParticipantHPSColor">#325e33</Color>
+    <Color x:Key="ParticipantDTPSColor">#5e4c32</Color>
+
     <!--Border colors-->
     <Color x:Key="BorderLightColor">#FFCCCCCC</Color>
     <Color x:Key="BorderMediumColor">#FF888888</Color>
@@ -44,6 +48,10 @@
 
     <Color x:Key="NavButtonFrameColor">#FF3843C4</Color>
 
+
+    <SolidColorBrush x:Key="ParticipantDPSBrush" Color="{StaticResource ParticipantDPSColor}"/>
+    <SolidColorBrush x:Key="ParticipantHPSBrush" Color="{StaticResource ParticipantHPSColor}"/>
+    <SolidColorBrush x:Key="ParticipantDTPSBrush" Color="{StaticResource ParticipantDTPSColor}"/>
     <SolidColorBrush x:Key="GreenColorBrush" Color="{StaticResource GreenColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="GrayGreenColorBrush" Color="{StaticResource GrayGreenColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="RedColorBrush" Color="{StaticResource RedColor}"></SolidColorBrush>

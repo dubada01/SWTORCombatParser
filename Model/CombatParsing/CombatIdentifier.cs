@@ -47,10 +47,14 @@ namespace SWTORCombatParser
             var encounter = GetEncounterInfo(ongoingLogs);
             var currentPariticpants = ongoingLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Select(p => p.Source).Distinct().ToList();
             currentPariticpants.AddRange(ongoingLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Select(p => p.Target).Distinct().ToList());
-            var participants = currentPariticpants.Distinct().ToList();
+            var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
+
+            var participantInfos = ongoingLogs.Where(l => l.Source.IsCharacter && l.SourceInfo.Class!=null).Select(p => p.SourceInfo).Distinct().ToList();
+            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => k.Class);
             var newCombat = new Combat()
             {
                 CharacterParticipants = participants,
+                CharacterClases = classes,
                 StartTime = ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp,
                 EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
                 Targets = GetTargets(ongoingLogs),
@@ -77,7 +81,9 @@ namespace SWTORCombatParser
         private static EncounterInfo GetEncounterInfo(List<ParsedLogEntry> logs)
         {
             EncounterInfo raidOfInterest = null;
-            var enterCombatLog = logs.FirstOrDefault(l => l.Effect.EffectName == "EnterCombat");
+            var enterCombatLog = logs.FirstOrDefault();
+            if (enterCombatLog == null)
+                return raidOfInterest;
             var knownEncounters = RaidNameLoader.SupportedEncounters;
             if (enterCombatLog.Target.Name == "Operations Training Dummy")
             {

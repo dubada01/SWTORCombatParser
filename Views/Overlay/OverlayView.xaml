@@ -12,14 +12,14 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Text="Available Overlays" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock FontFamily="{StaticResource MainFont}" Text="Available Overlays" HorizontalAlignment="Center"></TextBlock>
         <ItemsControl Margin="0,20,0,0" ItemsSource="{Binding AvailableOverlayTypes}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                         <Button Padding="5" CommandParameter="{Binding .}" Height="50" Width="200" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                             <Button.Content>
                                 <Viewbox MaxHeight="25">
-                                    <TextBlock Text="{Binding .}"></TextBlock>
+                                <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding .}"></TextBlock>
                                 </Viewbox>
                             </Button.Content>
                         </Button>
@@ -31,7 +31,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <TextBlock Grid.Column="1" Text="Available Alerts" HorizontalAlignment="Center"></TextBlock>
+        <TextBlock FontFamily="{StaticResource MainFont}" Grid.Column="1" Text="Available Alerts" HorizontalAlignment="Center"></TextBlock>
         <ItemsControl Grid.Column="1" Margin="0,20,0,0" ItemsSource="{Binding AvailableAlerts}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -47,7 +47,7 @@
         </ItemsControl>
 
         <Viewbox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" MaxWidth="200">
-            <Button Content="Toggle Overlay Lock" Padding="5"  Command="{Binding ToggleOverlayLockCommand}"></Button>
+            <Button FontFamily="{StaticResource MainFont}" Content="Toggle Overlay Lock" Padding="5"  Command="{Binding ToggleOverlayLockCommand}"></Button>
         </Viewbox>
     </Grid>
 </UserControl>

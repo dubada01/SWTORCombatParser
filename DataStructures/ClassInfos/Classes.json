@@ -2,7 +2,7 @@
   "AllClasses": [
     {
       "Name": "Powertech",
-      "Discipline": "Sheild Tech",
+      "Discipline": "Shield Tech",
       "Role": "Tank",
       "SpecialThreatAbilities": [
       ],
@@ -42,7 +42,7 @@
     },
     {
       "Name": "Sniper",
-      "Discipline": "Virulance",
+      "Discipline": "Virulence",
       "Role": "DPS",
       "SpecialThreatAbilities": [
       ],
@@ -59,7 +59,7 @@
     {
       "Name": "Juggernaut",
       "Role": "DPS",
-      "Discipline": "Vengance",
+      "Discipline": "Vengeance",
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Shatter", "Impale", "Hew", "Vengeful Slam" ]

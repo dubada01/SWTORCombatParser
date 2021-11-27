@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.RaidInfos;
 using System;
 using System.Collections.Concurrent;
@@ -12,6 +13,7 @@ namespace SWTORCombatParser
     {
         public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.IsLocalPlayer);
         public List<Entity> CharacterParticipants = new List<Entity>();
+        public Dictionary<Entity, SWTORClass> CharacterClases = new Dictionary<Entity, SWTORClass>();
         public List<Entity> Targets = new List<Entity>();
         public List<Entity> AllEntities => new List<Entity>().Concat(Targets).Concat(CharacterParticipants).ToList();
         public DateTime StartTime;

@@ -126,7 +126,6 @@ namespace SWTORCombatParser
                     _currentCombatData.Add(logs[l]);
                 }
             }
-            LoadingWindowFactory.HideLoading();
             HistoricalLogsFinished();
         }
         private bool CheckIfStale()

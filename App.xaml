@@ -12,6 +12,9 @@
                 <ResourceDictionary Source="Utilities/UIStyles/Buttons.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/TabHeader.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/ComboBox.xaml"/>
+                <ResourceDictionary>
+                    <FontFamily x:Key="MainFont">Dotum</FontFamily>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
             <converters:PastCombatSelectedToBackgroundConverter x:Key="PastCombatSelectedToBackgroundConverter"/>
             <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>
@@ -26,6 +29,8 @@
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibiityConverter"/>
             <converters:LiveParseActiveToButtonColorConverter x:Key="LiveParseActiveToButtonColorConverter"/>
             <converters:BooleanToFontStyleConverter x:Key="BooleanToFontStyleConverter"/>
+            <converters:ParticipantSelectedToBackgroundConverter x:Key="ParticipantSelectedToBackgroundConverter"/>
+            <converters:ParticipantSelectedToBorderConverter x:Key="ParticipantSelectedToBoarderConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
