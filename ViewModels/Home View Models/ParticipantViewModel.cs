@@ -28,6 +28,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public string PlayerName { get; set; }
         public bool IsLocalPlayer { get; set; }
         public string RoleImageSource { get; set; }
+        public int RoleOrdering { get; set; }
         public string DPS { get; set; } = "0";
         public string HPS { get; set; } = "0";
         public string DTPS { get; set; } = "0";
