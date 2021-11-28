@@ -36,7 +36,7 @@ namespace SWTORCombatParser
             var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last() - timeStamps.First())).ToList();
             return timeStampsSpread.Select(d=>(double)d).ToArray();
         }
-        internal static double[] GetPlotYValRates(double[] yValues ,double[] timeStamps,int averageWindowDuration = 10)
+        internal static double[] GetPlotYValRates(double[] yValues ,double[] timeStamps,double averageWindowDuration = 10)
         {
             var movingAverageCalc = new MovingAverage(TimeSpan.FromSeconds(averageWindowDuration));
             

@@ -30,7 +30,7 @@ namespace SWTORCombatParser.Plotting
         SheildedDamageTaken,
         HPPercent
     }
-    public class PlotViewModel:INotifyPropertyChanged
+    public class PlotViewModel : INotifyPropertyChanged
     {
         private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
@@ -40,7 +40,8 @@ namespace SWTORCombatParser.Plotting
         private ParticipantSelectionViewModel _participantsViewModel;
         private object graphLock = new object();
         private Entity _currentParticipant;
-
+        private string averageWindowDuration = "10";
+        private double _averageWindowDurationDouble = 10;
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
@@ -50,7 +51,6 @@ namespace SWTORCombatParser.Plotting
         public PlotViewModel()
         {
             _combatMetaDataViewModel = new CombatMetaDataViewModel();
-            //_combatMetaDataViewModel.OnNewParticipantSelected += SelectParticipant;
             _combatMetaDataViewModel.OnEffectSelected += HighlightEffect;
             _combatMetaDataViewModel.OnEffectsCleared += ResetEffectVisuals;
             CombatMetaDataView = new CombatMetaDataView(_combatMetaDataViewModel);
@@ -79,7 +79,7 @@ namespace SWTORCombatParser.Plotting
         {
             if (_currentParticipant == obj)
                 return;
-            
+
             _currentParticipant = obj;
             _combatMetaDataViewModel.SelectedParticipant = _currentParticipant;
             lock (graphLock)
@@ -98,6 +98,24 @@ namespace SWTORCombatParser.Plotting
         public GridLength ParticipantSelectionHeight { get; set; }
         public CombatMetaDataView CombatMetaDataView { get; set; }
         public WpfPlot GraphView { get; set; }
+        public string AverageWindowDuration { get => averageWindowDuration; 
+            set {
+                double parsedVal = 0;
+                if(double.TryParse(value,out parsedVal))
+                {
+                    if (_averageWindowDurationDouble == parsedVal)
+                        return;
+                    _averageWindowDurationDouble = parsedVal;
+                    GraphView.Plot.Clear();
+                    foreach (var combat in _currentCombats)
+                    {
+                        PlotCombat(combat, _currentParticipant);
+                    }
+                    OnPropertyChanged("AverageWindowDuration");
+                }
+                averageWindowDuration = value;
+            }
+        }
         public ObservableCollection<LegendItemViewModel> LegendItems { get; set; }
         public void ConfigureSeries(List<PlotType> seriesToPlot)
         {
@@ -106,7 +124,7 @@ namespace SWTORCombatParser.Plotting
                 switch (plotType)
                 {
                     case PlotType.DamageOutput:
-                        AddSeries(plotType, "Damage Output", Color.IndianRed,true);
+                        AddSeries(plotType, "Damage Output", Color.LightCoral, true);
                         break;
                     case PlotType.DamageTaken:
                         AddSeries(plotType, "Damage Incoming", Color.Peru, true);
@@ -115,13 +133,13 @@ namespace SWTORCombatParser.Plotting
                         AddSeries(plotType, "Sheilding", Color.WhiteSmoke);
                         break;
                     case PlotType.HealingOutput:
-                        AddSeries(plotType, "Heal Output", Color.LimeGreen, true);
+                        AddSeries(plotType, "Heal Output", Color.MediumAquamarine, true);
                         break;
                     case PlotType.HealingTaken:
-                        AddSeries(plotType, "Heal Incoming", Color.CornflowerBlue, true);
+                        AddSeries(plotType, "Heal Incoming", Color.LightSkyBlue, true);
                         break;
                     case PlotType.HPPercent:
-                        AddSeries(plotType, "Health Percentage", Color.LightGoldenrodYellow,false,false);
+                        AddSeries(plotType, "Health Percentage", Color.LightGoldenrodYellow, false, false);
                         break;
                     default:
                         Trace.WriteLine("Invalid Series");
@@ -149,10 +167,14 @@ namespace SWTORCombatParser.Plotting
 
         internal void UpdateParticipants(List<Entity> obj)
         {
-            ParticipantSelectionHeight = obj.Count > 4? new GridLength(0.25, GridUnitType.Star): new GridLength(0.125, GridUnitType.Star);
+            ParticipantSelectionHeight = obj.Count > 4 ? new GridLength(0.25, GridUnitType.Star) : new GridLength(0.125, GridUnitType.Star);
             OnPropertyChanged("ParticipantSelectionHeight");
             _combatMetaDataViewModel.AvailableParticipants = obj;
             _participantsViewModel.SetParticipants(obj);
+            if (_currentParticipant == null)
+                _participantsViewModel.SelectLocalPlayer();
+            else
+                _participantsViewModel.SelectParticipant(_currentParticipant);
         }
 
         public void UpdateLivePlot(Combat updatedCombat)
@@ -290,7 +312,7 @@ namespace SWTORCombatParser.Plotting
                     plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
                     plotYvals = PlotMaker.GetPlotYVals(applicableData, false);
                     plotXValRates = PlotMaker.GetPlotXValsRates(plotXvals);
-                    plotYvaRates = PlotMaker.GetPlotYValRates(plotYvals, plotXvals);
+                    plotYvaRates = PlotMaker.GetPlotYValRates(plotYvals, plotXvals, _averageWindowDurationDouble);
                 }
                 else
                 {
@@ -336,7 +358,7 @@ namespace SWTORCombatParser.Plotting
                 ReInitializeTooltips(series, combatToPlot.StartTime);
             }
             GraphView.Plot.AxisAuto();
-            GraphView.Plot.SetAxisLimits(xMin: 0, xMax:(combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
+            GraphView.Plot.SetAxisLimits(xMin: 0, xMax: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
             _combatMetaDataViewModel.PopulateCombatMetaDatas(combatToPlot);
             GraphView.Refresh();
         }
@@ -368,14 +390,14 @@ namespace SWTORCombatParser.Plotting
             (double pointX, double pointY, int pointIndex) = plot.GetPointNearest(mouseCoordX, mouseCoordY, xyRatio);
 
             var abilities = annotationTexts;
-            if(effective)
+            if (effective)
                 annotation.Label = abilities[pointIndex].Item2;
             else
                 annotation.Label = abilities[pointIndex].Item1;
 
             annotation.X = pointX;
             annotation.Y = pointY;
-            
+
 
             pointSelected[name] = pointIndex;
             if (!previousPointSelected.ContainsKey(name))
@@ -415,7 +437,7 @@ namespace SWTORCombatParser.Plotting
         }
         private void ReInitializeTooltips(CombatMetaDataSeries series, DateTime startTime)
         {
-            
+
             if (series.Legend.HasEffective)
             {
                 series.EffectiveTooltip[startTime] = GraphView.Plot.AddTooltip("test", 0, 0);
@@ -452,12 +474,12 @@ namespace SWTORCombatParser.Plotting
             series.Legend = legend;
             series.TriggerRender += (toggleState) =>
             {
-                if(toggleState && type == PlotType.HPPercent)
+                if (toggleState && type == PlotType.HPPercent)
                 {
                     GraphView.Plot.YAxis2.Label("Health");
                     GraphView.Plot.YAxis2.Ticks(true);
                 }
-                if(!toggleState && type == PlotType.HPPercent)
+                if (!toggleState && type == PlotType.HPPercent)
                 {
                     GraphView.Plot.YAxis2.Label("");
                     GraphView.Plot.YAxis2.Ticks(false);

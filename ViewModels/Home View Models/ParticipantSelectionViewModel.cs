@@ -18,7 +18,16 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public int Columns { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
+        public void SelectParticipant(Entity participant)
+        {
+            var uiElement = AvailableParticipants.FirstOrDefault(p => p.Entity.Id == participant.Id);
+            uiElement.ToggleSelection();
+        }
+        public void SelectLocalPlayer()
+        {
+            var uiElement = AvailableParticipants.FirstOrDefault(p => p.Entity.IsLocalPlayer);
+            uiElement.ToggleSelection();
+        }
         public void SetParticipants(List<Entity> availableEntities)
         {
             var participants = availableEntities.Select(e => GenerateInstance(e));
@@ -26,8 +35,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             foreach(var participant in AvailableParticipants)
             {
                 participant.SelectionChanged += SelectParticipant;
-                if (participant.IsLocalPlayer)
-                    participant.ToggleSelection();
             }
             if (AvailableParticipants.Count <= 4)
             { 
@@ -76,10 +83,14 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 var imagePath = "../../resources/redX.png";
                 if (info.CharacterClases.ContainsKey(participant))
                 {
-                    imagePath = GetRoleImage(info.CharacterClases[participant]);
+                    var swtorClass = info.CharacterClases[participant];
+                    imagePath = GetRoleImage(swtorClass);
+                    participantVM.RoleOrdering = swtorClass.Role == Role.Tank ? 0 : swtorClass.Role == Role.Healer ? 1 : 2;
                 }
                 participantVM.SetValues(info.EDPS[participant], info.EHPS[participant], info.EDTPS[participant], imagePath);
             }
+            AvailableParticipants = new ObservableCollection<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
+            OnPropertyChanged("AvailableParticipants");
         }
 
         private string GetRoleImage(SWTORClass sWTORClass)

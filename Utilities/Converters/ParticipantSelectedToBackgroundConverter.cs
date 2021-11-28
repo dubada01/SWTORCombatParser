@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -14,9 +15,9 @@ namespace SWTORCombatParser.Utilities.Converters
             switch ((bool)value)
             {
                 case true:
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8ba38c"));
+                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("LightGrayGreenColor"));
                 case false:
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#9e9e9e"));
+                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("ParticipantNotSelectedBackground"));
             }
         }
 

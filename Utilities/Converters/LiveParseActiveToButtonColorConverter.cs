@@ -18,7 +18,7 @@ namespace SWTORCombatParser.Utilities.Converters
                 case true:
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFa53434"));
                 case false:
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF34A547"));
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#386e4d"));
             }
         }
 
