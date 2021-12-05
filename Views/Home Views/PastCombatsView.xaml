@@ -12,7 +12,7 @@
             <RowDefinition Height="0.075*"/>
             <RowDefinition Height="0.9*"/>
         </Grid.RowDefinitions>
-        <Border Background="LightGray" CornerRadius="5" Grid.Row="0" Margin="0,13,0,0" BorderBrush="{Binding LiveParseActive, Converter={StaticResource LiveParseToBrushConverter}}" Padding="0,0,0,0" BorderThickness="5">
+        <Border Background="LightGray" CornerRadius="5" Grid.Row="0" Margin="0,0,0,0" BorderBrush="{Binding LiveParseActive, Converter={StaticResource LiveParseToBrushConverter}}" Padding="0,0,0,0" BorderThickness="5">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

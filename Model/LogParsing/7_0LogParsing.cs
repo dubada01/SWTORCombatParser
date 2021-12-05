@@ -54,6 +54,10 @@ namespace SWTORCombatParser.Model.LogParsing
                 newEntry.TargetInfo = ParseEntity(entryInfo[2]);
             newEntry.Ability = ParseAbility(entryInfo[3]);
             newEntry.Effect = ParseEffect(entryInfo[4]);
+            if(newEntry.Effect.EffectName == "Death")
+            {
+                newEntry.TargetInfo.IsAlive = false;
+            }
             if (newEntry.Effect.EffectType == EffectType.AreaEntered)
             {
                 newEntry.SourceInfo.Entity.IsLocalPlayer = true; 
@@ -187,6 +191,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static EntityInfo ParseEntity(string value, bool isPlayer = false)
         {
             var entityToReturn = new EntityInfo();
+            entityToReturn.IsAlive = true;
             var entityParts = value.Split("|");
             if (entityParts.Length == 1)
                 return entityToReturn;

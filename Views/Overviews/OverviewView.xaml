@@ -11,22 +11,50 @@
             <RowDefinition Height="0.05*"/>
             <RowDefinition Height="0.85*"/>
         </Grid.RowDefinitions>
-        <ComboBox ItemsSource="{Binding AvailableParticipants}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEntity}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+        <StackPanel Orientation="Horizontal">
+            <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableParticipants}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEntity}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+            <ComboBox  Style="{StaticResource NewComboStyle}" Visibility="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+        </StackPanel>
         <DockPanel Grid.Row="1" LastChildFill="True" HorizontalAlignment="Stretch">
-            <ListView ScrollViewer.HorizontalScrollBarVisibility="Disabled" Visibility="{Binding SortOptionVisibility}"  ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}"></ListView>
             <TabControl>
-                <TabItem Header="Damage">
+                <TabControl.Resources>
+                    <Style TargetType="{x:Type TabControl}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabControl">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Border BorderThickness="0,0,1,1"  CornerRadius="0,5,5,5" BorderBrush="#D0CEBF" Grid.Row="1">
+                                            <Border CornerRadius="0,5,5,5" BorderThickness="{TemplateBinding BorderThickness}" 
+                BorderBrush="{TemplateBinding BorderBrush}">
+                                                <Border CornerRadius="0,5,5,5"  Background="{TemplateBinding Background}">
+                                                    <ContentPresenter ContentSource="SelectedContent"/>
+                                                </Border>
+                                            </Border>
+                                        </Border>
+                                        <TabPanel Background="Transparent" Grid.Row="0" IsItemsHost="true"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+                <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" Header="Damage">
                     <ContentPresenter Content="{Binding DamageContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem Header="Healing">
+                <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" Header="Healing">
                     <ContentPresenter Content="{Binding HealingContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem Header="Damage Taken">
+                <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" Header="Damage Taken">
                     <ContentPresenter Content="{Binding DamageTakenContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem Header="Healing Received">
+                <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" Header="Healing Received">
                     <ContentPresenter Content="{Binding HealingReceivedContent}"></ContentPresenter>
                 </TabItem>
+                
             </TabControl>
         </DockPanel>
 

@@ -13,11 +13,11 @@
     <Color x:Key="SelectedUnfocusedColor">#FFDDDDDD</Color>
 
     <Color x:Key="ControlLightColor">White</Color>
-    <Color x:Key="ControlMediumColor">#FF7381F9</Color>
+    <Color x:Key="ControlMediumColor">#959c8e</Color>
     <Color x:Key="ControlDarkColor">#FF211AA9</Color>
 
-    <Color x:Key="ControlMouseOverColor">#FF3843C4</Color>
-    <Color x:Key="ControlPressedColor">#FF211AA9</Color>
+    <Color x:Key="ControlMouseOverColor">#6b7065</Color>
+    <Color x:Key="ControlPressedColor">#6c8256</Color>
     <Color x:Key="GreenColor">#FF34A547</Color>
     <Color x:Key="DarkGreenColor">#386e4d</Color>
     <Color x:Key="LightGrayGreenColor">#8ba38c</Color>

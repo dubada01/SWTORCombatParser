@@ -53,6 +53,7 @@ namespace SWTORCombatParser
         public PositionData Position { get; set; } = new PositionData();
         public double MaxHP { get; set; }
         public double CurrentHP { get; set; }
+        public bool IsAlive { get; set; }
     }
     public class Effect
     {

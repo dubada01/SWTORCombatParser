@@ -16,6 +16,7 @@ namespace SWTORCombatParser
         private static DateTime _logDate;
         private static LogState _logState = new LogState();
         private static ConcurrentBag<Entity> _currentEntities = new ConcurrentBag<Entity>();
+        private static Random _idGenerator = new Random();
         public static event Action<string> OnNewLog = delegate { };
 
         public static void SetCurrentState(LogState currentState)
@@ -159,10 +160,12 @@ namespace SWTORCombatParser
             newEntry.TargetInfo = new EntityInfo { Entity = ParseEntity(CleanString(entryInfo[3 - extractionOffset])) };
             newEntry.Ability = ParseAbility(CleanString(entryInfo[4 - extractionOffset]));
             newEntry.Effect = ParseEffect(CleanString(entryInfo[5 - extractionOffset]));
-
             newEntry.Value = ParseValues(value, newEntry.Effect);
             newEntry.Threat =string.IsNullOrEmpty(threat) ? 0 : int.Parse(threat.Replace("<","").Replace(">",""));
-               
+            if (newEntry.Effect.EffectName == "EnterCombat")
+            {
+                newEntry.LogLocation = newEntry.Value.StrValue;
+            }
             return newEntry;
         }
         private static Value ParseValues(string valueString, Effect currentEffect)
@@ -247,7 +250,7 @@ namespace SWTORCombatParser
                 var existingCharacterEntity = _currentEntities.FirstOrDefault(e => e.Name == characterName);
                 if (existingCharacterEntity != null)
                     return existingCharacterEntity;
-                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName, IsLocalPlayer = isPlayer};
+                var characterEntity = new Entity() { IsCharacter = true, Name =  characterName, IsLocalPlayer = isPlayer, Id = _idGenerator.Next(0,10000)};
                 _currentEntities.Add(characterEntity);
                 return characterEntity;
             }
@@ -265,7 +268,7 @@ namespace SWTORCombatParser
                 var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == companionNameComponents[0].Trim());
                 if (existingCompanionEntity != null)
                     return existingCompanionEntity;
-                var companion = new Entity() { IsCharacter = false,IsCompanion = true, Name = companionNameComponents[0].Trim() };
+                var companion = new Entity() { IsCharacter = false,IsCompanion = true, Name = companionNameComponents[0].Trim(), Id = _idGenerator.Next(0, 10000) };
                 _currentEntities.Add(companion);
                 return companion;
             }
@@ -277,6 +280,7 @@ namespace SWTORCombatParser
 
             var newEntity = new Entity();
             newEntity.Name = entityName;
+            newEntity.Id = _idGenerator.Next(0, 10000);
             _currentEntities.Add(newEntity);
             return newEntity;
         }
@@ -296,7 +300,7 @@ namespace SWTORCombatParser
 
             var splitName = name.Split('{');
             newEffect.EffectName = splitName[0].Trim();
-
+            
             newEffect.EffectType = GetEffectType(type.Split('{')[0].Trim());
 
             return newEffect;

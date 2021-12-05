@@ -4,18 +4,23 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
     public class CombatInfoInstance
     {
+        public SolidColorBrush RowBackground { get; set; }
+        public double SumTotal { get; set; }
         public string SortItem { get; set; }
-        public int Rate { get; set; }
-        public int Total { get; set; }
-        public int Average { get; set; }
+        public double Rate { get; set; }
+        public double Total { get; set; }
+        public double PercentOfTotal => Total / SumTotal;
+        public double Average { get; set; }
         public int Count { get; set; }
         public double CritPercent { get; set; }
-        public int Max { get; set; }
+        public double MaxCrit { get; set; }
+        public double Max { get; set; }
     }
     public enum OverviewDataType
     {
@@ -33,12 +38,15 @@ namespace SWTORCombatParser.ViewModels.Overviews
     public class TableInstanceViewModel :OverviewInstanceViewModel, INotifyPropertyChanged
     {
         private SortingOption sortingOption;
+        private double _sumTotal = 0;
         public override SortingOption SortingOption { get => sortingOption; set
             { 
                 sortingOption = value;
+                OnPropertyChanged("SelectedSortName");
                 Update();
             } 
         }
+        public string SelectedSortName => GetSortNameFromEnum(SortingOption);
         public List<CombatInfoInstance> DataToView { get; set; }
 
         public TableInstanceViewModel(OverviewDataType type) : base(type)
@@ -85,12 +93,34 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     DisplayHealingReceived(SelectedCombat);
                     break;
             }
+            DataToView = DataToView.OrderByDescending(v => v.PercentOfTotal).ToList();
+            for(var i=0;i<DataToView.Count;i++)
+            {
+                if(i%2==0)
+                {
+                    DataToView[i].RowBackground = Brushes.WhiteSmoke;
+                }
+            }
             OnPropertyChanged("DataToView");
+        }
+        private string GetSortNameFromEnum(SortingOption enumValue)
+        {
+            switch (enumValue)
+            {
+                case SortingOption.ByAbility:
+                    return "Ability Name";
+                case SortingOption.BySource:
+                    return "Source Name";
+                case SortingOption.ByTarget:
+                    return "Target Name";
+                default:
+                    return "Unknown";
+            }
         }
         private void DisplayDamageTakenData(Combat combat)
         {
-
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingDamageLogs[_selectedEntity]);
+            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
                 PoppulateRows(orderedKey);
@@ -100,6 +130,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         private void DisplayHealingData(Combat combat)
         {
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingHealingLogs[_selectedEntity]);
+            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
                 PoppulateRows(orderedKey);
@@ -109,6 +140,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         private void DisplayDamageData(Combat combat)
         {
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingDamageLogs[_selectedEntity]);
+            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
                 PoppulateRows(orderedKey);
@@ -118,6 +150,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
 
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingHealingLogs[_selectedEntity]);
+            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
                 PoppulateRows(orderedKey);
@@ -129,13 +162,15 @@ namespace SWTORCombatParser.ViewModels.Overviews
             DataToView.Add(new CombatInfoInstance
             {
                 SortItem = orderedKey.Key,
+                SumTotal = _sumTotal,
                 Total = (int)orderedKey.Value.Sum(v => v.Value.EffectiveDblValue),
-                Rate = (int)(orderedKey.Value.Sum(v => v.Value.EffectiveDblValue)/SelectedCombat.DurationSeconds),
+                Rate = (int)(orderedKey.Value.Sum(v => v.Value.EffectiveDblValue) / SelectedCombat.DurationSeconds),
                 Average = (int)orderedKey.Value.Average(v => v.Value.EffectiveDblValue),
-                Max = (int)orderedKey.Value.Max(v => v.Value.EffectiveDblValue),
+                Max = orderedKey.Value.Any(a => !a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => !v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue):0,
+                MaxCrit = orderedKey.Value.Any(a=>a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue):0,
                 Count = (int)orderedKey.Value.Count(),
-                CritPercent = orderedKey.Value.Count(v=>v.Value.WasCrit) / (double)orderedKey.Value.Count() * 100d,
-            });
+                CritPercent = orderedKey.Value.Count(v => v.Value.WasCrit) / (double)orderedKey.Value.Count() * 100d,
+            }); 
         }
 
         private Dictionary<string, List<ParsedLogEntry>> GetDataSplitOut(Combat combat, List<ParsedLogEntry> logsInScope)
