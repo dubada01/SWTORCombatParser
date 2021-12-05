@@ -45,7 +45,7 @@
                                     <Viewbox HorizontalAlignment="Left" Margin="5,0,2,4">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" ></TextBlock>
-                                            <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Right" Foreground="NavajoWhite" Text="{Binding PlayerName}" ></TextBlock>
+                                            <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="NavajoWhite" Text="{Binding PlayerName}" ></TextBlock>
                                         </StackPanel>
                                     </Viewbox>
                                 </StackPanel>

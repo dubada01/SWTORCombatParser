@@ -35,11 +35,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public void SetValues(double dps, double hps, double dtps, string roleImage)
         {
             
-            DPS =double.IsNaN(dps)?"0":dps.ToString("#,##");
+            DPS = dps == 0?"0":dps.ToString("#,##");
             OnPropertyChanged("DPS");
-            HPS = double.IsNaN(hps) ? "0" : hps.ToString("#,##");
+            HPS = hps == 0 ? "0" : hps.ToString("#,##");
             OnPropertyChanged("HPS");
-            DTPS = double.IsNaN(dtps) ? "0" : dtps.ToString("#,##");
+            DTPS = dtps == 0 ? "0" : dtps.ToString("#,##");
             OnPropertyChanged("DTPS");
             RoleImageSource = roleImage;
             OnPropertyChanged("RoleImageSource");

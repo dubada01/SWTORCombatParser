@@ -115,39 +115,6 @@ namespace SWTORCombatParser
                 }
                 return raidOfInterest;
             }
-            //foreach (var log in logs)
-            //{
-            //    var knownEncounters = RaidNameLoader.SupportedEncounters;
-            //    if(log.Target.Name == "Operations Training Dummy")
-            //    {
-            //        raidOfInterest = new EncounterInfo() { BossInfos = new List<BossInfo>() };
-            //        raidOfInterest.Name = "Parsing";
-            //        raidOfInterest.BossInfos.Add(new BossInfo { 
-            //            EncounterName = "Training Dummy",
-            //            TargetNames = new List<string> { "Operations Training Dummy" }
-            //        });
-            //        raidOfInterest.Difficutly = "Parsing";
-            //        raidOfInterest.NumberOfPlayer = "";
-            //        return raidOfInterest;
-            //    }
-            //    if (!string.IsNullOrEmpty(log.LogLocation) && knownEncounters.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)) && raidOfInterest == null)
-            //    {
-            //        raidOfInterest = knownEncounters.First(r => log.LogLocation.Contains(r.LogName));
-            //        raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
-            //        if (string.IsNullOrEmpty(raidOfInterest.Difficutly))
-            //        {
-            //            raidOfInterest.Difficutly = "Test";
-            //            //return null;
-            //        }
-            //        raidOfInterest.NumberOfPlayer = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
-            //        if (string.IsNullOrEmpty(raidOfInterest.NumberOfPlayer))
-            //        {
-            //            raidOfInterest.NumberOfPlayer = "";
-            //            //return null;
-            //        }
-            //        return raidOfInterest;
-            //    }
-            //}
             var openWorldLocation = "";
             if (enterCombatLog != null)
             {

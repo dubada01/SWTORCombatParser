@@ -37,6 +37,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public string CurrentLocation { get; set; }
         public long MostRecentLogIndex = 0;
         public List<CombatModifier> Modifiers { get; set; } = new List<CombatModifier>();
+        public object modifierLogLock = new object();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
         {
@@ -55,16 +56,20 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
         {
-            List<CombatModifier> mods = new List<CombatModifier>();
-            foreach(var mod in Modifiers)
+            lock (modifierLogLock)
             {
-                if (mod.StartTime > timeStamp)
-                    continue;
-                if (mod.StopTime < timeStamp && mod.StartTime != DateTime.MinValue)
-                    continue;
-                mods.Add(mod);
+                List<CombatModifier> mods = new List<CombatModifier>();
+                foreach (var mod in Modifiers)
+                {
+                    if (mod.StartTime > timeStamp)
+                        continue;
+                    if (mod.StopTime < timeStamp && mod.StartTime != DateTime.MinValue)
+                        continue;
+                    mods.Add(mod);
+                }
+
+                return mods;
             }
-            return mods;
             //return Modifiers.Where(m => m.StartTime < timeStamp && (m.StopTime >= timeStamp || m.StopTime == DateTime.MinValue)).ToList();
         }
         public List<CombatModifier> GetCombatModifiersAtTimeInvolvingParticipants(DateTime timeStamp,Entity source, Entity target)

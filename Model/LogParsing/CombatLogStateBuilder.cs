@@ -61,42 +61,47 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine)
         {
-            if (parsedLine.Error == ErrorType.IncompleteLine)
-                return;
+            lock (CurrentState.modifierLogLock)
+            {
 
-            if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Apply)
-            {
-                if(!CurrentState.Modifiers.Any(m=>m.Type == CombatModfierType.GuardedThreatReduced) || CurrentState.Modifiers.Last(m => m.Type == CombatModfierType.GuardedThreatReduced).StopTime != DateTime.MinValue)
+
+                if (parsedLine.Error == ErrorType.IncompleteLine)
+                    return;
+
+                if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Apply)
                 {
-                    CurrentState.Modifiers.Add(new CombatModifier() { Name = "Guarded-Threat", Source = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedThreatReduced });
+                    if (!CurrentState.Modifiers.Any(m => m.Type == CombatModfierType.GuardedThreatReduced) || CurrentState.Modifiers.Last(m => m.Type == CombatModfierType.GuardedThreatReduced).StopTime != DateTime.MinValue)
+                    {
+                        CurrentState.Modifiers.Add(new CombatModifier() { Name = "Guarded-Threat", Source = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedThreatReduced });
+                    }
+                    else
+                    {
+                        CurrentState.Modifiers.Add(new CombatModifier() { Name = "Guarded-Damage", Source = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedDamagedRedirected });
+                    }
+
+                    return;
                 }
-                else
+                if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Remove)
                 {
-                    CurrentState.Modifiers.Add(new CombatModifier() { Name = "Guarded-Damage", Source = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedDamagedRedirected });
+                    var guardedModifer = CurrentState.Modifiers.LastOrDefault(m => m.Name.Contains("Guarded") && m.StopTime == DateTime.MinValue);
+                    if (guardedModifer != null)
+                        guardedModifer.StopTime = parsedLine.TimeStamp;
+                    return;
                 }
-                
-                return;
-            }
-            if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Remove)
-            {
-                var guardedModifer = CurrentState.Modifiers.LastOrDefault(m => m.Name.Contains("Guarded") && m.StopTime == DateTime.MinValue);
-                if(guardedModifer!=null)
-                    guardedModifer.StopTime = parsedLine.TimeStamp;
-                return;
-            }
-            if(parsedLine.Effect.EffectType == EffectType.Apply && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
-            {
-                var effectToStart = CurrentState.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
-                if (effectToStart == null || (effectToStart.StopTime!=DateTime.MinValue && effectToStart.StartTime != parsedLine.TimeStamp))
+                if (parsedLine.Effect.EffectType == EffectType.Apply && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
                 {
-                    CurrentState.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability+ AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    var effectToStart = CurrentState.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
+                    if (effectToStart == null || (effectToStart.StopTime != DateTime.MinValue && effectToStart.StartTime != parsedLine.TimeStamp))
+                    {
+                        CurrentState.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    }
                 }
-            }
-            if (parsedLine.Effect.EffectType == EffectType.Remove && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
-            {
-                var effectToEnd = CurrentState.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
-                if(effectToEnd != null)
-                    effectToEnd.StopTime = parsedLine.TimeStamp;
+                if (parsedLine.Effect.EffectType == EffectType.Remove && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
+                {
+                    var effectToEnd = CurrentState.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
+                    if (effectToEnd != null)
+                        effectToEnd.StopTime = parsedLine.TimeStamp;
+                }
             }
         }
         private static string AddSecondHalf(string firstHalf, string effectName)

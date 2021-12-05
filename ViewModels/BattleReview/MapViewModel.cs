@@ -69,22 +69,29 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             Task.Run(() => {
                 if (_currentCombat == null)
                     return;
-                foreach (var character in _currentCombat.CharacterParticipants)
-                {
-                    var closestLogToTime = _currentCombat.GetLogsInvolvingEntity(character).MinBy(l => Math.Abs((l.TimeStamp - _startTime).TotalSeconds - time)).First();
-                    var position = closestLogToTime.Target == character ? closestLogToTime.TargetInfo.Position : closestLogToTime.SourceInfo.Position;
-                   // Trace.WriteLine($"{character.Name} at {position.X},{position.Z} at {time}");
-                    _currentCharacterLocations[character] = new System.Windows.Point(position.X, position.Y);
-                }
-                foreach (var target in _currentCombat.Targets)
-                {
-                    var closestLogToTime = _currentCombat.GetLogsInvolvingEntity(target).MinBy(l => Math.Abs((l.TimeStamp - _startTime).TotalSeconds - time)).First();
-                    var position = closestLogToTime.Target == target ? closestLogToTime.TargetInfo.Position : closestLogToTime.SourceInfo.Position;
-                    // Trace.WriteLine($"{character.Name} at {position.X},{position.Z} at {time}");
-                    _currentCharacterLocations[target] = new System.Windows.Point(position.X, position.Y);
-                }
+                UpdatePositionsForEntities(_currentCombat.CharacterParticipants,time);
+                UpdatePositionsForEntities(_currentCombat.Targets, time);
                 UpdatePlotWithToonPosition();
             });
+        }
+        private void UpdatePositionsForEntities(List<Entity> entities, double time)
+        {
+            foreach(var entity in entities)
+            {
+                var closestLogToTime = _currentCombat.GetLogsInvolvingEntity(entity).MinBy(l => Math.Abs((l.TimeStamp - _startTime).TotalSeconds - time)).First();
+                var position = closestLogToTime.Target == entity ? closestLogToTime.TargetInfo.Position : closestLogToTime.SourceInfo.Position;
+                if (Math.Abs((closestLogToTime.TimeStamp - _startTime).TotalSeconds - time) > 1)
+                {
+                    TryRemoveEntityFromMap(entity);
+                    continue;
+                }
+                _currentCharacterLocations[entity] = new System.Windows.Point(position.X, position.Y);
+            }
+        }
+        private void TryRemoveEntityFromMap(Entity entity)
+        {
+            if (_currentCharacterLocations.ContainsKey(entity))
+                _currentCharacterLocations.Remove(entity);
         }
         private void UpdatePlotWithToonPosition()
         {

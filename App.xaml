@@ -13,6 +13,7 @@
                 <ResourceDictionary Source="Utilities/UIStyles/TabHeader.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/ComboBox.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/TextBoxStyle.xaml"/>
+                <ResourceDictionary Source="Utilities/UIStyles/CheckBoxStyle.xaml"/>
                 <ResourceDictionary>
                     <FontFamily x:Key="MainFont">Dotum</FontFamily>
                 </ResourceDictionary>

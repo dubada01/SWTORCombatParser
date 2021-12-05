@@ -15,7 +15,7 @@ namespace SWTORCombatParser.Utilities.Converters
             var encounter = (EncounterInfo)value;
             if (encounter == null)
                 return Brushes.WhiteSmoke;
-            return Brushes.LightGreen;
+            return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("LightGrayGreenColor"));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

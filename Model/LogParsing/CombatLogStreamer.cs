@@ -175,6 +175,7 @@ namespace SWTORCombatParser
                 _combatEnding = false;
                 _isInCombat = true;
                 _currentCombatStartTime = parsedLine.TimeStamp;
+                _currentCombatData.Add(parsedLine);
                 var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = parsedLine.LogLocation };
                 if(shouldUpdateOnNewCombat)
                     CombatUpdated(updateMessage);

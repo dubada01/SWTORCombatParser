@@ -2,7 +2,6 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Style x:Key="RoundedTextBox" TargetType="{x:Type TextBox}">
         <Setter Property="Padding" Value="5"/>
-        <Setter Property="Margin" Value="2"/>
         <Setter Property="Foreground" Value="#000"/>
         <Setter Property="FontSize" Value="20"/>
         <Setter Property="FontWeight" Value="Bold" />

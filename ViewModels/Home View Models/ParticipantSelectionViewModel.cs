@@ -21,11 +21,15 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public void SelectParticipant(Entity participant)
         {
             var uiElement = AvailableParticipants.FirstOrDefault(p => p.Entity.Id == participant.Id);
+            if (uiElement == null)
+                return;
             uiElement.ToggleSelection();
         }
         public void SelectLocalPlayer()
         {
             var uiElement = AvailableParticipants.FirstOrDefault(p => p.Entity.IsLocalPlayer);
+            if (uiElement == null)
+                return;
             uiElement.ToggleSelection();
         }
         public void SetParticipants(List<Entity> availableEntities)
@@ -80,7 +84,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 var participantVM = AvailableParticipants.FirstOrDefault(p => p.PlayerName == participant.Name);
                 if (participantVM == null)
                     continue;
-                var imagePath = "../../resources/redX.png";
+                var imagePath = "../../resources/question-mark.png";
                 if (info.CharacterClases.ContainsKey(participant))
                 {
                     var swtorClass = info.CharacterClases[participant];
@@ -96,7 +100,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         private string GetRoleImage(SWTORClass sWTORClass)
         {
             if(sWTORClass == null)
-                return "../../resources/redX.png";
+                return "../../resources/question-mark.png";
             switch (sWTORClass.Role)
             {
                 case Role.DPS:
@@ -106,7 +110,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 case Role.Tank:
                     return "../../resources/tankIcon.png";
                 default:
-                    return "../../resources/redX.png";
+                    return "../../resources/question-mark.png";
             }
         }
 
