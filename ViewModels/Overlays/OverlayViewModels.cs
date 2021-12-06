@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Alerts;
 using SWTORCombatParser.Views.Overlay;
@@ -17,15 +18,29 @@ namespace SWTORCombatParser.ViewModels.Overlays
 {
     public class OverlayViewModel : INotifyPropertyChanged
     {
-        private bool overlaysMoveable = true;
+
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
         private Dictionary<OverlayType, DefaultOverlayInfo> _overlayDefaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
         private AlertsViewModel _alertsViewModel;
         private string _currentCharacterName = "None";
+        private bool overlaysLocked;
+        private LeaderboardType selectedLeaderboardType;
+
         public ObservableCollection<AlertTypeOption> AvailableAlerts => new ObservableCollection<AlertTypeOption>(_alertsViewModel.AvailableAlertTypes);
         public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
+        public List<LeaderboardType> LeaderboardTypes { get; set; } = new List<LeaderboardType>();
+        public LeaderboardType SelectedLeaderboardType
+        {
+            get => selectedLeaderboardType;
+            set
+            {
+                selectedLeaderboardType = value;
+                Leaderboards.UpdateLeaderboardType(selectedLeaderboardType);
+            }
+        }
         public OverlayViewModel()
         {
+            LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             _alertsViewModel = new AlertsViewModel();
             DefaultOverlayManager.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>();
@@ -37,7 +52,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void CharacterLoaded(string character)
         {
             ResetOverlays();
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 _currentCharacterName = character;
                 _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterName);
                 var enumVals = EnumUtil.GetValues<OverlayType>();
@@ -59,11 +75,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
             OverlayType overlayType = (OverlayType)type;
             if (_currentOverlays.Any(o => o.Type == overlayType))
                 return;
-           
+
             var viewModel = new OverlayInstanceViewModel(overlayType);
             DefaultOverlayManager.SetActiveState(viewModel.Type, true, _currentCharacterName);
             viewModel.OverlayClosed += RemoveOverlay;
-            viewModel.OverlaysMoveable = overlaysMoveable;
+            viewModel.OverlaysMoveable = !OverlaysLocked;
             _currentOverlays.Add(viewModel);
             var overlay = new InfoOverlay(viewModel);
             overlay.SetPlayer(_currentCharacterName);
@@ -83,18 +99,25 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void ResetOverlays()
         {
-            foreach(var overlay in _currentOverlays.ToList())
+            foreach (var overlay in _currentOverlays.ToList())
             {
                 overlay.RequestClose();
             }
             _currentOverlays.Clear();
         }
-        public ICommand ToggleOverlayLockCommand => new CommandHandler(ToggleOverlayLock);
-
-        private void ToggleOverlayLock(object test)
+        public bool OverlaysLocked
         {
-            overlaysMoveable = !overlaysMoveable;
-            if (overlaysMoveable)
+            get => overlaysLocked;
+            set
+            {
+                overlaysLocked = value;
+                ToggleOverlayLock();
+            }
+        }
+
+        private void ToggleOverlayLock()
+        {
+            if (!OverlaysLocked)
                 _currentOverlays.ForEach(o => o.UnlockOverlays());
             else
                 _currentOverlays.ForEach(o => o.LockOverlays());
@@ -105,7 +128,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
         internal void NewParticipants(List<Entity> participants)
         {
             var localPlayer = participants.FirstOrDefault(p => p.IsLocalPlayer);

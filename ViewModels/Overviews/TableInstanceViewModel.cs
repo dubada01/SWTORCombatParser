@@ -16,6 +16,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public double Rate { get; set; }
         public double Total { get; set; }
         public double PercentOfTotal => Total / SumTotal;
+        public string PercentOfTotalStr => Math.Round((PercentOfTotal * 100)).ToString() + "%";
         public double Average { get; set; }
         public int Count { get; set; }
         public double CritPercent { get; set; }

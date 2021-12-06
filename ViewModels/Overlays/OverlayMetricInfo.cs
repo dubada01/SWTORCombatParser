@@ -20,7 +20,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public double BorderThickness => IsLeaderboardValue ? 3 : 0;
         public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
         public CornerRadius BarRadiusSecondary { get; set; } = new CornerRadius(3, 3, 3, 3);
-        public SolidColorBrush BarOutline => IsLeaderboardValue ? Brushes.NavajoWhite : Brushes.Transparent;
+        public SolidColorBrush BarOutline => IsLeaderboardValue ? Brushes.WhiteSmoke : Brushes.Transparent;
         public bool AddSecondayToValue { get; set; }
         public Entity Player { get; set; }
         public bool RankIsPersonalRecord { get; set; }
@@ -33,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public SolidColorBrush RankColor => RankIsPersonalRecord ? Brushes.NavajoWhite : Brushes.DimGray;
+        public SolidColorBrush RankColor => RankIsPersonalRecord ? Brushes.Beige : Brushes.Gray;
         public string PlayerName => Player.Name;
         public bool IsLeaderboardValue { get; set; } = false;
 
@@ -66,8 +66,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 OnPropertyChanged("RemainderWidth");
                 OnPropertyChanged("BarWidth");
-                BarRadius = SecondaryType == OverlayType.None || SecondaryValue == 0 ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(3, 0, 0, 3);
-                BarRadiusSecondary = SecondaryType == OverlayType.None ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(0, 3, 3, 0);
+                BarRadiusSecondary = SecondaryType == OverlayType.None || SecondaryValue == 0 ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(3, 0, 0, 3);
+                BarRadius = SecondaryType == OverlayType.None ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(0, 3, 3, 0);
                 OnPropertyChanged("BarRadius");
                 OnPropertyChanged("BarRadiusSecondary");
             }

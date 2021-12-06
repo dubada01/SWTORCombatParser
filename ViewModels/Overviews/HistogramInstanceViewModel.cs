@@ -34,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public HistogramInstanceViewModel(OverviewDataType type): base(type)
         {
             HistogramPlot = new WpfPlot();
-            HistogramPlot.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
+            HistogramPlot.Plot.Style(dataBackground: Color.FromArgb(150, 20, 20, 20), figureBackground: Color.FromArgb(0, 20, 20, 20), grid: Color.FromArgb(100, 40, 40, 40));
             OnPropertyChanged("HistogramPlot");
             AvailableAbilities = new List<string>();
             _selectedCombats = new Dictionary<string, Combat>();
