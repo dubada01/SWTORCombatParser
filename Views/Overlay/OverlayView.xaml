@@ -12,26 +12,53 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <TextBlock FontFamily="{StaticResource MainFont}" Text="Available Overlays" HorizontalAlignment="Center"></TextBlock>
-        <ItemsControl Margin="0,20,0,0" ItemsSource="{Binding AvailableOverlayTypes}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                        <Button Padding="5" CommandParameter="{Binding .}" Height="50" Width="200" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
-                            <Button.Content>
-                                <Viewbox MaxHeight="25">
-                                <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding .}"></TextBlock>
-                                </Viewbox>
-                            </Button.Content>
-                        </Button>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="2"></UniformGrid>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
-        <TextBlock FontFamily="{StaticResource MainFont}" Grid.Column="1" Text="Available Alerts" HorizontalAlignment="Center"></TextBlock>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.9*"/>
+                <RowDefinition Height="0.1*"/>
+            </Grid.RowDefinitions>
+
+            <Border Padding="0,15,0,0" BorderBrush="DimGray" BorderThickness="0,2,2,2" CornerRadius="0,5,5,0" Grid.Row="0" Margin="0,30,0,0">
+                <ItemsControl  ItemsSource="{Binding AvailableOverlayTypes}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource RoundCornerButton}" Padding="5" CommandParameter="{Binding .}" Height="50" Width="200" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                                <Button.Content>
+                                    <Viewbox MaxHeight="25">
+                                        <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding .}"></TextBlock>
+                                    </Viewbox>
+                                </Button.Content>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2"></UniformGrid>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Border>
+            <TextBlock Grid.Row="0" FontSize="35" Margin="0,10,0,0" FontWeight="DemiBold" VerticalAlignment="Top" Background="LightGray" FontFamily="{StaticResource MainFont}" Text=" Available Overlays " HorizontalAlignment="Center"></TextBlock>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
+                    <Viewbox MaxHeight="20">
+                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding OverlaysLocked}"></CheckBox>
+                    </Viewbox>
+                </StackPanel>
+                <StackPanel HorizontalAlignment="Center" Grid.Column="1" Orientation="Vertical">
+                    <TextBlock FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlay Leaderboard: "/>
+                    <ComboBox HorizontalAlignment="Center" Height="45" Width="200" HorizontalContentAlignment="Center" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}" Style="{StaticResource NewComboStyle}"></ComboBox>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!--<TextBlock FontFamily="{StaticResource MainFont}" Grid.Column="1" Text="Available Alerts" HorizontalAlignment="Center"></TextBlock>
         <ItemsControl Grid.Column="1" Margin="0,20,0,0" ItemsSource="{Binding AvailableAlerts}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -44,10 +71,8 @@
                     <UniformGrid Columns="2"></UniformGrid>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
-        </ItemsControl>
+        </ItemsControl>-->
 
-        <Viewbox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10" MaxWidth="200">
-            <Button FontFamily="{StaticResource MainFont}" Content="Toggle Overlay Lock" Padding="5"  Command="{Binding ToggleOverlayLockCommand}"></Button>
-        </Viewbox>
+
     </Grid>
 </UserControl>

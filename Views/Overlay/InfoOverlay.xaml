@@ -17,7 +17,6 @@
                 <RowDefinition Height="0.85*"/>
                 <RowDefinition Height="0.15*"/>
             </Grid.RowDefinitions>
-
             <ScrollViewer x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" MouseLeftButtonDown="DragWindow" Margin="10,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding MetricBars, UpdateSourceTrigger=PropertyChanged}">
                     <ItemsControl.ItemTemplate>
@@ -25,31 +24,29 @@
                             <!--<Viewbox  MouseLeftButtonDown="DragWindow" Margin="0,2,2,2" MaxHeight="30" HorizontalAlignment="Left">-->
                             <Grid ToolTip="{Binding InfoText}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults"  Margin="0,2,2,2" MaxHeight="35">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="0.5*"/>
-                                    <ColumnDefinition Width="0.5*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="65"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
                                         <ColumnDefinition Width="{Binding SecondaryBarWidth, Mode=TwoWay}"/>
+                                        <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
                                         <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Margin="0,0,0,0" CornerRadius="{Binding BarRadius}" Background="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
-                                    <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Grid.Column="1" CornerRadius="{Binding BarRadiusSecondary}" Background="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
+                                    <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Margin="0,0,0,0" Grid.Column="1" CornerRadius="{Binding BarRadius}" Background="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
+                                    <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Grid.Column="0" CornerRadius="{Binding BarRadiusSecondary}" Background="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
                                 </Grid>
-                                <Viewbox Margin="0,0,20,0" Grid.Column="1" HorizontalAlignment="Right" >
-                                    <TextBlock FontFamily="{StaticResource MainFont}" Margin="0,0,0,1" Foreground="NavajoWhite" Text="{Binding TotalValue}"></TextBlock>
-                                </Viewbox>
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Visibility="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,5,0,5" Source="{Binding MedalIconPath}"></Image>
-                                    <Viewbox HorizontalAlignment="Left" Margin="5,0,2,4">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" ></TextBlock>
-                                            <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="NavajoWhite" Text="{Binding PlayerName}" ></TextBlock>
-                                        </StackPanel>
-                                    </Viewbox>
-                                </StackPanel>
-
+                                <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="20" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TotalValue}"></TextBlock>
+   
+                                <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,2,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.25*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="0" Visibility="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" Margin="2,5,5,3" Source="{Binding MedalIconPath}"></Image>
+                                    <TextBlock Margin="0,5,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="18" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" ></TextBlock>
+                                    <TextBlock Margin="0,5,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding PlayerName}" ></TextBlock>
+                                </Grid>
                             </Grid>
                             <!--</Viewbox>-->
                         </DataTemplate>
@@ -57,27 +54,33 @@
                 </ItemsControl>
             </ScrollViewer>
             <Grid MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
                 <Viewbox HorizontalAlignment="Left" MaxHeight="50">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,10,2"
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,5,2"
             Text="{Binding Type}"/>
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="NavajoWhite" Text=" and " VerticalAlignment="Center" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}"></TextBlock>
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,10,2"
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="NavajoWhite" Text="and" VerticalAlignment="Center" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}"></TextBlock>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" Visibility="{Binding SecondaryType, Converter={StaticResource OverlayTypeToVisibilityConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="5,2,10,2"
             Text="{Binding SecondaryType}"/>
                     </StackPanel>
 
                 </Viewbox>
-
-                <Button FontFamily="{StaticResource MainFont}" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Content="X" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,1,0" FontSize="7"
+                <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0">
+                    <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
+                </Viewbox>
+
             </Grid>
 
             <StackPanel Visibility="{Binding HasLeaderboard, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="15,2,2,2" Grid.Row="2" Orientation="Horizontal">
-                <Viewbox MaxHeight="30"  HorizontalAlignment="Left" >
+                <Viewbox MaxHeight="18"  HorizontalAlignment="Left" >
                     <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="Leaderboard:"/>
                 </Viewbox>
-                <Viewbox MaxHeight="20" Margin="7,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" >
-                    <Image Opacity="1" Source="../../resources/SwtorLogo_opaque.png"/>
+                <Viewbox MaxHeight="18" Margin="7,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" >
+                    <Image Opacity="1" Source="{Binding OverlayTypeImage}"/>
                 </Viewbox>
 
             </StackPanel>

@@ -59,7 +59,7 @@ namespace SWTORCombatParser.Model.Overlays
             var currentDefaults = GetDefaults(characterName);
             if (!currentDefaults.ContainsKey(type))
             {
-                currentDefaults[type] = new DefaultOverlayInfo() { Position = new Point(0,0), WidtHHeight = new Point(100,50), Acive=state };
+                currentDefaults[type] = new DefaultOverlayInfo() { Position = new Point(0,0), WidtHHeight = new Point(100,200), Acive=state };
             }
             var defaultModified = currentDefaults[type];
             currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state };
@@ -80,7 +80,7 @@ namespace SWTORCombatParser.Model.Overlays
                 foreach (var overlayType in enumVals)
                 {
                     if(!defaultsForToon.ContainsKey(overlayType))
-                        defaultsForToon[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                        defaultsForToon[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 300 } };
                 }
                 return defaultsForToon;
             }

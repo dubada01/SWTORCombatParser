@@ -48,15 +48,15 @@
             <Rectangle Fill="DimGray" Grid.Column="11" Margin="0,2,0,2"></Rectangle>
             <Rectangle Fill="DimGray" Grid.Column="13" Margin="0,2,0,2"></Rectangle>
             <Rectangle Fill="DimGray" Grid.Column="15" Margin="0,2,0,2"></Rectangle>
-            <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="{Binding SelectedSortName}" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="% of Total" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="Rate" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="Total" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="Average" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="Max Norm" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="Max Crit" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="Crit %" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Grid.Column="16" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" VerticalAlignment="Center" Text="Count" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="20" VerticalAlignment="Center" Text="{Binding SelectedSortName}" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="% of Total" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Rate" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Total" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Average" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Max Norm" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Max Crit" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Crit %" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="16" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Count" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
         </Grid>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding DataToView}">
             <ItemsControl.ItemTemplate>
@@ -89,15 +89,22 @@
                         <Rectangle Fill="DimGray" Grid.Column="11"></Rectangle>
                         <Rectangle Fill="DimGray" Grid.Column="13"></Rectangle>
                         <Rectangle Fill="DimGray" Grid.Column="15"></Rectangle>
-                        <TextBlock Margin="10,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}"  VerticalAlignment="Center" Text="{Binding SortItem}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                        <ProgressBar Foreground="{StaticResource GrayGreenColorBrush}" Maximum="1" Margin="10,3,10,3" Grid.Column="2" VerticalAlignment="Center" Height="10" HorizontalAlignment="Stretch" Value="{Binding PercentOfTotal, Mode=OneWay}"></ProgressBar>
-                        <TextBlock Margin="10,0,0,0" Grid.Column="4" FontFamily="{StaticResource MainFont}"  VerticalAlignment="Center" Text="{Binding Rate, StringFormat='#,0'}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Margin="10,0,0,0" Grid.Column="6" FontFamily="{StaticResource MainFont}"  VerticalAlignment="Center" Text="{Binding Total, StringFormat='#,0'}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Margin="10,0,0,0" Grid.Column="8" FontFamily="{StaticResource MainFont}"  VerticalAlignment="Center" Text="{Binding Average, StringFormat='#,0'}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Margin="10,0,0,0" Grid.Column="10" FontFamily="{StaticResource MainFont}"  VerticalAlignment="Center" Text="{Binding Max, StringFormat='0,#'}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Margin="10,0,0,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="{Binding MaxCrit, StringFormat='#,0'}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Margin="10,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="{Binding CritPercent, StringFormat='#0.#'}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Margin="10,0,0,0" Grid.Column="16" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="{Binding Count, StringFormat='#,0'}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Margin="10,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding SortItem}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                        <Grid Margin="10,3,10,3" Grid.Column="2" VerticalAlignment="Center" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.25*"/>
+                                <ColumnDefinition Width="0.75*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock FontSize="18" HorizontalAlignment="Left" FontFamily="{StaticResource MainFont}" Margin="0,0,10,0" Text="{Binding PercentOfTotalStr}"></TextBlock>
+                            <ProgressBar Grid.Column="1" Foreground="{StaticResource GrayGreenColorBrush}" Maximum="1" Height="10" HorizontalAlignment="Stretch" Value="{Binding PercentOfTotal, Mode=OneWay}"></ProgressBar>
+                        </Grid>
+                        <TextBlock Margin="10,0,0,0" Grid.Column="4" FontFamily="{StaticResource MainFont}"  FontSize="18" VerticalAlignment="Center" Text="{Binding Rate, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="10,0,0,0" Grid.Column="6" FontFamily="{StaticResource MainFont}"  FontSize="18" VerticalAlignment="Center" Text="{Binding Total, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="10,0,0,0" Grid.Column="8" FontFamily="{StaticResource MainFont}"  FontSize="18" VerticalAlignment="Center" Text="{Binding Average, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="10,0,0,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" FontSize="18"  VerticalAlignment="Center" Text="{Binding Max, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="10,0,0,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding MaxCrit, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="10,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding CritPercent, StringFormat='#0.#'}" HorizontalAlignment="Left"/>
+                        <TextBlock Margin="10,0,0,0" Grid.Column="16" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding Count, StringFormat='#,0'}" HorizontalAlignment="Left"/>
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

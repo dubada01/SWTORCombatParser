@@ -18,6 +18,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private Combat _currentCombat;
         private Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> _leaderboardInfo = new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double,bool)>>();
         public bool OverlaysMoveable { get; set; }
+        public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
         public ObservableCollection<OverlayMetricInfo> MetricBars { get; set; } = new ObservableCollection<OverlayMetricInfo>();
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }
@@ -74,6 +75,18 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatIdentifier.NewCombatAvailable += UpdateMetrics;
             Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
+            Leaderboards.LeaderboardTypeChanged += UpdateLeaderboardType;
+        }
+
+        private void UpdateLeaderboardType(LeaderboardType obj)
+        {
+            if (obj == LeaderboardType.AllDiciplines)
+                OverlayTypeImage = "../../resources/SwtorLogo_opaque.png";
+            else
+            {
+                OverlayTypeImage = "../../resources/LocalPlayerIcon.png";
+            }
+            OnPropertyChanged("OverlayTypeImage");
         }
 
         private void UpdateTopEntries(Dictionary<LeaderboardEntryType, (string, double)> obj)
