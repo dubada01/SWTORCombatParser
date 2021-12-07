@@ -57,7 +57,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             if (Type == OverlayType.DamageTaken)
             {
                 SecondaryType = OverlayType.Mitigation;
-                AddSecondaryToValue = true;
+                AddSecondaryToValue = false;
             }
             if (Type == OverlayType.Mitigation)
             {

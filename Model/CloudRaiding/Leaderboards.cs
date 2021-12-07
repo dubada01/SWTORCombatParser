@@ -40,6 +40,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
             CurrentCombat = newCombat;
             if (TopLeaderboards.Count > 0)
                 TopLeaderboardEntriesAvailable(TopLeaderboards);
+            if (!CombatLogStateBuilder.CurrentState.PlayerClasses.ContainsKey(newCombat.LocalPlayer))
+                return;
             var bossName = newCombat.EncounterBossInfo;
             var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
@@ -62,6 +64,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             lock (_updateLock)
             {
+                if (!CombatLogStateBuilder.CurrentState.PlayerClasses.ContainsKey(newCombat.LocalPlayer))
+                    return;
                 if (CurrentFightLeaderboard.Count == 0)
                     GetCurrentLeaderboard(newCombat);
 

@@ -42,7 +42,7 @@
                                 <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="{Binding Name}" Foreground="{Binding LegendColor}"></TextBlock>
 
                                 <CheckBox Visibility="{Binding ShowEffective}"  Grid.Row="1" Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding EffectiveChecked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
-                                <TextBlock FontFamily="{StaticResource MainFont}" Visibility="{Binding ShowEffective}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Show effective" Foreground="WhiteSmoke"></TextBlock>
+                                <TextBlock FontFamily="{StaticResource MainFont}" Visibility="{Binding ShowEffective}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Show raw" Foreground="WhiteSmoke"></TextBlock>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

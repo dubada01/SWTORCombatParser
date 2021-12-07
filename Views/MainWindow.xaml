@@ -42,24 +42,25 @@
                     </Setter>
                 </Style>
             </TabControl.Resources>
-            <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Battle Stats">
+            <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Battle Plot">
                 <ContentPresenter Content="{Binding GraphView}"/>
             </TabItem>
-            <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Battle Review">
+            <!--<TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Battle Review">
                 <ContentPresenter Content="{Binding BattleReviewView}"/>
-            </TabItem>
+            </TabItem>-->
             <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Table">
                 <ContentPresenter Content="{Binding TableView}"/>
             </TabItem>
             <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Histogram">
                 <ContentPresenter Content="{Binding HistogramView}"/>
             </TabItem>
-            <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Info Logs">
-                <ContentPresenter Content="{Binding SoftwareLogView}"/>
-            </TabItem>
             <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Overlays">
                 <ContentPresenter Content="{Binding OverlayView}"/>
             </TabItem>
+            <!--<TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Software Logs">
+                <ContentPresenter Content="{Binding SoftwareLogView}"/>
+            </TabItem>-->
+
 
         </TabControl>
 

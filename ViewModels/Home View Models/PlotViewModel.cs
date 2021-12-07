@@ -273,11 +273,11 @@ namespace SWTORCombatParser.Plotting
                     {
                         if (plot.Points.Count > 0 && plot.Points.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.Points[combat.StartTime]))
                         {
-                            UpdateSeriesAnnotation(plot.Points[combat.StartTime], plot.Tooltip[combat.StartTime], plot.Name, plot.Abilities[combat.StartTime], false);
+                            UpdateSeriesAnnotation(plot.Points[combat.StartTime], plot.Tooltip[combat.StartTime], plot.Name, plot.Abilities[combat.StartTime], true);
                         }
                         if (plot.EffectivePoints.Count > 0 && plot.EffectivePoints.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.EffectivePoints[combat.StartTime]))
                         {
-                            UpdateSeriesAnnotation(plot.EffectivePoints[combat.StartTime], plot.EffectiveTooltip[combat.StartTime], plot.Name + "Effective", plot.Abilities[combat.StartTime], true);
+                            UpdateSeriesAnnotation(plot.EffectivePoints[combat.StartTime], plot.EffectiveTooltip[combat.StartTime], plot.Name + "Raw", plot.Abilities[combat.StartTime], false);
                         }
                     }
 
@@ -307,12 +307,15 @@ namespace SWTORCombatParser.Plotting
                 double[] plotYvals;
                 double[] plotXValRates;
                 double[] plotYvaRates;
+                double[] peaks;
                 if (series.Type != PlotType.HPPercent)
                 {
                     plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
-                    plotYvals = PlotMaker.GetPlotYVals(applicableData, false);
+                    plotYvals = PlotMaker.GetPlotYVals(applicableData, true);
                     plotXValRates = PlotMaker.GetPlotXValsRates(plotXvals);
                     plotYvaRates = PlotMaker.GetPlotYValRates(plotYvals, plotXvals, _averageWindowDurationDouble);
+                    //peaks = PlotMaker.GetPeaksOfMean(plotYvaRates, _averageWindowDurationDouble);
+                    //var peaksScatter = GraphView.Plot.AddScatter(plotXValRates, peaks, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), label: "Peaks", color: series.Color, markerSize: 15);
                 }
                 else
                 {
@@ -330,10 +333,6 @@ namespace SWTORCombatParser.Plotting
                     series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), label: seriesName, color: series.Color, markerSize: 10);
                     series.Points[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
                 }
-                //if (series.Type == PlotType.HPPercent)
-                //{
-                //    series.Points[combatToPlot.StartTime].YAxisIndex = 1;
-                //}
                 if (plotXValRates.Length > 1)
                 {
                     series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
@@ -342,13 +341,13 @@ namespace SWTORCombatParser.Plotting
                 }
                 if (series.Legend.HasEffective)
                 {
-                    var effectiveYVals = PlotMaker.GetPlotYVals(applicableData, series.Legend.HasEffective);
-                    var effectiveYValSums = PlotMaker.GetPlotYValRates(effectiveYVals, plotXvals,_averageWindowDurationDouble);
-                    series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, effectiveYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Effective" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 15);
+                    var rawYVals = PlotMaker.GetPlotYVals(applicableData, false);
+                    var rawYValRates = PlotMaker.GetPlotYValRates(rawYVals, plotXvals,_averageWindowDurationDouble);
+                    series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, rawYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Raw" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 15);
                     series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     if (plotXValRates.Length > 1)
                     {
-                        series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, effectiveYValSums, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Effective" + seriesName + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
+                        series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, rawYValRates, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Raw" + seriesName + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
                         series.EffectiveLine[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     }
 
@@ -362,6 +361,7 @@ namespace SWTORCombatParser.Plotting
                 ReInitializeTooltips(series, combatToPlot.StartTime);
             }
             GraphView.Plot.AxisAuto();
+            GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
             GraphView.Plot.SetAxisLimits(xMin: 0, xMax: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
             _combatMetaDataViewModel.PopulateCombatMetaDatas(combatToPlot);
             GraphView.Refresh();
@@ -491,6 +491,7 @@ namespace SWTORCombatParser.Plotting
                 Dispatcher.CurrentDispatcher.Invoke(() =>
                 {
                     GraphView.Plot.AxisAuto();
+                    GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
                     GraphView.Refresh();
                 });
             };

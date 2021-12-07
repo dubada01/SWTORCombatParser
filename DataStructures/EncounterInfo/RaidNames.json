@@ -108,6 +108,13 @@
     ]
   },
   {
+    "LogName": "Primary Observatory Four",
+    "Name": "Xeno",
+    "BossNames": [
+      "Xenoanalyst II"
+    ]
+  },
+  {
     "LogName": "Hive of the Mountain Queen",
     "Name": "Queen's Hive",
     "BossNames": [

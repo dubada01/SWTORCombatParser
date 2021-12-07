@@ -62,7 +62,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                             TargetInfo = new EntityInfo() { Entity = recipient},
                             Value = new Value
                             {
-                                DblValue = sheild.SheildValue,
+                                EffectiveDblValue = sheild.SheildValue,
                                 ValueType = DamageType.shield
                             }
                         };
