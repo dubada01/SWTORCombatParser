@@ -270,9 +270,9 @@ namespace SWTORCombatParser.ViewModels
                     _totalLogsDuringCombat.TryRemove(combatStartTime, out var t);
                 }
                 AddFinishedCombat(combatInfo);
-                CombatIdentifier.UpdateOverlays(combatInfo);
                 if (combatInfo.IsEncounterBoss)
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
+                CombatIdentifier.UpdateOverlays(combatInfo);
             }
 
         }

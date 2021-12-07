@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SWTORCombatParser.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -67,7 +68,13 @@ namespace SWTORCombatParser
                 }
 
             }
+            
             return movingaverage;
+        }
+        public static double[] GetPeaksOfMean(double[] data, double windowSize)
+        {
+            var zcores = ZScore.StartAlgo(data.ToList(), 2, 5, 0);
+            return zcores.avgFilter.Select(d=>(double)d).ToArray();
         }
 
         internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data)

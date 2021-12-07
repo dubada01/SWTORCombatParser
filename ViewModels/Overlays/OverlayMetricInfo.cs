@@ -100,7 +100,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue : 0)).ToString("#,##0");
+        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue : SecondaryValue*-1)).ToString("#,##0");
         public void Reset()
         {
             Value = 0;
