@@ -312,6 +312,15 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.ShieldAbsorb:
                     value = combat.SAPS[participant];
                     break;
+                case OverlayType.BurstDPS:
+                    value = combat.MaxBurstDamage[participant];
+                    break;
+                case OverlayType.BurstEHPS:
+                    value = combat.MaxBurstHeal[participant];
+                    break;
+                case OverlayType.BurstDamageTaken:
+                    value = combat.MaxBurstDamageTaken[participant];
+                    break;
             }
             return value;
         }

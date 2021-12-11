@@ -1,4 +1,6 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using MoreLinq;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,7 +34,7 @@ namespace SWTORCombatParser.Model.LogParsing
     {
         private static List<string> _healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
-        public ConcurrentDictionary<Entity, SWTORClass> PlayerClasses = new ConcurrentDictionary<Entity, SWTORClass>();
+        public ConcurrentDictionary<Entity,Dictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>>();
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public string CurrentLocation { get; set; }
         public long MostRecentLogIndex = 0;
@@ -41,7 +43,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
         {
-            var classOfSource = PlayerClasses[source];
+            var classOfSource = CharacterClassHelper.GetClassFromEntityAtTime(source, timeStamp);
             double healsPerThreat = 2;
             double healsModifier = 1;
             if (classOfSource == null)

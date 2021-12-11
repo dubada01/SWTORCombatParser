@@ -1,6 +1,7 @@
 ﻿using MoreLinq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,10 +41,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
             CurrentCombat = newCombat;
             if (TopLeaderboards.Count > 0)
                 TopLeaderboardEntriesAvailable(TopLeaderboards);
-            if (!CombatLogStateBuilder.CurrentState.PlayerClasses.ContainsKey(newCombat.LocalPlayer))
+            if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                 return;
             var bossName = newCombat.EncounterBossInfo;
-            var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
+            var localPlayerClass = CharacterClassHelper.GetClassFromEntityAtTime(newCombat.LocalPlayer,newCombat.StartTime);
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
 
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
@@ -64,20 +65,20 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             lock (_updateLock)
             {
-                if (!CombatLogStateBuilder.CurrentState.PlayerClasses.ContainsKey(newCombat.LocalPlayer))
+                if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                     return;
                 if (CurrentFightLeaderboard.Count == 0)
                     GetCurrentLeaderboard(newCombat);
 
                 var returnData = new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>();
                 var bossName = newCombat.EncounterBossInfo;
-                var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
+                var localPlayerClass = CharacterClassHelper.GetClassFromEntityAtTime(newCombat.LocalPlayer, newCombat.StartTime);
                 var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
                 foreach (var participant in newCombat.CharacterParticipants)
                 {
                     if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                     {
-                        var participantClass = CombatLogStateBuilder.CurrentState.PlayerClasses[participant];
+                        var participantClass = CharacterClassHelper.GetClassFromEntityAtTime(participant, newCombat.StartTime);
                         var participantClassInfo = participantClass == null ? "Unknown" : participantClass.Name + "/" + participantClass.Discipline;
                         if (participantClassInfo != className)
                         {
@@ -109,7 +110,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         private static void GetCurrentLeaderboard(Combat newCombat)
         {
             var bossName = newCombat.EncounterBossInfo;
-            var localPlayerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[newCombat.LocalPlayer];
+            var localPlayerClass = CharacterClassHelper.GetClassFromEntityAtTime(newCombat.LocalPlayer, newCombat.StartTime);
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
@@ -142,13 +143,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 //{
                 var player = combat.LocalPlayer;
                 SWTORClass playerClass;
-                if (!CombatLogStateBuilder.CurrentState.PlayerClasses.ContainsKey(player))
+                if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(player))
                 {
                     playerClass = null;
                 }
                 else
                 {
-                    playerClass = CombatLogStateBuilder.CurrentState.PlayerClasses[player];
+                    playerClass = CharacterClassHelper.GetClassFromEntityAtTime(player, combat.StartTime);
                 }
 
                 var leaderboardEntry = new LeaderboardEntry()

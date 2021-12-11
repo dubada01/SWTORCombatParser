@@ -15,7 +15,7 @@ namespace SWTORCombatParser
     {
         private static DateTime _logDate;
         private static LogState _logState = new LogState();
-        private static ConcurrentBag<Entity> _currentEntities = new ConcurrentBag<Entity>();
+        private static ConcurrentDictionary<string,Entity> _currentEntities = new ConcurrentDictionary<string,Entity>();
         private static Random _idGenerator = new Random();
         public static event Action<string> OnNewLog = delegate { };
 
@@ -86,6 +86,7 @@ namespace SWTORCombatParser
         }
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
         {
+            CombatLogStateBuilder.ClearState();
             _logDate = combatLog.Time;
             var logLines = combatLog.Data.Split('\n');
             var numberOfLines = logLines.Length;
@@ -140,7 +141,7 @@ namespace SWTORCombatParser
             {
                 LogModifier.UpdateLogWithState(line, _logState);
             });
-            LogModifier.StartUpdateOfModifiersActiveForLogs(orderdedLog, _logState);
+            //LogModifier.StartUpdateOfModifiersActiveForLogs(orderdedLog, _logState);
         }
 
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
@@ -247,11 +248,13 @@ namespace SWTORCombatParser
             if (value.Contains("@") && !value.Contains(":"))
             {
                 var characterName = value.Split('#')[0].Replace("@", "");
-                var existingCharacterEntity = _currentEntities.FirstOrDefault(e => e.Name == characterName);
-                if (existingCharacterEntity != null)
-                    return existingCharacterEntity;
+                if (_currentEntities.ContainsKey(characterName))
+                {
+                    return _currentEntities[characterName];
+                }
+
                 var characterEntity = new Entity() { IsCharacter = true, Name =  characterName, IsLocalPlayer = isPlayer, Id = _idGenerator.Next(0,10000)};
-                _currentEntities.Add(characterEntity);
+                _currentEntities[characterName]= characterEntity;
                 return characterEntity;
             }
             if (value.Contains("@") && value.Contains(":"))
@@ -265,23 +268,26 @@ namespace SWTORCombatParser
                 }
                 
                 var companionNameComponents = compaionName.Split('{');
-                var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == companionNameComponents[0].Trim());
-                if (existingCompanionEntity != null)
-                    return existingCompanionEntity;
+                var companionNameValue = companionNameComponents[0].Trim();
+                if (_currentEntities.ContainsKey(companionNameValue))
+                {
+                    return _currentEntities[companionNameValue];
+                }
                 var companion = new Entity() { IsCharacter = false,IsCompanion = true, Name = companionNameComponents[0].Trim(), Id = _idGenerator.Next(0, 10000) };
-                _currentEntities.Add(companion);
+                _currentEntities[companionNameValue]=(companion);
                 return companion;
             }
             var splitVal = value.Split('{');
             var entityName = splitVal[0].Trim();
-            var existingEntity = _currentEntities.FirstOrDefault(e => e.Name == entityName);
-            if (existingEntity != null)
-                return existingEntity;
+            if (_currentEntities.ContainsKey(entityName))
+            {
+                return _currentEntities[entityName];
+            }
 
             var newEntity = new Entity();
             newEntity.Name = entityName;
             newEntity.Id = _idGenerator.Next(0, 10000);
-            _currentEntities.Add(newEntity);
+            _currentEntities[entityName]=(newEntity);
             return newEntity;
         }
         private static string ParseAbility(string value)

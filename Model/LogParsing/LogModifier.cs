@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,7 +82,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCharacter)
             {
-                var swtorClass = state.PlayerClasses.GetOrAdd(parsedLog.Source, e=> null);
+                var swtorClass = state.PlayerClassChangeInfo.GetOrAdd(parsedLog.Source, e=> null);
                 if (swtorClass == null)
                 {
                     parsedLog.Value.EffectiveDblValue = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source);
@@ -98,12 +99,12 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
                     return;
                 }
-
-                var specialThreatAbilties = state.PlayerClasses[parsedLog.Source].SpecialThreatAbilities;
+                var playerClass = CharacterClassHelper.GetClassFromEntityAtTime(parsedLog.Source, parsedLog.TimeStamp);
+                var specialThreatAbilties = playerClass.SpecialThreatAbilities;
 
                 var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => parsedLog.Ability.Contains(a.Name));
 
-                if (parsedLog.Ability.Contains("Advanced") && parsedLog.Ability.Contains("Medpac") && state.PlayerClasses[parsedLog.Source].Role != Role.Tank)
+                if (parsedLog.Ability.Contains("Advanced") && parsedLog.Ability.Contains("Medpac") && playerClass.Role != Role.Tank)
                     specialThreatAbilityUsed = new Ability() { StaticThreat = true };
 
                 var effectiveAmmount = 0d;

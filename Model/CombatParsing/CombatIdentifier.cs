@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,15 +43,39 @@ namespace SWTORCombatParser
         {
 
         }
+        public static List<Combat> GetAllBossCombatsFromLog(List<ParsedLogEntry> allLogsFromfile)
+        {
+            List<Combat> combats = new List<Combat>();
+            var inCombat = false;
+            List<ParsedLogEntry> currentCombatLogs = new List<ParsedLogEntry>();
+            foreach(var line in allLogsFromfile)
+            {
+                if(!inCombat && line.Effect.EffectName == "EnterCombat")
+                {
+                    inCombat = true;
+                    currentCombatLogs = new List<ParsedLogEntry>();
+                }
+                if(inCombat && line.Effect.EffectName == "ExitCombat" || (line.Effect.EffectName == "Death" && line.Target.IsLocalPlayer))
+                {
+                    inCombat = false;
+                    var combatCreated = GenerateNewCombatFromLogs(currentCombatLogs);
+                    if(combatCreated.EncounterBossInfo != "")
+                        combats.Add(combatCreated);
+                }
+                if (inCombat)
+                    currentCombatLogs.Add(line);
+
+            }
+            return combats;
+        }
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
             var encounter = GetEncounterInfo(ongoingLogs);
             var currentPariticpants = ongoingLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Select(p => p.Source).Distinct().ToList();
             currentPariticpants.AddRange(ongoingLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Select(p => p.Target).Distinct().ToList());
             var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
-
-            var participantInfos = ongoingLogs.Where(l => l.Source.IsCharacter && l.SourceInfo.Class!=null).Select(p => p.SourceInfo).Distinct().ToList();
-            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => k.Class);
+            var participantInfos = ongoingLogs.Select(p => p.SourceInfo).Distinct().ToList();
+            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => CharacterClassHelper.GetClassFromEntityAtTime(k.Entity,ongoingLogs.First().TimeStamp));
             var newCombat = new Combat()
             {
                 CharacterParticipants = participants,

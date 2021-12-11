@@ -9,8 +9,8 @@
                   BorderBrush="DimGray" BorderThickness="1,1,1,1" CornerRadius="3,3,0,0">
                             <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center"
                               HorizontalAlignment="Center"
-                              ContentSource="Header" Margin="12,2,12,2"
-                              RecognizesAccessKey="True">
+                              ContentSource="Header" 
+                              RecognizesAccessKey="True" Margin="12,2,12,2">
                             </ContentPresenter>
                         </Border>
                     </Grid>

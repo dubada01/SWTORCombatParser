@@ -71,10 +71,11 @@ namespace SWTORCombatParser
             
             return movingaverage;
         }
-        public static double[] GetPeaksOfMean(double[] data, double windowSize)
+        public static List<(int,double)> GetPeaksOfMean(double[] data, double windowSize)
         {
-            var zcores = ZScore.StartAlgo(data.ToList(), 2, 5, 0);
-            return zcores.avgFilter.Select(d=>(double)d).ToArray();
+            var zcores = ZScore.FindPeaks(data, 20).ToList();
+
+            return zcores;
         }
 
         internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data)

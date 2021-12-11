@@ -21,6 +21,22 @@ namespace SWTORCombatParser
         {
             return LoggingPath;
         }
+        public static CombatLogFile[] LoadCombatsBetweenTimes(DateTime from, DateTime to)
+        {
+            if (!Directory.Exists(LoggingPath))
+                return new CombatLogFile[0];
+            var info = new DirectoryInfo(LoggingPath);
+            var filePaths = info.GetFiles();
+            var filesToUse = filePaths.Where(f => f.LastWriteTime > from && f.LastWriteTime <= to).ToList();
+            CombatLogFile[] combatLogsData = new CombatLogFile[filesToUse.Count];
+            Parallel.For(0, filesToUse.Count, i =>
+            {
+                var filePath = filesToUse[i];
+                combatLogsData[i] = LoadCombatLog(filePath.FullName);
+            });
+
+            return combatLogsData.Where(l => l.Data != "").OrderByDescending(v => v.Time).ToArray();
+        }
         public static CombatLogFile[] LoadAllCombatLogs()
         {
             if (!Directory.Exists(LoggingPath))

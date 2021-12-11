@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Alerts;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -22,7 +23,6 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public static void ResetCombatSpecific()
         {
-            CurrentState.PlayerClasses = new ConcurrentDictionary<Entity, SWTORClass>();
             CurrentState.CurrentCharacterPositions = new Dictionary<Entity, PositionData>();
         }
 
@@ -43,7 +43,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
                 SetCharacterPositions(log);
                 if(liveLog)
-                    OutrangedHealerAlert.CheckForOutrangingHealers();
+                    OutrangedHealerAlert.CheckForOutrangingHealers(log.TimeStamp);
                 if(log.Effect.EffectType == EffectType.DisciplineChanged)
                     SetPlayerClass(log);
 
@@ -116,13 +116,16 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (!parsedLine.Source.IsCharacter)
                 return;
-            if (!CurrentState.PlayerClasses.ContainsKey(parsedLine.Source))
-                CurrentState.PlayerClasses[parsedLine.Source] = null;
+            if (!CurrentState.PlayerClassChangeInfo.ContainsKey(parsedLine.Source))
+                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = null;
 
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
-            CurrentState.PlayerClasses[parsedLine.Source] = parsedLine.SourceInfo.Class;
-
+            if(CurrentState.PlayerClassChangeInfo[parsedLine.Source] == null)
+            {
+                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
+            }
+            CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp]=parsedLine.SourceInfo.Class;
         }
 
     }

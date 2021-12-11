@@ -57,7 +57,7 @@ namespace SWTORCombatParser.Views.Overlay
             else
             {
                 Background.Opacity = 0.45f;
-                ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+                ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
                 //Remove the WS_EX_TRANSPARENT flag from the extended window style
                 int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                 SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);
