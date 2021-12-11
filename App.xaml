@@ -14,6 +14,7 @@
                 <ResourceDictionary Source="Utilities/UIStyles/ComboBox.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/TextBoxStyle.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/CheckBoxStyle.xaml"/>
+                <ResourceDictionary Source="Utilities/UIStyles/DatePickerStyle.xaml"/>
                 <ResourceDictionary>
                     <FontFamily x:Key="MainFont">Dotum</FontFamily>
                 </ResourceDictionary>

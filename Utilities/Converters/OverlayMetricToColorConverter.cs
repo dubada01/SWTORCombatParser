@@ -15,10 +15,16 @@ namespace SWTORCombatParser.Utilities.Converters
         {
             switch ((OverlayType)value)
             {
+                case OverlayType.APM:
+                    return Brushes.MediumPurple;
+                case OverlayType.BurstDPS:
+                    return Brushes.Red;
                 case OverlayType.DPS:
                     return Brushes.IndianRed;
                 case OverlayType.FocusDPS:
                     return Brushes.OrangeRed;
+                case OverlayType.BurstEHPS:
+                    return Brushes.LimeGreen;
                 case OverlayType.EHPS:
                     return Brushes.Green;
                 case OverlayType.HPS:
@@ -29,6 +35,8 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.CadetBlue;
                 case OverlayType.Threat:
                     return Brushes.Orchid;
+                case OverlayType.BurstDamageTaken:
+                    return Brushes.SaddleBrown;
                 case OverlayType.DamageTaken:
                     return Brushes.Peru;
                 case OverlayType.CompanionDPS:

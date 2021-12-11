@@ -10,25 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SWTORCombatParser.Utilities
+namespace SWTORCombatParser.Views
 {
     /// <summary>
-    /// Interaction logic for LoadingSplash.xaml
+    /// Interaction logic for HistoricalRangeWiget.xaml
     /// </summary>
-    public partial class LoadingSplash : Window
+    public partial class HistoricalRangeWiget : UserControl
     {
-        public LoadingSplash()
+        public HistoricalRangeWiget()
         {
             InitializeComponent();
-        }
-        public void SetString(string value)
-        {
-            Dispatcher.Invoke(() => {
-                LoadingText.Text = value;
-            });
-
         }
     }
 }

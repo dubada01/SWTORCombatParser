@@ -3,20 +3,24 @@ using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Plotting;
 using SWTORCombatParser.ViewModels.BattleReview;
+using SWTORCombatParser.ViewModels.HistoricalLogs;
 using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.Overviews;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
+using SWTORCombatParser.Views.HistoricalLogs;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class MainWindowViewModel:INotifyPropertyChanged
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
         private PlotViewModel _plotViewModel;
         private CombatMonitorViewModel _combatMonitorViewModel;
@@ -24,10 +28,21 @@ namespace SWTORCombatParser.ViewModels
         private OverviewViewModel _tableViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
         private OverviewViewModel _histViewModel;
-        private BattleReviewViewModel _reviewViewModel;
+        private Dictionary<Guid, HistoricalCombatViewModel> _activeHistoricalCombatOverviews = new Dictionary<Guid, HistoricalCombatViewModel>();
+        private int selectedTabIndex;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public string Title { get; set; }
+        public ObservableCollection<TabInstance> ContentTabs { get; set; } = new ObservableCollection<TabInstance>();
+        public int SelectedTabIndex
+        {
+            get => selectedTabIndex;
+            set
+            {
+                selectedTabIndex = value;
+                OnPropertyChanged();
+            }
+        }
         public MainWindowViewModel()
         {
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
@@ -35,7 +50,8 @@ namespace SWTORCombatParser.ViewModels
             RaidNameLoader.LoadAllRaidNames();
 
             _plotViewModel = new PlotViewModel();
-            GraphView = new GraphView(_plotViewModel);
+            var graphView = new GraphView(_plotViewModel);
+            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Battle Plot" });
 
             _combatMonitorViewModel = new CombatMonitorViewModel();
             _combatMonitorViewModel.OnCombatSelected += SelectCombat;
@@ -43,42 +59,66 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel.OnLiveCombatUpdate += UpdateLivePlot;
             _combatMonitorViewModel.OnMonitoringStarted += MonitoringStarted;
             _combatMonitorViewModel.ParticipantsUpdated += UpdateAvailableParticipants;
-            _combatMonitorViewModel.OnNewLog += NewSoftwareLog;
-            
+            _combatMonitorViewModel.OnHistoricalCombatsParsed += AddHistoricalViewer;
+            //_combatMonitorViewModel.OnNewLog += NewSoftwareLog;
+
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
 
-            _overlayViewModel = new OverlayViewModel();
-            OverlayView = new OverlayView(_overlayViewModel);
+
 
             _tableViewModel = new TableViewModel();
-            TableView = new OverviewView(_tableViewModel);
+            var tableView = new OverviewView(_tableViewModel);
+            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Table" });
 
-            _softwareLogViewModel = new SoftwareLogViewModel();
-            SoftwareLogView = new LogsView(_softwareLogViewModel);
+            //_softwareLogViewModel = new SoftwareLogViewModel();
+            //SoftwareLogView = new LogsView(_softwareLogViewModel);
 
             _histViewModel = new HistogramVeiewModel();
-            HistogramView = new OverviewView(_histViewModel);
+            var histView = new OverviewView(_histViewModel);
+            ContentTabs.Add(new TabInstance() { TabContent = histView, HeaderText = "Histogram" });
+            //_reviewViewModel = new BattleReviewViewModel();
+            //BattleReviewView = new BattleReviewView(_reviewViewModel);
 
-            _reviewViewModel = new BattleReviewViewModel();
-            BattleReviewView = new BattleReviewView(_reviewViewModel);
+            _overlayViewModel = new OverlayViewModel();
+            var overlayView = new OverlayView(_overlayViewModel);
+            ContentTabs.Add(new TabInstance() { TabContent = overlayView, HeaderText = "Overlays" });
 
-            CombatLogParser.OnNewLog += NewSoftwareLog;
+            //CombatLogParser.OnNewLog += NewSoftwareLog;
 
+            SelectedTabIndex = 0;
 
         }
-        public OverlayView OverlayView { get; set; }
-        public GraphView GraphView { get; set; }
-        public OverviewView TableView { get; set; }
-        public OverviewView HistogramView { get; set; }
-        public LogsView SoftwareLogView { get; set; }
-        public PastCombatsView PastCombatsView { get; set; }
 
-        public BattleReviewView BattleReviewView { get; set; }
+        private void AddHistoricalViewer(List<Combat> combats)
+        {
+            if (combats.Count == 0)
+                return;
+            App.Current.Dispatcher.Invoke(() => {
+                var historyGuid = Guid.NewGuid();
+                var historyView = new HistoricalCombatView();
+                var viewModel = new HistoricalCombatViewModel(combats);
+                historyView.DataContext = viewModel;
+                _activeHistoricalCombatOverviews[historyGuid] = viewModel;
+                var histTab = new TabInstance() {IsHistoricalTab=true, TabContent = historyView, HeaderText = $"{combats.Last().StartTime.ToString("MM/dd")}<->{combats.First().StartTime.ToString("MM/dd")}", HistoryID = historyGuid };
+                histTab.RequestTabClose += CloseHistoricalReview;
+                ContentTabs.Add(histTab);
+                SelectedTabIndex = ContentTabs.Count-1;
+            });
+
+        }
+        private void CloseHistoricalReview(TabInstance tabToClose)
+        {
+            var historyToRemove = _activeHistoricalCombatOverviews[tabToClose.HistoryID];
+            historyToRemove.Dispose();
+            ContentTabs.Remove(tabToClose);
+        }
+        public PastCombatsView PastCombatsView { get; set; }
 
 
         private void MonitoringStarted()
         {
-            App.Current.Dispatcher.Invoke(delegate {
+            App.Current.Dispatcher.Invoke(delegate
+            {
                 _plotViewModel.Reset();
                 _tableViewModel.Reset();
                 _histViewModel.Reset();
@@ -87,7 +127,8 @@ namespace SWTORCombatParser.ViewModels
 
         private void UpdateLivePlot(Combat obj)
         {
-            App.Current.Dispatcher.Invoke(delegate {
+            App.Current.Dispatcher.Invoke(delegate
+            {
                 _plotViewModel.UpdateLivePlot(obj);
                 _tableViewModel.AddCombat(obj);
                 _histViewModel.AddCombat(obj);
@@ -101,25 +142,22 @@ namespace SWTORCombatParser.ViewModels
         }
         private void SelectCombat(Combat obj)
         {
-            App.Current.Dispatcher.Invoke(delegate{
+            App.Current.Dispatcher.Invoke(delegate
+            {
                 _plotViewModel.AddCombatPlot(obj);
                 _tableViewModel.AddCombat(obj);
                 _histViewModel.AddCombat(obj);
-                _reviewViewModel.CombatSelected(obj);
             });
 
         }
         private void UnselectCombat(Combat obj)
         {
-            App.Current.Dispatcher.Invoke(delegate {
+            App.Current.Dispatcher.Invoke(delegate
+            {
                 _plotViewModel.RemoveCombatPlot(obj);
                 _tableViewModel.RemoveCombat(obj);
                 _histViewModel.RemoveCombat(obj);
             });
-        }
-        private void UpdateDisplayedData(AxisLimits newAxisLimits)
-        {
-            
         }
         private void UpdateAvailableParticipants(List<Entity> obj)
         {

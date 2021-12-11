@@ -307,15 +307,13 @@ namespace SWTORCombatParser.Plotting
                 double[] plotYvals;
                 double[] plotXValRates;
                 double[] plotYvaRates;
-                double[] peaks;
                 if (series.Type != PlotType.HPPercent)
                 {
                     plotXvals = PlotMaker.GetPlotXVals(applicableData, combatToPlot.StartTime);
                     plotYvals = PlotMaker.GetPlotYVals(applicableData, true);
                     plotXValRates = PlotMaker.GetPlotXValsRates(plotXvals);
                     plotYvaRates = PlotMaker.GetPlotYValRates(plotYvals, plotXvals, _averageWindowDurationDouble);
-                    //peaks = PlotMaker.GetPeaksOfMean(plotYvaRates, _averageWindowDurationDouble);
-                    //var peaksScatter = GraphView.Plot.AddScatter(plotXValRates, peaks, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), label: "Peaks", color: series.Color, markerSize: 15);
+                    PlotPeaks(series, plotYvaRates,plotXValRates, combatToPlot, selectedEntity);
                 }
                 else
                 {
@@ -366,6 +364,25 @@ namespace SWTORCombatParser.Plotting
             _combatMetaDataViewModel.PopulateCombatMetaDatas(combatToPlot);
             GraphView.Refresh();
         }
+
+        private void PlotPeaks(CombatMetaDataSeries series, double[] plotYvaRates, double[] rateTimeStamps, Combat combatToPlot, Entity selectedEntity)
+        {
+            List<(int, double)> peaksAndIndicies = PlotMaker.GetPeaksOfMean(plotYvaRates, _averageWindowDurationDouble);
+            var peaksXVals = new List<double>();
+            var peaks = new List<double>();
+            for (var i = 0; i < peaksAndIndicies.Count; i++)
+            {
+                var peak = peaksAndIndicies[i];
+                if (peak.Item2 == 0)
+                    continue;
+                peaksXVals.Add(rateTimeStamps[peak.Item1]);
+                peaks.Add(peak.Item2);
+            }
+            if (peaksXVals.Count == 0)
+                return;
+            GraphView.Plot.AddScatter(peaksXVals.ToArray(), peaks.ToArray(), lineStyle: LineStyle.None, markerShape: MarkerShape.asterisk, color: series.Color, markerSize: 5);
+        }
+
         private MarkerShape GetMarkerFromNumberOfComparisons(int numberOfComparison)
         {
             switch (numberOfComparison)

@@ -11,13 +11,13 @@ namespace SWTORCombatParser.resources
 {
     public static class LoadingWindowFactory
     {
-        private static Window _loadingWindow;
+        private static LoadingSplash _loadingWindow;
         private static Window _mainWindow;
         public static void SetMainWindow(Window mainWindow)
         {
             _mainWindow = mainWindow;
         }
-        public static void ShowLoading()
+        public static LoadingSplash ShowLoading(string text = "Loading...")
         {
             App.Current.Dispatcher.Invoke(() =>
             {
@@ -32,7 +32,7 @@ namespace SWTORCombatParser.resources
                 _loadingWindow.Left = center.Item1 - 300;
                 _loadingWindow.Show();
             });
-
+            return _loadingWindow;
         }
         public static void HideLoading()
         {

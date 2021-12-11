@@ -43,7 +43,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             _alertsViewModel = new AlertsViewModel();
             DefaultOverlayManager.Init();
-            var enumVals = EnumUtil.GetValues<OverlayType>();
+            var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d=>d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
                 AvailableOverlayTypes.Add(enumVal);
@@ -77,6 +77,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 return;
 
             var viewModel = new OverlayInstanceViewModel(overlayType);
+            if (OverlaysLocked)
+                viewModel.LockOverlays();
             DefaultOverlayManager.SetActiveState(viewModel.Type, true, _currentCharacterName);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = !OverlaysLocked;

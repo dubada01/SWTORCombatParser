@@ -4,6 +4,8 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.resources;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.HistoricalLogs;
+using SWTORCombatParser.Views;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -31,9 +33,11 @@ namespace SWTORCombatParser.ViewModels
         private List<PastCombat> _allCombats = new List<PastCombat>();
         private bool _usingHistoricalData = true;
         private object combatAddLock = new object();
+        private HistoricalRangeSelectionViewModel _historicalRangeVM;
 
 
         public event Action OnMonitoringStarted = delegate { };
+        public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
         public event Action<Combat> OnCombatSelected = delegate { };
         public event Action<Combat> OnCombatUnselected = delegate { };
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
@@ -54,7 +58,7 @@ namespace SWTORCombatParser.ViewModels
 
         public ObservableCollection<EncounterCombat> PastEncounters { get; set; } = new ObservableCollection<EncounterCombat>();
         public EncounterCombat CurrentEncounter;
-
+        public HistoricalRangeWiget HistoricalRange { get; set; }
         public bool LiveParseActive
         {
             get => _liveParseActive; set
@@ -67,6 +71,11 @@ namespace SWTORCombatParser.ViewModels
 
         public CombatMonitorViewModel()
         {
+            HistoricalRange = new HistoricalRangeWiget();
+            _historicalRangeVM = new HistoricalRangeSelectionViewModel();
+            _historicalRangeVM.HistoricalCombatsParsed += OnNewHistoricalCombats;
+            HistoricalRange.DataContext = _historicalRangeVM;
+
             _combatLogStreamer = new CombatLogStreamer();
             _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
             _combatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
@@ -74,7 +83,10 @@ namespace SWTORCombatParser.ViewModels
                 manager => _combatLogStreamer.CombatUpdated += manager,
                 manager => _combatLogStreamer.CombatUpdated -= manager).Subscribe(update => NewCombatStatusAlert(update));
         }
-
+        private void OnNewHistoricalCombats(List<Combat> historicalCombats)
+        {
+            OnHistoricalCombatsParsed(historicalCombats);
+        }
         private void LocalPlayerFound(Entity obj)
         {
             ParticipantsUpdated(new List<Entity> { obj });

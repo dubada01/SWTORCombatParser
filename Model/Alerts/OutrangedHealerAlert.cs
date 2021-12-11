@@ -11,11 +11,11 @@ namespace SWTORCombatParser.Model.Alerts
     public static class OutrangedHealerAlert
     {
         public static event Action<(Entity, List<Entity>)> NotifyOutrangedHealers = delegate { };
-        public static void CheckForOutrangingHealers()
+        public static void CheckForOutrangingHealers(DateTime time)
         {
             var currentState = CombatLogStateBuilder.CurrentState;
             var positions = currentState.CurrentCharacterPositions;
-            var healers = currentState.PlayerClasses.Where(kvp => kvp.Value != null && kvp.Value.Role == DataStructures.Role.Healer).Select(kvp=>kvp.Key).ToList();
+            var healers = currentState.PlayerClassChangeInfo.Where(kvp => kvp.Value != null && CharacterClassHelper.GetClassFromEntityAtTime(kvp.Key,time).Role == DataStructures.Role.Healer).Select(kvp=>kvp.Key).ToList();
             var localPlayer = currentState.CurrentCharacterPositions.Keys.First(e => e.IsLocalPlayer);
             var localPlayerPosition = positions[localPlayer];
             var outrangedHealers = new List<Entity>();

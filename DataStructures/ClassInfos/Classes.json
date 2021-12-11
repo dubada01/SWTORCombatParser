@@ -413,7 +413,7 @@
       "UniqueAbilities": [ "Shrap Bomb", "Wounding Shots", "Hemorrhaging Blast", "Dirty Blast" ]
     },
     {
-      "Name": "Jedi Shadow",
+      "Name": "Shadow",
       "Role": "Tank",
       "Discipline": "Kinetic Combat",
       "SpecialThreatAbilities": [
@@ -421,7 +421,7 @@
       "UniqueAbilities": [ "Cascading Debris", "Kinetic Ward", "Slow Time", "Force Pull" ]
     },
     {
-      "Name": "Jedi Shadow",
+      "Name": "Shadow",
       "Role": "DPS",
       "Discipline": "Infiltration",
       "SpecialThreatAbilities": [
@@ -429,7 +429,7 @@
       "UniqueAbilities": [ "Vaulting Slash", "Clairvoyant", "Low Slash", "Psychokinetic Blast" ]
     },
     {
-      "Name": "Jedi Shadow",
+      "Name": "Shadow",
       "Role": "DPS",
       "Discipline": "Serenity",
       "SpecialThreatAbilities": [

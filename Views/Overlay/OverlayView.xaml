@@ -22,13 +22,19 @@
                 <ItemsControl  ItemsSource="{Binding AvailableOverlayTypes}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Style="{StaticResource RoundCornerButton}" Padding="5" CommandParameter="{Binding .}" Height="50" Width="200" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
-                                <Button.Content>
-                                    <Viewbox MaxHeight="25">
-                                        <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding .}"></TextBlock>
-                                    </Viewbox>
-                                </Button.Content>
-                            </Button>
+                            <Grid>
+                                <Button Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" Height="50" Width="200" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                                    <Button.Content>
+                                        <Grid>
+                                            <Viewbox MaxHeight="25" Margin="0,0,0,10">
+                                                <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding .}" ></TextBlock>
+                                            </Viewbox>
+                                        </Grid>
+                                    </Button.Content>
+                                </Button>
+                                <Border Margin="0,0,0,23" VerticalAlignment="Bottom" Width="50" HorizontalAlignment="Stretch" Height="10" CornerRadius="5" Background="{Binding ., Converter={StaticResource OverlayMetricTypeToColorConverter}}"></Border>
+                            </Grid>
+
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>

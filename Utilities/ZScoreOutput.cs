@@ -16,6 +16,23 @@ namespace SWTORCombatParser.Utilities
 
     public static class ZScore
     {
+        public static IList<(int, double)> FindPeaks(IList<double> values, int rangeOfPeaks)
+        {
+            List<(int,double)> peaks = new List<(int,double)>();
+
+            int checksOnEachSide = rangeOfPeaks / 2;
+            for (int i = 0; i < values.Count; i++)
+            {
+                double current = values[i];
+                IEnumerable<double> range = values;
+                if (i > checksOnEachSide)
+                    range = range.Skip(i - checksOnEachSide);
+                range = range.Take(rangeOfPeaks);
+                if (current == range.Max())
+                    peaks.Add((i,current));
+            }
+            return peaks;
+        }
         public static ZScoreOutput StartAlgo(List<double> input, int lag, double threshold, double influence)
         {
             // init variables!
