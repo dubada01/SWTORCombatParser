@@ -56,45 +56,38 @@ namespace SWTORCombatParser.Model.LogParsing
             UpdateEffectiveHealing(parsedLog, state);
         }
 
-        public static void StartUpdateOfModifiersActiveForLogs(List<ParsedLogEntry> logs,LogState state)
-        {
-            Task.Run(() => {
-                Parallel.ForEach(logs, new ParallelOptions { MaxDegreeOfParallelism = 3 }, log =>
-                 {
-                     var modifiers = state.GetCombatModifiersAtTimeInvolvingParticipants(log.TimeStamp, log.Source, log.Target);
-                     var usableModifiers = modifiers.Where(m => !_effectsToIgnore.Any(e => m.Name.Contains(e))).ToList();
-                     if(usableModifiers.Any())
-                        UpdateLogBuffs(log, usableModifiers);
-                 });
-            });
-        }
-        private static void UpdateLogBuffs(ParsedLogEntry log, List<CombatModifier> usableModifiers)
-        {
-            var buffs = usableModifiers.Where(m => _offensiveBuffs.Any(b => m.Name == b) || _raidBuffNames.Any(rb => m.Name == rb));
-            var buffsForSource = buffs.Where(b => b.Target == log.Source);
-            log.Value.Buffs = buffsForSource.ToList();
+        //public static void StartUpdateOfModifiersActiveForLogs(List<ParsedLogEntry> logs,LogState state)
+        //{
+        //    Task.Run(() => {
+        //        Parallel.ForEach(logs, new ParallelOptions { MaxDegreeOfParallelism = 3 }, log =>
+        //         {
+        //             var modifiers = state.GetCombatModifiersAtTimeInvolvingParticipants(log.TimeStamp, log.Source, log.Target);
+        //             var usableModifiers = modifiers.Where(m => !_effectsToIgnore.Any(e => m.Name.Contains(e))).ToList();
+        //             if(usableModifiers.Any())
+        //                UpdateLogBuffs(log, usableModifiers);
+        //         });
+        //    });
+        //}
+        //private static void UpdateLogBuffs(ParsedLogEntry log, List<CombatModifier> usableModifiers)
+        //{
+        //    var buffs = usableModifiers.Where(m => _offensiveBuffs.Any(b => m.Name == b) || _raidBuffNames.Any(rb => m.Name == rb));
+        //    var buffsForSource = buffs.Where(b => b.Target == log.Source);
+        //    log.Value.Buffs = buffsForSource.ToList();
 
-            var defbuffs = usableModifiers.Where(m => _defensiveBuffs.Any(b => m.Name == b) || _tankCooldowns.Any(tc => tc == m.Name));
-            var defBuffsForTarget = defbuffs.Where(db => db.Target == log.Target);
-            log.Value.DefensiveBuffs = defBuffsForTarget.ToList();
-        }
+        //    var defbuffs = usableModifiers.Where(m => _defensiveBuffs.Any(b => m.Name == b) || _tankCooldowns.Any(tc => tc == m.Name));
+        //    var defBuffsForTarget = defbuffs.Where(db => db.Target == log.Target);
+        //    log.Value.DefensiveBuffs = defBuffsForTarget.ToList();
+        //}
         public static void UpdateEffectiveHealing(ParsedLogEntry parsedLog, LogState state)
         {
             if (parsedLog.Effect.EffectName == "Heal" && parsedLog.Source.IsCharacter)
             {
-                var swtorClass = state.PlayerClassChangeInfo.GetOrAdd(parsedLog.Source, e=> null);
+                var swtorClass = state.PlayerClassChangeInfo.GetOrAdd(parsedLog.Source, e => null);
                 if (swtorClass == null)
                 {
                     parsedLog.Value.EffectiveDblValue = parsedLog.Threat * state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source);
                     if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
                     {
-                        //OnNewLog("**************Impossible Heal! " +
-                        //  "\nTime: " + parsedLog.TimeStamp +
-                        //  "\nName: " + parsedLog.Ability +
-                        //  "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
-                        //  "\nThreat: " + parsedLog.Threat +
-                        //  "\nRaw: " + parsedLog.Value.DblValue +
-                        //  "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source));
                         parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
                     }
                     return;
@@ -124,13 +117,6 @@ namespace SWTORCombatParser.Model.LogParsing
                 parsedLog.Value.EffectiveDblValue = (int)effectiveAmmount;
                 if (parsedLog.Value.EffectiveDblValue > parsedLog.Value.DblValue)
                 {
-                    //OnNewLog("**************Impossible Heal! " +
-                    //      "\nTime: " + parsedLog.TimeStamp +
-                    //      "\nName: " + parsedLog.Ability +
-                    //      "\nCalculated: " + parsedLog.Value.EffectiveDblValue +
-                    //      "\nThreat: " + parsedLog.Threat +
-                    //      "\nRaw: " + parsedLog.Value.DblValue +
-                    //      "\nThreat Multiplier: " + state.GetCurrentHealsPerThreat(parsedLog.TimeStamp, parsedLog.Source));
                     parsedLog.Value.EffectiveDblValue = parsedLog.Value.DblValue;
                 }
                 return;

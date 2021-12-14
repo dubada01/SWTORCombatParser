@@ -31,10 +31,10 @@
         </Border>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="45"/>
+                <RowDefinition Height="40"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" >
+            <Grid Grid.Row="0">
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0"
                                      EndPoint="0,1">
@@ -61,8 +61,10 @@
                     <ColumnDefinition Width="1"/>
                     <ColumnDefinition Width="0.035*"/>
                     <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.035*"/>
+                    <ColumnDefinition Width="1"/>
                     <ColumnDefinition Width="0.025*"/>
-                    <ColumnDefinition Width="17"/>
+                    <ColumnDefinition Width="19"/>
                 </Grid.ColumnDefinitions>
                 <Rectangle Fill="DimGray" Grid.Column="1" Margin="0,2,0,2"></Rectangle>
                 <Rectangle Fill="DimGray" Grid.Column="3" Margin="0,2,0,2"></Rectangle>
@@ -72,62 +74,108 @@
                 <Rectangle Fill="DimGray" Grid.Column="11" Margin="0,2,0,2"></Rectangle>
                 <Rectangle Fill="DimGray" Grid.Column="13" Margin="0,2,0,2"></Rectangle>
                 <Rectangle Fill="DimGray" Grid.Column="15" Margin="0,2,0,2"></Rectangle>
-                <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="20" VerticalAlignment="Center" Text="Date" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Encounter" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Boss" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Character" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="DPS" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="HPS" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="DTPS" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="HTPS" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="16" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Kill" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <Rectangle Fill="DimGray" Grid.Column="17" Margin="0,2,0,2"></Rectangle>
+                <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="18" VerticalAlignment="Center" Text="Date" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="Encounter" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="Boss" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="Character" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="APM" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="DPS" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="HPS" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="DTPS" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="16" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="HTPS" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="18" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="18" VerticalAlignment="Center" Text="Kill" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
             </Grid>
-            <ScrollViewer Grid.Row="1">
-                <ItemsControl  ItemsSource="{Binding DataToView}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Grid.Row="0" Background="{Binding RowBackground}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="0.075*"/>
-                                    <ColumnDefinition Width="1"/>
-                                    <ColumnDefinition Width="0.075*"/>
-                                    <ColumnDefinition Width="1"/>
-                                    <ColumnDefinition Width="0.075*"/>
-                                    <ColumnDefinition Width="1"/>
-                                    <ColumnDefinition Width="0.075*"/>
-                                    <ColumnDefinition Width="1"/>
-                                    <ColumnDefinition Width="0.035*"/>
-                                    <ColumnDefinition Width="1"/>
-                                    <ColumnDefinition Width="0.035*"/>
-                                    <ColumnDefinition Width="1"/>
-                                    <ColumnDefinition Width="0.035*"/>
-                                    <ColumnDefinition Width="1"/>
-                                    <ColumnDefinition Width="0.035*"/>
-                                    <ColumnDefinition Width="1"/>
-                                    <ColumnDefinition Width="0.025*"/>
-                                </Grid.ColumnDefinitions>
-                                <Rectangle Fill="DimGray" Grid.Column="1" ></Rectangle>
-                                <Rectangle Fill="DimGray" Grid.Column="3" ></Rectangle>
-                                <Rectangle Fill="DimGray" Grid.Column="5" ></Rectangle>
-                                <Rectangle Fill="DimGray" Grid.Column="7" ></Rectangle>
-                                <Rectangle Fill="DimGray" Grid.Column="9" ></Rectangle>
-                                <Rectangle Fill="DimGray" Grid.Column="11"></Rectangle>
-                                <Rectangle Fill="DimGray" Grid.Column="13"></Rectangle>
-                                <Rectangle Fill="DimGray" Grid.Column="15"></Rectangle>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding Date}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding Encounter}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="4" FontFamily="{StaticResource MainFont}"  FontSize="18" VerticalAlignment="Center" Text="{Binding Boss}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="6" FontFamily="{StaticResource MainFont}"  FontSize="18" VerticalAlignment="Center" Text="{Binding Character}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="8" FontFamily="{StaticResource MainFont}"  FontSize="18" VerticalAlignment="Center" Text="{Binding DPS, StringFormat='#,0'}" HorizontalAlignment="Left"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" FontSize="18"  VerticalAlignment="Center" Text="{Binding HPS, StringFormat='#,0'}" HorizontalAlignment="Left"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding DTPS, StringFormat='#,0'}" HorizontalAlignment="Left"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding HTPS, StringFormat='#0.#'}" HorizontalAlignment="Left"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="16" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding Kill}" HorizontalAlignment="Left"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <Border Background="White" Grid.Row="1" BorderBrush="DimGray" BorderThickness="2,0,2,2" CornerRadius="2">
+                <ScrollViewer >
+                    <ItemsControl  ItemsSource="{Binding DataToView}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Grid.Row="0" Height="35" Background="{Binding RowBackground}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.075*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.075*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.075*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.075*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.035*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.035*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.035*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.035*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.035*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.025*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Rectangle Fill="DimGray" Grid.Column="1" ></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="3" ></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="5" ></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="7" ></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="9" ></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="11"></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="13"></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="15"></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="17"></Rectangle>
+                                    <TextBlock Margin="10,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" Text="{Binding Date, StringFormat='{}{0:MM/dd/yy h:mm tt}'}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Margin="10,0,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" Text="{Binding Encounter}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Margin="10,0,0,0" Grid.Column="4" FontFamily="{StaticResource MainFont}"  FontSize="16" VerticalAlignment="Center" Text="{Binding Boss}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Margin="10,0,0,0" Grid.Column="6" FontFamily="{StaticResource MainFont}"  FontSize="16" VerticalAlignment="Center" Text="{Binding Character}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                    <Grid Margin="10,2,10,2" Grid.Column="8" >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="0.5*"/>
+                                            <RowDefinition Height="0.5*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" Text="{Binding APM, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                                        <ProgressBar Grid.Row="1" Maximum="1" Height="10" Foreground="MediumPurple" Value="{Binding APMMeter}"></ProgressBar>
+                                    </Grid>
+                                    <Grid Margin="10,2,10,2" Grid.Column="10" >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="0.5*"/>
+                                            <RowDefinition Height="0.5*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" Text="{Binding DPS, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                                        <ProgressBar Grid.Row="1" Maximum="1" Height="10" Foreground="PaleVioletRed" Value="{Binding DPSMeter}"></ProgressBar>
+                                    </Grid>
+                                    <Grid Margin="10,2,10,2" Grid.Column="12" >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="0.5*"/>
+                                            <RowDefinition Height="0.5*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock FontFamily="{StaticResource MainFont}" FontSize="16"  VerticalAlignment="Center" Text="{Binding HPS, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                                        <ProgressBar Grid.Row="1" Maximum="1" Height="10" Foreground="Green" Value="{Binding HPSMeter}"></ProgressBar>
+                                    </Grid>
+                                    <Grid Margin="10,2,10,2" Grid.Column="14" >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="0.5*"/>
+                                            <RowDefinition Height="0.5*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" Text="{Binding DTPS, StringFormat='#,0'}" HorizontalAlignment="Left"/>
+                                        <ProgressBar Grid.Row="1" Maximum="1" Height="10" Foreground="Peru" Value="{Binding DTPSMeter}"></ProgressBar>
+                                    </Grid>
+                                    <Grid Margin="10,2,10,2" Grid.Column="16" >
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="0.5*"/>
+                                            <RowDefinition Height="0.5*"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" Text="{Binding HTPS, StringFormat='#0.#'}" HorizontalAlignment="Left"/>
+                                        <ProgressBar Grid.Row="1" Maximum="1" Height="10" Foreground="CornflowerBlue" Value="{Binding HTPSMeter}"></ProgressBar>
+                                    </Grid>
+
+
+
+                                    <TextBlock Margin="10,0,0,0" Grid.Column="18" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" Text="{Binding Kill}" HorizontalAlignment="Left"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
         </Grid>
         <ContentPresenter Content="{Binding HistoryPlot}"  Grid.Column="1" Grid.Row="1"></ContentPresenter>
     </Grid>

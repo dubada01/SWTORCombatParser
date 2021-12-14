@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.resources;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,11 +24,9 @@ namespace SWTORCombatParser
         public event Action<Entity> LocalPlayerIdentified = delegate { };
 
         private bool _isInCombat = false;
-        private bool _combatEnding = false;
         private long _numberOfEntries;
         private long _newNumberOfEntries;
         private string _logToMonitor; 
-        private DateTime _combatEndTime;
         private bool _monitorLog;
         private DateTime _lastUpdateTime;
         private List<ParsedLogEntry> _currentFrameData = new List<ParsedLogEntry>();
@@ -67,7 +66,6 @@ namespace SWTORCombatParser
         {
             _newNumberOfEntries = 0;
             _numberOfEntries = 0;
-            _combatEndTime = DateTime.MinValue;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
             _monitorLog = false;
@@ -144,11 +142,6 @@ namespace SWTORCombatParser
         }
         private void ProcessNewLine(string line,long lineIndex,string logName)
         {
-            if (string.IsNullOrEmpty(line))
-            {
-                CheckForCombatEnd(lineIndex,DateTime.MinValue);
-                return;
-            }
             var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
 
             if (parsedLine.Error == ErrorType.IncompleteLine)
@@ -168,39 +161,36 @@ namespace SWTORCombatParser
         
         private void CheckForCombatState(long lineIndex, ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true)
         {
-            if (parsedLine.Effect.EffectType == EffectType.Event && (parsedLine.Effect.EffectName == "EnterCombat"))
+            var currentCombatState = CombatDetector.CheckForCombatState(parsedLine, lineIndex, _newNumberOfEntries);
+            if(currentCombatState == CombatState.ExitedByEntering)
             {
-                if (_combatEnding)
-                    EndCombat();
-                _combatEnding = false;
-                _isInCombat = true;
-                _currentCombatStartTime = parsedLine.TimeStamp;
-                _currentCombatData.Add(parsedLine);
-                var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = parsedLine.LogLocation };
-                if(shouldUpdateOnNewCombat)
-                    CombatUpdated(updateMessage);
+                EndCombat();
+                EnterCombat(parsedLine, shouldUpdateOnNewCombat);
             }
-            if ((parsedLine.Effect.EffectType == EffectType.Event && parsedLine.Effect.EffectName == "ExitCombat") || (parsedLine.Effect.EffectName == "Death" && parsedLine.Target.IsLocalPlayer))
+            if (currentCombatState == CombatState.EnteredCombat)
             {
-                _combatEnding = true;
-                _combatEndTime = parsedLine.TimeStamp;
+                EnterCombat(parsedLine, shouldUpdateOnNewCombat);
             }
-            CheckForCombatEnd(lineIndex, parsedLine.TimeStamp);
-        }
-
-        private void CheckForCombatEnd(long lineIndex,DateTime currentLogTime)
-        {
-            if (((currentLogTime - _combatEndTime).TotalSeconds > 2 || (lineIndex == _newNumberOfEntries - 1)) && _combatEnding)
+            if(currentCombatState == CombatState.ExitedCombat)
             {
                 EndCombat();
             }
         }
+        private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat)
+        {
+            _isInCombat = true;
+            _currentCombatStartTime = parsedLine.TimeStamp;
+            _currentCombatData.Add(parsedLine);
+            var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = parsedLine.LogLocation };
+            if (shouldUpdateOnNewCombat)
+                CombatUpdated(updateMessage);
+        }
+
         private void EndCombat()
         {
             CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
             CombatTimestampRectifier.RectifyTimeStamps(_currentCombatData);
             _isInCombat = false;
-            _combatEnding = false;
 
             if (string.IsNullOrEmpty(_logToMonitor))
                 return;

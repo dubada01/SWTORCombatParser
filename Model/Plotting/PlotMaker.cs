@@ -12,12 +12,13 @@ namespace SWTORCombatParser
 
         public static double[] GetHPPercentages(List<ParsedLogEntry> logs,Entity sourcePlayer)
         {
-            return logs.Where(l=>l.Target == sourcePlayer).Select(l => l.TargetInfo.CurrentHP ).ToArray();
+            return logs.Where(l=>l.Target == sourcePlayer && l.Ability != "Healer Bubble").Select(l => l.TargetInfo.CurrentHP ).ToArray();
         }
         internal static double[] GetPlotHPXVals(List<ParsedLogEntry> totalLogsDuringCombat, DateTime startPoint, Entity sourcePlayer)
         {
             var startTime = startPoint;
-            return totalLogsDuringCombat.Where(l => l.Target == sourcePlayer).Select(l => (l.TimeStamp - startTime).TotalSeconds).ToArray();
+            var logsToUse = totalLogsDuringCombat.Where(l => l.Target == sourcePlayer &&  l.Ability!="Healer Bubble");
+            return logsToUse.Select(l => (l.TimeStamp - startTime).TotalSeconds).ToArray();
         }
         internal static double[] GetPlotXVals(List<ParsedLogEntry> totalLogsDuringCombat,DateTime startPoint)
         {

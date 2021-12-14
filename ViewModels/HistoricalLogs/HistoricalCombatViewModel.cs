@@ -1,9 +1,11 @@
-﻿using ScottPlot;
+﻿using MoreLinq;
+using ScottPlot;
 using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.HistoricalLogs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -22,11 +24,16 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         public HistoricalCombatViewModel(List<Combat> combats)
         {
             HistoryPlot = new WpfPlot();
-            CombatsDuringHistory = combats;
+            var titleAxis = HistoryPlot.Plot.XAxis2;
+            titleAxis.Label(label: "Battle History Metadata", size: 25);
+            HistoryPlot.Plot.YAxis.Label(label: "Value", size: 15);
+            HistoryPlot.Plot.XAxis.Label(label: "Date", size: 15);
+            HistoryPlot.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
+            CombatsDuringHistory = combats.Where(c=>c.DurationSeconds > 60).ToList();
             LocalPlayersDuringHistory = MetaDataExtractor.GetLocalEntities(CombatsDuringHistory);
             OnPropertyChanged("LocalPlayersDuringHistory");
             _allEncountersDuringHistory = MetaDataExtractor.GetAllEncounters(CombatsDuringHistory);
-            _allBossFightsDuringHisotry = MetaDataExtractor.GetAllBossesFromEncounters(_allEncountersDuringHistory);
+            _allBossFightsDuringHisotry = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory);
         }
         public WpfPlot HistoryPlot { get; set; }
         public List<HistoricalLogEntry> DataToView { get; set; }
@@ -53,7 +60,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 selectedEncounter = value;
                 if (selectedEncounter == null)
                     return;
-                BossesInSelectedEncounter = MetaDataExtractor.GetAllBossesFromEncounters(new List<EncounterInfo> { selectedEncounter });
+                BossesInSelectedEncounter = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory.Where(c=>c.LocalPlayer == SelectedLocalEntity && c.ParentEncounter == SelectedEncounter).ToList());
                 OnPropertyChanged("BossesInSelectedEncounter");
             }
         }
@@ -68,25 +75,100 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                     return;
                 var filteredCombats = CombatsDuringHistory.Where(c => c.LocalPlayer == SelectedLocalEntity && c.EncounterBossInfo.Contains(selectedBoss));
                 var logsToView = new List<HistoricalLogEntry>();
-                foreach(var combat in filteredCombats)
+                var maxAPM = filteredCombats.MaxBy(c => c.APM[SelectedLocalEntity]).First().APM[SelectedLocalEntity];
+                var maxDPS = filteredCombats.MaxBy(c => c.EDPS[SelectedLocalEntity]).First().EDPS[SelectedLocalEntity];
+                var maxHPS = filteredCombats.MaxBy(c => c.EHPS[SelectedLocalEntity]).First().EHPS[SelectedLocalEntity];
+                var maxDTPS = filteredCombats.MaxBy(c => c.EDTPS[SelectedLocalEntity]).First().EDTPS[SelectedLocalEntity];
+                var maxHTPS = filteredCombats.MaxBy(c => c.EHTPS[SelectedLocalEntity]).First().EHTPS[SelectedLocalEntity];
+                foreach (var combat in filteredCombats)
                 {
-                    //foreach(var participant in combat.CharacterParticipants)
+                    var logEntry = new HistoricalLogEntry()
+                    {
+                        Boss = combat.EncounterBossInfo,
+                        Kill = combat.WasBossKilled,
+                        Encounter = selectedEncounter.Name,
+                        Character = SelectedLocalEntity.Name,
+                        LocalPlayer = SelectedLocalEntity == SelectedLocalEntity,
+                        Date = combat.StartTime,
+                        Duration = (int)combat.DurationSeconds,
+                        APM = combat.APM[SelectedLocalEntity],
+                        APMMeter = combat.APM[SelectedLocalEntity] / maxAPM,
+                        DPS = combat.EDPS[SelectedLocalEntity],
+                        DPSMeter = combat.EDPS[SelectedLocalEntity] / maxDPS,
+                        HPS = combat.EHPS[SelectedLocalEntity],
+                        HPSMeter = combat.EHPS[SelectedLocalEntity] / maxHPS,
+                        DTPS = combat.EDTPS[SelectedLocalEntity],
+                        DTPSMeter = combat.EDTPS[SelectedLocalEntity] / maxDTPS,
+                        HTPS = combat.EHTPS[SelectedLocalEntity],
+                        HTPSMeter = combat.EHTPS[SelectedLocalEntity] / maxHTPS
+                    };
+                    logsToView.Add(logEntry);
+                    //foreach (var participant in combat.CharacterParticipants)
                     //{
-                        var logEntry = new HistoricalLogEntry() { Boss = combat.EncounterBossInfo, Encounter = selectedEncounter.Name, Character = SelectedLocalEntity.Name, Date = combat.StartTime,Duration = (int)combat.DurationSeconds, DPS = combat.EDPS[SelectedLocalEntity], HPS = combat.EHPS[SelectedLocalEntity], DTPS = combat.EDTPS[SelectedLocalEntity], HTPS = combat.EHTPS[SelectedLocalEntity] };
-                        logsToView.Add(logEntry);
+
+                    //    var logEntry = new HistoricalLogEntry()
+                    //    {
+                    //        Boss = combat.EncounterBossInfo,
+                    //        Kill = combat.WasBossKilled,
+                    //        Encounter = selectedEncounter.Name,
+                    //        Character = participant.Name,
+                    //        LocalPlayer = participant == SelectedLocalEntity,
+                    //        Date = combat.StartTime,
+                    //        Duration = (int)combat.DurationSeconds,
+                    //        APM = combat.APM[participant],
+                    //        APMMeter = combat.APM[participant] / maxDPS,
+                    //        DPS = combat.EDPS[participant],
+                    //        DPSMeter = combat.EDPS[participant] / maxDPS,
+                    //        HPS = combat.EHPS[participant],
+                    //        HPSMeter = combat.EHPS[participant] / maxHPS,
+                    //        DTPS = combat.EDTPS[participant],
+                    //        DTPSMeter = combat.EDTPS[participant] / maxDTPS,
+                    //        HTPS = combat.EHTPS[participant],
+                    //        HTPSMeter = combat.EHTPS[participant] / maxHTPS
+                    //    };
+                    //    logsToView.Add(logEntry);
                     //}
                 }
-
+                for(var i =0;i<logsToView.Count;i++)
+                {
+                    if (i % 2 == 0)
+                        logsToView[i].RowBackground = System.Windows.Media.Brushes.WhiteSmoke;
+                }
                 DataToView = logsToView;
+
                 OnPropertyChanged("DataToView");
                 HistoryPlot.Plot.Clear();
-                HistoryPlot.Plot.AddScatter(DataToView.Select(d => (double)d.Date.ToOADate()).ToArray(), DataToView.Select(d => d.DPS).ToArray(),label:"DPS");
-                HistoryPlot.Plot.AddScatter(DataToView.Select(d => (double)d.Date.ToOADate()).ToArray(), DataToView.Select(d => d.HPS).ToArray(), label: "HPS");
-                HistoryPlot.Plot.AddScatter(DataToView.Select(d => (double)d.Date.ToOADate()).ToArray(), DataToView.Select(d => d.DTPS).ToArray(), label: "DTPS");
-                HistoryPlot.Plot.AddScatter(DataToView.Select(d => (double)d.Date.ToOADate()).ToArray(), DataToView.Select(d => d.HTPS).ToArray(), label: "HTPS");
+
+                foreach(var participant in DataToView.Select(d => d.Character).Distinct())
+                {
+                    var characterValues = DataToView.Where(d => d.Character == participant);
+                    var xValues = characterValues.Select(d => (double)d.Date.ToOADate()).ToArray();
+                    var durations = characterValues.Select(d => d.Duration).ToList();
+                    AddBubbleSeries(xValues, characterValues.Select(d => d.DPS).ToArray(), "DPS", Color.PaleVioletRed, durations);
+                    AddBubbleSeries(xValues, characterValues.Select(d => d.HPS).ToArray(), "HPS", Color.Green, durations);
+                    AddBubbleSeries(xValues, characterValues.Select(d => d.DTPS).ToArray(), "DTPS", Color.Peru, durations);
+                    AddBubbleSeries(xValues, characterValues.Select(d => d.HTPS).ToArray(), "HTPS", Color.CornflowerBlue, durations);
+                }
+
                 HistoryPlot.Plot.Legend();
                 HistoryPlot.Plot.XAxis.DateTimeFormat(true);
                 HistoryPlot.Refresh();
+            }
+        }
+        public void AddBubbleSeries(double[] xValues, double[] yvalues, string label, Color color, List<int> durations)
+        {
+
+            var newBubblePlot = HistoryPlot.Plot.AddBubblePlot();
+            for (var i = 0; i < xValues.Length; i++)
+            {
+                newBubblePlot.Add(
+                    x: xValues[i],
+                    y: yvalues[i],
+                    fillColor: color,
+                    radius: Math.Max(2, 15 * (durations[i] / 400d)),
+                    edgeColor: Color.DimGray,
+                    edgeWidth: 1
+                    );
             }
         }
 
