@@ -22,9 +22,9 @@ namespace SWTORCombatParser.Model.HistoricalLogs
         {
             return combats.Select(c => c.ParentEncounter).Distinct().ToList();
         }
-        public static List<string> GetAllBossesFromEncounters(List<EncounterInfo> encounters)
+        public static List<string> GetAllBossesFromCombats(List<Combat> combats)
         {
-            return encounters.SelectMany(e => e.BossNames.Select(n=>n.Split("~?~")[0])).Distinct().ToList();
+            return combats.Select(e => e.EncounterBossInfo.Split("{")[0].Trim()).Distinct().ToList();
         }
     }
 }

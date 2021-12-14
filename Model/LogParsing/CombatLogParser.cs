@@ -28,12 +28,11 @@ namespace SWTORCombatParser
             try
             {
                 if (_logDate == DateTime.MinValue)
-                _logDate = DateTime.Now;
-                //var logEntryInfos = Regex.Matches(logEntry, @"\[.*?\]", RegexOptions.Compiled);
+                    _logDate = DateTime.Now;
                 var listEntries = GetInfoComponents(logEntry);
 
                 if (logEntry.Contains('|'))
-                    return _7_0LogParsing.ParseLog(logEntry, lineIndex, _logDate, listEntries);
+                    return _7_0LogParsing.ParseLog(logEntry, lineIndex, _logDate, listEntries,realTime);
 
                 var secondPart = logEntry.Split(']').Last();
                 var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
@@ -48,10 +47,10 @@ namespace SWTORCombatParser
                 parsedLine.LogLineNumber = lineIndex;
                 if (parsedLine.Source == parsedLine.Target && parsedLine.Source.IsCharacter)
                     parsedLine.Source.IsLocalPlayer = true;
-                if (realTime)
-                {
-                    UpdateStateAndLogs(new List<ParsedLogEntry> { parsedLine },true);
-                }
+
+                if(realTime)
+                    UpdateStateAndLogs(new List<ParsedLogEntry> { parsedLine }, realTime);
+
                 return parsedLine;
             }
             catch (Exception e)
@@ -91,7 +90,6 @@ namespace SWTORCombatParser
             var logLines = combatLog.Data.Split('\n');
             var numberOfLines = logLines.Length;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
-            //for (var i = 0; i < numberOfLines; i++)
             Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
             {
                 if (logLines[i] == "")
@@ -104,7 +102,6 @@ namespace SWTORCombatParser
                 parsedLog[i].LogName = combatLog.Name;
             }
             );
-            UpdateLogLocationsFor7_0(parsedLog);
             var orderdedLog = parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp);
             UpdateStateAndLogs(orderdedLog.ToList(), false);
 
@@ -112,24 +109,6 @@ namespace SWTORCombatParser
             return orderdedLog.ToList();
         }
 
-        private static void UpdateLogLocationsFor7_0(ParsedLogEntry[] parsedLog)
-        {
-            var areaChangedLogs = parsedLog.Where(l => l != null && l.Effect.EffectType == EffectType.AreaEntered).ToList();
-            for (var i = 0; i < areaChangedLogs.Count; i++)
-            {
-                List<ParsedLogEntry> logsInScope = new List<ParsedLogEntry>();
-                if (i < areaChangedLogs.Count - 1)
-                {
-                    logsInScope = parsedLog.Where(l => l != null && l.TimeStamp > areaChangedLogs[i].TimeStamp && l.TimeStamp <= areaChangedLogs[i + 1].TimeStamp).ToList();
-                }
-                else
-                {
-                    logsInScope = parsedLog.Where(l => l != null && l.TimeStamp > areaChangedLogs[i].TimeStamp).ToList();
-                }
-                logsInScope.ForEach(l => l.LogLocation = areaChangedLogs[i].Effect.EffectName);
-                logsInScope.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "EnterCombat").ToList().ForEach(l => l.Value.StrValue = areaChangedLogs[i].Effect.EffectName);
-            }
-        }
 
         private static void UpdateStateAndLogs(List<ParsedLogEntry> orderdedLog, bool realTime)
         {
@@ -137,11 +116,13 @@ namespace SWTORCombatParser
             {
                 SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(line, realTime));
             }
-            Parallel.ForEach(orderdedLog, line =>
+            if(_logState.LogVersion == LogVersion.Legacy)
             {
-                LogModifier.UpdateLogWithState(line, _logState);
-            });
-            //LogModifier.StartUpdateOfModifiersActiveForLogs(orderdedLog, _logState);
+                Parallel.ForEach(orderdedLog, line =>
+                {
+                    LogModifier.UpdateLogWithState(line, _logState);
+                });
+            }
         }
 
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)

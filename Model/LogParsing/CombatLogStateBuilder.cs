@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.Alerts;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Utilities;
@@ -21,10 +22,6 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             CurrentState = new LogState();
         }
-        public static void ResetCombatSpecific()
-        {
-            CurrentState.CurrentCharacterPositions = new Dictionary<Entity, PositionData>();
-        }
 
         private static object stateLock = new object();
         public static LogState UpdateCurrentStateWithSingleLog(ParsedLogEntry log, bool liveLog)
@@ -35,23 +32,73 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (log.Effect.EffectType == EffectType.AreaEntered)
                 {
                     CurrentState.CurrentLocation = log.Effect.EffectName;
+                    CurrentState.LogVersion = LogVersion.NextGen;
                 }
-                if (log.Effect.EffectType == EffectType.Event && (log.Effect.EffectName == "EnterCombat"))
-                {
-                    ResetCombatSpecific();
-                }
-
+                UpdatePlayerDeathState(log);
                 SetCharacterPositions(log);
                 if(liveLog)
                     OutrangedHealerAlert.CheckForOutrangingHealers(log.TimeStamp);
                 if(log.Effect.EffectType == EffectType.DisciplineChanged)
-                    SetPlayerClass(log);
+                    UpdatePlayerClassState(log);
+                if (log.LogLocation != null)
+                    UpdateEncounterEntered(log);
 
                 UpdateCombatModifierState(log);
                 return CurrentState;
             }
         }
 
+        private static void UpdateEncounterEntered(ParsedLogEntry log)
+        {
+            var location = log.LogLocation;
+            var knownEncounters = RaidNameLoader.SupportedEncounters;
+            if (knownEncounters.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)))
+            {
+                var raidOfInterest = knownEncounters.First(r => log.LogLocation.Contains(r.LogName));
+                raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
+                var indendedNumberOfPlayers = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
+                raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers!=null? indendedNumberOfPlayers:"";
+                CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
+            }
+            else
+            {
+                var openWorldLocation = ": " + log.LogLocation;
+
+                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World" };
+                CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
+            }
+        }
+
+        private static void UpdatePlayerDeathState(ParsedLogEntry log)
+        {
+            if (!log.Target.IsCharacter)
+                return;
+            var player = log.Target;
+            if (!CurrentState.PlayerDeathChangeInfo.Keys.Any(k => k.Id == player.Id))
+            { 
+                CurrentState.PlayerDeathChangeInfo[player] = new Dictionary<DateTime, bool>();
+                CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
+            }
+            if (log.Effect.EffectName == "Death")
+                CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = true;
+            if(log.Effect.EffectName == "Revived")
+                CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
+        }
+        private static void UpdatePlayerClassState(ParsedLogEntry parsedLine)
+        {
+            if (!parsedLine.Source.IsCharacter)
+                return;
+            if (!CurrentState.PlayerClassChangeInfo.ContainsKey(parsedLine.Source))
+                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = null;
+
+            if (parsedLine.Error == ErrorType.IncompleteLine)
+                return;
+            if (CurrentState.PlayerClassChangeInfo[parsedLine.Source] == null)
+            {
+                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
+            }
+            CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
+        }
         private static void SetCharacterPositions(ParsedLogEntry log)
         {
             if (!string.IsNullOrEmpty(log.Target.Name))
@@ -64,8 +111,6 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             lock (CurrentState.modifierLogLock)
             {
-
-
                 if (parsedLine.Error == ErrorType.IncompleteLine)
                     return;
 
@@ -112,21 +157,7 @@ namespace SWTORCombatParser.Model.LogParsing
             else
                 return ": " + effectName;
         }
-        private static void SetPlayerClass(ParsedLogEntry parsedLine)
-        {
-            if (!parsedLine.Source.IsCharacter)
-                return;
-            if (!CurrentState.PlayerClassChangeInfo.ContainsKey(parsedLine.Source))
-                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = null;
 
-            if (parsedLine.Error == ErrorType.IncompleteLine)
-                return;
-            if(CurrentState.PlayerClassChangeInfo[parsedLine.Source] == null)
-            {
-                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
-            }
-            CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp]=parsedLine.SourceInfo.Class;
-        }
 
     }
 }

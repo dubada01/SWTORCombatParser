@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using MoreLinq;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
@@ -46,31 +47,31 @@ namespace SWTORCombatParser
         public static List<Combat> GetAllBossCombatsFromLog(List<ParsedLogEntry> allLogsFromfile)
         {
             List<Combat> combats = new List<Combat>();
-            var inCombat = false;
             List<ParsedLogEntry> currentCombatLogs = new List<ParsedLogEntry>();
+
             foreach(var line in allLogsFromfile)
             {
-                if(!inCombat && line.Effect.EffectName == "EnterCombat")
+                var combatState = CombatDetector.CheckForCombatState(line);
+                if(combatState == CombatState.EnteredCombat)
                 {
-                    inCombat = true;
                     currentCombatLogs = new List<ParsedLogEntry>();
                 }
-                if(inCombat && line.Effect.EffectName == "ExitCombat" || (line.Effect.EffectName == "Death" && line.Target.IsLocalPlayer))
+                if(combatState == CombatState.ExitedCombat)
                 {
-                    inCombat = false;
+                    if (currentCombatLogs.Count == 0)
+                        continue;
                     var combatCreated = GenerateNewCombatFromLogs(currentCombatLogs);
-                    if(combatCreated.EncounterBossInfo != "")
+                    if (combatCreated.EncounterBossInfo != "")
                         combats.Add(combatCreated);
                 }
-                if (inCombat)
+                if (combatState == CombatState.InCombat)
                     currentCombatLogs.Add(line);
-
             }
             return combats;
         }
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
-            var encounter = GetEncounterInfo(ongoingLogs);
+            var encounter = GetEncounterInfo(ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp);
             var currentPariticpants = ongoingLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Select(p => p.Source).Distinct().ToList();
             currentPariticpants.AddRange(ongoingLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Select(p => p.Target).Distinct().ToList());
             var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
@@ -101,51 +102,11 @@ namespace SWTORCombatParser
         {
             var targets = logs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null).ToList();
             targets.AddRange(logs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null));
-            return targets.Distinct().ToList();
+            return targets.DistinctBy(t=>t.Name).ToList();
         }
-        private static EncounterInfo GetEncounterInfo(List<ParsedLogEntry> logs)
+        private static EncounterInfo GetEncounterInfo(DateTime combatStartTime)
         {
-            EncounterInfo raidOfInterest = null;
-            var enterCombatLog = logs.FirstOrDefault();
-            if (enterCombatLog == null)
-                return raidOfInterest;
-            var knownEncounters = RaidNameLoader.SupportedEncounters;
-            if (enterCombatLog.Target.Name == "Operations Training Dummy")
-            {
-                raidOfInterest = new EncounterInfo() { BossInfos = new List<BossInfo>() };
-                raidOfInterest.Name = "Parsing";
-                raidOfInterest.BossInfos.Add(new BossInfo
-                {
-                    EncounterName = "Training Dummy",
-                    TargetNames = new List<string> { "Operations Training Dummy" }
-                });
-                raidOfInterest.Difficutly = "Parsing";
-                raidOfInterest.NumberOfPlayer = "";
-                return raidOfInterest;
-            }
-            if (!string.IsNullOrEmpty(enterCombatLog.LogLocation) && knownEncounters.Select(r => r.LogName).Any(ln => enterCombatLog.LogLocation.Contains(ln)) && raidOfInterest == null)
-            {
-                raidOfInterest = knownEncounters.First(r => enterCombatLog.LogLocation.Contains(r.LogName));
-                raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => enterCombatLog.LogLocation.Contains(f));
-                if (string.IsNullOrEmpty(raidOfInterest.Difficutly))
-                {
-                    raidOfInterest.Difficutly = "Test";
-                    //return null;
-                }
-                raidOfInterest.NumberOfPlayer = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => enterCombatLog.LogLocation.Contains(f));
-                if (string.IsNullOrEmpty(raidOfInterest.NumberOfPlayer))
-                {
-                    raidOfInterest.NumberOfPlayer = "";
-                    //return null;
-                }
-                return raidOfInterest;
-            }
-            var openWorldLocation = "";
-            if (enterCombatLog != null)
-            {
-                openWorldLocation = ": " + enterCombatLog.Value.StrValue;
-            }
-            return new EncounterInfo { Name="Open World"+openWorldLocation, LogName = "Open World"};
+            return CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStartTime);
         }
         private static string GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {

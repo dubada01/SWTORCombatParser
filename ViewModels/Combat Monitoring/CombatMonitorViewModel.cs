@@ -89,7 +89,7 @@ namespace SWTORCombatParser.ViewModels
         }
         private void LocalPlayerFound(Entity obj)
         {
-            ParticipantsUpdated(new List<Entity> { obj });
+            //ParticipantsUpdated(new List<Entity> { obj });
         }
 
         public void Reset()
@@ -255,7 +255,7 @@ namespace SWTORCombatParser.ViewModels
             _usingHistoricalData = false;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList());
             CombatIdentifier.UpdateOverlays(combatInfo);
-           
+            ParticipantsUpdated(combatInfo.CharacterParticipants);
             var combatUI = _allCombats.FirstOrDefault(c => c.IsCurrentCombat);
             if (combatUI == null)
                 return;

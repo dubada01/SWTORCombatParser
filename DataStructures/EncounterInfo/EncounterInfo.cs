@@ -12,8 +12,8 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
     }
     public class EncounterInfo
     {
-        public string Difficutly;
-        public string NumberOfPlayer;
+        public string Difficutly = "";
+        public string NumberOfPlayer ="";
         private List<string> bossNames;
 
         public string LogName { get; set; }

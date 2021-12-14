@@ -277,10 +277,12 @@
     ]
   },
   {
-    "LogName": "Oricon",
-    "Name": "ORICON TEST",
+    "LogName": "Ruins of Nul",
+    "Name": "Ruins of Nul",
     "BossNames": [
-      "Dread Guard Commando"
+      "Apex Ranphyx",
+      "Regnant", 
+      "Darth Malgus"
     ]
   }
 ]

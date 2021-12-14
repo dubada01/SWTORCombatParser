@@ -1,5 +1,6 @@
 ﻿using MoreLinq;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -20,6 +21,11 @@ namespace SWTORCombatParser.Model.LogParsing
         OffensiveBuff,
         Debuff
     }
+    public enum LogVersion
+    {
+        Legacy,
+        NextGen
+    }
     public class CombatModifier
     {
         public string Name { get; set; }
@@ -35,12 +41,44 @@ namespace SWTORCombatParser.Model.LogParsing
         private static List<string> _healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
         public ConcurrentDictionary<Entity,Dictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>>();
+        public Dictionary<Entity, Dictionary<DateTime, bool>> PlayerDeathChangeInfo = new Dictionary<Entity, Dictionary<DateTime, bool>>();
+        public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new Dictionary<DateTime, EncounterInfo>();
+        public LogVersion LogVersion { get; set; } = LogVersion.Legacy;
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public string CurrentLocation { get; set; }
         public long MostRecentLogIndex = 0;
         public List<CombatModifier> Modifiers { get; set; } = new List<CombatModifier>();
         public object modifierLogLock = new object();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
+        public bool WasPlayerDeadAtTime(Entity player, DateTime timestamp)
+        {
+            var playerDeathInfo = PlayerDeathChangeInfo[player];
+            if (!playerDeathInfo.Any(d => d.Key < timestamp))
+                return true;
+            var updateTimes = playerDeathInfo.Keys.ToList();
+            for(var i=0;i<updateTimes.Count;i++)
+            {
+                if (updateTimes[i] > timestamp)
+                    return playerDeathInfo[updateTimes[i-1]];
+            }
+            return false;
+        }
+        public EncounterInfo GetEncounterActiveAtTime(DateTime time)
+        {
+            var encounterChangeTimes = EncounterEnteredInfo.Keys.OrderBy(t => t).ToList();
+            if (encounterChangeTimes.Count == 0 || time < encounterChangeTimes.First())
+                return new EncounterInfo() { Name = "Unknown Encounter" };
+            if (time > encounterChangeTimes.Last())
+                return EncounterEnteredInfo[encounterChangeTimes.Last()];
+            for(var i = 0; i < encounterChangeTimes.Count; i++)
+            {
+                if (encounterChangeTimes[i] == time)
+                    return EncounterEnteredInfo[encounterChangeTimes[i]];
+                if (encounterChangeTimes[i] > time)
+                    return EncounterEnteredInfo[encounterChangeTimes[i - 1]];
+            }
+            return new EncounterInfo() { Name = "Unknown Encounter" };
+        }
         public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
         {
             var classOfSource = CharacterClassHelper.GetClassFromEntityAtTime(source, timeStamp);
@@ -56,28 +94,28 @@ namespace SWTORCombatParser.Model.LogParsing
             //    healsModifier -= .25d; //healsPerThreat *= 1.25;
             return healsPerThreat/healsModifier;
         }
-        public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
-        {
-            lock (modifierLogLock)
-            {
-                List<CombatModifier> mods = new List<CombatModifier>();
-                foreach (var mod in Modifiers)
-                {
-                    if (mod.StartTime > timeStamp)
-                        continue;
-                    if (mod.StopTime < timeStamp && mod.StartTime != DateTime.MinValue)
-                        continue;
-                    mods.Add(mod);
-                }
+        //public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
+        //{
+        //    lock (modifierLogLock)
+        //    {
+        //        List<CombatModifier> mods = new List<CombatModifier>();
+        //        foreach (var mod in Modifiers)
+        //        {
+        //            if (mod.StartTime > timeStamp)
+        //                continue;
+        //            if (mod.StopTime < timeStamp && mod.StartTime != DateTime.MinValue)
+        //                continue;
+        //            mods.Add(mod);
+        //        }
 
-                return mods;
-            }
-            //return Modifiers.Where(m => m.StartTime < timeStamp && (m.StopTime >= timeStamp || m.StopTime == DateTime.MinValue)).ToList();
-        }
-        public List<CombatModifier> GetCombatModifiersAtTimeInvolvingParticipants(DateTime timeStamp,Entity source, Entity target)
-        {
-            return GetCombatModifiersAtTime(timeStamp).Where(m => m.Source == source || m.Source == target || m.Target == source || m.Target == target).ToList();
-        }
+        //        return mods;
+        //    }
+        //    //return Modifiers.Where(m => m.StartTime < timeStamp && (m.StopTime >= timeStamp || m.StopTime == DateTime.MinValue)).ToList();
+        //}
+        //public List<CombatModifier> GetCombatModifiersAtTimeInvolvingParticipants(DateTime timeStamp,Entity source, Entity target)
+        //{
+        //    return GetCombatModifiersAtTime(timeStamp).Where(m => m.Source == source || m.Source == target || m.Target == source || m.Target == target).ToList();
+        //}
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
             var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner).ToList();

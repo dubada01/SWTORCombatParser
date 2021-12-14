@@ -14,7 +14,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static ConcurrentDictionary<long,Entity> _currentEntities = new ConcurrentDictionary<long, Entity>();
 
         private static DateTime _dateTime;
-        public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, List<string> parsedLineInfo)
+        public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, List<string> parsedLineInfo, bool realTime)
         {
             _dateTime = logDate;
 
@@ -30,18 +30,14 @@ namespace SWTORCombatParser.Model.LogParsing
             var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
             parsedLine.LogText = logEntry;
             parsedLine.LogLineNumber = lineIndex;
-
+            if (realTime)
+                CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, realTime);
             return parsedLine;
         }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {
-            if (entryInfo.Length == 0)
-                return null;
-
             var newEntry = new ParsedLogEntry();
 
-
-                
             var time = DateTime.Parse(entryInfo[0]);
             var date = new DateTime(_dateTime.Year, _dateTime.Month, _dateTime.Day);
             var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
@@ -60,7 +56,8 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (newEntry.Effect.EffectType == EffectType.AreaEntered)
             {
-                newEntry.SourceInfo.Entity.IsLocalPlayer = true; 
+                newEntry.SourceInfo.Entity.IsLocalPlayer = true;
+                newEntry.LogLocation = newEntry.Effect.EffectName;
             }
             if(newEntry.Effect.EffectType == EffectType.DisciplineChanged)
             {
@@ -227,70 +224,67 @@ namespace SWTORCombatParser.Model.LogParsing
             if (name.Contains("@") && !name.Contains(":"))
             {
                 var characterName = name.Split('#')[0].Replace("@", "");
-                var id = long.Parse(name.Split('#')[1]);
+                var playerId = long.Parse(name.Split('#')[1]);
 
-                    if (_currentEntities.ContainsKey(id))
-                    {
-                        entityToReturn.Entity = _currentEntities[id];
-                    }
-                    else
-                    {
-                        var characterEntity = new Entity() { IsCharacter = true, Name = characterName, IsLocalPlayer = isPlayer, Id = id };
-                        _currentEntities[id]=(characterEntity);
-                        entityToReturn.Entity = characterEntity;
-
-                    }
-
-            }
-            //if (name.Contains("@") && name.Contains(":"))
-            //{
-            //    var valueToUse = name;
-            //    var compaionName = valueToUse.Split(':')[1];
-            //    if (name.Contains("/"))
-            //    {
-            //        valueToUse = name.Split('/')[1];
-            //        compaionName = valueToUse.Split(':')[0];
-            //    }
-
-            //    var companionNameComponents = compaionName.Split('{');
-            //    var compName = companionNameComponents[0].Trim();
-
-            //        var existingCompanionEntity = _currentEntities.FirstOrDefault(e => e.Name == companionNameComponents[0].Trim());
-            //        if (existingCompanionEntity != null)
-            //        {
-            //            entityToReturn.Entity = existingCompanionEntity;
-
-
-            //        }
-            //        else
-            //        {
-            //            var companion = new Entity() { IsCharacter = false, IsCompanion = true, Name = companionNameComponents[0].Trim() };
-            //            _currentEntities.Add(companion);
-            //            entityToReturn.Entity = companion;
-
-            //    }
-
-            //}
-            if (entityToReturn.Entity.Name == null)
-            {
-                var id = long.Parse(name.Split(':')[1]);
-                var splitVal = name.Split('{');
-                var entityName = splitVal[0].Trim();
-                if (_currentEntities.ContainsKey(id))
+                if (_currentEntities.ContainsKey(playerId))
                 {
-                    entityToReturn.Entity = _currentEntities[id];
-
+                    entityToReturn.Entity = _currentEntities[playerId];
                 }
                 else
                 {
-                    var newEntity = new Entity();
-                    newEntity.Name = entityName;
-                    newEntity.Id = id;
-                    _currentEntities[id]=(newEntity);
-                    entityToReturn.Entity = newEntity;
+                    var characterEntity = new Entity() { IsCharacter = true, Name = characterName, IsLocalPlayer = isPlayer, Id = playerId };
+                    _currentEntities[playerId] = (characterEntity);
+                    entityToReturn.Entity = characterEntity;
 
                 }
+                return;
+
             }
+            if (name.Contains("@") && name.Contains(":"))
+            {
+                var compaionName = "";
+                if (name.Contains("/"))
+                {
+                    var valueToUse = name.Split('/')[1];
+                    compaionName = valueToUse.Split(':')[0];
+                }
+
+                var companionNameComponents = compaionName.Split('{');
+                var compName = companionNameComponents[0].Trim();
+                var compId = long.Parse(companionNameComponents[1].Replace("}",""));
+
+                if (_currentEntities.ContainsKey(compId))
+                {
+                    entityToReturn.Entity = _currentEntities[compId];
+                }
+                else
+                {
+                    var companion = new Entity() { IsCharacter = false, IsCompanion = true, Name = compName, Id = compId };
+                    _currentEntities[compId] = (companion);
+                    entityToReturn.Entity = companion;
+
+                }
+                return;
+            }
+
+            var id = long.Parse(name.Split(':')[1]);
+            var splitVal = name.Split('{');
+            var entityName = splitVal[0].Trim();
+            if (_currentEntities.ContainsKey(id))
+            {
+                entityToReturn.Entity = _currentEntities[id];
+
+            }
+            else
+            {
+                var newEntity = new Entity();
+                newEntity.Name = entityName;
+                newEntity.Id = id;
+                _currentEntities[id] = (newEntity);
+                entityToReturn.Entity = newEntity;
+
+            }
+
         }
 
         private static string ParseAbility(string value)

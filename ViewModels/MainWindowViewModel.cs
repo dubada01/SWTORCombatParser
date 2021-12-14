@@ -99,7 +99,7 @@ namespace SWTORCombatParser.ViewModels
                 var viewModel = new HistoricalCombatViewModel(combats);
                 historyView.DataContext = viewModel;
                 _activeHistoricalCombatOverviews[historyGuid] = viewModel;
-                var histTab = new TabInstance() {IsHistoricalTab=true, TabContent = historyView, HeaderText = $"{combats.Last().StartTime.ToString("MM/dd")}<->{combats.First().StartTime.ToString("MM/dd")}", HistoryID = historyGuid };
+                var histTab = new TabInstance() {IsHistoricalTab=true, TabContent = historyView, HeaderText = $"{combats.Last().StartTime.ToString("MM/dd")} to {combats.First().StartTime.ToString("MM/dd")}", HistoryID = historyGuid };
                 histTab.RequestTabClose += CloseHistoricalReview;
                 ContentTabs.Add(histTab);
                 SelectedTabIndex = ContentTabs.Count-1;

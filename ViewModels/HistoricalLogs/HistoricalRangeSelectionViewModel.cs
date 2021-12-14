@@ -15,8 +15,8 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {
     public class HistoricalRangeSelectionViewModel : INotifyPropertyChanged
     {
-        private DateTime fromDate = DateTime.Now.AddDays(-1);
-        private DateTime toDate = DateTime.Now;
+        private DateTime fromDate = DateTime.Today.AddDays(-1);
+        private DateTime toDate = DateTime.Today;
 
         public event Action<List<Combat>> HistoricalCombatsParsed = delegate { };
         public DateTime FromDate
@@ -68,8 +68,8 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             var window = LoadingWindowFactory.ShowLoading();
             Task.Run(() => {
                 var streamer = new CombatLogStreamer();
-                var combatFiles = CombatLogLoader.LoadCombatsBetweenTimes(FromDate,ToDate);
-                var combatsWithinRange = combatFiles.Where(c => c.Time > FromDate && c.Time <= ToDate);
+                var combatFiles = CombatLogLoader.LoadCombatsBetweenTimes(FromDate,ToDate.AddDays(1));
+                var combatsWithinRange = combatFiles.Where(c => c.Time > FromDate && c.Time <= ToDate.AddDays(1));
                 var allCombats = new List<Combat>();
                 foreach (var combatLog in combatsWithinRange)
                 {

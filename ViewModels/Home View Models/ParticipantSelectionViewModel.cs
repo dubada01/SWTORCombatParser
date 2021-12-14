@@ -85,6 +85,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 if (participantVM == null)
                     continue;
                 var imagePath = "../../resources/question-mark.png";
+                if (participant.IsCompanion)
+                    imagePath = "../../resources/LocalPlayerIcon.png";
                 if (info.CharacterClases.ContainsKey(participant))
                 {
                     var swtorClass = info.CharacterClases[participant];
