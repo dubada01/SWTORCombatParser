@@ -87,7 +87,8 @@ namespace SWTORCombatParser
         Restore,
         AreaEntered,
         DisciplineChanged,
-        ModifyCharges
+        ModifyCharges,
+        HealerShield
     }
     public enum DamageType
     {

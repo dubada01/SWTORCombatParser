@@ -321,6 +321,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.BurstDamageTaken:
                     value = combat.MaxBurstDamageTaken[participant];
                     break;
+                case OverlayType.HealReactionTime:
+                    value = combat.AverageDamageRecoveryTime[participant];
+                    break;
             }
             return value;
         }

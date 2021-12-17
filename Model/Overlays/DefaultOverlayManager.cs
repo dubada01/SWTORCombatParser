@@ -18,6 +18,7 @@ namespace SWTORCombatParser.Model.Overlays
         FocusDPS,
         HPS,
         EHPS,
+        HealReactionTime,
         BurstEHPS,
         Tank_Shielding,
         Shielding,
