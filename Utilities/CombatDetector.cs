@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,9 +20,11 @@ namespace SWTORCombatParser.Utilities
     {
         private static DateTime _combatEndTime = DateTime.MinValue;
         private static List<string> _bossesKilledThisCombat = new List<string>();
+        private static List<string> _combatResNames = new List<string> { "Revival", "Reanimation", "Heartrigger Patch", "Resuscitation Probe", "Emergency Medical Probe" ,"Onboard AED"};
         private static bool _bossCombat;
         private static bool _combatEnding;
         private static bool _isInCombat;
+        private static bool _isCombatResOut;
         private static void Reset()
         {
             _combatEnding = false;
@@ -46,6 +49,19 @@ namespace SWTORCombatParser.Utilities
                 _bossCombat = false;
             if (currentEncounter.BossInfos != null && currentEncounter.BossInfos.Any(b => b.TargetNames.Contains(line.Target.Name) || b.TargetNames.Contains(line.Source.Name)))
                 _bossCombat = true;
+            if(_bossCombat && _combatResNames.Contains(line.Ability))
+            {
+                _isCombatResOut = true;
+            }
+            if (_bossCombat && !_isCombatResOut && line.Effect.EffectName == "Revived")
+            {
+                _combatEnding = true;
+                _combatEndTime = line.TimeStamp;
+            }
+            if (_bossCombat && _isCombatResOut && line.Effect.EffectName == "Revived")
+            {
+                _isCombatResOut = false;
+            }
             if (line.Effect.EffectName == "ExitCombat" && !_combatEnding && _isInCombat)
             {
                 if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy || !_bossCombat)
@@ -116,6 +132,7 @@ namespace SWTORCombatParser.Utilities
             {
                 if (((currentLogTime - _combatEndTime).TotalSeconds > 2 || (lineIndex == numberOfLines - 1)) && _combatEnding)
                 {
+
                     _isInCombat = false;
                     _combatEnding = false;
                     return true;

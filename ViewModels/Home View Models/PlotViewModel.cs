@@ -300,7 +300,7 @@ namespace SWTORCombatParser.Plotting
 
             foreach (var series in _seriesToPlot)
             {
-                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, selectedEntity);
+                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, selectedEntity).OrderBy(l=>l.TimeStamp).ToList();
                 if (applicableData == null || applicableData.Count == 0)
                     continue;
                 double[] plotXvals;
@@ -313,7 +313,7 @@ namespace SWTORCombatParser.Plotting
                     plotYvals = PlotMaker.GetPlotYVals(applicableData, true);
                     plotXValRates = PlotMaker.GetPlotXValsRates(plotXvals);
                     plotYvaRates = PlotMaker.GetPlotYValRates(plotYvals, plotXvals, _averageWindowDurationDouble);
-                    PlotPeaks(series, plotYvaRates,plotXValRates, combatToPlot, selectedEntity);
+                    //PlotPeaks(series, plotYvaRates,plotXValRates, combatToPlot, selectedEntity);
                 }
                 else
                 {

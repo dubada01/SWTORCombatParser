@@ -19,7 +19,8 @@ namespace SWTORCombatParser.Model.LogParsing
         Guarding,
         DefensiveBuff,
         OffensiveBuff,
-        Debuff
+        Debuff,
+        HealerShield
     }
     public enum LogVersion
     {
@@ -34,6 +35,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public Entity Target { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime StopTime { get; set; }
+        public bool Complete { get; set; }
         public double DurationSeconds => StopTime == DateTime.MinValue? 0:(StopTime - StartTime).TotalSeconds;
     }
     public class LogState
@@ -47,7 +49,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public string CurrentLocation { get; set; }
         public long MostRecentLogIndex = 0;
-        public List<CombatModifier> Modifiers { get; set; } = new List<CombatModifier>();
+        public Dictionary<string, List<CombatModifier>> Modifiers { get; set; } = new Dictionary<string, List<CombatModifier>>();
         public object modifierLogLock = new object();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public bool WasPlayerDeadAtTime(Entity player, DateTime timestamp)
@@ -118,17 +120,20 @@ namespace SWTORCombatParser.Model.LogParsing
         //}
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
-            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner).ToList();
+            var allMods = Modifiers.SelectMany(kvp => kvp.Value);
+            var inScopeModifiers = allMods.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner).ToList();
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetEffectsWithTarget(DateTime startTime, DateTime endTime, Entity owner)
         {
-            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Target == owner).ToList();
+            var allMods = Modifiers.SelectMany(kvp => kvp.Value);
+            var inScopeModifiers = allMods.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Target == owner).ToList();
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetPersonalEffects(DateTime startTime, DateTime endTime, Entity owner)
         {
-            var inScopeModifiers = Modifiers.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner && m.Target == owner).ToList();
+            var allMods = Modifiers.SelectMany(kvp => kvp.Value);
+            var inScopeModifiers = allMods.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner && m.Target == owner).ToList();
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
 
@@ -140,6 +145,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
                 {
                     correctedModifier.Source = m.Source;
+                    correctedModifier.Target = m.Target;
                     correctedModifier.Type = m.Type;
                     correctedModifier.Name = m.Name;
                     correctedModifier.StartTime = m.StartTime;

@@ -235,7 +235,7 @@
     },
     {
       "Name": "Mercenary",
-      "Discipline": "Innovative Ordinance",
+      "Discipline": "Innovative Ordnance",
       "Role": "DPS",
       "SpecialThreatAbilities": [
 
@@ -375,7 +375,7 @@
     {
       "Name": "Vanguard",
       "Role": "Tank",
-      "Discipline": "Sheild Specialist",
+      "Discipline": "Shield Specialist",
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Riot Gas", "Energy Blast", "Transpose", "Ion Storm" ]

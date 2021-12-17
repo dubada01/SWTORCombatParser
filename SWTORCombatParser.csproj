@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <VersionPrefix>0.57.3</VersionPrefix>
+    <VersionPrefix>0.57.4</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -49,6 +49,8 @@
     <None Remove="resources\BossMaps\ZornToth.png" />
     <None Remove="resources\DoubleArrowIcon.png" />
     <None Remove="resources\dpsIcon.png" />
+    <None Remove="resources\ExpandDown.png" />
+    <None Remove="resources\ExpandUp.png" />
     <None Remove="resources\firstPlaceLeaderboardIcon.png" />
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\Loading.gif" />
@@ -80,6 +82,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\dpsIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\ExpandDown.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\ExpandUp.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\firstPlaceLeaderboardIcon.png">

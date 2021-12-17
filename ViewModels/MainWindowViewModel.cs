@@ -9,6 +9,7 @@ using SWTORCombatParser.ViewModels.Overviews;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.HistoricalLogs;
+using SWTORCombatParser.Views.PastCombatViews;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

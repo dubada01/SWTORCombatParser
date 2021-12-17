@@ -30,7 +30,7 @@ namespace SWTORCombatParser.ViewModels
         private CombatLogStreamer _combatLogStreamer;
         private int _numberOfSelectedCombats = 0;
         private bool showTrash;
-        private List<PastCombat> _allCombats = new List<PastCombat>();
+        private List<EncounterCombat> _allEncounters = new List<EncounterCombat>();
         private bool _usingHistoricalData = true;
         private object combatAddLock = new object();
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
@@ -50,12 +50,10 @@ namespace SWTORCombatParser.ViewModels
             get => showTrash; set
             {
                 showTrash = value;
-                UnSelectAll();
-                UpdateVisibleData();
+                UpdateTrashVisibility();
+               // UpdateVisibleData();
             }
         }
-        public ObservableCollection<PastCombat> PastCombats { get; set; } = new ObservableCollection<PastCombat>();
-
         public ObservableCollection<EncounterCombat> PastEncounters { get; set; } = new ObservableCollection<EncounterCombat>();
         public EncounterCombat CurrentEncounter;
         public HistoricalRangeWiget HistoricalRange { get; set; }
@@ -96,7 +94,6 @@ namespace SWTORCombatParser.ViewModels
         {
             _usingHistoricalData = true;
             PastEncounters.Clear();
-            PastCombats.Clear();
             CurrentEncounter = null;
             _totalLogsDuringCombat.Clear();
             CombatLogStateBuilder.ClearState();
@@ -126,10 +123,10 @@ namespace SWTORCombatParser.ViewModels
             CurrentlySelectedLogName = "";
             OnPropertyChanged("CurrentlySelectedLogName");
             if (LiveParseActive)
-                return;            
+                return;
             Reset();
             LiveParseActive = true;
-            
+
             Task.Run(() => {
                 while (!CombatLogLoader.CheckIfCombatLogsArePresent() && LiveParseActive)
                 {
@@ -138,7 +135,7 @@ namespace SWTORCombatParser.ViewModels
                 if (!LiveParseActive)
                     return;
                 else
-                {           
+                {
                     MonitorMostRecentLog();
                 }
             });
@@ -193,16 +190,10 @@ namespace SWTORCombatParser.ViewModels
         public void ClearCombats()
         {
             _numberOfSelectedCombats = 0;
-            _allCombats.Clear();
+            _allEncounters.Clear();
         }
-        public void UnSelectAll()
-        {
-            foreach (var combat in PastCombats.Where(c => c.IsSelected))
-            {
-                combat.IsSelected = false;
-            }
-        }
-        
+
+
         public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog);
         private void LoadSpecificLog(object test)
         {
@@ -226,29 +217,33 @@ namespace SWTORCombatParser.ViewModels
                 _combatLogStreamer.ParseCompleteLog(logInfo.Path);
             }
         }
-        private void UpdateVisibleData()
+        private void UpdateVisibleEncounters()
         {
             App.Current.Dispatcher.Invoke(delegate
             {
-                if (!ShowTrash)
-                    PastCombats = new ObservableCollection<PastCombat>(_allCombats.Where(c => c.CombatLabel.Contains("{") || c.EncounterInfo != null || c.IsCurrentCombat || c.IsMostRecentCombat));
-                else
-                    PastCombats = new ObservableCollection<PastCombat>(_allCombats);
-                OnPropertyChanged("PastCombats");
+                var orderedEncouters = _allEncounters.Where(e=>e.EncounterCombats.Any()).OrderByDescending(e => e.EncounterCombats.First().CombatStartTime);
+                if (!orderedEncouters.Any())
+                    return;
+                orderedEncouters.First().Expand();
+                PastEncounters = new ObservableCollection<EncounterCombat>(orderedEncouters);
+                UpdateTrashVisibility();
+                OnPropertyChanged("PastEncounters");
             });
-        } 
+        }
 
         private void CombatStarted(DateTime startTime, string location)
         {
             CombatIdentifier.NotifyNewCombatStarted();
+            TryAddEncounter(startTime);
+            UpdateVisibleEncounters();
             if (!LiveParseActive)
                 return;
-            
+
             AddOngoingCombat(location);
 
             _totalLogsDuringCombat[startTime] = new List<ParsedLogEntry>();
         }
-       
+
         private void CombatUpdated(List<ParsedLogEntry> obj, DateTime combatStartTime)
         {
             _totalLogsDuringCombat[combatStartTime].AddRange(obj);
@@ -256,10 +251,7 @@ namespace SWTORCombatParser.ViewModels
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList());
             CombatIdentifier.UpdateOverlays(combatInfo);
             ParticipantsUpdated(combatInfo.CharacterParticipants);
-            var combatUI = _allCombats.FirstOrDefault(c => c.IsCurrentCombat);
-            if (combatUI == null)
-                return;
-            combatUI.Combat = combatInfo;
+            var combatUI = CurrentEncounter.UpdateOngoing(combatInfo);
             if (combatUI.IsSelected)
             {
                 OnLiveCombatUpdate(combatInfo);
@@ -275,13 +267,13 @@ namespace SWTORCombatParser.ViewModels
 
             if (!_usingHistoricalData)
             {
-                RemoveCombatInProgress();
+                CurrentEncounter.RemoveOngoing();
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
                 {
                     _totalLogsDuringCombat.TryRemove(combatStartTime, out var t);
                 }
-                AddFinishedCombat(combatInfo);
+                AddCombatToEncounter(combatInfo,true);
                 if (combatInfo.IsEncounterBoss)
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
                 CombatIdentifier.UpdateOverlays(combatInfo);
@@ -296,124 +288,61 @@ namespace SWTORCombatParser.ViewModels
                 if (combatLogs.Count == 0)
                     continue;
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs);
-                AddFinishedCombat(combatInfo);
+                TryAddEncounter(combatInfo.StartTime);
+                AddCombatToEncounter(combatInfo,false);
             }
-        }
-        private void AddFinishedCombat(Combat combat)
-        {
-            AddCombat(combat);
-            ManageEncounter(combat);
         }
         private void HistoricalLogsFinished()
         {
             GenerateHistoricalCombats();
             LoadingWindowFactory.HideLoading();
-            if (CurrentEncounter!=null)
-                AddCombat(CurrentEncounter.OverallCombat, true);
             _numberOfSelectedCombats = 0;
             _usingHistoricalData = false;
-            UpdateVisibleData();
+            UpdateVisibleEncounters();
         }
-        private void ManageEncounter(Combat combat)
+        private void TryAddEncounter(DateTime time)
         {
-            if (CurrentEncounter == null || CurrentEncounter.Info.Name != combat.ParentEncounter.Name)
+            var currentActiveEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(time);
+            if (CurrentEncounter == null || CurrentEncounter.Info.Name != currentActiveEncounter.Name)
             {
                 var newEncounter = new EncounterCombat
                 {
-                    Info = combat.ParentEncounter,
-                    Combats = new List<Combat>() { }
+                    Info = currentActiveEncounter,
+                    Combats = new ObservableCollection<Combat>() { }
                 };
-                PastEncounters.Add(newEncounter);
-                if(CurrentEncounter!=null)
-                    AddCombat(CurrentEncounter.OverallCombat, true);
+                newEncounter.PastCombatSelected += SelectCombat;
+                newEncounter.PastCombatUnselected += UnselectCombat;
+                newEncounter.UnselectAll += UnSelectAll;
+                _allEncounters.Add(newEncounter);
+                _allEncounters.ForEach(e => e.Collapse());
                 CurrentEncounter = newEncounter;
             }
-            CurrentEncounter.AddCombat(combat);
-
+        }
+        private void AddCombatToEncounter(Combat combat, bool isRealtime)
+        {
+            CurrentEncounter.AddCombat(combat, isRealtime);
         }
         private void AddOngoingCombat(string location)
         {
-            UnSelectAll();
-            var combatUI = new PastCombat() { CombatLabel = location + " ongoing...", IsSelected = true, IsCurrentCombat = true, CombatStartTime = DateTime.Now };
-            combatUI.PastCombatUnSelected += UnselectCombat;
-            combatUI.PastCombatSelected += SelectCombat;
-            combatUI.UnselectAll += UnSelectAll;
-
-            _allCombats.Insert(0, combatUI);
-            UpdateVisibleData();
-
+           UnSelectAll();
+           CurrentEncounter.AddOngoingCombat(location);
         }
-
-        public void AddCombat(Combat combatInfo, bool isEncounter = false)
+        private void UpdateTrashVisibility()
         {
-            lock (combatAddLock)
+            foreach (var encounter in PastEncounters)
             {
-                RemoveStaleEncounterCombat(isEncounter);
-
-                if (_allCombats.Any(pc => pc.CombatStartTime == combatInfo.StartTime))
-                    return;
-
-                var combatUI = new PastCombat()
-                {
-                    Combat = combatInfo,
-                    EncounterInfo = isEncounter ? CurrentEncounter.Info : null,
-                    CombatLabel = GetCombatLabel(combatInfo, isEncounter),
-                    CombatDuration = combatInfo.DurationSeconds.ToString("#,##0.0"),
-                    CombatStartTime = combatInfo.StartTime
-                };
-                combatUI.PastCombatSelected += SelectCombat;
-                combatUI.PastCombatUnSelected += UnselectCombat;
-                combatUI.UnselectAll += UnSelectAll;
-                _allCombats.Insert(0, combatUI);
-                if (!isEncounter)
-                {
-                    _allCombats.ForEach(c => c.IsMostRecentCombat = false);
-                    combatUI.IsMostRecentCombat = true;
-                }
-                if (!_usingHistoricalData)
-                {
-                    UpdateVisibleData();
-                    if (!isEncounter)
-                    {
-                        UnSelectAll();
-                        combatUI.IsSelected = true;
-                    }
-                }
-                OnNewLog("Combat with duration " + combatInfo.DurationSeconds + " ended");
+                if (ShowTrash)
+                    encounter.ShowTrash();
+                else
+                    encounter.HideTrash();
             }
         }
-
-        private void RemoveStaleEncounterCombat(bool isEncounter)
+        private void UnSelectAll()
         {
-            if (isEncounter)
+            foreach (var combat in PastEncounters.SelectMany(e => e.EncounterCombats).Where(c => c.IsSelected))
             {
-                var encounterToUpdate = _allCombats.FirstOrDefault(pc => pc.EncounterInfo == CurrentEncounter.Info);
-                _allCombats.Remove(encounterToUpdate);
-                if (!_usingHistoricalData)
-                    UpdateVisibleData();
+                combat.IsSelected = false;
             }
-        }
-
-        private void RemoveCombatInProgress()
-        {
-            lock (combatAddLock)
-            {
-                var ongoingCombat = _allCombats.FirstOrDefault(c => c.IsCurrentCombat);
-                if (ongoingCombat == null)
-                    return;
-                ongoingCombat.IsSelected = false;
-                _allCombats.Remove(ongoingCombat);
-                UpdateVisibleData();
-            }
-
-        }
-
-        private string GetCombatLabel(Combat combat, bool isEncounter)
-        {
-            if (!isEncounter)
-                return combat.EncounterBossInfo == "" ? string.Join(", ", combat.Targets.Select(t=>t.Name).Where(t => !string.IsNullOrEmpty(t))) : combat.EncounterBossInfo;
-            else
-                return combat.ParentEncounter.Name;
         }
         private void UnselectCombat(PastCombat unslectedCombat)
         {
