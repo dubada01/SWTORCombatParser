@@ -81,7 +81,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static Value ParseValues(string valueString, Effect currentEffect)
         {
             if (currentEffect.EffectType == EffectType.Apply && (currentEffect.EffectName == "Damage" || currentEffect.EffectName == "Heal"))
-                return ParseDamageValue(valueString);
+                return ParseValueNumber(valueString, currentEffect.EffectName);
             if (currentEffect.EffectType == EffectType.Restore || currentEffect.EffectType == EffectType.Spend)
                 return ParseResourceEventValue(valueString);
             if (currentEffect.EffectType == EffectType.Event)
@@ -93,13 +93,13 @@ namespace SWTORCombatParser.Model.LogParsing
             var cleanValue = resourceString.Replace("(", "").Replace(")", "");
             return new Value() { DblValue = double.Parse(cleanValue) };
         }
-        private static Value ParseDamageValue(string damageValueString)
+        private static Value ParseValueNumber(string damageValueString, string effectName)
         {
             
             var newValue = new Value();
             if (damageValueString == "(0 -)" || damageValueString == "")
                 return newValue;
-            var valueParts = damageValueString.Replace("(", string.Empty).Replace(")", string.Empty).Split(' ');
+            var valueParts = damageValueString.Replace("(", string.Empty).Replace(")", string.Empty).Trim().Split(' ');
 
             if (valueParts.Length == 0)
                 return newValue;
@@ -108,7 +108,10 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
-                newValue.ValueType = DamageType.heal;
+                if (effectName == "Heal")
+                    newValue.ValueType = DamageType.heal;
+                else
+                    newValue.ValueType = DamageType.none;
                 newValue.EffectiveDblValue = newValue.DblValue;
             }
             if (valueParts.Length == 2) // partially effective heal
@@ -155,7 +158,7 @@ namespace SWTORCombatParser.Model.LogParsing
             {
 
                 var modifier = new Value();
-                modifier.ValueType = GetValueType(valueParts[6].Replace("-", ""));
+                modifier.ValueType = GetValueType(valueParts[3].Replace("-", ""));
 
                 modifier.DblValue = double.Parse(valueParts[5].Replace("(", ""));
                 modifier.EffectiveDblValue = modifier.DblValue;

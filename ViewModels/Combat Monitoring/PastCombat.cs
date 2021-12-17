@@ -12,18 +12,36 @@ namespace SWTORCombatParser.Model.CombatParsing
 {
     public class PastCombat : INotifyPropertyChanged
     {
+        private bool isSelected;
+        private bool isVisible = false;
+        private string combatDuration;
+
         public event Action<PastCombat> PastCombatSelected = delegate { };
         public event Action UnselectAll = delegate { };
         public event Action<PastCombat> PastCombatUnSelected = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
-        public bool IsCurrentCombat;
-        public bool IsMostRecentCombat = false;
+        public bool IsCurrentCombat { get; set; }
+        public bool IsMostRecentCombat { get; set; } = false;
+        public bool IsVisible
+        {
+            get => isVisible; set
+            {
+                isVisible = value;
+                OnPropertyChanged();
+            }
+        }
         public EncounterInfo EncounterInfo { get; set; }
-        public Combat Combat;
-        private bool isSelected;
-
+        public Combat Combat { get; set; }
+        public bool IsTrash => Combat!=null&&!Combat.IsEncounterBoss && !IsCurrentCombat;
         public string CombatLabel { get; set; }
-        public string CombatDuration { get; set; }
+        public string CombatDuration
+        {
+            get => combatDuration; set
+            {
+                combatDuration = value;
+                OnPropertyChanged();
+            }
+        }
         public DateTime CombatStartTime { get; set; }
         public void SelectionToggle()
         {
@@ -34,7 +52,10 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             IsSelected = !IsSelected;
         }
-        public bool IsSelected { get => isSelected; set {
+        public bool IsSelected
+        {
+            get => isSelected; set
+            {
                 isSelected = value;
                 if (value)
                     SelectCombat();

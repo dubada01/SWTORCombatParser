@@ -125,6 +125,7 @@ namespace SWTORCombatParser.ViewModels
             var currentState = CombatLogStateBuilder.CurrentState;
             var modifiersDuringCombat = currentState.GetPersonalEffects(newCombat.StartTime, newCombat.EndTime, SelectedParticipant);
             var uniqueEffects = modifiersDuringCombat.Distinct(new EffectEquivelentComparison());
+            var deionizedTest = uniqueEffects.Where(e => e.Name.Contains("Deionized")).ToList();
             var effectsList = uniqueEffects.GroupBy(v => (v.Name, v.Source),
                 v => Math.Min(v.DurationSeconds, (newCombat.EndTime - v.StartTime).TotalSeconds), (info, durations) =>
                 new EffectViewModel()

@@ -106,47 +106,46 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!string.IsNullOrEmpty(log.Source.Name))
                 CurrentState.CurrentCharacterPositions[log.Source] = log.SourceInfo.Position;
         }
-
+        //private static int numberOf = 0;
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine)
         {
             lock (CurrentState.modifierLogLock)
             {
                 if (parsedLine.Error == ErrorType.IncompleteLine)
                     return;
-
-                if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Apply)
-                {
-                    if (!CurrentState.Modifiers.Any(m => m.Type == CombatModfierType.GuardedThreatReduced) || CurrentState.Modifiers.Last(m => m.Type == CombatModfierType.GuardedThreatReduced).StopTime != DateTime.MinValue)
-                    {
-                        CurrentState.Modifiers.Add(new CombatModifier() { Name = "Guarded-Threat", Source = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedThreatReduced });
-                    }
-                    else
-                    {
-                        CurrentState.Modifiers.Add(new CombatModifier() { Name = "Guarded-Damage", Source = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.GuardedDamagedRedirected });
-                    }
-
-                    return;
-                }
-                if (parsedLine.Ability == "Guard" && parsedLine.Effect.EffectType == EffectType.Remove)
-                {
-                    var guardedModifer = CurrentState.Modifiers.LastOrDefault(m => m.Name.Contains("Guarded") && m.StopTime == DateTime.MinValue);
-                    if (guardedModifer != null)
-                        guardedModifer.StopTime = parsedLine.TimeStamp;
-                    return;
-                }
+                var effectName = parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName);
                 if (parsedLine.Effect.EffectType == EffectType.Apply && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
                 {
-                    var effectToStart = CurrentState.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
-                    if (effectToStart == null || (effectToStart.StopTime != DateTime.MinValue && effectToStart.StartTime != parsedLine.TimeStamp))
+                    if (!CurrentState.Modifiers.ContainsKey(effectName))
                     {
-                        CurrentState.Modifiers.Add(new CombatModifier() { Name = parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName), Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                        CurrentState.Modifiers[effectName] = new List<CombatModifier>();
                     }
+                    var modsOfType = CurrentState.Modifiers[effectName];
+                    var filteredMods = modsOfType.Where(m=> m.Target == parsedLine.Target && m.Source == parsedLine.Source && !m.Complete);
+                    var incompleteEffect = filteredMods.FirstOrDefault();
+                    if (incompleteEffect != null)
+                    {
+                        incompleteEffect.StopTime = parsedLine.TimeStamp;
+                        incompleteEffect.Complete = true;
+                    }
+                    modsOfType.Add(new CombatModifier() { Name = effectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
                 if (parsedLine.Effect.EffectType == EffectType.Remove && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
                 {
-                    var effectToEnd = CurrentState.Modifiers.LastOrDefault(m => m.Name == parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName));
+                    if (string.IsNullOrEmpty(parsedLine.Source.Name))
+                    {
+                        return;
+                    }
+                    if (!CurrentState.Modifiers.ContainsKey(effectName))
+                        return;
+                    var filteredMods = CurrentState.Modifiers[effectName].Where(m => m.Target == parsedLine.Target && m.Source == parsedLine.Source && !m.Complete).ToList();
+
+                    var effectToEnd = filteredMods.FirstOrDefault();
                     if (effectToEnd != null)
+                    {
                         effectToEnd.StopTime = parsedLine.TimeStamp;
+                        effectToEnd.Complete = true;
+                    }
                 }
             }
         }

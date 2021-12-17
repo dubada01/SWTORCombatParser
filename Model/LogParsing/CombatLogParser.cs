@@ -116,6 +116,7 @@ namespace SWTORCombatParser
             {
                 SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(line, realTime));
             }
+            //var shieldModifiers = _logState.Modifiers.Where(m=>m.Name == "Static Barrier").OrderBy(d=>d.StopTime).ToList();
             if(_logState.LogVersion == LogVersion.Legacy)
             {
                 Parallel.ForEach(orderdedLog, line =>

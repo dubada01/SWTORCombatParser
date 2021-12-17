@@ -10,7 +10,7 @@ namespace SWTORCombatParser.Model.CombatParsing
     public class SheildingEvent
     {
         public double SheildValue;
-        public DateTime SheildingTime;
+        public DateTime ShieldingTime;
     }
     public static class AddSheildingToLogs
     {
@@ -26,37 +26,42 @@ namespace SWTORCombatParser.Model.CombatParsing
                 combat.SheildingProvidedLogs[source] = new List<ParsedLogEntry>();
                 combat.TotalProvidedSheilding[source] = 0;
 
-                var healingShieldModifiers = modifiers.Where(m => (m.Name == "Static Barrier" || m.Name == "Force Armor") && m.Source == source).ToList();
-                foreach(var recipient in allPriticipantSheildingLogs.Keys)
+                var healingShieldModifiers = modifiers.Where(m => m.Key == "Static Barrier" || m.Key == "Force Armor").SelectMany(kvp=>kvp.Value).Where(mod=>mod.Source == source).ToList();
+                if (!healingShieldModifiers.Any())
+                    continue;
+                foreach (var recipient in combat.CharacterParticipants)
                 {
-                    var sheildingLogs = allPriticipantSheildingLogs[recipient];
-                    if (healingShieldModifiers.Count == 0)
+                    if (!allPriticipantSheildingLogs.ContainsKey(recipient))
                         continue;
-
+                    var sheildingLogs = allPriticipantSheildingLogs[recipient];
+                    if (sheildingLogs.Count == 0)
+                        continue;
                     List<SheildingEvent> _totalSheildingProvided = new List<SheildingEvent>();
-                    foreach (var sheildEffect in healingShieldModifiers)
+                    foreach (var sheildEffect in healingShieldModifiers.Where(m=>m.Target == recipient))
                     {
-                        var absorbsDuringShield = sheildingLogs.Where(l => l.TimeStamp > sheildEffect.StartTime && l.TimeStamp <= sheildEffect.StopTime.AddSeconds(1.5)).ToList();
+                        var absorbsDuringShield = sheildingLogs.Where(l => l.TimeStamp > sheildEffect.StartTime && l.TimeStamp <= sheildEffect.StopTime).ToList();
                         if (absorbsDuringShield.Count == 0)
                             continue;
-                        _totalSheildingProvided.Add(new SheildingEvent { SheildValue = absorbsDuringShield.Sum(l => l.Value.Modifier.DblValue), SheildingTime = sheildEffect.StopTime });
+                        var shieldAdded = new SheildingEvent { SheildValue = absorbsDuringShield.Sum(l => l.Value.Modifier.DblValue), ShieldingTime = sheildEffect.StopTime };
+
+                        _totalSheildingProvided.Add(shieldAdded);
                     }
 
 
                     foreach (var sheild in _totalSheildingProvided)
                     {
-                        var logToInsertAfter = logs.FirstOrDefault(l => l.TimeStamp > sheild.SheildingTime);
+                        var logToInsertAfter = logs.FirstOrDefault(l => l.TimeStamp > sheild.ShieldingTime);
                         if (logToInsertAfter == null)
                             continue;
                         var indexToInsert = logs.IndexOf(logToInsertAfter);
                         var sheildLog = new ParsedLogEntry
                         {
-                            TimeStamp = sheild.SheildingTime,
-                            Ability = "Healer Bubble",
+                            TimeStamp = sheild.ShieldingTime,
+                            Ability = "Bubble on "+recipient.Name,
                             Effect = new Effect()
                             {
                                 EffectType = EffectType.Apply,
-                                EffectName = "Sheild"
+                                EffectName = "Shield"
                             },
                             SourceInfo = new EntityInfo { Entity = source },
                             TargetInfo = new EntityInfo() { Entity = recipient},

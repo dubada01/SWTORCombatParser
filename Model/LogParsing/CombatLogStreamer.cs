@@ -41,6 +41,7 @@ namespace SWTORCombatParser
                 _logToMonitor = logToMonitor;
                 var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
                 _numberOfEntries = currentLogs.Count;
+                _newNumberOfEntries = _numberOfEntries;
                 ParseHistoricalLog(currentLogs);
                 _monitorLog = true;
                 PollForUpdates();
@@ -53,6 +54,7 @@ namespace SWTORCombatParser
             Task.Run(() => {
                 var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
                 _numberOfEntries = currentLogs.Count;
+                _newNumberOfEntries = _numberOfEntries;
                 ParseHistoricalLog(currentLogs);
             });
         }
@@ -94,7 +96,7 @@ namespace SWTORCombatParser
             using (var sr = new StreamReader(fs, Encoding.UTF7))
             {
                 var allLogEntries = sr.ReadToEnd().Split('\n');
-                _newNumberOfEntries = allLogEntries.Length;
+                _newNumberOfEntries = allLogEntries.Where(s=>!string.IsNullOrEmpty(s)).Count();
                 if (_newNumberOfEntries - 1 <= _numberOfEntries)
                     return;
 
