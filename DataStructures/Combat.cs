@@ -164,6 +164,10 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity,double> TotalDamageTaken = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, double> CurrentHealthDeficit => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>Math.Max(0, TotalEffectiveDamageTaken[kvp.Key]-TotalEffectiveHealingReceived[kvp.Key]));
         public ConcurrentDictionary<Entity, double> TimeSpentBelowFullHealth = new ConcurrentDictionary<Entity, double>();
+        public Dictionary<Entity, List<double>> DamageRecoveryTimes = new Dictionary<Entity, List<double>>();
+        public Dictionary<Entity, double> AverageDamageRecoveryTime => CharacterParticipants.ToDictionary(kvp => kvp, kvp => 
+        DamageRecoveryTimes.ContainsKey(kvp) ?
+        DamageRecoveryTimes[kvp].Any(v => !double.IsNaN(v)) ? DamageRecoveryTimes[kvp].Where(v => !double.IsNaN(v)).Average() : 0 : 0);
         public ConcurrentDictionary<Entity,double> TotalEffectiveDamageTaken = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, List<Point>> AllBurstHealingReceived => CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingTaken));
         public Dictionary<Entity, double> MaxBurstHealingReceived => AllBurstHealingReceived.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));

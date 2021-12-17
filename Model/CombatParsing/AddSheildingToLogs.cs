@@ -60,15 +60,15 @@ namespace SWTORCombatParser.Model.CombatParsing
                             Ability = "Bubble on "+recipient.Name,
                             Effect = new Effect()
                             {
-                                EffectType = EffectType.Apply,
-                                EffectName = "Shield"
+                                EffectType = EffectType.HealerShield,
+                                EffectName = "Healer Shield"
                             },
                             SourceInfo = new EntityInfo { Entity = source },
                             TargetInfo = new EntityInfo() { Entity = recipient},
                             Value = new Value
                             {
                                 EffectiveDblValue = sheild.SheildValue,
-                                ValueType = DamageType.shield
+                                ValueType = DamageType.absorbed
                             }
                         };
                         combat.AllLogs.Insert(
