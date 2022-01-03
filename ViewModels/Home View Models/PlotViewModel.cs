@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Plotting
         private CombatMetaDataViewModel _combatMetaDataViewModel;
         private ParticipantSelectionViewModel _participantsViewModel;
         private object graphLock = new object();
-        private Entity _currentParticipant;
+        private Entity _selectedParticipant;
         private string averageWindowDuration = "10";
         private double _averageWindowDurationDouble = 10;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -74,14 +74,14 @@ namespace SWTORCombatParser.Plotting
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
             GraphView.Refresh();
         }
-        private Entity SelectedParticipant => _currentParticipant == null || !_currentCombats.First().CharacterParticipants.Contains(_currentParticipant) ? _currentCombats.First().CharacterParticipants.First() : _currentParticipant;
+        private Entity SelectedParticipant => _selectedParticipant == null || !_currentCombats.First().CharacterParticipants.Contains(_selectedParticipant) ? _currentCombats.First().CharacterParticipants.First() : _selectedParticipant;
         private void SelectParticipant(Entity obj)
         {
-            if (_currentParticipant == obj)
+            if (_selectedParticipant == obj)
                 return;
 
-            _currentParticipant = obj;
-            _combatMetaDataViewModel.SelectedParticipant = _currentParticipant;
+            _selectedParticipant = obj;
+            _combatMetaDataViewModel.SelectedParticipant = _selectedParticipant;
             lock (graphLock)
             {
                 GraphView.Plot.Clear();
@@ -109,7 +109,7 @@ namespace SWTORCombatParser.Plotting
                     GraphView.Plot.Clear();
                     foreach (var combat in _currentCombats)
                     {
-                        PlotCombat(combat, _currentParticipant);
+                        PlotCombat(combat, _selectedParticipant);
                     }
                     OnPropertyChanged("AverageWindowDuration");
                 }
@@ -170,11 +170,15 @@ namespace SWTORCombatParser.Plotting
             ParticipantSelectionHeight = obj.Count > 4 ? new GridLength(0.25, GridUnitType.Star) : new GridLength(0.125, GridUnitType.Star);
             OnPropertyChanged("ParticipantSelectionHeight");
             _combatMetaDataViewModel.AvailableParticipants = obj;
+
+            if (!obj.Contains(_selectedParticipant))
+                _selectedParticipant = null;
+
             _participantsViewModel.SetParticipants(obj);
-            if (_currentParticipant == null)
+            if (_selectedParticipant == null)
                 _participantsViewModel.SelectLocalPlayer();
             else
-                _participantsViewModel.SelectParticipant(_currentParticipant);
+                _participantsViewModel.SelectParticipant(_selectedParticipant);
         }
 
         public void UpdateLivePlot(Combat updatedCombat)
@@ -323,7 +327,7 @@ namespace SWTORCombatParser.Plotting
                     plotYvaRates = plotYvals;
                 }
 
-                List<(string, string)> abilityNames = PlotMaker.GetAnnotationString(applicableData);
+                List<(string, string)> abilityNames = PlotMaker.GetAnnotationString(applicableData, series.Type == PlotType.DamageTaken || series.Type == PlotType.HealingTaken);
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
                 if (series.Type != PlotType.HPPercent)

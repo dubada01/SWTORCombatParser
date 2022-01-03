@@ -38,9 +38,13 @@ namespace SWTORCombatParser
                 {
                     if (!combat.DamageRecoveryTimes.ContainsKey(healer))
                     {
-                        combat.DamageRecoveryTimes[healer] = new List<double>();
+                        combat.DamageRecoveryTimes[healer] = new Dictionary<Entity, List<double>>();
                     }
-                    combat.DamageRecoveryTimes[healer].AddRange(recoveryTimes[healer]);
+                    if (!combat.DamageRecoveryTimes[healer].ContainsKey(entity))
+                    {
+                        combat.DamageRecoveryTimes[healer][entity] = new List<double>();
+                    }
+                    combat.DamageRecoveryTimes[healer][entity]=recoveryTimes[healer];
                 }
 
 

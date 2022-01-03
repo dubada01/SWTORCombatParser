@@ -9,7 +9,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.45*"/>
-            <RowDefinition Height="0.45*"/>
+            <!--<RowDefinition Height="0.45*"/>-->
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -56,13 +56,13 @@
 
 
             </Grid>
-            <ContentPresenter Grid.Column="1" Content="{Binding EventViewContent}"></ContentPresenter>
-            <ContentPresenter Margin="5" Grid.Column="2" Content="{Binding MapViewContent}"></ContentPresenter>
+            <ContentPresenter Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding EventViewContent}"></ContentPresenter>
+            <!--<ContentPresenter Margin="5" Grid.Column="2" Content="{Binding MapViewContent}"></ContentPresenter>-->
         </Grid>
-        <Grid Grid.Row="1">
+        <!--<Grid Grid.Row="1">
             <ContentPresenter Margin="0,0,0,45" Content="{Binding PlotViewContent}"></ContentPresenter>
             <Slider Margin="{Binding SliderMargin}" Value="{Binding SliderPosition}" Style="{StaticResource ResourceScrubberStyle}" Orientation="Horizontal" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Bottom"></Slider>
-        </Grid>
+        </Grid>-->
 
     </Grid>
 </UserControl>

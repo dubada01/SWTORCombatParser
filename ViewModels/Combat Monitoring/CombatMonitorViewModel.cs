@@ -43,6 +43,7 @@ namespace SWTORCombatParser.ViewModels
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
         public event Action<string> OnNewLog = delegate { };
         public event Action<List<Entity>> ParticipantsUpdated = delegate { };
+        public event Action<Entity> LocalPlayerId = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public string CurrentlySelectedLogName { get; set; }
         public bool ShowTrash
@@ -51,7 +52,6 @@ namespace SWTORCombatParser.ViewModels
             {
                 showTrash = value;
                 UpdateTrashVisibility();
-               // UpdateVisibleData();
             }
         }
         public ObservableCollection<EncounterCombat> PastEncounters { get; set; } = new ObservableCollection<EncounterCombat>();
@@ -87,17 +87,20 @@ namespace SWTORCombatParser.ViewModels
         }
         private void LocalPlayerFound(Entity obj)
         {
-            //ParticipantsUpdated(new List<Entity> { obj });
+            LocalPlayerId(obj);
         }
 
         public void Reset()
         {
-            _usingHistoricalData = true;
-            PastEncounters.Clear();
-            CurrentEncounter = null;
-            _totalLogsDuringCombat.Clear();
-            CombatLogStateBuilder.ClearState();
-            ClearCombats();
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                _usingHistoricalData = true;
+                PastEncounters.Clear();
+                CurrentEncounter = null;
+                _totalLogsDuringCombat.Clear();
+                CombatLogStateBuilder.ClearState();
+                ClearCombats();
+            });
         }
         public ICommand ToggleLiveParseCommand => new CommandHandler(ToggleLiveParse);
 
@@ -113,7 +116,7 @@ namespace SWTORCombatParser.ViewModels
             }
 
         }
-        private void EnableLiveParse()
+        public void EnableLiveParse(bool runningInBackground = false)
         {
             if (!CombatLogLoader.CheckIfCombatLoggingPresent())
             {
@@ -136,13 +139,14 @@ namespace SWTORCombatParser.ViewModels
                     return;
                 else
                 {
-                    MonitorMostRecentLog();
+                    MonitorMostRecentLog(runningInBackground);
                 }
             });
         }
-        private void MonitorMostRecentLog()
+        private void MonitorMostRecentLog(bool runningInBackground)
         {
-            LoadingWindowFactory.ShowLoading();
+            if(!runningInBackground)
+                LoadingWindowFactory.ShowLoading();
             OnMonitoringStarted();
             var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
             //var mostRecentLog = @"C:\Users\duban\Documents\Star Wars - The Old Republic\CombatLogs\test.txt";
@@ -178,7 +182,7 @@ namespace SWTORCombatParser.ViewModels
             }
         }
         ///
-        private void DisableLiveParse()
+        public void DisableLiveParse()
         {
             if (!LiveParseActive)
                 return;
@@ -246,6 +250,10 @@ namespace SWTORCombatParser.ViewModels
 
         private void CombatUpdated(List<ParsedLogEntry> obj, DateTime combatStartTime)
         {
+            if (!_totalLogsDuringCombat.ContainsKey(combatStartTime))
+            {
+                _totalLogsDuringCombat[combatStartTime] = new List<ParsedLogEntry>();
+            }
             _totalLogsDuringCombat[combatStartTime].AddRange(obj);
             _usingHistoricalData = false;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList());
@@ -276,7 +284,6 @@ namespace SWTORCombatParser.ViewModels
                 AddCombatToEncounter(combatInfo,true);
                 if (combatInfo.IsEncounterBoss)
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
-                CombatIdentifier.UpdateOverlays(combatInfo);
             }
 
         }

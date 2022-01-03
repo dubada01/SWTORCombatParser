@@ -53,6 +53,8 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.DeepSkyBlue;
                 case OverlayType.InterruptCount:
                     return Brushes.SteelBlue;
+                case OverlayType.HealReactionTime:
+                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("YellowGrayColor"));
                 default:
                     return Brushes.Gray;
             }

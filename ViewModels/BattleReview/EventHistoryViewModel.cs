@@ -36,6 +36,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             _startTime = combatSeleted.StartTime;
             _currentlySelectedCombat = combatSeleted;
+            UpdateLogsForTime((combatSeleted.EndTime - combatSeleted.StartTime).TotalSeconds);
         }
         public void SetViewableEntities(List<Entity> entitiesToshow)
         {
@@ -45,7 +46,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             _typeSelected = type;
         }
-        private void UpdateLogsForTime(double time)
+        public void UpdateLogsForTime(double time)
         {
             if (_currentlySelectedCombat == null)
                 return;
@@ -62,6 +63,11 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             switch (_typeSelected)
             {
+                case DisplayType.All:
+                    {
+                        DisplayOffensiveBuffs = true;
+                        return _viewingEntities.Contains(source) || _viewingEntities.Contains(target);
+                    }
                 case DisplayType.Damage:
                     {
                         DisplayOffensiveBuffs = true;

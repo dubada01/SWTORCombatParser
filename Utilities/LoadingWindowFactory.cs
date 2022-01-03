@@ -1,8 +1,11 @@
 ﻿using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Views;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +16,8 @@ namespace SWTORCombatParser.resources
     {
         private static LoadingSplash _loadingWindow;
         private static Window _mainWindow;
+
+        public static bool MainWindowHidden = false;
         public static void SetMainWindow(Window mainWindow)
         {
             _mainWindow = mainWindow;
@@ -33,6 +38,22 @@ namespace SWTORCombatParser.resources
                 _loadingWindow.Show();
             });
             return _loadingWindow;
+        }
+        public static void ShowBackgroundNotice()
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                var mainTop = _mainWindow.Top;
+                var mainLeft = _mainWindow.Left;
+                var mainWidth = _mainWindow.ActualWidth;
+                var mainHeight = _mainWindow.ActualHeight;
+                (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
+
+                var warning = new BackgroundMonitoringWarning();
+                warning.Top = center.Item2 - 100;
+                warning.Left = center.Item1 - 300;
+                warning.Show();
+            });
         }
         public static void HideLoading()
         {

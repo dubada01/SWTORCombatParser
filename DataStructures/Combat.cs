@@ -164,10 +164,43 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity,double> TotalDamageTaken = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, double> CurrentHealthDeficit => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>Math.Max(0, TotalEffectiveDamageTaken[kvp.Key]-TotalEffectiveHealingReceived[kvp.Key]));
         public ConcurrentDictionary<Entity, double> TimeSpentBelowFullHealth = new ConcurrentDictionary<Entity, double>();
-        public Dictionary<Entity, List<double>> DamageRecoveryTimes = new Dictionary<Entity, List<double>>();
-        public Dictionary<Entity, double> AverageDamageRecoveryTime => CharacterParticipants.ToDictionary(kvp => kvp, kvp => 
-        DamageRecoveryTimes.ContainsKey(kvp) ?
-        DamageRecoveryTimes[kvp].Any(v => !double.IsNaN(v)) ? DamageRecoveryTimes[kvp].Where(v => !double.IsNaN(v)).Average() : 0 : 0);
+        public Dictionary<Entity, Dictionary<Entity, List<double>>> DamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
+        public Dictionary<Entity, Dictionary<Entity, double>> AverageDamageRecoveryTimePerTarget => GetDamageRecoveryTimesPerTarget();
+
+        private Dictionary<Entity, Dictionary<Entity, double>> GetDamageRecoveryTimesPerTarget()
+        {
+            Dictionary<Entity, Dictionary<Entity, double>> returnDict = new Dictionary<Entity, Dictionary<Entity, double>>();
+            foreach(var player in CharacterParticipants)
+            {
+                if (DamageRecoveryTimes.ContainsKey(player))
+                {
+                    returnDict[player] = DamageRecoveryTimes[player].ToDictionary(
+                        kvp => kvp.Key, 
+                        kvp => kvp.Value.Any(v=>!double.IsNaN(v)) ? kvp.Value.Where(v => !double.IsNaN(v)).Average():double.NaN);
+                }
+                else
+                {
+                    returnDict[player] = new Dictionary<Entity, double>();
+                }
+            }
+            return returnDict;
+        }
+
+        public Dictionary<Entity, double> AverageDamageRecoveryTimeTotal => GetTotalDamageRecoveryTimes();
+
+        private Dictionary<Entity, double> GetTotalDamageRecoveryTimes()
+        {
+            Dictionary<Entity, double> returnDict = new Dictionary<Entity, double>();
+            foreach (var player in CharacterParticipants)
+            {
+
+                returnDict[player] = AverageDamageRecoveryTimePerTarget[player].Any(kvp => !double.IsNaN(kvp.Value)) ? AverageDamageRecoveryTimePerTarget[player].Where(kvp=>!double.IsNaN(kvp.Value)).Average(
+                    kvp => kvp.Value):0;
+
+            }
+            return returnDict;
+        }
+
         public ConcurrentDictionary<Entity,double> TotalEffectiveDamageTaken = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, List<Point>> AllBurstHealingReceived => CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingTaken));
         public Dictionary<Entity, double> MaxBurstHealingReceived => AllBurstHealingReceived.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));

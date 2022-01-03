@@ -39,10 +39,7 @@ namespace SWTORCombatParser
             {
                 ResetMonitoring();
                 _logToMonitor = logToMonitor;
-                var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
-                _numberOfEntries = currentLogs.Count;
-                _newNumberOfEntries = _numberOfEntries;
-                ParseHistoricalLog(currentLogs);
+                ParseExisitingLogs();
                 _monitorLog = true;
                 PollForUpdates();
             });
@@ -51,13 +48,20 @@ namespace SWTORCombatParser
         {
             ResetMonitoring();
             _logToMonitor = log;
-            Task.Run(() => {
-                var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
-                _numberOfEntries = currentLogs.Count;
-                _newNumberOfEntries = _numberOfEntries;
-                ParseHistoricalLog(currentLogs);
+            Task.Run(() =>
+            {
+                ParseExisitingLogs();
             });
         }
+
+        private void ParseExisitingLogs()
+        {
+            var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
+            _numberOfEntries = currentLogs.Count;
+            _newNumberOfEntries = _numberOfEntries;
+            ParseHistoricalLog(currentLogs);
+        }
+
         public void StopMonitoring()
         {
             _monitorLog = false;
@@ -70,7 +74,6 @@ namespace SWTORCombatParser
             _numberOfEntries = 0;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
-            _monitorLog = false;
         }
 
         private void PollForUpdates()
@@ -97,7 +100,7 @@ namespace SWTORCombatParser
             {
                 var allLogEntries = sr.ReadToEnd().Split('\n');
                 _newNumberOfEntries = allLogEntries.Where(s=>!string.IsNullOrEmpty(s)).Count();
-                if (_newNumberOfEntries - 1 <= _numberOfEntries)
+                if (_newNumberOfEntries <= _numberOfEntries)
                     return;
 
                 for (var line = _numberOfEntries; line < allLogEntries.Length; line++)
@@ -105,7 +108,7 @@ namespace SWTORCombatParser
                     ProcessNewLine(allLogEntries[line], line, Path.GetFileName(_logToMonitor));
                 }
 
-                _numberOfEntries = _newNumberOfEntries - 1;
+                _numberOfEntries = _newNumberOfEntries;
                 if (!_isInCombat)
                     return; 
                 CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
@@ -134,6 +137,7 @@ namespace SWTORCombatParser
             if (mostRecentFile != _logToMonitor)
             {
                 _logToMonitor = mostRecentFile;
+                ResetMonitoring();
                 return true;
             }
             var fileInfo = new FileInfo(_logToMonitor);
@@ -163,7 +167,7 @@ namespace SWTORCombatParser
         
         private void CheckForCombatState(long lineIndex, ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true)
         {
-            var currentCombatState = CombatDetector.CheckForCombatState(parsedLine, lineIndex, _newNumberOfEntries);
+            var currentCombatState = CombatDetector.CheckForCombatState(parsedLine);
             if(currentCombatState == CombatState.ExitedByEntering)
             {
                 EndCombat();
@@ -187,7 +191,6 @@ namespace SWTORCombatParser
             if (shouldUpdateOnNewCombat)
                 CombatUpdated(updateMessage);
         }
-
         private void EndCombat()
         {
             CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
