@@ -99,8 +99,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             _currentOverlays.Remove(obj);
         }
-        private void ResetOverlays()
+        public void ResetOverlays()
         {
+            _currentCharacterName = "";
             foreach (var overlay in _currentOverlays.ToList())
             {
                 overlay.RequestClose();

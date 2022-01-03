@@ -29,6 +29,15 @@
                 <ComboBox Height="45" Grid.Row="3" ItemsSource="{Binding BossesInSelectedEncounter}" SelectedItem="{Binding SelectedBoss}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
             </Grid>
         </Border>
+        <Viewbox MaxHeight="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Row="1" Margin="5,0,0,20">
+            <StackPanel Orientation="Vertical" >
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontSize="20" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Max Combat Length: "/>
+                    <TextBox FontFamily="{StaticResource MainFont}" Text="{Binding MaxCombatLength, UpdateSourceTrigger=PropertyChanged}" Width="75" FontWeight="Normal" HorizontalContentAlignment="Center"  Style="{StaticResource RoundedTextBox}"/>
+                </StackPanel>
+            </StackPanel>
+        </Viewbox>
+
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>

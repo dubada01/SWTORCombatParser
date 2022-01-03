@@ -2,6 +2,8 @@
 using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Plotting;
+using SWTORCombatParser.resources;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.BattleReview;
 using SWTORCombatParser.ViewModels.HistoricalLogs;
 using SWTORCombatParser.ViewModels.Overlays;
@@ -24,6 +26,7 @@ namespace SWTORCombatParser.ViewModels
     public class MainWindowViewModel : INotifyPropertyChanged
     {
         private PlotViewModel _plotViewModel;
+        private BattleReviewViewModel _reviewViewModel;
         private CombatMonitorViewModel _combatMonitorViewModel;
         private OverlayViewModel _overlayViewModel;
         private OverviewViewModel _tableViewModel;
@@ -50,6 +53,8 @@ namespace SWTORCombatParser.ViewModels
             ClassIdentifier.InitializeAvailableClasses();
             RaidNameLoader.LoadAllRaidNames();
 
+            SWTORDetector.SWTORProcessStateChanged += ProcessChanged;
+
             _plotViewModel = new PlotViewModel();
             var graphView = new GraphView(_plotViewModel);
             ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Battle Plot" });
@@ -60,6 +65,7 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel.OnLiveCombatUpdate += UpdateLivePlot;
             _combatMonitorViewModel.OnMonitoringStarted += MonitoringStarted;
             _combatMonitorViewModel.ParticipantsUpdated += UpdateAvailableParticipants;
+            _combatMonitorViewModel.LocalPlayerId += LocalPlayerChanged;
             _combatMonitorViewModel.OnHistoricalCombatsParsed += AddHistoricalViewer;
             //_combatMonitorViewModel.OnNewLog += NewSoftwareLog;
 
@@ -77,8 +83,9 @@ namespace SWTORCombatParser.ViewModels
             _histViewModel = new HistogramVeiewModel();
             var histView = new OverviewView(_histViewModel);
             ContentTabs.Add(new TabInstance() { TabContent = histView, HeaderText = "Histogram" });
-            //_reviewViewModel = new BattleReviewViewModel();
-            //BattleReviewView = new BattleReviewView(_reviewViewModel);
+
+            _reviewViewModel = new BattleReviewViewModel();
+            ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel),HeaderText = "Combat Log" });
 
             _overlayViewModel = new OverlayViewModel();
             var overlayView = new OverlayView(_overlayViewModel);
@@ -88,6 +95,22 @@ namespace SWTORCombatParser.ViewModels
 
             SelectedTabIndex = 0;
 
+        }
+
+        private void ProcessChanged(bool obj)
+        {
+            //if (!LoadingWindowFactory.MainWindowHidden)
+            //    return;
+            if (obj)
+            {
+                _combatMonitorViewModel.EnableLiveParse(true);
+                _overlayViewModel.OverlaysLocked = true;
+            }
+            else
+            {
+                _combatMonitorViewModel.DisableLiveParse();
+                _overlayViewModel.ResetOverlays();
+            }
         }
 
         private void AddHistoricalViewer(List<Combat> combats)
@@ -148,6 +171,7 @@ namespace SWTORCombatParser.ViewModels
                 _plotViewModel.AddCombatPlot(obj);
                 _tableViewModel.AddCombat(obj);
                 _histViewModel.AddCombat(obj);
+                _reviewViewModel.CombatSelected(obj);
             });
 
         }
@@ -164,6 +188,21 @@ namespace SWTORCombatParser.ViewModels
         {
             _plotViewModel.UpdateParticipants(obj);
             _overlayViewModel.NewParticipants(obj);
+        }
+        private Entity localEntity;
+        private void LocalPlayerChanged(Entity obj)
+        {
+            App.Current.Dispatcher.Invoke(delegate
+            {
+                if(localEntity != obj)
+                {
+                    _plotViewModel.Reset();
+                    _tableViewModel.Reset();
+                    _histViewModel.Reset();
+                    _overlayViewModel.NewParticipants(new List<Entity> { obj });
+                }
+                localEntity = obj;
+            });
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

@@ -388,6 +388,15 @@
       ],
       "UniqueAbilities": [ "Gut", "Tactical Surge", "Assult Plastique", "Cell Burst" ]
     },
+
+    {
+      "Name": "Vanguard",
+      "Role": "DPS",
+      "Discipline": "Plasmatech",
+      "SpecialThreatAbilities": [
+      ],
+      "UniqueAbilities": [ "Gut", "Tactical Surge", "Assult Plastique", "Cell Burst" ]
+    },
     {
       "Name": "Gunslinger",
       "Role": "DPS",

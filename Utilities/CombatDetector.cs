@@ -32,7 +32,7 @@ namespace SWTORCombatParser.Utilities
             _bossesKilledThisCombat = new List<string>();
             _isInCombat = true;
         }
-        public static CombatState CheckForCombatState(ParsedLogEntry line, long lineIndex = -1, long numberOfLines = -1)
+        public static CombatState CheckForCombatState(ParsedLogEntry line)
         {
             if (!_isInCombat && line.Effect.EffectName == "EnterCombat")
             {
@@ -105,7 +105,7 @@ namespace SWTORCombatParser.Utilities
                 }
 
             }
-            var hasCombatEnded = CheckForCombatEnd(line.TimeStamp, lineIndex, numberOfLines);
+            var hasCombatEnded = CheckForCombatEnd(line);
             if (hasCombatEnded)
                 return CombatState.ExitedCombat;
             else
@@ -116,29 +116,17 @@ namespace SWTORCombatParser.Utilities
                     return CombatState.OutOfCombat;
             }
         }
-        private static bool CheckForCombatEnd(DateTime currentLogTime, long lineIndex, long numberOfLines)
-        {
-            if(lineIndex == -1)
-            {
-                if ((currentLogTime - _combatEndTime).TotalSeconds > 2 && _combatEnding)
-                {
-                    _isInCombat = false;
-                    _combatEnding = false;
-                    return true;
-                }
-                return false;
-            }
-            else
-            {
-                if (((currentLogTime - _combatEndTime).TotalSeconds > 2 || (lineIndex == numberOfLines - 1)) && _combatEnding)
-                {
 
-                    _isInCombat = false;
-                    _combatEnding = false;
-                    return true;
-                }
-                return false;
+
+        private static bool CheckForCombatEnd(ParsedLogEntry log)
+        {
+            if (_combatEnding)
+            {
+                _isInCombat = false;
+                _combatEnding = false;
+                return true;
             }
+            return false;
         }
     }
 }

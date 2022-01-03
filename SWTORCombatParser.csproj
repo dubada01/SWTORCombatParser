@@ -59,6 +59,7 @@
     <None Remove="resources\redX.png" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="resources\SwtorLogo_opaque.png" />
+    <None Remove="resources\SWTORParsingIcon.ico" />
     <None Remove="resources\tankIcon.png" />
   </ItemGroup>
 
@@ -132,6 +133,25 @@
     <Content Include="resources\SwtorLogo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="resources\SWTORParsingIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\InsanceAlreadyRunningWarning.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\InsanceAlreadyRunningWarning.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

@@ -79,22 +79,27 @@ namespace SWTORCombatParser
             return zcores;
         }
 
-        internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data)
+        internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data, bool isIncoming)
         {
-            return data.Select(d => GetAnnotationForAbilitiy(d)).ToList();
+            return data.Select(d => GetAnnotationForAbilitiy(d,isIncoming)).ToList();
         }
-        private static (string,string) GetAnnotationForAbilitiy(ParsedLogEntry log)
+        private static (string,string) GetAnnotationForAbilitiy(ParsedLogEntry log, bool isIncoming)
         {
             var critMark = log.Value.WasCrit ? "*" : "";
             var stringToShow = log.Ability + ": "+ log.Value.DblValue + critMark;
-            if(log.Target.IsLocalPlayer && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
+            if(log.Target.IsCharacter && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
             {
                 stringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
             }
             var EffectivestringToShow = log.Ability + ": " + log.Value.EffectiveDblValue + critMark;
-            if (log.Target.IsLocalPlayer && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
+            if (log.Target.IsCharacter && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
             {
                 EffectivestringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
+            }
+            if (isIncoming)
+            {
+                stringToShow += "\n(" + log.Source.Name+")";
+                EffectivestringToShow += "\n(" + log.Source.Name+")";
             }
             return (stringToShow, EffectivestringToShow);
         }

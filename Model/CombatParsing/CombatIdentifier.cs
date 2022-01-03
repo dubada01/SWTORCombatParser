@@ -61,7 +61,7 @@ namespace SWTORCombatParser
                     if (currentCombatLogs.Count == 0)
                         continue;
                     var combatCreated = GenerateNewCombatFromLogs(currentCombatLogs);
-                    if (combatCreated.EncounterBossInfo != "")
+                    if (!string.IsNullOrEmpty(combatCreated.EncounterBossInfo))
                         combats.Add(combatCreated);
                 }
                 if (combatState == CombatState.InCombat)
@@ -86,7 +86,7 @@ namespace SWTORCombatParser
                 Targets = GetTargets(ongoingLogs),
                 AllLogs = ongoingLogs
             };
-            if (encounter !=  null)
+            if (encounter !=  null && encounter.BossInfos != null)
             {
                 newCombat.ParentEncounter = encounter;
                 newCombat.EncounterBossInfo = GetCurrentBossInfo(ongoingLogs,encounter);

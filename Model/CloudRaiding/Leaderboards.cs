@@ -139,32 +139,35 @@ namespace SWTORCombatParser.Model.CloudRaiding
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
                 //// ADD WITH 7.0
-                //foreach(var player in combat.CharacterParticipants)
-                //{
-                var player = combat.LocalPlayer;
-                SWTORClass playerClass;
-                if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(player))
+                foreach (var player in combat.CharacterParticipants)
                 {
-                    playerClass = null;
-                }
-                else
-                {
-                    playerClass = CharacterClassHelper.GetClassFromEntityAtTime(player, combat.StartTime);
-                }
+                    //var player = combat.LocalPlayer;
+                    SWTORClass playerClass;
+                    if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(player))
+                    {
+                        playerClass = null;
+                    }
+                    else
+                    {
+                        playerClass = CharacterClassHelper.GetClassFromEntityAtTime(player, combat.StartTime);
+                    }
 
-                var leaderboardEntry = new LeaderboardEntry()
-                {
-                    Boss = combat.EncounterBossInfo,
-                    Character = player.Name,
-                    Class = playerClass == null ? "Unknown" : playerClass.Name + "/" + playerClass.Discipline,
-                    Value = GetValueForLeaderboardEntry(enumVal, combat, player),
-                    Type = enumVal,
-                    Duration = (int)combat.DurationSeconds,
-                    VerifiedKill = combat.WasBossKilled
-                };
-                if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled(player))
-                    PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
-                //}
+                    var leaderboardEntry = new LeaderboardEntry()
+                    {
+                        Boss = combat.EncounterBossInfo,
+                        Character = player.Name,
+                        Class = playerClass == null ? "Unknown" : playerClass.Name + "/" + playerClass.Discipline,
+                        Value = GetValueForLeaderboardEntry(enumVal, combat, player),
+                        Type = enumVal,
+                        Duration = (int)combat.DurationSeconds,
+                        VerifiedKill = combat.WasBossKilled
+                    };
+                    if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled(player))
+                    {
+                        PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                        CombatIdentifier.UpdateOverlays(combat);
+                    }
+                }
             }
         }
 
@@ -172,15 +175,15 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             switch (role)
             {
-                case (LeaderboardEntryType.Damage):
+                case LeaderboardEntryType.Damage:
                     return combat.DPS[player];
-                case (LeaderboardEntryType.FocusDPS):
+                case LeaderboardEntryType.FocusDPS:
                     return combat.FocusDPS[player];
-                case (LeaderboardEntryType.Healing):
+                case LeaderboardEntryType.Healing:
                     return combat.HPS[player] + combat.PSPS[player];
-                case (LeaderboardEntryType.EffectiveHealing):
+                case LeaderboardEntryType.EffectiveHealing:
                     return combat.EHPS[player] + combat.PSPS[player];
-                case (LeaderboardEntryType.Mitigation):
+                case LeaderboardEntryType.Mitigation:
                     return combat.MPS[player];
                 default:
                     return 0;

@@ -21,6 +21,7 @@
     <Color x:Key="GreenColor">#FF34A547</Color>
     <Color x:Key="DarkGreenColor">#386e4d</Color>
     <Color x:Key="LightGrayGreenColor">#8ba38c</Color>
+    <Color x:Key="YellowGrayColor">#b59700</Color>
     <Color x:Key="GrayGreenColor">#bbc4bd</Color>
     <Color x:Key="RedColor">#FFa53434</Color>
     <Color x:Key="GlyphColor">#FF444444</Color>

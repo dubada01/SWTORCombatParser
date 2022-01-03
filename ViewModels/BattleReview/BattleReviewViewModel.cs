@@ -44,6 +44,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
     }
     public enum DisplayType
     {
+        All,
         Damage,
         DamageTaken,
         Healing,
@@ -52,13 +53,13 @@ namespace SWTORCombatParser.ViewModels.BattleReview
     public class BattleReviewViewModel : INotifyPropertyChanged
     {
         private Combat _currentlySelectedCombats;
-        private double _minPlotTime;
-        private double _maxPlotTime;
-        private MapViewModel _mapViewModel;
+        //private double _minPlotTime;
+        //private double _maxPlotTime;
+        //private MapViewModel _mapViewModel;
         private EventHistoryViewModel _eventViewModel;
-        private ReviewPlotViewModel _plotViewModel;
-        private double sliderPosition;
-        private string movingAverageWindow = "10";
+        //private ReviewPlotViewModel _plotViewModel;
+        //private double sliderPosition;
+        //private string movingAverageWindow = "10";
         private DisplayType selectedDisplayType;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -77,33 +78,33 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             set
             {
                 selectedDisplayType = value;
-                _plotViewModel.SetDisplayType(selectedDisplayType);
+                //_plotViewModel.SetDisplayType(selectedDisplayType);
                 _eventViewModel.SetDisplayType(selectedDisplayType);
                 UpdateVisuals();
             }
         }
-        public WpfPlot PlotViewContent => _plotViewModel.Plot;
+        //public WpfPlot PlotViewContent => _plotViewModel.Plot;
         public BattleReviewViewModel()
         {
 
-            _mapViewModel = new MapViewModel();
-            MapViewContent = new MapView(_mapViewModel);
+            //_mapViewModel = new MapViewModel();
+            //MapViewContent = new MapView(_mapViewModel);
 
             _eventViewModel = new EventHistoryViewModel();
             EventViewContent = new EventHistoryView(_eventViewModel);
 
-            _plotViewModel = new ReviewPlotViewModel();
-            _plotViewModel.OnNewOffset += UpdateOffset;
-            _plotViewModel.NewAxisLmits += UpdateAxisRanges;
-            _plotViewModel.SetWindowSize(10);
+            //_plotViewModel = new ReviewPlotViewModel();
+            //_plotViewModel.OnNewOffset += UpdateOffset;
+            //_plotViewModel.NewAxisLmits += UpdateAxisRanges;
+            //_plotViewModel.SetWindowSize(10);
         }
 
-        private void UpdateAxisRanges(double arg1, double arg2)
-        {
-            _minPlotTime = arg1;
-            _maxPlotTime = arg2;
-            UpdatedSliderPosition(SliderPosition);
-        }
+        //private void UpdateAxisRanges(double arg1, double arg2)
+        //{
+        //    _minPlotTime = arg1;
+        //    _maxPlotTime = arg2;
+        //    UpdatedSliderPosition(SliderPosition);
+        //}
 
         public void CombatSelected(Combat combat)
         {
@@ -135,59 +136,59 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         private void UpdateSelectedEntities()
         {
             var seletedElements = AvailableEntities.Where(e => e.Selected).Select(e => e.Entity).ToList();
-            _plotViewModel.SetViewableEntities(seletedElements);
+            //_plotViewModel.SetViewableEntities(seletedElements);
             _eventViewModel.SetViewableEntities(seletedElements);
             UpdateVisuals();
         }
 
-        public double SliderPosition
-        {
-            get => sliderPosition; set
-            {
-                sliderPosition = value;
-                UpdatedSliderPosition(sliderPosition);
-            }
-        }
-        public string MovingAverageWindow
-        {
-            get => movingAverageWindow; set
-            {
-                movingAverageWindow = value;
+        //public double SliderPosition
+        //{
+        //    get => sliderPosition; set
+        //    {
+        //        sliderPosition = value;
+        //        UpdatedSliderPosition(sliderPosition);
+        //    }
+        //}
+        //public string MovingAverageWindow
+        //{
+        //    get => movingAverageWindow; set
+        //    {
+        //        movingAverageWindow = value;
 
-                if (!int.TryParse(movingAverageWindow, out var test))
-                    return;
-                _plotViewModel.SetWindowSize(int.Parse(movingAverageWindow));
-                UpdateVisuals();
-            }
-        }
+        //        if (!int.TryParse(movingAverageWindow, out var test))
+        //            return;
+        //        _plotViewModel.SetWindowSize(int.Parse(movingAverageWindow));
+        //        UpdateVisuals();
+        //    }
+        //}
         private void UpdateVisuals()
         {
-            _mapViewModel.SetCombat(_currentlySelectedCombats);
+            //_mapViewModel.SetCombat(_currentlySelectedCombats);
             _eventViewModel.SelectCombat(_currentlySelectedCombats);
-            _plotViewModel.DisplayDataForCombat(_currentlySelectedCombats);
+            //_plotViewModel.DisplayDataForCombat(_currentlySelectedCombats);
         }
-        private void UpdateOffset(double obj)
-        {
-            var scalingFactor = getScalingFactor();
+        //private void UpdateOffset(double obj)
+        //{
+        //    var scalingFactor = getScalingFactor();
 
-            var SliderOffset = obj / (scalingFactor.Item1 / 96d);
-            SliderMargin = new Thickness(SliderOffset - 15, 0, 0, 0);
-            OnPropertyChanged("SliderMargin");
-        }
-        private (int, int) getScalingFactor()
-        {
-            var dpiXProperty = typeof(SystemParameters).GetProperty("DpiX", BindingFlags.NonPublic | BindingFlags.Static);
-            var dpiYProperty = typeof(SystemParameters).GetProperty("Dpi", BindingFlags.NonPublic | BindingFlags.Static);
+        //    var SliderOffset = obj / (scalingFactor.Item1 / 96d);
+        //    SliderMargin = new Thickness(SliderOffset - 15, 0, 0, 0);
+        //    OnPropertyChanged("SliderMargin");
+        //}
+        //private (int, int) getScalingFactor()
+        //{
+        //    var dpiXProperty = typeof(SystemParameters).GetProperty("DpiX", BindingFlags.NonPublic | BindingFlags.Static);
+        //    var dpiYProperty = typeof(SystemParameters).GetProperty("Dpi", BindingFlags.NonPublic | BindingFlags.Static);
 
-            var dpiX = (int)dpiXProperty.GetValue(null, null);
-            var dpiY = (int)dpiYProperty.GetValue(null, null);
-            return (dpiX, dpiY);
-        }
-        public void UpdatedSliderPosition(double position)
-        {
-            var range = _maxPlotTime - _minPlotTime;
-            ReviewSliderUpdates.UpdateSlider((range * position / 10) + _minPlotTime);
-        }
+        //    var dpiX = (int)dpiXProperty.GetValue(null, null);
+        //    var dpiY = (int)dpiYProperty.GetValue(null, null);
+        //    return (dpiX, dpiY);
+        //}
+        //public void UpdatedSliderPosition(double position)
+        //{
+        //    var range = _maxPlotTime - _minPlotTime;
+        //    ReviewSliderUpdates.UpdateSlider((range * position / 10) + _minPlotTime);
+        //}
     }
 
     internal class EntityComparison : IEqualityComparer<AvailableEntity>

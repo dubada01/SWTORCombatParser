@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -20,6 +21,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -42,15 +44,68 @@ namespace SWTORCombatParser
     }
     public partial class MainWindow : Window
     {
+        private bool _actuallyClosing = false;
         public MainWindow()
         {
             InitializeComponent();
             LoadingWindowFactory.SetMainWindow(this);
+            AddNotificationIcon();
+            SWTORDetector.StartMonitoring();
+        }
+        private void AddNotificationIcon()
+        {
+            var components = new Container();
+            var contextMenu1 = new ContextMenuStrip();
+
+            var menuItem1 = new ToolStripMenuItem();
+            menuItem1.Text = "E&xit";
+            menuItem1.Click += new EventHandler(ExitClick);
+
+            var menuItem2 = new ToolStripMenuItem();
+            menuItem2.Text = "Show";
+            menuItem2.Click += new EventHandler(ShowClick);
+
+            contextMenu1.Items.AddRange(
+                        new ToolStripMenuItem[] { menuItem2,menuItem1 });
+
+            var notifyIcon1 = new NotifyIcon(components);
+            notifyIcon1.Icon = new Icon("resources/SWTORParsingIcon.ico");
+            notifyIcon1.ContextMenuStrip = contextMenu1;
+            notifyIcon1.Text = System.Windows.Forms.Application.ProductName;
+            notifyIcon1.Visible = true;
+            notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
         }
 
+        private void ShowClick(object sender, EventArgs e)
+        {
+            Show();
+            LoadingWindowFactory.MainWindowHidden = false;
+            WindowState = WindowState.Normal;
+        }
+
+        private void notifyIcon1_DoubleClick(object sender, EventArgs e)
+        {
+            Show();
+            LoadingWindowFactory.MainWindowHidden = false;
+            WindowState = WindowState.Normal;
+        }
+        
+        private void ExitClick(object sender, EventArgs e)
+        {
+            _actuallyClosing = true;
+            Close();
+        }
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            MainWindowClosing.FireClosing();
+            if (!_actuallyClosing)
+            { 
+                e.Cancel = true;
+                LoadingWindowFactory.MainWindowHidden = true;
+                LoadingWindowFactory.ShowBackgroundNotice();
+                Hide();
+            }
+            else
+                MainWindowClosing.FireClosing();
         }
     }
 }

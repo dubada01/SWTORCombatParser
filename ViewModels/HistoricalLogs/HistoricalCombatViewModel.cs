@@ -20,6 +20,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         private Entity selectedLocalEntity;
         private EncounterInfo selectedEncounter;
         private string selectedBoss;
+        private double maxCombatLength = 400;
 
         public HistoricalCombatViewModel(List<Combat> combats)
         {
@@ -29,7 +30,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             HistoryPlot.Plot.YAxis.Label(label: "Value", size: 15);
             HistoryPlot.Plot.XAxis.Label(label: "Date", size: 15);
             HistoryPlot.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
-            CombatsDuringHistory = combats.Where(c=>c.DurationSeconds > 60).ToList();
+            CombatsDuringHistory = combats.Where(c => c.DurationSeconds > 60).ToList();
             LocalPlayersDuringHistory = MetaDataExtractor.GetLocalEntities(CombatsDuringHistory);
             OnPropertyChanged("LocalPlayersDuringHistory");
             _allEncountersDuringHistory = MetaDataExtractor.GetAllEncounters(CombatsDuringHistory);
@@ -37,6 +38,15 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         }
         public WpfPlot HistoryPlot { get; set; }
         public List<HistoricalLogEntry> DataToView { get; set; }
+        public double MaxCombatLength
+        {
+            get => maxCombatLength;
+            set
+            {
+                maxCombatLength = value;
+                UpdatePlot();
+            }
+        }
         public List<Combat> CombatsDuringHistory { get; set; }
         public List<Entity> LocalPlayersDuringHistory { get; set; }
         public Entity SelectedLocalEntity
@@ -60,7 +70,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 selectedEncounter = value;
                 if (selectedEncounter == null)
                     return;
-                BossesInSelectedEncounter = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory.Where(c=>c.LocalPlayer == SelectedLocalEntity && c.ParentEncounter == SelectedEncounter).ToList());
+                BossesInSelectedEncounter = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory.Where(c => c.LocalPlayer == SelectedLocalEntity && c.ParentEncounter == SelectedEncounter).ToList());
                 OnPropertyChanged("BossesInSelectedEncounter");
             }
         }
@@ -129,32 +139,38 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                     //    logsToView.Add(logEntry);
                     //}
                 }
-                for(var i =0;i<logsToView.Count;i++)
+                for (var i = 0; i < logsToView.Count; i++)
                 {
                     if (i % 2 == 0)
                         logsToView[i].RowBackground = System.Windows.Media.Brushes.WhiteSmoke;
                 }
-                DataToView = logsToView;
+                DataToView = logsToView.OrderByDescending(c => c.Date).ToList();
 
                 OnPropertyChanged("DataToView");
-                HistoryPlot.Plot.Clear();
-
-                foreach(var participant in DataToView.Select(d => d.Character).Distinct())
-                {
-                    var characterValues = DataToView.Where(d => d.Character == participant);
-                    var xValues = characterValues.Select(d => (double)d.Date.ToOADate()).ToArray();
-                    var durations = characterValues.Select(d => d.Duration).ToList();
-                    AddBubbleSeries(xValues, characterValues.Select(d => d.DPS).ToArray(), "DPS", Color.PaleVioletRed, durations);
-                    AddBubbleSeries(xValues, characterValues.Select(d => d.HPS).ToArray(), "HPS", Color.Green, durations);
-                    AddBubbleSeries(xValues, characterValues.Select(d => d.DTPS).ToArray(), "DTPS", Color.Peru, durations);
-                    AddBubbleSeries(xValues, characterValues.Select(d => d.HTPS).ToArray(), "HTPS", Color.CornflowerBlue, durations);
-                }
-
-                HistoryPlot.Plot.Legend();
-                HistoryPlot.Plot.XAxis.DateTimeFormat(true);
-                HistoryPlot.Refresh();
+                UpdatePlot();
             }
         }
+
+        private void UpdatePlot()
+        {
+            HistoryPlot.Plot.Clear();
+
+            foreach (var participant in DataToView.Select(d => d.Character).Distinct())
+            {
+                var characterValues = DataToView.Where(d => d.Character == participant);
+                var xValues = characterValues.Select(d => (double)d.Date.ToOADate()).ToArray();
+                var durations = characterValues.Select(d => d.Duration).ToList();
+                AddBubbleSeries(xValues, characterValues.Select(d => d.DPS).ToArray(), "DPS", Color.PaleVioletRed, durations);
+                AddBubbleSeries(xValues, characterValues.Select(d => d.HPS).ToArray(), "HPS", Color.Green, durations);
+                AddBubbleSeries(xValues, characterValues.Select(d => d.DTPS).ToArray(), "DTPS", Color.Peru, durations);
+                AddBubbleSeries(xValues, characterValues.Select(d => d.HTPS).ToArray(), "HTPS", Color.CornflowerBlue, durations);
+            }
+
+            HistoryPlot.Plot.Legend();
+            HistoryPlot.Plot.XAxis.DateTimeFormat(true);
+            HistoryPlot.Refresh();
+        }
+
         public void AddBubbleSeries(double[] xValues, double[] yvalues, string label, Color color, List<int> durations)
         {
 
@@ -165,7 +181,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                     x: xValues[i],
                     y: yvalues[i],
                     fillColor: color,
-                    radius: Math.Max(2, 15 * (durations[i] / 400d)),
+                    radius: Math.Max(2, 15 * (durations[i] / MaxCombatLength)),
                     edgeColor: Color.DimGray,
                     edgeWidth: 1
                     );
