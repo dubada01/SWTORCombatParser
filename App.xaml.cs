@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.ViewModels;
+﻿using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.Views;
 using System;
 using System.Collections.Generic;
@@ -29,9 +30,16 @@ namespace SWTORCombatParser
             }
             else
             {
-                var warningWindow = new InstanceAlreadyRunningWarning();
-                warningWindow.Show();
-                warningWindow.Closed += (s, e) => { Shutdown(0); };
+                if (ShouldShowPopup.ReadShouldShowPopup("InstanceRunning"))
+                {
+                    var warningWindow = new InstanceAlreadyRunningWarning();
+                    warningWindow.Show();
+                    warningWindow.Closed += (s, e) => { Shutdown(0); };
+                }
+                else
+                {
+                    Shutdown(0);
+                }
             }
         }
     }

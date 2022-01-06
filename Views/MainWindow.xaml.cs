@@ -100,8 +100,11 @@ namespace SWTORCombatParser
             if (!_actuallyClosing)
             { 
                 e.Cancel = true;
-                LoadingWindowFactory.MainWindowHidden = true;
-                LoadingWindowFactory.ShowBackgroundNotice();
+                if (ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring"))
+                {
+                    LoadingWindowFactory.MainWindowHidden = true;
+                    LoadingWindowFactory.ShowBackgroundNotice();
+                }
                 Hide();
             }
             else

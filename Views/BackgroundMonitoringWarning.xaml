@@ -26,6 +26,10 @@
                     Content="Ok" Width="50" Height="25" 
                     VerticalAlignment="Center"
                     ></Button>
+            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Orientation="Horizontal" Grid.Row="1">
+                <CheckBox x:Name="ShowAgainCheck" ></CheckBox>
+                <TextBlock Text="Don't show again" FontFamily="{StaticResource MainFont}"></TextBlock>
+            </StackPanel>
         </Grid>
     </Border>
 </Window>
