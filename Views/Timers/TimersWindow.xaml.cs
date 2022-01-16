@@ -1,9 +1,12 @@
 ﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Overlays;
+using SWTORCombatParser.Model.Timers;
+using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,24 +15,26 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
-namespace SWTORCombatParser.Views.Overlay
+namespace SWTORCombatParser.Views.Timers
 {
     /// <summary>
-    /// Interaction logic for InfoOverlay.xaml
+    /// Interaction logic for TimersWindow.xaml
     /// </summary>
-    public partial class InfoOverlay : Window
+    public partial class TimersWindow : Window
     {
-        private OverlayInstanceViewModel viewModel;
+        private TimersWindowViewModel viewModel;
         private string _currentPlayerName;
-        public InfoOverlay(OverlayInstanceViewModel vm)
+        public TimersWindow(TimersWindowViewModel vm)
         {
             viewModel = vm;
             DataContext = vm;
             InitializeComponent();
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close,
-                new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
+    new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;
             vm.OnLocking += makeTransparent;
             vm.OnCharacterDetected += SetPlayer;
@@ -67,45 +72,39 @@ namespace SWTORCombatParser.Views.Overlay
             });
 
         }
-        public void SetPlayer(string playerName)
-        {
-            _currentPlayerName = playerName;
-        }
         private void CloseOverlay()
         {
             Dispatcher.Invoke(() => {
                 Close();
             });
-   
-        }
 
+        }
+        public void SetPlayer(string playerName)
+        {
+            _currentPlayerName = playerName;
+        }
         public void DragWindow(object sender, MouseButtonEventArgs args)
         {
             DragMove();
         }
         public void UpdateDefaults(object sender, MouseButtonEventArgs args)
         {
-            DefaultOverlayManager.SetDefaults(viewModel.Type, new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            DefaultTimersManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
         }
 
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             var yadjust = Height + e.VerticalChange;
             var xadjust = Width + e.HorizontalChange;
-            if(xadjust > 0)
+            if (xadjust > 0)
                 SetValue(WidthProperty, xadjust);
-            if(yadjust > 0)
+            if (yadjust > 0)
                 SetValue(HeightProperty, yadjust);
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            viewModel.OverlayClosing();
         }
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            DefaultOverlayManager.SetDefaults(viewModel.Type, new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            DefaultTimersManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 
@@ -132,7 +131,7 @@ namespace SWTORCombatParser.Views.Overlay
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DefaultOverlayManager.SetActiveState(viewModel.Type, false, _currentPlayerName);
+            DefaultTimersManager.SetActiveState( false, _currentPlayerName);
             CloseOverlay();
         }
     }

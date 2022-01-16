@@ -4,26 +4,30 @@
     "LogName": "The Black Talon",
     "Name": "The Black Talon",
     "BossNames": [
-      "Sergeant Boran",
-      "GXR-5 Sabotage Droid",
-      "Commander Ghulil",
-      "Yadira Ban"
+      "Sergeant Boran=2509772729352192",
+      "GXR-5 Sabotage Droid=2509699714908160",
+      "Commander Ghulil=2509686830006272",
+      "Yadira Ban=2509777024319488"
     ]
   },
   {
     "LogName": "The Esseles",
     "Name": "The Esseles",
     "BossNames": [
-
+      "Ironfist=2510769161764864",
+      "Lieutenant Isric=2510773456732160",
+      "ISS-7 Guardian Battledroid=2510777751699456",
+      "ISS-944 Power Droid=2510782046666752",
+      "Vokk=2510790636601344"
     ]
   },
   {
     "LogName": "Hammer Station",
     "Name": "Hammer Station",
     "BossNames": [
-      "DN-314 Tunneler",
-      "Vorgan the Volcano~?~2R-CH, \"Torch\"|Sawbones Gjonfs|Vorgan the Volcano",
-      "Battlelord Kreshan"
+      "DN-314 Tunneler=2276525940408320",
+      "Vorgan the Volcano~?~2R-CH, \"Torch\"=2286241156431872|Sawbones Gjonfs=2286228271529984|Vorgan the Volcano=2286223976562688",
+      "Battlelord Kreshan=3184361767698432"
     ]
   },
   {

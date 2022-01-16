@@ -37,9 +37,14 @@ namespace SWTORCombatParser
     public static class MainWindowClosing
     {
         public static event Action Closing = delegate { };
+        public static event Action Hiding = delegate { };
         public static void FireClosing()
         {
             Closing();
+        }
+        public static void FireHidden()
+        {
+            Hiding();
         }
     }
     public partial class MainWindow : Window
@@ -102,9 +107,10 @@ namespace SWTORCombatParser
                 e.Cancel = true;
                 if (ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring"))
                 {
-                    LoadingWindowFactory.MainWindowHidden = true;
                     LoadingWindowFactory.ShowBackgroundNotice();
                 }
+                LoadingWindowFactory.MainWindowHidden = true;
+                MainWindowClosing.FireHidden();
                 Hide();
             }
             else

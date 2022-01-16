@@ -1,8 +1,11 @@
 ﻿using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Alerts;
+using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay;
+using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,7 +28,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private string _currentCharacterName = "None";
         private bool overlaysLocked;
         private LeaderboardType selectedLeaderboardType;
+        private TimersCreationViewModel _timersViewModel;
 
+        public TimersCreationView TimersView { get; set; }
         public ObservableCollection<AlertTypeOption> AvailableAlerts => new ObservableCollection<AlertTypeOption>(_alertsViewModel.AvailableAlertTypes);
         public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
         public List<LeaderboardType> LeaderboardTypes { get; set; } = new List<LeaderboardType>();
@@ -43,17 +48,23 @@ namespace SWTORCombatParser.ViewModels.Overlays
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             _alertsViewModel = new AlertsViewModel();
             DefaultOverlayManager.Init();
+            DefaultTimersManager.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d=>d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
                 AvailableOverlayTypes.Add(enumVal);
             }
+            TimersView = new TimersCreationView();
+            _timersViewModel = new TimersCreationViewModel();
+            TimersView.DataContext = _timersViewModel;
+            OnPropertyChanged("TimersView");
         }
         private void CharacterLoaded(string character)
         {
             ResetOverlays();
             App.Current.Dispatcher.Invoke(() =>
             {
+                _timersViewModel.SetPlayer(character);
                 _currentCharacterName = character;
                 _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterName);
                 var enumVals = EnumUtil.GetValues<OverlayType>();
@@ -114,6 +125,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             set
             {
                 overlaysLocked = value;
+                _timersViewModel.UpdateLock(value);
                 ToggleOverlayLock();
             }
         }

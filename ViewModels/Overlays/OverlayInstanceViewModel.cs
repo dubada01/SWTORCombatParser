@@ -105,7 +105,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             lock (Leaderboards._updateLock)
             {
-
                 var damageLeaderboardValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Damage);
                 var focusDamageValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.FocusDPS);
                 var healingValues = obj.FirstOrDefault(kvp => kvp.Key == LeaderboardEntryType.Healing);
@@ -145,7 +144,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public void LockOverlays()
         {
             OnLocking(true);
-               OverlaysMoveable = false;
+            OverlaysMoveable = false;
             OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()

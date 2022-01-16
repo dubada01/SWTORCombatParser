@@ -19,6 +19,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels
@@ -54,6 +56,11 @@ namespace SWTORCombatParser.ViewModels
             RaidNameLoader.LoadAllRaidNames();
 
             SWTORDetector.SWTORProcessStateChanged += ProcessChanged;
+            MainWindowClosing.Hiding += () =>
+            {
+                if (!SWTORDetector.SwtorRunning)
+                    _overlayViewModel.ResetOverlays();
+            };
 
             _plotViewModel = new PlotViewModel();
             var graphView = new GraphView(_plotViewModel);
@@ -103,13 +110,21 @@ namespace SWTORCombatParser.ViewModels
             //    return;
             if (obj)
             {
-                _combatMonitorViewModel.EnableLiveParse(true);
-                _overlayViewModel.OverlaysLocked = true;
+                if (LoadingWindowFactory.MainWindowHidden)
+                {
+                    _combatMonitorViewModel.EnableLiveParse(true);
+                    Task.Run(() => {
+                        Thread.Sleep(1000);
+                        _overlayViewModel.OverlaysLocked = true;
+                    });
+                    
+                }
             }
             else
             {
                 _combatMonitorViewModel.DisableLiveParse();
-                _overlayViewModel.ResetOverlays();
+                if (LoadingWindowFactory.MainWindowHidden)
+                    _overlayViewModel.ResetOverlays();
             }
         }
 

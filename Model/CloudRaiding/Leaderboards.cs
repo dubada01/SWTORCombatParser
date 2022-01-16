@@ -19,6 +19,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     }
     public static class Leaderboards
     {
+        public static string _leaderboardVersion = "1";
         public static object _updateLock = new object();
         public static LeaderboardType CurrentLeaderboardType;
         public static event Action<Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>> LeaderboardStandingsAvailable = delegate { };
@@ -44,6 +45,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                 return;
             var bossName = newCombat.EncounterBossInfo;
+            var encounterName = newCombat.ParentEncounter.Name;
             var localPlayerClass = CharacterClassHelper.GetClassFromEntityAtTime(newCombat.LocalPlayer,newCombat.StartTime);
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
 
@@ -51,9 +53,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 LeaderboardEntry topParse;
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
-                    topParse = PostgresConnection.GetTopLeaderboardForClass(bossName, className, enumVal);
+                    topParse = PostgresConnection.GetTopLeaderboardForClass(bossName, encounterName, className, enumVal);
                 else
-                    topParse = PostgresConnection.GetTopLeaderboard(bossName, enumVal);
+                    topParse = PostgresConnection.GetTopLeaderboard(bossName, encounterName, enumVal);
                 if (string.IsNullOrEmpty(topParse.Character))
                     continue;
                 TopLeaderboards[enumVal] = (topParse.Character, topParse.Value);
@@ -110,14 +112,15 @@ namespace SWTORCombatParser.Model.CloudRaiding
         private static void GetCurrentLeaderboard(Combat newCombat)
         {
             var bossName = newCombat.EncounterBossInfo;
+            var encounterName = newCombat.ParentEncounter.Name;
             var localPlayerClass = CharacterClassHelper.GetClassFromEntityAtTime(newCombat.LocalPlayer, newCombat.StartTime);
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
-                    CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossWithClass(bossName, className, enumVal);
+                    CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossWithClass(bossName, encounterName, className, enumVal);
                 else
-                    CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossOfType(bossName, enumVal);
+                    CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal);
 
             }
         }
@@ -154,12 +157,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
                     var leaderboardEntry = new LeaderboardEntry()
                     {
+                        Encounter = $"{combat.ParentEncounter.Name}",
                         Boss = combat.EncounterBossInfo,
                         Character = player.Name,
                         Class = playerClass == null ? "Unknown" : playerClass.Name + "/" + playerClass.Discipline,
                         Value = GetValueForLeaderboardEntry(enumVal, combat, player),
                         Type = enumVal,
                         Duration = (int)combat.DurationSeconds,
+                        Version = _leaderboardVersion,
                         VerifiedKill = combat.WasBossKilled
                     };
                     if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled(player))

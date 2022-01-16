@@ -76,10 +76,10 @@ namespace SWTORCombatParser.ViewModels
 
             _combatLogStreamer = new CombatLogStreamer();
             _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
-            _combatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
+            CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
-                manager => _combatLogStreamer.CombatUpdated += manager,
-                manager => _combatLogStreamer.CombatUpdated -= manager).Subscribe(update => NewCombatStatusAlert(update));
+                manager => CombatLogStreamer.CombatUpdated += manager,
+                manager => CombatLogStreamer.CombatUpdated -= manager).Subscribe(update => NewCombatStatusAlert(update));
         }
         private void OnNewHistoricalCombats(List<Combat> historicalCombats)
         {
@@ -237,7 +237,9 @@ namespace SWTORCombatParser.ViewModels
 
         private void CombatStarted(DateTime startTime, string location)
         {
+            //reset leaderboards and overlays
             CombatIdentifier.NotifyNewCombatStarted();
+
             TryAddEncounter(startTime);
             UpdateVisibleEncounters();
             if (!LiveParseActive)

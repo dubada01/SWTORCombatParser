@@ -30,18 +30,19 @@ namespace SWTORCombatParser.Utilities
             _combatEnding = false;
             _bossCombat = false;
             _bossesKilledThisCombat = new List<string>();
-            _isInCombat = true;
+            _isInCombat = false;
         }
         public static CombatState CheckForCombatState(ParsedLogEntry line)
         {
-            if (!_isInCombat && line.Effect.EffectName == "EnterCombat")
+            if (line.Effect.EffectName == "EnterCombat")
             {
-                if (_combatEnding)
+                if (_combatEnding || _isInCombat)
                 {
                     Reset();
                     return CombatState.ExitedByEntering; 
                 }
                 Reset();
+                _isInCombat = true;
                 return CombatState.EnteredCombat;
             }
             var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(line.TimeStamp);
@@ -107,7 +108,10 @@ namespace SWTORCombatParser.Utilities
             }
             var hasCombatEnded = CheckForCombatEnd(line);
             if (hasCombatEnded)
-                return CombatState.ExitedCombat;
+            {
+                _isInCombat = false;
+                return CombatState.ExitedCombat; 
+            }
             else
             {
                 if (_isInCombat)
