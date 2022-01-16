@@ -109,6 +109,5 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <!--<DataGrid Grid.Row="1" ItemsSource="{Binding DataToView}"></DataGrid>-->
     </Grid>
 </UserControl>

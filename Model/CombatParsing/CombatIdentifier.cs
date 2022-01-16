@@ -100,8 +100,9 @@ namespace SWTORCombatParser
 
         private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
         {
-            var targets = logs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null).ToList();
-            targets.AddRange(logs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null));
+            var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet");
+            var targets = validLogs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null).ToList();
+            targets.AddRange(validLogs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null));
             return targets.DistinctBy(t=>t.Name).ToList();
         }
         private static EncounterInfo GetEncounterInfo(DateTime combatStartTime)
@@ -112,7 +113,8 @@ namespace SWTORCombatParser
         {
             if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return "";
-            foreach(var log in logs)
+            var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet");
+            foreach (var log in validLogs)
             {
                 if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
                 {
@@ -127,7 +129,8 @@ namespace SWTORCombatParser
         {
             if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return new List<string>();
-            foreach (var log in logs)
+            var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet");
+            foreach (var log in validLogs)
             {
                 if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
                 {

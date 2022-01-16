@@ -60,7 +60,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var updateTimes = playerDeathInfo.Keys.ToList();
             for(var i=0;i<updateTimes.Count;i++)
             {
-                if (updateTimes[i] > timestamp)
+                if (updateTimes[i] >= timestamp)
                     return playerDeathInfo[updateTimes[i-1]];
             }
             return false;

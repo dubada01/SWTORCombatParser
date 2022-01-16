@@ -9,6 +9,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 {
     public class SheildingEvent
     {
+        public string SheildName;
         public double SheildValue;
         public DateTime ShieldingTime;
     }
@@ -26,7 +27,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 combat.SheildingProvidedLogs[source] = new List<ParsedLogEntry>();
                 combat.TotalProvidedSheilding[source] = 0;
 
-                var healingShieldModifiers = modifiers.Where(m => m.Key == "Static Barrier" || m.Key == "Force Armor").SelectMany(kvp=>kvp.Value).Where(mod=>mod.Source == source).ToList();
+                var healingShieldModifiers = modifiers.Where(m => m.Key == "Static Barrier" || m.Key == "Force Armor" || m.Key == "Resilient Powerbase").SelectMany(kvp=>kvp.Value).Where(mod=>mod.Source == source).ToList();
                 if (!healingShieldModifiers.Any())
                     continue;
                 foreach (var recipient in combat.CharacterParticipants)
@@ -42,7 +43,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                         var absorbsDuringShield = sheildingLogs.Where(l => l.TimeStamp > sheildEffect.StartTime && l.TimeStamp <= sheildEffect.StopTime).ToList();
                         if (absorbsDuringShield.Count == 0)
                             continue;
-                        var shieldAdded = new SheildingEvent { SheildValue = absorbsDuringShield.Sum(l => l.Value.Modifier.DblValue), ShieldingTime = sheildEffect.StopTime };
+                        var shieldAdded = new SheildingEvent { SheildValue = absorbsDuringShield.Sum(l => l.Value.Modifier.DblValue), ShieldingTime = sheildEffect.StopTime, SheildName = sheildEffect.Name };
 
                         _totalSheildingProvided.Add(shieldAdded);
                     }
@@ -57,7 +58,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                         var sheildLog = new ParsedLogEntry
                         {
                             TimeStamp = sheild.ShieldingTime,
-                            Ability = "Bubble on "+recipient.Name,
+                            Ability = sheild.SheildName+" on "+recipient.Name,
                             Effect = new Effect()
                             {
                                 EffectType = EffectType.HealerShield,

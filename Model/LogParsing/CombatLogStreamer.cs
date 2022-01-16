@@ -18,9 +18,9 @@ namespace SWTORCombatParser
 {
     public class CombatLogStreamer
     {
-        public event Action<CombatStatusUpdate> CombatUpdated = delegate { };
+        public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
         public event Action<string> NewSoftwareLog = delegate { };
-        public event Action HistoricalLogsFinished = delegate { };
+        public static event Action HistoricalLogsFinished = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
 
         private bool _isInCombat = false;
@@ -184,10 +184,13 @@ namespace SWTORCombatParser
         }
         private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat)
         {
+            _currentFrameData.Clear();
+            _currentCombatData.Clear();
             _isInCombat = true;
             _currentCombatStartTime = parsedLine.TimeStamp;
             _currentCombatData.Add(parsedLine);
-            var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = parsedLine.LogLocation };
+            _currentFrameData.Add(parsedLine);
+            var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(parsedLine.TimeStamp).Name };
             if (shouldUpdateOnNewCombat)
                 CombatUpdated(updateMessage);
         }
@@ -201,9 +204,6 @@ namespace SWTORCombatParser
                 return;
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatData, CombatStartTime = _currentCombatStartTime };
             CombatUpdated(updateMessage);
-
-            _currentFrameData.Clear();
-            _currentCombatData.Clear();
         }
     }
 }

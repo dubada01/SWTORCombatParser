@@ -73,19 +73,20 @@ namespace SWTORCombatParser.ViewModels
         public ObservableCollection<PastCombat> EncounterCombats { get; set; } =  new ObservableCollection<PastCombat>();
         public void AddOngoingCombat(string location)
         {
-            UnselectAll();
-            var pastCombatDisplay = new PastCombat()
+            //UnselectAll();
+            var ongoingCombatDisplay = new PastCombat()
             {
                 CombatStartTime = DateTime.Now,
                 IsCurrentCombat = true,
                 IsSelected = true,
+                IsVisible = true,
                 CombatLabel = location + " ongoing...",
             };
-            pastCombatDisplay.PastCombatSelected += SelectCombat;
-            pastCombatDisplay.PastCombatUnSelected += UnselectCombat;
-            pastCombatDisplay.UnselectAll += UnselectAllCombats;
+            ongoingCombatDisplay.PastCombatSelected += SelectCombat;
+            ongoingCombatDisplay.PastCombatUnSelected += UnselectCombat;
+            ongoingCombatDisplay.UnselectAll += UnselectAllCombats;
             App.Current.Dispatcher.Invoke(() => {
-                EncounterCombats.Add(pastCombatDisplay);
+                EncounterCombats.Add(ongoingCombatDisplay);
                 EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
                 OnPropertyChanged("EncounterCombats");
             });
@@ -95,14 +96,18 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(() =>
             {
-                var currentcombat = EncounterCombats.First(c => c.IsCurrentCombat);
+                var currentcombat = EncounterCombats.FirstOrDefault(c => c.IsCurrentCombat);
+                if (currentcombat == null)
+                    return;
                 EncounterCombats.Remove(currentcombat);
                 OnPropertyChanged("EncounterCombats");
             });
         }
         public PastCombat UpdateOngoing(Combat combat)
         {
-            var currentcombat = EncounterCombats.First(c => c.IsCurrentCombat);
+            var currentcombat = EncounterCombats.FirstOrDefault(c => c.IsCurrentCombat);
+            if (currentcombat == null)
+                return new PastCombat();
             currentcombat.CombatDuration = combat.DurationSeconds.ToString("0.00");
             currentcombat.Combat = combat;
             return currentcombat;

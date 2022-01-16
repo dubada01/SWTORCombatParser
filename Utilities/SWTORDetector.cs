@@ -12,7 +12,7 @@ namespace SWTORCombatParser.Utilities
     {
         public static event Action<bool> SWTORProcessStateChanged = delegate { };
         private static bool _monitorForSWTOR;
-        private static bool _swtorRunning;
+        public static bool SwtorRunning;
         public static void StartMonitoring()
         {
             _monitorForSWTOR = true;
@@ -22,24 +22,24 @@ namespace SWTORCombatParser.Utilities
                     Process[] processCollection = Process.GetProcesses();
                     if(processCollection.Any(p=>p.ProcessName == "swtor"))
                     {
-                        if(!_swtorRunning)
+                        if(!SwtorRunning)
                             UpdateStatus();
-                        _swtorRunning = true;
+                        SwtorRunning = true;
                     }
                     else
                     {
-                        if(_swtorRunning)
+                        if(SwtorRunning)
                             UpdateStatus();
-                        _swtorRunning = false;
+                        SwtorRunning = false;
                     }
-                    Thread.Sleep(3000);
+                    Thread.Sleep(500);
                 }
             });
         }
 
         private static void UpdateStatus()
         {
-            SWTORProcessStateChanged(!_swtorRunning);
+            SWTORProcessStateChanged(!SwtorRunning);
         }
 
         public static void StopMonitoring()

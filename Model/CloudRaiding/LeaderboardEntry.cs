@@ -16,10 +16,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
     {
         public int Duration { get; set; }
         public string Boss { get; set; }
+        public string Encounter { get; set; }
         public string Character { get; set; }
         public string Class { get; set; }
         public double Value { get; set; }
         public LeaderboardEntryType Type { get; set; }
+        public string Version { get; set; }
         public bool VerifiedKill { get; set; }
     }
 }

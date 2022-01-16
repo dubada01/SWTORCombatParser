@@ -1,0 +1,128 @@
+﻿<Window x:Class="SWTORCombatParser.Views.Timers.TimerModificationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="TimerModificationWindow" Height="450" Width="800" WindowStartupLocation="Manual">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Margin="10,0,30,0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Name" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <TextBox FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding Name}"></TextBox>
+            </StackPanel>
+            <StackPanel Margin="10,0,30,0" HorizontalAlignment="Right" Grid.Row="1"  VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Trigger On" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTriggerTypes}" SelectedItem="{Binding SelectedTriggerType}"></ComboBox>
+            </StackPanel>
+            <StackPanel Visibility="{Binding ShowAbilityOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="2" Margin="10,0,30,0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Ability" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <TextBox FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding Ability}"></TextBox>
+            </StackPanel>
+            <StackPanel Visibility="{Binding ShowEffectOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="2" Margin="10,0,30,0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Effect" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <TextBox FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding Effect}"></TextBox>
+            </StackPanel>
+            <StackPanel Visibility="{Binding ShowHPOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="2" Margin="10,0,30,0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="HP Percentage" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <TextBox FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding HPPercentage}"></TextBox>
+            </StackPanel>
+            <Grid Grid.Row="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <StackPanel Visibility="{Binding HasSourceAndTarget, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="0" Margin="10,0,30,0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Source" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableSources}" SelectedItem="{Binding SelectedSource}"></ComboBox>
+                </StackPanel>
+                <TextBox Visibility="{Binding HasCustomSource, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" HorizontalAlignment="Right"  Margin="0,0,30,0" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding CustomSource}"></TextBox>
+            </Grid>
+            <Grid Grid.Row="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <StackPanel Visibility="{Binding HasSourceAndTarget, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="10,0,30,0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Target" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTargets}" SelectedItem="{Binding SelectedTarget}"></ComboBox>
+                </StackPanel>
+                <TextBox Visibility="{Binding HasCustomTarget, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" HorizontalAlignment="Right"  Margin="0,0,30,0" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding CustomTarget}"></TextBox>
+            </Grid>
+            <Button x:Name="CancelButton" Grid.Row="5" Style="{StaticResource RoundCornerButton}" Width="100" Height="40" Content="Cancel" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,15,10"></Button>
+        </Grid>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1.5*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" BorderThickness="2" BorderBrush="DimGray" Margin="30,15,10,10" CornerRadius="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="0.75*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Encounter" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <ComboBox Grid.Row="1" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableEncounters}" SelectedItem="{Binding SelectedEncounter}"  Margin="10,5"></ComboBox>
+                    <TextBlock Grid.Column="1" Text="Boss" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <ComboBox Grid.Column="1" Grid.Row="1" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableBosses}" SelectedItem="{Binding SelectedBoss}" Margin="10,5"></ComboBox>
+                </Grid>
+            </Border>
+            <TextBlock Margin="70,6,0,0" Background="White" Width="105" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="16" Text=" Active During" FontFamily="{StaticResource MainFont}"></TextBlock>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Is Alert" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsAlert}"></CheckBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Visibility="{Binding ShowDuration, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Duration" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    <TextBox FontWeight="Normal" Width="75" Style="{StaticResource RoundedTextBox}" Text="{Binding DurationSec}"></TextBox>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Is Periodic" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsPeriodic}"></CheckBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Visibility="{Binding IsPeriodic, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Repeat Count" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    <TextBox FontWeight="Normal" Width="75" Style="{StaticResource RoundedTextBox}" Text="{Binding Repeats}"></TextBox>
+                </StackPanel>
+            </Grid>
+            <StackPanel Grid.Row="4" Margin="30,0,30,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Color" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <xctk:ColorPicker Height="40" Width="150" DisplayColorAndName="True" SelectedColor="{Binding SelectedColor}"/>
+            </StackPanel>
+            <Button Grid.Row="5" Style="{StaticResource RoundCornerButton}" Command="{Binding SaveCommand}" Width="100" Height="40" Content="Save" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,10"></Button>
+        </Grid>
+    </Grid>
+</Window>
