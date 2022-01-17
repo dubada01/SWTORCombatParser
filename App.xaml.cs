@@ -25,6 +25,7 @@ namespace SWTORCombatParser
             {
                 var mainWindowVM = new MainWindowViewModel();
                 var mainWindow = new MainWindow();
+                Application.Current.MainWindow = mainWindow;
                 mainWindow.DataContext = mainWindowVM;
                 mainWindow.Show();
             }

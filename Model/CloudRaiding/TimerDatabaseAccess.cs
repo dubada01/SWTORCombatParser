@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (var cmd = new NpgsqlCommand("INSERT INTO public.timers" +
                 " (timer_id,source,source_is_local,target,target_is_local,hp_percentage,name,trigger_type,expiration_trigger_id,ability,effect,is_periodic,is_alert,duration_sec,color,specific_boss,specific_encounter)" +
                 $" VALUES ('{newTimer.Id.MakePGSQLSafe()}','{newTimer.Source.MakePGSQLSafe()}','{newTimer.SourceIsLocal}','{newTimer.Target.MakePGSQLSafe()}',{newTimer.TargetIsLocal},'{newTimer.HPPercentage}','{newTimer.Name.MakePGSQLSafe()}'," +
-                $"'{newTimer.TriggerType}','{newTimer.ExperiationTrigger.Id.MakePGSQLSafe()}','{newTimer.Ability.MakePGSQLSafe()}','{newTimer.Effect.MakePGSQLSafe()}'" +
+                $"'{newTimer.TriggerType}','{(newTimer.ExperiationTrigger == null ? 0 : newTimer.ExperiationTrigger.Id.MakePGSQLSafe())}','{newTimer.Ability.MakePGSQLSafe()}','{newTimer.Effect.MakePGSQLSafe()}'" +
                 $",{newTimer.IsPeriodic},'{newTimer.IsAlert}','{newTimer.DurationSec}','{newTimer.TimerColor}','{newTimer.SpecificBoss.MakePGSQLSafe()}','{newTimer.SpecificEncounter.MakePGSQLSafe()}')", connection))
                 {
                     cmd.ExecuteNonQuery();

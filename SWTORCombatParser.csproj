@@ -143,12 +143,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\Timers\TimerSharePopup.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\InsanceAlreadyRunningWarning.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Views\Timers\TimerSharePopup.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\InsanceAlreadyRunningWarning.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>

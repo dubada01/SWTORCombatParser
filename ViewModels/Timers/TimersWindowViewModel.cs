@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class TimersWindowViewModel
+    public class TimersWindowViewModel:INotifyPropertyChanged
     {
         private string _currentPlayer;
         private TimersWindow _timerWindow;
@@ -24,35 +24,54 @@ namespace SWTORCombatParser.ViewModels.Timers
         public event PropertyChangedEventHandler PropertyChanged;
 
         public bool OverlaysMoveable { get; set; } = true;
-        public ObservableCollection<TimerInstanceViewModel> Timers { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
+        public ObservableCollection<TimerInstanceViewModel> SwtorTimers { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
+        public string TimerTitle { get; set; }
         public TimersWindowViewModel()
         {
             CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
             CombatLogStreamer.CombatUpdated += NewLogs;
             _timerWindow = new TimersWindow(this);
         }
-        private void ShowTimers(object bla)
+        public void ShowTimers()
         {
-            if (_timerWindow == null)
-                return;
-            _timerWindow.Show();
-            //Timers.Add(new TimerInstanceViewModel(new Timer() { Name = "Test", DurationSec = 10, TriggerType = TimerKeyType.AbilityUsed, SourceIsLocal = true , Ability = "Shock"}));
-            OnPropertyChanged("Timers");
-            DefaultTimersManager.SetSavedTimers(Timers.Select(c => c.SourceTimer).ToList(), _currentPlayer);
+            _timerWindow.Show();        
+        }
+        public void HideTimers()
+        {
+            _timerWindow.Hide();
         }
         public void SetPlayer(string player)
         {
+            TimerTitle = player + " Timers";
+            OnPropertyChanged("TimerTitle");
             _currentPlayer = player;
             _timerWindow.SetPlayer(_currentPlayer);
-            var defaultTimerWindow = DefaultTimersManager.GetDefaults(_currentPlayer);
-            var timers = defaultTimerWindow.Timers.Select(t => new TimerInstanceViewModel(t)).ToList();
-            timers.ForEach(t => t.TimerTriggered += OrderTimers);
-            Timers = new ObservableCollection<TimerInstanceViewModel>(timers);
-            _timerWindow.Top = defaultTimerWindow.Position.Y;
-            _timerWindow.Left = defaultTimerWindow.Position.X;
-            _timerWindow.Width = defaultTimerWindow.WidtHHeight.X;
-            _timerWindow.Height = defaultTimerWindow.WidtHHeight.Y;
-            ShowTimers(_currentPlayer);
+            var defaultTimersInfo = DefaultTimersManager.GetDefaults(_currentPlayer);
+            var sharedTimers = DefaultTimersManager.GetDefaults("Shared").Timers;
+            var timers = defaultTimersInfo.Timers;
+            var allTimers = timers.Concat(sharedTimers);
+            var timerInstances = allTimers.Select(t => new TimerInstanceViewModel(t)).ToList();
+            //timerInstances.ForEach(t => t.TimerTriggered += OrderTimers);
+            SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(timerInstances);
+            OnPropertyChanged("SwtorTimers");
+            _timerWindow.Top = defaultTimersInfo.Position.Y;
+            _timerWindow.Left = defaultTimersInfo.Position.X;
+            _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
+            _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
+            ShowTimers();
+        }
+        public void RefreshTimers()
+        {
+            if (string.IsNullOrEmpty(_currentPlayer))
+                return;
+            var defaultTimersInfo = DefaultTimersManager.GetDefaults(_currentPlayer);
+            var sharedTimers = DefaultTimersManager.GetDefaults("Shared").Timers;
+            var timers = defaultTimersInfo.Timers;
+            var allTimers = timers.Concat(sharedTimers);
+            var timerInstances = allTimers.Select(t => new TimerInstanceViewModel(t)).ToList();
+            //timerInstances.ForEach(t => t.TimerTriggered += OrderTimers);
+            SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(timerInstances);
+            OnPropertyChanged("SwtorTimers");
         }
         private void NewLogs(CombatStatusUpdate obj)
         {
@@ -61,7 +80,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var logs = obj.Logs;
             foreach (var log in logs)
             {
-                foreach (var timer in Timers)
+                foreach (var timer in SwtorTimers)
                 {
                     timer.CheckForTrigger(log, obj.CombatStartTime);
                 }
@@ -70,8 +89,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void OrderTimers()
         {
-            Timers = new ObservableCollection<TimerInstanceViewModel>(Timers.OrderBy(t => t.TimerValue));
-            OnPropertyChanged("Timers");
+            SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(SwtorTimers.OrderBy(t => t.TimerValue));
+            OnPropertyChanged("SwtorTimers");
         }
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)

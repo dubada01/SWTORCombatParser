@@ -37,6 +37,13 @@ namespace SWTORCombatParser.Model.Timers
             currentDefaults.Position = position;
             SaveResults(characterName, currentDefaults);
         }
+        public static void SetIdForTimer(Timer timer, string character, string id)
+        {
+            var currentDefaults = GetDefaults(character);
+            var valueToUpdate = currentDefaults.Timers.First(t => TimerEquality.Equals(timer, t));
+            valueToUpdate.Id = id;
+            SaveResults(character, currentDefaults);
+        }
         public static void SetSavedTimers(List<Timer> currentTimers, string character)
         {
             var currentDefaults = GetDefaults(character);
