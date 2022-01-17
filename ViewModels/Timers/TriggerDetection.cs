@@ -1,6 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System;
-
+using System.Diagnostics;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -10,54 +10,72 @@ namespace SWTORCombatParser.ViewModels.Timers
         //{
         //    return experiationTrigger.trig
         //}
-        public static bool CheckForHP(ParsedLogEntry log, double hPPercentage, string source, string target, bool sourceIsLocal, bool targetIsLocal)
+        public static bool CheckForHP(ParsedLogEntry log, double hPPercentage, string target, bool targetIsLocal)
         {
-            if (source != null)
-                return log.Source.Name == source && (log.SourceInfo.CurrentHP/log.SourceInfo.MaxHP < hPPercentage);
-            if (target != null)
-                return log.Target.Name == target && (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP < hPPercentage);
+            if (TargetIsValid(log, target, targetIsLocal))
+            {
+                return log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP < hPPercentage;
+            }
             return false;
         }
 
-        public static bool CheckForEffectLoss(ParsedLogEntry log, string effect, string source, string target, bool sourceIsLocal, bool targetIsLocal)
+        public static bool CheckForEffectLoss(ParsedLogEntry log, string effect, string target, bool targetIsLocal)
         {
-            if (source != null)
-                return log.Source.Name == source && log.Effect.EffectType == EffectType.Remove && log.Effect.EffectName == effect;
-            if(sourceIsLocal)
-                return log.Source.IsLocalPlayer && log.Effect.EffectType == EffectType.Remove && log.Effect.EffectName == effect;
-            if (targetIsLocal)
-                return log.Target.IsLocalPlayer && log.Effect.EffectType == EffectType.Remove && log.Effect.EffectName == effect;
-            if (target != null)
-                return log.Target.Name == target && log.Effect.EffectType == EffectType.Remove && log.Effect.EffectName == effect;
-            return log.Effect.EffectType == EffectType.Remove && log.Effect.EffectName == effect;
+            if (log.Effect.EffectType != EffectType.Remove)
+                return false;
+            if (TargetIsValid(log, target, targetIsLocal))
+            {
+                return log.Effect.EffectName == effect && log.Effect.EffectType == EffectType.Remove;
+            }
+            return false;
         }
 
         public static bool CheckForEffectGain(ParsedLogEntry log, string effect, string source, string target, bool sourceIsLocal, bool targetIsLocal)
         {
-            if (source != null)
-                return log.Source.Name == source && log.Effect.EffectType == EffectType.Apply && log.Effect.EffectName == effect;
-            if (sourceIsLocal)
-                return log.Source.IsLocalPlayer && log.Effect.EffectType == EffectType.Apply && log.Effect.EffectName == effect;
-            if (targetIsLocal)
-                return log.Target.IsLocalPlayer && log.Effect.EffectType == EffectType.Apply && log.Effect.EffectName == effect;
-            if (target != null)
-                return log.Target.Name == target && log.Effect.EffectType == EffectType.Apply && log.Effect.EffectName == effect;
-            return log.Effect.EffectType == EffectType.Apply && log.Effect.EffectName == effect;
+            if (log.Effect.EffectType != EffectType.Apply)
+                return false;
+            if (SourceIsValid(log, source, sourceIsLocal) && TargetIsValid(log, target, targetIsLocal))
+            {
+                return log.Effect.EffectName == effect;
+            }
+            return false;
         }
 
         public static bool CheckForAbilityUse(ParsedLogEntry log, string ability, string source, string target, bool sourceIsLocal, bool targetIsLocal)
         {
-            if(source != null)
-                return log.Source.Name == source && log.Ability == ability;
-            if (sourceIsLocal)
-                return log.Source.IsLocalPlayer && log.Ability == ability;
-            if (targetIsLocal)
-                return log.Target.IsLocalPlayer && log.Ability == ability;
-            if (target != null)
-                return log.Target.Name == target && log.Ability == ability;
-            return log.Ability == ability;
+            if (log.Effect.EffectName != "AbilityActivate")
+                return false;
+            if(SourceIsValid(log,source,sourceIsLocal) && TargetIsValid(log, target, targetIsLocal))
+            {
+                Trace.WriteLine("Timer trigger: Ability " + log.Ability);
+                return log.Ability == ability;
+            }
+            return false;
         }
-
+        private static bool SourceIsValid(ParsedLogEntry log, string source, bool sourceIsLocal)
+        {
+            if (sourceIsLocal && log.Source.IsLocalPlayer)
+                return true;
+            if (source == "Any")
+                return true;
+            if (source == "Ignore")
+                return false;
+            if (source == log.Source.Name)
+                return true;
+            return false;
+        }
+        private static bool TargetIsValid(ParsedLogEntry log, string target, bool targetIsLocal)
+        {
+            if (targetIsLocal && log.Target.IsLocalPlayer)
+                return true;
+            if (target == "Any")
+                return true;
+            if (target == "Ignore")
+                return false;
+            if (target == log.Target.Name)
+                return true;
+            return false;
+        }
         public static bool CheckForComabatStart(ParsedLogEntry log)
         {
             return log.Effect.EffectName == "EnterCombat";

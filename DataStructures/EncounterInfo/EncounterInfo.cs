@@ -5,6 +5,12 @@ using System.Text;
 
 namespace SWTORCombatParser.DataStructures.RaidInfos
 {
+    public enum EncounterType
+    {
+        Flashpoint,
+        Operation,
+        Lair
+    }
     public class BossInfo
     {
         public string EncounterName { get; set; }
@@ -15,7 +21,7 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
         public string Difficutly { get; set; } = "";
         public string NumberOfPlayer { get; set; } = "";
         private List<string> bossNames;
-
+        public EncounterType EncounterType { get; set; }
         public string LogName { get; set; }
         public string Name { get; set; }
         public List<string> BossNames { get => bossNames; set

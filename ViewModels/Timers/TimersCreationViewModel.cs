@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -59,8 +62,22 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             var vm = new ModifyTimerViewModel();
             vm.OnNewTimer += NewTimer;
+            ObscureWindowFactory.ShowObscureWindow();
             var t = new TimerModificationWindow(vm);
             t.Show();
+        }
+        public string ImportId { get; set; }
+        public ICommand ImportCommand => new CommandHandler(Import);
+
+        private void Import(object obj)
+        {
+            if (TimerRows.Any(t => t.SourceTimer.Id == ImportId))
+                return;
+            var timer = TimerDatabaseAccess.GetTimerFromId(ImportId);
+            if (timer == null)
+                return;
+            timer.IsEnabled = true;
+            NewTimer(timer, false);
         }
 
         private void CancelEdit()
@@ -70,6 +87,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             addedBack.ShareRequested += Share;
             addedBack.DeleteRequested += Delete;
             TimerRows.Add(addedBack);
+            UpdateRowColors();
         }
 
         private void NewTimer(Timer obj, bool wasEdit)
@@ -82,6 +100,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             newTimer.ShareRequested += Share;
             newTimer.DeleteRequested += Delete;
             TimerRows.Add(newTimer);
+            _timersWindowVM.RefreshTimers();
+            UpdateRowColors();
         }
         private void SaveNewTimer(Timer timer)
         {
@@ -97,12 +117,14 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void UpdateTimerRows()
         {
+            _savedTimersData = DefaultTimersManager.GetAllDefaults();
             var timers = _savedTimersData[selectedPlayer];
             var timerObjects = timers.Timers.Select(t => new TimerRowInstanceViewModel() { SourceTimer = t }).ToList();
             timerObjects.ForEach(t => t.EditRequested += Edit);
             timerObjects.ForEach(t => t.ShareRequested += Share);
             timerObjects.ForEach(t => t.DeleteRequested += Delete);
             TimerRows = new ObservableCollection<TimerRowInstanceViewModel>(timerObjects);
+            UpdateRowColors();
             OnPropertyChanged("TimerRows");
         }
 
@@ -110,6 +132,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             DefaultTimersManager.RemoveTimerForCharacter(obj.SourceTimer, SelectedPlayer);
             TimerRows.Remove(obj);
+            UpdateRowColors();
         }
 
         private void Share(TimerRowInstanceViewModel obj)
@@ -120,7 +143,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 id = AlphanumericsGenerator.RandomString(3);
             } while (currentIds.Contains(id));
-            
+            obj.SourceTimer.Id = id;
+            var shareWindow = new TimerSharePopup(id);
+            shareWindow.Show();
+            DefaultTimersManager.SetIdForTimer(obj.SourceTimer, SelectedPlayer, id);
+            TimerDatabaseAccess.AddTimer(obj.SourceTimer);
         }
         private Timer _timerEdited;
         private void Edit(TimerRowInstanceViewModel obj)
@@ -128,11 +155,22 @@ namespace SWTORCombatParser.ViewModels.Timers
             _timerEdited = obj.SourceTimer;
             TimerRows.Remove(obj);
             var vm = new ModifyTimerViewModel();
+            ObscureWindowFactory.ShowObscureWindow();
             vm.OnNewTimer += NewTimer;
             vm.OnCancelEdit += CancelEdit;
             var t = new TimerModificationWindow(vm);
             t.Show();
             vm.Edit(_timerEdited.Copy());
+        }
+        private void UpdateRowColors()
+        {
+            for (var i = 0; i < TimerRows.Count; i++)
+            {
+                if (i % 2 == 1)
+                {
+                    TimerRows[i].RowBackground = Brushes.WhiteSmoke;
+                }
+            }
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

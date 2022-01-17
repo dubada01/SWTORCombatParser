@@ -3,6 +3,7 @@
   {
     "LogName": "Eternity Vault",
     "Name": "Eternity Vault",
+    "EncounterType": 1,
     "BossNames": [
       "Annihilation Droid XRR-3",
       "Gharj",
@@ -14,6 +15,7 @@
   {
     "LogName": "Karagga's Palace",
     "Name": "Karagga’s Palace",
+    "EncounterType": 1,
     "BossNames": [
       "Bonethrasher",
       "Jarg & Sorno~?~Jarg|Sorno",
@@ -25,6 +27,7 @@
   {
     "LogName": "Denova",
     "Name": "Explosive Conflict",
+    "EncounterType": 1,
     "BossNames": [
       "Zorn & Toth~?~Zorn|Toth",
       "Firebrand & Stormcaller~?~Firebrand Battle Tank|Stormcaller Blast Tank",
@@ -35,6 +38,7 @@
   {
     "LogName": "Asation",
     "Name": "Terror From Beyond",
+    "EncounterType": 1,
     "BossNames": [
       "The Writhing Horror",
       "The Dread Guard~?~Kel'sara|Ciphas|Heirad",
@@ -46,6 +50,7 @@
   {
     "LogName": "Darvannis",
     "Name": "Scum and Villainy",
+    "EncounterType": 1,
     "BossNames": [
       "Dash'Roode",
       "TITAN 6",
@@ -59,6 +64,7 @@
   {
     "LogName": "The Dread Fortress",
     "Name": "The Dread Fortress",
+    "EncounterType": 1,
     "BossNames": [
       "Nefra, Who Bars the Way",
       "Gate Commander Draxus",
@@ -70,6 +76,7 @@
   {
     "LogName": "The Dread Palace",
     "Name": "The Dread Palace",
+    "EncounterType": 1,
     "BossNames": [
       "Dread Master Bestia",
       "Dread Master Tyrans",
@@ -81,6 +88,7 @@
   {
     "LogName": "The Ravagers",
     "Name": "The Ravagers",
+    "EncounterType": 1,
     "BossNames": [
       "Sparky",
       "Quartermaster Bulo",
@@ -92,6 +100,7 @@
   {
     "LogName": "Temple of Sacrifice",
     "Name": "Temple of Sacrifice",
+    "EncounterType": 1,
     "BossNames": [
       "Malaphar the Savage",
       "Sword Squadron~?~Sword Squadron Unit 1|Sword Squadron Unit 2",
@@ -103,6 +112,7 @@
   {
     "LogName": "Toborro's Palace Courtyard",
     "Name": "Toborro's Palace",
+    "EncounterType": 2,
     "BossNames": [
       "Golden Fury"
     ]
@@ -110,6 +120,7 @@
   {
     "LogName": "Primary Observatory Four",
     "Name": "Xeno",
+    "EncounterType": 2,
     "BossNames": [
       "Xenoanalyst II"
     ]
@@ -117,6 +128,7 @@
   {
     "LogName": "Hive of the Mountain Queen",
     "Name": "Queen's Hive",
+    "EncounterType": 2,
     "BossNames": [
       "Mutated Geonosian Queen"
     ]
@@ -124,6 +136,7 @@
   {
     "LogName": "Heart of Ruin",
     "Name": "Colossal Monolith",
+    "EncounterType": 2,
     "BossNames": [
       "Colossal Monolith"
     ]
@@ -131,6 +144,7 @@
   {
     "LogName": "Valley of the Machine Gods",
     "Name": "The Gods from the Machine",
+    "EncounterType": 1,
     "BossNames": [
       "TYTH",
       "Aivela and Esne~?~AIVELA|ESNE",
@@ -142,6 +156,7 @@
   {
     "LogName": "Dxun - The CI-004 Facility",
     "Name": "Dxun",
+    "EncounterType": 1,
     "BossNames": [
       "Red",
       "Trandosians~?~Hissyphus|Kronissus|Greus|Titax",

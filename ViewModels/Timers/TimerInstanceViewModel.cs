@@ -3,6 +3,7 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -26,6 +27,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public double DurationSec => SourceTimer.DurationSec;
+        public SolidColorBrush RowBackground { get; set; }
         public SolidColorBrush TimerBackground => new SolidColorBrush(SourceTimer.TimerColor);
         public ICommand EditCommand => new CommandHandler(Edit);
         private void Edit(object t)
@@ -75,9 +77,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             return IsTriggered ? new GridLength(TimerValue / DurationSec, GridUnitType.Star) : new GridLength();
         }
-
-
-
         public TimerInstanceViewModel(Timer swtorTimer)
         {
             SourceTimer = swtorTimer;
@@ -86,7 +85,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             CompositionTarget.Rendering += OnRender;
             _timer.Elapsed += Tick;
         }
-
         private void OnRender(object sender, EventArgs e)
         {
             OnPropertyChanged("TimerValue");
@@ -155,10 +153,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                     wasTriggered=TriggerDetection.CheckForEffectGain(log, SourceTimer.Effect, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
                     break;
                 case TimerKeyType.EffectLost:
-                    wasTriggered=TriggerDetection.CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
+                    wasTriggered=TriggerDetection.CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target, SourceTimer.TargetIsLocal);
                     break;
                 case TimerKeyType.EntityHP:
-                    wasTriggered=TriggerDetection.CheckForHP(log, SourceTimer.HPPercentage, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
+                    wasTriggered=TriggerDetection.CheckForHP(log, SourceTimer.HPPercentage, SourceTimer.Target, SourceTimer.TargetIsLocal);
                     break;
                 //case TimerKeyType.TimerExpired:
                 //    wasTriggered=TriggerDetection.CheckForTimerExperiation(log, SourceTimer.ExperiationTrigger);

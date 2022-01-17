@@ -16,7 +16,7 @@
                 <RowDefinition Height="0.85*"/>
             </Grid.RowDefinitions>
             <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" MouseLeftButtonDown="DragWindow" Margin="0,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-                <ItemsControl ItemsSource="{Binding Timers, UpdateSourceTrigger=PropertyChanged}">
+                <ItemsControl ItemsSource="{Binding SwtorTimers, UpdateSourceTrigger=PropertyChanged}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid Visibility="{Binding IsTriggered,Converter={StaticResource BooleanToVisibiityConverter}}" ToolTip="{Binding InfoText}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults"  Margin="0,2,2,2" MaxHeight="35">
@@ -47,7 +47,7 @@
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
                 <Viewbox HorizontalAlignment="Center" MaxHeight="50">
-                    <TextBlock FontFamily="{StaticResource MainFont}" Text="Timers" Foreground="Beige"/>
+                    <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding TimerTitle}" Foreground="Beige"/>
                 </Viewbox>
                 <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0">
                     <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
