@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -56,10 +57,9 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (newEntry.Effect.EffectType == EffectType.AreaEntered)
             {
-                newEntry.SourceInfo.Entity.IsLocalPlayer = true;
                 newEntry.LogLocation = newEntry.Effect.EffectName;
             }
-            if(newEntry.Effect.EffectType == EffectType.DisciplineChanged)
+            if (newEntry.Effect.EffectType == EffectType.DisciplineChanged)
             {
                 newEntry.SourceInfo.Class = GetClassFromDicipline(newEntry.Effect.EffectName);
             }
