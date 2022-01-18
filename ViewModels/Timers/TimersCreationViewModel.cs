@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views;
@@ -41,14 +42,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimersCreationViewModel()
         {
             _timersWindowVM = new TimersWindowViewModel();
-            _savedTimersData = DefaultTimersManager.GetAllDefaults();
-            if (!_savedTimersData.ContainsKey("Shared"))
-            {
-                _savedTimersData["Shared"] = new DefaultTimersData();
-                DefaultTimersManager.SetSavedTimers(new List<Timer>(), "Shared");
-            }
-            SavedPlayerNames = new ObservableCollection<string>(_savedTimersData.Keys.OrderBy(d => d));
-            OnPropertyChanged("SavedPlayerNames");
+            RefreshAvaialbleTriggerOwners();
             if (SavedPlayerNames.Count > 0)
             {
                 SelectedPlayer = SavedPlayerNames[0];
@@ -56,11 +50,25 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
 
         }
+
+        private void RefreshAvaialbleTriggerOwners()
+        {
+            _savedTimersData = DefaultTimersManager.GetAllDefaults();
+            CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
+            if (!_savedTimersData.ContainsKey("Shared"))
+            {
+                _savedTimersData["Shared"] = new DefaultTimersData();
+                DefaultTimersManager.SetSavedTimers(new List<Timer>(), "Shared");
+            }
+            SavedPlayerNames = new ObservableCollection<string>(_savedTimersData.Keys.OrderBy(d => d));
+            OnPropertyChanged("SavedPlayerNames");
+        }
+
         public ICommand CreateNewTimerCommand => new CommandHandler(CreateNewTimer);
 
         private void CreateNewTimer(object obj)
         {
-            var vm = new ModifyTimerViewModel();
+            var vm = new ModifyTimerViewModel(SelectedPlayer);
             vm.OnNewTimer += NewTimer;
             ObscureWindowFactory.ShowObscureWindow();
             var t = new TimerModificationWindow(vm);
@@ -71,7 +79,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void Import(object obj)
         {
-            if (TimerRows.Any(t => t.SourceTimer.Id == ImportId))
+            if (TimerRows.Any(t => t.SourceTimer.ShareId == ImportId))
                 return;
             var timer = TimerDatabaseAccess.GetTimerFromId(ImportId);
             if (timer == null)
@@ -82,7 +90,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void CancelEdit()
         {
-            var addedBack = new TimerRowInstanceViewModel() { SourceTimer = _timerEdited };
+            var addedBack = new TimerRowInstanceViewModel() { SourceTimer = _timerEdited, IsEnabled = _timerEdited.IsEnabled };
             addedBack.EditRequested += Edit;
             addedBack.ShareRequested += Share;
             addedBack.DeleteRequested += Delete;
@@ -95,7 +103,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (wasEdit)
                 DefaultTimersManager.RemoveTimerForCharacter(_timerEdited, SelectedPlayer);
             SaveNewTimer(obj);
-            var newTimer = new TimerRowInstanceViewModel() { SourceTimer = obj };
+            var newTimer = new TimerRowInstanceViewModel() { SourceTimer = obj, IsEnabled = obj.IsEnabled };
             newTimer.EditRequested += Edit;
             newTimer.ShareRequested += Share;
             newTimer.DeleteRequested += Delete;
@@ -106,23 +114,30 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void SaveNewTimer(Timer timer)
         {
             DefaultTimersManager.AddTimerForCharacter(timer, SelectedPlayer);
+
         }
         public void UpdateLock(bool state)
         {
             _timersWindowVM.UpdateLock(state);
         }
+        public void SetClass(Entity player, SWTORClass swtorclass)
+        {
+            _timersWindowVM.SetPlayer(player.Name, swtorclass);
+            RefreshAvaialbleTriggerOwners();
+        }
         public void SetPlayer(string player)
         {
-            _timersWindowVM.SetPlayer(player);
+            
         }
         private void UpdateTimerRows()
         {
             _savedTimersData = DefaultTimersManager.GetAllDefaults();
             var timers = _savedTimersData[selectedPlayer];
-            var timerObjects = timers.Timers.Select(t => new TimerRowInstanceViewModel() { SourceTimer = t }).ToList();
+            var timerObjects = timers.Timers.Select(t => new TimerRowInstanceViewModel() { SourceTimer = t, IsEnabled = t.IsEnabled }).ToList();
             timerObjects.ForEach(t => t.EditRequested += Edit);
             timerObjects.ForEach(t => t.ShareRequested += Share);
             timerObjects.ForEach(t => t.DeleteRequested += Delete);
+            timerObjects.ForEach(t => t.ActiveChanged += ActiveChanged);
             TimerRows = new ObservableCollection<TimerRowInstanceViewModel>(timerObjects);
             UpdateRowColors();
             OnPropertyChanged("TimerRows");
@@ -143,7 +158,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 id = AlphanumericsGenerator.RandomString(3);
             } while (currentIds.Contains(id));
-            obj.SourceTimer.Id = id;
+            obj.SourceTimer.ShareId = id;
             var shareWindow = new TimerSharePopup(id);
             shareWindow.Show();
             DefaultTimersManager.SetIdForTimer(obj.SourceTimer, SelectedPlayer, id);
@@ -154,13 +169,18 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             _timerEdited = obj.SourceTimer;
             TimerRows.Remove(obj);
-            var vm = new ModifyTimerViewModel();
+            var vm = new ModifyTimerViewModel(SelectedPlayer);
             ObscureWindowFactory.ShowObscureWindow();
             vm.OnNewTimer += NewTimer;
             vm.OnCancelEdit += CancelEdit;
             var t = new TimerModificationWindow(vm);
             t.Show();
             vm.Edit(_timerEdited.Copy());
+        }
+        private void ActiveChanged(TimerRowInstanceViewModel timerRow)
+        {
+            DefaultTimersManager.SetTimerEnabled(timerRow.IsEnabled, timerRow.SourceTimer);
+            _timersWindowVM.EnabledChangedForTimer(timerRow.IsEnabled, timerRow.SourceTimer.Id);
         }
         private void UpdateRowColors()
         {

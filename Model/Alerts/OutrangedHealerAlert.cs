@@ -15,7 +15,7 @@ namespace SWTORCombatParser.Model.Alerts
         {
             var currentState = CombatLogStateBuilder.CurrentState;
             var positions = currentState.CurrentCharacterPositions;
-            var healers = currentState.PlayerClassChangeInfo.Where(kvp => kvp.Value != null && CharacterClassHelper.GetClassFromEntityAtTime(kvp.Key,time).Role == DataStructures.Role.Healer).Select(kvp=>kvp.Key).ToList();
+            var healers = currentState.PlayerClassChangeInfo.Where(kvp => kvp.Value != null && currentState.GetCharacterClassAtTime(kvp.Key,time).Role == DataStructures.Role.Healer).Select(kvp=>kvp.Key).ToList();
             var localPlayer = currentState.CurrentCharacterPositions.Keys.First(e => e.IsLocalPlayer);
             var localPlayerPosition = positions[localPlayer];
             var outrangedHealers = new List<Entity>();

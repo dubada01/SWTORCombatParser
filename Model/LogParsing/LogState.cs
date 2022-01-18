@@ -81,9 +81,30 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return new EncounterInfo() { Name = "Unknown Encounter" };
         }
+        public SWTORClass GetCharacterClassAtTime(Entity entity, DateTime time)
+        {
+            if (!PlayerClassChangeInfo.ContainsKey(entity))
+                return new SWTORClass();
+            var classOfSource = PlayerClassChangeInfo[entity];
+            if (classOfSource == null)
+                return new SWTORClass();
+            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(v => (time - v).TotalSeconds).First()];
+            return classAtTime;
+        }
+        public SWTORClass GetCharacterClassAtTime(string entityName, DateTime time)
+        {
+            var entity = PlayerClassChangeInfo.Keys.FirstOrDefault(e => e.Name.ToLower() == entityName.ToLower());
+            if (entity == null)
+                return new SWTORClass();
+            var classOfSource = PlayerClassChangeInfo[entity];
+            if (classOfSource == null)
+                return new SWTORClass();
+            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(v => (time - v).TotalSeconds).First()];
+            return classAtTime;
+        }
         public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
         {
-            var classOfSource = CharacterClassHelper.GetClassFromEntityAtTime(source, timeStamp);
+            var classOfSource = GetCharacterClassAtTime(source, timeStamp);
             double healsPerThreat = 2;
             double healsModifier = 1;
             if (classOfSource == null)
@@ -92,32 +113,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 healsModifier -= 0.1d;
             if (_tankDisciplines.Contains(classOfSource.Discipline))
                 healsModifier += 1.5d;
-            //if (GetCombatModifiersAtTime(timeStamp).Any(m => m.Type == CombatModfierType.GuardedThreatReduced))
-            //    healsModifier -= .25d; //healsPerThreat *= 1.25;
             return healsPerThreat/healsModifier;
         }
-        //public List<CombatModifier> GetCombatModifiersAtTime(DateTime timeStamp)
-        //{
-        //    lock (modifierLogLock)
-        //    {
-        //        List<CombatModifier> mods = new List<CombatModifier>();
-        //        foreach (var mod in Modifiers)
-        //        {
-        //            if (mod.StartTime > timeStamp)
-        //                continue;
-        //            if (mod.StopTime < timeStamp && mod.StartTime != DateTime.MinValue)
-        //                continue;
-        //            mods.Add(mod);
-        //        }
-
-        //        return mods;
-        //    }
-        //    //return Modifiers.Where(m => m.StartTime < timeStamp && (m.StopTime >= timeStamp || m.StopTime == DateTime.MinValue)).ToList();
-        //}
-        //public List<CombatModifier> GetCombatModifiersAtTimeInvolvingParticipants(DateTime timeStamp,Entity source, Entity target)
-        //{
-        //    return GetCombatModifiersAtTime(timeStamp).Where(m => m.Source == source || m.Source == target || m.Target == source || m.Target == target).ToList();
-        //}
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
             var allMods = Modifiers.SelectMany(kvp => kvp.Value);

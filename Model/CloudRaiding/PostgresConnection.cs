@@ -146,7 +146,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 Class = reader.GetString(3),
                 Value = reader.GetDouble(4),
                 Type = (LeaderboardEntryType)Enum.Parse(typeof(LeaderboardEntryType),reader.GetString(5)),
-                Duration = reader.GetInt32(5),
+                Duration = reader.GetInt32(6),
                 Encounter = reader.GetString(7),
                 Version = reader.GetString(8),
                 VerifiedKill = reader.GetBoolean(9)

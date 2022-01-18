@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -18,12 +19,26 @@ namespace SWTORCombatParser.ViewModels.Timers
 {
     public class TimerRowInstanceViewModel
     {
+        private bool _isEnabled;
+
         public event Action<TimerRowInstanceViewModel> EditRequested = delegate { };
         public event Action<TimerRowInstanceViewModel> ShareRequested = delegate { };
         public event Action<TimerRowInstanceViewModel> DeleteRequested = delegate { };
+        public event Action<TimerRowInstanceViewModel> ActiveChanged = delegate { };
         public Timer SourceTimer { get; set; } = new Timer();
 
-        public bool IsEnabled { get { return SourceTimer.IsEnabled; } set { SourceTimer.IsEnabled = value; } }
+        public bool IsEnabled
+        {
+            get
+            {
+                return _isEnabled;
+            }
+            set
+            {
+                _isEnabled = value;
+                ActiveChanged(this);
+            }
+        }
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public double DurationSec => SourceTimer.DurationSec;
@@ -45,18 +60,30 @@ namespace SWTORCombatParser.ViewModels.Timers
             DeleteRequested(this);
         }
     }
-    public class TimerInstanceViewModel:INotifyPropertyChanged
+    public class TimerInstanceViewModel : INotifyPropertyChanged
     {
         private System.Timers.Timer _timer;
         private bool _isCancelled;
+        private TimerInstanceViewModel expirationTimer;
 
         public event Action<Timer> TimerExpired = delegate { };
         public event Action TimerTriggered = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Timer SourceTimer { get; set; } = new Timer();
-        public bool IsEnabled => SourceTimer.IsEnabled;
-        public string TimerName => SourceTimer.Name;
+        public string ExperiationTimerId { get; set; }
+        public TimerInstanceViewModel ExpirationTimer
+        {
+            get => expirationTimer; set
+            {
+                expirationTimer = value;
+                expirationTimer.TimerExpired += m => Trigger(DateTime.Now);
+            }
+        }
+        public bool TrackOutsideOfCombat { get; set; }
+        public bool IsEnabled { get; set; }
+        public int RepeatTimes { get; set; }
+        public string TimerName => (SourceTimer.IsAlert?"Alert! ":"") + SourceTimer.Name;
         public double DurationSec => SourceTimer.DurationSec;
         public Color TimerColor => SourceTimer.TimerColor;
         public SolidColorBrush TimerBackground => new SolidColorBrush(TimerColor);
@@ -68,23 +95,38 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private GridLength GetRemainderWidth()
         {
-            return IsTriggered ? new GridLength(1-(TimerValue / DurationSec), GridUnitType.Star) : new GridLength(1,GridUnitType.Star);
+            return IsTriggered ? (SourceTimer.IsAlert ? new GridLength(0, GridUnitType.Star) : new GridLength(1-(TimerValue / DurationSec), GridUnitType.Star)) : new GridLength(1, GridUnitType.Star);
         }
 
         public GridLength BarWidth => GetBarWidth();
 
         private GridLength GetBarWidth()
         {
-            return IsTriggered ? new GridLength(TimerValue / DurationSec, GridUnitType.Star) : new GridLength();
+            return IsTriggered ? (SourceTimer.IsAlert ? new GridLength(1,GridUnitType.Star) : new GridLength(TimerValue / DurationSec, GridUnitType.Star)) : new GridLength();
         }
         public TimerInstanceViewModel(Timer swtorTimer)
         {
             SourceTimer = swtorTimer;
-            TimerValue = DurationSec;
-            _timer = new System.Timers.Timer(50);
-            CompositionTarget.Rendering += OnRender;
-            _timer.Elapsed += Tick;
+            ExperiationTimerId = swtorTimer.ExperiationTimerId;
+            //CompositionTarget.Rendering += OnRender;
+            if (!swtorTimer.IsAlert)
+            {
+                TimerValue = DurationSec;
+                _timer = new System.Timers.Timer(50);
+                _timer.Elapsed += Tick;
+            }
+            else
+            {
+                _timer = new System.Timers.Timer(3000);
+                _timer.Elapsed += ClearAlert;
+            }
         }
+
+        private void ClearAlert(object sender, ElapsedEventArgs e)
+        {
+            Complete();
+        }
+
         private void OnRender(object sender, EventArgs e)
         {
             OnPropertyChanged("TimerValue");
@@ -94,21 +136,32 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void Cancel()
         {
             _isCancelled = true;
+            RepeatTimes = 0;
         }
-        public void Trigger()
+        public void UnCancel()
         {
-            if (!IsEnabled)
+            _isCancelled = false;
+        }
+        public void Trigger(DateTime timeStampWhenTrigged)
+        {
+            if ((!IsEnabled || _isCancelled) && !SourceTimer.TrackOutsideOfCombat)
                 return;
+            var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds;
+            TimerValue -= offset;
+            Trace.WriteLine("Offset: "+offset);
             TimerTriggered();
             IsTriggered = true;
-            _timer.Start();
             OnPropertyChanged("IsTriggered");
+            _timer.Start();
         }
         public void Tick(object sender, ElapsedEventArgs e)
         {
             if (!IsTriggered)
                 return;
             TimerValue -= 0.050;
+            OnPropertyChanged("TimerValue");
+            OnPropertyChanged("BarWidth");
+            OnPropertyChanged("RemainderWidth");
             if (TimerValue <= 0)
                 Complete();
         }
@@ -126,10 +179,15 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
-            if (SourceTimer.IsPeriodic && !_isCancelled)
-                Trigger();
-            if (_isCancelled)
-                _isCancelled = false;
+            if (SourceTimer.IsPeriodic && RepeatTimes <= SourceTimer.Repeats)
+            {
+                RepeatTimes ++;
+                Trigger(DateTime.Now);
+            }
+            if (RepeatTimes > SourceTimer.Repeats)
+                Cancel();
+            if (SourceTimer.TriggerType == TimerKeyType.FightDuration)
+                Cancel();
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
@@ -144,26 +202,26 @@ namespace SWTORCombatParser.ViewModels.Timers
             switch (SourceTimer.TriggerType)
             {
                 case TimerKeyType.CombatStart:
-                    wasTriggered=TriggerDetection.CheckForComabatStart(log);
+                    wasTriggered = TriggerDetection.CheckForComabatStart(log);
                     break;
                 case TimerKeyType.AbilityUsed:
-                    wasTriggered=TriggerDetection.CheckForAbilityUse(log, SourceTimer.Ability, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
+                    wasTriggered = TriggerDetection.CheckForAbilityUse(log, SourceTimer.Ability, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
                     break;
                 case TimerKeyType.EffectGained:
-                    wasTriggered=TriggerDetection.CheckForEffectGain(log, SourceTimer.Effect, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
+                    wasTriggered = TriggerDetection.CheckForEffectGain(log, SourceTimer.Effect, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
                     break;
                 case TimerKeyType.EffectLost:
-                    wasTriggered=TriggerDetection.CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target, SourceTimer.TargetIsLocal);
+                    wasTriggered = TriggerDetection.CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target, SourceTimer.TargetIsLocal);
                     break;
                 case TimerKeyType.EntityHP:
-                    wasTriggered=TriggerDetection.CheckForHP(log, SourceTimer.HPPercentage, SourceTimer.Target, SourceTimer.TargetIsLocal);
+                    wasTriggered = TriggerDetection.CheckForHP(log, SourceTimer.HPPercentage, SourceTimer.Target, SourceTimer.TargetIsLocal);
                     break;
-                //case TimerKeyType.TimerExpired:
-                //    wasTriggered=TriggerDetection.CheckForTimerExperiation(log, SourceTimer.ExperiationTrigger);
-                //    break;
+                case TimerKeyType.FightDuration:
+                    wasTriggered = TriggerDetection.CheckForFightDuration(log, SourceTimer.CombatTimeElapsed, startTime);
+                    break;
             }
             if (wasTriggered)
-                Trigger();
+                Trigger(log.TimeStamp);
         }
 
 

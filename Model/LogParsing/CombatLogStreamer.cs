@@ -22,6 +22,7 @@ namespace SWTORCombatParser
         public event Action<string> NewSoftwareLog = delegate { };
         public static event Action HistoricalLogsFinished = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
+        public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
 
         private bool _isInCombat = false;
         private long _numberOfEntries;
@@ -149,7 +150,6 @@ namespace SWTORCombatParser
         private void ProcessNewLine(string line,long lineIndex,string logName)
         {
             var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
-
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
                 return;
@@ -158,6 +158,7 @@ namespace SWTORCombatParser
                 LocalPlayerIdentified(parsedLine.Source);
             parsedLine.LogName = Path.GetFileName(logName);
             CheckForCombatState(lineIndex, parsedLine);
+            NewLineStreamed(parsedLine);
             if (_isInCombat)
             {
                 _currentFrameData.Add(parsedLine);

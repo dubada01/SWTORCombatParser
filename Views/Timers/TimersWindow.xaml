@@ -46,7 +46,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox HorizontalAlignment="Center" MaxHeight="50">
+                <Viewbox Margin="10,0" HorizontalAlignment="Center" MaxHeight="30">
                     <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding TimerTitle}" Foreground="Beige"/>
                 </Viewbox>
                 <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0">

@@ -38,8 +38,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 using (var cmd = new NpgsqlCommand("INSERT INTO public.timers" +
                 " (timer_id,source,source_is_local,target,target_is_local,hp_percentage,name,trigger_type,expiration_trigger_id,ability,effect,is_periodic,is_alert,duration_sec,color,specific_boss,specific_encounter)" +
-                $" VALUES ('{newTimer.Id.MakePGSQLSafe()}','{newTimer.Source.MakePGSQLSafe()}','{newTimer.SourceIsLocal}','{newTimer.Target.MakePGSQLSafe()}',{newTimer.TargetIsLocal},'{newTimer.HPPercentage}','{newTimer.Name.MakePGSQLSafe()}'," +
-                $"'{newTimer.TriggerType}','{(newTimer.ExperiationTrigger == null ? 0 : newTimer.ExperiationTrigger.Id.MakePGSQLSafe())}','{newTimer.Ability.MakePGSQLSafe()}','{newTimer.Effect.MakePGSQLSafe()}'" +
+                $" VALUES ('{newTimer.ShareId.MakePGSQLSafe()}','{newTimer.Source.MakePGSQLSafe()}','{newTimer.SourceIsLocal}','{newTimer.Target.MakePGSQLSafe()}',{newTimer.TargetIsLocal},'{newTimer.HPPercentage}','{newTimer.Name.MakePGSQLSafe()}'," +
+                $"'{newTimer.TriggerType}','{newTimer.ExperiationTimerId.MakePGSQLSafe()}','{newTimer.Ability.MakePGSQLSafe()}','{newTimer.Effect.MakePGSQLSafe()}'" +
                 $",{newTimer.IsPeriodic},'{newTimer.IsAlert}','{newTimer.DurationSec}','{newTimer.TimerColor}','{newTimer.SpecificBoss.MakePGSQLSafe()}','{newTimer.SpecificEncounter.MakePGSQLSafe()}')", connection))
                 {
                     cmd.ExecuteNonQuery();
@@ -83,14 +83,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             return new Timer
             {
-                Id = reader.GetString(1),
+                ShareId = reader.GetString(1),
                 Source = reader.GetString(2),
                 SourceIsLocal = reader.GetBoolean(3),
                 Target = reader.GetString(4),
                 TargetIsLocal = reader.GetBoolean(5),
                 HPPercentage = reader.GetDouble(6),
                 Name = reader.GetString(7),
-                ExperiationTrigger = new Timer(),
+                ExperiationTimerId = reader.GetString(8),
                 Ability = reader.GetString(9),
                 Effect = reader.GetString(10),
                 IsPeriodic = reader.GetBoolean(11),

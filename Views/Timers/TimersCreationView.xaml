@@ -12,7 +12,7 @@
             <RowDefinition Height="0.7*"/>
             <RowDefinition Height="0.15*"/>
         </Grid.RowDefinitions>
-        <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding SavedPlayerNames}" SelectedItem="{Binding SelectedPlayer}" Width="150" Height="40" HorizontalAlignment="Left" Margin="15,0,0,0"></ComboBox>
+        <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding SavedPlayerNames}" SelectedItem="{Binding SelectedPlayer}" Width="250" Height="40" HorizontalAlignment="Left" Margin="15,0,0,0"></ComboBox>
         <Border BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="White">
             <Grid>
                 <Grid.RowDefinitions>

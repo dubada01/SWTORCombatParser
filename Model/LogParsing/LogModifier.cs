@@ -92,7 +92,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
                     return;
                 }
-                var playerClass = CharacterClassHelper.GetClassFromEntityAtTime(parsedLog.Source, parsedLog.TimeStamp);
+                var playerClass = state.GetCharacterClassAtTime(parsedLog.Source, parsedLog.TimeStamp);
                 var specialThreatAbilties = playerClass.SpecialThreatAbilities;
 
                 var specialThreatAbilityUsed = specialThreatAbilties.FirstOrDefault(a => parsedLog.Ability.Contains(a.Name));
