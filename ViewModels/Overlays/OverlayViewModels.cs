@@ -64,7 +64,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             ResetOverlays();
             App.Current.Dispatcher.Invoke(() =>
             {
-                _timersViewModel.SetPlayer(character);
                 _currentCharacterName = character;
                 _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterName);
                 var enumVals = EnumUtil.GetValues<OverlayType>();

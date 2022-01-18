@@ -32,6 +32,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.RawLogs.Add(log);
                 if (log.Effect.EffectType == EffectType.AreaEntered)
                 {
+                    log.Source.IsLocalPlayer = true;
                     CurrentState.CurrentLocation = log.Effect.EffectName;
                     CurrentState.LogVersion = LogVersion.NextGen;
                 }
@@ -69,7 +70,6 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
             }
         }
-
         private static void UpdatePlayerDeathState(ParsedLogEntry log)
         {
             if (!log.Target.IsCharacter)
@@ -99,7 +99,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
             }
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
-            PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
+            if(parsedLine.Source.IsLocalPlayer)
+                PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
 
         }
         private static void SetCharacterPositions(ParsedLogEntry log)

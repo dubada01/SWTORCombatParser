@@ -42,6 +42,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimersCreationViewModel()
         {
             _timersWindowVM = new TimersWindowViewModel();
+            CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             RefreshAvaialbleTriggerOwners();
             if (SavedPlayerNames.Count > 0)
             {
@@ -54,7 +55,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void RefreshAvaialbleTriggerOwners()
         {
             _savedTimersData = DefaultTimersManager.GetAllDefaults();
-            CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             if (!_savedTimersData.ContainsKey("Shared"))
             {
                 _savedTimersData["Shared"] = new DefaultTimersData();
@@ -122,12 +122,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
         {
+            if (!player.IsLocalPlayer)
+                return;
             _timersWindowVM.SetPlayer(player.Name, swtorclass);
             RefreshAvaialbleTriggerOwners();
-        }
-        public void SetPlayer(string player)
-        {
-            
         }
         private void UpdateTimerRows()
         {
