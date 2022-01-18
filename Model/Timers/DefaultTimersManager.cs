@@ -30,6 +30,11 @@ namespace SWTORCombatParser.Model.Timers
                 File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, DefaultTimersData>()));
             }
         }
+        public static Timer GetTimerById(string id)
+        {
+            var allTimers = GetAllDefaults().Values.SelectMany(d=>d.Timers);
+            return allTimers.FirstOrDefault(t => t.Id == id);
+        }
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)
         {
             var currentDefaults = GetDefaults(characterName);
@@ -41,7 +46,7 @@ namespace SWTORCombatParser.Model.Timers
         {
             var currentDefaults = GetDefaults(character);
             var valueToUpdate = currentDefaults.Timers.First(t => TimerEquality.Equals(timer, t));
-            valueToUpdate.Id = id;
+            valueToUpdate.ShareId = id;
             SaveResults(character, currentDefaults);
         }
         public static void SetSavedTimers(List<Timer> currentTimers, string character)
@@ -62,6 +67,13 @@ namespace SWTORCombatParser.Model.Timers
             var valueToRemove = currentDefaults.Timers.First(t => TimerEquality.Equals(timer,t));
             currentDefaults.Timers.Remove(valueToRemove);
             SaveResults(character, currentDefaults);
+        }
+        public static void SetTimerEnabled(bool state, Timer timer)
+        {
+            var currentDefaults = GetDefaults(timer.CharacterOwner);
+            var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+            timerToModify.IsEnabled = state;
+            SaveResults(timerToModify.CharacterOwner, currentDefaults);
         }
         public static void SetActiveState(bool state, string characterName)
         {

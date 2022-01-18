@@ -19,8 +19,15 @@ namespace SWTORCombatParser.DataStructures
     }
     public class Timer
     {
+        private bool isEnabled;
+        public string CharacterOwner { get;set; }
+        public string CharacterDiscipline { get; set; }
         public string Id { get; set; }
-        public bool IsEnabled { get; set; }
+        public string ShareId { get; set; }
+        public bool IsEnabled {
+            get => isEnabled;
+            set => isEnabled = value; 
+        }
         public string Source { get; set; } = "";
         public bool SourceIsLocal { get; set; }
         public string Target { get; set; } = "";
@@ -28,11 +35,15 @@ namespace SWTORCombatParser.DataStructures
         public double HPPercentage { get; set; }
         public string Name { get; set; }
         public TimerKeyType TriggerType { get; set; }
-        public Timer ExperiationTrigger { get; set; }
+        public bool TrackOutsideOfCombat { get; set; }
+        public string ExperiationTimerId { get; set; }
+        public double CombatTimeElapsed { get; set; }
         public string Ability { get; set; } = "";
         public string Effect { get; set; } = "";
         public bool IsPeriodic { get; set; }
+        public int Repeats { get; set; }
         public bool IsAlert { get; set; }
+        public double AlertDuration { get; set; }
         public double DurationSec { get; set; }
         public Color TimerColor { get; set; }
         public string SpecificBoss { get; set; }
@@ -41,10 +52,13 @@ namespace SWTORCombatParser.DataStructures
         {
             return new Timer()
             {
+                Id = Id,
                 Name = Name,
                 Source = Source,
                 SourceIsLocal = SourceIsLocal,
                 Target = Target,
+                AlertDuration = AlertDuration,
+                CombatTimeElapsed = CombatTimeElapsed,
                 TargetIsLocal = TargetIsLocal,
                 HPPercentage = HPPercentage,
                 TriggerType = TriggerType,
@@ -55,7 +69,10 @@ namespace SWTORCombatParser.DataStructures
                 DurationSec = DurationSec,
                 TimerColor = TimerColor,
                 SpecificBoss = SpecificBoss,
-                SpecificEncounter = SpecificEncounter
+                SpecificEncounter = SpecificEncounter,
+                ExperiationTimerId = ExperiationTimerId,
+                IsEnabled = IsEnabled,
+                TrackOutsideOfCombat = TrackOutsideOfCombat
             };
         }
     }

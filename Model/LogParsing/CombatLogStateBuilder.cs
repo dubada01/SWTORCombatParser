@@ -16,6 +16,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
     public static class CombatLogStateBuilder
     {
+        public static event Action<Entity, SWTORClass> PlayerDiciplineChanged = delegate { };
         public static LogState CurrentState { get; set; } = new LogState();
 
         public static void ClearState()
@@ -98,6 +99,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
             }
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
+            PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
+
         }
         private static void SetCharacterPositions(ParsedLogEntry log)
         {

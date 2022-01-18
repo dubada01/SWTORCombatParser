@@ -6,10 +6,6 @@ namespace SWTORCombatParser.ViewModels.Timers
 {
     public static class TriggerDetection
     {
-        //public static bool CheckForTimerExperiation(ParsedLogEntry log, Timer experiationTrigger)
-        //{
-        //    return experiationTrigger.trig
-        //}
         public static bool CheckForHP(ParsedLogEntry log, double hPPercentage, string target, bool targetIsLocal)
         {
             if (TargetIsValid(log, target, targetIsLocal))
@@ -43,11 +39,10 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public static bool CheckForAbilityUse(ParsedLogEntry log, string ability, string source, string target, bool sourceIsLocal, bool targetIsLocal)
         {
-            if (log.Effect.EffectName != "AbilityActivate")
+            if (log.Effect.EffectType != EffectType.Apply)
                 return false;
             if(SourceIsValid(log,source,sourceIsLocal) && TargetIsValid(log, target, targetIsLocal))
             {
-                Trace.WriteLine("Timer trigger: Ability " + log.Ability);
                 return log.Ability == ability;
             }
             return false;
@@ -58,8 +53,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 return true;
             if (source == "Any")
                 return true;
-            if (source == "Ignore")
-                return false;
             if (source == log.Source.Name)
                 return true;
             return false;
@@ -70,8 +63,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 return true;
             if (target == "Any")
                 return true;
-            if (target == "Ignore")
-                return false;
             if (target == log.Target.Name)
                 return true;
             return false;
@@ -79,6 +70,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         public static bool CheckForComabatStart(ParsedLogEntry log)
         {
             return log.Effect.EffectName == "EnterCombat";
+        }
+
+        internal static bool CheckForFightDuration(ParsedLogEntry log, double combatTimeElapsed, DateTime startTime)
+        {
+            Trace.WriteLine("Elapsed: " + (log.TimeStamp - startTime).TotalSeconds + " vs " + combatTimeElapsed);
+            return (log.TimeStamp - startTime).TotalSeconds >= combatTimeElapsed;
         }
     }
 }
