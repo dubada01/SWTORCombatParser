@@ -24,45 +24,34 @@
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.5*"/>
-                    <RowDefinition Height="0.25*"/>
+                    <RowDefinition Height="0.5*"/>
                 </Grid.RowDefinitions>
 
                     <Grid Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,5,5,0" Grid.Row="0" >
                     <TextBlock FontFamily="{StaticResource MainFont}" Text="Available Entities"></TextBlock>
-                        <ListView Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding AvailableEntities}">
+                    <ListView Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{Binding AvailableEntities}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Viewbox MaxHeight="25">
-                                    <StackPanel Orientation="Horizontal">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Viewbox HorizontalAlignment="Left" Grid.Column="0" MaxHeight="25">
                                         <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Entity.Name}"></TextBlock>
-                                        <CheckBox IsChecked="{Binding Selected}"></CheckBox>
-                                    </StackPanel>
-                                </Viewbox>
+                                    </Viewbox>
+                                    <Viewbox MaxHeight="20" Grid.Column="1" HorizontalAlignment="Right">
+                                        <CheckBox  IsChecked="{Binding Selected}"></CheckBox>
+                                    </Viewbox>
+                                </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    </Grid>
-
-
-
-
-                <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top"  TextAlignment="Center" Text="Data Type To Display: " FontSize="15"></TextBlock>
-                <ComboBox Grid.Row="1" Grid.Column="1"  Style="{StaticResource NewComboStyle}" HorizontalContentAlignment="Center" VerticalAlignment="Top" ItemsSource="{Binding AvailableDisplayTypes}" SelectedValue="{Binding SelectedDisplayType}" FontSize="15" Height="35"></ComboBox>
-
-
-
-                <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="1" TextWrapping="Wrap"  TextAlignment="Center" VerticalAlignment="Bottom" Text="Plot Moving Average Duration: " FontSize="15"></TextBlock>
-                <TextBox Grid.Row="1" Grid.Column="1" HorizontalContentAlignment="Center"  Text="{Binding MovingAverageWindow, UpdateSourceTrigger=PropertyChanged}" Width="75" VerticalContentAlignment="Center" VerticalAlignment="Bottom" Height="50"></TextBox>
-
-
+                </Grid>
+                <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,10,0" TextAlignment="Center" Text="Data Type To Display: " FontSize="15"></TextBlock>
+                <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,0,10,0" Style="{StaticResource NewComboStyle}" HorizontalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top" ItemsSource="{Binding AvailableDisplayTypes}" SelectedValue="{Binding SelectedDisplayType}" FontSize="15" Height="35"></ComboBox>
             </Grid>
             <ContentPresenter Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding EventViewContent}"></ContentPresenter>
-            <!--<ContentPresenter Margin="5" Grid.Column="2" Content="{Binding MapViewContent}"></ContentPresenter>-->
         </Grid>
-        <!--<Grid Grid.Row="1">
-            <ContentPresenter Margin="0,0,0,45" Content="{Binding PlotViewContent}"></ContentPresenter>
-            <Slider Margin="{Binding SliderMargin}" Value="{Binding SliderPosition}" Style="{StaticResource ResourceScrubberStyle}" Orientation="Horizontal" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Bottom"></Slider>
-        </Grid>-->
-
     </Grid>
 </UserControl>

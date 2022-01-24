@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
@@ -59,12 +60,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
             TimersView.DataContext = _timersViewModel;
             OnPropertyChanged("TimersView");
         }
-        private void CharacterLoaded(string character)
+        private void CharacterLoaded(Entity character)
         {
             ResetOverlays();
             App.Current.Dispatcher.Invoke(() =>
             {
-                _currentCharacterName = character;
+                //remove with 7.0
+                if(CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy)
+                    _timersViewModel.SetClass(character, new DataStructures.SWTORClass() {Discipline = "Legacy" });
+
+                _currentCharacterName = character.Name;
                 _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterName);
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
@@ -142,12 +147,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        internal void NewParticipants(List<Entity> participants)
+        internal void LocalPlayerIdentified(Entity localPlayer)
         {
-            var localPlayer = participants.FirstOrDefault(p => p.IsLocalPlayer);
             if (localPlayer != null && _currentCharacterName != localPlayer.Name)
             {
-                CharacterLoaded(localPlayer.Name);
+                CharacterLoaded(localPlayer);
                 _currentOverlays.ForEach(o => o.CharacterDetected(localPlayer.Name));
             }
         }

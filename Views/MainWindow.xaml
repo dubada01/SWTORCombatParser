@@ -92,21 +92,7 @@
                     <ContentPresenter Content="{Binding TabContent}"></ContentPresenter>
                 </DataTemplate>
             </TabControl.ContentTemplate>
-            <!--<TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Battle Plot">
-                <ContentPresenter Content="{Binding GraphView}"/>
-            </TabItem>
-            <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Table">
-                <ContentPresenter Content="{Binding TableView}"/>
-            </TabItem>
-            <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Histogram">
-                <ContentPresenter Content="{Binding HistogramView}"/>
-            </TabItem>
-            <TabItem FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundedTab}" FontSize="25" Padding="15,5,15,5" Header="Overlays">
-                <ContentPresenter Content="{Binding OverlayView}"/>
-            </TabItem>-->
         </TabControl>
-
-        
 
         <ContentPresenter Grid.RowSpan="2"  Margin="5,5,5,5" Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
 

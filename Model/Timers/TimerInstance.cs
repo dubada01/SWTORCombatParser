@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
@@ -62,12 +63,12 @@ namespace SWTORCombatParser.Model.Timers
         public void Reset(TimerInstanceViewModel timer)
         {
             TimerOfTypeExpired(timer);
-            if (SourceTimer.IsPeriodic && RepeatTimes <= SourceTimer.Repeats)
+            if (SourceTimer.IsPeriodic && (RepeatTimes <= SourceTimer.Repeats || SourceTimer.Repeats == 0))
             {
                 RepeatTimes++;
                 timer.Trigger(DateTime.Now);
             }
-            if (RepeatTimes > SourceTimer.Repeats || SourceTimer.TriggerType == TimerKeyType.FightDuration)
+            if ((RepeatTimes > SourceTimer.Repeats && SourceTimer.Repeats != 0) || SourceTimer.TriggerType == TimerKeyType.FightDuration)
                 Cancel(timer);
             else
             {
@@ -78,7 +79,7 @@ namespace SWTORCombatParser.Model.Timers
         }
         internal void CheckForTrigger(ParsedLogEntry log, DateTime startTime)
         {
-            var wasTriggered = false;
+            TriggerType wasTriggered = TriggerType.None;
             if (!IsEnabled)
                 return;
             if (_isCancelled && !TrackOutsideOfCombat)
@@ -96,9 +97,18 @@ namespace SWTORCombatParser.Model.Timers
                     targetId = log.Target.Id;
                     break;
                 case TimerKeyType.EffectGained:
-                    wasTriggered = TriggerDetection.CheckForEffectGain(log, SourceTimer.Effect, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
-                    targetAdendum = log.Target.Name;
-                    targetId = log.Target.Id;
+                    wasTriggered = TriggerDetection.CheckForEffectGain(log, SourceTimer.Effect,SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
+                    if(wasTriggered == TriggerType.Refresh)
+                    {
+                        var currentTarget = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp);
+                        targetAdendum = currentTarget.Name;
+                        targetId = currentTarget.Id;
+                    }
+                    else
+                    {
+                        targetAdendum = log.Target.Name;
+                        targetId = log.Target.Id;
+                    }
                     break;
                 case TimerKeyType.EffectLost:
                     wasTriggered = TriggerDetection.CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target, SourceTimer.TargetIsLocal);
@@ -113,13 +123,16 @@ namespace SWTORCombatParser.Model.Timers
                 case TimerKeyType.FightDuration:
                     wasTriggered = TriggerDetection.CheckForFightDuration(log, SourceTimer.CombatTimeElapsed, startTime);
                     break;
+                case TimerKeyType.TargetChanged:
+                    wasTriggered = TriggerDetection.CheckForTargetChange(log, SourceTimer.Source, SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal);
+                    break;
             }
-            if (wasTriggered && ActiveTimerInstancesForTimer.Any(t => t.TargetId == targetId))
+            if (wasTriggered == TriggerType.Refresh && ActiveTimerInstancesForTimer.Any(t => t.TargetId == targetId) && SourceTimer.CanBeRefreshed)
             {
                 var timerToRestart = ActiveTimerInstancesForTimer.First(t => t.TargetId == targetId);
-                timerToRestart.Reset();
+                timerToRestart.Reset(log.TimeStamp);
             }
-            if (wasTriggered && !ActiveTimerInstancesForTimer.Any(t=>t.TargetId == targetId))
+            if (wasTriggered == TriggerType.Start && !ActiveTimerInstancesForTimer.Any(t=>t.TargetId == targetId))
             {
                 CreateTimerInstance(log.TimeStamp,targetAdendum, targetId);
             }
@@ -132,8 +145,8 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TargetAddendem = targetAdendum;
             timerVM.TargetId = targetId;
             ActiveTimerInstancesForTimer.Add(timerVM);
-            NewTimerInstance(timerVM);
             timerVM.Trigger(timeStamp);
+            NewTimerInstance(timerVM);
         }
     }
 }

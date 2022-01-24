@@ -54,6 +54,11 @@ namespace SWTORCombatParser
         {
             InitializeComponent();
             LoadingWindowFactory.SetMainWindow(this);
+            var windowInfo = OrbsWindowManager.GetWindowSizeAndPosition();
+            Top = windowInfo.TopLeft.Y;
+            Left = windowInfo.TopLeft.X;
+            Width = windowInfo.Width;
+            Height = windowInfo.Height;
             AddNotificationIcon();
             SWTORDetector.StartMonitoring();
         }
@@ -102,6 +107,7 @@ namespace SWTORCombatParser
         }
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new System.Windows.Point { X = Left, Y = Top }, Width = ActualWidth, Height = ActualHeight });
             if (!_actuallyClosing)
             { 
                 e.Cancel = true;

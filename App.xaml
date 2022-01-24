@@ -34,6 +34,7 @@
             <converters:BooleanToFontStyleConverter x:Key="BooleanToFontStyleConverter"/>
             <converters:ParticipantSelectedToBackgroundConverter x:Key="ParticipantSelectedToBackgroundConverter"/>
             <converters:ParticipantSelectedToBorderConverter x:Key="ParticipantSelectedToBoarderConverter"/>
+            <converters:IndexToRowColorConverter x:Key="IndexToRowColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

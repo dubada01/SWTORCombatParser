@@ -42,6 +42,8 @@ namespace SWTORCombatParser.Model.LogParsing
                     OutrangedHealerAlert.CheckForOutrangingHealers(log.TimeStamp);
                 if(log.Effect.EffectType == EffectType.DisciplineChanged)
                     UpdatePlayerClassState(log);
+                if(log.Effect.EffectType == EffectType.TargetChanged)
+                    UpdatePlayerTargets(log);
                 if (log.LogLocation != null)
                     UpdateEncounterEntered(log);
 
@@ -90,18 +92,24 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!parsedLine.Source.IsCharacter)
                 return;
             if (!CurrentState.PlayerClassChangeInfo.ContainsKey(parsedLine.Source))
-                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = null;
+                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
 
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
-            if (CurrentState.PlayerClassChangeInfo[parsedLine.Source] == null)
-            {
-                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
-            }
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
             if(parsedLine.Source.IsLocalPlayer)
                 PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
 
+        }
+        private static void UpdatePlayerTargets(ParsedLogEntry log)
+        {
+            if (!log.Source.IsCharacter)
+                return;
+            if (!CurrentState.PlayerTargetsInfo.ContainsKey(log.Source))
+                CurrentState.PlayerTargetsInfo[log.Source] = new Dictionary<DateTime, Entity>();
+            if (log.Error == ErrorType.IncompleteLine)
+                return;
+            CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = log.Target;
         }
         private static void SetCharacterPositions(ParsedLogEntry log)
         {

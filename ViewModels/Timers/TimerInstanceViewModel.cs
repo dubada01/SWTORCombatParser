@@ -13,6 +13,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
@@ -20,6 +21,7 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class TimerInstanceViewModel : INotifyPropertyChanged, IDisposable
     {
         private System.Timers.Timer _timer;
+        private DispatcherTimer _dtimer;
 
         public event Action<TimerInstanceViewModel> TimerExpired = delegate { };
         public event Action TimerTriggered = delegate { };
@@ -48,19 +50,25 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             return(SourceTimer.IsAlert ? new GridLength(1,GridUnitType.Star) : new GridLength(TimerValue / DurationSec, GridUnitType.Star));
         }
+        private TimeSpan _timerValue;
         public TimerInstanceViewModel(Timer swtorTimer)
         {
             SourceTimer = swtorTimer;
             if (!swtorTimer.IsAlert)
             {
-                TimerValue = DurationSec;
-                _timer = new System.Timers.Timer(50);
-                _timer.Elapsed += Tick;
+                _timerValue = TimeSpan.FromSeconds(DurationSec);
+                TimerValue = _timerValue.TotalSeconds;
+                _dtimer = new DispatcherTimer(DispatcherPriority.Send, Application.Current.Dispatcher);
+                _dtimer.IsEnabled = true;
+                _dtimer.Interval = TimeSpan.FromMilliseconds(100);
+                _dtimer.Tick += Tick;
+                _dtimer.Start();
             }
             else
             {
                 _timer = new System.Timers.Timer(3000);
                 _timer.Elapsed += ClearAlert;
+                _timer.Start();
             }
         }
 
@@ -68,24 +76,25 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             Complete();
         }
-        public void Reset()
+        public void Reset(DateTime timeStampOfReset)
         {
-            TimerValue = DurationSec;
+            var offset = (DateTime.Now - timeStampOfReset).TotalSeconds * -1;
+            _timerValue = TimeSpan.FromSeconds(DurationSec + offset);
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
         }
         public void Trigger(DateTime timeStampWhenTrigged)
         {
-            var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds;
-            TimerValue -= offset;
+            var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds * -1;
+            _timerValue = TimeSpan.FromSeconds(DurationSec+offset);
+            TimerValue = _timerValue.TotalSeconds;
             TimerTriggered();
-            OnPropertyChanged("IsTriggered");
-            _timer.Start();
         }
-        public void Tick(object sender, ElapsedEventArgs e)
+        public void Tick(object sender, EventArgs args)
         {
-            TimerValue -= 0.050;
+            _timerValue = _timerValue.Add(TimeSpan.FromMilliseconds(-100));
+            TimerValue = _timerValue.TotalSeconds;
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
@@ -94,7 +103,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void Complete()
         {
-            _timer.Stop();
+            _dtimer?.Stop();
+            _timer?.Stop();
             TimerExpired(this);
         }
 
@@ -105,7 +115,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public void Dispose()
         {
-            _timer.Stop();
+            _dtimer?.Stop();
+            _timer?.Stop();
         }
     }
 }

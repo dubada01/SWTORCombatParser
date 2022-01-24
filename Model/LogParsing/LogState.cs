@@ -43,6 +43,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static List<string> _healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
         public ConcurrentDictionary<Entity,Dictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>>();
+        public ConcurrentDictionary<Entity, Dictionary<DateTime, Entity>> PlayerTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, Entity>>();
         public Dictionary<Entity, Dictionary<DateTime, bool>> PlayerDeathChangeInfo = new Dictionary<Entity, Dictionary<DateTime, bool>>();
         public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new Dictionary<DateTime, EncounterInfo>();
         public LogVersion LogVersion { get; set; } = LogVersion.Legacy;
@@ -90,6 +91,13 @@ namespace SWTORCombatParser.Model.LogParsing
                 return new SWTORClass();
             var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(v => (time - v).TotalSeconds).First()];
             return classAtTime;
+        }
+        public Entity GetPlayerTargetAtTime(Entity player, DateTime time)
+        {
+            if (!PlayerTargetsInfo.ContainsKey(player))
+                return new Entity();
+            var targets = PlayerTargetsInfo[player];
+            return targets[targets.Keys.ToList().MinBy(l => (time - l).TotalSeconds).First()];
         }
         public SWTORClass GetCharacterClassAtTime(string entityName, DateTime time)
         {

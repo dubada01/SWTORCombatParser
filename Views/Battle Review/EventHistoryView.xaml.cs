@@ -26,21 +26,8 @@ namespace SWTORCombatParser.Views.Battle_Review
     {
         public EventHistoryView(EventHistoryViewModel _eventViewModel)
         {
-            var sched = SynchronizationContext.Current;
             DataContext = _eventViewModel;
-            var upddate = Observable.Interval(TimeSpan.FromSeconds(0.1)).ObserveOn(sched);
-            var updated = Observable.FromEvent<double>(
-                handler => ReviewSliderUpdates.OnSliderUpdated += handler,
-                handler => ReviewSliderUpdates.OnSliderUpdated += handler).ObserveOn(sched);
-            var joined = upddate.And(updated).Then((l, d) => d);
-            Observable.When(joined).Subscribe(updated => KeepListAtBottom());
             InitializeComponent();
-        }
-        private void KeepListAtBottom()
-        {
-            if (EventsList.Items.Count == 0)
-                return;
-            EventsList.ScrollIntoView(EventsList.Items[EventsList.Items.Count - 1]);
         }
     }
 }

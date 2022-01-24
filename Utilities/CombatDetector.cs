@@ -18,7 +18,6 @@ namespace SWTORCombatParser.Utilities
     }
     public static class CombatDetector
     {
-        private static DateTime _combatEndTime = DateTime.MinValue;
         private static List<string> _bossesKilledThisCombat = new List<string>();
         private static List<string> _combatResNames = new List<string> { "Revival", "Reanimation", "Heartrigger Patch", "Resuscitation Probe", "Emergency Medical Probe" ,"Onboard AED"};
         private static bool _bossCombat;
@@ -39,7 +38,7 @@ namespace SWTORCombatParser.Utilities
                 if (_combatEnding || _isInCombat)
                 {
                     Reset();
-                    return CombatState.ExitedByEntering; 
+                    return CombatState.ExitedByEntering;
                 }
                 Reset();
                 _isInCombat = true;
@@ -50,14 +49,13 @@ namespace SWTORCombatParser.Utilities
                 _bossCombat = false;
             if (currentEncounter.BossInfos != null && currentEncounter.BossInfos.Any(b => b.TargetNames.Contains(line.Target.Name) || b.TargetNames.Contains(line.Source.Name)))
                 _bossCombat = true;
-            if(_bossCombat && _combatResNames.Contains(line.Ability))
+            if (_bossCombat && _combatResNames.Contains(line.Ability))
             {
                 _isCombatResOut = true;
             }
             if (_bossCombat && !_isCombatResOut && line.Effect.EffectName == "Revived")
             {
-                _combatEnding = true;
-                _combatEndTime = line.TimeStamp;
+                return EndCombat();
             }
             if (_bossCombat && _isCombatResOut && line.Effect.EffectName == "Revived")
             {
@@ -67,24 +65,20 @@ namespace SWTORCombatParser.Utilities
             {
                 if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy || !_bossCombat)
                 {
-                    _combatEnding = true;
-                    _combatEndTime = line.TimeStamp;
+                    return EndCombat();
                 }
             }
             if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && currentEncounter.BossInfos != null && !_combatEnding && _isInCombat)
             {
-
                 var bossKilled = currentEncounter.BossInfos.FirstOrDefault(bi => bi.TargetNames.Contains(line.Target.Name));
                 if (bossKilled != null)
                 {
                     _bossesKilledThisCombat.Add(bossKilled.TargetNames.First(tn => tn == line.Target.Name));
                     if (currentEncounter.BossInfos.Any(bi => bi.TargetNames.All(n => _bossesKilledThisCombat.Contains(n))))
                     {
-                        _combatEnding = true;
-                        _combatEndTime = line.TimeStamp;
+                        return EndCombat();
                     }
                 }
-
             }
             if (line.Effect.EffectName == "Death" && line.Target.IsCharacter && !_combatEnding && _isInCombat)
             {
@@ -95,42 +89,28 @@ namespace SWTORCombatParser.Utilities
                     var allDead = characterDeathStates.Keys.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
                     if (allDead)
                     {
-                        _combatEnding = true;
-                        _combatEndTime = line.TimeStamp;
+                        return EndCombat();
                     }
                 }
                 else
                 {
-                    _combatEnding = true;
-                    _combatEndTime = line.TimeStamp;
+                    return EndCombat();
                 }
 
             }
-            var hasCombatEnded = CheckForCombatEnd(line);
-            if (hasCombatEnded)
-            {
-                _isInCombat = false;
-                return CombatState.ExitedCombat; 
-            }
+
+            if (_isInCombat)
+                return CombatState.InCombat;
             else
-            {
-                if (_isInCombat)
-                    return CombatState.InCombat;
-                else
-                    return CombatState.OutOfCombat;
-            }
+                return CombatState.OutOfCombat;
+
         }
 
 
-        private static bool CheckForCombatEnd(ParsedLogEntry log)
+        private static CombatState EndCombat()
         {
-            if (_combatEnding)
-            {
-                _isInCombat = false;
-                _combatEnding = false;
-                return true;
-            }
-            return false;
+            _isInCombat = false;
+            return CombatState.ExitedCombat;
         }
     }
 }

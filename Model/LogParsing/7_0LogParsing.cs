@@ -149,6 +149,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 modifier.DblValue = double.Parse(valueParts[4].Replace("(", ""));
                 modifier.EffectiveDblValue = modifier.DblValue;
                 newValue.Modifier = modifier;
+                newValue.ModifierType = newValue.Modifier.ValueType.ToString();
+                newValue.ModifierDisplayValue = modifier.EffectiveDblValue.ToString("#,##0");
 
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""));
@@ -164,6 +166,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 modifier.DblValue = double.Parse(valueParts[5].Replace("(", ""));
                 modifier.EffectiveDblValue = modifier.DblValue;
                 newValue.Modifier = modifier;
+                newValue.ModifierType = newValue.Modifier.ValueType.ToString();
+                newValue.ModifierDisplayValue = modifier.EffectiveDblValue.ToString("#,##0");
 
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", "")) + modifier.EffectiveDblValue;
@@ -180,6 +184,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 modifier.DblValue = double.Parse(valueParts[6].Replace("(", ""));
                 modifier.EffectiveDblValue = Math.Min(double.Parse(valueParts[0].Replace("*", "")), modifier.DblValue);
                 newValue.Modifier = modifier;
+                newValue.ModifierType = newValue.Modifier.ValueType.ToString();
+                newValue.ModifierDisplayValue = modifier.EffectiveDblValue.ToString("#,##0");
 
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
@@ -187,6 +193,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ValueType = GetValueType(valueParts[2]);
 
             }
+            newValue.DisplayValue = string.IsNullOrEmpty(newValue.StrValue) ? newValue.EffectiveDblValue.ToString("#,##0") : newValue.StrValue;
             return newValue;
         }
         private static EntityInfo ParseEntity(string value, bool isPlayer = false)
@@ -307,6 +314,7 @@ namespace SWTORCombatParser.Model.LogParsing
             newEffect.EffectType = GetEffectType(type.Split('{')[0].Trim());
 
             var splitName = name.Split('{');
+
             if (newEffect.EffectType == EffectType.DisciplineChanged)
             {
                 newEffect.EffectName = name;
@@ -321,6 +329,13 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 else
                     newEffect.EffectName = splitName[0].Trim();
+            }
+            if (newEffect.EffectType == EffectType.Event)
+            {
+                if (newEffect.EffectName == "TargetSet")
+                {
+                    newEffect.EffectType = EffectType.TargetChanged;
+                }
             }
             return newEffect;
         }

@@ -7,6 +7,32 @@ using System.Text;
 
 namespace SWTORCombatParser
 {
+    public class DisplayableLogEntry
+    {
+        public DisplayableLogEntry(string sec, string source, string target, string ability, string effectName, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue)
+        {
+            SecondsSinceCombatStart = sec;
+            Source = source;
+            Target = target;
+            Ability = ability;
+            EffectName = effectName;
+            Value = value;
+            WasValueCrit = wasValueCrit;
+            ValueType = type;
+            ModifierType = modifiertype;
+            ModifierValue = modifierValue;
+        }
+        public string SecondsSinceCombatStart { get; }
+        public string Source { get; }
+        public string Target { get; }
+        public string Ability { get; }
+        public string EffectName { get; }
+        public string Value { get; }
+        public bool WasValueCrit { get; }
+        public string ValueType { get; }
+        public string ModifierType { get; }
+        public string ModifierValue { get; }
+    }
     public class ParsedLogEntry
     {
         public ErrorType Error;
@@ -65,9 +91,9 @@ namespace SWTORCombatParser
         public double DblValue;
         public double EffectiveDblValue;
         public string StrValue;
-        public string DisplayValue => string.IsNullOrEmpty(StrValue) ? ValueType == DamageType.none?"N/A": EffectiveDblValue.ToString("#,##0") : StrValue;
-        public string ModifierDisplayValue => Modifier==null ? "0" : Modifier.EffectiveDblValue.ToString("#,##0");
-        public string ModifierType => Modifier == null ? "N/A" : Modifier.ValueType.ToString();
+        public string DisplayValue { get; set; } = "N/A";
+        public string ModifierDisplayValue { get; set; } = "N/A";
+        public string ModifierType { get; set; } = "N/A";
         public string AllBuffs => string.Join(',',Buffs.Select(b=>b.Name));
         public List<CombatModifier> Buffs { get; set; } = new List<CombatModifier>();
         public List<CombatModifier> DefensiveBuffs { get; set; } = new List<CombatModifier>();
@@ -87,6 +113,7 @@ namespace SWTORCombatParser
         Restore,
         AreaEntered,
         DisciplineChanged,
+        TargetChanged,
         ModifyCharges,
         HealerShield
     }

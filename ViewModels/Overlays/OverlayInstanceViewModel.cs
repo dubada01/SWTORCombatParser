@@ -224,7 +224,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                             MetricBars.Add(metricToUpdate);
                         });
                     }
-                    if (_currentCombat.IsEncounterBoss && HasLeaderboard && _leaderboardInfo.ContainsKey(participant))
+                    metricToUpdate.LeaderboardRank = "0";
+                    metricToUpdate.RankIsPersonalRecord = false;
+                    if (_currentCombat.IsEncounterBoss && HasLeaderboard && _leaderboardInfo.ContainsKey(participant) && _leaderboardInfo[participant]!=null)
                     {
                         AddLeaderboardStanding(metricToUpdate, _leaderboardInfo[participant]);
                     }

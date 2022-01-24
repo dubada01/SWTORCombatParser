@@ -26,7 +26,7 @@ namespace SWTORCombatParser.ViewModels
     public class CombatMonitorViewModel : INotifyPropertyChanged
     {
         private ConcurrentDictionary<DateTime, List<ParsedLogEntry>> _totalLogsDuringCombat = new ConcurrentDictionary<DateTime, List<ParsedLogEntry>>();
-        private bool _liveParseActive;
+        private static bool _liveParseActive;
         private CombatLogStreamer _combatLogStreamer;
         private int _numberOfSelectedCombats = 0;
         private bool showTrash;
@@ -66,7 +66,10 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged();
             }
         }
-
+        public static bool IsLiveParseActive()
+        {
+            return _liveParseActive;
+        }
         public CombatMonitorViewModel()
         {
             HistoricalRange = new HistoricalRangeWiget();
@@ -279,6 +282,7 @@ namespace SWTORCombatParser.ViewModels
             {
                 CurrentEncounter.RemoveOngoing();
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj);
+                OnLiveCombatUpdate(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
                 {
                     _totalLogsDuringCombat.TryRemove(combatStartTime, out var t);
