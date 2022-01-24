@@ -6,84 +6,140 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Battle_Review"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border Background="Gray" BorderBrush="DimGray" BorderThickness="2" CornerRadius="3">
-        <Grid Background="Transparent" HorizontalAlignment="Stretch">
+    <Border BorderBrush="DimGray" BorderThickness="2" CornerRadius="3">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="1*"/>
+                <RowDefinition Height="45"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-
-            <Grid Margin="0,0,20,0">
+            <Grid Grid.Row="0">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0"
+                                     EndPoint="0,1">
+                        <GradientStop Color="WhiteSmoke"
+                Offset="0" />
+                        <GradientStop Color="LightGray"
+                Offset="1" />
+                    </LinearGradientBrush>
+                </Grid.Background>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="30"/>
-                    <ColumnDefinition Width="93*"/>
-                    <ColumnDefinition Width="93*"/>
-                    <ColumnDefinition Width="156*"/>
-                    <ColumnDefinition Width="62*"/>
-                    <ColumnDefinition Width="62*"/>
-                    <ColumnDefinition Width="62*"/>
-                    <ColumnDefinition Width="62*"/>
-                    <ColumnDefinition Width="155*"/>
+                    <ColumnDefinition Width="0.02*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.06*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.06*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.05*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.05*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.025*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.025*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.025*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.025*"/>
+                    <ColumnDefinition Width="17"/>
                 </Grid.ColumnDefinitions>
-
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Sec" FontWeight="Bold" HorizontalAlignment="Left" Margin="2,0,0,0" Grid.Column="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
-
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Source" FontWeight="Bold" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Column="1" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
-
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Target" FontWeight="Bold" HorizontalAlignment="Left" Margin="3,0,0,0" Grid.Column="2" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"></TextBlock>
-
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Name" FontWeight="Bold" HorizontalAlignment="Left" Margin="93,0,0,0" Grid.Column="2" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Grid.ColumnSpan="2"></TextBlock>
-
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Type" FontWeight="Bold" HorizontalAlignment="Left" Grid.Column="3" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Grid.ColumnSpan="2" Margin="156,0,0,0"/>
-
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Value" FontWeight="Bold" HorizontalAlignment="Left" Margin="62,0,0,0" Grid.Column="4" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Grid.ColumnSpan="2"></TextBlock>
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Mod" FontWeight="Bold" HorizontalAlignment="Left" Grid.Column="6" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Value" FontWeight="Bold" HorizontalAlignment="Left" Grid.Column="7" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="14" Foreground="White" Text="Relevent Buffs" FontWeight="Bold" HorizontalAlignment="Left" Grid.Column="8" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-
-
+                <Rectangle Fill="DimGray" Grid.Column="1" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="3" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="5" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="7" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="9" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="11" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="13" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="15" Margin="0,2,0,2"></Rectangle>
+                <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="20" VerticalAlignment="Center" Text="Sec" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Source" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Target" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Ability" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Effect" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Value" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Mod Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="16" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Mod" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
             </Grid>
 
-            <ListView Background="Transparent" BorderBrush="Transparent" Grid.ColumnSpan="11" Grid.Row="1" x:Name="EventsList" ItemsSource="{Binding LogsToDisplay}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid HorizontalAlignment="Stretch">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="30"/>
-                                <ColumnDefinition Width=".15*"/>
-                                <ColumnDefinition Width=".15*"/>
-                                <ColumnDefinition Width=".25*"/>
-                                <ColumnDefinition Width=".1*"/>
-                                <ColumnDefinition Width=".1*"/>
-                                <ColumnDefinition Width=".1*"/>
-                                <ColumnDefinition Width=".1*"/>
-                                <ColumnDefinition Width=".25*"/>
-                            </Grid.ColumnDefinitions>
-                            <Viewbox MaxHeight="15" HorizontalAlignment="Left" Margin="0,0,2,0">
-                                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text = "{Binding SecondsSinceCombatStart, StringFormat=N1}"></TextBlock>
-                            </Viewbox>
-                            <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" VerticalAlignment="Center" FontSize="12" Grid.Column = "1" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"  Margin="0,0,2,0" Text = "{Binding Source.Name}"></TextBlock>
-                            <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" VerticalAlignment="Center" FontSize="12" Grid.Column = "2" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"  Margin="0,0,2,0" Text = "{Binding Target.Name}"></TextBlock>
-                            <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" VerticalAlignment="Center" FontSize="12" Grid.Column = "3" HorizontalAlignment="Left" Margin="0,0,2,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text = "{Binding Ability}"></TextBlock>
-                            <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" VerticalAlignment="Center" FontSize="12" Grid.Column = "4" HorizontalAlignment="Left" Margin="0,0,2,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text = "{Binding Value.ValueType}"></TextBlock>
-                            <Viewbox Grid.Column = "5" HorizontalAlignment="Left" Margin="0,0,2,0" MaxHeight="15">
-                                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" TextDecorations="{Binding Value.WasCrit, Converter={StaticResource BooleanToFontStyleConverter}}" Text = "{Binding Value.DisplayValue}"></TextBlock>
-                            </Viewbox>
-                            <Viewbox Grid.Column = "6" HorizontalAlignment="Left" Margin="0,0,2,0" MaxHeight="15">
-                                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text = "{Binding Value.ModifierType}"></TextBlock>
-                            </Viewbox>
-                            <Viewbox Grid.Column = "7" HorizontalAlignment="Left" MaxHeight="15">
-                                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text = "{Binding Value.ModifierDisplayValue}"></TextBlock>
-                            </Viewbox>
-                            <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontSize="11" Grid.Column = "8" TextWrapping="Wrap" Visibility="{Binding DataContext.DisplayOffensiveBuffs, RelativeSource={RelativeSource AncestorType=ListView},Converter={StaticResource BooleanToVisibiityConverter}}" Text = "{Binding Value.AllBuffs}"></TextBlock>
-                            <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke"  FontSize="11" Grid.Column = "9"  TextWrapping="Wrap" Visibility="{Binding DataContext.DisplayDefensiveBuffs, RelativeSource={RelativeSource AncestorType=ListView},Converter={StaticResource BooleanToVisibiityConverter}}" Text = "{Binding Value.AllDefensiveBuffs}"></TextBlock>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+            <DataGrid AlternationCount="2" Background="WhiteSmoke" Grid.Row="1" HeadersVisibility="None" ItemsSource="{Binding LogsToDisplay}" VerticalScrollBarVisibility="Visible" GridLinesVisibility="Vertical"  AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+                <DataGrid.RowStyle>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Style.Triggers>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                <Setter Property="Background" Value="White"></Setter>
+                            </Trigger>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="WhiteSmoke"></Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="0.02*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding SecondsSinceCombatStart, StringFormat=N2}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn  Width="0.06*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Source}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn  Width="0.06*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Target}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.05*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.05*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.025*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ValueType}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.025*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" TextDecorations="{Binding WasValueCrit, Converter={StaticResource BooleanToFontStyleConverter}}" VerticalAlignment="Center" Text="{Binding Value}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.025*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ModifierType}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.025*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ModifierValue}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
         </Grid>
     </Border>
-
 </UserControl>

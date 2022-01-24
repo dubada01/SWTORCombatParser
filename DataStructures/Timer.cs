@@ -15,7 +15,8 @@ namespace SWTORCombatParser.DataStructures
         FightDuration,
         EffectGained,
         EffectLost,
-        TimerExpired
+        TimerExpired,
+        TargetChanged
     }
     public class Timer
     {
@@ -42,6 +43,8 @@ namespace SWTORCombatParser.DataStructures
         public string Effect { get; set; } = "";
         public bool IsPeriodic { get; set; }
         public int Repeats { get; set; }
+        public bool CanBeRefreshed { get; set; }
+        public List<string> AbilitiesThatRefresh { get; set; } = new List<string>();
         public bool IsAlert { get; set; }
         public double AlertDuration { get; set; }
         public double DurationSec { get; set; }
@@ -65,6 +68,7 @@ namespace SWTORCombatParser.DataStructures
                 Ability = Ability,
                 Effect = Effect,
                 IsPeriodic = IsPeriodic,
+                Repeats = Repeats,
                 IsAlert = IsAlert,
                 DurationSec = DurationSec,
                 TimerColor = TimerColor,
@@ -72,7 +76,9 @@ namespace SWTORCombatParser.DataStructures
                 SpecificEncounter = SpecificEncounter,
                 ExperiationTimerId = ExperiationTimerId,
                 IsEnabled = IsEnabled,
-                TrackOutsideOfCombat = TrackOutsideOfCombat
+                TrackOutsideOfCombat = TrackOutsideOfCombat,
+                CanBeRefreshed = CanBeRefreshed,
+                AbilitiesThatRefresh = AbilitiesThatRefresh,
             };
         }
     }

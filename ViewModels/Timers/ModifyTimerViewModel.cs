@@ -49,6 +49,9 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public bool ValueInError = false;
         private string selectedExternalTimerName;
+        private bool canBeRefreshed;
+        private string effect = "";
+        private string customRefreshOption;
 
         public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
 
@@ -87,7 +90,21 @@ namespace SWTORCombatParser.ViewModels.Timers
         public bool TrackOutsideOfCombat { get; set; }
         public bool CanChangeCombatTracking { get; set; }
         public string Ability { get; set; } = "";
-        public string Effect { get; set; } = "";
+        public string Effect
+        {
+            get => effect; set
+            {
+                effect = value;
+                if (!string.IsNullOrEmpty(effect))
+                {
+                    if (AvailableRefreshOptions.Any(r => r.Name == effect))
+                        return;
+                    var selfRefreshOption = new RefreshOptionViewModel() { Name = effect };
+                    selfRefreshOption.RemoveRequested += RemoveRefreshOption;
+                    AvailableRefreshOptions.Add(selfRefreshOption);
+                }
+            }
+        }
         public double HPPercentage { get; set; }
         public double CombatDuration { get; set; }
         public ObservableCollection<string> AvailableSources { get; set; } = new ObservableCollection<string>();
@@ -168,6 +185,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 customTarget = value;
             }
         }
+
         public ICommand SaveTargetCommand => new CommandHandler(SaveTarget);
 
         internal void SaveTarget(object obj = null)
@@ -185,6 +203,42 @@ namespace SWTORCombatParser.ViewModels.Timers
         public bool HasCustomTarget { get; set; }
         public bool HasTarget { get; set; }
         public string TargetText { get; set; }
+        public bool CanBeRefreshed
+        {
+            get => canBeRefreshed; set
+            {
+                canBeRefreshed = value;
+                OnPropertyChanged();
+            }
+        }
+        public ObservableCollection<RefreshOptionViewModel> AvailableRefreshOptions { get; set; } = new ObservableCollection<RefreshOptionViewModel>();
+
+        public string CustomRefreshOption
+        {
+            get => customRefreshOption; set
+            {
+                customRefreshOption = value;
+                OnPropertyChanged();
+            }
+        }
+        public ICommand SaveRefreshOptionCommand => new CommandHandler(SaveRefreshCommand);
+
+        private void SaveRefreshCommand(object obj)
+        {
+            if (string.IsNullOrEmpty(CustomRefreshOption))
+                return;
+            var newRefreshOption = new RefreshOptionViewModel() { Name = CustomRefreshOption };
+            newRefreshOption.RemoveRequested += RemoveRefreshOption;
+            AvailableRefreshOptions.Add(newRefreshOption);
+            OnPropertyChanged("AvailableRefreshOptions");
+            CustomRefreshOption = "";
+        }
+
+        private void RemoveRefreshOption(RefreshOptionViewModel obj)
+        {
+            AvailableRefreshOptions.Remove(obj);
+        }
+
         public List<string> AvailableEncounters { get; set; } = new List<string>();
         public string SelectedEncounter
         {
@@ -314,7 +368,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void Edit(Timer timerToEdit)
         {
             isEditing = true;
-            Id = string.IsNullOrEmpty(timerToEdit.Id)? Guid.NewGuid().ToString():timerToEdit.Id;
+            Id = string.IsNullOrEmpty(timerToEdit.Id) ? Guid.NewGuid().ToString() : timerToEdit.Id;
             Name = timerToEdit.Name;
             SelectedTriggerType = timerToEdit.TriggerType;
             CombatDuration = timerToEdit.CombatTimeElapsed;
@@ -326,11 +380,15 @@ namespace SWTORCombatParser.ViewModels.Timers
             Ability = timerToEdit.Ability;
             TrackOutsideOfCombat = timerToEdit.TrackOutsideOfCombat;
             SelectedExternalTimerId = timerToEdit.ExperiationTimerId;
-            SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId)?"": AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
+            SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId) ? "" : AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
             DurationSec = timerToEdit.DurationSec;
             HPPercentage = timerToEdit.HPPercentage;
             SelectedEncounter = timerToEdit.SpecificEncounter;
             SelectedBoss = timerToEdit.SpecificBoss;
+            CanBeRefreshed = timerToEdit.CanBeRefreshed;
+            var addedAbilities = timerToEdit.AbilitiesThatRefresh.Select(a => new RefreshOptionViewModel() { Name = a }).ToList();
+            addedAbilities.ForEach(a => a.RemoveRequested += RemoveRefreshOption);
+            AvailableRefreshOptions = new ObservableCollection<RefreshOptionViewModel>(addedAbilities);
             if (timerToEdit.SourceIsLocal)
                 SelectedSource = "Local Player";
             else
@@ -343,6 +401,17 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 SelectedTarget = timerToEdit.Target;
             }
+            if(!AvailableTargets.Contains(timerToEdit.Target))
+            {
+                AvailableTargets.Add(timerToEdit.Target);
+                SelectedTarget = timerToEdit.Target;
+            }
+            if (!AvailableSources.Contains(timerToEdit.Source))
+            {
+                AvailableSources.Add(timerToEdit.Source);
+                SelectedSource = timerToEdit.Source;
+            }
+            OnPropertyChanged("AvailableRefreshOptions");
             OnPropertyChanged("Name");
             OnPropertyChanged("CombatDuration");
             OnPropertyChanged("TrackOutsideOfCombat");
@@ -396,8 +465,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 DurationSec = DurationSec,
                 TimerColor = SelectedColor,
                 SpecificBoss = SelectedBoss,
-                SpecificEncounter = SelectedEncounter
-
+                SpecificEncounter = SelectedEncounter,
+                CanBeRefreshed = CanBeRefreshed,
+                AbilitiesThatRefresh = AvailableRefreshOptions.Select(r=>r.Name).ToList()
+                
 
             };
             OnNewTimer(newTimer, isEditing);
@@ -418,6 +489,16 @@ namespace SWTORCombatParser.ViewModels.Timers
             switch (selectedTriggerType)
             {
                 case TimerKeyType.CombatStart:
+                    {
+                        if (string.IsNullOrEmpty(Name))
+                        {
+                            TimerNameInError = true;
+                            OnPropertyChanged("TimerNameHelpTextColor");
+                            return false;
+                        }
+                        return true;
+                    }
+                case TimerKeyType.TargetChanged:
                     {
                         if (string.IsNullOrEmpty(Name))
                         {
@@ -554,12 +635,33 @@ namespace SWTORCombatParser.ViewModels.Timers
                     }
                 case TimerKeyType.EffectGained:
                     {
+                        AvailableRefreshOptions.Clear();
                         ShowEffectOption = true;
                         HasSource = true;
                         HasTarget = true;
                         CanChangeCombatTracking = true;
                         SourceText = "When Applied By";
                         TargetText = "When Applied To";
+                        TriggerValueHelpText = "Name or Id";
+                        OnPropertyChanged("CanChangeCombatTracking");
+                        OnPropertyChanged("TriggerValueHelpText");
+                        OnPropertyChanged("ShowEffectOption");
+                        OnPropertyChanged("HasSource");
+                        OnPropertyChanged("HasTarget");
+                        OnPropertyChanged("TargetText");
+                        OnPropertyChanged("SourceText");
+                        InitSourceAndTargetValues();
+                        break;
+                    }
+                case TimerKeyType.TargetChanged:
+                    {
+                        AvailableRefreshOptions.Clear();
+                        ShowEffectOption = false;
+                        HasSource = true;
+                        HasTarget = true;
+                        CanChangeCombatTracking = true;
+                        SourceText = "Targeted By";
+                        TargetText = "Is Targeted";
                         TriggerValueHelpText = "Name or Id";
                         OnPropertyChanged("CanChangeCombatTracking");
                         OnPropertyChanged("TriggerValueHelpText");

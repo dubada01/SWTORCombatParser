@@ -34,7 +34,26 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => selectedPlayer; set
             {
                 selectedPlayer = value;
+                OnPropertyChanged();
+                var isActive = DefaultTimersManager.GetDefaults(SelectedPlayer).Acive;
+                SelectedTimerOwnerActive = isActive;
                 UpdateTimerRows();
+            }
+        }
+        public bool SelectedTimerOwnerActive
+        {
+            get => selectedTimerOwnerActive; set
+            {
+                selectedTimerOwnerActive = value;
+                DefaultTimersManager.SetActiveState(selectedTimerOwnerActive, SelectedPlayer);
+                if (selectedTimerOwnerActive)
+                {
+                    _timersWindowVM.SetPlayer(SelectedPlayer);
+                    _timersWindowVM.ShowTimers(); 
+                }
+                else
+                    _timersWindowVM.HideTimers();
+                OnPropertyChanged();
             }
         }
         public ObservableCollection<TimerRowInstanceViewModel> TimerRows { get; set; } = new ObservableCollection<TimerRowInstanceViewModel>();
@@ -122,9 +141,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
         {
-            if (!player.IsLocalPlayer)
+            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive())
                 return;
             _timersWindowVM.SetPlayer(player.Name, swtorclass);
+            SelectedPlayer = player.Name + " " + swtorclass.Discipline;
             RefreshAvaialbleTriggerOwners();
         }
         private void UpdateTimerRows()
@@ -145,6 +165,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             DefaultTimersManager.RemoveTimerForCharacter(obj.SourceTimer, SelectedPlayer);
             TimerRows.Remove(obj);
+            _timersWindowVM.RefreshTimers();
             UpdateRowColors();
         }
 
@@ -163,6 +184,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             TimerDatabaseAccess.AddTimer(obj.SourceTimer);
         }
         private Timer _timerEdited;
+        private bool selectedTimerOwnerActive;
+
         private void Edit(TimerRowInstanceViewModel obj)
         {
             _timerEdited = obj.SourceTimer;

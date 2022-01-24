@@ -31,6 +31,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static void UpdateLeaderboardType(LeaderboardType type)
         {
             CurrentLeaderboardType = type;
+            CurrentFightLeaderboard.Clear();
             LeaderboardTypeChanged(CurrentLeaderboardType);
             if (CurrentCombat == null)
                 return;

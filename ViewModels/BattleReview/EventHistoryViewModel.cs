@@ -23,20 +23,19 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        public ObservableCollection<ParsedLogEntry> LogsToDisplay { get; set; }
+        public List<DisplayableLogEntry> LogsToDisplay { get; set; }
         public bool DisplayOffensiveBuffs { get; set; }
         public bool DisplayDefensiveBuffs => !DisplayOffensiveBuffs;
-        public EventHistoryViewModel()
-        {
-            _sliderUpdateSubscription = Observable.FromEvent<double>(
-    handler => ReviewSliderUpdates.OnSliderUpdated += handler,
-    handler => ReviewSliderUpdates.OnSliderUpdated -= handler).Sample(TimeSpan.FromSeconds(0.1)).Subscribe(newPos => { UpdateLogsForTime(newPos); });
-        }
+
         public void SelectCombat(Combat combatSeleted)
         {
             _startTime = combatSeleted.StartTime;
             _currentlySelectedCombat = combatSeleted;
-            UpdateLogsForTime((combatSeleted.EndTime - combatSeleted.StartTime).TotalSeconds);
+            foreach (var log in _currentlySelectedCombat.AllLogs)
+            {
+                log.SecondsSinceCombatStart = (log.TimeStamp - _startTime).TotalSeconds;
+            }
+            UpdateLogs();
         }
         public void SetViewableEntities(List<Entity> entitiesToshow)
         {
@@ -46,17 +45,12 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             _typeSelected = type;
         }
-        public void UpdateLogsForTime(double time)
+        public void UpdateLogs()
         {
             if (_currentlySelectedCombat == null)
                 return;
-            var tempLogs = _currentlySelectedCombat.AllLogs.Where(l => (l.TimeStamp - _startTime).TotalSeconds < time);
-            foreach(var log in tempLogs)
-            {
-                log.SecondsSinceCombatStart = (log.TimeStamp - _startTime).TotalSeconds;
-            }
-            LogsToDisplay = new ObservableCollection<ParsedLogEntry>(tempLogs.Where(l=> LogFilter(l.Source,l.Target,l.Effect)));
-            //LogsToDisplay = new ObservableCollection<ParsedLogEntry>(tempLogs);
+            LogsToDisplay = new List<DisplayableLogEntry>(_currentlySelectedCombat.AllLogs.Where(l=> LogFilter(l.Source,l.Target,l.Effect)).Select(
+                l=>new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(),l.Source.Name,l.Target.Name,l.Ability,l.Effect.EffectName,l.Value.DisplayValue,l.Value.WasCrit,l.Value.ValueType.ToString(),l.Value.ModifierType,l.Value.ModifierDisplayValue)));
             OnPropertyChanged("LogsToDisplay");
         }
         private bool LogFilter(Entity source, Entity target, Effect effect)
@@ -66,27 +60,27 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 case DisplayType.All:
                     {
                         DisplayOffensiveBuffs = true;
-                        return _viewingEntities.Contains(source) || _viewingEntities.Contains(target);
+                        return _viewingEntities.Contains(source) || _viewingEntities.Any(e => e.Name == "All" || _viewingEntities.Contains(target) );
                     }
                 case DisplayType.Damage:
                     {
                         DisplayOffensiveBuffs = true;
-                        return _viewingEntities.Contains(source) && effect.EffectType == EffectType.Apply && effect.EffectName == "Damage";
+                        return (_viewingEntities.Contains(source) || _viewingEntities.Any(e => e.Name == "All")) && effect.EffectType == EffectType.Apply && effect.EffectName == "Damage";
                     }
                 case DisplayType.DamageTaken:
                     {
                         DisplayOffensiveBuffs = false;
-                        return _viewingEntities.Contains(target) && effect.EffectType == EffectType.Apply && effect.EffectName == "Damage";
+                        return (_viewingEntities.Contains(target) || _viewingEntities.Any(e => e.Name == "All")) && effect.EffectType == EffectType.Apply && effect.EffectName == "Damage";
                     }
                 case DisplayType.Healing:
                     {
                         DisplayOffensiveBuffs = true;
-                        return _viewingEntities.Contains(source) && effect.EffectType == EffectType.Apply && effect.EffectName == "Heal";
+                        return (_viewingEntities.Contains(source) || _viewingEntities.Any(e => e.Name == "All")) && effect.EffectType == EffectType.Apply && effect.EffectName == "Heal";
                     }
                 case DisplayType.HealingReceived:
                     {
                         DisplayOffensiveBuffs = false;
-                        return _viewingEntities.Contains(target) && effect.EffectType == EffectType.Apply && effect.EffectName == "Heal";
+                        return (_viewingEntities.Contains(target) || _viewingEntities.Any(e => e.Name == "All")) && effect.EffectType == EffectType.Apply && effect.EffectName == "Heal";
                     }
                 default:
                     return false;

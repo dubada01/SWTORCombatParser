@@ -38,15 +38,29 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void ShowTimers()
         {
-            _timerWindow.Show();        
+            App.Current.Dispatcher.Invoke(() => {
+                _timerWindow.Show();
+            });
+       
         }
         public void HideTimers()
         {
-            _timerWindow.Hide();
+            App.Current.Dispatcher.Invoke(() => {
+                _timerWindow.Hide();
+            });
+        }
+        public void SetPlayer(string playerText)
+        {
+            _currentPlayer = playerText;
+            UpdatePlayer();
         }
         public void SetPlayer(string player, SWTORClass swtorclass)
         {
             _currentPlayer = player + " " + swtorclass.Discipline;
+            UpdatePlayer();
+        }
+        private void UpdatePlayer()
+        {
             TimerTitle = _currentPlayer + " Timers";
             OnPropertyChanged("TimerTitle");
             SwtorTimers = new ObservableCollection<TimerInstanceViewModel>();
@@ -61,7 +75,6 @@ namespace SWTORCombatParser.ViewModels.Timers
 
                 ShowTimers();
             });
-
         }
         public void RefreshTimers()
         {
@@ -92,6 +105,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             App.Current.Dispatcher.Invoke(() =>
             {
                 SwtorTimers.Add(obj);
+                SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(SwtorTimers.OrderBy(t => t.TimerValue));
                 OnPropertyChanged("SwtorTimers");
             });
         }

@@ -60,6 +60,8 @@ namespace SWTORCombatParser.ViewModels
             {
                 if (!SWTORDetector.SwtorRunning)
                     _overlayViewModel.ResetOverlays();
+                if (SWTORDetector.SwtorRunning && !_combatMonitorViewModel.LiveParseActive)
+                    _combatMonitorViewModel.EnableLiveParse();
             };
 
             _plotViewModel = new PlotViewModel();
@@ -202,7 +204,11 @@ namespace SWTORCombatParser.ViewModels
         private void UpdateAvailableParticipants(List<Entity> obj)
         {
             _plotViewModel.UpdateParticipants(obj);
-            _overlayViewModel.NewParticipants(obj);
+            var localPlayer = obj.FirstOrDefault(c => c.IsLocalPlayer);
+            if (localPlayer != null)
+            {
+                _overlayViewModel.LocalPlayerIdentified(localPlayer);
+            }
         }
         private Entity localEntity;
         private void LocalPlayerChanged(Entity obj)
@@ -214,7 +220,7 @@ namespace SWTORCombatParser.ViewModels
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
                     _histViewModel.Reset();
-                    _overlayViewModel.NewParticipants(new List<Entity> { obj });
+                    _overlayViewModel.LocalPlayerIdentified(obj);
                 }
                 localEntity = obj;
             });
