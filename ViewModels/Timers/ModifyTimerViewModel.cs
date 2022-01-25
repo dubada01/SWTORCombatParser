@@ -52,6 +52,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         private bool canBeRefreshed;
         private string effect = "";
         private string customRefreshOption;
+        private double hPPercentageDisplayBuffer;
+        private string hPTriggerText;
 
         public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
 
@@ -84,6 +86,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
             {
                 selectedTriggerType = value;
+                OnPropertyChanged("ShowRepeats");
                 UpdateUIForTriggerType();
             }
         }
@@ -105,7 +108,23 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
             }
         }
+        public string HPTriggerText
+        {
+            get => hPTriggerText; set
+            {
+                hPTriggerText = value;
+                OnPropertyChanged();
+            }
+        }
         public double HPPercentage { get; set; }
+        public double HPPercentageDisplayBuffer
+        {
+            get => hPPercentageDisplayBuffer; set
+            {
+                hPPercentageDisplayBuffer = value;
+                OnPropertyChanged();
+            }
+        }
         public double CombatDuration { get; set; }
         public ObservableCollection<string> AvailableSources { get; set; } = new ObservableCollection<string>();
         public string SelectedSource
@@ -295,9 +314,18 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => isPeriodic; set
             {
                 isPeriodic = value;
+                if(SelectedTriggerType == TimerKeyType.EntityHP)
+                {
+                    if (IsPeriodic)
+                        HPTriggerText = "Every";
+                    else
+                        HPTriggerText = "Target";
+                }
                 OnPropertyChanged("IsPeriodic");
+                OnPropertyChanged("ShowRepeats");
             }
         }
+        public bool ShowRepeats => IsPeriodic && SelectedTriggerType != TimerKeyType.EntityHP;
         public int Repeats { get; set; }
 
         public Color SelectedColor { get; set; } = Colors.CornflowerBlue;
@@ -328,6 +356,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             AvailableBosses.Insert(0, "All");
             SelectedEncounter = "All";
             SelectedBoss = "All";
+            HPPercentageDisplayBuffer = 5;
             OnPropertyChanged("SelectedEncounter");
             OnPropertyChanged("SelectedBoss");
             OnPropertyChanged("AvailableBosses");
@@ -386,6 +415,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             SelectedEncounter = timerToEdit.SpecificEncounter;
             SelectedBoss = timerToEdit.SpecificBoss;
             CanBeRefreshed = timerToEdit.CanBeRefreshed;
+            HPPercentageDisplayBuffer = timerToEdit.HPPercentageDisplayBuffer;
             var addedAbilities = timerToEdit.AbilitiesThatRefresh.Select(a => new RefreshOptionViewModel() { Name = a }).ToList();
             addedAbilities.ForEach(a => a.RemoveRequested += RemoveRefreshOption);
             AvailableRefreshOptions = new ObservableCollection<RefreshOptionViewModel>(addedAbilities);
@@ -401,7 +431,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 SelectedTarget = timerToEdit.Target;
             }
-            if(!AvailableTargets.Contains(timerToEdit.Target))
+            if (!AvailableTargets.Contains(timerToEdit.Target))
             {
                 AvailableTargets.Add(timerToEdit.Target);
                 SelectedTarget = timerToEdit.Target;
@@ -455,20 +485,22 @@ namespace SWTORCombatParser.ViewModels.Timers
                 Target = SelectedTarget,
                 TargetIsLocal = TargetIsLocal,
                 HPPercentage = HPPercentage,
+                HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
                 TriggerType = SelectedTriggerType,
                 ExperiationTimerId = SelectedExternalTimerId,
                 Ability = Ability,
                 Effect = Effect,
                 IsPeriodic = IsPeriodic,
                 Repeats = Repeats,
-                IsAlert = IsAlert || DurationSec == 0,
+                IsAlert = IsAlert || (DurationSec == 0 && SelectedTriggerType != TimerKeyType.EntityHP),
                 DurationSec = DurationSec,
                 TimerColor = SelectedColor,
                 SpecificBoss = SelectedBoss,
                 SpecificEncounter = SelectedEncounter,
                 CanBeRefreshed = CanBeRefreshed,
-                AbilitiesThatRefresh = AvailableRefreshOptions.Select(r=>r.Name).ToList()
-                
+
+                AbilitiesThatRefresh = AvailableRefreshOptions.Select(r => r.Name).ToList()
+
 
             };
             OnNewTimer(newTimer, isEditing);

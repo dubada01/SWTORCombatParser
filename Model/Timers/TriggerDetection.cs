@@ -9,17 +9,57 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         None,
         Start,
-        Refresh
+        Refresh,
+        End
     }
     public static class TriggerDetection
     {
-        public static TriggerType CheckForHP(ParsedLogEntry log, double hPPercentage, string target, bool targetIsLocal)
+        public static double GetCurrentTargetHPPercent(ParsedLogEntry log, long targetId)
+        {
+            var value = -100d;
+            if(log.Source.Id == targetId)
+            {
+                value = log.SourceInfo.CurrentHP / log.SourceInfo.MaxHP * 100;
+            }
+            if(log.Target.Id == targetId)
+            {
+                value = (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP) * 100d;
+            }
+            return value;
+        }
+        public static Entity GetTargetId(ParsedLogEntry log, string target, bool targetIsLocal)
         {
             if (TargetIsValid(log, target, targetIsLocal))
             {
-                if (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP < hPPercentage)
+                return log.Target;
+            }
+            if (SourceIsValid(log, target, targetIsLocal))
+            {
+                return log.Source;
+            }
+            return null;
+        }
+        public static TriggerType CheckForHP(ParsedLogEntry log, double hPPercentage, double hpDisplayBuffer, string target, bool targetIsLocal)
+        {
+            if (TargetIsValid(log, target, targetIsLocal))
+            {
+                var targetHPPercent = (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP) * 100;
+                if (targetHPPercent <= (hPPercentage + hpDisplayBuffer) && targetHPPercent > hPPercentage)
                     return TriggerType.Start;
-                return TriggerType.None;
+                if (targetHPPercent <= hPPercentage)
+                    return TriggerType.End;
+                if (targetHPPercent > (hPPercentage + hpDisplayBuffer))
+                    return TriggerType.End;
+            }
+            if (SourceIsValid(log, target, targetIsLocal))
+            {
+                var sourceHPPercentage = (log.SourceInfo.CurrentHP / log.SourceInfo.MaxHP) * 100;
+                if (sourceHPPercentage <= (hPPercentage + hpDisplayBuffer) && sourceHPPercentage > hPPercentage)
+                    return TriggerType.Start;
+                if (sourceHPPercentage <= hPPercentage)
+                    return TriggerType.End;
+                if (sourceHPPercentage > (hPPercentage + hpDisplayBuffer))
+                    return TriggerType.End;
             }
             return TriggerType.None;
         }
@@ -39,6 +79,10 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public static TriggerType CheckForEffectGain(ParsedLogEntry log, string effect, List<string> abilitiesThatRefresh, string source, string target, bool sourceIsLocal, bool targetIsLocal)
         {
+            if(log.Effect.EffectType == EffectType.Event && log.Effect.EffectName == "Death" && TargetIsValid(log, target, targetIsLocal))
+            {
+                return TriggerType.End;
+            }
             if (SourceIsValid(log, source, sourceIsLocal) && TargetIsValid(log, target, targetIsLocal))
             {
                 if(log.Effect.EffectName == effect && log.Effect.EffectType == EffectType.Apply)

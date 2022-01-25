@@ -34,6 +34,7 @@ namespace SWTORCombatParser.DataStructures
         public string Target { get; set; } = "";
         public bool TargetIsLocal { get; set; }
         public double HPPercentage { get; set; }
+        public double HPPercentageDisplayBuffer { get; set; } = 5;
         public string Name { get; set; }
         public TimerKeyType TriggerType { get; set; }
         public bool TrackOutsideOfCombat { get; set; }
@@ -64,6 +65,7 @@ namespace SWTORCombatParser.DataStructures
                 CombatTimeElapsed = CombatTimeElapsed,
                 TargetIsLocal = TargetIsLocal,
                 HPPercentage = HPPercentage,
+                HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
                 TriggerType = TriggerType,
                 Ability = Ability,
                 Effect = Effect,

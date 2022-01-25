@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Views.Timers;
 using System;
@@ -32,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimersWindowViewModel()
         {
             CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
-            CombatLogStreamer.CombatUpdated += NewLogs;
+            CombatLogStreamer.CombatUpdated += NewInCombatLogs;
             CombatLogStreamer.NewLineStreamed += NewLogInANDOutOfCombat;
             _timerWindow = new TimersWindow(this);
         }
@@ -112,12 +113,26 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void NewLogInANDOutOfCombat(ParsedLogEntry log)
         {
-            foreach (var timer in _createdTimers.Where(t => t.TrackOutsideOfCombat))
-            {
-                timer.CheckForTrigger(log, DateTime.Now);
-            }
+            var validTimers = _createdTimers.Where(t => t.TrackOutsideOfCombat && CheckEncounterAndBoss(t,log));
+                Parallel.ForEach(validTimers, timer => {
+                    timer.CheckForTrigger(log, DateTime.Now);
+                });
         }
-        private void NewLogs(CombatStatusUpdate obj)
+
+        private bool CheckEncounterAndBoss(TimerInstance t, ParsedLogEntry log)
+        {
+            var timerEncounter = t.SourceTimer.SpecificEncounter;
+            var timerBoss = t.SourceTimer.SpecificBoss;
+            if (timerEncounter == "All")
+                return true;
+            
+            var parentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
+            if (parentEncounter.Name == timerEncounter)
+                return true;
+            return false;
+        }
+
+        private void NewInCombatLogs(CombatStatusUpdate obj)
         {
             if(obj.Type == UpdateType.Start)
             {
@@ -132,10 +147,10 @@ namespace SWTORCombatParser.ViewModels.Timers
             var logs = obj.Logs;
             foreach (var log in logs)
             {
-                foreach (var timer in _createdTimers.Where(t=>!t.TrackOutsideOfCombat))
-                {
+                var validTimers = _createdTimers.Where(t => !t.TrackOutsideOfCombat && CheckEncounterAndBoss(t, log));
+                Parallel.ForEach(validTimers, timer => {
                     timer.CheckForTrigger(log, obj.CombatStartTime);
-                }
+                });
             }
         }
         private void UncancellBeforeCombat()

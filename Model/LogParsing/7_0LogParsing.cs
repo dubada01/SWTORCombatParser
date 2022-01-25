@@ -85,13 +85,25 @@ namespace SWTORCombatParser.Model.LogParsing
             if (currentEffect.EffectType == EffectType.Restore || currentEffect.EffectType == EffectType.Spend)
                 return ParseResourceEventValue(valueString);
             if (currentEffect.EffectType == EffectType.Event)
-                return new Value() { StrValue = valueString.Replace("(", "").Replace(")", "") };
+                return new Value() { StrValue = valueString.Replace("(", "").Replace(")", ""), DisplayValue = valueString.Replace("(", "").Replace(")", "") };
+            if (currentEffect.EffectType == EffectType.Apply && currentEffect.EffectName != "Damage" && currentEffect.EffectName != "Heal")
+                return ParseCharges(valueString);
             return new Value();
         }
         private static Value ParseResourceEventValue(string resourceString)
         {
             var cleanValue = resourceString.Replace("(", "").Replace(")", "");
-            return new Value() { DblValue = double.Parse(cleanValue) };
+            return new Value() { DblValue = double.Parse(cleanValue), DisplayValue = cleanValue };
+        }
+        private static Value ParseCharges(string value)
+        {
+            var chargesValue = new Value();
+            if (string.IsNullOrEmpty(value))
+                return chargesValue;
+            var valueParts = value.Replace("(", string.Empty).Replace(")", string.Empty).Trim().Split(' ');
+            chargesValue.StrValue = valueParts[0] + " " + valueParts[1];
+            chargesValue.DisplayValue = chargesValue.StrValue;
+            return chargesValue;
         }
         private static Value ParseValueNumber(string damageValueString, string effectName)
         {
@@ -193,7 +205,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ValueType = GetValueType(valueParts[2]);
 
             }
-            newValue.DisplayValue = string.IsNullOrEmpty(newValue.StrValue) ? newValue.EffectiveDblValue.ToString("#,##0") : newValue.StrValue;
+            newValue.DisplayValue = newValue.EffectiveDblValue.ToString("#,##0");
             return newValue;
         }
         private static EntityInfo ParseEntity(string value, bool isPlayer = false)

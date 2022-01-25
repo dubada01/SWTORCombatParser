@@ -29,10 +29,24 @@
                     <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Effect" FontFamily="{StaticResource MainFont}"></TextBlock>
                     <TextBox x:Name="EffectName" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding Effect}"></TextBox>
                 </StackPanel>
-                <StackPanel Visibility="{Binding ShowHPOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-                    <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="HP Percentage" FontFamily="{StaticResource MainFont}"></TextBlock>
-                    <TextBox x:Name="HPValue" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding HPPercentage}"></TextBox>
-                </StackPanel>
+                <Grid Grid.Row="1"  Visibility="{Binding ShowHPOption, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="0.25*"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.5*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0"  Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" TextWrapping="Wrap" Width="120" FontSize="18" Text="{Binding HPTriggerText}" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    <TextBox Grid.Row="0" HorizontalAlignment="Left" Grid.Column="1" x:Name="HPValue" HorizontalContentAlignment="Center" FontWeight="Normal" Width="60" Style="{StaticResource RoundedTextBox}" Text="{Binding HPPercentage}"></TextBox>
+                    <TextBlock Grid.Row="0"  Grid.Column="2" Margin="0,0,95,0" VerticalAlignment="Center" HorizontalAlignment="Right"  FontSize="20" Text="%" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    
+                    <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="18" TextWrapping="Wrap" Width="120" Text="Countdown buffer" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    <TextBox Grid.Row="2" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Grid.Column="1" FontWeight="Normal" Width="60" Style="{StaticResource RoundedTextBox}" Text="{Binding HPPercentageDisplayBuffer}"></TextBox>
+                    <TextBlock Grid.Row="2"  Grid.Column="2" Margin="0,0,95,0" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20" Text="%" FontFamily="{StaticResource MainFont}"></TextBlock>
+                </Grid>
                 <StackPanel Visibility="{Binding ShowCombatDurationOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                     <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="After Seconds" FontFamily="{StaticResource MainFont}"></TextBlock>
                     <TextBox x:Name="CombatDurationValue" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding CombatDuration}"></TextBox>
@@ -105,7 +119,7 @@
                     </StackPanel>
                 </Grid>
 
-                <Button x:Name="CancelButton" Grid.Row="5" Style="{StaticResource RoundCornerButton}" Width="100" Height="40" Content="Cancel" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="0,15,0,10"></Button>
+                <Button x:Name="CancelButton" Grid.Row="5" Style="{StaticResource RoundCornerButton}" Width="100" Height="40" Content="Cancel" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,0,0,10"></Button>
             </Grid>
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
@@ -145,7 +159,7 @@
                     <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Trigger On" FontFamily="{StaticResource MainFont}"></TextBlock>
                     <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTriggerTypes}" SelectedItem="{Binding SelectedTriggerType}"></ComboBox>
                 </StackPanel>
-                <Grid Grid.Row="3">
+                <Grid Grid.Row="3" Visibility="{Binding ShowHPOption, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.5*"/>
                         <ColumnDefinition/>
@@ -168,7 +182,7 @@
                         <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Is Periodic" FontFamily="{StaticResource MainFont}"></TextBlock>
                         <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsPeriodic}"></CheckBox>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="5,0,0,0" Visibility="{Binding IsPeriodic, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                    <StackPanel Grid.Column="1" Margin="5,0,0,0" Visibility="{Binding ShowRepeats, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                         <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Repeat Count" FontFamily="{StaticResource MainFont}"></TextBlock>
                         <TextBox FontWeight="Normal" Width="75" Style="{StaticResource RoundedTextBox}" Text="{Binding Repeats}"></TextBox>
                     </StackPanel>
