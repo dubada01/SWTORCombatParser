@@ -28,7 +28,7 @@ namespace SWTORCombatParser
         public EncounterInfo ParentEncounter;
         public string EncounterBossInfo;
         public List<string> RequiredDeadTargetsForKill { get; set; }
-        public bool IsEncounterBoss => !string.IsNullOrEmpty(EncounterBossInfo);
+        public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
         public bool WasBossKilled => RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => l.Target.Name == t && l.Effect.EffectName == "Death"));
         public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)

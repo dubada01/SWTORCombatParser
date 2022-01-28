@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -97,9 +98,10 @@ namespace SWTORCombatParser
         {
             _currentFrameData = new List<ParsedLogEntry>();
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var sr = new StreamReader(fs, Encoding.UTF7))
+            using (var sr = new StreamReader(fs, Encoding.UTF8))
             {
-                var allLogEntries = sr.ReadToEnd().Split('\n');
+                //var allLogEntries = sr.ReadToEnd().Split('\n');
+                var allLogEntries = Regex.Split(sr.ReadToEnd(), @"(?<=[\n])");
                 _currentLogsInFile = allLogEntries.Where(s=>!string.IsNullOrEmpty(s)).Count();
                 if (_currentLogsInFile <= _numberOfProcessedEntries)
                     return;

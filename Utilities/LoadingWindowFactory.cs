@@ -33,8 +33,8 @@ namespace SWTORCombatParser.resources
                 (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
 
                 _loadingWindow = new LoadingSplash();
-                _loadingWindow.Top = center.Item2 - 100;
-                _loadingWindow.Left = center.Item1 - 300;
+                _loadingWindow.Top = center.Item2 - 50;
+                _loadingWindow.Left = center.Item1 - 150;
                 _loadingWindow.Show();
             });
             return _loadingWindow;

@@ -282,13 +282,15 @@ namespace SWTORCombatParser.ViewModels
             {
                 CurrentEncounter.RemoveOngoing();
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj);
+                CombatIdentifier.UpdateOverlays(combatInfo);
+                //LocalCombatLogCaching.SaveCombatLogs(combatInfo, true);
                 OnLiveCombatUpdate(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
                 {
                     _totalLogsDuringCombat.TryRemove(combatStartTime, out var t);
                 }
                 AddCombatToEncounter(combatInfo,true);
-                if (combatInfo.IsEncounterBoss)
+                if (combatInfo.IsCombatWithBoss)
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
             }
 
@@ -301,6 +303,7 @@ namespace SWTORCombatParser.ViewModels
                 if (combatLogs.Count == 0)
                     continue;
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs);
+                //LocalCombatLogCaching.SaveCombatLogs(combatInfo, false);
                 TryAddEncounter(combatInfo.StartTime);
                 AddCombatToEncounter(combatInfo,false);
             }

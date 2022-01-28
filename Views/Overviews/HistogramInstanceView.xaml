@@ -11,7 +11,13 @@
             <ColumnDefinition Width="0.15*"/>
             <ColumnDefinition Width="0.85*"/>
         </Grid.ColumnDefinitions>
-        <ListView ItemsSource="{Binding AvailableAbilities}" SelectedItem="{Binding SelectedAbility}"></ListView>
+        <ListView ItemsSource="{Binding AvailableAbilities}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectedItem="{Binding SelectedAbility}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding }" TextTrimming="CharacterEllipsis"></TextBlock>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
         <ContentPresenter Grid.Column="1" Content="{Binding HistogramPlot}"></ContentPresenter>
     </Grid>
 </UserControl>

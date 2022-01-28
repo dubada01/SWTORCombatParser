@@ -99,7 +99,7 @@ namespace SWTORCombatParser.Model.Timers
                     break;
                 case TimerKeyType.EffectGained:
                     wasTriggered = TriggerDetection.CheckForEffectGain(log, SourceTimer.Effect, SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
-                    if (wasTriggered == TriggerType.Refresh)
+                    if (wasTriggered == TriggerType.Refresh && CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.NextGen)
                     {
                         var currentTarget = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp);
                         targetAdendum = currentTarget.Name;

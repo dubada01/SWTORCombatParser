@@ -1,4 +1,5 @@
 ﻿using MoreLinq;
+using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
@@ -169,7 +170,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         Type = enumVal,
                         Duration = (int)combat.DurationSeconds,
                         Version = _leaderboardVersion,
-                        VerifiedKill = combat.WasBossKilled
+                        VerifiedKill = combat.WasBossKilled,
+                        Logs = JsonConvert.SerializeObject(combat.AllLogs)
                     };
                     if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled(player))
                     {

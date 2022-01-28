@@ -23,5 +23,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public LeaderboardEntryType Type { get; set; }
         public string Version { get; set; }
         public bool VerifiedKill { get; set; }
+        public string Logs { get; set; }
     }
 }

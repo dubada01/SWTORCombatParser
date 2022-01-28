@@ -36,25 +36,36 @@ namespace SWTORCombatParser.ViewModels.Timers
         public SolidColorBrush TimerBackground => new SolidColorBrush(TimerColor);
 
         public double TimerValue { get; set; }
+        public bool DisplayTimerValue
+        {
+            get => displayTimerValue; set
+            {
+                displayTimerValue = value;
+                OnPropertyChanged();
+            }
+        }
+
 
         public GridLength RemainderWidth => GetRemainderWidth();
 
         private GridLength GetRemainderWidth()
         {
-            return(SourceTimer.IsAlert ? new GridLength(0, GridUnitType.Star) : new GridLength(1-(TimerValue / MaxTimerValue), GridUnitType.Star));
+            return (SourceTimer.IsAlert ? new GridLength(0, GridUnitType.Star) : new GridLength(1 - (TimerValue / MaxTimerValue), GridUnitType.Star));
         }
 
         public GridLength BarWidth => GetBarWidth();
 
         private GridLength GetBarWidth()
         {
-            return(SourceTimer.IsAlert ? new GridLength(1,GridUnitType.Star) : new GridLength(TimerValue / MaxTimerValue, GridUnitType.Star));
+            return (SourceTimer.IsAlert ? new GridLength(1, GridUnitType.Star) : new GridLength(TimerValue / MaxTimerValue, GridUnitType.Star));
         }
         private TimeSpan _timerValue;
+        private bool displayTimerValue;
+
         public TimerInstanceViewModel(Timer swtorTimer)
         {
             SourceTimer = swtorTimer;
-            
+
             _dtimer = new DispatcherTimer(DispatcherPriority.Send, Application.Current.Dispatcher);
             _dtimer.IsEnabled = true;
             if (!swtorTimer.IsAlert)
@@ -84,14 +95,21 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void Trigger(DateTime timeStampWhenTrigged)
         {
-            MaxTimerValue = SourceTimer.DurationSec;
-            var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds * -1;
-            _timerValue = TimeSpan.FromSeconds(MaxTimerValue+offset);
-            TimerValue = _timerValue.TotalSeconds;
             if (!SourceTimer.IsAlert)
+            {
+                DisplayTimerValue = true;
+                MaxTimerValue = SourceTimer.DurationSec;
+                var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds * -1;
+                _timerValue = TimeSpan.FromSeconds(MaxTimerValue + offset);
+                TimerValue = _timerValue.TotalSeconds;
                 _dtimer.Tick += Tick;
+            }
             else
+            {
+                DisplayTimerValue = false;
                 _dtimer.Tick += ClearAlert;
+            }
+
             _dtimer.Start();
             TimerTriggered();
         }
@@ -131,9 +149,9 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string GetTimerName()
         {
             var name = "";
-            if(SourceTimer.TriggerType == TimerKeyType.EntityHP)
+            if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
             {
-                name = SourceTimer.Name+": " + SourceTimer.HPPercentage +"%";
+                name = SourceTimer.Name + ": " + SourceTimer.HPPercentage + "%";
             }
             else
             {

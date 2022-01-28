@@ -24,7 +24,7 @@ namespace SWTORCombatParser.Model.HistoricalLogs
         }
         public static List<string> GetAllBossesFromCombats(List<Combat> combats)
         {
-            return combats.Where(c=>c.IsEncounterBoss).Select(e => e.EncounterBossInfo.Split("{")[0].Trim()).Distinct().ToList();
+            return combats.Where(c=>c.IsCombatWithBoss).Select(e => e.EncounterBossInfo.Split("{")[0].Trim()).Distinct().ToList();
         }
     }
 }

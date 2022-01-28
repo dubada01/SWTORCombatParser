@@ -9,7 +9,7 @@
     <Border BorderBrush="DimGray" BorderThickness="2" CornerRadius="3">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="45"/>
+                <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
@@ -50,15 +50,15 @@
                 <Rectangle Fill="DimGray" Grid.Column="11" Margin="0,2,0,2"></Rectangle>
                 <Rectangle Fill="DimGray" Grid.Column="13" Margin="0,2,0,2"></Rectangle>
                 <Rectangle Fill="DimGray" Grid.Column="15" Margin="0,2,0,2"></Rectangle>
-                <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="20" VerticalAlignment="Center" Text="Sec" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Source" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Target" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Ability" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Effect" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Value" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Mod Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                <TextBlock Grid.Column="16" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Mod" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="13" VerticalAlignment="Center" Text="Sec" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Source" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Target" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Ability" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Effect" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Value" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Mod Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="16" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Mod" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
             </Grid>
 
             <DataGrid AlternationCount="2" Background="WhiteSmoke" Grid.Row="1" HeadersVisibility="None" ItemsSource="{Binding LogsToDisplay}" VerticalScrollBarVisibility="Visible" GridLinesVisibility="Vertical"  AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
@@ -78,63 +78,63 @@
                     <DataGridTemplateColumn Width="0.02*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding SecondsSinceCombatStart, StringFormat=N2}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Margin="2,0,0,0" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="{Binding SecondsSinceCombatStart, StringFormat=N2}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn  Width="0.06*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Source}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Source}" HorizontalAlignment="Left"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn  Width="0.06*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Target}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Target}" HorizontalAlignment="Left"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Width="0.05*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}"   TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Width="0.05*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Width="0.025*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ValueType}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ValueType}" HorizontalAlignment="Left"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Width="0.025*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" TextDecorations="{Binding WasValueCrit, Converter={StaticResource BooleanToFontStyleConverter}}" VerticalAlignment="Center" Text="{Binding Value}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" TextDecorations="{Binding WasValueCrit, Converter={StaticResource BooleanToFontStyleConverter}}" VerticalAlignment="Center" Text="{Binding Value}" HorizontalAlignment="Left"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Width="0.025*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ModifierType}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ModifierType}" HorizontalAlignment="Left"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Width="0.025*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="10,0,0,0" FontFamily="{StaticResource MainFont}"  FontSize="18" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ModifierValue}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ModifierValue}" HorizontalAlignment="Left"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

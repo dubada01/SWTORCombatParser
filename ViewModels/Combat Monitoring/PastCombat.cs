@@ -32,7 +32,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         }
         public EncounterInfo EncounterInfo { get; set; }
         public Combat Combat { get; set; }
-        public bool IsTrash => Combat!=null&&!Combat.IsEncounterBoss && !IsCurrentCombat;
+        public bool IsTrash => Combat!=null&&!Combat.IsCombatWithBoss && !IsCurrentCombat;
         public string CombatLabel { get; set; }
         public string CombatDuration
         {

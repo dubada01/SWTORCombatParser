@@ -25,6 +25,8 @@ namespace SWTORCombatParser.Model.LogParsing
             var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
             var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
 
+            if(!logEntry.Contains('\n'))
+                return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
             if (logEntryInfos.Count < 5)
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
 

@@ -36,8 +36,9 @@ namespace SWTORCombatParser.Views.Timers
             AbilityName.TextChanged += UpdateValueHelpText;
             _vm.OnNewTimer += CloseWindow;
             CancelButton.Click += Cancel;
+            
         }
-
+        
         private void UpdateNameHelpText(object sender, TextChangedEventArgs e)
         {
             if (!string.IsNullOrEmpty(TimerName.Text))
@@ -77,6 +78,11 @@ namespace SWTORCombatParser.Views.Timers
             {
                 _vm.SaveTarget();
             }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            _vm.Cancel();
         }
     }
 }

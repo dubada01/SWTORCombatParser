@@ -22,7 +22,7 @@ namespace SWTORCombatParser
        
         public static void UpdateOverlays(Combat combat)
         {
-            if (combat.IsEncounterBoss)
+            if (combat.IsCombatWithBoss)
             {
                 Task.Run(() =>
                 {
@@ -112,9 +112,23 @@ namespace SWTORCombatParser
         }
         private static string GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
-            if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
+            if (currentEncounter == null)
                 return "";
             var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet");
+            if (currentEncounter.Name.Contains("Open World"))
+            {
+                if(validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.Name.Contains("Parsing")))
+                {
+                    var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.Name.Contains("Parsing"));
+                    var dummyMaxHP = dummyTarget.MaxHP;
+                    return "Parsing Dummy {"+ dummyMaxHP+"HP}";
+                }
+                else
+                {
+                    return "";
+                }
+            }
+
             foreach (var log in validLogs)
             {
                 if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
