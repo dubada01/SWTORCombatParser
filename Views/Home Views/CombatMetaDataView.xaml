@@ -32,13 +32,13 @@
                                 <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width=".66*"/>
                             </Grid.ColumnDefinitions>
-                            <Viewbox MaxHeight="20" Margin="0,0,2,0">
+                            <Viewbox MaxHeight="15" Margin="0,0,2,0">
                                 <TextBlock FontFamily="{StaticResource MainFont}" Foreground="CadetBlue" Text="{Binding Selected, Converter={StaticResource EffectSelectedToTextConverter}}"></TextBlock>
                             </Viewbox>
-                            <Viewbox MaxHeight="20" Margin="0,0,5,0" HorizontalAlignment="Left" Grid.Column="1" >
+                            <Viewbox MaxHeight="15" Margin="0,0,5,0" HorizontalAlignment="Left" Grid.Column="1" >
                                 <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Name}"></TextBlock>
                             </Viewbox>
-                            <Viewbox MaxHeight="20" HorizontalAlignment="Right" Grid.Column="2" >
+                            <Viewbox MaxHeight="15" HorizontalAlignment="Right" Grid.Column="2" >
                                 <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Duration, StringFormat={}{0:0.#} sec}"></TextBlock>
                             </Viewbox>
                         </Grid>

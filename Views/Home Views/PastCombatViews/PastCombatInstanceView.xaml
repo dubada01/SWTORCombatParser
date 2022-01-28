@@ -22,7 +22,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBlock FontSize="16" MaxHeight="75" FontFamily="{StaticResource MainFont}" Foreground="{Binding EncounterInfo, Converter={StaticResource EncounterInfoToPastCombatColorConverter}}" FontWeight="DemiBold" Grid.Row="0" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" Text="{Binding CombatLabel}"></TextBlock>
+            <TextBlock  MaxHeight="75" FontFamily="{StaticResource MainFont}" Foreground="{Binding EncounterInfo, Converter={StaticResource EncounterInfoToPastCombatColorConverter}}" FontWeight="DemiBold" Grid.Row="0" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" Text="{Binding CombatLabel}"></TextBlock>
 
             <Viewbox MaxHeight="20" Margin="0,2,0,2" Grid.Row="1" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal" >

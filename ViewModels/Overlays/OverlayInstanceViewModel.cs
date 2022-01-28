@@ -226,7 +226,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     }
                     metricToUpdate.LeaderboardRank = "0";
                     metricToUpdate.RankIsPersonalRecord = false;
-                    if (_currentCombat.IsEncounterBoss && HasLeaderboard && _leaderboardInfo.ContainsKey(participant) && _leaderboardInfo[participant]!=null)
+                    if (_currentCombat.IsCombatWithBoss && HasLeaderboard && _leaderboardInfo.ContainsKey(participant) && _leaderboardInfo[participant]!=null)
                     {
                         AddLeaderboardStanding(metricToUpdate, _leaderboardInfo[participant]);
                     }

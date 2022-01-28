@@ -31,7 +31,7 @@
                                     </Grid.ColumnDefinitions>
                                     <Border BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" ></Border>
                                 </Grid>
-                                <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="18" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TimerValue, StringFormat=N1}"></TextBlock>
+                                <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="18" Visibility="{Binding DisplayTimerValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TimerValue, StringFormat=N1}"></TextBlock>
 
                                 <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,2,4">
                                     <TextBlock Margin="0,5,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding TimerName}" ></TextBlock>

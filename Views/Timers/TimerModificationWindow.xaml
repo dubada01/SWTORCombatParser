@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="TimerModificationWindow" Height="750" Width="750" WindowStyle="ToolWindow" Background="Transparent" WindowStartupLocation="Manual" Topmost="True">
+        Title="TimerModificationWindow" Height="750" Width="750" WindowStyle="ToolWindow" Background="Transparent" WindowStartupLocation="Manual" Topmost="True" Closing="Window_Closing">
     <Border BorderBrush="{StaticResource GreenColorBrush}" BorderThickness="7" Background="LightGray" CornerRadius="20">
         <Grid>
             <Grid.ColumnDefinitions>

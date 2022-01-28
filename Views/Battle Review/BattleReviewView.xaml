@@ -13,22 +13,20 @@
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.1*"/>
+                <ColumnDefinition Width="0.1*" MinWidth="150"/>
                 <ColumnDefinition Width="0.35*"/>
                 <ColumnDefinition Width="0.15*"/>
             </Grid.ColumnDefinitions>
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="0.5*"/>
-                    <RowDefinition Height="0.5*"/>
+                    <RowDefinition Height="0.75*"/>
+                    <RowDefinition Height="0.33*"/>
+                    <RowDefinition Height="0.15*"/>
+                    <RowDefinition Height="0.15*"/>
                 </Grid.RowDefinitions>
 
                     <Grid Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,5,5,0" Grid.Row="0" >
-                    <TextBlock FontFamily="{StaticResource MainFont}" Text="Available Entities"></TextBlock>
+                    <TextBlock FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Text="Available Entities" HorizontalAlignment="Center" Margin="0,23,0,0"></TextBlock>
                     <ListView Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{Binding AvailableEntities}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -37,9 +35,9 @@
                                         <ColumnDefinition Width="3*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Viewbox HorizontalAlignment="Left" Grid.Column="0" MaxHeight="25">
-                                        <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Entity.Name}"></TextBlock>
-                                    </Viewbox>
+
+                                    <TextBlock FontFamily="{StaticResource MainFont}" TextTrimming="CharacterEllipsis" Text="{Binding Entity.Name}"></TextBlock>
+
                                     <Viewbox MaxHeight="20" Grid.Column="1" HorizontalAlignment="Right">
                                         <CheckBox  IsChecked="{Binding Selected}"></CheckBox>
                                     </Viewbox>
@@ -48,8 +46,13 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </Grid>
-                <TextBlock FontFamily="{StaticResource MainFont}" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,10,0" TextAlignment="Center" Text="Data Type To Display: " FontSize="15"></TextBlock>
-                <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,0,10,0" Style="{StaticResource NewComboStyle}" HorizontalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top" ItemsSource="{Binding AvailableDisplayTypes}" SelectedValue="{Binding SelectedDisplayType}" FontSize="15" Height="35"></ComboBox>
+                <Viewbox  Grid.Row="2" VerticalAlignment="Bottom" MaxHeight="20" Margin="5,0,5,5">
+                    <TextBlock FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" TextAlignment="Center" Text="Data Type To Display: "></TextBlock>
+                </Viewbox>
+                
+                <Viewbox Grid.Row="4" Grid.Column="1" Margin="10,0,10,0" MaxHeight="30" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <ComboBox  Style="{StaticResource NewComboStyle}" HorizontalContentAlignment="Center"  ItemsSource="{Binding AvailableDisplayTypes}" SelectedValue="{Binding SelectedDisplayType}" FontSize="15" Height="35"></ComboBox>
+                </Viewbox>
             </Grid>
             <ContentPresenter Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding EventViewContent}"></ContentPresenter>
         </Grid>

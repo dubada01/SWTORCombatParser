@@ -300,7 +300,7 @@
 
     {
       "Name": "Sentinel",
-      "Discipline": "Watchaman",
+      "Discipline": "Watchman",
       "Role": "DPS",
       "SpecialThreatAbilities": [
       ],

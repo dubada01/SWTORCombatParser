@@ -187,7 +187,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         internal void UpdateLock(bool value)
         {
-            OverlaysMoveable = value;
+            OverlaysMoveable = !value;
+            OnPropertyChanged("OverlaysMoveable");
             OnLocking(value);
         }
 

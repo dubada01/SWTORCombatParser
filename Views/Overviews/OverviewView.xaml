@@ -8,13 +8,15 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.05*"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="0.85*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableParticipants}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEntity}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
-            <ComboBox  Style="{StaticResource NewComboStyle}" Visibility="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
-        </StackPanel>
+        <Viewbox HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal">
+                <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableParticipants}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEntity}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+                <ComboBox  Style="{StaticResource NewComboStyle}" Visibility="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+            </StackPanel>
+        </Viewbox>
         <DockPanel Grid.Row="1" LastChildFill="True" HorizontalAlignment="Stretch">
             <TabControl>
                 <TabControl.Resources>
@@ -42,16 +44,16 @@
                         </Setter>
                     </Style>
                 </TabControl.Resources>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="20" Style="{StaticResource RoundedTab}" Header="Damage">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Style="{StaticResource RoundedTab}" Header="Damage">
                     <ContentPresenter Content="{Binding DamageContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="20" Style="{StaticResource RoundedTab}" Header="Healing">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Style="{StaticResource RoundedTab}" Header="Healing">
                     <ContentPresenter Content="{Binding HealingContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="20" Style="{StaticResource RoundedTab}" Header="Damage Taken">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Style="{StaticResource RoundedTab}" Header="Damage Taken">
                     <ContentPresenter Content="{Binding DamageTakenContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="20" Style="{StaticResource RoundedTab}" Header="Healing Received">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Style="{StaticResource RoundedTab}" Header="Healing Received">
                     <ContentPresenter Content="{Binding HealingReceivedContent}"></ContentPresenter>
                 </TabItem>
                 

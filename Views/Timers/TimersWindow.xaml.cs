@@ -75,7 +75,7 @@ namespace SWTORCombatParser.Views.Timers
         private void CloseOverlay()
         {
             Dispatcher.Invoke(() => {
-                Close();
+                Hide();
             });
 
         }

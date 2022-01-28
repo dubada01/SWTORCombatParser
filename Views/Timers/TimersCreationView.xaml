@@ -8,26 +8,32 @@
              d:DesignHeight="1000" d:DesignWidth="700">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.15*"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="0.7*"/>
             <RowDefinition Height="0.15*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Vertical" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="15,0,0,0">
-            <TextBlock Text="Available Timer Owners" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-            <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding SavedPlayerNames}" SelectedItem="{Binding SelectedPlayer}" Width="250" Height="40"></ComboBox>
-        </StackPanel>
+        <Viewbox  VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="15,5,0,5">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="Available Timer Owners" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding SavedPlayerNames}" SelectedItem="{Binding SelectedPlayer}" Width="250" Height="40"></ComboBox>
+            </StackPanel>
+        </Viewbox>
 
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" Margin="300,0,0,0" Orientation="Vertical">
-            <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Text="Timers Active" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-            <Viewbox MaxHeight="25">
-                <CheckBox HorizontalAlignment="Center" IsChecked="{Binding SelectedTimerOwnerActive}"></CheckBox>
-            </Viewbox>
 
-        </StackPanel>
+        <Viewbox HorizontalAlignment="Left" MaxHeight="35" Margin="200,0,0,0">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Text="Timers Active" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                <Viewbox MaxHeight="25">
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding SelectedTimerOwnerActive}"></CheckBox>
+                </Viewbox>
+
+            </StackPanel>
+        </Viewbox>
+
         <Border BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="White">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="45"/>
+                    <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
@@ -51,9 +57,9 @@
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="0.05*"/>
                         <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="0.05*"/>
+                        <ColumnDefinition Width="0.05*" MinWidth="50"/>
                         <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="0.05*"/>
+                        <ColumnDefinition Width="0.05*" MinWidth="50"/>
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="0.025*"/>
                     </Grid.ColumnDefinitions>
@@ -61,14 +67,14 @@
                     <Rectangle Fill="DimGray" Grid.Column="3" Margin="0,2,0,2"></Rectangle>
                     <Rectangle Fill="DimGray" Grid.Column="5" Margin="0,2,0,2"></Rectangle>
                     <Rectangle Fill="DimGray" Grid.Column="7" Margin="0,2,0,2"></Rectangle>
-                    <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="20" VerticalAlignment="Center" Text="Name" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Color" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Sec" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text="Active" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="20" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="13" VerticalAlignment="Center" Text="Name" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Color" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Sec" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Active" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                 </Grid>
                 <ItemsControl Grid.Row="1" ItemsSource="{Binding TimerRows}">
                     <ItemsControl.ItemTemplate>
@@ -85,9 +91,9 @@
                                     <ColumnDefinition Width="0.3"/>
                                     <ColumnDefinition Width="0.05*"/>
                                     <ColumnDefinition Width="0.3"/>
-                                    <ColumnDefinition Width="0.05*"/>
+                                    <ColumnDefinition Width="0.05*" MinWidth="50"/>
                                     <ColumnDefinition Width="0.3"/>
-                                    <ColumnDefinition Width="0.05*"/>
+                                    <ColumnDefinition Width="0.05*" MinWidth="50"/>
                                     <ColumnDefinition Width="0.3"/>
                                     <ColumnDefinition Width="0.025*"/>
                                 </Grid.ColumnDefinitions>
@@ -98,16 +104,16 @@
                                 <Rectangle Fill="DimGray" Grid.Column="9" ></Rectangle>
                                 <Rectangle Fill="DimGray" Grid.Column="11"></Rectangle>
                                 <Rectangle Fill="DimGray" Grid.Column="13"></Rectangle>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="18" VerticalAlignment="Center" Text="{Binding Name}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}"  FontSize="18" VerticalAlignment="Center" Text="{Binding Type}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                                <Grid Margin="10,3,10,3" Grid.Column="4" VerticalAlignment="Center" >
-                                    <Border CornerRadius="3" Background="{Binding TimerBackground}" Height="20"></Border>
+                                <TextBlock Margin="5,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="12" VerticalAlignment="Center" Text="{Binding Name}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Margin="5,0,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}"  FontSize="12" VerticalAlignment="Center" Text="{Binding Type}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                <Grid Margin="5,3,5,3" Grid.Column="4" VerticalAlignment="Center" >
+                                    <Border CornerRadius="3" Background="{Binding TimerBackground}" Height="17"></Border>
                                 </Grid>
-                                <TextBlock Margin="10,0,0,0" Grid.Column="6" FontFamily="{StaticResource MainFont}"  FontSize="18" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" Grid.Column="6" FontFamily="{StaticResource MainFont}"  FontSize="12" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
                                 <CheckBox Margin="0,0,0,0" Grid.Column="8" VerticalAlignment="Center" IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center"/>
-                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="10,3,10,3" Grid.Column="10" FontFamily="{StaticResource MainFont}" Height="30" FontSize="15"  VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
-                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="10,3,10,3" Grid.Column="12" FontFamily="{StaticResource MainFont}" Height="30" FontSize="15" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="15" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,3,5,3" Grid.Column="10" FontFamily="{StaticResource MainFont}" Height="15" FontSize="10" VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
+                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,3,5,3" Grid.Column="12" FontFamily="{StaticResource MainFont}" Height="15" FontSize="10" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
+                                <Button Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="16" Height="16" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -120,13 +126,16 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal"  Grid.Column="0" HorizontalAlignment="Center" >
-                <StackPanel VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Center" Orientation="Vertical">
-                    <TextBlock VerticalAlignment="Center" Margin="15,0,15,0" FontFamily="{StaticResource MainFont}" FontSize="18" Text="Import Timer"></TextBlock>
-                    <TextBox Text="{Binding ImportId}" Style="{StaticResource RoundedTextBox}" Width="100"/>
+            <Viewbox Grid.Column="0" MaxHeight="50" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal"   >
+                    <StackPanel VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Center" Orientation="Vertical">
+                        <TextBlock VerticalAlignment="Center" Margin="15,0,15,0" FontFamily="{StaticResource MainFont}" FontSize="18" Text="Import Timer"></TextBlock>
+                        <TextBox Text="{Binding ImportId}" Style="{StaticResource RoundedTextBox}" Width="100"/>
+                    </StackPanel>
+                    <Button Command="{Binding ImportCommand}" Style="{StaticResource RoundCornerButton}" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
                 </StackPanel>
-                <Button Command="{Binding ImportCommand}" Style="{StaticResource RoundCornerButton}" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
-            </StackPanel>
+            </Viewbox>
+
 
             <Button Grid.Column="1" Style="{StaticResource RoundCornerButton}" Height="40" Width="100" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" Content="Create Timer" Command="{Binding CreateNewTimerCommand}"></Button>
         </Grid>

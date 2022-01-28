@@ -27,7 +27,7 @@ namespace SWTORCombatParser
         {
             try
             {
-                if (_logDate == DateTime.MinValue)
+                if (_logDate == DateTime.MinValue || realTime)
                     _logDate = DateTime.Now;
                 var listEntries = GetInfoComponents(logEntry);
 
@@ -87,7 +87,8 @@ namespace SWTORCombatParser
         {
             CombatLogStateBuilder.ClearState();
             _logDate = combatLog.Time;
-            var logLines = combatLog.Data.Split('\n');
+            var logLines = Regex.Split(combatLog.Data, @"(?<=[\n])");
+            //var logLines = combatLog.Data.Split('\n');
             var numberOfLines = logLines.Length;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
             Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
@@ -102,10 +103,12 @@ namespace SWTORCombatParser
                 parsedLog[i].LogName = combatLog.Name;
             }
             );
-            var orderdedLog = parsedLog.Where(l => l != null).OrderBy(l => l.TimeStamp);
+            var cleanedLogs = parsedLog.Where(l => l != null);
+            CombatTimestampRectifier.RectifyTimeStamps(cleanedLogs.ToList());
+            var orderdedLog = cleanedLogs.OrderBy(l => l.TimeStamp);
             UpdateStateAndLogs(orderdedLog.ToList(), false);
 
-            CombatTimestampRectifier.RectifyTimeStamps(orderdedLog.ToList());
+            
             return orderdedLog.ToList();
         }
 

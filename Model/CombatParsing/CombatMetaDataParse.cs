@@ -30,11 +30,11 @@ namespace SWTORCombatParser
                 combat.IncomingDamageLogs[entity] = incomingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
                 combat.IncomingHealingLogs[entity] = incomingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
 
-                var damageIncomingForEachSecond = CalculateValueFromEachSecond(combat.IncomingDamageLogs[entity],(int)combatDurationMs/1000, combat.StartTime);
+                var damageIncomingForEachSecond = CalculateValueFromEachSecond(combat.IncomingDamageLogs[entity], (int)combatDurationMs / 1000, combat.StartTime);
                 var healingIncomingForEachSecond = CalculateValuePerPlayerFromEachSecond(combat.IncomingHealingLogs[entity], (int)combatDurationMs / 1000, combat.StartTime);
                 var recoveryTimes = CalculateAverageHealRecoveryTime(damageIncomingForEachSecond, healingIncomingForEachSecond);
 
-                foreach(var healer in recoveryTimes.Keys)
+                foreach (var healer in recoveryTimes.Keys)
                 {
                     if (!combat.DamageRecoveryTimes.ContainsKey(healer))
                     {
@@ -44,7 +44,7 @@ namespace SWTORCombatParser
                     {
                         combat.DamageRecoveryTimes[healer][entity] = new List<double>();
                     }
-                    combat.DamageRecoveryTimes[healer][entity]=recoveryTimes[healer];
+                    combat.DamageRecoveryTimes[healer][entity] = recoveryTimes[healer];
                 }
 
 

@@ -21,12 +21,10 @@ namespace SWTORCombatParser.Utilities
         private static List<string> _bossesKilledThisCombat = new List<string>();
         private static List<string> _combatResNames = new List<string> { "Revival", "Reanimation", "Heartrigger Patch", "Resuscitation Probe", "Emergency Medical Probe" ,"Onboard AED"};
         private static bool _bossCombat;
-        private static bool _combatEnding;
         private static bool _isInCombat;
         private static bool _isCombatResOut;
         private static void Reset()
         {
-            _combatEnding = false;
             _bossCombat = false;
             _bossesKilledThisCombat = new List<string>();
             _isInCombat = false;
@@ -35,9 +33,10 @@ namespace SWTORCombatParser.Utilities
         {
             if (line.Effect.EffectName == "EnterCombat")
             {
-                if (_combatEnding || _isInCombat)
+                if (_isInCombat)
                 {
                     Reset();
+                    _isInCombat = true;
                     return CombatState.ExitedByEntering;
                 }
                 Reset();
@@ -61,14 +60,14 @@ namespace SWTORCombatParser.Utilities
             {
                 _isCombatResOut = false;
             }
-            if (line.Effect.EffectName == "ExitCombat" && !_combatEnding && _isInCombat)
+            if (line.Effect.EffectName == "ExitCombat" && _isInCombat)
             {
                 if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy || !_bossCombat)
                 {
                     return EndCombat();
                 }
             }
-            if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && currentEncounter.BossInfos != null && !_combatEnding && _isInCombat)
+            if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && currentEncounter.BossInfos != null &&  _isInCombat)
             {
                 var bossKilled = currentEncounter.BossInfos.FirstOrDefault(bi => bi.TargetNames.Contains(line.Target.Name));
                 if (bossKilled != null)
@@ -80,7 +79,7 @@ namespace SWTORCombatParser.Utilities
                     }
                 }
             }
-            if (line.Effect.EffectName == "Death" && line.Target.IsCharacter && !_combatEnding && _isInCombat)
+            if (line.Effect.EffectName == "Death" && line.Target.IsCharacter && _isInCombat)
             {
                 if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.NextGen)
                 {
