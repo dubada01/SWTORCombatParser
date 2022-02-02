@@ -24,6 +24,7 @@ namespace SWTORCombatParser.Views.Timers
     public partial class TimerModificationWindow : Window
     {
         private ModifyTimerViewModel _vm;
+        private bool wasSaved = false;
         public TimerModificationWindow(ModifyTimerViewModel vm)
         {
             InitializeComponent();
@@ -48,13 +49,14 @@ namespace SWTORCombatParser.Views.Timers
         }
         private void UpdateValueHelpText(object sender, TextChangedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(EffectName.Text) || !string.IsNullOrEmpty(AbilityName.Text))
-                ValueHelpText.Visibility = Visibility.Hidden;
-            else
-                ValueHelpText.Visibility = Visibility.Visible;
+            //if (!string.IsNullOrEmpty(EffectName.Text) || !string.IsNullOrEmpty(AbilityName.Text))
+            //    ValueHelpText.Visibility = Visibility.Hidden;
+            //else
+            //    ValueHelpText.Visibility = Visibility.Visible;
         }
         private void CloseWindow(Timer throwAway, bool meh)
         {
+            wasSaved = true;
             Close();
             ObscureWindowFactory.CloseObscureWindow();
         }
@@ -78,11 +80,6 @@ namespace SWTORCombatParser.Views.Timers
             {
                 _vm.SaveTarget();
             }
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            _vm.Cancel();
         }
     }
 }

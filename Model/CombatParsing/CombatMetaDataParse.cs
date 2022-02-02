@@ -50,8 +50,8 @@ namespace SWTORCombatParser
 
                 combat.IncomingDamageMitigatedLogs[entity] = combat.IncomingDamageLogs[entity].Where(l => l.Value.Modifier != null).ToList();
 
-                var times = GetTimeBelow100Percent(combat.IncomingHealingLogs[entity], combat.IncomingDamageLogs[entity], combat.StartTime, combat.EndTime);
-                combat.TimeSpentBelowFullHealth[entity] = times.Sum(t => t.TotalSeconds);
+                //var times = GetTimeBelow100Percent(combat.IncomingHealingLogs[entity], combat.IncomingDamageLogs[entity], combat.StartTime, combat.EndTime);
+                //combat.TimeSpentBelowFullHealth[entity] = times.Sum(t => t.TotalSeconds);
                 var totalHealing = combat.OutgoingHealingLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveHealing = combat.OutgoingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
 

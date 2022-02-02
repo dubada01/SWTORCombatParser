@@ -107,9 +107,8 @@ namespace SWTORCombatParser
         }
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new System.Windows.Point { X = Left, Y = Top }, Width = ActualWidth, Height = ActualHeight });
             if (!_actuallyClosing)
-            { 
+            {
                 e.Cancel = true;
                 if (ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring"))
                 {
@@ -120,7 +119,14 @@ namespace SWTORCombatParser
                 Hide();
             }
             else
+            { 
                 MainWindowClosing.FireClosing();
+                System.Environment.Exit(0);
+            }
+        }
+        private void Window_MouseLeave_1(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new System.Windows.Point { X = Left, Y = Top }, Width = ActualWidth, Height = ActualHeight });
         }
     }
 }

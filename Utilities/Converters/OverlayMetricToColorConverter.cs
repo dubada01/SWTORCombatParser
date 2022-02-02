@@ -39,12 +39,6 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.SaddleBrown;
                 case OverlayType.DamageTaken:
                     return Brushes.Peru;
-                case OverlayType.CompanionDPS:
-                    return new SolidColorBrush(Brushes.IndianRed.Color.Lerp(Color.FromRgb(255,255,255), 0.33f));
-                case OverlayType.CompanionEHPS:
-                    return new SolidColorBrush(Brushes.LimeGreen.Color.Lerp(Color.FromRgb(255, 255, 255), 0.33f));
-                case OverlayType.PercentOfFightBelowFullHP:
-                    return Brushes.DimGray;
                 case OverlayType.Mitigation:
                     return Brushes.Sienna;
                 case OverlayType.ShieldAbsorb:
