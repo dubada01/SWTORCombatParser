@@ -23,7 +23,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
 
-                            <Button Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" MaxHeight="60" MaxWidth="200" Margin="15,1,15,1" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                            <Button Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" MaxHeight="60" MaxWidth="200" Margin="15,5,15,5" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="2*"></RowDefinition>
@@ -43,7 +43,7 @@
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Columns="2"></UniformGrid>
+                            <UniformGrid Columns="3"></UniformGrid>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>

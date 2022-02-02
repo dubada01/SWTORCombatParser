@@ -35,6 +35,7 @@
             <converters:ParticipantSelectedToBackgroundConverter x:Key="ParticipantSelectedToBackgroundConverter"/>
             <converters:ParticipantSelectedToBorderConverter x:Key="ParticipantSelectedToBoarderConverter"/>
             <converters:IndexToRowColorConverter x:Key="IndexToRowColorConverter"/>
+            <converters:BooleanToVisibilityHiddenConverter x:Key="BooleanToHiddenVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

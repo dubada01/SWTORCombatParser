@@ -126,6 +126,14 @@
     ]
   },
   {
+    "LogName": "Lair of the Eyeless",
+    "Name": "Eyeless",
+    "EncounterType": 2,
+    "BossNames": [
+      "The Eyeless"
+    ]
+  },
+  {
     "LogName": "Hive of the Mountain Queen",
     "Name": "Queen's Hive",
     "EncounterType": 2,

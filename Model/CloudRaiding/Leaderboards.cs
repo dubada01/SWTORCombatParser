@@ -173,7 +173,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         VerifiedKill = combat.WasBossKilled,
                         Logs = JsonConvert.SerializeObject(combat.AllLogs)
                     };
-                    if (leaderboardEntry.Duration > 250 || combat.EncounterBossInfo.Contains("Parsing") || combat.WasBossKilled || !combat.WasPlayerKilled(player))
+                    if (CheckForValidParseUpload(combat)||CheckForValidCombatUpload(combat,player))
                     {
                         PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
                         CombatIdentifier.UpdateOverlays(combat);
@@ -181,7 +181,26 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
         }
-
+        private static bool CheckForValidCombatUpload(Combat combat, Entity player)
+        {
+            if (combat.ParentEncounter.Name == "Parsing")
+                return false;
+            if (combat.DurationSeconds > 250)
+                return true;
+            if (combat.WasBossKilled)
+                return true;
+            if (!combat.WasPlayerKilled(player))
+                return true;
+            return false;
+        }
+        private static bool CheckForValidParseUpload(Combat combat)
+        {
+            if (combat.ParentEncounter.Name != "Parsing")
+                return false;
+            if (!combat.WasBossKilled)
+                return false;
+            return true;
+        }
         private static double GetValueForLeaderboardEntry(LeaderboardEntryType role, Combat combat, Entity player)
         {
             switch (role)

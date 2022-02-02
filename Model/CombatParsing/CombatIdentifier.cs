@@ -87,6 +87,12 @@ namespace SWTORCombatParser
                 Targets = GetTargets(ongoingLogs),
                 AllLogs = ongoingLogs
             };
+            if(newCombat.Targets.Any(t=>t.Name.Contains("Training Dummy")))
+            {
+                newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Unknown", NumberOfPlayer = "1", BossNames = new List<string> { "Warzone Training Dummy", "Operations Training Dummy" } };
+                newCombat.EncounterBossInfo = GetCurrentBossInfo(ongoingLogs, encounter);
+                newCombat.RequiredDeadTargetsForKill = GetCurrentBossNames(ongoingLogs, newCombat.ParentEncounter);
+            }
             if (encounter !=  null && encounter.BossInfos != null)
             {
                 newCombat.ParentEncounter = encounter;
@@ -117,11 +123,11 @@ namespace SWTORCombatParser
             var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet");
             if (currentEncounter.Name.Contains("Open World"))
             {
-                if(validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.Name.Contains("Parsing")))
+                if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.Name.Contains("Training Dummy")))
                 {
-                    var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.Name.Contains("Parsing"));
+                    var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.Name.Contains("Training Dummy"));
                     var dummyMaxHP = dummyTarget.MaxHP;
-                    return "Parsing Dummy {"+ dummyMaxHP+"HP}";
+                    return "Parsing Dummy {" + dummyMaxHP + "HP}";
                 }
                 else
                 {

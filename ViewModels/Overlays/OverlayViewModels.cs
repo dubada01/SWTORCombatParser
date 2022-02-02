@@ -3,7 +3,6 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Alerts;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay;
 using SWTORCombatParser.Views.Timers;
@@ -25,14 +24,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
         private Dictionary<OverlayType, DefaultOverlayInfo> _overlayDefaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
-        private AlertsViewModel _alertsViewModel;
         private string _currentCharacterName = "None";
         private bool overlaysLocked;
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
 
         public TimersCreationView TimersView { get; set; }
-        public ObservableCollection<AlertTypeOption> AvailableAlerts => new ObservableCollection<AlertTypeOption>(_alertsViewModel.AvailableAlertTypes);
         public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
         public List<LeaderboardType> LeaderboardTypes { get; set; } = new List<LeaderboardType>();
         public LeaderboardType SelectedLeaderboardType
@@ -47,7 +44,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public OverlayViewModel()
         {
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
-            _alertsViewModel = new AlertsViewModel();
             DefaultOverlayManager.Init();
             DefaultTimersManager.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d=>d.ToString());
@@ -121,6 +117,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 overlay.RequestClose();
             }
+            _timersViewModel.HideTimers();
             _currentOverlays.Clear();
         }
         public bool OverlaysLocked

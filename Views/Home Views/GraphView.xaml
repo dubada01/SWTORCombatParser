@@ -8,7 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="{Binding ParticipantSelectionHeight}" MinHeight="60"/>
+            <RowDefinition Height="{Binding ParticipantSelectionHeight}" MinHeight="{Binding MinSeletionHeight}"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>

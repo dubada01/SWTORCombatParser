@@ -56,6 +56,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
+        public void HideTimers()
+        {
+            _timersWindowVM.HideTimers();
+        }
         public ObservableCollection<TimerRowInstanceViewModel> TimerRows { get; set; } = new ObservableCollection<TimerRowInstanceViewModel>();
 
         public TimersCreationViewModel()

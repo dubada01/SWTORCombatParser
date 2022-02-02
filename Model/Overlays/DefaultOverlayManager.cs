@@ -28,9 +28,6 @@ namespace SWTORCombatParser.Model.Overlays
         Threat,
         DamageTaken,
         BurstDamageTaken,
-        CompanionDPS,
-        CompanionEHPS,
-        PercentOfFightBelowFullHP,
         InterruptCount
     }
     public class DefaultOverlayInfo
@@ -71,10 +68,9 @@ namespace SWTORCombatParser.Model.Overlays
         }
         public static Dictionary<OverlayType,DefaultOverlayInfo> GetDefaults(string characterName)
         {
-            var stringInfo = File.ReadAllText(infoPath);
             try
             {
-                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string,Dictionary<OverlayType, DefaultOverlayInfo>>>(stringInfo);
+                var currentDefaults = GetCurrentDefaults();
                 if (!currentDefaults.ContainsKey(characterName))
                 {
                     InitializeDefaults(characterName);
@@ -91,23 +87,19 @@ namespace SWTORCombatParser.Model.Overlays
             catch(Exception e)
             {
                 InitializeDefaults(characterName);
-                var resetDefaults = File.ReadAllText(infoPath);
-                return JsonConvert.DeserializeObject<Dictionary<string,Dictionary<OverlayType, DefaultOverlayInfo>>>(resetDefaults)[characterName];
+                return GetCurrentDefaults()[characterName];
             }
 
         }
         private static void SaveResults(string character, Dictionary<OverlayType, DefaultOverlayInfo> data)
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>>>(stringInfo);
+            var currentDefaults = GetCurrentDefaults();
             currentDefaults[character] = data;
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
         private static void InitializeDefaults(string characterName)
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>>>(stringInfo);
-            
+            var currentDefaults = GetCurrentDefaults();
             var defaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
             var enumVals = EnumUtil.GetValues<OverlayType>();
             foreach(var overlayType in enumVals)
@@ -117,7 +109,29 @@ namespace SWTORCombatParser.Model.Overlays
             currentDefaults[characterName] = defaults;
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
+        private static Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>> GetCurrentDefaults()
+        {
+            var stringInfo = File.ReadAllText(infoPath);
+            var typedDefaults = new Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>>();
+            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, DefaultOverlayInfo>>>(stringInfo);
+            foreach(var player in currentDefaults.Keys)
+            {
+                var playerDefaults = currentDefaults[player];
+                var playerTypedDefaults = typedDefaults[player] = new Dictionary<OverlayType, DefaultOverlayInfo>();
+                foreach(var overlayType in playerDefaults.Keys)
+                {
+                    OverlayType typedResult;
+                    var typeIsValid = Enum.TryParse<OverlayType>(overlayType, out typedResult);
+                    if (typeIsValid)
+                    {
+                        playerTypedDefaults[typedResult] = playerDefaults[overlayType];
+                    }
+                }
+            }
+            return typedDefaults;
+        }
     }
+
     public static class EnumUtil
     {
         public static IEnumerable<T> GetValues<T>()

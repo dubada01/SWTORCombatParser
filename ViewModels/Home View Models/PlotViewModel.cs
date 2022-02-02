@@ -96,6 +96,7 @@ namespace SWTORCombatParser.Plotting
         }
         public ParticipantSelectionView ParticipantSelectionContent { get; set; }
         public GridLength ParticipantSelectionHeight { get; set; }
+        public int MinSeletionHeight { get; set; }
         public CombatMetaDataView CombatMetaDataView { get; set; }
         public WpfPlot GraphView { get; set; }
         public string AverageWindowDuration { get => averageWindowDuration; 
@@ -168,7 +169,9 @@ namespace SWTORCombatParser.Plotting
         internal void UpdateParticipants(List<Entity> obj)
         {
             ParticipantSelectionHeight = obj.Count > 4 ? new GridLength(0.25, GridUnitType.Star) : new GridLength(0.125, GridUnitType.Star);
+            MinSeletionHeight = obj.Count > 4 ? 120 : 60;
             OnPropertyChanged("ParticipantSelectionHeight");
+            OnPropertyChanged("MinSeletionHeight");
             _combatMetaDataViewModel.AvailableParticipants = obj;
 
             if (!obj.Contains(_selectedParticipant))

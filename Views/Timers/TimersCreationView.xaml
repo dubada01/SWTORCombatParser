@@ -53,7 +53,7 @@
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="0.05*"/>
                         <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="0.033*"/>
+                        <ColumnDefinition Width="0.033*" MinWidth="35"/>
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="0.05*"/>
                         <ColumnDefinition Width="1"/>
@@ -87,7 +87,7 @@
                                     <ColumnDefinition Width="0.3"/>
                                     <ColumnDefinition Width="0.05*"/>
                                     <ColumnDefinition Width="0.3"/>
-                                    <ColumnDefinition Width="0.033*"/>
+                                    <ColumnDefinition Width="0.033*" MinWidth="35"/>
                                     <ColumnDefinition Width="0.3"/>
                                     <ColumnDefinition Width="0.05*"/>
                                     <ColumnDefinition Width="0.3"/>
@@ -104,15 +104,15 @@
                                 <Rectangle Fill="DimGray" Grid.Column="9" ></Rectangle>
                                 <Rectangle Fill="DimGray" Grid.Column="11"></Rectangle>
                                 <Rectangle Fill="DimGray" Grid.Column="13"></Rectangle>
-                                <TextBlock Margin="5,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="12" VerticalAlignment="Center" Text="{Binding Name}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Margin="5,0,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}"  FontSize="12" VerticalAlignment="Center" Text="{Binding Type}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Margin="5,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="14" VerticalAlignment="Center" Text="{Binding Name}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Margin="5,0,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding Type}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                                 <Grid Margin="5,3,5,3" Grid.Column="4" VerticalAlignment="Center" >
                                     <Border CornerRadius="3" Background="{Binding TimerBackground}" Height="17"></Border>
                                 </Grid>
-                                <TextBlock Margin="5,0,0,0" Grid.Column="6" FontFamily="{StaticResource MainFont}"  FontSize="12" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
+                                <TextBlock Margin="5,0,0,0" Grid.Column="6" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
                                 <CheckBox Margin="0,0,0,0" Grid.Column="8" VerticalAlignment="Center" IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center"/>
-                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,3,5,3" Grid.Column="10" FontFamily="{StaticResource MainFont}" Height="15" FontSize="10" VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
-                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,3,5,3" Grid.Column="12" FontFamily="{StaticResource MainFont}" Height="15" FontSize="10" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
+                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}"  FontSize="10" VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
+                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" FontSize="10" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
                                 <Button Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="16" Height="16" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                             </Grid>
                         </DataTemplate>
