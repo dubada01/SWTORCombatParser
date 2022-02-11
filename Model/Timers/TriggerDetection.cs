@@ -89,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     return TriggerType.Start;
                 if (abilitiesThatRefresh.Contains(log.Ability) && log.Effect.EffectType == EffectType.Apply && log.Ability != effect)
                     return TriggerType.Refresh;
-                if (abilitiesThatRefresh.Contains(log.Ability) && log.Effect.EffectType == EffectType.Event && log.Ability == effect)
+                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.Effect.EffectName)) && log.Effect.EffectType == EffectType.Event && log.Ability == effect)
                     return TriggerType.Refresh;
                 return TriggerType.None;
             }
@@ -149,7 +149,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         internal static TriggerType CheckForTargetChange(ParsedLogEntry log, string source, bool sourceIsLocal, string target, bool targetIsLocal)
         {
-            if (log.Effect.EffectType == EffectType.TargetChanged && SourceIsValid(log, source, sourceIsLocal) && TargetIsValid(log, target, targetIsLocal))
+            if (log.Effect.EffectType == EffectType.TargetChanged && SourceIsValid(log, source, sourceIsLocal) && TargetIsValid(log, target, targetIsLocal) && log.Effect.EffectName == "TargetSet")
             {
                 return TriggerType.Start;
             }

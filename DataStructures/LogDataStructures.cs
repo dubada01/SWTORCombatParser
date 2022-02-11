@@ -66,6 +66,7 @@ namespace SWTORCombatParser
     }
     public class Entity
     {
+        public static Entity EmptyEntity = new Entity();
         public string Name { get; set; }
         public long Id { get; set; }
         public bool IsCharacter;

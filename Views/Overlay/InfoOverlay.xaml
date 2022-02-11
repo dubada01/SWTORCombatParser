@@ -13,9 +13,9 @@
         </Border>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.15*"/>
+                <RowDefinition Height="30"/>
                 <RowDefinition Height="0.85*"/>
-                <RowDefinition Height="0.15*"/>
+                <RowDefinition Height="{Binding LeaderboardRowHeight}"/>
             </Grid.RowDefinitions>
             <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" MouseLeftButtonDown="DragWindow" Margin="10,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding MetricBars, UpdateSourceTrigger=PropertyChanged}">
@@ -88,7 +88,7 @@
 
 
 
-            <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
+            <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
         </Grid>
     </Grid>

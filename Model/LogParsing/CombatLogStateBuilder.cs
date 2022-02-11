@@ -109,7 +109,10 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.PlayerTargetsInfo[log.Source] = new Dictionary<DateTime, Entity>();
             if (log.Error == ErrorType.IncompleteLine)
                 return;
-            CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = log.Target;
+            if(log.Effect.EffectName == "TargetSet")
+                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = log.Target;
+            if (log.Effect.EffectName == "TargetCleared")
+                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = Entity.EmptyEntity;
         }
         private static void SetCharacterPositions(ParsedLogEntry log)
         {

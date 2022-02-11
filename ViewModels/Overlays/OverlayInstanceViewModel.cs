@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -18,9 +19,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool OverlaysMoveable { get; set; }
         public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
         public ObservableCollection<OverlayMetricInfo> MetricBars { get; set; } = new ObservableCollection<OverlayMetricInfo>();
+        public OverlayType CreatedType { get; set; }
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }
         public bool HasLeaderboard => Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS;
+        public GridLength LeaderboardRowHeight => (Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS) ? new GridLength(20) : new GridLength(0);
         public bool AddSecondaryToValue { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
         public event Action CloseRequested = delegate { };
@@ -36,6 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public OverlayInstanceViewModel(OverlayType type)
         {
+            CreatedType = type;
             Type = type;
             if(Type == OverlayType.EHPS)
             {
@@ -323,6 +327,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case OverlayType.HealReactionTime:
                     value = combat.AverageDamageRecoveryTimeTotal[participant];
+                    break;
+                case OverlayType.TankHealReactionTime:
+                    value = combat.AverageTankDamageRecoveryTimeTotal[participant];
+                    break;
+                case OverlayType.HealReceivedDelay:
+                    value = combat.AverageHealingReceivedDelay[participant];
                     break;
                 case OverlayType.InterruptCount:
                     value = combat.TotalInterrupts[participant];
