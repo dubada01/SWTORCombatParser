@@ -19,6 +19,8 @@ namespace SWTORCombatParser.Model.Overlays
         HPS,
         EHPS,
         HealReactionTime,
+        TankHealReactionTime,
+        HealReceivedDelay,
         BurstEHPS,
         Tank_Shielding,
         Shielding,

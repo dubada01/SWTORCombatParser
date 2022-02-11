@@ -84,7 +84,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void CreateOverlay(object type)
         {
             OverlayType overlayType = (OverlayType)type;
-            if (_currentOverlays.Any(o => o.Type == overlayType))
+            if (_currentOverlays.Any(o => o.CreatedType == overlayType))
                 return;
 
             var viewModel = new OverlayInstanceViewModel(overlayType);

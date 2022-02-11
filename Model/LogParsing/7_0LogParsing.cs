@@ -346,7 +346,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (newEffect.EffectType == EffectType.Event)
             {
-                if (newEffect.EffectName == "TargetSet")
+                if (newEffect.EffectName == "TargetSet" || newEffect.EffectName == "TargetCleared")
                 {
                     newEffect.EffectType = EffectType.TargetChanged;
                 }

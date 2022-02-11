@@ -45,6 +45,7 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> OutgoingHealingLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingHealingLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> SheildingProvidedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
+        public ConcurrentDictionary<Entity, List<ParsedLogEntry>> AbilitiesActivated = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public List<Point> GetBurstValues(Entity entity, PlotType typeOfData)
         {
             var logs = new List<ParsedLogEntry>();
@@ -70,7 +71,8 @@ namespace SWTORCombatParser
             var tenSecondAverage = PlotMaker.GetPlotYValRates(values.ToArray(), timeStamps);
 
             var peaks = PlotMaker.GetPeaksOfMean(tenSecondAverage, 20);
-            return peaks.Select(p => new Point() { X = p.Item1, Y = p.Item2 }).ToList();
+            var validPeaks = peaks.Where(p => p.Item1 > 10);
+            return validPeaks.Select(p => new Point() { X = p.Item1, Y = p.Item2 }).ToList();
 
         }
         public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByTarget(Entity source)
@@ -164,17 +166,37 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity,double> TotalDamageTaken = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, double> CurrentHealthDeficit => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>Math.Max(0, TotalEffectiveDamageTaken[kvp.Key]-TotalEffectiveHealingReceived[kvp.Key]));
         public ConcurrentDictionary<Entity, double> TimeSpentBelowFullHealth = new ConcurrentDictionary<Entity, double>();
-        public Dictionary<Entity, Dictionary<Entity, List<double>>> DamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
+        public Dictionary<Entity, Dictionary<Entity, List<double>>> AllDamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
+        public Dictionary<Entity, Dictionary<Entity, List<double>>> TankDamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
+        public Dictionary<Entity, double> AverageHealingReceivedDelay = new Dictionary<Entity, double>();
         public Dictionary<Entity, Dictionary<Entity, double>> AverageDamageRecoveryTimePerTarget => GetDamageRecoveryTimesPerTarget();
-
+        public Dictionary<Entity, Dictionary<Entity, double>> AverageTankDamageRecoveryTimePerTarget => GetTankDamageRecoveryTimesPerTarget();
+        private Dictionary<Entity, Dictionary<Entity, double>> GetTankDamageRecoveryTimesPerTarget()
+        {
+            Dictionary<Entity, Dictionary<Entity, double>> returnDict = new Dictionary<Entity, Dictionary<Entity, double>>();
+            foreach (var player in CharacterParticipants)
+            {
+                if (TankDamageRecoveryTimes.ContainsKey(player))
+                {
+                    returnDict[player] = TankDamageRecoveryTimes[player].ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Any(v => !double.IsNaN(v)) ? kvp.Value.Where(v => !double.IsNaN(v)).Average() : double.NaN);
+                }
+                else
+                {
+                    returnDict[player] = new Dictionary<Entity, double>();
+                }
+            }
+            return returnDict;
+        }
         private Dictionary<Entity, Dictionary<Entity, double>> GetDamageRecoveryTimesPerTarget()
         {
             Dictionary<Entity, Dictionary<Entity, double>> returnDict = new Dictionary<Entity, Dictionary<Entity, double>>();
             foreach(var player in CharacterParticipants)
             {
-                if (DamageRecoveryTimes.ContainsKey(player))
+                if (AllDamageRecoveryTimes.ContainsKey(player))
                 {
-                    returnDict[player] = DamageRecoveryTimes[player].ToDictionary(
+                    returnDict[player] = AllDamageRecoveryTimes[player].ToDictionary(
                         kvp => kvp.Key, 
                         kvp => kvp.Value.Any(v=>!double.IsNaN(v)) ? kvp.Value.Where(v => !double.IsNaN(v)).Average():double.NaN);
                 }
@@ -200,6 +222,20 @@ namespace SWTORCombatParser
             }
             return returnDict;
         }
+        public Dictionary<Entity, double> AverageTankDamageRecoveryTimeTotal => GetTotalTankDamageRecoveryTimes();
+
+        private Dictionary<Entity, double> GetTotalTankDamageRecoveryTimes()
+        {
+            Dictionary<Entity, double> returnDict = new Dictionary<Entity, double>();
+            foreach (var player in CharacterParticipants)
+            {
+
+                returnDict[player] = AverageTankDamageRecoveryTimePerTarget[player].Any(kvp => !double.IsNaN(kvp.Value)) ? AverageTankDamageRecoveryTimePerTarget[player].Where(kvp => !double.IsNaN(kvp.Value)).Average(
+                    kvp => kvp.Value) : 0;
+
+            }
+            return returnDict;
+        }
 
         public ConcurrentDictionary<Entity,double> TotalEffectiveDamageTaken = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, List<Point>> AllBurstHealingReceived => CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingTaken));
@@ -207,6 +243,7 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity,double> TotalHealingReceived = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> TotalEffectiveHealingReceived = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> TotalInterrupts = new ConcurrentDictionary<Entity, double>();
+        public ConcurrentDictionary<Entity, List<DateTime>> BigDamageTimestamps = new ConcurrentDictionary<Entity, List<DateTime>>();
         public ConcurrentDictionary<Entity, double> TotalSheildAndAbsorb = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> TotalEstimatedAvoidedDamage = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, double> MitigationPercent => TotalDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value == 0?0:(EstimatedTotalMitigation[kvp.Key]/kvp.Value) * 100);

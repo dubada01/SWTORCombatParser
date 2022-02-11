@@ -97,8 +97,9 @@ namespace SWTORCombatParser
         internal void ParseLogFile()
         {
             _currentFrameData = new List<ParsedLogEntry>();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var sr = new StreamReader(fs, Encoding.UTF8))
+            using (var sr = new StreamReader(fs, Encoding.GetEncoding(1252)))
             {
                 //var allLogEntries = sr.ReadToEnd().Split('\n');
                 var allLogEntries = Regex.Split(sr.ReadToEnd(), @"(?<=[\n])");

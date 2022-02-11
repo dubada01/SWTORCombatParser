@@ -101,8 +101,9 @@ namespace SWTORCombatParser
             fileData.Name = Path.GetFileName(path);
             fileData.Path = path;
             fileData.Time = new FileInfo(path).LastWriteTime;
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var sr = new StreamReader(fs, Encoding.UTF8))
+            using (var sr = new StreamReader(fs, Encoding.GetEncoding(1252)))
             {
                 fileData.Data = sr.ReadToEnd();
             }

@@ -71,7 +71,7 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel = new CombatMonitorViewModel();
             _combatMonitorViewModel.OnCombatSelected += SelectCombat;
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
-            _combatMonitorViewModel.OnLiveCombatUpdate += UpdateLivePlot;
+            _combatMonitorViewModel.OnLiveCombatUpdate += UpdateCombat;
             _combatMonitorViewModel.OnMonitoringStarted += MonitoringStarted;
             _combatMonitorViewModel.ParticipantsUpdated += UpdateAvailableParticipants;
             _combatMonitorViewModel.LocalPlayerId += LocalPlayerChanged;
@@ -166,14 +166,14 @@ namespace SWTORCombatParser.ViewModels
             });
         }
 
-        private void UpdateLivePlot(Combat obj)
+        private void UpdateCombat(Combat obj)
         {
             App.Current.Dispatcher.Invoke(delegate
             {
                 _plotViewModel.UpdateLivePlot(obj);
                 _tableViewModel.AddCombat(obj);
                 _histViewModel.AddCombat(obj);
-
+                _reviewViewModel.CombatSelected(obj);
             });
         }
         private void NewSoftwareLog(string log)
