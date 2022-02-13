@@ -88,8 +88,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 return;
 
             var viewModel = new OverlayInstanceViewModel(overlayType);
-            if (OverlaysLocked)
-                viewModel.LockOverlays();
             DefaultOverlayManager.SetActiveState(viewModel.Type, true, _currentCharacterName);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = !OverlaysLocked;
@@ -104,6 +102,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 overlay.Height = _overlayDefaults[viewModel.Type].WidtHHeight.Y;
             }
             overlay.Show();
+            if (OverlaysLocked)
+                viewModel.LockOverlays();
         }
 
         private void RemoveOverlay(OverlayInstanceViewModel obj)

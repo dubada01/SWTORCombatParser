@@ -244,12 +244,10 @@ namespace SWTORCombatParser.ViewModels
             CombatIdentifier.NotifyNewCombatStarted();
 
             TryAddEncounter(startTime);
-            UpdateVisibleEncounters();
             if (!LiveParseActive)
                 return;
-
             AddOngoingCombat(location);
-
+            UpdateVisibleEncounters();
             _totalLogsDuringCombat[startTime] = new List<ParsedLogEntry>();
         }
 

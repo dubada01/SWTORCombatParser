@@ -62,6 +62,8 @@ namespace SWTORCombatParser.ViewModels
                     _overlayViewModel.ResetOverlays();
                 if (SWTORDetector.SwtorRunning && !_combatMonitorViewModel.LiveParseActive)
                     _combatMonitorViewModel.EnableLiveParse();
+                if (SWTORDetector.SwtorRunning)
+                    _overlayViewModel.OverlaysLocked = true;
             };
 
             _plotViewModel = new PlotViewModel();
@@ -115,11 +117,7 @@ namespace SWTORCombatParser.ViewModels
                 if (LoadingWindowFactory.MainWindowHidden)
                 {
                     _combatMonitorViewModel.EnableLiveParse(true);
-                    Task.Run(() => {
-                        Thread.Sleep(1000);
-                        _overlayViewModel.OverlaysLocked = true;
-                    });
-                    
+                    _overlayViewModel.OverlaysLocked = true;
                 }
             }
             else
