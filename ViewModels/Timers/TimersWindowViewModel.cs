@@ -37,10 +37,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             CombatLogStreamer.NewLineStreamed += NewLogInANDOutOfCombat;
             _timerWindow = new TimersWindow(this);
         }
-        public void ShowTimers()
+        public void ShowTimers(bool isLocked)
         {
             App.Current.Dispatcher.Invoke(() => {
                 _timerWindow.Show();
+                UpdateLock(isLocked);
             });
        
         }
@@ -74,7 +75,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
 
-                ShowTimers();
+                ShowTimers(!OverlaysMoveable);
             });
         }
         public void RefreshTimers()

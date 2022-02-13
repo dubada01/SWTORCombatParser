@@ -24,6 +24,7 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         private TimersWindowViewModel _timersWindowVM;
         private string selectedPlayer;
+        private bool _isLocked;
         private Dictionary<string, DefaultTimersData> _savedTimersData = new Dictionary<string, DefaultTimersData>();
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -49,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 if (selectedTimerOwnerActive)
                 {
                     _timersWindowVM.SetPlayer(SelectedPlayer);
-                    _timersWindowVM.ShowTimers(); 
+                    _timersWindowVM.ShowTimers(_isLocked); 
                 }
                 else
                     _timersWindowVM.HideTimers();
@@ -142,6 +143,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void UpdateLock(bool state)
         {
             _timersWindowVM.UpdateLock(state);
+            _isLocked = state;
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
         {
