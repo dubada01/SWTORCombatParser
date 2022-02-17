@@ -215,7 +215,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 if (i % 2 == 1)
                 {
-                    TimerRows[i].RowBackground = Brushes.WhiteSmoke;
+                    TimerRows[i].RowBackground = Brushes.Gray;
                 }
             }
         }

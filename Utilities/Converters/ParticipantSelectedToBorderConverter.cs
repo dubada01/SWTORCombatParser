@@ -15,9 +15,9 @@ namespace SWTORCombatParser.Utilities.Converters
             switch ((bool)value)
             {
                 case true:
-                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("DarkGreenColor"));
+                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("Gray4"));
                 case false:
-                    return System.Windows.Media.Brushes.DimGray;
+                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("Gray3"));
             }
         }
 

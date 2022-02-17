@@ -15,12 +15,18 @@
     <Color x:Key="ControlLightColor">White</Color>
     <Color x:Key="ControlMediumColor">#959c8e</Color>
     <Color x:Key="ControlDarkColor">#FF211AA9</Color>
-
+    <Color x:Key="Gray1">#111</Color>
+    <Color x:Key="Gray2">#222</Color>
+    <Color x:Key="Gray3">#333</Color>
+    <Color x:Key="Gray4">#444</Color>
+    <Color x:Key="Gray5">#555</Color>
+    <Color x:Key="Gray6">#666</Color>
     <Color x:Key="ControlMouseOverColor">#6b7065</Color>
     <Color x:Key="ControlPressedColor">#6c8256</Color>
     <Color x:Key="GreenColor">#FF34A547</Color>
     <Color x:Key="DarkGreenColor">#386e4d</Color>
-    <Color x:Key="LightGrayGreenColor">#8ba38c</Color>
+    <Color x:Key="VeryDarkGreenColor">#323833</Color>
+    <Color x:Key="LightGrayGreenColor">#4f5951</Color>
     <Color x:Key="YellowGrayColor">#b59700</Color>
     <Color x:Key="GrayGreenColor">#bbc4bd</Color>
     <Color x:Key="RedColor">#FFa53434</Color>
@@ -52,9 +58,16 @@
 
     <Color x:Key="NavButtonFrameColor">#FF3843C4</Color>
 
-
+    <SolidColorBrush x:Key="Gray1Brush" Color="{StaticResource Gray1}"/>
+    <SolidColorBrush x:Key="Gray2Brush" Color="{StaticResource Gray2}"/>
+    <SolidColorBrush x:Key="Gray3Brush" Color="{StaticResource Gray3}"/>
+    <SolidColorBrush x:Key="Gray4Brush" Color="{StaticResource Gray4}"/>
+    <SolidColorBrush x:Key="Gray5Brush" Color="{StaticResource Gray5}"/>
+    <SolidColorBrush x:Key="Gray6Brush" Color="{StaticResource Gray6}"/>
+    
     <SolidColorBrush x:Key="ParticipantDPSBrush" Color="{StaticResource ParticipantDPSColor}"/>
     <SolidColorBrush x:Key="ParticipantHPSBrush" Color="{StaticResource ParticipantHPSColor}"/>
+    <SolidColorBrush x:Key="VeryDarkGreenBrush" Color="{StaticResource VeryDarkGreenColor}"/>
     <SolidColorBrush x:Key="ParticipantDTPSBrush" Color="{StaticResource ParticipantDTPSColor}"/>
     <SolidColorBrush x:Key="GreenColorBrush" Color="{StaticResource DarkGreenColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="GrayGreenColorBrush" Color="{StaticResource LightGrayGreenColor}"></SolidColorBrush>

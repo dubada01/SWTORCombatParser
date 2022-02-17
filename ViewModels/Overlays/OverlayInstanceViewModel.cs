@@ -299,7 +299,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     value = combat.PSPS[participant];
                     break;
                 case OverlayType.FocusDPS:
-                    value = combat.FocusDPS[participant];
+                    value = combat.EFocusDPS[participant];
                     break;
                 case OverlayType.Threat:
                     value = combat.TPS[participant];

@@ -12,7 +12,7 @@
             <RowDefinition Height="50"/>
             <RowDefinition Height="0.9*"/>
         </Grid.RowDefinitions>
-        <Border Background="LightGray" CornerRadius="5" Grid.Row="0" Margin="0,0,0,0" BorderBrush="{Binding LiveParseActive, Converter={StaticResource LiveParseToBrushConverter}}" Padding="0,0,0,0" BorderThickness="5">
+        <Border Background="{StaticResource Gray6Brush}" CornerRadius="5" Grid.Row="0" Margin="0,0,0,0" BorderBrush="{Binding LiveParseActive, Converter={StaticResource LiveParseToBrushConverter}}" Padding="0,0,0,0" BorderThickness="5">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height=".75*"/>
@@ -28,7 +28,7 @@
                         <RowDefinition Height=".66*"/>
                     </Grid.RowDefinitions>
                     <Viewbox Grid.Row="0" MaxHeight="25" VerticalAlignment="Top">
-                        <TextBlock FontFamily="{StaticResource MainFont}" Text="Live Parse" HorizontalAlignment="Center"></TextBlock>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="Live Parse" HorizontalAlignment="Center"></TextBlock>
                     </Viewbox>
                     <Viewbox Grid.Row="1" VerticalAlignment="Top" MaxHeight="40">
                         <Button FontFamily="{StaticResource MainFont}"
@@ -69,11 +69,11 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Viewbox MaxHeight="60" Grid.Column="0" Margin="5,5,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left">
-                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="DimGray" Text="Battles" FontWeight="Bold" ></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="LightGray" Text="Battles" FontWeight="Bold" ></TextBlock>
             </Viewbox>
             <Viewbox Grid.Column="1" MaxHeight="60" MaxWidth="100" Margin="5,5,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock FontFamily="{StaticResource MainFont}" Foreground="DimGray" Text="Show Trash: " FontWeight="Bold" ></TextBlock>
+                    <TextBlock FontFamily="{StaticResource MainFont}" Foreground="LightGray" Text="Show Trash: " FontWeight="Bold" ></TextBlock>
                     <CheckBox IsChecked="{Binding ShowTrash}" HorizontalAlignment="Right"></CheckBox>
                 </StackPanel>
             </Viewbox>

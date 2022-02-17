@@ -23,7 +23,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
 
-                            <Button Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" MaxHeight="60" MaxWidth="200" Margin="15,5,15,5" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                            <Button Background="DimGray" Foreground="WhiteSmoke" Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" MaxHeight="60" MaxWidth="200" Margin="15,5,15,5" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="2*"></RowDefinition>
@@ -48,7 +48,7 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </Border>
-            <TextBlock Grid.Row="0" FontSize="15" Margin="0,21,0,0" FontWeight="DemiBold" VerticalAlignment="Top" Background="LightGray" FontFamily="{StaticResource MainFont}" Text=" Available Overlays " HorizontalAlignment="Center"></TextBlock>
+            <TextBlock Grid.Row="0" FontSize="15" Margin="0,21,0,0" FontWeight="DemiBold" VerticalAlignment="Top" Foreground="WhiteSmoke" Background="{StaticResource Gray5Brush}" FontFamily="{StaticResource MainFont}" Text=" Available Overlays " HorizontalAlignment="Center"></TextBlock>
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -57,7 +57,7 @@
                 </Grid.ColumnDefinitions>
                 <Viewbox HorizontalAlignment="Center" MaxHeight="25" Margin="10,2,10,2">
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
+                        <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
                         <Viewbox MaxHeight="20">
                             <CheckBox VerticalAlignment="Center" IsChecked="{Binding OverlaysLocked}"></CheckBox>
                         </Viewbox>
@@ -65,7 +65,7 @@
                 </Viewbox>
                 <Viewbox Margin="0,2,0,2" MaxHeight="50" HorizontalAlignment="Center" Grid.Column="1">
                     <StackPanel Orientation="Vertical">
-                        <TextBlock FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlay Leaderboard: "/>
+                        <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlay Leaderboard: "/>
                         <ComboBox HorizontalAlignment="Center" Height="45" Width="200" HorizontalContentAlignment="Center" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}" Style="{StaticResource NewComboStyle}"></ComboBox>
                     </StackPanel>
                 </Viewbox>

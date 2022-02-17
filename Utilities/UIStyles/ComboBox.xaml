@@ -44,7 +44,7 @@
                 </Border.BorderBrush>
                 <Border.Background>
 
-                    <SolidColorBrush Color="LightGray"/>
+                    <SolidColorBrush Color="{StaticResource Gray3}"/>
 
                 </Border.Background>
             </Border>
@@ -52,7 +52,7 @@
             CornerRadius="2,0,0,2"
             Margin="1" >
                 <Border.Background>
-                    <SolidColorBrush Color="{DynamicResource ControlLightColor}"/>
+                    <SolidColorBrush Color="{StaticResource Gray6}"/>
                 </Border.Background>
             </Border>
             <Path x:Name="Arrow"
@@ -61,7 +61,7 @@
           VerticalAlignment="Center"
           Data="M 0 0 L 4 4 L 8 0 Z" >
                 <Path.Fill>
-                    <SolidColorBrush Color="{DynamicResource GlyphColor}"/>
+                    <SolidColorBrush Color="WhiteSmoke"/>
                 </Path.Fill>
             </Path>
         </Grid>
@@ -76,6 +76,7 @@
 
     <Style x:Key="NewComboStyle"
        TargetType="{x:Type ComboBox}">
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
         <Setter Property="SnapsToDevicePixels"
           Value="true" />
         <Setter Property="OverridesDefaultStyle"
@@ -144,7 +145,7 @@
                                         <SolidColorBrush Color="{DynamicResource BorderMediumColor}" />
                                     </Border.BorderBrush>
                                     <Border.Background>
-                                        <SolidColorBrush Color="{DynamicResource ControlLightColor}" />
+                                        <SolidColorBrush Color="{StaticResource  Gray6}" />
                                     </Border.Background>
                                 </Border>
                                 <ScrollViewer Margin="4,6,4,6"

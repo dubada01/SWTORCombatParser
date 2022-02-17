@@ -206,9 +206,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
             switch (role)
             {
                 case LeaderboardEntryType.Damage:
-                    return combat.DPS[player];
+                    return combat.EDPS[player];
                 case LeaderboardEntryType.FocusDPS:
-                    return combat.FocusDPS[player];
+                    return combat.EFocusDPS[player];
                 case LeaderboardEntryType.Healing:
                     return combat.HPS[player] + combat.PSPS[player];
                 case LeaderboardEntryType.EffectiveHealing:

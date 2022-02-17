@@ -23,6 +23,7 @@ namespace SWTORCombatParser.Utilities
         private static bool _bossCombat;
         private static bool _isInCombat;
         private static bool _isCombatResOut;
+        private static DateTime _inCombatStartTime;
         private static void Reset()
         {
             _bossCombat = false;
@@ -37,6 +38,7 @@ namespace SWTORCombatParser.Utilities
                 {
                     Reset();
                     _isInCombat = true;
+                    _inCombatStartTime = line.TimeStamp;
                     return CombatState.ExitedByEntering;
                 }
                 Reset();
@@ -83,7 +85,7 @@ namespace SWTORCombatParser.Utilities
             {
                 if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.NextGen)
                 {
-                    var characterDeathStates = CombatLogStateBuilder.CurrentState.PlayerDeathChangeInfo;
+                    var characterDeathStates = CombatLogStateBuilder.CurrentState.PlayerDeathChangeInfo.Where(kvp=>kvp.Value.Keys.Any(k=>k>_inCombatStartTime && k<=_inCombatStartTime)).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value);
                     var logTime = line.TimeStamp;
                     var allDead = characterDeathStates.Keys.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
                     if (allDead)

@@ -31,23 +31,23 @@
                 <Viewbox HorizontalAlignment="Left" Grid.Column="0" Margin="2">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="DPS:"/>
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{StaticResource ParticipantDPSBrush}" Text="{Binding DPS}"/>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="IndianRed" Text="{Binding DPS}"/>
                     </StackPanel>
                 </Viewbox>
                 <Viewbox HorizontalAlignment="Left" Grid.Column="1" Margin="2">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="HPS:"/>
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{StaticResource ParticipantHPSBrush}" Text="{Binding HPS}"/>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="MediumAquamarine" Text="{Binding HPS}"/>
                     </StackPanel>
                 </Viewbox>
                 <Viewbox HorizontalAlignment="Left" Grid.Column="2" Margin="2">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="DTPS:"/>
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{StaticResource ParticipantDTPSBrush}" Text="{Binding DTPS}"/>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="Peru" Text="{Binding DTPS}"/>
                     </StackPanel>
                 </Viewbox>
             </Grid>
-            <Image MaxHeight="15" Source="../../resources/LocalPlayerIcon.png" Visibility="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
+            <Image MaxHeight="35" Source="../../resources/LocalPlayerIcon.png" Visibility="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
         </Grid>
     </Border>
 </UserControl>
