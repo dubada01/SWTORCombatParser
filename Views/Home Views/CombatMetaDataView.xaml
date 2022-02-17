@@ -36,17 +36,17 @@
                                 <TextBlock FontFamily="{StaticResource MainFont}" Foreground="CadetBlue" Text="{Binding Selected, Converter={StaticResource EffectSelectedToTextConverter}}"></TextBlock>
                             </Viewbox>
                             <Viewbox MaxHeight="15" Margin="0,0,5,0" HorizontalAlignment="Left" Grid.Column="1" >
-                                <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Name}"></TextBlock>
+                                <TextBlock Foreground="LightGray" FontFamily="{StaticResource MainFont}" Text="{Binding Name}"></TextBlock>
                             </Viewbox>
                             <Viewbox MaxHeight="15" HorizontalAlignment="Right" Grid.Column="2" >
-                                <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Duration, StringFormat={}{0:0.#} sec}"></TextBlock>
+                                <TextBlock Foreground="LightGray" FontFamily="{StaticResource MainFont}" Text="{Binding Duration, StringFormat={}{0:0.#} sec}"></TextBlock>
                             </Viewbox>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </Border>
-        <TextBlock FontFamily="{StaticResource MainFont}" Background="LightGray" Foreground="CadetBlue" Width="71" HorizontalAlignment="Left" Text="Effects" FontWeight="DemiBold" FontSize="23" Grid.Row="1" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
+        <TextBlock FontFamily="{StaticResource MainFont}" Background="{StaticResource Gray5Brush}" Foreground="CadetBlue" Width="71" HorizontalAlignment="Left" Text="Effects" FontWeight="DemiBold" FontSize="23" Grid.Row="1" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
         <Viewbox VerticalAlignment="Center" MaxHeight="30" Margin="0,5,0,5" Grid.Row="2">
             <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Width="75" FontSize="10" Padding="5" Content="Clear" Command="{Binding ClearCombatEffectsCommand}"/>
         </Viewbox>

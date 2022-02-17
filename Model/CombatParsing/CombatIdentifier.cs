@@ -120,7 +120,7 @@ namespace SWTORCombatParser
         {
             if (currentEncounter == null)
                 return "";
-            var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet");
+            var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet" && !string.IsNullOrEmpty(l.Target.Name));
             if (currentEncounter.Name.Contains("Open World"))
             {
                 if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.Name.Contains("Training Dummy")))

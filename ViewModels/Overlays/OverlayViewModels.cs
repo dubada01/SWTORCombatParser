@@ -38,7 +38,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             set
             {
                 selectedLeaderboardType = value;
-                Leaderboards.UpdateLeaderboardType(selectedLeaderboardType);
+                //Leaderboards.UpdateLeaderboardType(selectedLeaderboardType);
             }
         }
         public OverlayViewModel()

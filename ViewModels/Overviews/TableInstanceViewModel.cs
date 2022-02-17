@@ -99,7 +99,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             {
                 if(i%2==0)
                 {
-                    DataToView[i].RowBackground = Brushes.WhiteSmoke;
+                    DataToView[i].RowBackground = Brushes.DimGray;
                 }
             }
             OnPropertyChanged("DataToView");

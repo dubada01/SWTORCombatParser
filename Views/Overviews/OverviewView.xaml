@@ -44,16 +44,16 @@
                         </Setter>
                     </Style>
                 </TabControl.Resources>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Style="{StaticResource RoundedTab}" Header="Damage">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Damage">
                     <ContentPresenter Content="{Binding DamageContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Style="{StaticResource RoundedTab}" Header="Healing">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Healing">
                     <ContentPresenter Content="{Binding HealingContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Style="{StaticResource RoundedTab}" Header="Damage Taken">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Damage Taken">
                     <ContentPresenter Content="{Binding DamageTakenContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Style="{StaticResource RoundedTab}" Header="Healing Received">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Healing Received">
                     <ContentPresenter Content="{Binding HealingReceivedContent}"></ContentPresenter>
                 </TabItem>
                 

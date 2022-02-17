@@ -6,15 +6,15 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Histogram"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid Background="{StaticResource Gray5Brush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.15*"/>
             <ColumnDefinition Width="0.85*"/>
         </Grid.ColumnDefinitions>
-        <ListView ItemsSource="{Binding AvailableAbilities}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectedItem="{Binding SelectedAbility}">
+        <ListView Background="{StaticResource Gray4Brush}" ItemsSource="{Binding AvailableAbilities}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectedItem="{Binding SelectedAbility}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding }" TextTrimming="CharacterEllipsis"></TextBlock>
+                    <TextBlock  Foreground="WhiteSmoke" Text="{Binding }" TextTrimming="CharacterEllipsis"></TextBlock>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

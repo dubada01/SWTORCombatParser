@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static bool TryAddLeaderboardEntry(LeaderboardEntry newEntry)
         {
             var currentValidEntry = GetEntriesForBossAndCharacterWithClass(newEntry.Boss, newEntry.Encounter, newEntry.Character, newEntry.Class, newEntry.Type);
-            if(currentValidEntry.Count == 0 || newEntry.Value > currentValidEntry.First().Value)
+            if(currentValidEntry.Count == 0 || (newEntry.Value > currentValidEntry.First().Value && newEntry.Value != 0))
             {
                 if (currentValidEntry.Count > 0)
                 {
