@@ -131,7 +131,6 @@ namespace SWTORCombatParser.Views.Timers
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DefaultTimersManager.SetActiveState( false, _currentPlayerName);
             CloseOverlay();
         }
     }
