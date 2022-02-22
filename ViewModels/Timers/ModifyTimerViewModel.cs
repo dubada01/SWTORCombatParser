@@ -475,7 +475,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var newTimer = new Timer()
             {
                 Id = Id,
-                CharacterOwner = _currentSelectedPlayer,
+                TimerSource = _currentSelectedPlayer,
                 Name = Name,
                 TrackOutsideOfCombat = TrackOutsideOfCombat,
                 CombatTimeElapsed = CombatDuration,

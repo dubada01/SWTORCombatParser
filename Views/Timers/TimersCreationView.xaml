@@ -12,23 +12,35 @@
             <RowDefinition Height="0.7*"/>
             <RowDefinition Height="0.15*"/>
         </Grid.RowDefinitions>
-        <Viewbox  VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="15,5,0,5">
-            <StackPanel Orientation="Vertical">
-                <TextBlock Text="Available Timer Owners" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding SavedPlayerNames}" SelectedItem="{Binding SelectedPlayer}" Width="250" Height="40"></ComboBox>
-            </StackPanel>
-        </Viewbox>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Viewbox Grid.Column="0" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Encounter Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding EncounterTimersList}" SelectedItem="{Binding SelectedEncounter}" Width="250" Height="40"></ComboBox>
+                </StackPanel>
+            </Viewbox>
+            <Viewbox Grid.Column="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Discipline Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding DisciplineTimersList}" SelectedItem="{Binding SelectedDiscipline}" Width="250" Height="40"></ComboBox>
+                </StackPanel>
+            </Viewbox>
+            <Viewbox Grid.Column="2" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="All Timers Active" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <Viewbox MaxHeight="25">
+                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding TimersActive}"></CheckBox>
+                    </Viewbox>
 
+                </StackPanel>
+            </Viewbox>
+        </Grid>
 
-        <Viewbox HorizontalAlignment="Left" MaxHeight="35" Margin="200,0,0,0">
-            <StackPanel Orientation="Vertical">
-                <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Text="Timers Active" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                <Viewbox MaxHeight="25">
-                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding SelectedTimerOwnerActive}"></CheckBox>
-                </Viewbox>
-
-            </StackPanel>
-        </Viewbox>
 
         <Border BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="Transparent">
             <Grid>
