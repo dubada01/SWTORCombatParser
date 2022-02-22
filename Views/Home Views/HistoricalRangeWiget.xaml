@@ -17,8 +17,8 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height=".75*"/>
         </Grid.RowDefinitions>
-        <TextBlock Margin="10,0,0,0" FontSize="15" Text="From" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
-        <TextBlock Margin="0,0,10,0" FontSize="15" Text="To" Grid.Column="2" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
+        <TextBlock Margin="10,0,0,0" FontSize="15" Text="From" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
+        <TextBlock Margin="0,0,10,0" FontSize="15" Text="To" Grid.Column="2" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Bottom"></TextBlock>
         <!--<TextBox Margin="10,0,0,0" Grid.Row="1" Text="{Binding FromDate}" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Medium" Style="{StaticResource RoundedTextBox}"></TextBox>
         <TextBox Margin="0,0,10,0" Grid.Row="1" Text="{Binding ToDate}" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Grid.Column="2" FontWeight="Medium" Style="{StaticResource RoundedTextBox}"></TextBox>-->
         <Viewbox Margin="5,0,0,0" Grid.Row="1">
@@ -28,7 +28,7 @@
             <DatePicker Style="{StaticResource CustomDatePicker}" TextBlock.FontFamily="{StaticResource MainFont}" SelectedDate="{Binding ToDate}"></DatePicker>
         </Viewbox>
         <Image Height="25" Grid.Column="1" Grid.Row="1" Source="../../resources/DoubleArrowIcon.png"></Image>
-        <Button MaxWidth="125" MaxHeight="30" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,5,0,5" Grid.Row="2" Style="{StaticResource RoundCornerButton}" Command="{Binding FetchHistoryBetweenDatesCommand}" Background="WhiteSmoke" FontFamily="{StaticResource MainFont}" >
+        <Button  MaxWidth="125" MaxHeight="30" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,1,0,3" Grid.Row="2" Style="{StaticResource RoundCornerButton}" Command="{Binding FetchHistoryBetweenDatesCommand}" Background="{StaticResource Gray12Brush}" FontFamily="{StaticResource MainFont}" >
             <Viewbox>
                 <TextBlock Text="View History" Margin="10,0,10,0"></TextBlock>
             </Viewbox>

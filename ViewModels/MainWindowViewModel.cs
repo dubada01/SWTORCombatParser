@@ -211,6 +211,8 @@ namespace SWTORCombatParser.ViewModels
         private Entity localEntity;
         private void LocalPlayerChanged(Entity obj)
         {
+            if (localEntity == obj)
+                return;
             App.Current.Dispatcher.Invoke(delegate
             {
                 if(localEntity != obj)

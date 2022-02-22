@@ -18,6 +18,16 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
     }
     public class EncounterInfo
     {
+        public static EncounterInfo GetCopy(EncounterInfo source)
+        {
+            return new EncounterInfo
+            {
+                LogName =  source.LogName,
+                Name = source.Name,
+                BossInfos = source.BossInfos,
+                BossNames = source.BossNames
+            };
+        }
         public string Difficutly { get; set; } = "";
         public string NumberOfPlayer { get; set; } = "";
         private List<string> bossNames;

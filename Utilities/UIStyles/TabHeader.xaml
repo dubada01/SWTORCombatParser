@@ -17,7 +17,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Panel.ZIndex" Value="100" />
-                            <Setter TargetName="Border" Property="Background" Value="{StaticResource GrayGreenColorBrush}" />
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource ParticipantHPSBrush}" />
                             <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,0" />
                         </Trigger>
                     </ControlTemplate.Triggers>

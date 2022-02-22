@@ -21,7 +21,7 @@ namespace SWTORCombatParser.DataStructures
     public class Timer
     {
         private bool isEnabled;
-        public string CharacterOwner { get;set; }
+        public string TimerSource { get;set; }
         public string CharacterDiscipline { get; set; }
         public string Id { get; set; }
         public string ShareId { get; set; }

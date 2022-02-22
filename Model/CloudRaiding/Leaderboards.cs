@@ -20,7 +20,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     }
     public static class Leaderboards
     {
-        public static string _leaderboardVersion = "1";
+        public static string _leaderboardVersion = "2";
         public static object _updateLock = new object();
         public static LeaderboardType CurrentLeaderboardType;
         public static event Action<Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>> LeaderboardStandingsAvailable = delegate { };
@@ -56,9 +56,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 LeaderboardEntry topParse;
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
-                    topParse = PostgresConnection.GetTopLeaderboardForClass(bossName, encounterName, className, enumVal);
+                    topParse = PostgresConnection.GetTopLeaderboardForClass(bossName, encounterName, className, enumVal).Result;
                 else
-                    topParse = PostgresConnection.GetTopLeaderboard(bossName, encounterName, enumVal);
+                    topParse = PostgresConnection.GetTopLeaderboard(bossName, encounterName, enumVal).Result;
                 if (string.IsNullOrEmpty(topParse.Character))
                     continue;
                 TopLeaderboards[enumVal] = (topParse.Character, topParse.Value);
@@ -123,9 +123,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
-                    CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossWithClass(bossName, encounterName, className, enumVal);
+                {
+                    var results = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
+                    CurrentFightLeaderboard[enumVal] = results.Where(r => r.Class == className).ToList();
+                }
                 else
-                    CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal);
+                    CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
 
             }
         }
@@ -138,18 +141,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
         }
 
-        public static void TryAddLeaderboardEntry(Combat combat)
+        public static async void TryAddLeaderboardEntry(Combat combat)
         {
-            //// REMOVE WITH 7.0
-            //if (combat.WasPlayerKilled(combat.LocalPlayer))
-            //    return;
             var state = CombatLogStateBuilder.CurrentState;
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
-                //// ADD WITH 7.0
                 foreach (var player in combat.CharacterParticipants)
                 {
-                    //var player = combat.LocalPlayer;
                     SWTORClass playerClass;
                     if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(player))
                     {
@@ -171,24 +169,24 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         Duration = (int)combat.DurationSeconds,
                         Version = _leaderboardVersion,
                         VerifiedKill = combat.WasBossKilled,
-                        Logs = JsonConvert.SerializeObject(combat.AllLogs)
+                        TimeStamp = combat.EndTime,
                     };
                     if (CheckForValidParseUpload(combat)||CheckForValidCombatUpload(combat,player))
                     {
-                        PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
-                        CombatIdentifier.UpdateOverlays(combat);
+                        await PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
                     }
                 }
             }
+            CombatIdentifier.UpdateOverlays(combat);
         }
         private static bool CheckForValidCombatUpload(Combat combat, Entity player)
         {
             if (combat.ParentEncounter.Name == "Parsing")
                 return false;
-            if (combat.DurationSeconds > 250)
-                return true;
             if (combat.WasBossKilled)
                 return true;
+            if (combat.DurationSeconds < 250)
+                return false;
             if (!combat.WasPlayerKilled(player))
                 return true;
             return false;

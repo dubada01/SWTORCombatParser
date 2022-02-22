@@ -322,8 +322,14 @@ namespace SWTORCombatParser.Model.LogParsing
         private static Effect ParseEffect(string value)
         {
             var split = value.Split(':');
-            var type = split[0];
-            var name = split[1];
+            var type = "ApplyEffect {";
+            var name = "";
+            if(split.Length == 2)
+            {
+                type = split[0];
+                name = split[1];
+            }
+            
             var newEffect = new Effect();
             newEffect.EffectType = GetEffectType(type.Split('{')[0].Trim());
 

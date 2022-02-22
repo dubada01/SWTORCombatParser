@@ -11,7 +11,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Border Margin="2,0,2,0" PreviewMouseLeftButtonDown="Border_PreviewMouseLeftButtonDown" BorderBrush="DimGray" Background="{StaticResource GrayGreenColorBrush}" BorderThickness="1" CornerRadius="5" Padding="3" >
+        <Border Margin="2,0,2,2" PreviewMouseLeftButtonDown="Border_PreviewMouseLeftButtonDown" BorderBrush="{StaticResource Gray5Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2,2,2,2" CornerRadius="5" Padding="3" >
             <Border.Resources>
                 <Style TargetType="Border">
                     <Style.Triggers>
@@ -37,19 +37,19 @@
                         <RowDefinition Height="{Binding DetailsHeight}"/>
                     </Grid.RowDefinitions>
                     <Viewbox MaxHeight="25" Margin="0,5,0,5" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="Beige" FontWeight="DemiBold" Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Path=Info.Name}"></TextBlock>
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="{StaticResource HeaderTextBrush}" FontWeight="DemiBold" Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Path=Info.Name}"></TextBlock>
                     </Viewbox>
                     <Viewbox Visibility="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,0,5,0" MaxHeight="20" Grid.Row="1" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Difficulty"></TextBlock>
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="LightGray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Difficulty"></TextBlock>
                     </Viewbox>
                     <Viewbox Visibility="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,0,5,0" MaxHeight="20" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Players"></TextBlock>
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="LightGray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Players"></TextBlock>
                     </Viewbox>
                     <Viewbox Visibility="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Grid.Row="2" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="Beige" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding Path=Info.Difficutly}"></TextBlock>
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="LightGoldenrodYellow" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding Path=Info.Difficutly}"></TextBlock>
                     </Viewbox>
                     <Viewbox Visibility="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}"  MaxHeight="20" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="Beige" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding Path=Info.NumberOfPlayers}"></TextBlock>
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="LightGoldenrodYellow" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding Path=Info.NumberOfPlayer}"></TextBlock>
                     </Viewbox>
                 </Grid>
 
@@ -62,17 +62,17 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Viewbox Visibility="{Binding IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Margin="5,0,5,0" Grid.Row="0" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Boss Battles"></TextBlock>
+                    <Viewbox Visibility="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Margin="5,0,5,0" Grid.Row="0" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="LightGray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Boss Battles"></TextBlock>
                     </Viewbox>
-                    <Viewbox Visibility="{Binding IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Margin="5,0,5,0" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Trash Battles"></TextBlock>
+                    <Viewbox Visibility="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Margin="5,0,5,0" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="LightGray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Trash Battles"></TextBlock>
                     </Viewbox>
-                    <Viewbox Visibility="{Binding IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Grid.Row="1" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="Beige" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding NumberOfBossBattles}"></TextBlock>
+                    <Viewbox Visibility="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Grid.Row="1" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="LightGoldenrodYellow" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding NumberOfBossBattles}"></TextBlock>
                     </Viewbox>
-                    <Viewbox Visibility="{Binding IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="Beige" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding NumberOfTrashBattles}"></TextBlock>
+                    <Viewbox Visibility="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="20" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="LightGoldenrodYellow" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding NumberOfTrashBattles}"></TextBlock>
                     </Viewbox>
                     <Image Width="30" Opacity="0.5" Grid.Row="1" Grid.ColumnSpan="2" Source="{Binding ExpandIconSource}"></Image>
                 </Grid>

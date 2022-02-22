@@ -26,15 +26,21 @@ namespace SWTORCombatParser
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
 
         private bool _isInCombat = false;
+        private bool _isWaitingForExitCombatTimout;
         private long _numberOfProcessedEntries;
         private long _currentLogsInFile;
         private string _logToMonitor; 
         private bool _monitorLog;
         private DateTime _lastUpdateTime;
         private List<ParsedLogEntry> _currentFrameData = new List<ParsedLogEntry>();
+        private List<ParsedLogEntry> _waitingForExitCombatTimeout = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
         private DateTime _currentCombatStartTime;
 
+        public CombatLogStreamer()
+        {
+            CombatDetector.AlertExitCombatTimedOut += OnExitCombatTimedOut;
+        }
         public void MonitorLog(string logToMonitor)
         {
             Task.Run(() =>
@@ -164,10 +170,15 @@ namespace SWTORCombatParser
             parsedLine.LogName = Path.GetFileName(logName);
             CheckForCombatState(parsedLine);
             NewLineStreamed(parsedLine);
-            if (_isInCombat)
+            if (_isInCombat && !_isWaitingForExitCombatTimout)
             {
                 _currentFrameData.Add(parsedLine);
                 _currentCombatData.Add(parsedLine);
+            }
+            if(_isInCombat && _isWaitingForExitCombatTimout)
+            {
+                _currentFrameData.Add(parsedLine);
+                _waitingForExitCombatTimeout.Add(parsedLine);
             }
             return true;
         }
@@ -188,6 +199,16 @@ namespace SWTORCombatParser
             {
                 EndCombat(parsedLine);
             }
+            if(currentCombatState == CombatState.ExitCombatDetected)
+            {
+                _isWaitingForExitCombatTimout = true;
+            }
+        }
+        private void OnExitCombatTimedOut(CombatState state)
+        {
+            _isWaitingForExitCombatTimout = false;
+            _waitingForExitCombatTimeout.Clear();
+            EndCombat();
         }
         private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat)
         {
@@ -203,15 +224,19 @@ namespace SWTORCombatParser
         }
         private void EndCombat(ParsedLogEntry parsedLine = null)
         {
+            _isWaitingForExitCombatTimout = false;
             if (!_isInCombat)
                 return;
+            if(_waitingForExitCombatTimeout.Count > 0)
+            {
+                _currentCombatData.AddRange(_waitingForExitCombatTimeout);
+            }
             if (parsedLine != null)
             {
                 _currentCombatData.Add(parsedLine);
                 _currentFrameData.Add(parsedLine);
             }
-            //CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
-            //CombatTimestampRectifier.RectifyTimeStamps(_currentCombatData);
+
             _isInCombat = false;
 
             if (string.IsNullOrEmpty(_logToMonitor))

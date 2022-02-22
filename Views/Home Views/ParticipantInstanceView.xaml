@@ -16,7 +16,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
-                <Image Source="{Binding RoleImageSource}"></Image>
+                <Image Source="{Binding RoleImageSource}" Margin="0,0,5,0"></Image>
                 <Viewbox>
                     <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="{Binding PlayerName}"/>
                 </Viewbox>
@@ -47,7 +47,7 @@
                     </StackPanel>
                 </Viewbox>
             </Grid>
-            <Image MaxHeight="35" Source="../../resources/LocalPlayerIcon.png" Visibility="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
+            <Image MaxHeight="35" Source="../../resources/LocalPlayerIcon.png" Visibility="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,5,0" VerticalAlignment="Top"></Image>
         </Grid>
     </Border>
 </UserControl>

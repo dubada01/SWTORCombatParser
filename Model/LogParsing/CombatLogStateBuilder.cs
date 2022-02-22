@@ -41,7 +41,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if(liveLog)
                     OutrangedHealerAlert.CheckForOutrangingHealers(log.TimeStamp);
                 if(log.Effect.EffectType == EffectType.DisciplineChanged)
-                    UpdatePlayerClassState(log);
+                    UpdatePlayerClassState(log,liveLog);
                 if(log.Effect.EffectType == EffectType.TargetChanged)
                     UpdatePlayerTargets(log);
                 if (log.LogLocation != null)
@@ -55,7 +55,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static void UpdateEncounterEntered(ParsedLogEntry log)
         {
             var location = log.LogLocation;
-            var knownEncounters = RaidNameLoader.SupportedEncounters;
+            var knownEncounters = RaidNameLoader.SupportedEncounters.Select(s=>EncounterInfo.GetCopy(s));
             if (knownEncounters.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)))
             {
                 var raidOfInterest = knownEncounters.First(r => log.LogLocation.Contains(r.LogName));
@@ -87,7 +87,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if(log.Effect.EffectName == "Revived")
                 CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
         }
-        private static void UpdatePlayerClassState(ParsedLogEntry parsedLine)
+        private static void UpdatePlayerClassState(ParsedLogEntry parsedLine, bool realTime)
         {
             if (!parsedLine.Source.IsCharacter)
                 return;
@@ -97,7 +97,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
-            if(parsedLine.Source.IsLocalPlayer)
+            if(parsedLine.Source.IsLocalPlayer && realTime)
                 PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
 
         }

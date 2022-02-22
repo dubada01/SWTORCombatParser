@@ -92,9 +92,9 @@ namespace SWTORCombatParser
         public double DblValue;
         public double EffectiveDblValue;
         public string StrValue;
-        public string DisplayValue { get; set; } = "N/A";
-        public string ModifierDisplayValue { get; set; } = "N/A";
-        public string ModifierType { get; set; } = "N/A";
+        public string DisplayValue { get; set; }
+        public string ModifierDisplayValue { get; set; }
+        public string ModifierType { get; set; } 
         public string AllBuffs => string.Join(',',Buffs.Select(b=>b.Name));
         public List<CombatModifier> Buffs { get; set; } = new List<CombatModifier>();
         public List<CombatModifier> DefensiveBuffs { get; set; } = new List<CombatModifier>();

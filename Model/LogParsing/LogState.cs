@@ -55,6 +55,10 @@ namespace SWTORCombatParser.Model.LogParsing
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public bool WasPlayerDeadAtTime(Entity player, DateTime timestamp)
         {
+            if (!PlayerDeathChangeInfo.ContainsKey(player))
+            {
+                return true;
+            }
             var playerDeathInfo = PlayerDeathChangeInfo[player];
             if (!playerDeathInfo.Any(d => d.Key < timestamp))
                 return true;
@@ -95,7 +99,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var classOfSource = PlayerClassChangeInfo[entity];
             if (classOfSource == null)
                 return new SWTORClass();
-            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(v => (time - v).TotalSeconds).First()];
+            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds)).First()];
             return classAtTime;
         }
         public Entity GetPlayerTargetAtTime(Entity player, DateTime time)
@@ -113,7 +117,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var classOfSource = PlayerClassChangeInfo[entity];
             if (classOfSource == null)
                 return new SWTORClass();
-            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(v => (time - v).TotalSeconds).First()];
+            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds)).First()];
             return classAtTime;
         }
         public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
