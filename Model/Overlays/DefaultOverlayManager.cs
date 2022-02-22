@@ -37,6 +37,7 @@ namespace SWTORCombatParser.Model.Overlays
         public Point Position;
         public Point WidtHHeight;
         public bool Acive;
+        public bool Locked;
     }
     public static class DefaultOverlayManager
     {
@@ -57,15 +58,24 @@ namespace SWTORCombatParser.Model.Overlays
             currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
             SaveResults(characterName, currentDefaults);
         }
+        public static void SetLockedState(bool state, string characterName)
+        {
+            var currentDefaults = GetDefaults(characterName);
+            foreach(var overlay in currentDefaults.Keys)
+            {
+                currentDefaults[overlay] = new DefaultOverlayInfo() { Position = currentDefaults[overlay].Position, WidtHHeight = currentDefaults[overlay].WidtHHeight, Locked=state,  Acive = currentDefaults[overlay].Acive };
+            }
+            SaveResults(characterName, currentDefaults);
+        }
         public static void SetActiveState(OverlayType type, bool state, string characterName)
         {
             var currentDefaults = GetDefaults(characterName);
             if (!currentDefaults.ContainsKey(type))
             {
-                currentDefaults[type] = new DefaultOverlayInfo() { Position = new Point(0,0), WidtHHeight = new Point(100,200), Acive=state };
+                currentDefaults[type] = new DefaultOverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive=state };
             }
             var defaultModified = currentDefaults[type];
-            currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state };
+            currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state, Locked = defaultModified.Locked };
             SaveResults(characterName, currentDefaults);
         }
         public static Dictionary<OverlayType,DefaultOverlayInfo> GetDefaults(string characterName)

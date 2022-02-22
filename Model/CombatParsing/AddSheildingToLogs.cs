@@ -27,7 +27,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 combat.SheildingProvidedLogs[source] = new List<ParsedLogEntry>();
                 combat.TotalProvidedSheilding[source] = 0;
 
-                var healingShieldModifiers = modifiers.Where(m => m.Key == "Static Barrier" || m.Key == "Force Armor" || m.Key == "Resilient Powerbase").SelectMany(kvp=>kvp.Value).Where(mod=>mod.Source == source).ToList();
+                var healingShieldModifiers = modifiers.Where(m => m.Key == "Static Barrier" || m.Key == "Force Armor" || m.Key == "Preserved Force Armor" || m.Key == "Resilient Powerbase" || m.Key == "Battle Meditation").SelectMany(kvp=>kvp.Value).Where(mod=>mod.Source == source).ToList();
                 if (!healingShieldModifiers.Any())
                     continue;
                 foreach (var recipient in combat.CharacterParticipants)
@@ -69,7 +69,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                             Value = new Value
                             {
                                 EffectiveDblValue = sheild.SheildValue,
-                                ValueType = DamageType.absorbed
+                                ValueType = DamageType.heal
                             }
                         };
                         combat.AllLogs.Insert(

@@ -204,13 +204,19 @@ namespace SWTORCombatParser.ViewModels
         public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog);
         private void LoadSpecificLog(object test)
         {
+            var openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Combat Logs (*.txt)|*.txt";
             if (!CombatLogLoader.CheckIfCombatLoggingPresent())
             {
                 OnNewLog("Failed to locate combat log folder: " + CombatLogLoader.GetLogDirectory());
-                return;
+                openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
-            var openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+            else
+            {
+                openFileDialog.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+            }
+            
+            
             if (openFileDialog.ShowDialog() == true)
             {
                 OnMonitoringStarted();
@@ -317,7 +323,7 @@ namespace SWTORCombatParser.ViewModels
         private void TryAddEncounter(DateTime time)
         {
             var currentActiveEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(time);
-            if (CurrentEncounter == null || CurrentEncounter.Info.Name != currentActiveEncounter.Name)
+            if (CurrentEncounter == null || CurrentEncounter.Info.Name != currentActiveEncounter.Name || CurrentEncounter.Info.Difficutly != currentActiveEncounter.Difficutly || CurrentEncounter.Info.NumberOfPlayer != currentActiveEncounter.NumberOfPlayer)
             {
                 var newEncounter = new EncounterCombat
                 {

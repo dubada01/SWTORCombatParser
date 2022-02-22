@@ -21,13 +21,22 @@
     <Color x:Key="Gray4">#444</Color>
     <Color x:Key="Gray5">#555</Color>
     <Color x:Key="Gray6">#666</Color>
+    <Color x:Key="Gray7">#777</Color>
+    <Color x:Key="Gray8">#888</Color>
+    <Color x:Key="Gray9">#999</Color>
+    <Color x:Key="Gray10">#aaa</Color>
+    <Color x:Key="Gray11">#bbb</Color>
+    <Color x:Key="Gray12">#ccc</Color>
     <Color x:Key="ControlMouseOverColor">#6b7065</Color>
     <Color x:Key="ControlPressedColor">#6c8256</Color>
     <Color x:Key="GreenColor">#FF34A547</Color>
     <Color x:Key="DarkGreenColor">#386e4d</Color>
     <Color x:Key="VeryDarkGreenColor">#323833</Color>
+    <Color x:Key="DarkGrayGreenColor">#424843</Color>
     <Color x:Key="LightGrayGreenColor">#4f5951</Color>
+    <Color x:Key="BrightGreenColor">#386e4d</Color>
     <Color x:Key="YellowGrayColor">#b59700</Color>
+    <Color x:Key="DarkYellowGrayColor">#6e5e31</Color>
     <Color x:Key="GrayGreenColor">#bbc4bd</Color>
     <Color x:Key="RedColor">#FFa53434</Color>
     <Color x:Key="GlyphColor">#FF444444</Color>
@@ -64,11 +73,18 @@
     <SolidColorBrush x:Key="Gray4Brush" Color="{StaticResource Gray4}"/>
     <SolidColorBrush x:Key="Gray5Brush" Color="{StaticResource Gray5}"/>
     <SolidColorBrush x:Key="Gray6Brush" Color="{StaticResource Gray6}"/>
-    
+    <SolidColorBrush x:Key="Gray7Brush" Color="{StaticResource Gray7}"/>
+    <SolidColorBrush x:Key="Gray8Brush" Color="{StaticResource Gray8}"/>
+    <SolidColorBrush x:Key="Gray9Brush" Color="{StaticResource Gray9}"/>
+    <SolidColorBrush x:Key="Gray10Brush" Color="{StaticResource Gray10}"/>
+    <SolidColorBrush x:Key="Gray11Brush" Color="{StaticResource Gray11}"/>
+    <SolidColorBrush x:Key="Gray12Brush" Color="{StaticResource Gray12}"/>
+
     <SolidColorBrush x:Key="ParticipantDPSBrush" Color="{StaticResource ParticipantDPSColor}"/>
     <SolidColorBrush x:Key="ParticipantHPSBrush" Color="{StaticResource ParticipantHPSColor}"/>
     <SolidColorBrush x:Key="VeryDarkGreenBrush" Color="{StaticResource VeryDarkGreenColor}"/>
     <SolidColorBrush x:Key="ParticipantDTPSBrush" Color="{StaticResource ParticipantDTPSColor}"/>
+    <SolidColorBrush x:Key="HeaderTextBrush" Color="{StaticResource DarkYellowGrayColor}"/>
     <SolidColorBrush x:Key="GreenColorBrush" Color="{StaticResource DarkGreenColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="GrayGreenColorBrush" Color="{StaticResource LightGrayGreenColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="RedColorBrush" Color="{StaticResource RedColor}"></SolidColorBrush>

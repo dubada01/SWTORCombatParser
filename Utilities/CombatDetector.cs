@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -13,6 +14,8 @@ namespace SWTORCombatParser.Utilities
         EnteredCombat,
         InCombat,
         ExitedCombat,
+        ExitCombatDetected,
+        ExitCombatDelayTimedOut,
         OutOfCombat, 
         ExitedByEntering,
     }
@@ -24,14 +27,27 @@ namespace SWTORCombatParser.Utilities
         private static bool _isInCombat;
         private static bool _isCombatResOut;
         private static DateTime _inCombatStartTime;
+
+        private static Timer _timeoutTimer = new Timer();
+        private static DateTime _exitCombatDetectedTime;
+        private static bool _checkLogsForTimtout;
+
+        public static event Action<CombatState> AlertExitCombatTimedOut = delegate { };
         private static void Reset()
         {
             _bossCombat = false;
             _bossesKilledThisCombat = new List<string>();
             _isInCombat = false;
         }
-        public static CombatState CheckForCombatState(ParsedLogEntry line)
+        public static CombatState CheckForCombatState(ParsedLogEntry line, bool isRealTime = false)
         {
+            if (_checkLogsForTimtout)
+            {
+                if((line.TimeStamp - _exitCombatDetectedTime).TotalSeconds >=3)
+                {
+                    ExitCombatTimedOut(null, null);
+                }
+            }
             if (line.Effect.EffectName == "EnterCombat")
             {
                 if (_isInCombat)
@@ -68,6 +84,10 @@ namespace SWTORCombatParser.Utilities
                 {
                     return EndCombat();
                 }
+                else
+                {
+                    ExitCombatDetected(line,isRealTime);
+                }
             }
             if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && currentEncounter.BossInfos != null &&  _isInCombat)
             {
@@ -85,9 +105,12 @@ namespace SWTORCombatParser.Utilities
             {
                 if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.NextGen)
                 {
-                    var characterDeathStates = CombatLogStateBuilder.CurrentState.PlayerDeathChangeInfo.Where(kvp=>kvp.Value.Keys.Any(k=>k>_inCombatStartTime && k<=_inCombatStartTime)).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value);
+                    //.Where(kvp=>kvp.Value.Keys.Any(k=>k>_inCombatStartTime && k<=_inCombatStartTime)).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value)
+                    var characterClassUpdates = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo;
+                    var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k>_inCombatStartTime)).Select(kvp=>kvp.Key).ToList();
+                    var characterDeathStates = CombatLogStateBuilder.CurrentState.PlayerDeathChangeInfo;
                     var logTime = line.TimeStamp;
-                    var allDead = characterDeathStates.Keys.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
+                    var allDead = charactersWhoChangedAfterCombatStart.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
                     if (allDead)
                     {
                         return EndCombat();
@@ -106,10 +129,34 @@ namespace SWTORCombatParser.Utilities
                 return CombatState.OutOfCombat;
 
         }
-
-
+        private static CombatState ExitCombatDetected(ParsedLogEntry log, bool isRealTime)
+        {
+            if (isRealTime)
+            {
+                _exitCombatDetectedTime = DateTime.Now;
+                _timeoutTimer.Interval = TimeSpan.FromSeconds(3).TotalMilliseconds;
+                _timeoutTimer.Elapsed += ExitCombatTimedOut;
+                _timeoutTimer.Start();
+            }
+            else
+            {
+                _exitCombatDetectedTime = log.TimeStamp;
+                _checkLogsForTimtout = true;
+            }
+            return CombatState.ExitCombatDetected;
+        }
+        private static void ExitCombatTimedOut(object sender, ElapsedEventArgs args)
+        {
+            _checkLogsForTimtout = false;
+            _timeoutTimer.Stop();
+            _isInCombat = false;
+            AlertExitCombatTimedOut(CombatState.ExitCombatDelayTimedOut);
+        }
+        
         private static CombatState EndCombat()
         {
+            _checkLogsForTimtout = false;
+            _timeoutTimer.Stop();
             _isInCombat = false;
             return CombatState.ExitedCombat;
         }

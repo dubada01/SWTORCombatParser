@@ -33,28 +33,9 @@ namespace SWTORCombatParser
 
                 var bigDamageTimestamps = GetTimestampOfBigHits(combat.IncomingDamageLogs[entity]);
                 combat.BigDamageTimestamps[entity] = bigDamageTimestamps;
-                //var damageIncomingForEachSecond = CalculateValueFromEachSecond(combat.IncomingDamageLogs[entity], (int)combatDurationMs / 1000, combat.StartTime);
-                //var healingIncomingForEachSecond = CalculateValuePerPlayerFromEachSecond(combat.IncomingHealingLogs[entity], (int)combatDurationMs / 1000, combat.StartTime);
-                //var recoveryTimes = CalculateAverageHealRecoveryTime(damageIncomingForEachSecond, healingIncomingForEachSecond);
-
-                //foreach (var healer in recoveryTimes.Keys)
-                //{
-                //    if (!combat.DamageRecoveryTimes.ContainsKey(healer))
-                //    {
-                //        combat.DamageRecoveryTimes[healer] = new Dictionary<Entity, List<double>>();
-                //    }
-                //    if (!combat.DamageRecoveryTimes[healer].ContainsKey(entity))
-                //    {
-                //        combat.DamageRecoveryTimes[healer][entity] = new List<double>();
-                //    }
-                //    combat.DamageRecoveryTimes[healer][entity] = recoveryTimes[healer];
-                //}
-
 
                 combat.IncomingDamageMitigatedLogs[entity] = combat.IncomingDamageLogs[entity].Where(l => l.Value.Modifier != null).ToList();
 
-                //var times = GetTimeBelow100Percent(combat.IncomingHealingLogs[entity], combat.IncomingDamageLogs[entity], combat.StartTime, combat.EndTime);
-                //combat.TimeSpentBelowFullHealth[entity] = times.Sum(t => t.TotalSeconds);
                 var totalHealing = combat.OutgoingHealingLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveHealing = combat.OutgoingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
 
@@ -127,6 +108,7 @@ namespace SWTORCombatParser
                 combat.MaxIncomingHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0 ? 0 : combat.IncomingHealingLogs[entity].Max(l => l.Value.DblValue);
                 combat.MaxIncomingEffectiveHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0 ? 0 : combat.IncomingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
             }
+            combat.SetBurstValues();
             var healers = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == DataStructures.Role.Healer);
             var tanks = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == DataStructures.Role.Tank);
             foreach (var healer in healers)

@@ -38,7 +38,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             set
             {
                 selectedLeaderboardType = value;
-                //Leaderboards.UpdateLeaderboardType(selectedLeaderboardType);
+                Leaderboards.UpdateLeaderboardType(selectedLeaderboardType);
             }
         }
         public OverlayViewModel()
@@ -67,6 +67,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
                 _currentCharacterName = character.Name;
                 _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterName);
+                if (_overlayDefaults.First().Value.Locked)
+                {
+                    OverlaysLocked = true;
+                    OnPropertyChanged("OverlaysLocked");
+                }
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
                 {
@@ -137,6 +142,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _currentOverlays.ForEach(o => o.UnlockOverlays());
             else
                 _currentOverlays.ForEach(o => o.LockOverlays());
+            DefaultOverlayManager.SetLockedState(OverlaysLocked, _currentCharacterName);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

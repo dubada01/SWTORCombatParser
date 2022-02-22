@@ -12,9 +12,11 @@ namespace SWTORCombatParser.Model.Timers
 {
     public class DefaultTimersData
     {
+        public string TimerSource;
+
         public Point Position;
         public Point WidtHHeight;
-        public bool Acive;
+        
         public List<Timer> Timers = new List<Timer>();
     }
     public static class DefaultTimersManager
@@ -27,14 +29,14 @@ namespace SWTORCombatParser.Model.Timers
                 Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, DefaultTimersData>()));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new List<DefaultTimersData>()));
             }
         }
-        public static Timer GetTimerById(string id)
-        {
-            var allTimers = GetAllDefaults().Values.SelectMany(d=>d.Timers);
-            return allTimers.FirstOrDefault(t => t.Id == id);
-        }
+        //public static Timer GetTimerById(string id)
+        //{
+        //    var allTimers = GetAllDefaults().Values.SelectMany(d=>d.Timers);
+        //    return allTimers.FirstOrDefault(t => t.Id == id);
+        //}
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)
         {
             var currentDefaults = GetDefaults(characterName);
@@ -70,58 +72,71 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static void SetTimerEnabled(bool state, Timer timer)
         {
-            var currentDefaults = GetDefaults(timer.CharacterOwner);
+            var currentDefaults = GetDefaults(timer.TimerSource);
             var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
             timerToModify.IsEnabled = state;
-            SaveResults(timerToModify.CharacterOwner, currentDefaults);
+            SaveResults(timerToModify.TimerSource, currentDefaults);
         }
-        public static void SetActiveState(bool state, string characterName)
-        {
-            var currentDefaults = GetDefaults(characterName);
-            currentDefaults.Acive = state;
-            SaveResults(characterName, currentDefaults);
-        }
-        public static DefaultTimersData GetDefaults(string characterName)
+        public static DefaultTimersData GetDefaults(string timerSource)
         {
             var stringInfo = File.ReadAllText(infoPath);
             try
             {
-                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
-                if (!currentDefaults.ContainsKey(characterName) || currentDefaults[characterName] == null)
+                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
+                if (!currentDefaults.Any(c=>c.TimerSource == timerSource))
                 {
-                    InitializeDefaults(characterName);
+                    InitializeDefaults(timerSource);
                 }
-                return currentDefaults[characterName];
+                return currentDefaults.First(t=>t.TimerSource == timerSource);
             }
             catch (Exception e)
             {
-                InitializeDefaults(characterName);
+                InitializeDefaults(timerSource);
                 var resetDefaults = File.ReadAllText(infoPath);
-                return JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(resetDefaults)[characterName];
+                return JsonConvert.DeserializeObject<List<DefaultTimersData>>(resetDefaults).First(t=>t.TimerSource == timerSource);
             }
+        }
+        public static List<DefaultTimersData> GetAllDefaults()
+        {
+            var stringInfo = File.ReadAllText(infoPath);
+            if (string.IsNullOrEmpty(stringInfo))
+            {
+                return new List<DefaultTimersData>();
+            }
+            try
+            {
+                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
+                return currentDefaults;
+            }
+            catch(JsonSerializationException e)
+            {
+                File.WriteAllText(infoPath, "");
+                return new List<DefaultTimersData>();
+            }
+        }
+        private static void SaveResults(string timerSource, DefaultTimersData data)
+        {
+            var stringInfo = File.ReadAllText(infoPath);
+            var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
 
-        }
-        public static Dictionary<string,DefaultTimersData> GetAllDefaults()
-        {
-            var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
-            return currentDefaults;
-        }
-        private static void SaveResults(string character, DefaultTimersData data)
-        {
-            var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
-            currentDefaults[character] = data;
+            currentDefaults.Remove(currentDefaults.First(cd => cd.TimerSource == timerSource));
+            currentDefaults.Add(data);
+
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
-        private static void InitializeDefaults(string characterName)
+        private static void InitializeDefaults(string timerSource)
         {
             var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
+            var currentDefaults = new List<DefaultTimersData>();
+            if (!string.IsNullOrEmpty(stringInfo))
+            {
+                currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
+            }
 
-            var defaults = new DefaultTimersData() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive = true };
+            var defaults = new DefaultTimersData() {TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(100, 200)};
 
-            currentDefaults[characterName] = defaults;
+            currentDefaults.Add(defaults);
+
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
     }

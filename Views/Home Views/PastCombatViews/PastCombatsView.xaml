@@ -54,7 +54,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Style="{StaticResource RoundedTextBox}" FontSize="10" MinHeight="20" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" MaxHeight="40" Margin="5,15,0,15" IsReadOnly="True"></TextBox>
                         <Viewbox VerticalAlignment="Center" Grid.Column="1" MaxHeight="30">
-                            <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Width="40" Margin="5,0,5,0" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
+                            <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Width="40" Margin="5,0,5,0" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
                         </Viewbox>
                     </Grid>
                 </Grid>

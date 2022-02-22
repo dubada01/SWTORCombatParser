@@ -14,6 +14,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     }
     public class LeaderboardEntry
     {
+        public DateTime TimeStamp { get; set; }
         public int Duration { get; set; }
         public string Boss { get; set; }
         public string Encounter { get; set; }

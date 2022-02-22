@@ -15,7 +15,7 @@ namespace SWTORCombatParser.Utilities.Converters
             {
                 case true:
                     //return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF34A547"));
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#386e4d"));
+                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("ParticipantHPSColor"));
                 case false:
                     return Brushes.DimGray;
             }
