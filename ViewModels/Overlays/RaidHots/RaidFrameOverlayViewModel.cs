@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.Timers;
+﻿using MoreLinq;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
@@ -31,11 +32,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public int Height { get; set; }
         public List<string> OrderedNames = new List<string>();
 
-
+        public RaidFrameOverlayViewModel()
+        {
+            TimerNotifier.NewTimerTriggered += CheckForRaidHOT;
+        }
+        private void CheckForRaidHOT(TimerInstanceViewModel obj)
+        {
+            if (obj.SourceTimer.IsHot && OrderedNames.Any())
+            {
+                var playerName = obj.TargetAddendem.ToLower();
+                var maxMatchingCharacters = OrderedNames.MaxBy(s => s.ToLower().Count(c => playerName.Contains(c))).First();
+                var percentMatch = (maxMatchingCharacters.Count(c => playerName.Contains(c))/(double)playerName.Count());
+                if (percentMatch < 0.85)
+                    return;
+                var cellToUpdate = RaidHotCells.First(c => c.Name == maxMatchingCharacters);
+                cellToUpdate.AddTimer(obj);
+            }
+        }
         public void UpdateNames(List<string> orderedNames)
         {
             OrderedNames = orderedNames;
-            OnPropertyChanged("FakeItems");
+            OnPropertyChanged("RaidHotCells");
         }
         public int Rows
         {
@@ -43,7 +60,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 rows = value;
                 OnPropertyChanged();
-                OnPropertyChanged("FakeItems");
+                OnPropertyChanged("RaidHotCells");
             }
         }
         public int Columns
@@ -52,7 +69,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 columns = value;
                 OnPropertyChanged();
-                OnPropertyChanged("FakeItems");
+                OnPropertyChanged("RaidHotCells");
             }
         }
 

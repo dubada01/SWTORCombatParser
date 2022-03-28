@@ -93,9 +93,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             _timerSource = sourceName;
             UpdateSource();
         }
-        public void SetPlayer(string player, SWTORClass swtorclass)
+        public void SetPlayer(SWTORClass swtorclass)
         {
-            _timerSource = player + " " + swtorclass.Discipline;
+            _timerSource = swtorclass.Discipline;
             UpdateSource();
         }
         private void UpdateSource()

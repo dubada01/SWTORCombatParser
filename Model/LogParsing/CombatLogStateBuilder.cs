@@ -98,7 +98,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
-            if(parsedLine.Source.IsLocalPlayer && realTime)
+            if(parsedLine.Source.IsLocalPlayer)
                 PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
 
         }

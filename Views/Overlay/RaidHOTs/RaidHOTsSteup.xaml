@@ -11,6 +11,10 @@
             <RowDefinition Height="0.5*"/>
             <RowDefinition Height="0.5*"/>
         </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,400,0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Foreground="WhiteSmoke" Text="HOT Tracking Enabled"/>
+            <CheckBox HorizontalAlignment="Center" IsChecked="{Binding RaidHotsEnabled}"></CheckBox>
+        </StackPanel>
         <Button FontFamily="{StaticResource MainFont}" Command="{Binding StartRaidHotPositioning}" Style="{StaticResource RoundCornerButton}" Foreground="WhiteSmoke" Background="{StaticResource Gray7Brush}" Width="150" Height="50" Content="{Binding ToggleEditText}"></Button>
         <Button Margin="400,0,0,0" FontFamily="{StaticResource MainFont}" Command="{Binding StartAutoDetection}" Style="{StaticResource RoundCornerButton}" Foreground="WhiteSmoke" Background="{StaticResource Gray7Brush}" Width="100" Height="40" Content="Auto Detect"></Button>
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
