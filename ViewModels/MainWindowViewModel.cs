@@ -6,11 +6,13 @@ using SWTORCombatParser.resources;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.BattleReview;
 using SWTORCombatParser.ViewModels.HistoricalLogs;
+using SWTORCombatParser.ViewModels.Leaderboard;
 using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.Overviews;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.HistoricalLogs;
+using SWTORCombatParser.Views.Leaderboard_View;
 using SWTORCombatParser.Views.PastCombatViews;
 using System;
 using System.Collections.Generic;
@@ -40,6 +42,9 @@ namespace SWTORCombatParser.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
         public string Title { get; set; }
         public ObservableCollection<TabInstance> ContentTabs { get; set; } = new ObservableCollection<TabInstance>();
+
+        private LeaderboardViewModel _leaderboardViewModel;
+
         public int SelectedTabIndex
         {
             get => selectedTabIndex;
@@ -78,7 +83,7 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel.ParticipantsUpdated += UpdateAvailableParticipants;
             _combatMonitorViewModel.LocalPlayerId += LocalPlayerChanged;
             _combatMonitorViewModel.OnHistoricalCombatsParsed += AddHistoricalViewer;
-            //_combatMonitorViewModel.OnNewLog += NewSoftwareLog;
+
 
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
 
@@ -102,7 +107,9 @@ namespace SWTORCombatParser.ViewModels
             var overlayView = new OverlayView(_overlayViewModel);
             ContentTabs.Add(new TabInstance() { TabContent = overlayView, HeaderText = "Overlays" });
 
-            //CombatLogParser.OnNewLog += NewSoftwareLog;
+            _leaderboardViewModel = new LeaderboardViewModel();
+            var leaderboardView = new LeaderboardView(_leaderboardViewModel);
+            ContentTabs.Add(new TabInstance { TabContent = leaderboardView, HeaderText = "Leaderboards" });
 
             SelectedTabIndex = 0;
 
@@ -110,8 +117,6 @@ namespace SWTORCombatParser.ViewModels
 
         private void ProcessChanged(bool obj)
         {
-            //if (!LoadingWindowFactory.MainWindowHidden)
-            //    return;
             if (obj)
             {
                 if (LoadingWindowFactory.MainWindowHidden)

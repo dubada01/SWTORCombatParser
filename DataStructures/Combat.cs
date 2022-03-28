@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 
@@ -22,11 +23,13 @@ namespace SWTORCombatParser
         public DateTime EndTime;
         public string LogFileName => AllLogs.Where(l=>!string.IsNullOrEmpty(l.LogName)).First().LogName;
         public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
-        public double DurationSeconds => Math.Round(DurationMS / 1000f);
+        public int DurationSeconds => (int)Math.Round(DurationMS / 1000f);
 
         
         public EncounterInfo ParentEncounter;
-        public string EncounterBossInfo;
+        public string EncounterBossInfo => EncounterBossDifficultyParts == ("","","")?"": $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item2} {EncounterBossDifficultyParts.Item3}}}";
+        public (string, string, string) EncounterBossDifficultyParts = ("","","");
+
         public List<string> RequiredDeadTargetsForKill { get; set; }
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
         public bool WasBossKilled => RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => l.Target.Name == t && l.Effect.EffectName == "Death"));
@@ -195,6 +198,7 @@ namespace SWTORCombatParser
         public Dictionary<Entity, Dictionary<Entity, List<double>>> TankDamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
         public Dictionary<Entity, double> AverageHealingReceivedDelay = new Dictionary<Entity, double>();
         public Dictionary<Entity, Dictionary<Entity, double>> AverageDamageRecoveryTimePerTarget => GetDamageRecoveryTimesPerTarget();
+        public Dictionary<Entity, Dictionary<Entity, double>> NumberOfFastResponseTimePerTarget => GetCountOfHighSpeedReactions();
         public Dictionary<Entity, Dictionary<Entity, double>> AverageTankDamageRecoveryTimePerTarget => GetTankDamageRecoveryTimesPerTarget();
         private Dictionary<Entity, Dictionary<Entity, double>> GetTankDamageRecoveryTimesPerTarget()
         {
@@ -232,7 +236,44 @@ namespace SWTORCombatParser
             }
             return returnDict;
         }
+        private Dictionary<Entity, Dictionary<Entity, double>> GetCountOfHighSpeedReactions()
+        {
+            var minReactionTime = 2;
+            Dictionary<Entity, Dictionary<Entity, double>> returnDict = new Dictionary<Entity, Dictionary<Entity, double>>();
+            foreach (var player in CharacterParticipants)
+            {
+                if (AllDamageRecoveryTimes.ContainsKey(player))
+                {
+                    returnDict[player] = AllDamageRecoveryTimes[player].ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Any(v => !double.IsNaN(v)) ? kvp.Value.Where(v => !double.IsNaN(v)).Count(c=>c < minReactionTime) : double.NaN);
+                }
+                else
+                {
+                    returnDict[player] = new Dictionary<Entity, double>();
+                }
+            }
+            //var plot = new ScottPlot.Plot();
+            //foreach (var player in AllDamageRecoveryTimes.Where(v => v.Value.Any()))
+            //{
+            //    var allReactions = player.Value.SelectMany(v=>v.Value);
+            //    if (allReactions.Any())
+            //    {
+            //        var binSize = 0.25f;
+            //        (double[] counts, double[] binEdges) = ScottPlot.Statistics.Common.Histogram(allReactions.ToArray(), min: allReactions.Min() - 1, max: allReactions.Max() + 1, binSize);
+            //        double[] leftEdges = binEdges.Take(binEdges.Length - 1).ToArray();
+            //        var barPlot = plot.AddBar(counts, leftEdges);
+            //        barPlot.FillColor = System.Drawing.Color.FromArgb(100, barPlot.FillColor);
+            //        barPlot.Label = player.Key.Name;
+            //        barPlot.BarWidth = binSize;
+            //        barPlot.BorderColor = System.Drawing.ColorTranslator.FromHtml("#82add9");
+            //    }
+            //}
+            //plot.Legend();
+            //plot.SaveFig(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "HealReactionHistogram.png"));
 
+            return returnDict;
+        }
         public Dictionary<Entity, double> AverageDamageRecoveryTimeTotal => GetTotalDamageRecoveryTimes();
 
         private Dictionary<Entity, double> GetTotalDamageRecoveryTimes()
@@ -243,6 +284,20 @@ namespace SWTORCombatParser
 
                 returnDict[player] = AverageDamageRecoveryTimePerTarget[player].Any(kvp => !double.IsNaN(kvp.Value)) ? AverageDamageRecoveryTimePerTarget[player].Where(kvp=>!double.IsNaN(kvp.Value)).Average(
                     kvp => kvp.Value):0;
+
+            }
+            return returnDict;
+        }
+        public Dictionary<Entity, double> NumberOfHighSpeedReactions => GetTotalHighSpeedReactions();
+
+        private Dictionary<Entity, double> GetTotalHighSpeedReactions()
+        {
+            Dictionary<Entity, double> returnDict = new Dictionary<Entity, double>();
+            foreach (var player in CharacterParticipants)
+            {
+
+                returnDict[player] = NumberOfFastResponseTimePerTarget[player].Any(kvp => !double.IsNaN(kvp.Value)) ? NumberOfFastResponseTimePerTarget[player].Where(kvp => !double.IsNaN(kvp.Value)).Sum(
+                    kvp => kvp.Value) : 0;
 
             }
             return returnDict;

@@ -19,7 +19,6 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class ModifyTimerViewModel : INotifyPropertyChanged
     {
         private TimerKeyType selectedTriggerType;
-        private List<EncounterInfo> _encounters;
         private bool isAlert;
         private bool isPeriodic;
         private string selectedEncounter;
@@ -28,7 +27,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         private List<string> defaultSourceTargets = new List<string> { "Any", "Local Player", "Custom" };
         private List<string> addedCustomSources = new List<string>();
         private List<string> addedCustomTargets = new List<string>();
-        private List<BossInfo> _bossInfosForEncounter = new List<BossInfo>();
         private string customSource;
         private string customTarget;
         private string selectedTarget;
@@ -274,8 +272,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 else
                 {
-                    _bossInfosForEncounter = _encounters.First(e => e.Name == selectedEncounter).BossInfos;
-                    AvailableBosses = _bossInfosForEncounter.Select(bi => bi.EncounterName).ToList();
+                    AvailableBosses = EncounterLister.GetBossesForEncounter(SelectedEncounter);
                     AvailableBosses.Insert(0, "All");
                     SetTargetsBasedOnEncouters();
                 }
@@ -330,32 +327,28 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public Color SelectedColor { get; set; } = Colors.CornflowerBlue;
 
-        public ModifyTimerViewModel(string selectedPlayer)
+        public ModifyTimerViewModel(string timerSource)
         {
-            _currentSelectedPlayer = selectedPlayer;
+            _currentSelectedPlayer = timerSource;
+            if (timerSource.Contains('|'))
+            {
+                var parts = timerSource.Split('|');
+                AvailableEncounters = new List<string> { parts[0]};
+                AvailableBosses = new List<string> { parts[1]};
+                selectedEncounter = parts[0];
+                SelectedBoss = parts[1];
+            }
+            else
+            {
+                AvailableEncounters = EncounterLister.SortedEncounterNames;
+                AvailableBosses.Insert(0, "All");
+                SelectedEncounter = "All";
+                SelectedBoss = "All";
+            }
             AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers;
             OnPropertyChanged("AvailableTimerNames");
             Id = Guid.NewGuid().ToString();
             AvailableTriggerTypes = Enum.GetValues<TimerKeyType>().ToList();
-            _encounters = RaidNameLoader.SupportedEncounters;
-            var flashpoints = _encounters.Where(e => e.EncounterType == EncounterType.Flashpoint).OrderBy(f => f.Name);
-            var flashpointNames = flashpoints.Select(f => f.Name);
-            var operations = _encounters.Where(e => e.EncounterType == EncounterType.Operation).OrderBy(o => o.Name);
-            var operationNames = operations.Select(o => o.Name);
-            var lairs = _encounters.Where(e => e.EncounterType == EncounterType.Lair).OrderBy(l => l.Name);
-            var lairNames = lairs.Select(l => l.Name);
-            var listOfEncounters = new List<string>();
-            listOfEncounters.Add("All");
-            listOfEncounters.Add("--Operations--");
-            listOfEncounters.AddRange(operationNames);
-            listOfEncounters.Add("--Lairs--");
-            listOfEncounters.AddRange(lairNames);
-            listOfEncounters.Add("--Flashpoints--");
-            listOfEncounters.AddRange(flashpointNames);
-            AvailableEncounters = listOfEncounters;
-            AvailableBosses.Insert(0, "All");
-            SelectedEncounter = "All";
-            SelectedBoss = "All";
             HPPercentageDisplayBuffer = 5;
             OnPropertyChanged("SelectedEncounter");
             OnPropertyChanged("SelectedBoss");
@@ -772,17 +765,16 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             AvailableSources = new ObservableCollection<string>(defaultSourceTargets.Concat(addedCustomSources));
             AvailableTargets = new ObservableCollection<string>(defaultSourceTargets.Concat(addedCustomTargets));
-            var targetsInFight = new List<string>();
             if (SelectedEncounter != "All")
             {
+                List<string> targetsInFight;
                 if (selectedBoss != "All")
                 {
-                    var bossInfo = _bossInfosForEncounter.First(bi => bi.EncounterName == selectedBoss);
-                    targetsInFight = bossInfo.TargetNames;
+                    targetsInFight = EncounterLister.GetTargetsOfBossFight(SelectedEncounter, SelectedBoss);
                 }
                 else
                 {
-                    targetsInFight = _bossInfosForEncounter.SelectMany(bi => bi.TargetNames).ToList();
+                    targetsInFight = EncounterLister.GetAllTargetsForEncounter(SelectedEncounter);
                 }
                 foreach (var boss in targetsInFight)
                 {

@@ -5,6 +5,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.resources;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -182,7 +183,6 @@ namespace SWTORCombatParser
             }
             return true;
         }
-        
         private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true)
         {
             var currentCombatState = CombatDetector.CheckForCombatState(parsedLine);
@@ -243,6 +243,7 @@ namespace SWTORCombatParser
                 return;
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatData, CombatStartTime = _currentCombatStartTime };
             CombatUpdated(updateMessage);
+            EncounterTimerTrigger.FireEnded();
         }
     }
 }
