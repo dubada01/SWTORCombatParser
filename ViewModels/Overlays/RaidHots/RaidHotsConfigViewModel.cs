@@ -104,8 +104,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void AutoDetection(object obj)
         {
             _currentOverlay.Hide();
-            _currentOverlayViewModel.Editable = false;
-            StartPositioning(null);
             var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmap(_currentOverlayViewModel.TopLeft, (int)_currentOverlayViewModel.Width, (int)_currentOverlayViewModel.Height);
             _currentOverlay.Show();
             raidFrameBitmap.Save("test.png");

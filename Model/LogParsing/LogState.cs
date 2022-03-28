@@ -100,7 +100,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (LocalPlayer == null)
                 return null;
-            var classOfSource = PlayerClassChangeInfo[LocalPlayer];
+            var classOfSource = PlayerClassChangeInfo[PlayerClassChangeInfo.Keys.First(k=>k.Id == LocalPlayer.Id)];
             if (classOfSource == null)
                 return new SWTORClass();
             var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds)).First()];

@@ -14,23 +14,19 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public double RowHeight { get; set; }
         public double ColumnWidth { get; set; }
         public string Name { get; set; }
-        public RaidHotCell()
-        {
-            TimerNotifier.NewTimerTriggered += CheckForRaidHOT;
-        }
+
         public ObservableCollection<TimerInstanceViewModel> RaidHotsOnPlayer { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
-        private void CheckForRaidHOT(TimerInstanceViewModel obj)
-        {
-            if (obj.SourceTimer.Effect == "Rejuvenate")
-            {
-                RaidHotsOnPlayer.Add(obj);
-                obj.TimerExpired += RemoveFromList;
-            }
-        }
+
 
         private void RemoveFromList(TimerInstanceViewModel obj)
         {
             RaidHotsOnPlayer.Remove(obj);
+        }
+
+        internal void AddTimer(TimerInstanceViewModel obj)
+        {
+            RaidHotsOnPlayer.Add(obj);
+            obj.TimerExpired += RemoveFromList;
         }
     }
 }

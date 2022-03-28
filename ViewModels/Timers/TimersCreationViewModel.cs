@@ -270,8 +270,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive())
                 return;
-            _disciplineTimersWindow.SetPlayer(player.Name, swtorclass);
-            SelectedTimerSource = player.Name + " " + swtorclass.Discipline;
+            _disciplineTimersWindow.SetPlayer(swtorclass);
+            SelectedTimerSource = swtorclass.Discipline;
             RefreshAvaialbleTriggerOwners();
         }
         private void UpdateTimerRows()

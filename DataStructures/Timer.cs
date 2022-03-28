@@ -52,6 +52,7 @@ namespace SWTORCombatParser.DataStructures
         public Color TimerColor { get; set; }
         public string SpecificBoss { get; set; }
         public string SpecificEncounter { get; set; }
+        public bool IsHot { get; set; }
         public Timer Copy()
         {
             return new Timer()
@@ -81,6 +82,7 @@ namespace SWTORCombatParser.DataStructures
                 TrackOutsideOfCombat = TrackOutsideOfCombat,
                 CanBeRefreshed = CanBeRefreshed,
                 AbilitiesThatRefresh = AbilitiesThatRefresh,
+                IsHot = IsHot
             };
         }
     }

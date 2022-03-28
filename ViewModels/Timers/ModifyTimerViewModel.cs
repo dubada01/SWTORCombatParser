@@ -324,7 +324,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public bool ShowRepeats => IsPeriodic && SelectedTriggerType != TimerKeyType.EntityHP;
         public int Repeats { get; set; }
-
+        public bool IsHot { get; set; }
         public Color SelectedColor { get; set; } = Colors.CornflowerBlue;
 
         public ModifyTimerViewModel(string timerSource)
@@ -368,6 +368,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             HasTarget = false;
             HasCustomTarget = false;
             HasCustomSource = false;
+            IsHot = false;
             Effect = "";
             Ability = "";
             HPPercentage = 0;
@@ -400,6 +401,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             Repeats = timerToEdit.Repeats;
             Effect = timerToEdit.Effect;
             Ability = timerToEdit.Ability;
+            IsHot = timerToEdit.IsHot;
             TrackOutsideOfCombat = timerToEdit.TrackOutsideOfCombat;
             SelectedExternalTimerId = timerToEdit.ExperiationTimerId;
             SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId) ? "" : AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
@@ -451,6 +453,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("SelectedBoss");
             OnPropertyChanged("SelectedSource");
             OnPropertyChanged("SelectedTarget");
+            OnPropertyChanged("IsHot");
         }
         public void Cancel()
         {
@@ -491,6 +494,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 SpecificBoss = SelectedBoss,
                 SpecificEncounter = SelectedEncounter,
                 CanBeRefreshed = CanBeRefreshed,
+                IsHot = IsHot,
 
                 AbilitiesThatRefresh = AvailableRefreshOptions.Select(r => r.Name).ToList()
 
