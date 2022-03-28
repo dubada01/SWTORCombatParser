@@ -5,6 +5,7 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -90,18 +91,23 @@ namespace SWTORCombatParser
             if(newCombat.Targets.Any(t=>t.Name.Contains("Training Dummy")))
             {
                 newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Unknown", NumberOfPlayer = "1", BossNames = new List<string> { "Warzone Training Dummy", "Operations Training Dummy" } };
-                newCombat.EncounterBossInfo = GetCurrentBossInfo(ongoingLogs, encounter);
+                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
                 newCombat.RequiredDeadTargetsForKill = GetCurrentBossNames(ongoingLogs, newCombat.ParentEncounter);
             }
             if (encounter !=  null && encounter.BossInfos != null)
             {
                 newCombat.ParentEncounter = encounter;
-                newCombat.EncounterBossInfo = GetCurrentBossInfo(ongoingLogs,encounter);
+                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs,encounter);
                 newCombat.RequiredDeadTargetsForKill = GetCurrentBossNames(ongoingLogs, encounter);
+            }
+            if (newCombat.IsCombatWithBoss)
+            {
+                var parts = newCombat.EncounterBossDifficultyParts;
+                EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
             }
             CombatMetaDataParse.PopulateMetaData(newCombat);
             var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l=>l.Value.Modifier.ValueType == DamageType.absorbed).ToList());
-            AddSheildingToLogs.AddSheildLogs(absorbLogs, newCombat);
+            AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
             return newCombat;
         }
 
@@ -116,10 +122,10 @@ namespace SWTORCombatParser
         {
             return CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStartTime);
         }
-        private static string GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        private static (string,string,string) GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
-                return "";
+                return ("","","");
             var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet" && !string.IsNullOrEmpty(l.Target.Name));
             if (currentEncounter.Name.Contains("Open World"))
             {
@@ -127,11 +133,11 @@ namespace SWTORCombatParser
                 {
                     var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.Name.Contains("Training Dummy"));
                     var dummyMaxHP = dummyTarget.MaxHP;
-                    return "Parsing Dummy {" + dummyMaxHP + "HP}";
+                    return ("Parsing Dummy", dummyMaxHP + "HP","");
                 }
                 else
                 {
-                    return "";
+                    return ("", "", "");
                 }
             }
 
@@ -140,11 +146,10 @@ namespace SWTORCombatParser
                 if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
                 {
                     var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
-                    var bossTargetString = boss.EncounterName + " {" + currentEncounter.NumberOfPlayer.Replace("Player", "") + currentEncounter.Difficutly + "}";
-                    return bossTargetString;
+                    return (boss.EncounterName, currentEncounter.NumberOfPlayer.Replace("Player", ""), currentEncounter.Difficutly);
                 }
             }
-            return "";
+            return ("", "", "");
         }
         private static List<string> GetCurrentBossNames(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {

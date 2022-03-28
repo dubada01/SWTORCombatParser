@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <VersionPrefix>1.0.25</VersionPrefix>
+    <VersionPrefix>1.0.30</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -45,6 +45,7 @@
     <None Remove=".gitattributes" />
     <None Remove=".gitignore" />
     <None Remove="connectionConfig.json" />
+    <None Remove="DataStructures\AbilityInfo\absorbs.json" />
     <None Remove="DataStructures\ClassInfos\Classes.json" />
     <None Remove="DataStructures\EncounterInfo\FlashpointInfo.json" />
     <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
@@ -67,6 +68,9 @@
 
   <ItemGroup>
     <Content Include="connectionConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\AbilityInfo\absorbs.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\ClassInfos\Classes.json">
@@ -121,6 +125,7 @@
 
   <ItemGroup>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.2.0" />
+    <PackageReference Include="Google.Cloud.Vision.V1" Version="2.4.0" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

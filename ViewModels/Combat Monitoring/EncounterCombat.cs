@@ -123,7 +123,7 @@ namespace SWTORCombatParser.ViewModels
                     Combat = combat,
                     IsVisible = combatsAreVisible,
                     CombatStartTime = combat.StartTime,
-                    CombatDuration = combat.DurationSeconds.ToString("0.00"),
+                    CombatDuration = combat.DurationSeconds.ToString("0"),
                     CombatLabel = combat.IsCombatWithBoss? combat.EncounterBossInfo : string.Join(',', combat.Targets.Select(t => t.Name).Distinct()),
                 };
                 pastCombatDisplay.PastCombatSelected += SelectCombat;

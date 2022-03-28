@@ -33,6 +33,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (log.Effect.EffectType == EffectType.AreaEntered)
                 {
                     log.Source.IsLocalPlayer = true;
+                    CurrentState.LocalPlayer = log.Source;
                     CurrentState.CurrentLocation = log.Effect.EffectName;
                     CurrentState.LogVersion = LogVersion.NextGen;
                 }
@@ -128,6 +129,8 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 if (parsedLine.Error == ErrorType.IncompleteLine)
                     return;
+                if (parsedLine.Effect.EffectType == EffectType.AbsorbShield)
+                    return;
                 var effectName = parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName);
                 if (parsedLine.Effect.EffectType == EffectType.Apply && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
                 {
@@ -143,7 +146,7 @@ namespace SWTORCombatParser.Model.LogParsing
                         incompleteEffect.StopTime = parsedLine.TimeStamp;
                         incompleteEffect.Complete = true;
                     }
-                    modsOfType.Add(new CombatModifier() { Name = effectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    modsOfType.Add(new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
                 if (parsedLine.Effect.EffectType == EffectType.Remove && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
                 {

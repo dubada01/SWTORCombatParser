@@ -93,7 +93,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
         }
-        public void Trigger(DateTime timeStampWhenTrigged)
+        public void TriggerTimeTimer(DateTime timeStampWhenTrigged)
         {
             if (!SourceTimer.IsAlert)
             {
@@ -113,8 +113,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             _dtimer.Start();
             TimerTriggered();
         }
-        public void Trigger(double currentHP)
+        public void TriggerHPTimer(double currentHP)
         {
+            DisplayTimerValue = true;
             MaxTimerValue = 100d;
             CurrentMonitoredHP = currentHP;
             TimerValue = CurrentMonitoredHP;

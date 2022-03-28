@@ -9,40 +9,39 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="0.7*"/>
             <RowDefinition Height="0.15*"/>
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Viewbox Grid.Column="0" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Encounter Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                    <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding EncounterTimersList}" SelectedItem="{Binding SelectedEncounter}" Width="250" Height="40"></ComboBox>
+                    <TextBlock Text="Timer Type" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding TimerSourcesTypes}" SelectedItem="{Binding SelectedTimerSourceType}" Width="250" Height="40"></ComboBox>
                 </StackPanel>
             </Viewbox>
-            <Viewbox Grid.Column="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Discipline Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                    <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding DisciplineTimersList}" SelectedItem="{Binding SelectedDiscipline}" Width="250" Height="40"></ComboBox>
-                </StackPanel>
-            </Viewbox>
-            <Viewbox Grid.Column="2" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
+            <Viewbox Grid.Column="1" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="All Timers Active" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
                     <Viewbox MaxHeight="25">
-                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding TimersActive}"></CheckBox>
+                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding TimerActiveCheck}"></CheckBox>
                     </Viewbox>
-
                 </StackPanel>
             </Viewbox>
         </Grid>
+        <Viewbox Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="Discipline Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding DisciplineTimersList}" SelectedItem="{Binding SelectedTimerSource}" Width="250" Height="40"></ComboBox>
+            </StackPanel>
+        </Viewbox>
+        <ContentPresenter Content="{Binding EncounterSelectionView}" Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5"></ContentPresenter>
 
-
-        <Border BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="Transparent">
+        <Border BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="2" Background="Transparent">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
@@ -133,7 +132,7 @@
             </Grid>
         </Border>
         
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>

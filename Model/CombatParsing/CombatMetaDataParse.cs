@@ -3,6 +3,8 @@ using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -84,7 +86,7 @@ namespace SWTORCombatParser
                 var totalSheildingDone = sheildingLogs.Count() == 0 ? 0 : sheildingLogs.Sum(l => l.Value.Modifier.DblValue);
 
                 Dictionary<string, double> _parriedAttackSums = CalculateEstimatedAvoidedDamage(combat, entity);
-                
+
                 combat.TotalInterrupts[entity] = interruptLogs.Count();
                 combat.TotalThreat[entity] = outgoingLogs.Sum(l => l.Threat);
                 combat.MaxDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0 ? 0 : combat.OutgoingDamageLogs[entity].Max(l => l.Value.DblValue);
@@ -111,21 +113,15 @@ namespace SWTORCombatParser
             combat.SetBurstValues();
             var healers = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == DataStructures.Role.Healer);
             var tanks = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == DataStructures.Role.Tank);
+
             foreach (var healer in healers)
             {
                 var abilityActivateTimesOnTargets = GetTimestampsOfAbilitiesOnPlayers(combat.AbilitiesActivated[healer]);
-                var reactionTimesToBigHigs = CalculateReactionToBigHits(combat.BigDamageTimestamps.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value), abilityActivateTimesOnTargets);
+                var reactionTimesToBigHigs = CalculateReactionToBigHits(combat.BigDamageTimestamps.ToDictionary(kvp => kvp.Key, kvp => kvp.Value), abilityActivateTimesOnTargets);
                 combat.AllDamageRecoveryTimes[healer] = reactionTimesToBigHigs;
-                var reactionTimesToBigHigsOnTanks = CalculateReactionToBigHits(combat.BigDamageTimestamps.Where(kvp=>tanks.Contains(kvp.Key)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value), abilityActivateTimesOnTargets);
+                var reactionTimesToBigHigsOnTanks = CalculateReactionToBigHits(combat.BigDamageTimestamps.Where(kvp => tanks.Contains(kvp.Key)).ToDictionary(kvp => kvp.Key, kvp => kvp.Value), abilityActivateTimesOnTargets);
                 combat.TankDamageRecoveryTimes[healer] = reactionTimesToBigHigsOnTanks;
-                foreach (var target in reactionTimesToBigHigs.Keys)
-                {
-                    if (!combat.AverageHealingReceivedDelay.ContainsKey(target))
-                        combat.AverageHealingReceivedDelay[target] = 0;
-                    combat.AverageHealingReceivedDelay[target] += reactionTimesToBigHigs[target].Any()? reactionTimesToBigHigs[target].Average():0;
-                }
             }
-           // });
         }
         private static Dictionary<Entity, List<double>> CalculateReactionToBigHits(Dictionary<Entity,List<DateTime>> bigHitTimestamps, Dictionary<Entity, List<DateTime>> reactionTimeStamps)
         {
@@ -143,6 +139,8 @@ namespace SWTORCombatParser
                     if (!reactionAfterHit.HasValue)
                         break;
                     var differenceSec = (reactionAfterHit.Value - hit).TotalSeconds;
+                    if (differenceSec > 10)
+                        continue;
                     delays[target].Add(differenceSec);
                 }
             }
@@ -164,10 +162,25 @@ namespace SWTORCombatParser
                 return timestamps;
 
             var threshold = incomingDamage.First().TargetInfo.MaxHP * 0.05;
-            foreach(var damage  in incomingDamage)
+            List<(DateTime,double)> oneSecondOfDamage = new List<(DateTime,double)> ();
+            foreach(var damage in incomingDamage)
             {
                 if (damage.Value.EffectiveDblValue >= threshold)
+                {
                     timestamps.Add(damage.TimeStamp);
+                    oneSecondOfDamage.Clear();
+                }
+                else
+                {
+                    oneSecondOfDamage.Add((damage.TimeStamp, damage.Value.EffectiveDblValue));
+                    oneSecondOfDamage.RemoveAll(v => (damage.TimeStamp - v.Item1) > TimeSpan.FromSeconds(1));
+                    var totalDamageOverLastSecond = oneSecondOfDamage.Select(v=>v.Item2).Sum();
+                    if(totalDamageOverLastSecond >= threshold)
+                    {
+                        timestamps.Add(damage.TimeStamp);
+                        oneSecondOfDamage.Clear();
+                    }
+                }
             }
             return timestamps;
         }
@@ -206,83 +219,6 @@ namespace SWTORCombatParser
             return _parriedAttackSums;
         }
 
-        public static List<TimeSpan> GetTimeBelow100Percent(List<ParsedLogEntry> incomingHeals, List<ParsedLogEntry> incomingDamage, DateTime combatStart, DateTime combatEnd)
-        {
-            
-            var times = new List<TimeSpan>();
-            if (incomingDamage.Count == 0 && incomingHeals.Count == 0)
-                return times;
-            
-            var firstIncomingDamageTime = incomingDamage.FirstOrDefault(id => id.Value.EffectiveDblValue > 0);
-            var timeStarted = firstIncomingDamageTime != null ? firstIncomingDamageTime.TimeStamp : combatStart;
-
-            bool isDamaged = false;
-            var firstDamageTime = GetFirstDamageTime(incomingDamage);
-            var currentDamageTime = firstDamageTime;
-            if (currentDamageTime > DateTime.MinValue)
-                isDamaged = true;
-            var firstEffectiveRecivedTime = GetFirstEffectiveHealTime(incomingHeals);
-            if (firstEffectiveRecivedTime < firstDamageTime || (firstDamageTime == DateTime.MinValue && firstEffectiveRecivedTime!=DateTime.MinValue))
-            {
-                var timeAtFullHP = GetNextLessThanTotallyEffectiveHeal(currentDamageTime, incomingHeals);
-                if (timeAtFullHP == DateTime.MinValue)
-                {
-                    times.Add(combatEnd - timeStarted);
-                    return times;
-                }
-                else
-                    times.Add(timeAtFullHP - timeStarted);
-            }
-            
-            foreach(var log in incomingDamage)
-            {
-                if (isDamaged)
-                {
-                    var timeAtFullHP = GetNextLessThanTotallyEffectiveHeal(currentDamageTime, incomingHeals);
-                    if (timeAtFullHP == DateTime.MinValue)
-                    { 
-                        times.Add(combatEnd - currentDamageTime);
-                        break;
-                    }
-                    else
-                        times.Add(timeAtFullHP - currentDamageTime);
-                    currentDamageTime = timeAtFullHP;
-                    isDamaged = false;
-                }
-                if (currentDamageTime < log.TimeStamp && log.Value.EffectiveDblValue > 0)
-                { 
-                    currentDamageTime = log.TimeStamp;
-                    isDamaged = true;
-                }
-                
-                
-
-            }
-
-            return times;
-        }
-        private static DateTime GetNextLessThanTotallyEffectiveHeal(DateTime damageTime, List<ParsedLogEntry> incomingHeals)
-        {
-            var logsInScope = incomingHeals.Where(t => t.TimeStamp > damageTime);
-            var logAtFullHP = logsInScope.FirstOrDefault(l => (l.Value.DblValue - l.Value.EffectiveDblValue) > 1);
-            if (logAtFullHP == null)
-                return DateTime.MinValue;
-            return logAtFullHP.TimeStamp;
-        }
-        private static DateTime GetFirstEffectiveHealTime(List<ParsedLogEntry> incomingHeals)
-        {
-            if (incomingHeals.Count == 0)
-                return DateTime.MinValue;
-            var effectiveLog = incomingHeals.FirstOrDefault(t => t.Value.EffectiveDblValue > 0);
-            return effectiveLog != null ? effectiveLog.TimeStamp:DateTime.MinValue;
-        }
-        private static DateTime GetFirstDamageTime(List<ParsedLogEntry> incomingdamage)
-        {
-            if (incomingdamage.Count == 0)
-                return DateTime.MinValue;
-            var firstDamageTime = incomingdamage.FirstOrDefault(d => d.Value.EffectiveDblValue > 0);
-            return firstDamageTime != null ? firstDamageTime.TimeStamp : DateTime.MinValue;
-        }
         public static Dictionary<string, double> GetAverage(Dictionary<string, List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)
         {
             var returnDict = new Dictionary<string, double>();

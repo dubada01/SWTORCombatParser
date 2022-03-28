@@ -66,7 +66,7 @@ namespace SWTORCombatParser.Model.Timers
             if (SourceTimer.IsPeriodic && (RepeatTimes <= SourceTimer.Repeats || SourceTimer.Repeats == 0))
             {
                 RepeatTimes++;
-                timer.Trigger(DateTime.Now);
+                timer.TriggerTimeTimer(DateTime.Now);
             }
             if ((RepeatTimes > SourceTimer.Repeats && SourceTimer.Repeats != 0) || SourceTimer.TriggerType == TimerKeyType.FightDuration)
                 Cancel(timer);
@@ -79,6 +79,11 @@ namespace SWTORCombatParser.Model.Timers
         }
         internal void CheckForTrigger(ParsedLogEntry log, DateTime startTime)
         {
+            var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
+            if(SourceTimer.SpecificEncounter != currentEncounter.Name && SourceTimer.SpecificEncounter != "All")
+            {
+                return;
+            }
             TriggerType wasTriggered = TriggerType.None;
             if (!IsEnabled)
                 return;
@@ -146,13 +151,16 @@ namespace SWTORCombatParser.Model.Timers
             {
                 var timerToRestart = ActiveTimerInstancesForTimer.First(t => t.TargetId == targetId);
                 timerToRestart.Reset(log.TimeStamp);
+                TimerNotifier.FireTimerRefreshed(timerToRestart);
             }
             if (wasTriggered == TriggerType.Start && !ActiveTimerInstancesForTimer.Any(t => t.TargetId == targetId) )
             {
+                TimerInstanceViewModel timerVm;
                 if(SourceTimer.TriggerType != TimerKeyType.EntityHP)
-                    CreateTimerInstance(log.TimeStamp, targetAdendum, targetId);
+                    timerVm=CreateTimerInstance(log.TimeStamp, targetAdendum, targetId);
                 else
-                    CreateTimerInstance(currentHP,targetAdendum, targetId);
+                    timerVm=CreateHPTimerInstance(currentHP,targetAdendum, targetId);
+                TimerNotifier.FireTimerTriggered(timerVm);
             }
             if(wasTriggered == TriggerType.End)
             {
@@ -165,25 +173,27 @@ namespace SWTORCombatParser.Model.Timers
 
 
         }
-        private void CreateTimerInstance(DateTime timeStamp, string targetAdendum = "", long targetId = 0)
+        private TimerInstanceViewModel CreateTimerInstance(DateTime timeStamp, string targetAdendum = "", long targetId = 0)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.TimerExpired += Reset;
             timerVM.TargetAddendem = targetAdendum;
             timerVM.TargetId = targetId;
             ActiveTimerInstancesForTimer.Add(timerVM);
-            timerVM.Trigger(timeStamp);
+            timerVM.TriggerTimeTimer(timeStamp);
             NewTimerInstance(timerVM);
+            return timerVM;
         }
-        private void CreateTimerInstance(double currentHP,string targetAdendum = "", long targetId = 0)
+        private TimerInstanceViewModel CreateHPTimerInstance(double currentHP,string targetAdendum = "", long targetId = 0)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.TimerExpired += Reset;
             timerVM.TargetAddendem = targetAdendum;
             timerVM.TargetId = targetId;
             ActiveTimerInstancesForTimer.Add(timerVM);
-            timerVM.Trigger(currentHP);
+            timerVM.TriggerHPTimer(currentHP);
             NewTimerInstance(timerVM);
+            return timerVM;
         }
     }
 }
