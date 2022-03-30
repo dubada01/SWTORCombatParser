@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Overlays
@@ -34,6 +35,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _currentOverlay.DataContext = _currentOverlayViewModel;
             ToggleEditText = _editText;
             RaidHotsEnabled = true;
+           
         }
         public bool RaidFrameEditable => _isRaidFrameEditable;
         public string ToggleEditText
@@ -106,23 +108,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _currentOverlay.Hide();
             var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmap(_currentOverlayViewModel.TopLeft, (int)_currentOverlayViewModel.Width, (int)_currentOverlayViewModel.Height);
             _currentOverlay.Show();
-            raidFrameBitmap.Save("test.png");
             var names = AutoHOTOverlayPosition.GetCurrentPlayerLayout(raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns);
-            var orderedNames = new List<string>();
-            for (var r = 0; r < _currentOverlayViewModel.Rows; r++)
-            {
-                for (var c = 0; c < _currentOverlayViewModel.Columns; c++)
-                {
-                    var nameInPosition = names.FirstOrDefault(n => n.Row == r && n.Column == c);
-                    if (nameInPosition != null)
-                        orderedNames.Add(nameInPosition.Name);
-                    else
-                    {
-                        orderedNames.Add("");
-                    }
-                }
-            }
-            _currentOverlayViewModel.UpdateNames(orderedNames);
+
+            _currentOverlayViewModel.UpdateNames(names);
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

@@ -42,15 +42,20 @@ namespace SWTORCombatParser.Model.Timers
         {
             if (timer == null)
             {
-                ActiveTimerInstancesForTimer.ForEach(t => t.Dispose());
-                ActiveTimerInstancesForTimer.ForEach(t => TimerOfTypeExpired(t));
-                ActiveTimerInstancesForTimer.Clear();
+                for (var i=0; i < ActiveTimerInstancesForTimer.Count; i++)
+                    {
+                    ActiveTimerInstancesForTimer[i].Complete();
+                }
+                //ActiveTimerInstancesForTimer.ForEach(t => t.Complete());
+                //ActiveTimerInstancesForTimer.ForEach(t => TimerOfTypeExpired(t));
+                //ActiveTimerInstancesForTimer.Clear();
             }
             else
             {
-                ActiveTimerInstancesForTimer.Remove(timer);
-                TimerOfTypeExpired(timer);
-                timer.Dispose();
+                //ActiveTimerInstancesForTimer.Remove(timer);
+                //TimerOfTypeExpired(timer);
+                //timer.Dispose();
+                timer.Complete();
             }
             
             _isCancelled = true;
@@ -79,6 +84,7 @@ namespace SWTORCombatParser.Model.Timers
         }
         internal void CheckForTrigger(ParsedLogEntry log, DateTime startTime)
         {
+
             var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
             if(SourceTimer.SpecificEncounter != currentEncounter.Name && SourceTimer.SpecificEncounter != "All")
             {
@@ -146,7 +152,6 @@ namespace SWTORCombatParser.Model.Timers
                     wasTriggered = TriggerDetection.CheckForTargetChange(log, SourceTimer.Source, SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal);
                     break;
             }
-
             if (wasTriggered == TriggerType.Refresh && ActiveTimerInstancesForTimer.Any(t => t.TargetId == targetId) && SourceTimer.CanBeRefreshed)
             {
                 var timerToRestart = ActiveTimerInstancesForTimer.First(t => t.TargetId == targetId);
@@ -164,12 +169,18 @@ namespace SWTORCombatParser.Model.Timers
             }
             if(wasTriggered == TriggerType.End)
             {
-                var hpTimer = ActiveTimerInstancesForTimer.FirstOrDefault(t => t.TargetId == targetId);
-                if (hpTimer == null)
+                var endedTimer = ActiveTimerInstancesForTimer.FirstOrDefault(t => t.TargetId == targetId);
+                if (endedTimer == null)
                     return;
-                hpTimer.Complete();
+                endedTimer.Complete();
             }
-
+            if (log.Effect.EffectType == EffectType.ModifyCharges || log.Effect.EffectType == EffectType.Apply && log.Effect.EffectName != "Damage" && log.Effect.EffectName != "Heal")
+            {
+                var timerToUpdate = ActiveTimerInstancesForTimer.FirstOrDefault(t => t.TargetId == targetId && t.SourceTimer.Effect == log.Effect.EffectName);
+                if (timerToUpdate == null)
+                    return;
+                timerToUpdate.Charges = (int)log.Value.DblValue;
+            }
 
 
         }
