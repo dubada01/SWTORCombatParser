@@ -7,6 +7,14 @@ namespace SWTORCombatParser
 {
     public static class ListExtensions
     {
+        public static void MoveIndex<T>(this List<T> list, int srcIdx, int destIdx)
+        {
+            if (srcIdx != destIdx)
+            {
+                list.Insert(destIdx, list[srcIdx]);
+                list.RemoveAt(destIdx < srcIdx ? srcIdx + 1 : srcIdx);
+            }
+        }
         public static int IndexOfMin(this IList<double> self)
         {
             if (self == null)

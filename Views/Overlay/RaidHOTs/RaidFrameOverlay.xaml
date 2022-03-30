@@ -10,26 +10,29 @@
         <ItemsControl ItemsSource="{Binding RaidHotCells}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Height="{Binding RowHeight}" Width="{Binding ColumnWidth}" 
+                    <Border Height="{Binding DataContext.RowHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            Width="{Binding DataContext.ColumnWidth, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                             IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                             Background="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToRaidBackgroundConverter}}" Opacity="0.75"
                             BorderBrush="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToRaidBorderConverter}}" BorderThickness="2">
-                        <Grid>
+                        <Grid HorizontalAlignment="Stretch">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}" 
                                        IsHitTestVisible="False" Text="{Binding Name}" Background="Transparent" Foreground="WhiteSmoke"></TextBlock>
-                            <ItemsControl ItemsSource="{Binding RaidHotsOnPlayer}">
+                            <ItemsControl Grid.RowSpan="2" ItemsSource="{Binding RaidHotsOnPlayer}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <local1:TimerInstanceView/>
+                                        <Grid>
+                                            <local:RaidHotInstance Height="15"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"/>
+                                        <StackPanel Orientation="Vertical"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>

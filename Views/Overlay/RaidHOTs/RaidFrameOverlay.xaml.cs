@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -23,12 +25,21 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         public RaidFrameOverlay()
         {
             InitializeComponent();
+            Loaded += Hello;
         }
+
+        private void Hello(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as RaidFrameOverlayViewModel;
+            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
+            viewModel.ToggleLocked += makeTransparent;
+        }
+
         public void DragWindow(object sender, MouseButtonEventArgs args)
         {
             DragMove();
             var viewModel = DataContext as RaidFrameOverlayViewModel;
-            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), GetTopLeft());
+            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(),Height,Width, GetTopLeft());
         }
         private void Border_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -50,7 +61,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             if (yadjust > 0)
                 SetValue(HeightProperty, yadjust);
             var viewModel = DataContext as RaidFrameOverlayViewModel;
-            viewModel.UpdatePositionAndSize(GetHeight(),GetWidth(), GetTopLeft());
+            viewModel.UpdatePositionAndSize(GetHeight(),GetWidth(), Height, Width, GetTopLeft());
         }
         private void Thumb_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -78,6 +89,33 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 
             var dpiY = source.CompositionTarget.TransformToDevice.M22;
             return (dpiX, dpiY);
+        }
+        public const int WS_EX_TRANSPARENT = 0x00000020;
+        public const int GWL_EXSTYLE = (-20);
+
+        [DllImport("user32.dll")]
+        public static extern int GetWindowLong(IntPtr hwnd, int index);
+
+        [DllImport("user32.dll")]
+        public static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
+
+        public void makeTransparent(bool shouldLock)
+        {
+            Dispatcher.Invoke(() => {
+                IntPtr hwnd = new WindowInteropHelper(this).Handle;
+                if (shouldLock)
+                {
+                    int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+                    SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
+                }
+                else
+                {
+                    int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+                    SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);
+
+                }
+            });
+
         }
     }
 }

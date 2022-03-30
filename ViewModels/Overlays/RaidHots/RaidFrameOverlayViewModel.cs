@@ -1,5 +1,7 @@
 ﻿using MoreLinq;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
@@ -24,35 +26,41 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             set
             {
                 editable = value;
+                ToggleLocked(!editable);
                 OnPropertyChanged();
             }
         }
         public Point TopLeft { get; set; }
         public int Width { get; set; }
+        public double ScreenWidth { get; set; }
+        public double ColumnWidth => ScreenWidth / Columns;
         public int Height { get; set; }
-        public List<string> OrderedNames = new List<string>();
+        public double ScreenHeight { get; set; }
+        public double RowHeight => ScreenHeight / Rows;
 
+        public List<PlacedName> CurrentNames = new List<PlacedName>();
+        public event Action<bool> ToggleLocked = delegate { };
         public RaidFrameOverlayViewModel()
         {
             TimerNotifier.NewTimerTriggered += CheckForRaidHOT;
         }
         private void CheckForRaidHOT(TimerInstanceViewModel obj)
         {
-            if (obj.SourceTimer.IsHot && OrderedNames.Any())
+            if (obj.SourceTimer.IsHot && CurrentNames.Any())
             {
                 var playerName = obj.TargetAddendem.ToLower();
-                var maxMatchingCharacters = OrderedNames.MaxBy(s => s.ToLower().Count(c => playerName.Contains(c))).First();
-                var percentMatch = (maxMatchingCharacters.Count(c => playerName.Contains(c))/(double)playerName.Count());
-                if (percentMatch < 0.85)
+                var maxMatchingCharacters = CurrentNames.Select(n=>n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s,playerName)).First();
+                var match = LevenshteinDistance.Compute(maxMatchingCharacters, playerName);
+                if (match > 3)
                     return;
-                var cellToUpdate = RaidHotCells.First(c => c.Name == maxMatchingCharacters);
+                var cellToUpdate = RaidHotCells.First(c => c.Name.ToLower() == maxMatchingCharacters);
                 cellToUpdate.AddTimer(obj);
             }
         }
-        public void UpdateNames(List<string> orderedNames)
+        public void UpdateNames(List<PlacedName> orderedNames)
         {
-            OrderedNames = orderedNames;
-            OnPropertyChanged("RaidHotCells");
+            CurrentNames = orderedNames;
+            UpdateCells();
         }
         public int Rows
         {
@@ -60,7 +68,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 rows = value;
                 OnPropertyChanged();
-                OnPropertyChanged("RaidHotCells");
+                OnPropertyChanged("RowHeight");
+                UpdateCells();
             }
         }
         public int Columns
@@ -69,18 +78,33 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 columns = value;
                 OnPropertyChanged();
-                OnPropertyChanged("RaidHotCells");
+                OnPropertyChanged("ColumnWidth");
+                UpdateCells();
             }
         }
-
-        public List<RaidHotCell> RaidHotCells
+        private void UpdateCells()
         {
-            get
+            RaidHotCells.Clear();
+            for (var r = 0; r < Rows; r++)
             {
-                var values = Enumerable.Range(0, (int)(Rows * Columns)).Select(c => new RaidHotCell { ColumnWidth = Width / Columns, RowHeight = Height / Rows, Name = OrderedNames.Count <= c ? "" : OrderedNames[c] }).ToList();
-                return values;
+                for (var c = 0; c < Columns; c++)
+                {
+                    var nameInPosition = CurrentNames.FirstOrDefault(n => n.Row == r && n.Column == c);
+
+                    if (nameInPosition != null)
+                    {
+                        RaidHotCells.Add(new RaidHotCell { Column = c, Row = r, Name = nameInPosition.Name });
+                    }
+                    else
+                    {
+                        RaidHotCells.Add(new RaidHotCell { Column = c, Row = r, Name = "" });
+                    }
+                    
+                }
             }
+            OnPropertyChanged("RaidHotCells");
         }
+        public ObservableCollection<RaidHotCell> RaidHotCells { get; set; } = new ObservableCollection<RaidHotCell>();
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -88,12 +112,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        internal void UpdatePositionAndSize(int actualHeight, int actualWidth, Point topLeft)
+        internal void UpdatePositionAndSize(int actualHeight, int actualWidth, double screenHeight, double screenWidth, Point topLeft)
         {
             TopLeft = topLeft;
             Height = actualHeight;
             Width = actualWidth;
-            OnPropertyChanged("FakeItems");
+            ScreenHeight = screenHeight;
+            ScreenWidth = screenWidth;
+            OnPropertyChanged("RowHeight");
+            OnPropertyChanged("ColumnWidth");
         }
     }
 }
