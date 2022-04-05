@@ -158,6 +158,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             if (localPlayer != null && _currentCharacterName != localPlayer.Name)
             {
+                _raidHotsConfigViewModel.PlayerDetected(localPlayer.Name);
                 CharacterLoaded(localPlayer);
                 _currentOverlays.ForEach(o => o.CharacterDetected(localPlayer.Name));
             }

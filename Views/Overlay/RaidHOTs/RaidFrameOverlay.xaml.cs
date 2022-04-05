@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.ViewModels.Overlays.RaidHots;
+﻿using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,17 +23,29 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
     /// </summary>
     public partial class RaidFrameOverlay : Window
     {
+        public const int WS_EX_TRANSPARENT = 0x00000020;
+        public const int GWL_EXSTYLE = (-20);
+        private string _currentPlayerName = "no character";
         public RaidFrameOverlay()
         {
             InitializeComponent();
             Loaded += Hello;
         }
-
+        public void SetPlayer(string playerName)
+        {
+            _currentPlayerName = playerName;
+            var defaults = RaidFrameOverlayManager.GetDefaults(_currentPlayerName);
+            Width = defaults.WidtHHeight.X;
+            Height = defaults.WidtHHeight.Y;
+            Top = defaults.Position.Y;
+            Left = defaults.Position.X;
+        }
         private void Hello(object sender, RoutedEventArgs e)
         {
             var viewModel = DataContext as RaidFrameOverlayViewModel;
             viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
             viewModel.ToggleLocked += makeTransparent;
+            viewModel.PlayerChanged += SetPlayer;
         }
 
         public void DragWindow(object sender, MouseButtonEventArgs args)
@@ -47,9 +60,13 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             Mouse.OverrideCursor = Cursors.Hand;
 
         }
-
+        public void UpdateDefaults(object sender, MouseButtonEventArgs args)
+        {
+            RaidFrameOverlayManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+        }
         private void Grid_MouseLeave(object sender, MouseEventArgs e)
         {
+            RaidFrameOverlayManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
             Mouse.OverrideCursor = Cursors.Arrow;
         }
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -69,7 +86,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         }
         private int GetHeight()
         {
-            return (int)(ActualHeight * GetDPI().Item2);
+            return (int)((ActualHeight - 50) * GetDPI().Item2);
         }
         private int GetWidth()
         {
@@ -78,7 +95,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private System.Drawing.Point GetTopLeft()
         {
             var dpi = GetDPI();
-            var realTop = (int)(Top * dpi.Item2);
+            var realTop = (int)((Top + 50) * dpi.Item2);
             var realLeft = (int)(Left * dpi.Item1);
             return new System.Drawing.Point(realLeft, realTop);
         }
@@ -90,8 +107,6 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             var dpiY = source.CompositionTarget.TransformToDevice.M22;
             return (dpiX, dpiY);
         }
-        public const int WS_EX_TRANSPARENT = 0x00000020;
-        public const int GWL_EXSTYLE = (-20);
 
         [DllImport("user32.dll")]
         public static extern int GetWindowLong(IntPtr hwnd, int index);

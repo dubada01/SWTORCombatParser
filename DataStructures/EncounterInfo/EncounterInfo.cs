@@ -33,6 +33,7 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
         private List<string> bossNames;
         public EncounterType EncounterType { get; set; }
         public string LogName { get; set; }
+        public string NamePlus => Name + $" {{{NumberOfPlayer} {Difficutly}}}";
         public string Name { get; set; }
         public List<string> BossNames { get => bossNames; set
             {

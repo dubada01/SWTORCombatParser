@@ -108,12 +108,11 @@ namespace SWTORCombatParser
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, Encoding.GetEncoding(1252)))
             {
-                //var allLogEntries = sr.ReadToEnd().Split('\n');
                 List<string> lines = new List<string>();
                 while(!sr.EndOfStream)
                     lines.Add(sr.ReadLine());
-                //var allLogEntries = Regex.Split(sr.ReadToEnd(), @"(?<=[\n])");
-                _currentLogsInFile = lines.Where(s=>!string.IsNullOrEmpty(s)).Count();
+
+                _currentLogsInFile = lines.Where(s=>!string.IsNullOrEmpty(s)).Count()-1;
                 if (_currentLogsInFile <= _numberOfProcessedEntries)
                     return;
 
