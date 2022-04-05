@@ -1,4 +1,5 @@
 ﻿using MoreLinq;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.HistoricalLogs;
 using SWTORCombatParser.resources;
 using SWTORCombatParser.Utilities;
@@ -67,7 +68,6 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         {
             var window = LoadingWindowFactory.ShowLoading();
             Task.Run(() => {
-                var streamer = new CombatLogStreamer();
                 var combatFiles = CombatLogLoader.LoadCombatsBetweenTimes(FromDate,ToDate.AddDays(1));
                 var combatsWithinRange = combatFiles.Where(c => c.Time > FromDate && c.Time <= ToDate.AddDays(1));
                 var allCombats = new List<Combat>();
@@ -75,12 +75,21 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 {
                     var combatLines = CombatLogParser.ParseAllLines(combatLog);
                     
-                    var combats = CombatIdentifier.GetAllBossCombatsFromLog(combatLines);
+                    var combats = SkimBossCombatsFromLogs.GetBossCombats(combatLines);
                     if (combats.Count == 0)
                         continue;
                     allCombats.AddRange(combats);
                     window.SetString($"Identified {allCombats.Count.ToString("#,0")} combats");
 
+                }
+                var uploadedCombats = 0;
+                var distinctEncounters = allCombats.Select(c=>c.ParentEncounter.NamePlus + c.EncounterBossDifficultyParts.Item1).Distinct();
+                foreach(var encounter in allCombats)
+                {
+                   // var combat = allCombats.First(c => c.ParentEncounter.NamePlus + c.EncounterBossDifficultyParts.Item1 == encounter);
+                    BossMechanicInfoSkimmer.AddBossInfoAfterCombat(encounter,false);
+                    uploadedCombats ++;
+                    window.SetString($"Cached {uploadedCombats.ToString("#,0")} boss combats");
                 }
                 HistoricalCombatsParsed(allCombats);
                 LoadingWindowFactory.HideLoading();

@@ -45,31 +45,6 @@ namespace SWTORCombatParser
         {
 
         }
-        public static List<Combat> GetAllBossCombatsFromLog(List<ParsedLogEntry> allLogsFromfile)
-        {
-            List<Combat> combats = new List<Combat>();
-            List<ParsedLogEntry> currentCombatLogs = new List<ParsedLogEntry>();
-
-            foreach(var line in allLogsFromfile)
-            {
-                var combatState = CombatDetector.CheckForCombatState(line);
-                if(combatState == CombatState.EnteredCombat)
-                {
-                    currentCombatLogs = new List<ParsedLogEntry>();
-                }
-                if(combatState == CombatState.ExitedCombat)
-                {
-                    if (currentCombatLogs.Count == 0)
-                        continue;
-                    var combatCreated = GenerateNewCombatFromLogs(currentCombatLogs);
-                    if (!string.IsNullOrEmpty(combatCreated.EncounterBossInfo))
-                        combats.Add(combatCreated);
-                }
-                if (combatState == CombatState.InCombat)
-                    currentCombatLogs.Add(line);
-            }
-            return combats;
-        }
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
             var state = CombatLogStateBuilder.CurrentState;
@@ -146,7 +121,7 @@ namespace SWTORCombatParser
                 if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
                 {
                     var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
-                    return (boss.EncounterName, currentEncounter.NumberOfPlayer.Replace("Player", ""), currentEncounter.Difficutly);
+                    return (boss.EncounterName, currentEncounter.NumberOfPlayer.Replace("Player", "").Trim(), currentEncounter.Difficutly);
                 }
             }
             return ("", "", "");

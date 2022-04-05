@@ -7,7 +7,12 @@
         mc:Ignorable="d"
         Title="RaidFrameOverlay" Height="450" Width="500" WindowStyle="None" Background="Transparent" Topmost="True" AllowsTransparency="True">
     <Grid>
-        <ItemsControl ItemsSource="{Binding RaidHotCells}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Button Style="{StaticResource RoundCornerButton}" Width="40" Height="40" Content="♲" Background="{StaticResource Gray5Brush}" Opacity="0.5" Foreground="WhiteSmoke" FontSize="25" HorizontalAlignment="Right" Command="{Binding RefreshLayoutCommand}"></Button>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding RaidHotCells}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Height="{Binding DataContext.RowHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -47,9 +52,9 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <Border IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" VerticalAlignment="Top" Background="{StaticResource Gray5Brush}" Height="20" Opacity="0.5" CornerRadius="3,3,3,3"></Border>
+        <Border Grid.Row="1" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" VerticalAlignment="Top" Background="{StaticResource Gray5Brush}" Height="20" Opacity="0.5" CornerRadius="3,3,3,3"></Border>
         <Thumb IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
-               MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" DragDelta="Thumb_DragDelta"></Thumb>
+               MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
     </Grid>
 
 </Window>

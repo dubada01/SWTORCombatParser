@@ -16,10 +16,12 @@ namespace SWTORCombatParser.Model.Overlays
         public string Name { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
+        public List<Point> Vertices { get; set; }
+        public Bitmap PixelsAtNameLocation { get; set; }
     }
     public static class AutoHOTOverlayPosition
     {
-        public static List<PlacedName> GetCurrentPlayerLayout(Bitmap swtorRaidFrame, int numberOfRows, int numberOfColumns)
+        public static List<PlacedName> GetCurrentPlayerLayout(Point topLeftOfFrame, Bitmap swtorRaidFrame, int numberOfRows, int numberOfColumns)
         {
             var client = GoogleCloudPlatform.GetClient();
             var image = Image.FromBytes(ImageToByte2(swtorRaidFrame));
@@ -40,7 +42,7 @@ namespace SWTORCombatParser.Model.Overlays
                 var nameAtLocation = placedNames.FirstOrDefault(n => n.Row == row && n.Column == column);
                 if (nameAtLocation == null)
                 {
-                    placedNames.Add(new PlacedName() { Name = validEntry.Description, Row = row, Column = column });
+                    placedNames.Add(new PlacedName() { Name = validEntry.Description, Row = row, Column = column, Vertices = validEntry.BoundingPoly.Vertices.Select(v=>new Point(v.X+ topLeftOfFrame.X,v.Y+ topLeftOfFrame.Y)).ToList() });
                 }
                 else
                 {

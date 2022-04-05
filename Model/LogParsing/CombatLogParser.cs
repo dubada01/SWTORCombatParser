@@ -103,13 +103,6 @@ namespace SWTORCombatParser
             {
                 SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(line, realTime));
             }
-            if(_logState.LogVersion == LogVersion.Legacy)
-            {
-                Parallel.ForEach(orderdedLog, line =>
-                {
-                    LogModifier.UpdateLogWithState(line, _logState);
-                });
-            }
         }
     }
 }

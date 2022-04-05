@@ -29,13 +29,20 @@ namespace SWTORCombatParser.Model.LogParsing
             //    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
             if (logEntryInfos.Count < 5)
                 return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+            try
+            {
+                var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
+                parsedLine.LogText = logEntry;
+                parsedLine.LogLineNumber = lineIndex;
+                if (realTime)
+                    CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, realTime);
+                return parsedLine;
+            }
+            catch(Exception e)
+            {
+                return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+            }
 
-            var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
-            parsedLine.LogText = logEntry;
-            parsedLine.LogLineNumber = lineIndex;
-            if (realTime)
-                CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, realTime);
-            return parsedLine;
         }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
         {

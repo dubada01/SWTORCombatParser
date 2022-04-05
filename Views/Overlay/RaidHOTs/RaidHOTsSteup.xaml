@@ -5,27 +5,44 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="200" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.5*"/>
             <RowDefinition Height="0.5*"/>
         </Grid.RowDefinitions>
-        <StackPanel Margin="0,0,400,0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Foreground="WhiteSmoke" Text="HOT Tracking Enabled"/>
-            <CheckBox HorizontalAlignment="Center" IsChecked="{Binding RaidHotsEnabled}"></CheckBox>
-        </StackPanel>
-        <Button FontFamily="{StaticResource MainFont}" Command="{Binding StartRaidHotPositioning}" Style="{StaticResource RoundCornerButton}" Foreground="WhiteSmoke" Background="{StaticResource Gray7Brush}" Width="150" Height="50" Content="{Binding ToggleEditText}"></Button>
-        <Button Margin="400,0,0,0" FontFamily="{StaticResource MainFont}" Command="{Binding StartAutoDetection}" Style="{StaticResource RoundCornerButton}" Foreground="WhiteSmoke" Background="{StaticResource Gray7Brush}" Width="100" Height="40" Content="Auto Detect"></Button>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-            <StackPanel Orientation="Vertical" Margin="0,0,10,0">
-                <TextBlock HorizontalAlignment="Center" Text="Rows" Foreground="WhiteSmoke"></TextBlock>
-                <TextBox Height="30" Width="40" IsEnabled="{Binding RaidFrameEditable}" FontSize="13" HorizontalContentAlignment="Center" Style="{StaticResource RoundedTextBox}" Text="{Binding RaidFrameRows, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Viewbox MaxHeight="40">
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Foreground="WhiteSmoke" Text="HOT Tracking Enabled"/>
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding RaidHotsEnabled}"></CheckBox>
+                </StackPanel>
+            </Viewbox>
+            <Viewbox Grid.Column="1" MaxHeight="50">
+                <Button  FontFamily="{StaticResource MainFont}" Command="{Binding StartRaidHotPositioning}" Style="{StaticResource RoundCornerButton}" Foreground="WhiteSmoke" Background="{StaticResource Gray7Brush}" Width="150" Height="50" Content="{Binding ToggleEditText}"></Button>
+            </Viewbox>
+            <Viewbox  Grid.Column="2" MaxHeight="40">
+                <Button FontFamily="{StaticResource MainFont}" Command="{Binding StartAutoDetection}" Style="{StaticResource RoundCornerButton}" Foreground="WhiteSmoke" Background="{StaticResource Gray7Brush}" Width="100" Height="40" Content="Auto Detect"></Button>
+            </Viewbox>
+            
+        </Grid>
+        <Viewbox Grid.Row="1" MaxHeight="45">
+            <StackPanel  Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                    <TextBlock HorizontalAlignment="Center" Text="Rows" Foreground="WhiteSmoke"></TextBlock>
+                    <TextBox Height="30" Width="40" IsEnabled="{Binding RaidFrameEditable}" FontSize="13" HorizontalContentAlignment="Center" Style="{StaticResource RoundedTextBox}" Text="{Binding RaidFrameRows, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                    <TextBlock HorizontalAlignment="Center" Text="Columns" Foreground="WhiteSmoke"></TextBlock>
+                    <TextBox Height="30" Width="40" IsEnabled="{Binding RaidFrameEditable}" FontSize="13" HorizontalContentAlignment="Center" Style="{StaticResource RoundedTextBox}" Text="{Binding RaidFrameColumns, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                </StackPanel>
             </StackPanel>
-            <StackPanel Orientation="Vertical" Margin="10,0,0,0">
-                <TextBlock HorizontalAlignment="Center" Text="Columns" Foreground="WhiteSmoke"></TextBlock>
-                <TextBox Height="30" Width="40" IsEnabled="{Binding RaidFrameEditable}" FontSize="13" HorizontalContentAlignment="Center" Style="{StaticResource RoundedTextBox}" Text="{Binding RaidFrameColumns, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </StackPanel>
-        </StackPanel>
+        </Viewbox>
+
     </Grid>
 </UserControl>

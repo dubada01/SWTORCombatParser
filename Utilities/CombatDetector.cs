@@ -36,7 +36,7 @@ namespace SWTORCombatParser.Utilities
         private static bool _checkLogsForTimtout;
 
         public static event Action<CombatState> AlertExitCombatTimedOut = delegate { };
-        private static void Reset()
+        public static void Reset()
         {
             _bossCombat = false;
             _bossesKilledThisCombat = new List<string>();
@@ -122,24 +122,15 @@ namespace SWTORCombatParser.Utilities
             }
             if (line.Effect.EffectName == "Death" && line.Target.IsCharacter && _isInCombat)
             {
-                if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.NextGen)
-                {
-                    //.Where(kvp=>kvp.Value.Keys.Any(k=>k>_inCombatStartTime && k<=_inCombatStartTime)).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value)
-                    var characterClassUpdates = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo;
-                    var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k>_inCombatStartTime)).Select(kvp=>kvp.Key).ToList();
-                    var characterDeathStates = CombatLogStateBuilder.CurrentState.PlayerDeathChangeInfo;
-                    var logTime = line.TimeStamp;
-                    var allDead = charactersWhoChangedAfterCombatStart.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
-                    if (allDead)
-                    {
-                        return EndCombat();
-                    }
-                }
-                else
+                var characterClassUpdates = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo;
+                var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k > _inCombatStartTime)).Select(kvp => kvp.Key).ToList();
+                var characterDeathStates = CombatLogStateBuilder.CurrentState.PlayerDeathChangeInfo;
+                var logTime = line.TimeStamp;
+                var allDead = charactersWhoChangedAfterCombatStart.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
+                if (allDead)
                 {
                     return EndCombat();
                 }
-
             }
 
             if (_isInCombat)
