@@ -13,11 +13,9 @@ namespace SWTORCombatParser.Model.Timers
 {
     public class DefaultTimersData
     {
-        public string TimerSource;
-
         public Point Position;
         public Point WidtHHeight;
-        
+        public bool Acive;
         public List<Timer> Timers = new List<Timer>();
     }
     public class TimersActive
@@ -44,7 +42,7 @@ namespace SWTORCombatParser.Model.Timers
                 Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new List<DefaultTimersData>()));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, DefaultTimersData>()));
             }
             if (!File.Exists(activePath))
             {
@@ -80,40 +78,46 @@ namespace SWTORCombatParser.Model.Timers
         public static void RemoveTimerForCharacter(Timer timer, string character)
         {
             var currentDefaults = GetDefaults(character);
-            var valueToRemove = currentDefaults.Timers.First(t => TimerEquality.Equals(timer,t));
+            var valueToRemove = currentDefaults.Timers.First(t => TimerEquality.Equals(timer, t));
             currentDefaults.Timers.Remove(valueToRemove);
             SaveResults(character, currentDefaults);
         }
         public static void SetTimerEnabled(bool state, Timer timer)
         {
-            var currentDefaults = GetDefaults(timer.TimerSource);
+            var currentDefaults = GetDefaults(timer.CharacterOwner);
             var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
             timerToModify.IsEnabled = state;
-            SaveResults(timerToModify.TimerSource, currentDefaults);
+            SaveResults(timerToModify.CharacterOwner, currentDefaults);
         }
-        public static DefaultTimersData GetDefaults(string timerSource)
+        public static void SetActiveState(bool state, string characterName)
+        {
+            var currentDefaults = GetDefaults(characterName);
+            currentDefaults.Acive = state;
+            SaveResults(characterName, currentDefaults);
+        }
+        public static DefaultTimersData GetDefaults(string characterName)
         {
             var stringInfo = File.ReadAllText(infoPath);
             try
             {
-                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
-                if (!currentDefaults.Any(c=>c.TimerSource == timerSource))
+                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
+                if (!currentDefaults.ContainsKey(characterName) || currentDefaults[characterName] == null)
                 {
-                    InitializeDefaults(timerSource);
+                    InitializeDefaults(characterName);
                 }
-
                 var initializedInfo = File.ReadAllText(infoPath);
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
                 return currentDefaults.First(t=>t.TimerSource == timerSource);
             }
             catch (Exception e)
             {
-                InitializeDefaults(timerSource);
+                InitializeDefaults(characterName);
                 var resetDefaults = File.ReadAllText(infoPath);
-                return JsonConvert.DeserializeObject<List<DefaultTimersData>>(resetDefaults).First(t=>t.TimerSource == timerSource);
+                return JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(resetDefaults)[characterName];
             }
+
         }
-        public static List<DefaultTimersData> GetAllDefaults()
+        public static Dictionary<string, DefaultTimersData> GetAllDefaults()
         {
             var stringInfo = File.ReadAllText(infoPath);
             if (string.IsNullOrEmpty(stringInfo))
@@ -134,7 +138,7 @@ namespace SWTORCombatParser.Model.Timers
                 return new List<DefaultTimersData>();
             }
         }
-        private static void SaveResults(string timerSource, DefaultTimersData data)
+        private static void SaveResults(string character, DefaultTimersData data)
         {
             var stringInfo = File.ReadAllText(infoPath);
             var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
@@ -146,17 +150,12 @@ namespace SWTORCombatParser.Model.Timers
             var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|'));
 
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
+
         }
-        private static void InitializeDefaults(string timerSource)
+        private static void InitializeDefaults(string characterName)
         {
             var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = new List<DefaultTimersData>();
-            if (!string.IsNullOrEmpty(stringInfo))
-            {
-                currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
-            }
-
-            var defaults = new DefaultTimersData() {TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(100, 200)};
+            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
 
             currentDefaults.Add(defaults);
             var classes = ClassLoader.LoadAllClasses();
