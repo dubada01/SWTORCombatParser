@@ -34,9 +34,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 uploadToDb = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("BossMechanicSkimmerConfig.json"))["shouldUploadToDB"].Value<bool>();
 
             }
-            var clearCache = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("BossMechanicSkimmerConfig.json"))["shouldClearCacheWithEachBoss"].Value<bool>();
-            if (clearCache)
-                ClearCache();
+            //var clearCache = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("BossMechanicSkimmerConfig.json"))["shouldClearCacheWithEachBoss"].Value<bool>();
+            //if (clearCache)
+                //ClearCache();
             using (NpgsqlConnection connection = ConnectToDB())
             {
                 try
@@ -53,7 +53,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             var bossName = boss.Name;
                             var encounterName = bossCombat.ParentEncounter.NamePlus;
                             var abilityName = activation.Ability;
-                            File.AppendAllText(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"boss_mechanics_data_new.csv"), JsonConvert.SerializeObject(new ParseBossInfo { start_time = bossCombat.StartTime, seconds_elapsed = secondsElapsed, boss_name = bossName, current_hp = currentHP, encounter_name = encounterName, ability_name = abilityName }) + "\n");
+                            //File.AppendAllText(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"boss_mechanics_data_new.csv"), JsonConvert.SerializeObject(new ParseBossInfo { start_time = bossCombat.StartTime, seconds_elapsed = secondsElapsed, boss_name = bossName, current_hp = currentHP, encounter_name = encounterName, ability_name = abilityName }) + "\n");
                             if (!uploadToDb)
                                 continue;
                             using (var cmd = new NpgsqlCommand("INSERT INTO public.boss_mechanics_data" +

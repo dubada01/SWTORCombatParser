@@ -83,7 +83,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 return TriggerType.End;
             }
-            if(log.Effect.EffectType == EffectType.Remove && log.Effect.EffectName == effect)
+            if(log.Effect.EffectType == EffectType.Remove && log.Effect.EffectName == effect && SourceIsValid(log, source, sourceIsLocal))
             {
                 return TriggerType.End;
             }

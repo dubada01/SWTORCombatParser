@@ -35,10 +35,13 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         {
             _currentPlayerName = playerName;
             var defaults = RaidFrameOverlayManager.GetDefaults(_currentPlayerName);
-            Width = defaults.WidtHHeight.X;
-            Height = defaults.WidtHHeight.Y;
-            Top = defaults.Position.Y;
-            Left = defaults.Position.X;
+            Dispatcher.Invoke(() => {
+                Width = defaults.WidtHHeight.X;
+                Height = defaults.WidtHHeight.Y;
+                Top = defaults.Position.Y;
+                Left = defaults.Position.X;
+            });
+
         }
         private void Hello(object sender, RoutedEventArgs e)
         {

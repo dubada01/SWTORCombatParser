@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -100,6 +101,7 @@ namespace SWTORCombatParser.Model.Timers
                 {
                     InitializeDefaults(timerSource);
                 }
+
                 var initializedInfo = File.ReadAllText(infoPath);
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
                 return currentDefaults.First(t=>t.TimerSource == timerSource);
@@ -121,7 +123,10 @@ namespace SWTORCombatParser.Model.Timers
             try
             {
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
-                return currentDefaults;
+                var classes = ClassLoader.LoadAllClasses();
+                var validSources = classes.Select(c => c.Discipline);
+                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|')).ToList();
+                return validDefaults;
             }
             catch(JsonSerializationException e)
             {
@@ -136,8 +141,11 @@ namespace SWTORCombatParser.Model.Timers
 
             currentDefaults.Remove(currentDefaults.First(cd => cd.TimerSource == timerSource));
             currentDefaults.Add(data);
+            var classes = ClassLoader.LoadAllClasses();
+            var validSources = classes.Select(c => c.Discipline);
+            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|'));
 
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
         private static void InitializeDefaults(string timerSource)
         {
@@ -151,8 +159,10 @@ namespace SWTORCombatParser.Model.Timers
             var defaults = new DefaultTimersData() {TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(100, 200)};
 
             currentDefaults.Add(defaults);
-
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            var classes = ClassLoader.LoadAllClasses();
+            var validSources = classes.Select(c => c.Discipline);
+            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|'));
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
     }
 }
