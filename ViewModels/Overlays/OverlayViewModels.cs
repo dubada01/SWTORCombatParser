@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Overlays.BossFrame;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay;
 using SWTORCombatParser.Views.Timers;
@@ -29,6 +30,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
         private RaidHotsConfigViewModel _raidHotsConfigViewModel;
+        private BossFrameConfigViewModel _bossFrameViewModel;
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public TimersCreationView TimersView { get; set; }
         public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
@@ -52,6 +54,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 AvailableOverlayTypes.Add(enumVal);
             }
+            _bossFrameViewModel = new BossFrameConfigViewModel();
 
             TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
@@ -136,6 +139,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 overlaysLocked = value;
                 _timersViewModel.UpdateLock(value);
+                if (overlaysLocked)
+                    _bossFrameViewModel.LockOverlays();
+                else
+                    _bossFrameViewModel.UnlockOverlays();
                 ToggleOverlayLock();
             }
         }
@@ -158,7 +165,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             if (localPlayer != null && _currentCharacterName != localPlayer.Name)
             {
-                _raidHotsConfigViewModel.PlayerDetected(localPlayer.Name);
                 CharacterLoaded(localPlayer);
                 _currentOverlays.ForEach(o => o.CharacterDetected(localPlayer.Name));
             }

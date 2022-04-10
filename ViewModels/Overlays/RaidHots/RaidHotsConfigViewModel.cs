@@ -1,4 +1,6 @@
-﻿using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using SWTORCombatParser.Views.Overlay.RaidHOTs;
@@ -38,6 +40,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             
             _currentOverlay = new RaidFrameOverlay();
 
+            CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
 
             _currentOverlayViewModel = new RaidFrameOverlayViewModel(_currentOverlay) { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = false };
             _currentOverlayViewModel.NamesUpdated += ReFindImage;
@@ -50,9 +53,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _currentOverlay.Height = defaults.WidtHHeight.Y;
             _currentOverlay.Top = defaults.Position.Y;
             _currentOverlay.Left = defaults.Position.X;
-            RaidHotsEnabled = defaults.Acive;
+
             StartInitialCheck();
         }
+
         public bool RaidFrameEditable => _isRaidFrameEditable;
         public string ToggleEditText
         {
@@ -148,7 +152,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     if (RaidFrameEditable)
                     {
                         Application.Current.Dispatcher.Invoke(() => {
-                            _currentOverlay.Hide();
+                            _currentOverlay.Opacity = 0; ;
                         });
                     }
                     
@@ -156,7 +160,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     if(RaidFrameEditable)
                     {
                         Application.Current.Dispatcher.Invoke(() => {
-                            _currentOverlay.Show();
+                            _currentOverlay.Opacity = 1; ;
                         });
                     }
 
@@ -177,13 +181,24 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        public void PlayerDetected(string name)
+        private void SetClass(Entity arg1, SWTORClass arg2)
         {
-            _currentCharacter = name;
-            var defaults = RaidFrameOverlayManager.GetDefaults(name);
-            RaidHotsEnabled = defaults.Acive;
-            _currentOverlayViewModel.FirePlayerChanged(name);
+            _currentCharacter = arg1.Name + "/" + arg2.Discipline;
+            if (arg2.Role == Role.Healer)
+            {              
+                var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
+                App.Current.Dispatcher.Invoke(() => {
+                    RaidHotsEnabled = defaults.Acive;
+                    _currentOverlayViewModel.FirePlayerChanged(_currentCharacter);
+                });
+            }
+            else
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    RaidHotsEnabled = false;
+                });
+            }
         }
     }
 }

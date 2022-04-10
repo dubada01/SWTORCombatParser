@@ -20,8 +20,6 @@ namespace SWTORCombatParser.Model.Overlays
             Graphics g = Graphics.FromImage(bmp);
             g.CopyFromScreen(rect.Left, rect.Top, 0, 0, bmp.Size, CopyPixelOperation.SourceCopy);
 
-            Bitmap grayScale = ToGrayscale(bmp);
-            grayScale.Save(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "test.png"));
             return bmp;
         }
         public static double GetRatioOfRedPixels(Bitmap raidFrame)

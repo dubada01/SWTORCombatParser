@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.HOT_Timers;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
@@ -69,10 +70,13 @@ namespace SWTORCombatParser.ViewModels.Timers
                     TimerActiveCheck = DisciplineTimersActive;
                     AvailableTimerSources = DisciplineTimersList;
                     var mostRecentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now);
-                    var source = DisciplineTimersList.FirstOrDefault(v=> v.Contains(mostRecentDiscipline.Discipline));
-                    if (!string.IsNullOrEmpty(source))
+                    if(mostRecentDiscipline != null)
                     {
-                        SelectedTimerSource = source;
+                        var source = DisciplineTimersList.FirstOrDefault(v => v.Contains(mostRecentDiscipline.Discipline));
+                        if (!string.IsNullOrEmpty(source))
+                        {
+                            SelectedTimerSource = source;
+                        }
                     }
                     _encounterTimersWindow.HideTimers();
                 }
@@ -168,6 +172,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public TimersCreationViewModel()
         {
+            HotTimerLoader.TryLoadHots();
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
@@ -205,7 +210,12 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _savedTimersData.Add(new DefaultTimersData() { TimerSource = "Shared" });
                 DefaultTimersManager.SetSavedTimers(new List<Timer>(), "Shared");
             }
-            DisciplineTimersList = new List<string>(_savedTimersData.Where(t => t.TimerSource != null &&  !t.TimerSource.Contains('|')).Select(t => t.TimerSource));
+            var savedTimerSources = new List<string>(_savedTimersData.Where(t => t.TimerSource != null &&  !t.TimerSource.Contains('|')).Select(t => t.TimerSource));
+            savedTimerSources = savedTimerSources.OrderBy(s => s).ToList();
+            savedTimerSources.SwapItems(0, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "Shared")));
+            savedTimerSources.SwapItems(1, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "HOTS")));
+
+            DisciplineTimersList = savedTimerSources;
             OnPropertyChanged("DisciplineTimersList");
         }
 

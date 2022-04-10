@@ -69,7 +69,7 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 var openWorldLocation = ": " + log.LogLocation;
 
-                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World" };
+                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World", BossInfos = new List<BossInfo> { new BossInfo { EncounterName= "Parsing Dummy", TargetNames = new List<string> { "Operations Training Dummy", "Subject Alpha"} } } };
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
             }
         }

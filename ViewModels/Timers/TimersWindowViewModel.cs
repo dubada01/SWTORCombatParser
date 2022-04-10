@@ -112,7 +112,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerWindow.Left = defaultTimersInfo.Position.X;
                 _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
-                if (_timerSource.Contains('|'))
+                if (_timerSource.Contains('|') || _timerSource == "Shared" || _timerSource == "HOTS")
                     return;
                 ShowTimers(!OverlaysMoveable);
             });
@@ -123,15 +123,16 @@ namespace SWTORCombatParser.ViewModels.Timers
                 return;
             _createdTimers.ForEach(t => t.TimerOfTypeExpired -= RefreshTimerVisuals);
             _createdTimers.ForEach(t => t.NewTimerInstance -= AddTimerVisual);
-            var defaultTimersInfo = DefaultTimersManager.GetDefaults(_timerSource);
-            var timers = defaultTimersInfo.Timers;
+            var defaultTimersInfo = DefaultTimersManager.GetAllDefaults();
+            var timers = new List<Timer>();
             if (!_timerSource.Contains('|'))
             {
-                var sharedTimers = DefaultTimersManager.GetDefaults("Shared").Timers;
-
-                timers = timers.Concat(sharedTimers).ToList();
-            }           
-
+                timers = defaultTimersInfo.SelectMany(d => d.Timers).ToList();
+            }
+            else
+            {
+                timers = DefaultTimersManager.GetDefaults(_timerSource).Timers;
+            }
             var timerInstances = timers.Select(t => new TimerInstance(t)).ToList();
             foreach (var timerInstance in timerInstances)
             {
@@ -148,6 +149,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void AddTimerVisual(TimerInstanceViewModel obj)
         {
+            if (obj.SourceTimer.IsHot)
+                return;
             App.Current.Dispatcher.Invoke(() =>
             {
                 SwtorTimers.Add(obj);
@@ -209,7 +212,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void CancelAfterCombat()
         {
-            foreach (var timer in _createdTimers)
+            foreach (var timer in _createdTimers.Where(t=>!t.SourceTimer.TrackOutsideOfCombat))
             {
                 timer.Cancel();
             }

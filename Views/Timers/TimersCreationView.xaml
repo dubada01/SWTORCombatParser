@@ -26,7 +26,7 @@
             </Viewbox>
             <Viewbox Grid.Column="1" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="All Timers Active" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="Timers Visible" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
                     <Viewbox MaxHeight="25">
                         <CheckBox HorizontalAlignment="Center" IsChecked="{Binding TimerActiveCheck}"></CheckBox>
                     </Viewbox>
@@ -35,7 +35,7 @@
         </Grid>
         <Viewbox Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
             <StackPanel Orientation="Vertical">
-                <TextBlock Text="Discipline Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                <TextBlock Text="Ability Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
                 <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding DisciplineTimersList}" SelectedItem="{Binding SelectedTimerSource}" Width="250" Height="40"></ComboBox>
             </StackPanel>
         </Viewbox>
@@ -122,9 +122,9 @@
                                 </Grid>
                                 <TextBlock Margin="5,0,0,0" Grid.Column="6" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
                                 <CheckBox Margin="0,0,0,0" Grid.Column="8" VerticalAlignment="Center" IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center"/>
-                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}"  FontSize="10" VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
-                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" FontSize="10" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="16" Height="16" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}"  FontSize="10" VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
+                                <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" FontSize="10" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
+                                <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="16" Height="16" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
