@@ -5,6 +5,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.resources;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -107,15 +108,17 @@ namespace SWTORCombatParser
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, Encoding.GetEncoding(1252)))
             {
-                //var allLogEntries = sr.ReadToEnd().Split('\n');
-                var allLogEntries = Regex.Split(sr.ReadToEnd(), @"(?<=[\n])");
-                _currentLogsInFile = allLogEntries.Where(s=>!string.IsNullOrEmpty(s)).Count();
+                List<string> lines = new List<string>();
+                while(!sr.EndOfStream)
+                    lines.Add(sr.ReadLine());
+
+                _currentLogsInFile = lines.Where(s=>!string.IsNullOrEmpty(s)).Count()-1;
                 if (_currentLogsInFile <= _numberOfProcessedEntries)
                     return;
 
                 for (var line = _numberOfProcessedEntries; line < _currentLogsInFile; line++)
                 {
-                    if(ProcessNewLine(allLogEntries[line], line, Path.GetFileName(_logToMonitor)))
+                    if(ProcessNewLine(lines[(int)line], line, Path.GetFileName(_logToMonitor)))
                     {
                         _numberOfProcessedEntries++;
                     }
@@ -182,7 +185,6 @@ namespace SWTORCombatParser
             }
             return true;
         }
-        
         private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true)
         {
             var currentCombatState = CombatDetector.CheckForCombatState(parsedLine);
@@ -243,6 +245,7 @@ namespace SWTORCombatParser
                 return;
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatData, CombatStartTime = _currentCombatStartTime };
             CombatUpdated(updateMessage);
+            EncounterTimerTrigger.FireEnded();
         }
     }
 }

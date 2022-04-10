@@ -295,7 +295,10 @@ namespace SWTORCombatParser.ViewModels
                 }
                 AddCombatToEncounter(combatInfo,true);
                 if (combatInfo.IsCombatWithBoss)
+                {
+                    BossMechanicInfoSkimmer.AddBossInfoAfterCombat(combatInfo);
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
+                }
             }
 
         }

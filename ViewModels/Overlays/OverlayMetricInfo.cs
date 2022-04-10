@@ -12,6 +12,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double _value;
         private double _secondaryValue;
         private int leaderboardRank;
+        private string valueStringFormat = "#,##0";
         public string MedalIconPath { get; set; } = "../../resources/redX.png";
         public string InfoText => $"{Type}: {(int)Value}" + (SecondaryType != OverlayType.None ? $"\n{SecondaryType}: {(int)SecondaryValue}" : "");
         public GridLength RemainderWidth { get; set; }
@@ -43,8 +44,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => relativeLength;
             set
             {
+                if (Type == OverlayType.HealReactionTime)
+                    valueStringFormat = "#,##0.##";
 
-                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue == 0 || TotalValue == "0")
+                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue == 0 || TotalValue == "0" || TotalValue == "-0")
                 {
                     SetBarToZero();
                     return;
@@ -52,8 +55,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 relativeLength = value;
                 if (SecondaryType != OverlayType.None)
                 {
-                    var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
-                    var secondaryFraction = SecondaryValue / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands);
+                    var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands|System.Globalization.NumberStyles.Float);
+                    var secondaryFraction = SecondaryValue / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.Float);
                     BarWidth = new GridLength(relativeLength * primaryFraction, GridUnitType.Star);
                     SecondaryBarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
                     RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
@@ -100,7 +103,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue : SecondaryValue*-1)).ToString("#,##0");
+        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue : SecondaryValue*-1)).ToString(valueStringFormat);
         public void Reset()
         {
             Value = 0;

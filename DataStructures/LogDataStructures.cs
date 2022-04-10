@@ -116,7 +116,7 @@ namespace SWTORCombatParser
         DisciplineChanged,
         TargetChanged,
         ModifyCharges,
-        HealerShield
+        AbsorbShield
     }
     public enum DamageType
     {

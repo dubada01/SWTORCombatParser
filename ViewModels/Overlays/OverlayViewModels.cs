@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Overlays.BossFrame;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay;
 using SWTORCombatParser.Views.Timers;
@@ -28,7 +29,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool overlaysLocked;
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
-
+        private RaidHotsConfigViewModel _raidHotsConfigViewModel;
+        private BossFrameConfigViewModel _bossFrameViewModel;
+        public RaidHOTsSteup RaidHotsConfig { get; set; }
         public TimersCreationView TimersView { get; set; }
         public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
         public List<LeaderboardType> LeaderboardTypes { get; set; } = new List<LeaderboardType>();
@@ -51,9 +54,17 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 AvailableOverlayTypes.Add(enumVal);
             }
+            _bossFrameViewModel = new BossFrameConfigViewModel();
+
             TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
             TimersView.DataContext = _timersViewModel;
+
+            RaidHotsConfig = new RaidHOTsSteup();
+            _raidHotsConfigViewModel = new RaidHotsConfigViewModel();
+            RaidHotsConfig.DataContext = _raidHotsConfigViewModel;
+            
+            OnPropertyChanged("RaidHotsConfig");
             OnPropertyChanged("TimersView");
         }
         private void CharacterLoaded(Entity character)
@@ -61,10 +72,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             ResetOverlays();
             App.Current.Dispatcher.Invoke(() =>
             {
-                //remove with 7.0
-                if(CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy)
-                    _timersViewModel.SetClass(character, new DataStructures.SWTORClass() {Discipline = "Legacy" });
-
                 _currentCharacterName = character.Name;
                 _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterName);
                 if (_overlayDefaults.First().Value.Locked)
@@ -132,6 +139,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 overlaysLocked = value;
                 _timersViewModel.UpdateLock(value);
+                if (overlaysLocked)
+                    _bossFrameViewModel.LockOverlays();
+                else
+                    _bossFrameViewModel.UnlockOverlays();
                 ToggleOverlayLock();
             }
         }
