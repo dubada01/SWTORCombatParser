@@ -31,9 +31,11 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             HistoryPlot.Plot.XAxis.Label(label: "Date", size: 15);
             HistoryPlot.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             CombatsDuringHistory = combats.Where(c => c.DurationSeconds > 60).ToList();
-            LocalPlayersDuringHistory = MetaDataExtractor.GetLocalEntities(CombatsDuringHistory);
-            OnPropertyChanged("LocalPlayersDuringHistory");
+            //LocalPlayersDuringHistory = MetaDataExtractor.GetLocalEntities(CombatsDuringHistory);
+            //OnPropertyChanged("LocalPlayersDuringHistory");
             _allEncountersDuringHistory = MetaDataExtractor.GetAllEncounters(CombatsDuringHistory);
+            AllEncounters = _allEncountersDuringHistory.OrderBy(e=>e.NamePlus).ToList();
+            OnPropertyChanged("AllEncounters");
             _allBossFightsDuringHisotry = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory);
         }
         public WpfPlot HistoryPlot { get; set; }
@@ -55,13 +57,16 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             set
             {
                 selectedLocalEntity = value;
-                BossesInSelectedEncounter = new List<string>();
-                EncountersForSeletedPlayer = MetaDataExtractor.GetEncountersForCharacter(CombatsDuringHistory, SelectedLocalEntity);
-                OnPropertyChanged("EncountersForSeletedPlayer");
+                if (selectedLocalEntity == null)
+                    return;
+                MakeFinalSelection();
+                //BossesInSelectedEncounter = new List<string>();
+                //AllEncounters = MetaDataExtractor.GetEncountersForCharacter(CombatsDuringHistory, SelectedLocalEntity);
+                //OnPropertyChanged("EncountersForSeletedPlayer");
             }
         }
 
-        public List<EncounterInfo> EncountersForSeletedPlayer { get; set; }
+        public List<EncounterInfo> AllEncounters { get; set; }
         public EncounterInfo SelectedEncounter
         {
             get => selectedEncounter;
@@ -70,8 +75,10 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 selectedEncounter = value;
                 if (selectedEncounter == null)
                     return;
-                BossesInSelectedEncounter = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory.Where(c => c.LocalPlayer == SelectedLocalEntity && c.ParentEncounter == SelectedEncounter).ToList());
+                BossesInSelectedEncounter = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory.Where(c=>c.ParentEncounter.NamePlus == SelectedEncounter.NamePlus).ToList());
+                SelectedLocalEntity = null;
                 OnPropertyChanged("BossesInSelectedEncounter");
+                OnPropertyChanged("SelectedLocalEntity");
             }
         }
         public List<string> BossesInSelectedEncounter { get; set; }
@@ -83,72 +90,84 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 selectedBoss = value;
                 if (selectedBoss == null)
                     return;
-                var filteredCombats = CombatsDuringHistory.Where(c => c.LocalPlayer == SelectedLocalEntity && c.EncounterBossInfo.Contains(selectedBoss));
-                var logsToView = new List<HistoricalLogEntry>();
-                var maxAPM = filteredCombats.MaxBy(c => c.APM[SelectedLocalEntity]).First().APM[SelectedLocalEntity];
-                var maxDPS = filteredCombats.MaxBy(c => c.EDPS[SelectedLocalEntity]).First().EDPS[SelectedLocalEntity];
-                var maxHPS = filteredCombats.MaxBy(c => c.EHPS[SelectedLocalEntity]).First().EHPS[SelectedLocalEntity];
-                var maxDTPS = filteredCombats.MaxBy(c => c.EDTPS[SelectedLocalEntity]).First().EDTPS[SelectedLocalEntity];
-                var maxHTPS = filteredCombats.MaxBy(c => c.EHTPS[SelectedLocalEntity]).First().EHTPS[SelectedLocalEntity];
-                foreach (var combat in filteredCombats)
-                {
-                    var logEntry = new HistoricalLogEntry()
-                    {
-                        Boss = combat.EncounterBossInfo,
-                        Kill = combat.WasBossKilled,
-                        Encounter = selectedEncounter.Name,
-                        Character = SelectedLocalEntity.Name,
-                        LocalPlayer = SelectedLocalEntity == SelectedLocalEntity,
-                        Date = combat.StartTime,
-                        Duration = (int)combat.DurationSeconds,
-                        APM = combat.APM[SelectedLocalEntity],
-                        APMMeter = combat.APM[SelectedLocalEntity] / maxAPM,
-                        DPS = combat.EDPS[SelectedLocalEntity],
-                        DPSMeter = combat.EDPS[SelectedLocalEntity] / maxDPS,
-                        HPS = combat.EHPS[SelectedLocalEntity],
-                        HPSMeter = combat.EHPS[SelectedLocalEntity] / maxHPS,
-                        DTPS = combat.EDTPS[SelectedLocalEntity],
-                        DTPSMeter = combat.EDTPS[SelectedLocalEntity] / maxDTPS,
-                        HTPS = combat.EHTPS[SelectedLocalEntity],
-                        HTPSMeter = combat.EHTPS[SelectedLocalEntity] / maxHTPS
-                    };
-                    logsToView.Add(logEntry);
-                    //foreach (var participant in combat.CharacterParticipants)
-                    //{
+                LocalPlayersDuringHistory = MetaDataExtractor.GetPlayersForBossInEncounter(CombatsDuringHistory,SelectedEncounter, SelectedBoss);
+                if (LocalPlayersDuringHistory.Contains(SelectedLocalEntity))
+                    MakeFinalSelection();
+                else
+                    SelectedLocalEntity = null;
+                OnPropertyChanged("LocalPlayersDuringHistory");
+                OnPropertyChanged("SelectedLocalEntity");
 
-                    //    var logEntry = new HistoricalLogEntry()
-                    //    {
-                    //        Boss = combat.EncounterBossInfo,
-                    //        Kill = combat.WasBossKilled,
-                    //        Encounter = selectedEncounter.Name,
-                    //        Character = participant.Name,
-                    //        LocalPlayer = participant == SelectedLocalEntity,
-                    //        Date = combat.StartTime,
-                    //        Duration = (int)combat.DurationSeconds,
-                    //        APM = combat.APM[participant],
-                    //        APMMeter = combat.APM[participant] / maxDPS,
-                    //        DPS = combat.EDPS[participant],
-                    //        DPSMeter = combat.EDPS[participant] / maxDPS,
-                    //        HPS = combat.EHPS[participant],
-                    //        HPSMeter = combat.EHPS[participant] / maxHPS,
-                    //        DTPS = combat.EDTPS[participant],
-                    //        DTPSMeter = combat.EDTPS[participant] / maxDTPS,
-                    //        HTPS = combat.EHTPS[participant],
-                    //        HTPSMeter = combat.EHTPS[participant] / maxHTPS
-                    //    };
-                    //    logsToView.Add(logEntry);
-                    //}
-                }
-                for (var i = 0; i < logsToView.Count; i++)
-                {
-                    if (i % 2 == 0)
-                        logsToView[i].RowBackground = System.Windows.Media.Brushes.WhiteSmoke;
-                }
-                DataToView = logsToView.OrderByDescending(c => c.Date).ToList();
-
-                OnPropertyChanged("DataToView");
-                UpdatePlot();
             }
+        }
+
+        private void MakeFinalSelection()
+        {
+            var filteredCombats = CombatsDuringHistory.Where(c => c.LocalPlayer == SelectedLocalEntity && c.ParentEncounter.NamePlus == SelectedEncounter.NamePlus && c.EncounterBossDifficultyParts.Item1 == SelectedBoss);
+            var logsToView = new List<HistoricalLogEntry>();
+            var maxAPM = filteredCombats.MaxBy(c => c.APM[SelectedLocalEntity]).First().APM[SelectedLocalEntity];
+            var maxDPS = filteredCombats.MaxBy(c => c.EDPS[SelectedLocalEntity]).First().EDPS[SelectedLocalEntity];
+            var maxHPS = filteredCombats.MaxBy(c => c.EHPS[SelectedLocalEntity]).First().EHPS[SelectedLocalEntity];
+            var maxDTPS = filteredCombats.MaxBy(c => c.EDTPS[SelectedLocalEntity]).First().EDTPS[SelectedLocalEntity];
+            var maxHTPS = filteredCombats.MaxBy(c => c.EHTPS[SelectedLocalEntity]).First().EHTPS[SelectedLocalEntity];
+            foreach (var combat in filteredCombats)
+            {
+                var logEntry = new HistoricalLogEntry()
+                {
+                    Boss = combat.EncounterBossInfo,
+                    Kill = combat.WasBossKilled,
+                    Encounter = selectedEncounter.Name,
+                    Character = SelectedLocalEntity.Name,
+                    LocalPlayer = SelectedLocalEntity == SelectedLocalEntity,
+                    Date = combat.StartTime,
+                    Duration = (int)combat.DurationSeconds,
+                    APM = combat.APM[SelectedLocalEntity],
+                    APMMeter = combat.APM[SelectedLocalEntity] / maxAPM,
+                    DPS = combat.EDPS[SelectedLocalEntity],
+                    DPSMeter = combat.EDPS[SelectedLocalEntity] / maxDPS,
+                    HPS = combat.EHPS[SelectedLocalEntity],
+                    HPSMeter = combat.EHPS[SelectedLocalEntity] / maxHPS,
+                    DTPS = combat.EDTPS[SelectedLocalEntity],
+                    DTPSMeter = combat.EDTPS[SelectedLocalEntity] / maxDTPS,
+                    HTPS = combat.EHTPS[SelectedLocalEntity],
+                    HTPSMeter = combat.EHTPS[SelectedLocalEntity] / maxHTPS
+                };
+                logsToView.Add(logEntry);
+                //foreach (var participant in combat.CharacterParticipants)
+                //{
+
+                //    var logEntry = new HistoricalLogEntry()
+                //    {
+                //        Boss = combat.EncounterBossInfo,
+                //        Kill = combat.WasBossKilled,
+                //        Encounter = selectedEncounter.Name,
+                //        Character = participant.Name,
+                //        LocalPlayer = participant == SelectedLocalEntity,
+                //        Date = combat.StartTime,
+                //        Duration = (int)combat.DurationSeconds,
+                //        APM = combat.APM[participant],
+                //        APMMeter = combat.APM[participant] / maxDPS,
+                //        DPS = combat.EDPS[participant],
+                //        DPSMeter = combat.EDPS[participant] / maxDPS,
+                //        HPS = combat.EHPS[participant],
+                //        HPSMeter = combat.EHPS[participant] / maxHPS,
+                //        DTPS = combat.EDTPS[participant],
+                //        DTPSMeter = combat.EDTPS[participant] / maxDTPS,
+                //        HTPS = combat.EHTPS[participant],
+                //        HTPSMeter = combat.EHTPS[participant] / maxHTPS
+                //    };
+                //    logsToView.Add(logEntry);
+                //}
+            }
+            for (var i = 0; i < logsToView.Count; i++)
+            {
+                if (i % 2 == 0)
+                    logsToView[i].RowBackground = System.Windows.Media.Brushes.WhiteSmoke;
+            }
+            DataToView = logsToView.OrderByDescending(c => c.Date).ToList();
+
+            OnPropertyChanged("DataToView");
+            UpdatePlot();
         }
 
         private void UpdatePlot()

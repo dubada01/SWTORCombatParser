@@ -9,28 +9,39 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="0.7*"/>
             <RowDefinition Height="0.15*"/>
         </Grid.RowDefinitions>
-        <Viewbox  VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="15,5,0,5">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Viewbox Grid.Column="0" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Timer Type" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding TimerSourcesTypes}" SelectedItem="{Binding SelectedTimerSourceType}" Width="250" Height="40"></ComboBox>
+                </StackPanel>
+            </Viewbox>
+            <Viewbox Grid.Column="1" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="Timers Visible" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                    <Viewbox MaxHeight="25">
+                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding TimerActiveCheck}"></CheckBox>
+                    </Viewbox>
+                </StackPanel>
+            </Viewbox>
+        </Grid>
+        <Viewbox Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
             <StackPanel Orientation="Vertical">
-                <TextBlock Text="Available Timer Owners" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding SavedPlayerNames}" SelectedItem="{Binding SelectedPlayer}" Width="250" Height="40"></ComboBox>
+                <TextBlock Text="Ability Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding DisciplineTimersList}" SelectedItem="{Binding SelectedTimerSource}" Width="250" Height="40"></ComboBox>
             </StackPanel>
         </Viewbox>
+        <ContentPresenter Content="{Binding EncounterSelectionView}" Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5"></ContentPresenter>
 
-
-        <Viewbox HorizontalAlignment="Left" MaxHeight="35" Margin="200,0,0,0">
-            <StackPanel Orientation="Vertical">
-                <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Text="Timers Active" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                <Viewbox MaxHeight="25">
-                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding SelectedTimerOwnerActive}"></CheckBox>
-                </Viewbox>
-
-            </StackPanel>
-        </Viewbox>
-
-        <Border BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="Transparent">
+        <Border BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="2" Background="Transparent">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
@@ -111,9 +122,9 @@
                                 </Grid>
                                 <TextBlock Margin="5,0,0,0" Grid.Column="6" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
                                 <CheckBox Margin="0,0,0,0" Grid.Column="8" VerticalAlignment="Center" IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center"/>
-                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}"  FontSize="10" VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
-                                <Button MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" FontSize="10" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="16" Height="16" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}"  FontSize="10" VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
+                                <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" FontSize="10" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
+                                <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="16" Height="16" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -121,7 +132,7 @@
             </Grid>
         </Border>
         
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>

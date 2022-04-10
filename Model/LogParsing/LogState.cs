@@ -29,7 +29,9 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public class CombatModifier
     {
+        public bool HasAbsorbBeenCounted { get; set; }
         public string Name { get; set; }
+        public string EffectName { get; set; }
         public CombatModfierType Type { get; set; }
         public Entity Source { get; set; }
         public Entity Target { get; set; }
@@ -53,6 +55,8 @@ namespace SWTORCombatParser.Model.LogParsing
         public Dictionary<string, List<CombatModifier>> Modifiers { get; set; } = new Dictionary<string, List<CombatModifier>>();
         public object modifierLogLock = new object();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
+        public Entity LocalPlayer { get; internal set; }
+
         public bool WasPlayerDeadAtTime(Entity player, DateTime timestamp)
         {
             if (!PlayerDeathChangeInfo.ContainsKey(player))
@@ -91,6 +95,16 @@ namespace SWTORCombatParser.Model.LogParsing
                     return EncounterEnteredInfo[encounterChangeTimes[i - 1]];
             }
             return new EncounterInfo() { Name = "Unknown Encounter" };
+        }
+        public SWTORClass GetLocalPlayerClassAtTime(DateTime time)
+        {
+            if (LocalPlayer == null)
+                return null;
+            var classOfSource = PlayerClassChangeInfo[PlayerClassChangeInfo.Keys.First(k=>k.Id == LocalPlayer.Id)];
+            if (classOfSource == null)
+                return new SWTORClass();
+            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds)).First()];
+            return classAtTime;
         }
         public SWTORClass GetCharacterClassAtTime(Entity entity, DateTime time)
         {

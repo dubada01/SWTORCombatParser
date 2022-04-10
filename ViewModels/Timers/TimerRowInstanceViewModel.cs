@@ -19,7 +19,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         public event Action<TimerRowInstanceViewModel> DeleteRequested = delegate { };
         public event Action<TimerRowInstanceViewModel> ActiveChanged = delegate { };
         public Timer SourceTimer { get; set; } = new Timer();
-
+        public bool IsHOT => SourceTimer.IsHot;
+        public bool CanEdit => !IsHOT;
         public bool IsEnabled
         {
             get

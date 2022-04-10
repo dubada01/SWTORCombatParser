@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,10 +18,24 @@ namespace SWTORCombatParser.Model.Timers
         public bool Acive;
         public List<Timer> Timers = new List<Timer>();
     }
+    public class TimersActive
+    {
+        public bool DisciplineActive { get; set; }
+        public bool EncounterActive { get; set; }
+    }
     public static class DefaultTimersManager
     {
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
-        private static string infoPath = Path.Combine(appDataPath, "character_timers_info.json");
+        private static string infoPath = Path.Combine(appDataPath, "timers_info.json");
+        private static string activePath = Path.Combine(appDataPath, "timers_active.json");
+        public static void UpdateTimersActive(bool disciplineActive, bool encounterActive)
+        {
+            File.WriteAllText(activePath, JsonConvert.SerializeObject(new TimersActive() { DisciplineActive = disciplineActive,EncounterActive=encounterActive }));
+        }
+        public static TimersActive GetTimersActive()
+        {
+            return JsonConvert.DeserializeObject<TimersActive>(File.ReadAllText(activePath));
+        }
         public static void Init()
         {
             if (!Directory.Exists(appDataPath))
@@ -29,11 +44,10 @@ namespace SWTORCombatParser.Model.Timers
             {
                 File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, DefaultTimersData>()));
             }
-        }
-        public static Timer GetTimerById(string id)
-        {
-            var allTimers = GetAllDefaults().Values.SelectMany(d => d.Timers);
-            return allTimers.FirstOrDefault(t => t.Id == id);
+            if (!File.Exists(activePath))
+            {
+                File.WriteAllText(activePath, JsonConvert.SerializeObject(new TimersActive()));
+            }
         }
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)
         {
@@ -55,11 +69,11 @@ namespace SWTORCombatParser.Model.Timers
             currentDefaults.Timers = currentTimers;
             SaveResults(character, currentDefaults);
         }
-        public static void AddTimerForCharacter(Timer timer, string character)
+        public static void AddTimerForSource(Timer timer, string source)
         {
-            var currentDefaults = GetDefaults(character);
+            var currentDefaults = GetDefaults(source);
             currentDefaults.Timers.Add(timer);
-            SaveResults(character, currentDefaults);
+            SaveResults(source, currentDefaults);
         }
         public static void RemoveTimerForCharacter(Timer timer, string character)
         {
@@ -91,7 +105,9 @@ namespace SWTORCombatParser.Model.Timers
                 {
                     InitializeDefaults(characterName);
                 }
-                return currentDefaults[characterName];
+                var initializedInfo = File.ReadAllText(infoPath);
+                currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
+                return currentDefaults.First(t=>t.TimerSource == timerSource);
             }
             catch (Exception e)
             {
@@ -104,25 +120,48 @@ namespace SWTORCombatParser.Model.Timers
         public static Dictionary<string, DefaultTimersData> GetAllDefaults()
         {
             var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
-            return currentDefaults;
+            if (string.IsNullOrEmpty(stringInfo))
+            {
+                return new List<DefaultTimersData>();
+            }
+            try
+            {
+                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
+                var classes = ClassLoader.LoadAllClasses();
+                var validSources = classes.Select(c => c.Discipline);
+                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|')).ToList();
+                return validDefaults;
+            }
+            catch(JsonSerializationException e)
+            {
+                File.WriteAllText(infoPath, "");
+                return new List<DefaultTimersData>();
+            }
         }
         private static void SaveResults(string character, DefaultTimersData data)
         {
             var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
-            currentDefaults[character] = data;
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
+
+            currentDefaults.Remove(currentDefaults.First(cd => cd.TimerSource == timerSource));
+            currentDefaults.Add(data);
+            var classes = ClassLoader.LoadAllClasses();
+            var validSources = classes.Select(c => c.Discipline);
+            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|'));
+
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
+
         }
         private static void InitializeDefaults(string characterName)
         {
             var stringInfo = File.ReadAllText(infoPath);
             var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, DefaultTimersData>>(stringInfo);
 
-            var defaults = new DefaultTimersData() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive = true };
-
-            currentDefaults[characterName] = defaults;
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            currentDefaults.Add(defaults);
+            var classes = ClassLoader.LoadAllClasses();
+            var validSources = classes.Select(c => c.Discipline);
+            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|'));
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
     }
 }

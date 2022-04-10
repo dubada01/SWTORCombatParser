@@ -24,9 +24,10 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock VerticalAlignment="Center" Text="Battle Selection" FontSize="25" Margin="0,15,0,10" HorizontalAlignment="Center" FontWeight="DemiBold" FontFamily="{StaticResource MainFont}"></TextBlock>
-                <ComboBox Height="45" Grid.Row="1" ItemsSource="{Binding LocalPlayersDuringHistory}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedLocalEntity}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
-                <ComboBox Height="45" Grid.Row="2" ItemsSource="{Binding EncountersForSeletedPlayer}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEncounter}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
-                <ComboBox Height="45" Grid.Row="3" ItemsSource="{Binding BossesInSelectedEncounter}" SelectedItem="{Binding SelectedBoss}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
+
+                <ComboBox Height="45" Grid.Row="1" ItemsSource="{Binding AllEncounters}" DisplayMemberPath="NamePlus" SelectedItem="{Binding SelectedEncounter}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
+                <ComboBox Height="45" Grid.Row="2" ItemsSource="{Binding BossesInSelectedEncounter}" SelectedItem="{Binding SelectedBoss}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
+                <ComboBox Height="45" Grid.Row="3" ItemsSource="{Binding LocalPlayersDuringHistory}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedLocalEntity}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
             </Grid>
         </Border>
         <Viewbox MaxHeight="40" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Row="1" Margin="5,0,0,20">

@@ -9,7 +9,7 @@ namespace SWTORCombatParser
 {
     public class CombatLogFile
     {
-        public string Data;
+        public StreamReader Data;
         public DateTime Time;
         public string Name;
         public string Path;
@@ -35,7 +35,7 @@ namespace SWTORCombatParser
                 combatLogsData[i] = LoadCombatLog(filePath.FullName);
             });
 
-            return combatLogsData.Where(l => l.Data != "").OrderByDescending(v => v.Time).ToArray();
+            return combatLogsData.OrderByDescending(v => v.Time).ToArray();
         }
         public static CombatLogFile[] LoadAllCombatLogs()
         {
@@ -49,7 +49,7 @@ namespace SWTORCombatParser
                 combatLogsData[i] = LoadCombatLog(filePath);
             });
 
-            return combatLogsData.Where(l=>l.Data!="").OrderByDescending(v => v.Time).ToArray();
+            return combatLogsData.OrderByDescending(v => v.Time).ToArray();
         }
         public static bool CheckIfCombatLoggingPresent()
         {
@@ -84,7 +84,7 @@ namespace SWTORCombatParser
         }
         public static CombatLogFile LoadMostRecentPopulatedLog()
         {
-            return LoadAllCombatLogs().Where(l => l.Data != "").ToList()[0];
+            return LoadAllCombatLogs().ToList()[0];
         }
         public static CombatLogFile LoadSpecificLog(string logPath)
         {
@@ -102,11 +102,11 @@ namespace SWTORCombatParser
             fileData.Path = path;
             fileData.Time = new FileInfo(path).LastWriteTime;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var sr = new StreamReader(fs, Encoding.GetEncoding(1252)))
-            {
-                fileData.Data = sr.ReadToEnd();
-            }
+            var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var sr = new StreamReader(fs, Encoding.GetEncoding(1252));
+            
+                fileData.Data = sr;
+            
             return fileData;
         }
     }

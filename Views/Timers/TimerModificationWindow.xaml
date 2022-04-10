@@ -111,6 +111,8 @@
                         <StackPanel Margin="12,0,0,0"  HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Margin="10,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Can be refreshed" TextWrapping="Wrap" Width="80" FontFamily="{StaticResource MainFont}"></TextBlock>
                             <CheckBox ToolTip="Can this effect be refreshed by re-applying or via some other abilitiy?" VerticalAlignment="Center" IsChecked="{Binding CanBeRefreshed}"></CheckBox>
+                            <!--<TextBlock Margin="25,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Is HOT" TextWrapping="Wrap" Width="60" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <CheckBox ToolTip="Can this effect be refreshed by re-applying or via some other abilitiy?" VerticalAlignment="Center" IsChecked="{Binding IsHot}"></CheckBox>-->
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding CanBeRefreshed, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">

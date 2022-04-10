@@ -21,11 +21,25 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class TimerInstanceViewModel : INotifyPropertyChanged, IDisposable
     {
         private DispatcherTimer _dtimer;
+        private TimeSpan _timerValue;
+        private bool displayTimerValue;
+        private int charges;
 
         public event Action<TimerInstanceViewModel> TimerExpired = delegate { };
         public event Action TimerTriggered = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
-
+        public event Action<int> ChargesUpdated = delegate { };
+        public int Charges
+        {
+            get => charges; set
+            {
+                charges = value;
+                OnPropertyChanged();
+                OnPropertyChanged("ShowCharges");
+                ChargesUpdated(Charges);
+            }
+        }
+        public bool ShowCharges => Charges > 1;
         public Timer SourceTimer { get; set; } = new Timer();
         public double CurrentMonitoredHP { get; set; }
         public string TargetAddendem { get; set; }
@@ -59,9 +73,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             return (SourceTimer.IsAlert ? new GridLength(1, GridUnitType.Star) : new GridLength(TimerValue / MaxTimerValue, GridUnitType.Star));
         }
-        private TimeSpan _timerValue;
-        private bool displayTimerValue;
-
         public TimerInstanceViewModel(Timer swtorTimer)
         {
             SourceTimer = swtorTimer;
@@ -93,7 +104,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
         }
-        public void Trigger(DateTime timeStampWhenTrigged)
+        public void TriggerTimeTimer(DateTime timeStampWhenTrigged)
         {
             if (!SourceTimer.IsAlert)
             {
@@ -113,8 +124,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             _dtimer.Start();
             TimerTriggered();
         }
-        public void Trigger(double currentHP)
+        public void TriggerHPTimer(double currentHP)
         {
+            DisplayTimerValue = true;
             MaxTimerValue = 100d;
             CurrentMonitoredHP = currentHP;
             TimerValue = CurrentMonitoredHP;
