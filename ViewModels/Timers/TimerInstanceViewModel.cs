@@ -178,7 +178,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var name = "";
             if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
             {
-                name = SourceTimer.Name + ": " + SourceTimer.HPPercentage + "%";
+                name = SourceTimer.Name + ": " + SourceTimer.HPPercentage.ToString("N2") + "%";
             }
             else
             {
