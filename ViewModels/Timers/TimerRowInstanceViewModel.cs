@@ -20,7 +20,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         public event Action<TimerRowInstanceViewModel> ActiveChanged = delegate { };
         public Timer SourceTimer { get; set; } = new Timer();
         public bool IsHOT => SourceTimer.IsHot;
-        public bool CanEdit => !IsHOT;
+        public bool IsMechanic => SourceTimer.IsMechanic;
+        public bool CanEdit => !IsHOT && !IsMechanic;
         public bool IsEnabled
         {
             get

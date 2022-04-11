@@ -47,6 +47,7 @@
     <None Remove="BossMechanicSkimmerConfig.json" />
     <None Remove="connectionConfig.json" />
     <None Remove="DataStructures\AbilityInfo\absorbs.json" />
+    <None Remove="DataStructures\Boss Timers\BossTimers.json" />
     <None Remove="DataStructures\ClassInfos\Classes.json" />
     <None Remove="DataStructures\EncounterInfo\FlashpointInfo.json" />
     <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
@@ -76,6 +77,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\AbilityInfo\absorbs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Boss Timers\BossTimers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\ClassInfos\Classes.json">

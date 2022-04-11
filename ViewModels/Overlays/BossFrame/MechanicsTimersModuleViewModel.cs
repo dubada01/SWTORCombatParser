@@ -11,25 +11,24 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class DotModuleViewModel : INotifyPropertyChanged
+    public class MechanicsTimersModuleViewModel : INotifyPropertyChanged
     {
         private EntityInfo _bossInfo;
-        public ObservableCollection<TimerInstanceViewModel> ActiveDOTS { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
 
-        public DotModuleViewModel(EntityInfo bossInfo)
+        public ObservableCollection<TimerInstanceViewModel> UpcomingMechanics { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
+        public MechanicsTimersModuleViewModel(EntityInfo bossInfo)
         {
             _bossInfo = bossInfo;
             TimerNotifier.NewTimerTriggered += OnNewTimer;
         }
-
         private void OnNewTimer(TimerInstanceViewModel obj)
         {
-            if (obj.TargetAddendem == _bossInfo.Entity.Name && !obj.SourceTimer.IsMechanic)
+            if ((obj.SourceTimer.Source == _bossInfo.Entity.Name || (obj.SourceTimer.TriggerType == DataStructures.TimerKeyType.EntityHP && obj.TargetAddendem == _bossInfo.Entity.Name)) && obj.SourceTimer.IsMechanic)
             {
                 obj.TimerExpired += RemoveTimer;
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    ActiveDOTS.Add(obj);
+                    UpcomingMechanics.Add(obj);
                 });
             }
         }
@@ -37,7 +36,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private void RemoveTimer(TimerInstanceViewModel obj)
         {
             App.Current.Dispatcher.Invoke(() => {
-                ActiveDOTS.Remove(obj);
+                UpcomingMechanics.Remove(obj);
             });
         }
 

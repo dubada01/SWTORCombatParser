@@ -13,6 +13,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
     {
         private DotModuleViewModel dotModuleViewModel;
         private HPModuleViewModel _hpVM;
+        private MechanicsTimersModuleViewModel _mechsVM;
 
         public Entity CurrentBoss { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -33,6 +34,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 DOTSContent = new DotModuleView();
                 dotModuleViewModel = new DotModuleViewModel(bossInfo);
                 DOTSContent.DataContext = dotModuleViewModel;
+
+                MechanicsModule = new MechanicsTimersModule();
+                _mechsVM = new MechanicsTimersModuleViewModel(bossInfo);
+                MechanicsModule.DataContext = _mechsVM;
             });
         }
         public void LogWithBoss(EntityInfo bossInfo)
@@ -47,5 +52,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
         public HPModule HPContent { get; set; }
         public DotModuleView DOTSContent { get; set; }
+        public MechanicsTimersModule MechanicsModule { get; set; }
     }
 }

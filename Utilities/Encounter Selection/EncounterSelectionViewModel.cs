@@ -78,8 +78,10 @@ namespace SWTORCombatParser.Utilities
         {
             return (selectedEncounter.Name,selectedBoss, selectedDifficulty);
         }
-        public EncounterSelectionViewModel(bool showPlayerCount = true)
+        private List<string> _populatedEncounters = new List<string>();
+        public EncounterSelectionViewModel(bool showPlayerCount = true, List<string> populatedEncounters = null)
         {
+            _populatedEncounters = populatedEncounters ?? new List<string>();
             ShowPlayerCount = showPlayerCount;
             SetAvailableEncounters();
         }
@@ -88,7 +90,10 @@ namespace SWTORCombatParser.Utilities
         {
             var allEncounters = EncounterLister.SortedEncounterInfos;
             App.Current.Dispatcher.Invoke(() => {
-                AvailableEncounters = allEncounters.ToList();
+                if(!_populatedEncounters.Any())
+                    AvailableEncounters = allEncounters.ToList();
+                else
+                    AvailableEncounters = allEncounters.Where(e=> _populatedEncounters.Any(pe=>pe.Split("|")[0]==e.Name)).ToList();
                 OnPropertyChanged("AvailableEncounters");
                 SelectedEncounter = AvailableEncounters[1];
             });
@@ -96,14 +101,22 @@ namespace SWTORCombatParser.Utilities
         private void SetSelectedEncounter()
         {
             var bossesForEncounter = EncounterLister.GetBossesForEncounter(SelectedEncounter.Name);
-            AvailableBosses = bossesForEncounter.ToList();
+            if (!_populatedEncounters.Any())
+                AvailableBosses = bossesForEncounter.ToList();
+            else
+                AvailableBosses = bossesForEncounter.Where(e => _populatedEncounters.Any(pe => pe.Split("|")[1] == e)).ToList();
+
             if (AvailableBosses.Any())
                 SelectedBoss = AvailableBosses[0];
             OnPropertyChanged("AvailableBosses");
         }
         private void SetSelectedBoss()
         {
-            AvailableDifficulties = new ObservableCollection<string>(_allDifficulties);
+            if (!_populatedEncounters.Any())
+                AvailableDifficulties = new ObservableCollection<string>(_allDifficulties);
+            else
+                AvailableDifficulties = new ObservableCollection<string>(_allDifficulties.Where(e => _populatedEncounters.Any(pe => pe.Split("|")[2] == e && pe.Split("|")[0] == SelectedEncounter.Name && pe.Split("|")[1] == SelectedBoss)));
+
             AvailablePlayerCounts = new ObservableCollection<string>(_allPlayerCounts);
             OnPropertyChanged("AvailableDifficulties");
             OnPropertyChanged("AvailablePlayerCounts");
