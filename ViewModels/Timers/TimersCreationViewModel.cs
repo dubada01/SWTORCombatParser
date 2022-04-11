@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.Boss_Timers;
 using SWTORCombatParser.DataStructures.HOT_Timers;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
@@ -172,8 +173,9 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public TimersCreationViewModel()
         {
+            BossTimerLoader.TryLoadBossTimers();
             HotTimerLoader.TryLoadHots();
-            EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
+            EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false, DefaultTimersManager.GetAllMechanicsDefaults().Select(s=>s.TimerSource).ToList());
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
             _disciplineTimersWindow = new TimersWindowViewModel();

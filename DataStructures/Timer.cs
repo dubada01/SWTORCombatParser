@@ -49,10 +49,12 @@ namespace SWTORCombatParser.DataStructures
         public bool IsAlert { get; set; }
         public double AlertDuration { get; set; }
         public double DurationSec { get; set; }
+        public double HideUntilSec { get; set; }
         public Color TimerColor { get; set; }
         public string SpecificBoss { get; set; }
         public string SpecificEncounter { get; set; }
         public bool IsHot { get; set; }
+        public bool IsMechanic { get; set; }
         public Timer Copy()
         {
             return new Timer()
@@ -82,7 +84,9 @@ namespace SWTORCombatParser.DataStructures
                 TrackOutsideOfCombat = TrackOutsideOfCombat,
                 CanBeRefreshed = CanBeRefreshed,
                 AbilitiesThatRefresh = AbilitiesThatRefresh,
-                IsHot = IsHot
+                IsHot = IsHot,
+                IsMechanic = IsMechanic,
+                HideUntilSec = HideUntilSec
             };
         }
     }

@@ -128,7 +128,7 @@ namespace SWTORCombatParser.Model.Timers
                     targetId = log.Target.Id;
                     break;
                 case TimerKeyType.EntityHP:
-                    wasTriggered = TriggerDetection.CheckForHP(log, SourceTimer.HPPercentage, SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Target, SourceTimer.TargetIsLocal);
+                    wasTriggered = TriggerDetection.CheckForHP(log, SourceTimer.HPPercentage, SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Source, SourceTimer.SourceIsLocal);
                     if(wasTriggered != TriggerType.None)
                     {
                         var entity = TriggerDetection.GetTargetId(log, SourceTimer.Target, SourceTimer.TargetIsLocal);

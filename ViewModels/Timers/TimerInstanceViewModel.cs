@@ -24,6 +24,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private TimeSpan _timerValue;
         private bool displayTimerValue;
         private int charges;
+        private bool displayTimer;
 
         public event Action<TimerInstanceViewModel> TimerExpired = delegate { };
         public event Action TimerTriggered = delegate { };
@@ -50,6 +51,14 @@ namespace SWTORCombatParser.ViewModels.Timers
         public SolidColorBrush TimerBackground => new SolidColorBrush(TimerColor);
 
         public double TimerValue { get; set; }
+        public bool DisplayTimer
+        {
+            get => displayTimer; set
+            {
+                displayTimer = value;
+                OnPropertyChanged();
+            }
+        }
         public bool DisplayTimerValue
         {
             get => displayTimerValue; set
@@ -108,6 +117,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (!SourceTimer.IsAlert)
             {
+                if (SourceTimer.HideUntilSec == 0)
+                    DisplayTimer = true;
                 DisplayTimerValue = true;
                 MaxTimerValue = SourceTimer.DurationSec;
                 var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds * -1;
@@ -126,6 +137,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void TriggerHPTimer(double currentHP)
         {
+            DisplayTimer = true;
             DisplayTimerValue = true;
             MaxTimerValue = 100d;
             CurrentMonitoredHP = currentHP;
@@ -138,6 +150,9 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             _timerValue = _timerValue.Add(TimeSpan.FromMilliseconds(-100));
             TimerValue = _timerValue.TotalSeconds;
+            if (SourceTimer.HideUntilSec > 0 && !DisplayTimer && TimerValue <= SourceTimer.HideUntilSec)
+                DisplayTimer = true;
+                
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
