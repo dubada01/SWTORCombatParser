@@ -28,8 +28,8 @@ namespace SWTORCombatParser
 
         private bool _isInCombat = false;
         private bool _isWaitingForExitCombatTimout;
-        private long _numberOfProcessedEntries;
-        private long _currentLogsInFile;
+        //private long _numberOfProcessedEntries;
+        //private long _currentLogsInFile;
         private string _logToMonitor; 
         private bool _monitorLog;
         private DateTime _lastUpdateTime;
@@ -37,9 +37,11 @@ namespace SWTORCombatParser
         private List<ParsedLogEntry> _waitingForExitCombatTimeout = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
         private DateTime _currentCombatStartTime;
-
+        private Encoding _fileEncoding;
         public CombatLogStreamer()
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            _fileEncoding = Encoding.GetEncoding(1252);
             CombatDetector.AlertExitCombatTimedOut += OnExitCombatTimedOut;
         }
         public void MonitorLog(string logToMonitor)
@@ -66,8 +68,13 @@ namespace SWTORCombatParser
         private void ParseExisitingLogs()
         {
             var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
-            _numberOfProcessedEntries = currentLogs.Count;
-            _currentLogsInFile = _numberOfProcessedEntries;
+            Parallel.For(0, currentLogs.Count, i =>
+            {
+                numberOfReadChars += _fileEncoding.GetByteCount(currentLogs[i].LogText);
+            });
+            //numberOfReadChars = currentLogs.Sum(s=> _fileEncoding.GetByteCount(s.LogText));
+            //_numberOfProcessedEntries = currentLogs.Count;
+            //_currentLogsInFile = _numberOfProcessedEntries;
             ParseHistoricalLog(currentLogs);
         }
 
@@ -79,8 +86,9 @@ namespace SWTORCombatParser
         }
         private void ResetMonitoring()
         {
-            _currentLogsInFile = 0;
-            _numberOfProcessedEntries = 0;
+            numberOfReadChars = 0;
+            //   _currentLogsInFile = 0;
+            //_numberOfProcessedEntries = 0;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
         }
@@ -101,29 +109,33 @@ namespace SWTORCombatParser
                 return;
             ParseLogFile();
         }
+        private long numberOfReadChars = 0;
         internal void ParseLogFile()
         {
-            _currentFrameData = new List<ParsedLogEntry>();
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            _currentFrameData = new List<ParsedLogEntry>();        
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var sr = new StreamReader(fs, Encoding.GetEncoding(1252)))
+            using (var sr = new StreamReader(fs, _fileEncoding))
             {
                 List<string> lines = new List<string>();
+                
+                sr.BaseStream.Seek(numberOfReadChars, SeekOrigin.Begin);
                 while(!sr.EndOfStream)
                     lines.Add(sr.ReadLine());
-
-                _currentLogsInFile = lines.Where(s=>!string.IsNullOrEmpty(s)).Count()-1;
-                if (_currentLogsInFile <= _numberOfProcessedEntries)
+                //_currentLogsInFile = lines.Where(s=>!string.IsNullOrEmpty(s)).Count()-1;
+                //if (_currentLogsInFile <= _numberOfProcessedEntries)
+                //    return;
+                if (lines.Count == 0)
                     return;
-
-                for (var line = _numberOfProcessedEntries; line < _currentLogsInFile; line++)
+                for (var line = 0; line < lines.Count; line++)
                 {
-                    if(ProcessNewLine(lines[(int)line], line, Path.GetFileName(_logToMonitor)))
+                    if (lines[line] == null)
+                        continue;
+                    if(ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor)))
                     {
-                        _numberOfProcessedEntries++;
+                        //_numberOfProcessedEntries++;
+                        numberOfReadChars += _fileEncoding.GetByteCount(lines[line]);
                     }
                 }
-
                 if (!_isInCombat)
                     return; 
                 CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
