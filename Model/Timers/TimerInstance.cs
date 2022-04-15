@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -84,7 +85,6 @@ namespace SWTORCombatParser.Model.Timers
         }
         internal void CheckForTrigger(ParsedLogEntry log, DateTime startTime)
         {
-
             var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
             if(SourceTimer.SpecificEncounter != currentEncounter.Name && SourceTimer.SpecificEncounter != "All")
             {
@@ -110,7 +110,7 @@ namespace SWTORCombatParser.Model.Timers
                     break;
                 case TimerKeyType.EffectGained:
                     wasTriggered = TriggerDetection.CheckForEffectGain(log, SourceTimer.Effect, SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
-                    if (wasTriggered == TriggerType.Refresh && CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.NextGen)
+                    if (wasTriggered == TriggerType.Refresh)
                     {
                         var currentTarget = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp);
                         targetAdendum = currentTarget.Name;
@@ -128,7 +128,7 @@ namespace SWTORCombatParser.Model.Timers
                     targetId = log.Target.Id;
                     break;
                 case TimerKeyType.EntityHP:
-                    wasTriggered = TriggerDetection.CheckForHP(log, SourceTimer.HPPercentage, SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Source, SourceTimer.SourceIsLocal);
+                    wasTriggered = TriggerDetection.CheckForHP(log, SourceTimer.HPPercentage, SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Target, SourceTimer.TargetIsLocal);
                     if(wasTriggered != TriggerType.None)
                     {
                         var entity = TriggerDetection.GetTargetId(log, SourceTimer.Target, SourceTimer.TargetIsLocal);
@@ -152,11 +152,18 @@ namespace SWTORCombatParser.Model.Timers
                     wasTriggered = TriggerDetection.CheckForTargetChange(log, SourceTimer.Source, SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal);
                     break;
             }
-            if (wasTriggered == TriggerType.Refresh && ActiveTimerInstancesForTimer.Any(t => t.TargetId == targetId) && SourceTimer.CanBeRefreshed)
+            if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
             {
-                var timerToRestart = ActiveTimerInstancesForTimer.First(t => t.TargetId == targetId);
-                timerToRestart.Reset(log.TimeStamp);
-                TimerNotifier.FireTimerRefreshed(timerToRestart);
+                var timerToRestart = ActiveTimerInstancesForTimer.FirstOrDefault(t => t.TargetId == targetId);
+                if (timerToRestart != null)
+                {
+                    timerToRestart.Reset(log.TimeStamp);
+                }
+                else
+                {
+                    var timerVm = CreateTimerInstance(log.TimeStamp, targetAdendum, targetId);
+                    TimerNotifier.FireTimerTriggered(timerVm);
+                }
             }
             if (wasTriggered == TriggerType.Start && !ActiveTimerInstancesForTimer.Any(t => t.TargetId == targetId) )
             {
@@ -170,7 +177,10 @@ namespace SWTORCombatParser.Model.Timers
             if(wasTriggered == TriggerType.End)
             {
                 var endedTimer = ActiveTimerInstancesForTimer.FirstOrDefault(t => t.TargetId == targetId);
+
                 if (endedTimer == null)
+                    return;
+                if (log.TimeStamp - endedTimer.StartTime < TimeSpan.FromSeconds(1))
                     return;
                 endedTimer.Complete();
             }
@@ -187,6 +197,7 @@ namespace SWTORCombatParser.Model.Timers
         private TimerInstanceViewModel CreateTimerInstance(DateTime timeStamp, string targetAdendum = "", long targetId = 0)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
+            timerVM.StartTime = timeStamp;
             timerVM.TimerExpired += Reset;
             timerVM.TargetAddendem = targetAdendum;
             timerVM.TargetId = targetId;
