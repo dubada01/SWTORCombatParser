@@ -54,7 +54,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _currentOverlay.Top = defaults.Position.Y;
             _currentOverlay.Left = defaults.Position.X;
 
-            StartInitialCheck();
+            
         }
 
         public bool RaidFrameEditable => _isRaidFrameEditable;
@@ -155,24 +155,26 @@ namespace SWTORCombatParser.ViewModels.Overlays
                             _currentOverlay.Opacity = 0; ;
                         });
                     }
-                    
-                    var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmap(_currentOverlayViewModel.TopLeft, (int)_currentOverlayViewModel.Width, (int)_currentOverlayViewModel.Height);
-                    if(RaidFrameEditable)
-                    {
-                        Application.Current.Dispatcher.Invoke(() => {
-                            _currentOverlay.Opacity = 1; ;
-                        });
-                    }
 
-                    var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
-                    Trace.WriteLine(redPixelAverage.ToString());
-                    if (redPixelAverage > 0.015)
+                    using (var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmap(_currentOverlayViewModel.TopLeft, (int)_currentOverlayViewModel.Width, (int)_currentOverlayViewModel.Height))
                     {
-                        AutoDetection(null);
-                        _shouldCheckInitial = false;
-                        break;
+                        if (RaidFrameEditable)
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                _currentOverlay.Opacity = 1; ;
+                            });
+                        }
+
+                        var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
+                        if (redPixelAverage > 0.015)
+                        {
+                            AutoDetection(null);
+                            _shouldCheckInitial = false;
+                            break;
+                        }
+                        Thread.Sleep(1000);
                     }
-                    Thread.Sleep(1000);
                 }
             });
 
@@ -199,6 +201,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     RaidHotsEnabled = false;
                 });
             }
+        }
+
+        internal void LiveParseActive()
+        {
+            StartInitialCheck();
         }
     }
 }

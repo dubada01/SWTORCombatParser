@@ -25,6 +25,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         private bool displayTimerValue;
         private int charges;
         private bool displayTimer;
+        private double _hpTimerMonitor = 0;
+        private double timerValue;
 
         public event Action<TimerInstanceViewModel> TimerExpired = delegate { };
         public event Action TimerTriggered = delegate { };
@@ -41,6 +43,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
         public DateTime StartTime { get; set; }
+        public DateTime LastUpdate { get; set; }
         public bool ShowCharges => Charges > 1;
         public Timer SourceTimer { get; set; } = new Timer();
         public double CurrentMonitoredHP { get; set; }
@@ -56,8 +59,13 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => timerValue; set
             {
                 timerValue = value;
-                if (MaxTimerValue == 0)
-                    return;
+
+                if (MaxTimerValue == 0 || TimerValue < 0 || TimerValue > MaxTimerValue)
+                {
+                    OnPropertyChanged("RemainderWidth");
+                    OnPropertyChanged("BarWidth");
+                    return; 
+                }
                 RemainderWidth = GetRemainderWidth();
                 BarWidth = GetBarWidth();
                 OnPropertyChanged("RemainderWidth");
@@ -99,9 +107,9 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimerInstanceViewModel(Timer swtorTimer)
         {
             SourceTimer = swtorTimer;
+            MaxTimerValue = swtorTimer.DurationSec;
 
-            _dtimer = new DispatcherTimer(DispatcherPriority.Send, Application.Current.Dispatcher);
-            _dtimer.IsEnabled = true;
+            _dtimer = new DispatcherTimer(DispatcherPriority.Normal, Application.Current.Dispatcher);
             if (!swtorTimer.IsAlert)
             {
                 _timerValue = TimeSpan.FromSeconds(MaxTimerValue);
@@ -112,6 +120,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerValue = TimeSpan.FromSeconds(3);
                 _dtimer.Interval = TimeSpan.FromSeconds(3);
             }
+            MaxTimerValue = _timerValue.TotalSeconds;
             TimerValue = _timerValue.TotalSeconds;
         }
 
@@ -133,9 +142,10 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (!SourceTimer.IsAlert)
             {
                 if (SourceTimer.HideUntilSec == 0)
+                {
                     DisplayTimer = true;
+                }
                 DisplayTimerValue = true;
-                MaxTimerValue = SourceTimer.DurationSec;
                 var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds * -1;
                 _timerValue = TimeSpan.FromSeconds(MaxTimerValue + offset);
                 TimerValue = _timerValue.TotalSeconds;
@@ -149,7 +159,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
+
+            _dtimer.IsEnabled = true;
             _dtimer.Start();
+            StartTime = DateTime.Now;
+            LastUpdate = StartTime;
             TimerTriggered();
         }
         public void TriggerHPTimer(double currentHP)
@@ -169,7 +183,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void Tick(object sender, EventArgs args)
         {
-            _timerValue = _timerValue.Add(TimeSpan.FromMilliseconds(-100));
+            _timerValue = _timerValue.Add(-1*(DateTime.Now - LastUpdate));
             TimerValue = _timerValue.TotalSeconds;
             if (SourceTimer.HideUntilSec > 0 && !DisplayTimer && TimerValue <= SourceTimer.HideUntilSec)
                 DisplayTimer = true;
@@ -177,12 +191,10 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
+            LastUpdate = DateTime.Now;
             if (TimerValue <= 0)
                 Complete();
         }
-        private double _hpTimerMonitor = 0;
-        private double timerValue;
-
         public void UpdateHP(object sender, EventArgs args)
         {
             _hpTimerMonitor = CurrentMonitoredHP;
@@ -192,6 +204,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void Complete()
         {
             _dtimer?.Stop();
+            _dtimer.IsEnabled = false;
             TimerExpired(this);
         }
         private string GetTimerName()
@@ -223,6 +236,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void Dispose()
         {
             _dtimer?.Stop();
+            _dtimer.IsEnabled = false;
         }
     }
 }

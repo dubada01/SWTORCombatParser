@@ -152,37 +152,80 @@ namespace SWTORCombatParser.ViewModels
                 LoadingWindowFactory.ShowLoading();
             OnMonitoringStarted();
             var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-            //var mostRecentLog = @"C:\Users\duban\Documents\Star Wars - The Old Republic\CombatLogs\test.txt";
-            //File.Create(mostRecentLog).Close();
+           // var mostRecentLog = @"C:\Users\duban\Documents\test.txt";
+           //File.Delete(mostRecentLog);
+           // File.Create(mostRecentLog).Close();
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
             //Task.Run(() =>
             //{
-            //    TransferLogData(mostRecentLog);
+            //   TransferLogData(mostRecentLog);
+            //   File.Delete(mostRecentLog);
             //});
+            
         }
         //TEST CODE
         private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
         private void TransferLogData(string testLogPath)
         {
-
-            var logLines = File.ReadAllLines(Path.Combine(_logPath, "combat_2021-07-11_19_01_39_463431.txt"), new UTF7Encoding());
-            using (var fs = new FileStream(testLogPath, FileMode.Open, FileAccess.Write, FileShare.Read))
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            var encoding = Encoding.GetEncoding(1252);
+            var logLines = File.ReadAllLines(Path.Combine(_logPath, "combat_2022-04-15_18_10_15_096488.txt"), encoding);
+            using(var reader = new StreamReader(Path.Combine(_logPath, "combat_2022-04-15_18_10_15_096488.txt"), encoding))
             {
-                var logIndex = 0;
-                while (logIndex < logLines.Length)
+                using (var fs = new FileStream(testLogPath, FileMode.Open, FileAccess.Write, FileShare.Read))
                 {
-                    var logsToMove = Math.Min(logLines.Length - logIndex, new Random().Next(1, 30));
-                    for (var i = 0; i < logsToMove; i++)
+                    while (!reader.EndOfStream)
                     {
-                        var stringBytes = new UTF7Encoding(true).GetBytes(logLines[logIndex + i] + '\n');
-                        fs.Write(stringBytes);
-                        fs.Flush();
+                        //try
+                        //{
+                        if(fs.Position > 0)
+                            fs.Position = fs.Position - 2;
+                        var shouldSendValidLines = new Random().Next(40, 100) > 30;
+                        if (shouldSendValidLines)
+                        {
+                            var numberOfLines = new Random().Next(50, 100);
+                            List<string> lines = new List<string>();
+                            for(int i = 0; i < numberOfLines; i++)
+                            {
+                                lines.Add(reader.ReadLine());
+                            }
+                            lines.Add("\n");
+
+                            var stringBytes = encoding.GetBytes(string.Join('\n',lines));
+                            fs.Write(stringBytes);
+                            fs.Flush();
+                        }
+                        else
+                        {
+                            var numberOfLines = new Random().Next(50, 100);
+                            List<string> lines = new List<string>();
+                            for (int i = 0; i < numberOfLines; i++)
+                            {
+                                lines.Add(reader.ReadLine());
+                            }
+                            lines.Last().Remove(10, lines.Last().Count() - 11);
+                            var stringBytes = encoding.GetBytes(string.Join('\n', lines));
+                            fs.Write(stringBytes);
+                            fs.Flush();
+                        }
+                        
+                        //}
+                        //catch(Exception e)
+                        //{
+                        //    var chars = reader.ReadToEnd();
+
+                        //    var stringBytes = encoding.GetBytes(chars);
+                        //    fs.Write(stringBytes);
+                        //    fs.Flush();
+                        //}
+
+
+                        Thread.Sleep(2500);
                     }
-                    logIndex += logsToMove;
-                    Thread.Sleep(5);
                 }
             }
+
         }
         ///
         public void DisableLiveParse()

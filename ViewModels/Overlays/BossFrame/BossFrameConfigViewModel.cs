@@ -68,7 +68,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             {
                 HideFrames();
             }
-            if (update.Logs == null || update.Type == UpdateType.Stop)
+            if (update.Logs == null || update.Type == UpdateType.Stop || update.Logs.Count == 0)
                 return;
             var logs = update.Logs;
             var currentEncounterBossTargets = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp).BossInfos.SelectMany(bi => bi.TargetNames).ToList();

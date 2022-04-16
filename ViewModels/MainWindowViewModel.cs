@@ -166,6 +166,7 @@ namespace SWTORCombatParser.ViewModels
                 _plotViewModel.Reset();
                 _tableViewModel.Reset();
                 _histViewModel.Reset();
+                _overlayViewModel.LiveParseStarted();
             });
         }
 
@@ -174,9 +175,9 @@ namespace SWTORCombatParser.ViewModels
             App.Current.Dispatcher.Invoke(delegate
             {
                 _plotViewModel.UpdateLivePlot(obj);
-                _tableViewModel.AddCombat(obj);
-                _histViewModel.AddCombat(obj);
-                _reviewViewModel.CombatSelected(obj);
+                //_tableViewModel.AddCombat(obj);
+                //_histViewModel.AddCombat(obj);
+                //_reviewViewModel.CombatSelected(obj);
             });
         }
         private void NewSoftwareLog(string log)
