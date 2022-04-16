@@ -169,5 +169,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _currentOverlays.ForEach(o => o.CharacterDetected(localPlayer.Name));
             }
         }
+
+        internal void LiveParseStarted()
+        {
+            _raidHotsConfigViewModel.LiveParseActive();
+        }
     }
 }

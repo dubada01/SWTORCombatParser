@@ -198,6 +198,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (!CombatMonitorViewModel.IsLiveParseActive())
                 return;
             var mostRecentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now);
+            if (mostRecentDiscipline == null)
+                return;
             var source = DisciplineTimersList.FirstOrDefault(v => v.Contains(mostRecentDiscipline.Discipline));
             if (!string.IsNullOrEmpty(source))
             {

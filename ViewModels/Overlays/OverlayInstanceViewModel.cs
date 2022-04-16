@@ -244,9 +244,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 else
                     metric.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.TotalValue) / double.Parse(maxValue));
             }
+            var orderedMetrics = MetricBars.OrderByDescending(mb => mb.RelativeLength);
             App.Current.Dispatcher.Invoke(() =>
             {
-                MetricBars = new ObservableCollection<OverlayMetricInfo>(MetricBars.OrderByDescending(mb => mb.RelativeLength));
+                MetricBars = new ObservableCollection<OverlayMetricInfo>(orderedMetrics);
             });
             OnPropertyChanged("MetricBars");
         }

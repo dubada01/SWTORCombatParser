@@ -110,6 +110,7 @@ namespace SWTORCombatParser.Model.Timers
                     break;
                 case TimerKeyType.EffectGained:
                     wasTriggered = TriggerDetection.CheckForEffectGain(log, SourceTimer.Effect, SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal);
+                    
                     if (wasTriggered == TriggerType.Refresh)
                     {
                         var currentTarget = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp);
@@ -154,15 +155,25 @@ namespace SWTORCombatParser.Model.Timers
             }
             if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
             {
+
                 var timerToRestart = ActiveTimerInstancesForTimer.FirstOrDefault(t => t.TargetId == targetId);
+                if (SourceTimer.IsHot && !CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp).IsCharacter)
+                {
+                    var localPlayerid = CombatLogStateBuilder.CurrentState.LocalPlayer.Id;
+                    timerToRestart = ActiveTimerInstancesForTimer.FirstOrDefault(t => t.TargetId == localPlayerid);
+                }
                 if (timerToRestart != null)
                 {
                     timerToRestart.Reset(log.TimeStamp);
                 }
                 else
                 {
-                    var timerVm = CreateTimerInstance(log.TimeStamp, targetAdendum, targetId);
-                    TimerNotifier.FireTimerTriggered(timerVm);
+                    var currentTarget = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp);
+                    if (SourceTimer.IsHot && log.Target.IsCharacter)
+                    {
+                        var timerVm = CreateTimerInstance(log.TimeStamp, targetAdendum, targetId);
+                        TimerNotifier.FireTimerTriggered(timerVm);
+                    }
                 }
             }
             if (wasTriggered == TriggerType.Start && !ActiveTimerInstancesForTimer.Any(t => t.TargetId == targetId) )

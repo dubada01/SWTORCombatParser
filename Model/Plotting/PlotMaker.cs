@@ -46,21 +46,20 @@ namespace SWTORCombatParser
 
             var movingaverage = new double[timeStampsSpread.Count];
 
-            Parallel.For(0, timeStampsSpread.Count, i =>
+            //Parallel.For(0, timeStampsSpread.Count, i =>
+            for(var i = 0;i<timeStampsSpread.Count;i++)
               {
                   var denseTime = timeStampsSpread[i];
                   var timesAndIndex = timeStamps.Select((v, i) => new { v, i });
                   var timeAndIndiciesInScope = timesAndIndex.Where(x => x.v > denseTime && x.v <= denseTime + 1);
-                  var indexes = timeAndIndiciesInScope.Select(x => x.i);
+                  var indexes = timeAndIndiciesInScope.Select(x => x.i).ToList();
 
 
-                  if (indexes.Count() == 0)
+                  if (indexes.Count != 0)
                   {
-                      var valSum = 0d;
-                      foreach (var ind in indexes)
-                      {
-                          valSum += yValues[ind];
-                      }
+                      double[] yVals = new double[indexes.Count];
+                      Parallel.For(0, indexes.Count, i => yVals[i] = yValues[indexes[i]]);
+                        var valSum = yVals.Sum();
                       movingaverage[i] = (movingAverageCalc.ComputeAverage(valSum, denseTime));
                   }
                   else
@@ -68,7 +67,7 @@ namespace SWTORCombatParser
                       movingaverage[i] = (movingAverageCalc.ComputeAverage(0, denseTime));
                   }
 
-              });
+              }
             
             return movingaverage;
         }
@@ -116,16 +115,12 @@ namespace SWTORCombatParser
         private TimeSpan windowDuration;
         private double sampleAccumulator;
         public double Average { get; private set; }
-        private object updateLock = new object();
-
         /// <summary>
         /// Computes a new windowed average each time a new sample arrives
         /// </summary>
         /// <param name="newSample"></param>
         public double ComputeAverage(double newSample, double timeStamp)
         {
-            lock (updateLock)
-            {
                 sampleAccumulator += newSample;
                 samples.Enqueue((newSample, timeStamp));
 
@@ -137,8 +132,6 @@ namespace SWTORCombatParser
                 Average = sampleAccumulator / (samples.Count == 1 ? 1 : (samples.Last().Item2 - samples.First().Item2));
 
                 return Average;
-            }
-
         }
     }
 }

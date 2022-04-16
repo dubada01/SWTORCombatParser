@@ -32,6 +32,7 @@ namespace SWTORCombatParser
         //private long _currentLogsInFile;
         private string _logToMonitor; 
         private bool _monitorLog;
+        private long numberOfReadChars = 0;
         private DateTime _lastUpdateTime;
         private List<ParsedLogEntry> _currentFrameData = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _waitingForExitCombatTimeout = new List<ParsedLogEntry>();
@@ -68,13 +69,14 @@ namespace SWTORCombatParser
         private void ParseExisitingLogs()
         {
             var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
+            int[] characters = new int[currentLogs.Count];
             Parallel.For(0, currentLogs.Count, i =>
             {
-                numberOfReadChars += _fileEncoding.GetByteCount(currentLogs[i].LogText);
+                characters[i]=_fileEncoding.GetByteCount(currentLogs[i].LogText)+2;
             });
-            //numberOfReadChars = currentLogs.Sum(s=> _fileEncoding.GetByteCount(s.LogText));
-            //_numberOfProcessedEntries = currentLogs.Count;
-            //_currentLogsInFile = _numberOfProcessedEntries;
+            numberOfReadChars = characters.Sum();
+           
+
             ParseHistoricalLog(currentLogs);
         }
 
@@ -87,8 +89,6 @@ namespace SWTORCombatParser
         private void ResetMonitoring()
         {
             numberOfReadChars = 0;
-            //   _currentLogsInFile = 0;
-            //_numberOfProcessedEntries = 0;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
         }
@@ -105,11 +105,10 @@ namespace SWTORCombatParser
         }
         private void GenerateNewFrame()
         {
-            if (!CheckIfStale())
-                return;
+            //if (!CheckIfStale())
+            //    return;
             ParseLogFile();
         }
-        private long numberOfReadChars = 0;
         internal void ParseLogFile()
         {
             _currentFrameData = new List<ParsedLogEntry>();        
@@ -119,21 +118,51 @@ namespace SWTORCombatParser
                 List<string> lines = new List<string>();
                 
                 sr.BaseStream.Seek(numberOfReadChars, SeekOrigin.Begin);
-                while(!sr.EndOfStream)
-                    lines.Add(sr.ReadLine());
-                //_currentLogsInFile = lines.Where(s=>!string.IsNullOrEmpty(s)).Count()-1;
-                //if (_currentLogsInFile <= _numberOfProcessedEntries)
-                //    return;
-                if (lines.Count == 0)
+                bool hasValidEnd = false;
+                string newLine = "";
+                while (!sr.EndOfStream)
+                { 
+                    char[] readChars = new char[1000];
+                    sr.Read(readChars, 0, 1000);
+                    
+                    for(var c =0; c < readChars.Length; c++)
+                    {
+                        if (readChars[c] == '\0')
+                            break;
+                        if (readChars[c] != '\n')
+                            newLine+=readChars[c];
+                        else
+                        {
+                            if (c == readChars.Length-1 || readChars[c+1] == '\0')
+                            { 
+                                hasValidEnd = true;
+                                break;
+                            }
+                            else
+                            {
+                                lines.Add(newLine+'\n');
+                                newLine = "";
+                            }
+                        }
+                    }
+                    //lines.Add(sr.ReadLine());
+                }
+                if (lines.Count == 0 || !hasValidEnd)
                     return;
                 for (var line = 0; line < lines.Count; line++)
                 {
-                    if (lines[line] == null)
-                        continue;
                     if(ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor)))
                     {
-                        //_numberOfProcessedEntries++;
                         numberOfReadChars += _fileEncoding.GetByteCount(lines[line]);
+                    }
+                    else
+                    {
+                        if (lines[line] == "\n")
+                        { 
+                            numberOfReadChars += _fileEncoding.GetByteCount(lines[line]);
+                        }
+                        else
+                            Trace.WriteLine("Invalid line: "+lines[line]);
                     }
                 }
                 if (!_isInCombat)
