@@ -49,8 +49,8 @@ namespace SWTORCombatParser
         {
             var state = CombatLogStateBuilder.CurrentState;
             var encounter = GetEncounterInfo(ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp);
-            var currentPariticpants = ongoingLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Select(p => p.Source).Distinct().ToList();
-            currentPariticpants.AddRange(ongoingLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Select(p => p.Target).Distinct().ToList());
+            var currentPariticpants = ongoingLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Where(l=>l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct().ToList();
+            currentPariticpants.AddRange(ongoingLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Target).Distinct().ToList());
             var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
             var participantInfos = ongoingLogs.Select(p => p.SourceInfo).Distinct().ToList();
             var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity,ongoingLogs.First().TimeStamp));
@@ -88,7 +88,7 @@ namespace SWTORCombatParser
 
         private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
         {
-            var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet");
+            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectName == "Damage");
             var targets = validLogs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null).ToList();
             targets.AddRange(validLogs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null));
             return targets.DistinctBy(t=>t.Name).ToList();
@@ -101,7 +101,7 @@ namespace SWTORCombatParser
         {
             if (currentEncounter == null)
                 return ("","","");
-            var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet" && !string.IsNullOrEmpty(l.Target.Name));
+            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && !string.IsNullOrEmpty(l.Target.Name) && l.Effect.EffectName == "Damage");
             if (currentEncounter.Name.Contains("Open World"))
             {
                 if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.Name.Contains("Training Dummy")))
@@ -130,7 +130,7 @@ namespace SWTORCombatParser
         {
             if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return new List<string>();
-            var validLogs = logs.Where(l => l.Effect.EffectName != "TargetSet");
+            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectName == "Damage");
             foreach (var log in validLogs)
             {
                 if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))

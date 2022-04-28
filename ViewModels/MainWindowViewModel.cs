@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -78,8 +79,14 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel = new CombatMonitorViewModel();
             _combatMonitorViewModel.OnCombatSelected += SelectCombat;
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
-            _combatMonitorViewModel.OnLiveCombatUpdate += UpdateCombat;
-            _combatMonitorViewModel.OnMonitoringStarted += MonitoringStarted;
+
+            //_combatMonitorViewModel.OnLiveCombatUpdate += UpdateCombat;
+            Observable.FromEvent<Combat>(
+                manager => _combatMonitorViewModel.OnLiveCombatUpdate += manager,
+                manager => _combatMonitorViewModel.OnLiveCombatUpdate -= manager).Sample(TimeSpan.FromSeconds(2)).Subscribe(update => UpdateCombat(update));
+
+            _combatMonitorViewModel.LiveCombatFinished += UpdateCombat;
+            _combatMonitorViewModel.OnMonitoringStateChanged += MonitoringStarted;
             _combatMonitorViewModel.ParticipantsUpdated += UpdateAvailableParticipants;
             _combatMonitorViewModel.LocalPlayerId += LocalPlayerChanged;
             _combatMonitorViewModel.OnHistoricalCombatsParsed += AddHistoricalViewer;
@@ -93,8 +100,7 @@ namespace SWTORCombatParser.ViewModels
             var tableView = new OverviewView(_tableViewModel);
             ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Table" });
 
-            //_softwareLogViewModel = new SoftwareLogViewModel();
-            //SoftwareLogView = new LogsView(_softwareLogViewModel);
+            _softwareLogViewModel = new SoftwareLogViewModel();
 
             _histViewModel = new HistogramVeiewModel();
             var histView = new OverviewView(_histViewModel);
@@ -159,25 +165,29 @@ namespace SWTORCombatParser.ViewModels
         public PastCombatsView PastCombatsView { get; set; }
 
 
-        private void MonitoringStarted()
+        private void MonitoringStarted(bool state)
         {
-            App.Current.Dispatcher.Invoke(delegate
-            {
-                _plotViewModel.Reset();
-                _tableViewModel.Reset();
-                _histViewModel.Reset();
-                _overlayViewModel.LiveParseStarted();
-            });
+            if(state)
+                App.Current.Dispatcher.Invoke(delegate
+                {
+                    _plotViewModel.Reset();
+                    _tableViewModel.Reset();
+                    _histViewModel.Reset();
+                    
+                });
+            _overlayViewModel.LiveParseStarted(state);
         }
 
         private void UpdateCombat(Combat obj)
         {
+            if (LoadingWindowFactory.MainWindowHidden)
+                return;
             App.Current.Dispatcher.Invoke(delegate
             {
                 _plotViewModel.UpdateLivePlot(obj);
-                //_tableViewModel.AddCombat(obj);
-                //_histViewModel.AddCombat(obj);
-                //_reviewViewModel.CombatSelected(obj);
+                _tableViewModel.AddCombat(obj);
+                _histViewModel.AddCombat(obj);
+                _reviewViewModel.CombatSelected(obj);
             });
         }
         private void NewSoftwareLog(string log)
@@ -189,6 +199,7 @@ namespace SWTORCombatParser.ViewModels
         {
             App.Current.Dispatcher.Invoke(delegate
             {
+                _plotViewModel.UpdateParticipants(obj.CharacterParticipants);
                 _plotViewModel.AddCombatPlot(obj);
                 _tableViewModel.AddCombat(obj);
                 _histViewModel.AddCombat(obj);
@@ -207,7 +218,6 @@ namespace SWTORCombatParser.ViewModels
         }
         private void UpdateAvailableParticipants(List<Entity> obj)
         {
-            _plotViewModel.UpdateParticipants(obj);
             var localPlayer = obj.FirstOrDefault(c => c.IsLocalPlayer);
             if (localPlayer != null)
             {

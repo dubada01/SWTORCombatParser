@@ -126,12 +126,12 @@ namespace SWTORCombatParser.Model.LogParsing
             var newValue = new Value();
             if (damageValueString == "(0 -)" || damageValueString == "")
                 return newValue;
-            var valueParts = damageValueString.Replace("(", string.Empty).Replace(")", string.Empty).Trim().Split(' ');
+            var valueParts = damageValueString.Replace("(", string.Empty).Replace(")", string.Empty).Trim().Split(' ').Where(v=>!string.IsNullOrEmpty(v)).ToList();
 
-            if (valueParts.Length == 0)
+            if (valueParts.Count == 0)
                 return newValue;
 
-            if (valueParts.Length == 1) //fully effective heal
+            if (valueParts.Count == 1) //fully effective heal
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
@@ -141,7 +141,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     newValue.ValueType = DamageType.none;
                 newValue.EffectiveDblValue = newValue.DblValue;
             }
-            if (valueParts.Length == 2) // partially effective heal
+            if (valueParts.Count == 2) // partially effective heal
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
@@ -149,14 +149,14 @@ namespace SWTORCombatParser.Model.LogParsing
                 var effectiveHeal = double.Parse(valueParts[1].Replace("~", ""));
                 newValue.EffectiveDblValue = effectiveHeal > 0 ? effectiveHeal : 0;
             }
-            if (valueParts.Length == 3) // fully effective damage or parry
+            if (valueParts.Count == 3) // fully effective damage or parry
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
                 newValue.EffectiveDblValue = newValue.DblValue;
                 newValue.ValueType = GetValueType(valueParts[1].Replace("-", ""));
             }
-            if (valueParts.Length == 4) // partially effective damage
+            if (valueParts.Count == 4) // partially effective damage
             {
                 if (valueParts[2].Contains("reflected")) // damage reflected
                 {
@@ -169,7 +169,22 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""));
                 newValue.ValueType = GetValueType(valueParts[2].Replace("-", ""));
             }
-            if (valueParts.Length == 7) // absorbed damage non-tank
+            if(valueParts.Count == 6)// absorbed damage tank-weird
+            {
+                var modifier = new Value();
+                modifier.ValueType = GetValueType(valueParts[4].Replace("-", ""));
+                modifier.DblValue = double.Parse(valueParts[3].Replace("(", ""));
+                modifier.EffectiveDblValue = modifier.DblValue;
+                newValue.Modifier = modifier;
+                newValue.ModifierType = newValue.Modifier.ValueType.ToString();
+                newValue.ModifierDisplayValue = modifier.EffectiveDblValue.ToString("#,##0");
+
+                newValue.WasCrit = valueParts[0].Contains("*");
+                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("~", ""));
+                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
+                newValue.ValueType = GetValueType(valueParts[1]);
+            }
+            if (valueParts.Count == 7) // absorbed damage non-tank
             {
                 var modifier = new Value();
                 modifier.ValueType = GetValueType(valueParts[5].Replace("-", ""));
@@ -184,7 +199,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
                 newValue.ValueType = GetValueType(valueParts[2]);
             }
-            if (valueParts.Length == 8) // tank shielding sheilds more than damage
+            if (valueParts.Count == 8) // tank shielding sheilds more than damage
             {
 
                 var modifier = new Value();
@@ -202,7 +217,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ValueType = GetValueType(valueParts[1]);
 
             }
-            if (valueParts.Length == 9) // tank shielding shields less than or equal to damage
+            if (valueParts.Count == 9) // tank shielding shields less than or equal to damage
             {
 
                 var modifier = new Value();

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <VersionPrefix>1.0.31</VersionPrefix>
+    <VersionPrefix>1.0.34</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -182,6 +182,9 @@
     <Page Update="Views\Overlay\BossFrame\RaidDotInstance.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Overlay\BossFrame\BossFrameSetup.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
     <Page Update="Views\Timers\TimerSharePopup.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>

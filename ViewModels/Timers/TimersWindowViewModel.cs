@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Timers;
@@ -88,6 +89,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerWindow.Hide();
             });
         }
+        public string GetSource()
+        {
+            return _timerSource;
+        }
         public void SetSource(string sourceName)
         {
             if (_timerSource == sourceName)
@@ -165,22 +170,23 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void NewLogInANDOutOfCombat(ParsedLogEntry log)
         {
-            var validTimers = _createdTimers.Where(t => t.TrackOutsideOfCombat && CheckEncounterAndBoss(t, log));
+            var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
+            var validTimers = _createdTimers.Where(t => t.TrackOutsideOfCombat && CheckEncounterAndBoss(t, currentEncounter));
             Parallel.ForEach(validTimers, timer =>
             {
                 timer.CheckForTrigger(log, DateTime.Now);
             });
         }
 
-        private bool CheckEncounterAndBoss(TimerInstance t, ParsedLogEntry log)
+        private bool CheckEncounterAndBoss(TimerInstance t, EncounterInfo encounter)
         {
             var timerEncounter = t.SourceTimer.SpecificEncounter;
+            var timerDifficulty = t.SourceTimer.SpecificDifficulty;
             var timerBoss = t.SourceTimer.SpecificBoss;
             if (timerEncounter == "All")
                 return true;
 
-            var parentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
-            if (parentEncounter.Name == timerEncounter)
+            if (encounter.Name == timerEncounter && encounter.Difficutly == timerDifficulty)
                 return true;
             return false;
         }
@@ -197,10 +203,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             if (obj.Logs == null || !_timersEnabled || obj.Type == UpdateType.Stop)
                 return;
+            var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(obj.CombatStartTime);
             var logs = obj.Logs;
             foreach (var log in logs)
             {
-                var validTimers = _createdTimers.Where(t => !t.TrackOutsideOfCombat && CheckEncounterAndBoss(t, log));
+                var validTimers = _createdTimers.Where(t => !t.TrackOutsideOfCombat && CheckEncounterAndBoss(t, currentEncounter));
                 Parallel.ForEach(validTimers, timer =>
                 {
                     timer.CheckForTrigger(log, obj.CombatStartTime);

@@ -110,7 +110,9 @@ namespace SWTORCombatParser
                 combat.MaxIncomingHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0 ? 0 : combat.IncomingHealingLogs[entity].Max(l => l.Value.DblValue);
                 combat.MaxIncomingEffectiveHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0 ? 0 : combat.IncomingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
             }
-            combat.SetBurstValues();
+            if(((int)combat.DurationSeconds%50)==0 || !combat.HasBurstValues())
+                combat.SetBurstValues();
+
             var healers = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == DataStructures.Role.Healer);
             var tanks = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == DataStructures.Role.Tank);
 

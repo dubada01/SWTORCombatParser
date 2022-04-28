@@ -18,6 +18,12 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser
 {
+    public enum ProcessedLineResult
+    {
+        Success,
+        Incomplete,
+        Repeat
+    }
     public class CombatLogStreamer
     {
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
@@ -32,7 +38,7 @@ namespace SWTORCombatParser
         //private long _currentLogsInFile;
         private string _logToMonitor; 
         private bool _monitorLog;
-        private long numberOfReadChars = 0;
+        private long numberOfProcessedBytes = 0;
         private DateTime _lastUpdateTime;
         private List<ParsedLogEntry> _currentFrameData = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _waitingForExitCombatTimeout = new List<ParsedLogEntry>();
@@ -68,15 +74,14 @@ namespace SWTORCombatParser
 
         private void ParseExisitingLogs()
         {
-            var currentLogs = CombatLogParser.ParseAllLines(CombatLogLoader.LoadSpecificLog(_logToMonitor));
+            var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
+            var currentLogs = CombatLogParser.ParseAllLines(file);
             int[] characters = new int[currentLogs.Count];
             Parallel.For(0, currentLogs.Count, i =>
             {
-                characters[i]=_fileEncoding.GetByteCount(currentLogs[i].LogText)+2;
+                characters[i] = _fileEncoding.GetByteCount(currentLogs[i].LogText+"\r\n");
             });
-            numberOfReadChars = characters.Sum();
-           
-
+            numberOfProcessedBytes = characters.Sum();
             ParseHistoricalLog(currentLogs);
         }
 
@@ -88,7 +93,7 @@ namespace SWTORCombatParser
         }
         private void ResetMonitoring()
         {
-            numberOfReadChars = 0;
+            numberOfProcessedBytes = 0;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
         }
@@ -105,8 +110,8 @@ namespace SWTORCombatParser
         }
         private void GenerateNewFrame()
         {
-            //if (!CheckIfStale())
-            //    return;
+            if (!CheckIfStale())
+                return;
             ParseLogFile();
         }
         internal void ParseLogFile()
@@ -115,63 +120,83 @@ namespace SWTORCombatParser
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, _fileEncoding))
             {
+                ParsingPerformanceProfiler test = new ParsingPerformanceProfiler();
+                test.StartLogProcessing();
                 List<string> lines = new List<string>();
+                bool hasValidEnd = GetNewlines(sr, lines);
+
+                if (lines.Count == 0)
+                    return;          
                 
-                sr.BaseStream.Seek(numberOfReadChars, SeekOrigin.Begin);
-                bool hasValidEnd = false;
-                string newLine = "";
-                while (!sr.EndOfStream)
-                { 
-                    char[] readChars = new char[1000];
-                    sr.Read(readChars, 0, 1000);
-                    
-                    for(var c =0; c < readChars.Length; c++)
+                for (var line = 0; line < lines.Count; line++)
+                {
+                    var result = ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor));
+
+                    if (result == ProcessedLineResult.Incomplete)
                     {
-                        if (readChars[c] == '\0')
-                            break;
-                        if (readChars[c] != '\n')
-                            newLine+=readChars[c];
-                        else
+                        throw new Exception("Failed to parse line: " + lines[line]);
+                    }
+                }
+                if (!_isInCombat)
+                    return;
+                CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
+                var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentFrameData, CombatStartTime = _currentCombatStartTime };
+                CombatUpdated(updateMessage);
+                test.SaveProcessingInfo(lines.Count,true,true);
+            }
+        }
+
+        private bool GetNewlines(StreamReader sr, List<string> lines)
+        {
+            sr.BaseStream.Seek(numberOfProcessedBytes, SeekOrigin.Begin);
+            bool hasValidEnd = false;
+            StringBuilder newLine = new StringBuilder();
+            while (!sr.EndOfStream)
+            {
+                char[] readChars = new char[2500];
+                sr.Read(readChars, 0, 2500);
+
+                for (var c = 0; c < readChars.Length; c++)
+                {
+                    if (readChars[c] == '\0')
+                        break;
+                    if (readChars[c] == '\r')
+                        continue;
+                    if (readChars[c] != '\n')
+                    {
+                        newLine.Append(readChars[c]);
+                    }
+                    else
+                    {
+                        if(readChars[2499] == '\0' || sr.EndOfStream)
                         {
-                            if (c == readChars.Length-1 || readChars[c+1] == '\0')
-                            { 
-                                hasValidEnd = true;
+                            if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
+                            {
+                                lines.Add(newLine.ToString() + Environment.NewLine);
+                                numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
                                 break;
                             }
                             else
                             {
-                                lines.Add(newLine+'\n');
-                                newLine = "";
+                                if (newLine.Length == 0)
+                                    continue;
+                                numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
+                                lines.Add(newLine.ToString() + Environment.NewLine);
+                                newLine.Clear();
                             }
                         }
-                    }
-                    //lines.Add(sr.ReadLine());
-                }
-                if (lines.Count == 0 || !hasValidEnd)
-                    return;
-                for (var line = 0; line < lines.Count; line++)
-                {
-                    if(ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor)))
-                    {
-                        numberOfReadChars += _fileEncoding.GetByteCount(lines[line]);
-                    }
-                    else
-                    {
-                        if (lines[line] == "\n")
-                        { 
-                            numberOfReadChars += _fileEncoding.GetByteCount(lines[line]);
-                        }
-                        else
-                            Trace.WriteLine("Invalid line: "+lines[line]);
+                        if (newLine.Length == 0)
+                            continue;
+                        numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
+                        lines.Add(newLine.ToString() + Environment.NewLine);
+                        newLine.Clear();
                     }
                 }
-                if (!_isInCombat)
-                    return; 
-                CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
-                var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentFrameData, CombatStartTime = _currentCombatStartTime };
-                CombatUpdated(updateMessage);
             }
+
+            return hasValidEnd;
         }
+
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
         {
             _currentCombatData.Clear();
@@ -202,13 +227,15 @@ namespace SWTORCombatParser
             _lastUpdateTime = fileInfo.LastWriteTime;
             return true;
         }
-        private bool ProcessNewLine(string line,long lineIndex,string logName)
+
+        private ProcessedLineResult ProcessNewLine(string line,long lineIndex,string logName)
         {
             var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
-                return false;
+                return ProcessedLineResult.Incomplete;
             }
+
             if (parsedLine.Source.IsLocalPlayer)
                 LocalPlayerIdentified(parsedLine.Source);
             parsedLine.LogName = Path.GetFileName(logName);
@@ -224,7 +251,7 @@ namespace SWTORCombatParser
                 _currentFrameData.Add(parsedLine);
                 _waitingForExitCombatTimeout.Add(parsedLine);
             }
-            return true;
+            return ProcessedLineResult.Success;
         }
         private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true)
         {

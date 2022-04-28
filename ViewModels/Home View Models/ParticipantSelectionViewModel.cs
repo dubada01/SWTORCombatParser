@@ -13,7 +13,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
     public class ParticipantSelectionViewModel:INotifyPropertyChanged
     {
         public event Action<Entity> ParticipantSelected = delegate { };
-        public ObservableCollection<ParticipantViewModel> AvailableParticipants { get; set; } = new ObservableCollection<ParticipantViewModel>();
+        public List<ParticipantViewModel> AvailableParticipants { get; set; } = new List<ParticipantViewModel>();
         public int Rows { get; set; }
         public int Columns { get; set; }
 
@@ -35,13 +35,19 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public void SetParticipants(List<Entity> availableEntities)
         {
             var participants = availableEntities.Select(e => GenerateInstance(e));
-            AvailableParticipants = new ObservableCollection<ParticipantViewModel>(participants);
-            foreach(var participant in AvailableParticipants)
+            AvailableParticipants = new List<ParticipantViewModel>(participants);
+            foreach (var participant in AvailableParticipants)
             {
                 participant.SelectionChanged += SelectParticipant;
             }
+            UpdateLayout();
+            OnPropertyChanged("AvailableParticipants");
+            
+        }
+        private void UpdateLayout()
+        {
             if (AvailableParticipants.Count <= 4)
-            { 
+            {
                 Columns = 4;
                 Rows = 1;
             }
@@ -55,7 +61,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 Columns = 8;
                 Rows = 2;
             }
-            OnPropertyChanged("AvailableParticipants");
             OnPropertyChanged("Rows");
             OnPropertyChanged("Columns");
         }
@@ -75,15 +80,16 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             viewModel.Entity = e;
             viewModel.PlayerName = e.Name;
             viewModel.IsLocalPlayer = e.IsLocalPlayer;
+            viewModel.RoleImageSource = "../../resources/question-mark.png";
             return viewModel;
         }
         public void UpdateParticipantsData(Combat info)
         {
+            AvailableParticipants.Clear();
             foreach (var participant in info.CharacterParticipants)
             {
-                var participantVM = AvailableParticipants.FirstOrDefault(p => p.PlayerName == participant.Name);
-                if (participantVM == null)
-                    continue;
+                ParticipantViewModel participantViewModel = GenerateInstance(participant);
+                participantViewModel.SelectionChanged += SelectParticipant;
                 var imagePath = "../../resources/question-mark.png";
                 if (participant.IsCompanion)
                     imagePath = "../../resources/LocalPlayerIcon.png";
@@ -91,11 +97,13 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 {
                     var swtorClass = info.CharacterClases[participant];
                     imagePath = GetRoleImage(swtorClass);
-                    participantVM.RoleOrdering = swtorClass.Role == Role.Tank ? 0 : swtorClass.Role == Role.Healer ? 1 : 2;
+                    participantViewModel.RoleOrdering = swtorClass.Role == Role.Tank ? 0 : swtorClass.Role == Role.Healer ? 1 : 2;
                 }
-                participantVM.SetValues(info.EDPS[participant], info.EHPS[participant], info.EDTPS[participant], imagePath);
+                participantViewModel.SetValues(info.EDPS[participant], info.EHPS[participant], info.EDTPS[participant], imagePath);
+                AvailableParticipants.Add(participantViewModel);
             }
-            AvailableParticipants = new ObservableCollection<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
+            AvailableParticipants = new List<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
+            UpdateLayout();
             OnPropertyChanged("AvailableParticipants");
         }
 

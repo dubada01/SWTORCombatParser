@@ -18,7 +18,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private object _refreshLock = new object();
         public bool OverlaysMoveable { get; set; }
         public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
-        public ObservableCollection<OverlayMetricInfo> MetricBars { get; set; } = new ObservableCollection<OverlayMetricInfo>();
+        public List<OverlayMetricInfo> MetricBars { get; set; } = new List<OverlayMetricInfo>();
         public OverlayType CreatedType { get; set; }
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }
@@ -166,9 +166,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 RelativeLength = 1,
                 MedalIconPath = "../../resources/firstPlaceLeaderboardIcon.png"
             };
-            App.Current.Dispatcher.Invoke(() => {
-                MetricBars.Add(metricbar);
-            });
+            MetricBars.Add(metricbar);
             OrderMetricBars();
         }
         private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType,(double,bool)> standings)
@@ -217,10 +215,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 else
                 {
                     metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue };
-                    App.Current.Dispatcher.Invoke(() =>
-                    {
-                        MetricBars.Add(metricToUpdate);
-                    });
+                    MetricBars.Add(metricToUpdate);
                 }
 
                 UpdateMetric(Type, metricToUpdate, combatToDisplay, participant);
@@ -236,20 +231,28 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void OrderMetricBars()
         {
-            var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
-            foreach (var metric in MetricBars)
+            try
             {
-                if (double.Parse(metric.TotalValue) == 0 || (metric.Value + metric.SecondaryValue == 0) || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
-                    metric.RelativeLength = 0;
-                else
-                    metric.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.TotalValue) / double.Parse(maxValue));
+                var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
+                foreach (var metric in MetricBars)
+                {
+                    if (double.Parse(metric.TotalValue) == 0 || (metric.Value + metric.SecondaryValue == 0) || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
+                        metric.RelativeLength = 0;
+                    else
+                        metric.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.TotalValue) / double.Parse(maxValue));
+                }
+                var orderedMetrics = MetricBars.OrderByDescending(mb => mb.RelativeLength);
+
+                MetricBars = new List<OverlayMetricInfo>(orderedMetrics);
+
+                OnPropertyChanged("MetricBars");
+
             }
-            var orderedMetrics = MetricBars.OrderByDescending(mb => mb.RelativeLength);
-            App.Current.Dispatcher.Invoke(() =>
+            catch (Exception ex)
             {
-                MetricBars = new ObservableCollection<OverlayMetricInfo>(orderedMetrics);
-            });
-            OnPropertyChanged("MetricBars");
+
+            }
+
         }
         private void UpdateLeaderboardTopEntries(Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> leaderboardInfo)
         {
@@ -266,10 +269,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void ResetMetrics()
         {
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                MetricBars.Clear();
-            });
+            MetricBars.Clear();
+            OnPropertyChanged("MetricBars");
         }
         private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat combat, Entity participant)
         {

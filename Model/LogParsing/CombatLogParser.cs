@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -46,15 +47,17 @@ namespace SWTORCombatParser
             _logDate = combatLog.Time;
 
             var logLines = new List<string>();
-            while(!combatLog.Data.EndOfStream)
-                logLines.Add(combatLog.Data.ReadLine());
-
-            combatLog.Data.Dispose();
+            using (combatLog.Data)
+            {
+                while (!combatLog.Data.EndOfStream)
+                    logLines.Add(combatLog.Data.ReadLine());
+            }
 
             var numberOfLines = logLines.Count;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
             Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
             {
+                
                 if (logLines[i] == "")
                     return;
                 var parsedLine = ParseLine(logLines[i], i, false);
@@ -63,14 +66,14 @@ namespace SWTORCombatParser
                     return;
                 parsedLog[i] = parsedLine;
                 parsedLog[i].LogName = combatLog.Name;
-            }
-            );
+                
+            });
+          
             var cleanedLogs = parsedLog.Where(l => l != null);
             CombatTimestampRectifier.RectifyTimeStamps(cleanedLogs.ToList());
             var orderdedLog = cleanedLogs.OrderBy(l => l.TimeStamp);
             UpdateStateAndLogs(orderdedLog.ToList(), false);
 
-            
             return orderdedLog.ToList();
         }
         private static List<string> GetInfoComponents(string log)

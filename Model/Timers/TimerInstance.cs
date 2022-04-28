@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
@@ -85,11 +86,6 @@ namespace SWTORCombatParser.Model.Timers
         }
         internal void CheckForTrigger(ParsedLogEntry log, DateTime startTime)
         {
-            var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
-            if(SourceTimer.SpecificEncounter != currentEncounter.Name && SourceTimer.SpecificEncounter != "All")
-            {
-                return;
-            }
             TriggerType wasTriggered = TriggerType.None;
             if (!IsEnabled)
                 return;

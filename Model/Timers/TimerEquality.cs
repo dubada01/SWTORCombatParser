@@ -25,7 +25,8 @@ namespace SWTORCombatParser.Model.Timers
                 timer1.DurationSec == timer2.DurationSec &&
                 timer1.TimerColor == timer2.TimerColor &&
                 timer1.SpecificBoss == timer2.SpecificBoss &&
-                timer1.SpecificEncounter == timer2.SpecificEncounter
+                timer1.SpecificEncounter == timer2.SpecificEncounter &&
+                timer1.SpecificDifficulty == timer2.SpecificDifficulty
                 );
                 
         }

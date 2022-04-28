@@ -36,38 +36,37 @@ namespace SWTORCombatParser
         internal static double[] GetPlotXValsRates(double[] timeStamps)
         {
             var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last() - timeStamps.First())).ToList();
-            return timeStampsSpread.Select(d=>(double)d).ToArray();
+            return timeStampsSpread.Select(d => (double)d).ToArray();
         }
         internal static double[] GetPlotYValRates(double[] yValues ,double[] timeStamps,double averageWindowDuration = 10)
         {
             var movingAverageCalc = new MovingAverage(TimeSpan.FromSeconds(averageWindowDuration));
+            var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last() - timeStamps.First())).ToList();
+
             
-            var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last()- timeStamps.First())).ToList();
+            Dictionary<int,double> perSecondSums = new Dictionary<int,double>();
+            for (var t = 0; t < timeStamps.Count(); t++)
+            {
+                var second = (int)timeStamps[t];
+                if (!perSecondSums.ContainsKey(second))
+                {
+                    perSecondSums[second] = 0;
+                }
+                perSecondSums[second] += yValues[t];
+            }
+            var movingaverage = new double[timeStampsSpread.Count()];
+            for (int i = 0; i < timeStampsSpread.Count(); i++)
+            {
+                if (!perSecondSums.ContainsKey(timeStampsSpread[i]))
+                {
+                    movingaverage[i] = movingAverageCalc.ComputeAverage(0, timeStampsSpread[i]);
+                }
+                else
+                {
+                    movingaverage[i] = movingAverageCalc.ComputeAverage(perSecondSums[timeStampsSpread[i]], timeStampsSpread[i]);
+                }
+            }
 
-            var movingaverage = new double[timeStampsSpread.Count];
-
-            //Parallel.For(0, timeStampsSpread.Count, i =>
-            for(var i = 0;i<timeStampsSpread.Count;i++)
-              {
-                  var denseTime = timeStampsSpread[i];
-                  var timesAndIndex = timeStamps.Select((v, i) => new { v, i });
-                  var timeAndIndiciesInScope = timesAndIndex.Where(x => x.v > denseTime && x.v <= denseTime + 1);
-                  var indexes = timeAndIndiciesInScope.Select(x => x.i).ToList();
-
-
-                  if (indexes.Count != 0)
-                  {
-                      double[] yVals = new double[indexes.Count];
-                      Parallel.For(0, indexes.Count, i => yVals[i] = yValues[indexes[i]]);
-                        var valSum = yVals.Sum();
-                      movingaverage[i] = (movingAverageCalc.ComputeAverage(valSum, denseTime));
-                  }
-                  else
-                  {
-                      movingaverage[i] = (movingAverageCalc.ComputeAverage(0, denseTime));
-                  }
-
-              }
             
             return movingaverage;
         }
