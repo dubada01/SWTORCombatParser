@@ -81,7 +81,31 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         public void UpdateNames(List<PlacedName> orderedNames)
         {
-            CurrentNames = orderedNames;
+            if (CurrentNames.Any())
+            {
+                List<PlacedName> namesToUpdate = new List<PlacedName>();
+                foreach(var name in orderedNames)
+                {
+                    var bestPreviousName = CurrentNames.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), name.Name.ToLower())).First();
+                    var match = LevenshteinDistance.Compute(bestPreviousName.Name.ToLower(), name.Name.ToLower());
+                    if (match <= 3)
+                    {
+                        if (bestPreviousName.Row == name.Row && bestPreviousName.Column == name.Column)
+                            continue;
+                        bestPreviousName.Row = name.Row;
+                        bestPreviousName.Column = name.Column;
+                        bestPreviousName.Vertices = name.Vertices;
+                        namesToUpdate.Add(bestPreviousName);
+                    }
+                }
+                CurrentNames.Clear();
+                CurrentNames.AddRange(namesToUpdate);
+                CurrentNames.AddRange(orderedNames.Where(n=>!namesToUpdate.Any(un => LevenshteinDistance.Compute(n.Name.ToLower(),un.Name.ToLower())<=3)));    
+            }
+            else
+            {
+                CurrentNames = orderedNames;
+            }
             UpdateCells();
         }
         public int Rows
@@ -113,66 +137,70 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         private void UpdateCells()
         {
-            RaidHotCells.Clear();
+            if (!CurrentNames.Any())
+            {
+                InitRaidCells();
+            }
+            else
+            {
+                foreach (var detectedName in CurrentNames)
+                {
+                    var cellForName = RaidHotCells.FirstOrDefault(c => c.Name == detectedName.Name);
+                    var cellToReplace = RaidHotCells.First(c => c.Row == detectedName.Row && c.Column == detectedName.Column);
+                    //if (!CurrentNames.Any(c => c.Name == cellToReplace.Name))
+                    //{
+                    //    RaidHotCells.Remove(cellToReplace);
+                    //    RaidHotCells.Add(new RaidHotCell { Column = cellToReplace.Column, Row = cellToReplace.Row, Name = "" });
+                    //}
+
+                    if (cellForName != null)
+                    {
+                        cellForName.Column = detectedName.Column;
+                        cellForName.Row = detectedName.Row;
+                        if (!CurrentNames.Any(c => c.Name == cellToReplace.Name))
+                        {
+                            RaidHotCells.Remove(cellToReplace);
+                            RaidHotCells.Add(new RaidHotCell { Column = cellToReplace.Column, Row = cellToReplace.Row, Name = "" });
+                        }
+                    }
+                    else
+                    {
+                        if (!CurrentNames.Any(c => c.Name == cellToReplace.Name))
+                        {
+                            RaidHotCells.Remove(cellToReplace);
+                        }
+                        RaidHotCells.Add(new RaidHotCell { Column = detectedName.Column, Row = detectedName.Row, Name = detectedName.Name });
+                    }
+
+                }
+                //for (var i = 0; i < (Rows*Columns); i++)
+                //{
+                //    if (!CurrentNames.Any(n => n.Name == RaidHotCells[i].Name))
+                //    {
+                //        var removed = RaidHotCells[i];
+                //        RaidHotCells.RemoveAt(i);
+                //        RaidHotCells.Add(new RaidHotCell { Column = removed.Column, Row = removed.Row, Name = "" });
+                //    }
+                //}
+            }
+            RaidHotCells =new ObservableCollection<RaidHotCell>(RaidHotCells.OrderBy(c => c.Row * Columns + c.Column));
+
+            OnPropertyChanged("RaidHotCells");
+        }
+
+        private void InitRaidCells()
+        {
             for (var r = 0; r < Rows; r++)
             {
                 for (var c = 0; c < Columns; c++)
                 {
-                    var nameInPosition = CurrentNames.FirstOrDefault(n => n.Row == r && n.Column == c);
 
-                    if (nameInPosition != null)
-                    {
-                        RaidHotCells.Add(new RaidHotCell { Column = c, Row = r, Name = nameInPosition.Name });
-                    }
-                    else
-                    {
-                        RaidHotCells.Add(new RaidHotCell { Column = c, Row = r, Name = "" });
-                    }
+                    RaidHotCells.Add(new RaidHotCell { Column = c, Row = r, Name = "" });
 
                 }
             }
-            OnPropertyChanged("RaidHotCells");
         }
-        //private void CheckForUpdatedName()
-        //{
-        //    Task.Run(() => {
-        //        while (true)
-        //        {
-        //            if (!Active)
-        //                break;
-        //            if (CurrentNames.Any())
-        //            {
-        //                foreach (var name in CurrentNames)
-        //                {
-        //                    if (Editable)
-        //                    {
-        //                        Application.Current.Dispatcher.Invoke(() => {
-        //                            _view.Hide();
-        //                        });
-        //                    }
-        //                    var image = RaidFrameScreenGrab.GetRaidFrameBitmap(name.Vertices.First(), (name.Vertices[1].X - name.Vertices[0].X), (name.Vertices[2].Y - name.Vertices[0].Y));
-        //                    if (Editable)
-        //                    {
-        //                        Application.Current.Dispatcher.Invoke(() => {
-        //                            _view.Show();
-        //                        });
-        //                    }
-        //                    if(name.PixelsAtNameLocation == null)
-        //                        name.PixelsAtNameLocation = image;
-        //                    if(RaidFrameScreenGrab.GetDifferenceOfAverage(name.PixelsAtNameLocation, image) > 20)
-        //                    {
-        //                        image.Save(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), name.Name + "NEW pixels.png"));
-        //                        name.PixelsAtNameLocation.Save(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), name.Name + "OLD pixels.png"));
-        //                        Trace.WriteLine(name.Name + " was different by " + RaidFrameScreenGrab.GetDifferenceOfAverage(name.PixelsAtNameLocation, image));
-        //                        NamesUpdated();
-        //                        break;
-        //                    }
-        //                }
-        //            }
-        //            Thread.Sleep(5000);
-        //        }
-        //    });
-        //}
+
         public ObservableCollection<RaidHotCell> RaidHotCells { get; set; } = new ObservableCollection<RaidHotCell>();
 
         public event PropertyChangedEventHandler PropertyChanged;

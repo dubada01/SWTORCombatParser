@@ -9,6 +9,15 @@ using System.Windows;
 
 namespace SWTORCombatParser.Model.Overlays
 {
+    public class BossFrameDefaults
+    {
+        public Point Position;
+        public Point WidtHHeight;
+        public bool Acive;
+        public bool Locked;
+        public bool TrackDOTS;
+        public bool PredictMechs;
+    }
     public class DefaultBossFrameManager
     {
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
@@ -19,7 +28,7 @@ namespace SWTORCombatParser.Model.Overlays
                 Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new DefaultOverlayInfo() { WidtHHeight = new Point(200,300), Position = new Point()}));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new BossFrameDefaults() { WidtHHeight = new Point(200,300), Position = new Point(), TrackDOTS = true, PredictMechs = true}));
             }
         }
         internal static void SetDefaults(Point point1, Point point2)
@@ -29,7 +38,18 @@ namespace SWTORCombatParser.Model.Overlays
             currentdefaults.WidtHHeight = point2;
             SaveDefaults(currentdefaults);
         }
-
+        internal static void SetDotTracking(bool track)
+        {
+            var currentdefaults = GetDefaults();
+            currentdefaults.TrackDOTS = track;
+            SaveDefaults(currentdefaults);
+        }
+        internal static void SetPredictMechs(bool track)
+        {
+            var currentdefaults = GetDefaults();
+            currentdefaults.PredictMechs = track;
+            SaveDefaults(currentdefaults);
+        }
         internal static void SetActiveState(bool v)
         {
             var currentdefaults = GetDefaults();
@@ -42,14 +62,14 @@ namespace SWTORCombatParser.Model.Overlays
             currentdefaults.Locked = locked;
             SaveDefaults(currentdefaults);
         }
-        public static DefaultOverlayInfo GetDefaults()
+        public static BossFrameDefaults GetDefaults()
         {
             if (!File.Exists(infoPath))
                 Init();
             var text = File.ReadAllText(infoPath);
-            return JsonConvert.DeserializeObject<DefaultOverlayInfo>(text);
+            return JsonConvert.DeserializeObject<BossFrameDefaults>(text);
         }
-        public static void SaveDefaults(DefaultOverlayInfo toSave)
+        public static void SaveDefaults(BossFrameDefaults toSave)
         {
             File.WriteAllText(infoPath,JsonConvert.SerializeObject(toSave));
         }

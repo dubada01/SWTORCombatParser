@@ -87,7 +87,7 @@ namespace SWTORCombatParser.Utilities
             {
                 _combatResesOut +=1;
             }
-            if (_bossCombat && _currentBossInfo.EncounterName != "Revan" && _combatResesOut == 0 && line.Effect.EffectName == "Revived")
+            if ((_bossCombat && _currentBossInfo.EncounterName != "Revan" && _combatResesOut == 0 && line.Effect.EffectName == "Revived")||(!_bossCombat && line.Effect.EffectName == "Revived"))
             {
                 return EndCombat();
             }

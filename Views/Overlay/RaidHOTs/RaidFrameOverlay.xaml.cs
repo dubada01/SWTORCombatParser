@@ -41,7 +41,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 Top = defaults.Position.Y;
                 Left = defaults.Position.X;
             });
-
+            var viewModel = DataContext as RaidFrameOverlayViewModel;
+            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
         }
         private void Hello(object sender, RoutedEventArgs e)
         {

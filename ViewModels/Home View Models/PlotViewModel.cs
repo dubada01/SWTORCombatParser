@@ -168,24 +168,18 @@ namespace SWTORCombatParser.Plotting
 
         internal void UpdateParticipants(List<Entity> obj)
         {
-            ParticipantSelectionHeight = obj.Count > 4 ? new GridLength(0.25, GridUnitType.Star) : new GridLength(0.125, GridUnitType.Star);
-            MinSeletionHeight = obj.Count > 4 ? 120 : 60;
-            OnPropertyChanged("ParticipantSelectionHeight");
-            OnPropertyChanged("MinSeletionHeight");
             _combatMetaDataViewModel.AvailableParticipants = obj;
 
             if (!obj.Contains(_selectedParticipant))
                 _selectedParticipant = null;
 
             _participantsViewModel.SetParticipants(obj);
-            if (_selectedParticipant == null)
-                _participantsViewModel.SelectLocalPlayer();
-            else
-                _participantsViewModel.SelectParticipant(_selectedParticipant);
+            UpdateParticipantUI(obj);
         }
 
         public void UpdateLivePlot(Combat updatedCombat)
         {
+            UpdateParticipantUI(updatedCombat.CharacterParticipants);
             _participantsViewModel.UpdateParticipantsData(updatedCombat);
             lock (graphLock)
             {
@@ -199,6 +193,18 @@ namespace SWTORCombatParser.Plotting
                 _currentCombats.Add(updatedCombat);
                 PlotCombat(updatedCombat, SelectedParticipant);
             }
+        }
+        private void UpdateParticipantUI(List<Entity> participants)
+        {
+            ParticipantSelectionHeight = participants.Count > 4 ? new GridLength(0.25, GridUnitType.Star) : new GridLength(0.125, GridUnitType.Star);
+            MinSeletionHeight = participants.Count > 4 ? 120 : 60;
+            
+            if (_selectedParticipant == null)
+                _participantsViewModel.SelectLocalPlayer();
+            else
+                _participantsViewModel.SelectParticipant(_selectedParticipant);
+            OnPropertyChanged("ParticipantSelectionHeight");
+            OnPropertyChanged("MinSeletionHeight");
         }
         public void AddCombatPlot(Combat combatToPlot)
         {

@@ -14,15 +14,22 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
     public class MechanicsTimersModuleViewModel : INotifyPropertyChanged
     {
         private EntityInfo _bossInfo;
-
+        private bool isActive;
         public ObservableCollection<TimerInstanceViewModel> UpcomingMechanics { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
-        public MechanicsTimersModuleViewModel(EntityInfo bossInfo)
+        public MechanicsTimersModuleViewModel(EntityInfo bossInfo, bool mechTrackingEnabled)
         {
+            isActive = mechTrackingEnabled;
             _bossInfo = bossInfo;
             TimerNotifier.NewTimerTriggered += OnNewTimer;
         }
+        public void SetActive(bool state)
+        {
+            isActive = state;
+        }
         private void OnNewTimer(TimerInstanceViewModel obj)
         {
+            if(!isActive)
+                return;
             if ((obj.SourceTimer.Source == _bossInfo.Entity.Name || (obj.SourceTimer.TriggerType == DataStructures.TimerKeyType.EntityHP && obj.TargetAddendem == _bossInfo.Entity.Name)) && obj.SourceTimer.IsMechanic)
             {
                 obj.TimerExpired += RemoveTimer;

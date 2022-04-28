@@ -60,7 +60,7 @@ namespace SWTORCombatParser
             Width = windowInfo.Width;
             Height = windowInfo.Height;
             AddNotificationIcon();
-            SWTORDetector.StartMonitoring();
+            //SWTORDetector.StartMonitoring();
         }
         private void AddNotificationIcon()
         {

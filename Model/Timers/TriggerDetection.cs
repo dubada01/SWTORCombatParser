@@ -92,15 +92,14 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 if(log.Effect.EffectName == effect && log.Effect.EffectType == EffectType.Apply)
                     return TriggerType.Start;
-                //if (abilitiesThatRefresh.Contains(log.Ability) && log.Effect.EffectType == EffectType.Apply && log.Ability != effect)
-                //    return TriggerType.Refresh; 
-                //if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.Effect.EffectName)) && log.Effect.EffectType == EffectType.Event && log.Ability == effect)
-                //    return TriggerType.Refresh;
-                if (abilitiesThatRefresh.Contains(log.Ability) && log.Effect.EffectType == EffectType.Event)
+                if (abilitiesThatRefresh.Contains(log.Ability) && log.Effect.EffectType == EffectType.Event && log.Ability == effect)
                 {
                     return TriggerType.Refresh;
                 }
-                    
+                if (abilitiesThatRefresh.Contains(log.Ability) && log.Effect.EffectType == EffectType.Apply && log.Ability != effect)
+                {
+                    return TriggerType.Refresh;
+                }
                 return TriggerType.None;
             }
             return TriggerType.None;

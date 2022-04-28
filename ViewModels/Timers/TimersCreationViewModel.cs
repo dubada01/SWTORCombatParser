@@ -282,7 +282,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
         {
-            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive())
+            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive() || SelectedTimerSource == swtorclass.Discipline)
                 return;
             _disciplineTimersWindow.SetPlayer(swtorclass);
             SelectedTimerSource = swtorclass.Discipline;

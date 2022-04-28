@@ -27,7 +27,7 @@ namespace SWTORCombatParser.Model.Overlays
             var image = Image.FromBytes(ImageToByte2(swtorRaidFrame));
             var response = client.DetectText(image);
 
-            var validEntites = response.Where(r => !r.Description.Contains('\n') && !r.Description.Any(c => char.IsDigit(c)));
+            var validEntites = response.Where(r => r.Description.All(c=>char.IsLetter(c)|| c == '-' || c =='\'')).GroupBy(n=>n.Description).Select(g=>g.First()).ToList();
 
             double rowHeights = swtorRaidFrame.Height / numberOfRows;
             double columnWidth = swtorRaidFrame.Width / numberOfColumns;

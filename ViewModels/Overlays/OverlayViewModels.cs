@@ -26,13 +26,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
         private Dictionary<OverlayType, DefaultOverlayInfo> _overlayDefaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
         private string _currentCharacterName = "None";
-        private bool overlaysLocked;
+        private bool overlaysLocked = true;
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
         private RaidHotsConfigViewModel _raidHotsConfigViewModel;
         private BossFrameConfigViewModel _bossFrameViewModel;
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public TimersCreationView TimersView { get; set; }
+        public BossFrameSetup BossFrameView { get; set; }
         public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
         public List<LeaderboardType> LeaderboardTypes { get; set; } = new List<LeaderboardType>();
         public LeaderboardType SelectedLeaderboardType
@@ -55,6 +56,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 AvailableOverlayTypes.Add(enumVal);
             }
             _bossFrameViewModel = new BossFrameConfigViewModel();
+            BossFrameView = new BossFrameSetup(_bossFrameViewModel);
+            
 
             TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
@@ -62,11 +65,19 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
             RaidHotsConfig = new RaidHOTsSteup();
             _raidHotsConfigViewModel = new RaidHotsConfigViewModel();
+            _raidHotsConfigViewModel.EnabledChanged += RaidHotsEnabledChanged;
             RaidHotsConfig.DataContext = _raidHotsConfigViewModel;
             
             OnPropertyChanged("RaidHotsConfig");
             OnPropertyChanged("TimersView");
         }
+
+
+        private void RaidHotsEnabledChanged(bool obj)
+        {
+            
+        }
+
         private void CharacterLoaded(Entity character)
         {
             ResetOverlays();
@@ -153,6 +164,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _currentOverlays.ForEach(o => o.UnlockOverlays());
             else
                 _currentOverlays.ForEach(o => o.LockOverlays());
+            _raidHotsConfigViewModel.ToggleLock(OverlaysLocked);
             DefaultOverlayManager.SetLockedState(OverlaysLocked, _currentCharacterName);
         }
 
@@ -170,9 +182,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
         }
 
-        internal void LiveParseStarted()
+        internal void LiveParseStarted(bool state)
         {
-            _raidHotsConfigViewModel.LiveParseActive();
+            _raidHotsConfigViewModel.LiveParseActive(state);
         }
     }
 }

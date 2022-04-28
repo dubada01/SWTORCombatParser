@@ -36,11 +36,12 @@ namespace SWTORCombatParser.ViewModels
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
 
 
-        public event Action OnMonitoringStarted = delegate { };
+        public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
         public event Action<Combat> OnCombatSelected = delegate { };
         public event Action<Combat> OnCombatUnselected = delegate { };
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
+        public event Action<Combat> LiveCombatFinished = delegate { };
         public event Action<string> OnNewLog = delegate { };
         public event Action<List<Entity>> ParticipantsUpdated = delegate { };
         public event Action<Entity> LocalPlayerId = delegate { };
@@ -150,19 +151,19 @@ namespace SWTORCombatParser.ViewModels
         {
             if(!runningInBackground)
                 LoadingWindowFactory.ShowLoading();
-            OnMonitoringStarted();
+            OnMonitoringStateChanged(true);
             var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-           // var mostRecentLog = @"C:\Users\duban\Documents\test.txt";
-           //File.Delete(mostRecentLog);
-           // File.Create(mostRecentLog).Close();
+            //var mostRecentLog = @"C:\Users\duban\Documents\test.txt";
+            //File.Delete(mostRecentLog);
+            //File.Create(mostRecentLog).Close();
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
             //Task.Run(() =>
             //{
-            //   TransferLogData(mostRecentLog);
-            //   File.Delete(mostRecentLog);
+            //    TransferLogData(mostRecentLog);
+            //    File.Delete(mostRecentLog);
             //});
-            
+
         }
         //TEST CODE
         private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
@@ -170,58 +171,26 @@ namespace SWTORCombatParser.ViewModels
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var encoding = Encoding.GetEncoding(1252);
-            var logLines = File.ReadAllLines(Path.Combine(_logPath, "combat_2022-04-15_18_10_15_096488.txt"), encoding);
-            using(var reader = new StreamReader(Path.Combine(_logPath, "combat_2022-04-15_18_10_15_096488.txt"), encoding))
+            var logLines = File.ReadAllLines(Path.Combine(_logPath, "combat_2022-04-19_20_01_11_467363.txt"), encoding);
+            using(var reader = new StreamReader(Path.Combine(_logPath, "combat_2022-04-19_20_01_11_467363.txt"), encoding))
             {
-                using (var fs = new FileStream(testLogPath, FileMode.Open, FileAccess.Write, FileShare.Read))
+                using (var fs = new FileStream(testLogPath, FileMode.Append, FileAccess.Write, FileShare.Read))
                 {
                     while (!reader.EndOfStream)
                     {
-                        //try
-                        //{
-                        if(fs.Position > 0)
-                            fs.Position = fs.Position - 2;
-                        var shouldSendValidLines = new Random().Next(40, 100) > 30;
-                        if (shouldSendValidLines)
+                        var numberOfLines = new Random().Next(50, 300);
+                        List<string> lines = new List<string>();
+                        for (int i = 0; i < numberOfLines; i++)
                         {
-                            var numberOfLines = new Random().Next(50, 100);
-                            List<string> lines = new List<string>();
-                            for(int i = 0; i < numberOfLines; i++)
-                            {
-                                lines.Add(reader.ReadLine());
-                            }
-                            lines.Add("\n");
-
-                            var stringBytes = encoding.GetBytes(string.Join('\n',lines));
-                            fs.Write(stringBytes);
-                            fs.Flush();
+                            lines.Add(reader.ReadLine() + "\r\n");
                         }
-                        else
-                        {
-                            var numberOfLines = new Random().Next(50, 100);
-                            List<string> lines = new List<string>();
-                            for (int i = 0; i < numberOfLines; i++)
-                            {
-                                lines.Add(reader.ReadLine());
-                            }
-                            lines.Last().Remove(10, lines.Last().Count() - 11);
-                            var stringBytes = encoding.GetBytes(string.Join('\n', lines));
-                            fs.Write(stringBytes);
-                            fs.Flush();
-                        }
-                        
-                        //}
-                        //catch(Exception e)
-                        //{
-                        //    var chars = reader.ReadToEnd();
 
-                        //    var stringBytes = encoding.GetBytes(chars);
-                        //    fs.Write(stringBytes);
-                        //    fs.Flush();
-                        //}
+                        var stringBytes = encoding.GetBytes(string.Join("", lines));
+                        fs.Write(stringBytes);
+                        fs.Flush();
 
 
-                        Thread.Sleep(2500);
+                        Thread.Sleep(500);
                     }
                 }
             }
@@ -234,6 +203,7 @@ namespace SWTORCombatParser.ViewModels
                 return;
             LiveParseActive = false;
             _combatLogStreamer.StopMonitoring();
+            OnMonitoringStateChanged(false);
 
             OnNewLog("Stopped Monitoring");
         }
@@ -262,7 +232,7 @@ namespace SWTORCombatParser.ViewModels
             
             if (openFileDialog.ShowDialog() == true)
             {
-                OnMonitoringStarted();
+                OnMonitoringStateChanged(false);
                 CurrentlySelectedLogName = openFileDialog.FileName;
                 OnPropertyChanged("CurrentlySelectedLogName");
                 var logInfo = CombatLogLoader.LoadSpecificLog(CurrentlySelectedLogName);
@@ -331,7 +301,7 @@ namespace SWTORCombatParser.ViewModels
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj);
                 CombatIdentifier.UpdateOverlays(combatInfo);
                 //LocalCombatLogCaching.SaveCombatLogs(combatInfo, true);
-                OnLiveCombatUpdate(combatInfo);
+                LiveCombatFinished(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
                 {
                     _totalLogsDuringCombat.TryRemove(combatStartTime, out var t);
