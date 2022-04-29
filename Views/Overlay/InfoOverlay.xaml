@@ -24,7 +24,7 @@
                             <Grid ToolTip="{Binding InfoText}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults"  Margin="0,2,2,2" MaxHeight="{Binding BarHeight}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="{Binding ValueWidth}"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>

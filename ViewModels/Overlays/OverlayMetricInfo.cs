@@ -14,6 +14,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private int leaderboardRank;
         private static double defaultBarHeight = 35;
         private static double defaultFontSize = 18;
+        private static double defaultValueWidth = 70;
 
         private string valueStringFormat = "#,##0";
         private double sizeScalar=1;
@@ -28,8 +29,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged("FontSize");
                 OnPropertyChanged("InfoFontSize");
                 OnPropertyChanged("BarHeight");
+                OnPropertyChanged("ValueWidth");
             }
         }
+        public GridLength ValueWidth => new GridLength(defaultValueWidth*SizeScalar, GridUnitType.Pixel);
         public double FontSize => defaultFontSize * SizeScalar;
         public double InfoFontSize => FontSize - 2;
         public double BarHeight => defaultBarHeight * SizeScalar;
