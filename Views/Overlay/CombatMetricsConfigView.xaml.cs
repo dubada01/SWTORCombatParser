@@ -24,5 +24,6 @@ namespace SWTORCombatParser.Views.Overlay
         {
             InitializeComponent();
         }
+
     }
 }

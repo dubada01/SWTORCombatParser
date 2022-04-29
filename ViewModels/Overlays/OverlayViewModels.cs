@@ -31,6 +31,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private TimersCreationViewModel _timersViewModel;
         private RaidHotsConfigViewModel _raidHotsConfigViewModel;
         private BossFrameConfigViewModel _bossFrameViewModel;
+        private double maxScalar = 1.5d;
+        private double minScalar = 0.5d;
+        private double sizeScalar = 1d;
+        private string sizeScalarString ="1";
+
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public TimersCreationView TimersView { get; set; }
         public BossFrameSetup BossFrameView { get; set; }
@@ -45,19 +50,51 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 Leaderboards.UpdateLeaderboardType(selectedLeaderboardType);
             }
         }
+        public string SizeScalarString
+        {
+            get => sizeScalarString; set
+            {
+                sizeScalarString = value;
+                var stringVal = 0d;
+                if (double.TryParse(sizeScalarString, out stringVal))
+                {
+                    SizeScalar = stringVal;
+                }
+            }
+        }
+        public double SizeScalar
+        {
+            get { return sizeScalar; }
+            set
+            {
+                sizeScalar = value;
+                if (sizeScalar > maxScalar)
+                { 
+                    SizeScalarString = maxScalar.ToString();
+                    return;
+                }
+                if (sizeScalar < minScalar)
+                { 
+                    SizeScalarString = minScalar.ToString();
+                    return;
+                }
+                _currentOverlays.ForEach(overlay => overlay.SizeScalar = sizeScalar);
+                OnPropertyChanged();
+            }
+        }
         public OverlayViewModel()
         {
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             DefaultOverlayManager.Init();
             DefaultTimersManager.Init();
-            var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d=>d.ToString());
+            var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
                 AvailableOverlayTypes.Add(enumVal);
             }
             _bossFrameViewModel = new BossFrameConfigViewModel();
             BossFrameView = new BossFrameSetup(_bossFrameViewModel);
-            
+
 
             TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
@@ -67,7 +104,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _raidHotsConfigViewModel = new RaidHotsConfigViewModel();
             _raidHotsConfigViewModel.EnabledChanged += RaidHotsEnabledChanged;
             RaidHotsConfig.DataContext = _raidHotsConfigViewModel;
-            
+
             OnPropertyChanged("RaidHotsConfig");
             OnPropertyChanged("TimersView");
         }
@@ -75,7 +112,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void RaidHotsEnabledChanged(bool obj)
         {
-            
+
         }
 
         private void CharacterLoaded(Entity character)
