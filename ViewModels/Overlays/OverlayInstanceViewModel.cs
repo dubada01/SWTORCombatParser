@@ -16,8 +16,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
     public class OverlayInstanceViewModel : INotifyPropertyChanged
     {
         private object _refreshLock = new object();
+        private double sizeScalar = 1d;
+
         public bool OverlaysMoveable { get; set; }
         public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
+        public double SizeScalar
+        {
+            get => sizeScalar; set
+            {
+                sizeScalar = value;
+
+                MetricBars.ForEach(bar=>bar.SizeScalar = sizeScalar);
+                OnPropertyChanged();
+            }
+        }
         public List<OverlayMetricInfo> MetricBars { get; set; } = new List<OverlayMetricInfo>();
         public OverlayType CreatedType { get; set; }
         public OverlayType Type { get; set; }
@@ -41,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             CreatedType = type;
             Type = type;
-            if(Type == OverlayType.EHPS)
+            if (Type == OverlayType.EHPS)
             {
                 SecondaryType = OverlayType.Shielding;
                 AddSecondaryToValue = true;
@@ -169,9 +181,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             MetricBars.Add(metricbar);
             OrderMetricBars();
         }
-        private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType,(double,bool)> standings)
+        private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType, (double, bool)> standings)
         {
-            (double, bool) leaderboardRanking = (0,false);
+            (double, bool) leaderboardRanking = (0, false);
             if (Type == OverlayType.DPS)
             {
                 leaderboardRanking = standings[LeaderboardEntryType.Damage];
