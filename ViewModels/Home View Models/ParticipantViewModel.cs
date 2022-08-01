@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
-    public class ParticipantViewModel:INotifyPropertyChanged
+    public class ParticipantViewModel : INotifyPropertyChanged
     {
+        private bool isSelected;
+
         public event Action<ParticipantViewModel> SelectionChanged = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -19,12 +21,18 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public void ToggleSelection()
         {
             IsSelected = !IsSelected;
-            OnPropertyChanged("IsSelected");
-            if(IsSelected)
+            if (IsSelected)
                 SelectionChanged(this);
         }
         public Entity Entity { get; set; }
-        public bool IsSelected { get; set; }
+        public bool IsSelected { 
+            get => isSelected; 
+            set 
+            { 
+                isSelected = value;
+                OnPropertyChanged();
+            } 
+        }
         public string PlayerName { get; set; }
         public bool IsLocalPlayer { get; set; }
         public string RoleImageSource { get; set; }
@@ -34,8 +42,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public string DTPS { get; set; } = "0";
         public void SetValues(double dps, double hps, double dtps, string roleImage)
         {
-            
-            DPS = dps == 0?"0":dps.ToString("#,##");
+
+            DPS = dps == 0 ? "0" : dps.ToString("#,##");
             OnPropertyChanged("DPS");
             HPS = hps == 0 ? "0" : hps.ToString("#,##");
             OnPropertyChanged("HPS");

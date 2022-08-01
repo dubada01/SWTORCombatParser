@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using SWTORCombatParser.DataStructures.RaidInfos;
 using System;
 using System.Collections.Generic;

@@ -52,6 +52,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string customRefreshOption;
         private double hPPercentageDisplayBuffer;
         private string hPTriggerText;
+        private Color selectedColor = Colors.CornflowerBlue;
 
         public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
 
@@ -311,7 +312,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => isPeriodic; set
             {
                 isPeriodic = value;
-                if(SelectedTriggerType == TimerKeyType.EntityHP)
+                if (SelectedTriggerType == TimerKeyType.EntityHP)
                 {
                     if (IsPeriodic)
                         HPTriggerText = "Every";
@@ -325,16 +326,20 @@ namespace SWTORCombatParser.ViewModels.Timers
         public bool ShowRepeats => IsPeriodic && SelectedTriggerType != TimerKeyType.EntityHP;
         public int Repeats { get; set; }
         public bool IsHot { get; set; }
-        public Color SelectedColor { get; set; } = Colors.CornflowerBlue;
-
+        public Color SelectedColor { get => selectedColor;
+            set 
+            {
+                selectedColor = value;
+            } 
+        }
         public ModifyTimerViewModel(string timerSource)
         {
             _currentSelectedPlayer = timerSource;
             if (timerSource.Contains('|'))
             {
                 var parts = timerSource.Split('|');
-                AvailableEncounters = new List<string> { parts[0]};
-                AvailableBosses = new List<string> { parts[1]};
+                AvailableEncounters = new List<string> { parts[0] };
+                AvailableBosses = new List<string> { parts[1] };
                 selectedEncounter = parts[0];
                 SelectedBoss = parts[1];
             }

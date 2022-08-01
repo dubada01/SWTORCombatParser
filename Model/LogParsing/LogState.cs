@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Utilities;
@@ -52,7 +52,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public string CurrentLocation { get; set; }
         public long MostRecentLogIndex = 0;
-        public Dictionary<string, List<CombatModifier>> Modifiers { get; set; } = new Dictionary<string, List<CombatModifier>>();
+        public ConcurrentDictionary<string, ConcurrentDictionary<Guid,CombatModifier>> Modifiers { get; set; } = new ConcurrentDictionary<string, ConcurrentDictionary<Guid,CombatModifier>>();
         public object modifierLogLock = new object();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public Entity LocalPlayer { get; internal set; }
@@ -103,7 +103,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var classOfSource = PlayerClassChangeInfo[PlayerClassChangeInfo.Keys.First(k=>k.Id == LocalPlayer.Id)];
             if (classOfSource == null)
                 return new SWTORClass();
-            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds)).First()];
+            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds))];
             return classAtTime;
         }
         public SWTORClass GetCharacterClassAtTime(Entity entity, DateTime time)
@@ -113,7 +113,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var classOfSource = PlayerClassChangeInfo[entity];
             if (classOfSource == null)
                 return new SWTORClass();
-            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds)).First()];
+            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds))];
             return classAtTime;
         }
         public Entity GetPlayerTargetAtTime(Entity player, DateTime time)
@@ -121,7 +121,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!PlayerTargetsInfo.ContainsKey(player))
                 return new Entity();
             var targets = PlayerTargetsInfo[player];
-            return targets[targets.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds)).First()];
+            return targets[targets.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds))];
         }
         public SWTORClass GetCharacterClassAtTime(string entityName, DateTime time)
         {
@@ -131,7 +131,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var classOfSource = PlayerClassChangeInfo[entity];
             if (classOfSource == null)
                 return new SWTORClass();
-            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds)).First()];
+            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds))];
             return classAtTime;
         }
         public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
@@ -150,19 +150,19 @@ namespace SWTORCombatParser.Model.LogParsing
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
             var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-            var inScopeModifiers = allMods.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner).ToList();
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner).Select(kvp => kvp.Value).ToList();
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetEffectsWithTarget(DateTime startTime, DateTime endTime, Entity owner)
         {
             var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-            var inScopeModifiers = allMods.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Target == owner).ToList();
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Target == owner).Select(kvp => kvp.Value).ToList();
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetPersonalEffects(DateTime startTime, DateTime endTime, Entity owner)
         {
             var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-            var inScopeModifiers = allMods.Where(m => !(m.StartTime < startTime && m.StopTime < startTime) && !(m.StartTime > endTime && m.StopTime > endTime) && m.Source == owner && m.Target == owner).ToList();
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner && m.Value.Target == owner).Select(kvp=>kvp.Value).ToList();
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
 

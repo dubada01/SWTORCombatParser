@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using ScottPlot;
 using System;
 using System.Collections.Generic;
@@ -56,10 +56,10 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             _currentCombat = currentcombat;
             _currentCharacterLocations = new Dictionary<Entity, System.Windows.Point>();
             _plotExtents = new ParsedLogEntry[4] { 
-                currentcombat.AllLogs.MinBy(l => new List<double>{l.TargetInfo.Position.X ,l.SourceInfo.Position.X}.Min()).First(),
-                currentcombat.AllLogs.MaxBy(l =>new List<double>{l.TargetInfo.Position.X ,l.SourceInfo.Position.X}.Max()).First(), 
-                currentcombat.AllLogs.MinBy(l => new List<double>{l.TargetInfo.Position.Y ,l.SourceInfo.Position.Y}.Min()).First(),
-                currentcombat.AllLogs.MaxBy(l =>new List<double>{l.TargetInfo.Position.Y ,l.SourceInfo.Position.Y}.Max()).First()};
+                currentcombat.AllLogs.MinBy(l => new List<double>{l.TargetInfo.Position.X ,l.SourceInfo.Position.X}.Min()),
+                currentcombat.AllLogs.MaxBy(l =>new List<double>{l.TargetInfo.Position.X ,l.SourceInfo.Position.X}.Max()), 
+                currentcombat.AllLogs.MinBy(l => new List<double>{l.TargetInfo.Position.Y ,l.SourceInfo.Position.Y}.Min()),
+                currentcombat.AllLogs.MaxBy(l =>new List<double>{l.TargetInfo.Position.Y ,l.SourceInfo.Position.Y}.Max())};
             WPFPlot.Plot.SetAxisLimits(_plotExtents[0].SourceInfo.Position.X, _plotExtents[1].SourceInfo.Position.X, _plotExtents[2].SourceInfo.Position.Y, _plotExtents[3].SourceInfo.Position.Y);
             //BossMapImagePath = "../../resources/BossMaps/ZornToth.png";
         }
@@ -78,7 +78,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             foreach(var entity in entities)
             {
-                var closestLogToTime = _currentCombat.GetLogsInvolvingEntity(entity).MinBy(l => Math.Abs((l.TimeStamp - _startTime).TotalSeconds - time)).First();
+                var closestLogToTime = _currentCombat.GetLogsInvolvingEntity(entity).MinBy(l => Math.Abs((l.TimeStamp - _startTime).TotalSeconds - time));
                 var position = closestLogToTime.Target == entity ? closestLogToTime.TargetInfo.Position : closestLogToTime.SourceInfo.Position;
                 if (Math.Abs((closestLogToTime.TimeStamp - _startTime).TotalSeconds - time) > 1)
                 {

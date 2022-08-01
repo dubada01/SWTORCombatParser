@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Npgsql;
@@ -26,7 +26,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             Logging.LogInfo($"Found {currentMatchingEntries.Count} entries in DB already for that character and boss fight");
             if (currentMatchingEntries.Any())
             {
-                var currentMax = currentMatchingEntries.MaxBy(e => e.Value).First().Value;
+                var currentMax = currentMatchingEntries.MaxBy(e => e.Value).Value;
                 var newHighest = currentMax < newEntry.Value;
                 Logging.LogInfo($"The current max in the DB of {currentMax} vs {newEntry.Value}");
                 if (!newHighest)
@@ -99,14 +99,21 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var entries = await GetEntriesForBossOfType(bossName, encounter, type);
             if (entries.Count == 0)
                 return new LeaderboardEntry();
-            return entries.MaxBy(l => l.Value).First();
+            return entries.MaxBy(l => l.Value);
+        }
+        public static LeaderboardEntry GetTopLeaderboardForClassNonAsync(string bossName, string encounter, string className, LeaderboardEntryType type)
+        {
+            var entries = GetEntriesForBossWithClassNonAsync(bossName, encounter, className, type);
+            if (entries.Count == 0)
+                return new LeaderboardEntry();
+            return entries.MaxBy(l => l.Value);
         }
         public static async Task<LeaderboardEntry> GetTopLeaderboardForClass(string bossName,  string encounter, string className, LeaderboardEntryType type)
         {
             var entries = await GetEntriesForBossWithClass(bossName, encounter, className, type);
             if (entries.Count == 0)
                 return new LeaderboardEntry();
-            return entries.MaxBy(l => l.Value).First();
+            return entries.MaxBy(l => l.Value);
         }
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossAndCharacterWithClass(string bossName, string characterName, string className,string encounter, LeaderboardEntryType entryType)
         {
@@ -164,6 +171,30 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
             return entriesFound;
+        }
+        public static List<LeaderboardEntry> GetEntriesForBossWithClassNonAsync(string bossName, string encounter, string className, LeaderboardEntryType entryType)
+        {
+            List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
+            using (NpgsqlConnection connection = ConnectToDB())
+            {
+                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                {
+                    try
+                    {
+                        var reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            entriesFound.Add(GetLightweightLeaderboardEntry(reader));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logging.LogError(e.Message);
+                    }
+                }
+            }
+            return entriesFound.DistinctBy(e => e.Value).ToList();
         }
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossWithClass(string bossName,string encounter, string className, LeaderboardEntryType entryType)
         {
@@ -238,6 +269,31 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
             return bossesFound.ToList();
+        }
+        public static List<LeaderboardEntry> GetEntriesForBossOfTypeNonAsync(string bossName, string encounter, LeaderboardEntryType entryType)
+        {
+            List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
+            using (NpgsqlConnection connection = ConnectToDB())
+            {
+                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                $"WHERE boss_name='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                {
+                    try
+                    {
+                        var reader =  cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            entriesFound.Add(GetLightweightLeaderboardEntry(reader));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logging.LogError(e.Message);
+                    }
+
+                }
+            }
+            return entriesFound.DistinctBy(e => e.Value).ToList();
         }
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossOfType(string bossName, string encounter,  LeaderboardEntryType entryType)
         {

@@ -32,7 +32,10 @@ namespace SWTORCombatParser.Utilities
                             UpdateStatus();
                         SwtorRunning = false;
                     }
-                    Thread.Sleep(500);
+                    if(SwtorRunning)
+                        Thread.Sleep(500);
+                    else
+                        Thread.Sleep(1500);
                 }
             });
         }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
         mc:Ignorable="d"
-        Height="150" Width="250" AllowsTransparency="True" Background="{x:Null}"  WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave">
+        Height="150" Width="250" AllowsTransparency="True" Background="{x:Null}" WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
 
     <Grid>
         <Border x:Name="Background" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
@@ -15,6 +15,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="0.85*"/>
+                <RowDefinition Height="{Binding SizeScalar, Converter={StaticResource ValueToPixelGridLengthConverter}}"/>
                 <RowDefinition Height="{Binding LeaderboardRowHeight}"/>
             </Grid.RowDefinitions>
             <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" MouseLeftButtonDown="DragWindow" Margin="10,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
@@ -37,14 +38,14 @@
                                 </Grid>
                                 <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="{Binding FontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TotalValue}"></TextBlock>
    
-                                <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,2,4">
+                                <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,2,3">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="0.25*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0" Visibility="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" Margin="2,5,5,3" Source="{Binding MedalIconPath}"></Image>
-                                    <TextBlock Margin="0,5,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{Binding InfoFontSize}" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" ></TextBlock>
-                                    <TextBlock Margin="0,5,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding PlayerName}" ></TextBlock>
+                                    <TextBlock Margin="0,3,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{Binding InfoFontSize}" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" ></TextBlock>
+                                    <TextBlock Margin="0,3,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding PlayerName}" ></TextBlock>
                                 </Grid>
                             </Grid>
                             <!--</Viewbox>-->
@@ -73,8 +74,15 @@
                 </Viewbox>
 
             </Grid>
-
-            <StackPanel Visibility="{Binding HasLeaderboard, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="15,2,2,2" Grid.Row="2" Orientation="Horizontal">
+            <Grid Grid.Row="2" Visibility="{Binding CreatedType, Converter={StaticResource OverlayTypeToShowTotalConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.33*"/>
+                    <ColumnDefinition Width="0.66*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Margin="10,0,0,0" Grid.Column="0" FontSize="{Binding SizeScalar, Converter={StaticResource OverlayScalarToFontSize}, ConverterParameter=Large}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="PaleGoldenrod" Text="Total"></TextBlock>
+                <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="{Binding SizeScalar, Converter={StaticResource OverlayScalarToFontSize}, ConverterParameter=Normal}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="PaleGoldenrod" Text="{Binding MetricTotal}"></TextBlock>
+            </Grid>
+            <StackPanel Visibility="{Binding HasLeaderboard, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="15,2,2,2" Grid.Row="3" Orientation="Horizontal">
                 <Viewbox MaxHeight="18"  HorizontalAlignment="Left" >
                     <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="Leaderboard:"/>
                 </Viewbox>
@@ -87,7 +95,7 @@
 
 
 
-            <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
+            <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="2" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
         </Grid>
     </Grid>

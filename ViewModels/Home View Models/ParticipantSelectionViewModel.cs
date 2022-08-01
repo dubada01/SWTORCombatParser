@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,19 +19,16 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public int Columns { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public void SelectParticipant(Entity participant)
+        public ParticipantSelectionViewModel()
         {
-            var uiElement = AvailableParticipants.FirstOrDefault(p => p.Entity.Id == participant.Id);
-            if (uiElement == null)
-                return;
-            uiElement.ToggleSelection();
+            ParticipantSelectionHandler.SelectionUpdated += SetSelection;
         }
         public void SelectLocalPlayer()
         {
             var uiElement = AvailableParticipants.FirstOrDefault(p => p.Entity.IsLocalPlayer);
             if (uiElement == null)
                 return;
-            uiElement.ToggleSelection();
+            SelectParticipant(uiElement);
         }
         public void SetParticipants(List<Entity> availableEntities)
         {
@@ -41,8 +39,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 participant.SelectionChanged += SelectParticipant;
             }
             UpdateLayout();
+            if(ParticipantSelectionHandler.CurrentlySelectedParticpant == null)
+            {
+                SelectLocalPlayer();
+            }
             OnPropertyChanged("AvailableParticipants");
-            
         }
         private void UpdateLayout()
         {
@@ -67,13 +68,19 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
         private void SelectParticipant(ParticipantViewModel obj)
         {
-            var previouslySelected = AvailableParticipants.Where(p=>p.Entity.Id!=obj.Entity.Id).FirstOrDefault(p => p.IsSelected);
+            SetSelection(obj.Entity);
+        }
+        private void SetSelection(Entity obj)
+        {
+            var previouslySelected = AvailableParticipants.Where(p => p.Entity.Id != obj.Id).FirstOrDefault(p => p.IsSelected);
             if (previouslySelected != null)
                 previouslySelected.ToggleSelection();
-
-            ParticipantSelected(obj.Entity);
+            var currentSelection = AvailableParticipants.First(p => p.Entity.Id == obj.Id);
+            if(!currentSelection.IsSelected)
+                currentSelection.ToggleSelection();
+            ParticipantSelected(obj);
+            ParticipantSelectionHandler.UpdateSelection(obj);
         }
-
         private ParticipantViewModel GenerateInstance(Entity e)
         {
             ParticipantViewModel viewModel = new ParticipantViewModel();
@@ -81,6 +88,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             viewModel.PlayerName = e.Name;
             viewModel.IsLocalPlayer = e.IsLocalPlayer;
             viewModel.RoleImageSource = "../../resources/question-mark.png";
+            viewModel.IsSelected = ParticipantSelectionHandler.CurrentlySelectedParticpant == viewModel.Entity;
             return viewModel;
         }
         public void UpdateParticipantsData(Combat info)

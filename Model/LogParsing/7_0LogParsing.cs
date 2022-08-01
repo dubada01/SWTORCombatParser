@@ -28,7 +28,7 @@ namespace SWTORCombatParser.Model.LogParsing
             //if(!logEntry.Contains('\n'))
             //    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
             if (logEntryInfos.Count < 5)
-                return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+                return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
             try
             {
                 var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
@@ -40,7 +40,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             catch(Exception e)
             {
-                return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+                return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
             }
 
         }
@@ -173,7 +173,9 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 var modifier = new Value();
                 modifier.ValueType = GetValueType(valueParts[4].Replace("-", ""));
-                modifier.DblValue = double.Parse(valueParts[3].Replace("(", ""));
+                double value = 0;
+                if (double.TryParse(valueParts[3].Replace("(", ""), out value))
+                    modifier.DblValue = value;
                 modifier.EffectiveDblValue = modifier.DblValue;
                 newValue.Modifier = modifier;
                 newValue.ModifierType = newValue.Modifier.ValueType.ToString();

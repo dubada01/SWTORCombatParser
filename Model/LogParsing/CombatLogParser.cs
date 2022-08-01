@@ -4,6 +4,7 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,15 +16,8 @@ namespace SWTORCombatParser
     public static class CombatLogParser
     {
         private static DateTime _logDate;
-        private static LogState _logState = new LogState();
-        private static ConcurrentDictionary<string,Entity> _currentEntities = new ConcurrentDictionary<string,Entity>();
-        private static Random _idGenerator = new Random();
         public static event Action<string> OnNewLog = delegate { };
 
-        public static void SetCurrentState(LogState currentState)
-        {
-            _logState = currentState;
-        }
         public static ParsedLogEntry ParseLine(string logEntry,long lineIndex, bool realTime = true)
         {
             try
@@ -38,23 +32,81 @@ namespace SWTORCombatParser
             catch (Exception e)
             {
                 OnNewLog(e.Message);
-                return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
+                return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
             }
         }
-        public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog)
+        private static bool GetAllLines(StreamReader sr, List<string> lines)
+        {
+            bool hasValidEnd = false;
+            StringBuilder newLine = new StringBuilder();
+            bool lastValueWasbsR = false;
+            while (!sr.EndOfStream)
+            {
+                char[] readChars = new char[2500];
+                sr.Read(readChars, 0, 2500);
+
+                for (var c = 0; c < readChars.Length; c++)
+                {
+                    if (readChars[c] == '\0')
+                    {
+                        lastValueWasbsR = false;
+                        break;
+                    }
+                    if (readChars[c] == '\r')
+                    {
+                        lastValueWasbsR = true;
+                        continue; 
+                    }
+                    if (readChars[c] == '\n' && lastValueWasbsR)
+                    {
+                        lastValueWasbsR = false;
+                        if (readChars[2499] == '\0' || sr.EndOfStream)
+                        {
+                            if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
+                            {
+                                lines.Add(newLine.ToString() + Environment.NewLine);
+                                break;
+                            }
+                            else
+                            {
+                                if (newLine.Length == 0)
+                                    continue;
+                                lines.Add(newLine.ToString() + Environment.NewLine);
+                                newLine.Clear();
+                            }
+                        }
+                        if (newLine.Length == 0)
+                            continue;
+                        lines.Add(newLine.ToString() + Environment.NewLine);
+                        newLine.Clear();
+                        
+                    }
+                    else
+                    {
+                        newLine.Append(readChars[c]);
+                        lastValueWasbsR = false;
+                    }
+                }
+            }
+
+            return hasValidEnd;
+        }
+        public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog, bool includeIncomplete = false)
         {
             CombatLogStateBuilder.ClearState();
             _logDate = combatLog.Time;
 
             var logLines = new List<string>();
-            using (combatLog.Data)
-            {
-                while (!combatLog.Data.EndOfStream)
-                    logLines.Add(combatLog.Data.ReadLine());
-            }
+            var worked = GetAllLines(combatLog.Data, logLines);
+            //using (combatLog.Data)
+            //{
+            //    while (!combatLog.Data.EndOfStream)
+            //        logLines.Add(combatLog.Data.ReadLine());
+            //}
 
             var numberOfLines = logLines.Count;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
+            List<ParsedLogEntry> incompleteLines = new List<ParsedLogEntry>();
             Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
             {
                 
@@ -63,7 +115,10 @@ namespace SWTORCombatParser
                 var parsedLine = ParseLine(logLines[i], i, false);
 
                 if (parsedLine.Error == ErrorType.IncompleteLine)
+                {
+                    incompleteLines.Add(parsedLine);
                     return;
+                }
                 parsedLog[i] = parsedLine;
                 parsedLog[i].LogName = combatLog.Name;
                 
@@ -73,7 +128,12 @@ namespace SWTORCombatParser
             CombatTimestampRectifier.RectifyTimeStamps(cleanedLogs.ToList());
             var orderdedLog = cleanedLogs.OrderBy(l => l.TimeStamp);
             UpdateStateAndLogs(orderdedLog.ToList(), false);
-
+            if (includeIncomplete)
+            {
+                var includedLines = orderdedLog.ToList();
+                includedLines.AddRange(incompleteLines); 
+                orderdedLog = includedLines.OrderBy(l => l.TimeStamp);
+            }
             return orderdedLog.ToList();
         }
         private static List<string> GetInfoComponents(string log)
@@ -104,7 +164,7 @@ namespace SWTORCombatParser
         {
             foreach (var line in orderdedLog)
             {
-                SetCurrentState(CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(line, realTime));
+                CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(line, realTime);
             }
         }
     }

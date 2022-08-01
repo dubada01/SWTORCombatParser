@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs" xmlns:local1="clr-namespace:SWTORCombatParser.Views.Timers"
         mc:Ignorable="d"
-        Title="RaidFrameOverlay" Height="450" Width="500" WindowStyle="None" Background="Transparent" Topmost="True" AllowsTransparency="True">
+        Title="RaidFrameOverlay" Height="450" Width="500" WindowStyle="None" Background="Transparent" Topmost="True" AllowsTransparency="True" ShowInTaskbar="False">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>

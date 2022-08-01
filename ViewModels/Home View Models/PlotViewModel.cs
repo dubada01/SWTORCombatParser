@@ -1,6 +1,5 @@
 ﻿using ScottPlot;
 using ScottPlot.Plottable;
-using ScottPlot.Renderable;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
@@ -14,8 +13,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -131,7 +128,7 @@ namespace SWTORCombatParser.Plotting
                         AddSeries(plotType, "Damage Incoming", Color.Peru, true);
                         break;
                     case PlotType.SheildedDamageTaken:
-                        AddSeries(plotType, "Sheilding", Color.WhiteSmoke);
+                        AddSeries(plotType, "Shielding", Color.WhiteSmoke);
                         break;
                     case PlotType.HealingOutput:
                         AddSeries(plotType, "Heal Output", Color.MediumAquamarine, true);
@@ -199,10 +196,10 @@ namespace SWTORCombatParser.Plotting
             ParticipantSelectionHeight = participants.Count > 4 ? new GridLength(0.25, GridUnitType.Star) : new GridLength(0.125, GridUnitType.Star);
             MinSeletionHeight = participants.Count > 4 ? 120 : 60;
             
-            if (_selectedParticipant == null)
-                _participantsViewModel.SelectLocalPlayer();
-            else
-                _participantsViewModel.SelectParticipant(_selectedParticipant);
+            //if (_selectedParticipant == null)
+            //    _participantsViewModel.SelectLocalPlayer();
+            //else
+            //    _participantsViewModel.SelectParticipant(_selectedParticipant);
             OnPropertyChanged("ParticipantSelectionHeight");
             OnPropertyChanged("MinSeletionHeight");
         }
@@ -378,23 +375,6 @@ namespace SWTORCombatParser.Plotting
             GraphView.Refresh();
         }
 
-        private void PlotPeaks(CombatMetaDataSeries series, double[] plotYvaRates, double[] rateTimeStamps, Combat combatToPlot, Entity selectedEntity)
-        {
-            List<(int, double)> peaksAndIndicies = PlotMaker.GetPeaksOfMean(plotYvaRates, _averageWindowDurationDouble);
-            var peaksXVals = new List<double>();
-            var peaks = new List<double>();
-            for (var i = 0; i < peaksAndIndicies.Count; i++)
-            {
-                var peak = peaksAndIndicies[i];
-                if (peak.Item2 == 0)
-                    continue;
-                peaksXVals.Add(rateTimeStamps[peak.Item1]);
-                peaks.Add(peak.Item2);
-            }
-            if (peaksXVals.Count == 0)
-                return;
-            GraphView.Plot.AddScatter(peaksXVals.ToArray(), peaks.ToArray(), lineStyle: LineStyle.None, markerShape: MarkerShape.asterisk, color: series.Color, markerSize: 5);
-        }
 
         private MarkerShape GetMarkerFromNumberOfComparisons(int numberOfComparison)
         {
@@ -412,6 +392,8 @@ namespace SWTORCombatParser.Plotting
         }
         private void UpdatePlotAxis(object sender, EventArgs e)
         {
+            if (CombatDetector.InCombat)
+                return;
             _combatMetaDataViewModel.UpdateBasedOnVisibleData(GraphView.Plot.GetAxisLimits());
         }
         private void UpdateSeriesAnnotation(ScatterPlot plot, Tooltip annotation, string name, List<(string, string)> annotationTexts, bool effective)
@@ -462,7 +444,7 @@ namespace SWTORCombatParser.Plotting
                 case PlotType.HealingTaken:
                     return combatToPlot.IncomingHealingLogs[selectedParticipant];
                 case PlotType.SheildedDamageTaken:
-                    return combatToPlot.SheildingProvidedLogs[selectedParticipant];
+                    return combatToPlot.ShieldingProvidedLogs[selectedParticipant];
                 case PlotType.HPPercent:
                     return combatToPlot.GetLogsInvolvingEntity(selectedParticipant);
 

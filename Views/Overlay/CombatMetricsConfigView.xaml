@@ -11,38 +11,77 @@
             <RowDefinition/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <Border Grid.Row="0" Padding="0,15,0,0" BorderBrush="DimGray" BorderThickness="0,2,2,2" CornerRadius="0,5,5,0" Margin="0,20,0,0">
-            <ItemsControl  ItemsSource="{Binding AvailableOverlayTypes}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.ColumnSpan="4" Padding="0,10,0,0" BorderBrush="DimGray" BorderThickness="0,2,2,2" CornerRadius="0,5,5,0" Margin="0,20,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="0.9*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Viewbox MaxHeight="30">
+                    <TextBlock Text="Damage" TextDecorations="Underline" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox MaxHeight="30" Grid.Column="1">
+                    <TextBlock Text="Healing" TextDecorations="Underline" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox MaxHeight="30" Grid.Column="2">
+                    <TextBlock Text="Mitigation" TextDecorations="Underline" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox MaxHeight="30" Grid.Column="3">
+                    <TextBlock Text="General" TextDecorations="Underline" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AvailableDamageOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="1" Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AvailableHealOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="1" Grid.Column="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AvailableMitigationOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer  Grid.Row="1" Grid.Column="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AvailableGeneralOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
 
-                        <Button Background="DimGray" Foreground="WhiteSmoke" Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" MaxHeight="60" MaxWidth="200" Margin="15,5,15,5" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="2*"></RowDefinition>
-                                    <RowDefinition Height="*"></RowDefinition>
-                                </Grid.RowDefinitions>
-                                <Viewbox MaxHeight="15" Margin="0,2,0,2">
-                                    <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding .}" ></TextBlock>
-                                </Viewbox>
-                                <Viewbox MaxWidth="75" Grid.Row="1" Margin="0,0,0,0" >
-                                    <Border HorizontalAlignment="Stretch" Width="250" Height="50" VerticalAlignment="Stretch" CornerRadius="5" Background="{Binding ., Converter={StaticResource OverlayMetricTypeToColorConverter}}"></Border>
-                                </Viewbox>
-
-                            </Grid>
-                        </Button>
-
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="3"></UniformGrid>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            </Grid>
         </Border>
-        <TextBlock Grid.Row="0" FontSize="15" Margin="0,10,0,0" FontWeight="DemiBold" VerticalAlignment="Top" Foreground="WhiteSmoke" Background="{StaticResource Gray5Brush}" FontFamily="{StaticResource MainFont}" Text=" Available Overlays " HorizontalAlignment="Center"></TextBlock>
-        <Viewbox Margin="0,2,0,2" MaxHeight="50" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1">
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" FontSize="15" Margin="0,10,0,0" FontWeight="DemiBold" VerticalAlignment="Top" Foreground="WhiteSmoke" Background="{StaticResource Gray5Brush}" FontFamily="{StaticResource MainFont}" Text=" Available Overlays " HorizontalAlignment="Center"></TextBlock>
+        <Viewbox Margin="0,2,0,2" MaxHeight="50"  HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">
             <StackPanel Orientation="Vertical">
                 <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Leaderboard Filter: "/>
                 <ComboBox HorizontalAlignment="Center" Height="45" Width="200" HorizontalContentAlignment="Center" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}" Style="{StaticResource NewComboStyle}"></ComboBox>
