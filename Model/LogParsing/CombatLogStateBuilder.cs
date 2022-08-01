@@ -62,14 +62,14 @@ namespace SWTORCombatParser.Model.LogParsing
                 var raidOfInterest = knownEncounters.First(r => log.LogLocation.Contains(r.LogName));
                 raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
                 var indendedNumberOfPlayers = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
-                raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers!=null? indendedNumberOfPlayers:"";
+                raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers!=null? indendedNumberOfPlayers:"4";
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
             }
             else
             {
                 var openWorldLocation = ": " + log.LogLocation;
 
-                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World", BossInfos = new List<BossInfo> { new BossInfo { EncounterName= "Parsing Dummy", TargetNames = new List<string> { "Operations Training Dummy", "Subject Alpha"} } } };
+                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World", BossInfos = new List<BossInfo> () };
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
             }
         }
@@ -136,17 +136,18 @@ namespace SWTORCombatParser.Model.LogParsing
                 {
                     if (!CurrentState.Modifiers.ContainsKey(effectName))
                     {
-                        CurrentState.Modifiers[effectName] = new List<CombatModifier>();
+                        CurrentState.Modifiers[effectName] = new ConcurrentDictionary<Guid, CombatModifier>();
                     }
-                    var modsOfType = CurrentState.Modifiers[effectName];
-                    var filteredMods = modsOfType.Where(m=> m.Target == parsedLine.Target && m.Source == parsedLine.Source && !m.Complete);
+                    ConcurrentDictionary<Guid, CombatModifier> mods = new ConcurrentDictionary<Guid, CombatModifier>();
+                    CurrentState.Modifiers.TryGetValue(effectName, out mods);
+                    var filteredMods = mods.Where(m=> m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete);
                     var incompleteEffect = filteredMods.FirstOrDefault();
-                    if (incompleteEffect != null)
+                    if (incompleteEffect.Value != null)
                     {
-                        incompleteEffect.StopTime = parsedLine.TimeStamp;
-                        incompleteEffect.Complete = true;
+                        incompleteEffect.Value.StopTime = parsedLine.TimeStamp;
+                        incompleteEffect.Value.Complete = true;
                     }
-                    modsOfType.Add(new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    mods.TryAdd(Guid.NewGuid(),new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
                 if (parsedLine.Effect.EffectType == EffectType.Remove && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
                 {
@@ -156,13 +157,13 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
                     if (!CurrentState.Modifiers.ContainsKey(effectName))
                         return;
-                    var filteredMods = CurrentState.Modifiers[effectName].Where(m => m.Target == parsedLine.Target && m.Source == parsedLine.Source && !m.Complete).ToList();
+                    var filteredMods = CurrentState.Modifiers[effectName].Where(m => m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete).ToList();
 
                     var effectToEnd = filteredMods.FirstOrDefault();
-                    if (effectToEnd != null)
+                    if (effectToEnd.Value != null)
                     {
-                        effectToEnd.StopTime = parsedLine.TimeStamp;
-                        effectToEnd.Complete = true;
+                        effectToEnd.Value.StopTime = parsedLine.TimeStamp;
+                        effectToEnd.Value.Complete = true;
                     }
                 }
             }

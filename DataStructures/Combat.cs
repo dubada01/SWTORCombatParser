@@ -48,7 +48,7 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingDamageMitigatedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> OutgoingHealingLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingHealingLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
-        public ConcurrentDictionary<Entity, List<ParsedLogEntry>> SheildingProvidedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
+        public ConcurrentDictionary<Entity, List<ParsedLogEntry>> ShieldingProvidedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> AbilitiesActivated = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public List<Point> GetBurstValues(Entity entity, PlotType typeOfData)
         {
@@ -203,7 +203,6 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity, double> TimeSpentBelowFullHealth = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, Dictionary<Entity, List<double>>> AllDamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
         public Dictionary<Entity, Dictionary<Entity, List<double>>> TankDamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
-        public Dictionary<Entity, double> AverageHealingReceivedDelay = new Dictionary<Entity, double>();
         public Dictionary<Entity, Dictionary<Entity, double>> AverageDamageRecoveryTimePerTarget => GetDamageRecoveryTimesPerTarget();
         public Dictionary<Entity, Dictionary<Entity, double>> NumberOfFastResponseTimePerTarget => GetCountOfHighSpeedReactions();
         public Dictionary<Entity, Dictionary<Entity, double>> AverageTankDamageRecoveryTimePerTarget => GetTankDamageRecoveryTimesPerTarget();

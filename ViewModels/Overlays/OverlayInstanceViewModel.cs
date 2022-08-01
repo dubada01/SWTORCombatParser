@@ -1,7 +1,8 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.Overlays;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -17,6 +18,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
     {
         private object _refreshLock = new object();
         private double sizeScalar = 1d;
+        private string metricTotal;
 
         public bool OverlaysMoveable { get; set; }
         public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
@@ -25,15 +27,27 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => sizeScalar; set
             {
                 sizeScalar = value;
+                foreach(var bar in _metricBarsDict)
+                {
+                    bar.Value.SizeScalar = sizeScalar;
+                }
 
-                MetricBars.ForEach(bar=>bar.SizeScalar = sizeScalar);
                 OnPropertyChanged();
             }
         }
+        public ConcurrentDictionary<(string,bool),OverlayMetricInfo> _metricBarsDict { get; set; } = new ConcurrentDictionary<(string, bool), OverlayMetricInfo>();
         public List<OverlayMetricInfo> MetricBars { get; set; } = new List<OverlayMetricInfo>();
         public OverlayType CreatedType { get; set; }
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }
+        public string MetricTotal
+        {
+            get => metricTotal; set
+            {
+                metricTotal = value;
+                OnPropertyChanged();
+            }
+        }
         public bool HasLeaderboard => Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS;
         public GridLength LeaderboardRowHeight => (Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS) ? new GridLength(20) : new GridLength(0);
         public bool AddSecondaryToValue { get; set; } = false;
@@ -105,6 +119,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateTopEntries(Dictionary<LeaderboardEntryType, (string, double)> obj)
         {
+            foreach(var entry in _metricBarsDict)
+            {
+                if(entry.Key.Item2)
+                    _metricBarsDict.TryRemove(entry.Key, out var ignore);
+            }
+            OnPropertyChanged("MetricBars");
             UpdateLeaderboardValues(obj);
         }
 
@@ -167,7 +187,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void AddLeaderboardBar(string characterName, double value)
         {
-            if (MetricBars.Any(mb => mb.IsLeaderboardValue))
+            if (_metricBarsDict.Keys.Any(mb => mb.Item2))
                 return;
             var metricbar = new OverlayMetricInfo
             {
@@ -178,7 +198,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 RelativeLength = 1,
                 MedalIconPath = "../../resources/firstPlaceLeaderboardIcon.png"
             };
-            MetricBars.Add(metricbar);
+            _metricBarsDict.TryAdd((characterName,true),metricbar);
             OrderMetricBars();
         }
         private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType, (double, bool)> standings)
@@ -211,6 +231,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void UpdateMetrics(Combat obj)
         {
             RefreshBarViews(obj);
+            double sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value);
+            if(CreatedType == OverlayType.DPS || CreatedType == OverlayType.EHPS || CreatedType == OverlayType.Mitigation)
+                sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value + b.Value.SecondaryValue);
+            if (CreatedType == OverlayType.DamageTaken)
+                sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value - b.Value.SecondaryValue);
+
+            MetricTotal = sum.ToString("N0");
         }
         private void RefreshBarViews(Combat combatToDisplay)
         {
@@ -220,14 +247,18 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 return;
             foreach (var participant in combatToDisplay.CharacterParticipants)
             {
-                if (MetricBars.Any(m => m.Player == participant))
+                if (_metricBarsDict.Any(m => m.Key.Item1 == participant.Name))
                 {
-                    metricToUpdate = MetricBars.First(mb => mb.Player == participant);
+                    metricToUpdate = _metricBarsDict.FirstOrDefault(mb => mb.Key.Item1 == participant.Name && !mb.Key.Item2).Value;
+                    if (metricToUpdate == null)
+                        continue;
                 }
                 else
                 {
                     metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue };
-                    MetricBars.Add(metricToUpdate);
+                    var worked = _metricBarsDict.TryAdd((participant.Name,false),metricToUpdate);
+                    if (!worked)
+                        Console.Write("No");
                 }
 
                 UpdateMetric(Type, metricToUpdate, combatToDisplay, participant);
@@ -245,17 +276,26 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             try
             {
-                var maxValue = MetricBars.MaxBy(m => double.Parse(m.TotalValue)).First().TotalValue;
-                foreach (var metric in MetricBars)
+                var maxValue = _metricBarsDict.MaxBy(m => double.Parse(m.Value.TotalValue)).Value.TotalValue;
+                foreach (var metric in _metricBarsDict)
                 {
-                    if (double.Parse(metric.TotalValue) == 0 || (metric.Value + metric.SecondaryValue == 0) || double.IsInfinity(metric.Value) || double.IsNaN(metric.Value))
-                        metric.RelativeLength = 0;
+                    if (double.Parse(metric.Value.TotalValue) == 0 || (metric.Value.Value + metric.Value.SecondaryValue == 0) || double.IsInfinity(metric.Value.Value) || double.IsNaN(metric.Value.Value))
+                        metric.Value.RelativeLength = 0;
                     else
-                        metric.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.TotalValue) / double.Parse(maxValue));
+                        metric.Value.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.Value.TotalValue) / double.Parse(maxValue));
                 }
-                var orderedMetrics = MetricBars.OrderByDescending(mb => mb.RelativeLength);
 
-                MetricBars = new List<OverlayMetricInfo>(orderedMetrics);
+                var listOfBars = new List<OverlayMetricInfo>();
+                var keys = _metricBarsDict.Keys.ToList();
+                for(var i = 0; i < keys.Count; i++)
+                {
+                    OverlayMetricInfo bar;
+                    var worked = _metricBarsDict.TryGetValue(keys[i], out bar);
+                    if(worked)
+                        listOfBars.Add(bar);
+                }
+
+                MetricBars = new List<OverlayMetricInfo>(listOfBars.OrderByDescending(mb => mb.RelativeLength));
 
                 OnPropertyChanged("MetricBars");
 
@@ -268,19 +308,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void UpdateLeaderboardTopEntries(Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> leaderboardInfo)
         {
-            foreach (var metricBar in MetricBars)
+            foreach (var metricBar in _metricBarsDict)
             {
-                metricBar.LeaderboardRank = "0";
-                metricBar.RankIsPersonalRecord = false;
-                var participant = metricBar.Player;
+                metricBar.Value.LeaderboardRank = "0";
+                metricBar.Value.RankIsPersonalRecord = false;
+                var participant = metricBar.Value.Player;
                 if (HasLeaderboard && leaderboardInfo.ContainsKey(participant) && leaderboardInfo[participant] != null)
                 {
-                    AddLeaderboardStanding(metricBar, leaderboardInfo[participant]);
+                    AddLeaderboardStanding(metricBar.Value, leaderboardInfo[participant]);
                 }
             }
         }
         private void ResetMetrics()
         {
+            _metricBarsDict.Clear();
             MetricBars.Clear();
             OnPropertyChanged("MetricBars");
         }
@@ -344,9 +385,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case OverlayType.TankHealReactionTime:
                     value = combat.AverageTankDamageRecoveryTimeTotal[participant];
-                    break;
-                case OverlayType.HealReceivedDelay:
-                    value = combat.AverageHealingReceivedDelay[participant];
                     break;
                 case OverlayType.InterruptCount:
                     value = combat.TotalInterrupts[participant];

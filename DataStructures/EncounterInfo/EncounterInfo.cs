@@ -41,7 +41,7 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
                 BossInfos = BossNames.Select(b => new BossInfo() { EncounterName = b.Contains("~?~") ? b.Split("~?~", StringSplitOptions.None)[0] : b, TargetNames = b.Contains("~?~") ? b.Split("~?~", StringSplitOptions.None)[1].Split('|').ToList() : new List<string>() { b } }).ToList();
             } 
         }
-        public bool IsBossEncounter => BossInfos != null;
+        public bool IsBossEncounter => BossInfos.Count != 0;
         public List<BossInfo> BossInfos { get; set; } 
 
     }

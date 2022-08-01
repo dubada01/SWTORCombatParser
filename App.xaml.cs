@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Utilities;
+﻿using Newtonsoft.Json;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.Views;
 using System;
@@ -6,10 +7,12 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace SWTORCombatParser
 {

@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers" xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers" 
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         mc:Ignorable="d"
         Title="TimerModificationWindow" Height="400" Width="400" WindowStyle="None" Background="Transparent" AllowsTransparency="True" WindowStartupLocation="Manual" Topmost="True">
     <Border BorderBrush="{StaticResource GreenColorBrush}" BorderThickness="7" Background="LightGray" CornerRadius="20">
@@ -234,7 +235,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Color" FontFamily="{StaticResource MainFont}"></TextBlock>
-                            <xctk:ColorPicker Height="40" Width="100" DisplayColorAndName="True" SelectedColor="{Binding SelectedColor}"/>
+                            <colorpicker:SquarePicker Height="40" Width="100" SelectedColor="{Binding SelectedColor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                         </StackPanel>
                         <StackPanel Visibility="{Binding CanChangeCombatTracking, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" FontSize="18" Text="Track outside of combat" TextWrapping="Wrap" Width="120" FontFamily="{StaticResource MainFont}"></TextBlock>

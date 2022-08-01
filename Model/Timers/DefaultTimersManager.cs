@@ -75,6 +75,8 @@ namespace SWTORCombatParser.Model.Timers
         public static void AddSource(DefaultTimersData source)
         {
             var defaults = GetAllDefaults();
+            if (defaults.Any(t => t.TimerSource == source.TimerSource))
+                return;
             defaults.Add(source);
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
         }

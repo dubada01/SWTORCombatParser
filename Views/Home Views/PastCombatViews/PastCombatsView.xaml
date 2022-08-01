@@ -78,7 +78,7 @@
                 </StackPanel>
             </Viewbox>
         </Grid>
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
             <ItemsControl  Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" ItemsSource="{Binding PastEncounters}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

@@ -164,6 +164,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
+        public void TryShow()
+        {
+            if (DisciplineTimersActive)
+                _disciplineTimersWindow.ShowTimers(_isLocked);
+        }
         public void HideTimers()
         {
             _disciplineTimersWindow.HideTimers();
@@ -286,6 +291,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 return;
             _disciplineTimersWindow.SetPlayer(swtorclass);
             SelectedTimerSource = swtorclass.Discipline;
+            _disciplineTimersWindow.SetSource(SelectedTimerSource);
             RefreshAvaialbleTriggerOwners();
         }
         private void UpdateTimerRows()

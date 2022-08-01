@@ -22,6 +22,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private bool _timersEnabled;
         private List<TimerInstance> _createdTimers = new List<TimerInstance>();
         private bool active;
+        private (string, string, string) _currentBossInfo;
 
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
@@ -48,15 +49,16 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimersWindowViewModel()
         {
             CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
-            EncounterTimerTrigger.EncounterDetected += CheckIfSource;
+            EncounterTimerTrigger.EncounterDetected += OnBossEncounterDetected;
             EncounterTimerTrigger.EncounterEnded += CloseIfDisplayingEncounter;
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
             CombatLogStreamer.NewLineStreamed += NewLogInANDOutOfCombat;
             _timerWindow = new TimersWindow(this);
         }
 
-        private void CheckIfSource(string encounter, string boss, string difficulty)
+        private void OnBossEncounterDetected(string encounter, string boss, string difficulty)
         {
+            _currentBossInfo = (encounter, boss, difficulty);
             if (_timerSource == null || !_timerSource.Contains('|'))
                 return;
             var parts = _timerSource.Split('|');
@@ -186,7 +188,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (timerEncounter == "All")
                 return true;
 
-            if (encounter.Name == timerEncounter && encounter.Difficutly == timerDifficulty)
+            if (encounter.Name == timerEncounter && encounter.Difficutly == timerDifficulty && _currentBossInfo.Item2 == timerBoss)
                 return true;
             return false;
         }
@@ -195,6 +197,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (obj.Type == UpdateType.Start)
             {
+                _currentBossInfo = ("","","");
                 UncancellBeforeCombat();
             }
             if (obj.Type == UpdateType.Stop)

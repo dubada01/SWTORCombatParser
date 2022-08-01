@@ -39,7 +39,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public TimersCreationView TimersView { get; set; }
         public BossFrameSetup BossFrameView { get; set; }
-        public ObservableCollection<OverlayType> AvailableOverlayTypes { get; set; } = new ObservableCollection<OverlayType>();
+        public ObservableCollection<OverlayType> AvailableDamageOverlays { get; set; } = new ObservableCollection<OverlayType>();
+        public ObservableCollection<OverlayType> AvailableHealOverlays { get; set; } = new ObservableCollection<OverlayType>();
+        public ObservableCollection<OverlayType> AvailableMitigationOverlays { get; set; } = new ObservableCollection<OverlayType>();
+        public ObservableCollection<OverlayType> AvailableGeneralOverlays { get; set; } = new ObservableCollection<OverlayType>();
         public List<LeaderboardType> LeaderboardTypes { get; set; } = new List<LeaderboardType>();
         public LeaderboardType SelectedLeaderboardType
         {
@@ -90,7 +93,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
-                AvailableOverlayTypes.Add(enumVal);
+                if(enumVal == OverlayType.DPS || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.FocusDPS)
+                    AvailableDamageOverlays.Add(enumVal);
+                if (enumVal == OverlayType.HPS || enumVal == OverlayType.EHPS || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.TankHealReactionTime)
+                    AvailableHealOverlays.Add(enumVal);
+                if (enumVal == OverlayType.Mitigation || enumVal == OverlayType.ShieldAbsorb || enumVal == OverlayType.Shielding ||  enumVal == OverlayType.DamageTaken || enumVal == OverlayType.DamageAvoided)
+                    AvailableMitigationOverlays.Add(enumVal);
+                if (enumVal == OverlayType.APM || enumVal == OverlayType.InterruptCount)
+                    AvailableGeneralOverlays.Add(enumVal);
             }
             _bossFrameViewModel = new BossFrameConfigViewModel();
             BossFrameView = new BossFrameSetup(_bossFrameViewModel);
@@ -120,6 +130,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             ResetOverlays();
             App.Current.Dispatcher.Invoke(() =>
             {
+                _timersViewModel.TryShow();
                 _currentCharacterName = character.Name;
                 _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterName);
                 if (_overlayDefaults.First().Value.Locked)

@@ -153,7 +153,7 @@ namespace SWTORCombatParser.ViewModels
                 LoadingWindowFactory.ShowLoading();
             OnMonitoringStateChanged(true);
             var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-            //var mostRecentLog = @"C:\Users\duban\Documents\test.txt";
+            //var mostRecentLog = Path.Join(_logPath, "test.txt");
             //File.Delete(mostRecentLog);
             //File.Create(mostRecentLog).Close();
             _combatLogStreamer.MonitorLog(mostRecentLog);
@@ -171,29 +171,37 @@ namespace SWTORCombatParser.ViewModels
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var encoding = Encoding.GetEncoding(1252);
-            var logLines = File.ReadAllLines(Path.Combine(_logPath, "combat_2022-04-19_20_01_11_467363.txt"), encoding);
-            using(var reader = new StreamReader(Path.Combine(_logPath, "combat_2022-04-19_20_01_11_467363.txt"), encoding))
+            var testFilesPath = @"C:\Users\duban\source\GameDevRepos\Orbs\SWTORCombatParser\TestCombatLogs";
+            var files = Directory.EnumerateFiles(testFilesPath);
+            foreach(var file in files)
             {
-                using (var fs = new FileStream(testLogPath, FileMode.Append, FileAccess.Write, FileShare.Read))
+                using (var reader = new StreamReader(file, encoding))
                 {
-                    while (!reader.EndOfStream)
+                    using (var fs = new FileStream(testLogPath, FileMode.Append, FileAccess.Write, FileShare.Read))
                     {
-                        var numberOfLines = new Random().Next(50, 300);
-                        List<string> lines = new List<string>();
-                        for (int i = 0; i < numberOfLines; i++)
+                        while (!reader.EndOfStream)
                         {
-                            lines.Add(reader.ReadLine() + "\r\n");
+                            var numberOfLines = new Random().Next(10, 30);
+                            List<string> lines = new List<string>();
+                            for (int i = 0; i < numberOfLines; i++)
+                            {
+                                lines.Add(reader.ReadLine() + "\r\n");
+                            }
+
+                            var stringBytes = encoding.GetBytes(string.Join("", lines));
+                            fs.Write(stringBytes);
+                            fs.Flush();
+
+
+                            Thread.Sleep(100);
                         }
-
-                        var stringBytes = encoding.GetBytes(string.Join("", lines));
-                        fs.Write(stringBytes);
                         fs.Flush();
-
-
-                        Thread.Sleep(500);
+                        fs.Close();
                     }
+                    reader.Close();
                 }
             }
+
 
         }
         ///
@@ -261,7 +269,6 @@ namespace SWTORCombatParser.ViewModels
         {
             //reset leaderboards and overlays
             CombatIdentifier.NotifyNewCombatStarted();
-
             TryAddEncounter(startTime);
             if (!LiveParseActive)
                 return;
@@ -281,6 +288,8 @@ namespace SWTORCombatParser.ViewModels
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList());
             CombatIdentifier.UpdateOverlays(combatInfo);
             ParticipantsUpdated(combatInfo.CharacterParticipants);
+            if (CurrentEncounter == null)
+                return;
             var combatUI = CurrentEncounter.UpdateOngoing(combatInfo);
             if (combatUI.IsSelected)
             {
@@ -299,7 +308,7 @@ namespace SWTORCombatParser.ViewModels
             {
                 CurrentEncounter.RemoveOngoing();
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj);
-                CombatIdentifier.UpdateOverlays(combatInfo);
+                CombatIdentifier.FinalizeOverlays(combatInfo);
                 //LocalCombatLogCaching.SaveCombatLogs(combatInfo, true);
                 LiveCombatFinished(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))

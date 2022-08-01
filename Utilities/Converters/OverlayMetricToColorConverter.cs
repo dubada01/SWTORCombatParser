@@ -29,8 +29,6 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.Green;
                 case OverlayType.HPS:
                     return Brushes.ForestGreen;
-                case OverlayType.Tank_Shielding:
-                    return Brushes.CornflowerBlue;
                 case OverlayType.Shielding:
                     return Brushes.CadetBlue;
                 case OverlayType.Threat:

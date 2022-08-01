@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
@@ -33,18 +33,25 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             CurrentLeaderboardType = type;
             CurrentFightLeaderboard.Clear();
+            TopLeaderboards.Clear();
             LeaderboardTypeChanged(CurrentLeaderboardType);
             if (CurrentCombat == null)
                 return;
-            StartGetPlayerLeaderboardStandings(CurrentCombat);
-            StartGetTopLeaderboardEntries(CurrentCombat);
+            Task.Run(() => { 
+                StartGetPlayerLeaderboardStandings(CurrentCombat);
+                StartGetTopLeaderboardEntries(CurrentCombat);
+            });
+            
         }
         public static void StartGetTopLeaderboardEntries(Combat newCombat)
         {
             var state = CombatLogStateBuilder.CurrentState;
             CurrentCombat = newCombat;
             if (TopLeaderboards.Count > 0)
+            { 
                 TopLeaderboardEntriesAvailable(TopLeaderboards);
+                return;
+            }
             if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                 return;
             var bossName = newCombat.EncounterBossInfo;
@@ -103,7 +110,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         else
                         {
                             var currentValue = GetValueForLeaderboardEntry(enumVal, newCombat, participant);
-                            var currentMaxForParticipant = parses.Where(p => p.Character == participant.Name).MaxBy(v => v.Value).First();
+                            var currentMaxForParticipant = parses.Where(p => p.Character == participant.Name).MaxBy(v => v.Value);
                             var parsesWithVal = parses.Select(v => v.Value).ToList();
                             parsesWithVal.Add(currentValue);
                             returnData[participant][enumVal] = (parsesWithVal.OrderByDescending(v => v).ToList().IndexOf(currentValue) + 1,currentValue>=currentMaxForParticipant.Value);
@@ -177,7 +184,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     }
                 }
             }
-            CombatIdentifier.UpdateOverlays(combat);
+            CombatIdentifier.FinalizeOverlay(combat);
         }
         private static bool CheckForValidCombatUpload(Combat combat, Entity player)
         {

@@ -26,9 +26,9 @@ namespace SWTORCombatParser.Utilities
         private static List<string> _combatResNames = new List<string> { "Revival", "Reanimation", "Heartrigger Patch", "Resuscitation Probe", "Emergency Medical Probe" ,"Onboard AED"};
         private static bool _bossCombat;
         private static BossInfo _currentBossInfo;
-        private static bool _isInCombat;
+        public static bool InCombat;
         private static bool _justRevived;
-        private static int _combatResesOut;
+        private static List<Entity> revivedPlayers = new List<Entity>();
         private static DateTime _inCombatStartTime;
 
         private static Timer _timeoutTimer = new Timer();
@@ -36,11 +36,12 @@ namespace SWTORCombatParser.Utilities
         private static bool _checkLogsForTimtout;
 
         public static event Action<CombatState> AlertExitCombatTimedOut = delegate { };
+        
         public static void Reset()
         {
             _bossCombat = false;
             _bossesKilledThisCombat = new List<string>();
-            _isInCombat = false;
+            InCombat = false;
             _checkLogsForTimtout = false;
             _timeoutTimer.Stop();
         }
@@ -57,15 +58,15 @@ namespace SWTORCombatParser.Utilities
             {
                 if (!_justRevived)
                 {
-                    if (_isInCombat)
+                    if (InCombat)
                     {
                         Reset();
-                        _isInCombat = true;
+                        InCombat = true;
                         _inCombatStartTime = line.TimeStamp;
                         return CombatState.ExitedByEntering;
                     }
                     Reset();
-                    _isInCombat = true;
+                    InCombat = true;
                     return CombatState.EnteredCombat;
                 }
                 _justRevived = false;
@@ -85,19 +86,20 @@ namespace SWTORCombatParser.Utilities
 
             if (_bossCombat && _combatResNames.Contains(line.Ability) && line.Effect.EffectName == "AbilityActivate")
             {
-                _combatResesOut +=1;
+                revivedPlayers.Add(CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(line.Source, line.TimeStamp));
             }
-            if ((_bossCombat && _currentBossInfo.EncounterName != "Revan" && _combatResesOut == 0 && line.Effect.EffectName == "Revived")||(!_bossCombat && line.Effect.EffectName == "Revived"))
+            if ((_bossCombat && _currentBossInfo.EncounterName != "Revan" && !revivedPlayers.Any(c => c == line.Source) && line.Effect.EffectName == "Revived")||(!_bossCombat && line.Effect.EffectName == "Revived" && line.Source.IsLocalPlayer))
             {
+                revivedPlayers.Clear();
                 return EndCombat();
             }
-            if (_bossCombat && _combatResesOut > 0 && line.Effect.EffectName == "Revived")
+            if (_bossCombat && line.Effect.EffectName == "Revived")
             {
-                _combatResesOut -=1;
+                revivedPlayers.RemoveAll(c => c == line.Source);
                 if(line.Source.IsLocalPlayer)
                     _justRevived = true;
             }
-            if (line.Effect.EffectName == "ExitCombat" && _isInCombat)
+            if (line.Effect.EffectName == "ExitCombat" && InCombat)
             {
                 if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy || (!_bossCombat || _currentBossInfo.EncounterName == "Dread Master Styrak"))
                 {
@@ -108,7 +110,7 @@ namespace SWTORCombatParser.Utilities
                     ExitCombatDetected(line,isRealTime);
                 }
             }
-            if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && _currentBossInfo != null && _currentBossInfo.EncounterName!="Dread Master Styrak" &&  _isInCombat)
+            if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && _currentBossInfo != null && _currentBossInfo.EncounterName!="Dread Master Styrak" &&  InCombat)
             {
                 var bossKilled = currentEncounter.BossInfos.FirstOrDefault(bi => bi.TargetNames.Contains(line.Target.Name));
                 if (bossKilled != null)
@@ -120,7 +122,7 @@ namespace SWTORCombatParser.Utilities
                     }
                 }
             }
-            if (line.Effect.EffectName == "Death" && line.Target.IsCharacter && _isInCombat)
+            if (line.Effect.EffectName == "Death" && line.Target.IsCharacter && InCombat)
             {
                 var characterClassUpdates = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo;
                 var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k > _inCombatStartTime)).Select(kvp => kvp.Key).ToList();
@@ -133,7 +135,7 @@ namespace SWTORCombatParser.Utilities
                 }
             }
 
-            if (_isInCombat)
+            if (InCombat)
                 return CombatState.InCombat;
             else
                 return CombatState.OutOfCombat;
@@ -159,7 +161,7 @@ namespace SWTORCombatParser.Utilities
         {
             _checkLogsForTimtout = false;
             _timeoutTimer.Stop();
-            _isInCombat = false;
+            InCombat = false;
             AlertExitCombatTimedOut(CombatState.ExitCombatDelayTimedOut);
         }
         
@@ -167,7 +169,7 @@ namespace SWTORCombatParser.Utilities
         {
             _checkLogsForTimtout = false;
             _timeoutTimer.Stop();
-            _isInCombat = false;
+            InCombat = false;
             return CombatState.ExitedCombat;
         }
     }

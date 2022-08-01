@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
@@ -68,10 +68,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void CheckForRaidHOT(TimerInstanceViewModel obj)
         {
-            if (obj.SourceTimer.IsHot && CurrentNames.Any())
+            if (obj.SourceTimer.IsHot && CurrentNames.Any() && obj.TargetAddendem != null)
             {
                 var playerName = obj.TargetAddendem.ToLower();
-                var maxMatchingCharacters = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, playerName)).First();
+                var maxMatchingCharacters = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, playerName));
                 var match = LevenshteinDistance.Compute(maxMatchingCharacters, playerName);
                 if (match > 3)
                     return;
@@ -121,10 +121,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
             else
             {
-                RaidHotCells.RemoveAll(v => !CurrentNames.Any(c=>c.Name == v.Name));
+                RaidHotCells.RemoveAll(v => !CurrentNames.Any(c=>c.Name.ToLower() == v.Name.ToLower()));
                 foreach (var detectedName in CurrentNames)
                 {
-                    var cellForName = RaidHotCells.FirstOrDefault(c => c.Name == detectedName.Name);
+                    var cellForName = RaidHotCells.FirstOrDefault(c => c.Name.ToLower() == detectedName.Name.ToLower());
                     if (cellForName != null)
                     {
                         cellForName.Column = detectedName.Column;

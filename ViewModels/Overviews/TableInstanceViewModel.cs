@@ -32,8 +32,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
     }
     public enum SortingOption
     {
-        BySource,
         ByAbility,
+        BySource,
         ByTarget
     }
     public class TableInstanceViewModel :OverviewInstanceViewModel, INotifyPropertyChanged

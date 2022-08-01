@@ -15,12 +15,13 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
         public static void TryLoadBossTimers()
         {
             var currentBossTimers = DefaultTimersManager.GetAllDefaults();
-            if (currentBossTimers.Any(t=>t.IsBossSource))
+            currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
+            if (currentBossTimers.Any(t => t.IsBossSource))
                 return;
             var bossTimers = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(@".\DataStructures\Boss Timers\BossTimers.json"));
-            var devTimers = JsonConvert.DeserializeObject<DefaultTimersData>(File.ReadAllText(@".\DataStructures\Boss Timers\DevTimers.json"));
+            //var devTimers = JsonConvert.DeserializeObject<DefaultTimersData>(File.ReadAllText(@".\DataStructures\Boss Timers\DevTimers.json"));
             var bosses = bossTimers.ToObject<List<DefaultTimersData>>();
-            bosses.Add(devTimers);
+            //bosses.Add(devTimers);
             foreach (var source in bosses)
             {
                 if (source.Timers.Count == 0)

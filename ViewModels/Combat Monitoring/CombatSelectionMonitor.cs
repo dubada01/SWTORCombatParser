@@ -7,7 +7,7 @@ namespace SWTORCombatParser.ViewModels
         public static event Action<Combat> NewCombatSelected = delegate { };
         public static void FireNewCombat(Combat selectedCombat)
         {
-            CombatIdentifier.UpdateOverlays(selectedCombat);
+            CombatIdentifier.FinalizeOverlay(selectedCombat);
             NewCombatSelected(selectedCombat);
         }
     }

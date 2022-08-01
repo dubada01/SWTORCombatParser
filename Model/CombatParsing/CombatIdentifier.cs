@@ -1,4 +1,4 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CloudRaiding;
@@ -20,31 +20,50 @@ namespace SWTORCombatParser
         public static event Action<Combat> NewCombatAvailable = delegate { };
         public static event Action NewCombatStarted = delegate { };
         private static object leaderboardLock = new object();
-       
+
+        private static bool _leaderboardsActive;
+
+        public static void FinalizeOverlays(Combat combat)
+        {
+            _leaderboardsActive = false;
+            UpdateOverlays(combat);
+        }
         public static void UpdateOverlays(Combat combat)
+        {
+            if (combat.IsCombatWithBoss)
+            {
+                Task.Run(() => {
+                    if (!_leaderboardsActive)
+                    {
+                        Leaderboards.Reset();
+                        Leaderboards.StartGetTopLeaderboardEntries(combat);
+                        _leaderboardsActive = true;
+                    }
+
+                    Leaderboards.StartGetPlayerLeaderboardStandings(combat);
+                });
+             }
+            NewCombatAvailable(combat);
+        }
+        public static void FinalizeOverlay(Combat combat)
         {
             if (combat.IsCombatWithBoss)
             {
                 Task.Run(() =>
                 {
-                    lock (leaderboardLock)
-                    {
-                        Leaderboards.Reset();
-                        Leaderboards.StartGetPlayerLeaderboardStandings(combat);
-                        Leaderboards.StartGetTopLeaderboardEntries(combat);
-                    }
+                    Leaderboards.Reset();
+                    Leaderboards.StartGetTopLeaderboardEntries(combat);
+                    Leaderboards.StartGetPlayerLeaderboardStandings(combat);
                 });
             }
             NewCombatAvailable(combat);
         }
         public static void NotifyNewCombatStarted()
         {
+            _leaderboardsActive = false;
             NewCombatStarted();
         }
-        public static void ResetLeaderboardOverlay()
-        {
 
-        }
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
         {
             var state = CombatLogStateBuilder.CurrentState;

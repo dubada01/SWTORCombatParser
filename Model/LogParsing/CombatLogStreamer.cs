@@ -75,11 +75,11 @@ namespace SWTORCombatParser
         private void ParseExisitingLogs()
         {
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
-            var currentLogs = CombatLogParser.ParseAllLines(file);
+            var currentLogs = CombatLogParser.ParseAllLines(file,true);
             int[] characters = new int[currentLogs.Count];
             Parallel.For(0, currentLogs.Count, i =>
             {
-                characters[i] = _fileEncoding.GetByteCount(currentLogs[i].LogText+"\r\n");
+                characters[i] = _fileEncoding.GetByteCount(currentLogs[i].LogText);
             });
             numberOfProcessedBytes = characters.Sum();
             ParseHistoricalLog(currentLogs);
@@ -148,9 +148,12 @@ namespace SWTORCombatParser
 
         private bool GetNewlines(StreamReader sr, List<string> lines)
         {
+
             sr.BaseStream.Seek(numberOfProcessedBytes, SeekOrigin.Begin);
             bool hasValidEnd = false;
+            bool lastValueWasbsR = false;
             StringBuilder newLine = new StringBuilder();
+
             while (!sr.EndOfStream)
             {
                 char[] readChars = new char[2500];
@@ -159,16 +162,19 @@ namespace SWTORCombatParser
                 for (var c = 0; c < readChars.Length; c++)
                 {
                     if (readChars[c] == '\0')
+                    {
+                        lastValueWasbsR = false;
                         break;
-                    if (readChars[c] == '\r')
-                        continue;
-                    if (readChars[c] != '\n')
-                    {
-                        newLine.Append(readChars[c]);
                     }
-                    else
+                    if (readChars[c] == '\r')
                     {
-                        if(readChars[2499] == '\0' || sr.EndOfStream)
+                        lastValueWasbsR = true;
+                        continue;
+                    }
+                    if (readChars[c] == '\n' && lastValueWasbsR)
+                    {
+                        lastValueWasbsR = false;
+                        if (readChars[2499] == '\0' || sr.EndOfStream)
                         {
                             if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
                             {
@@ -190,24 +196,32 @@ namespace SWTORCombatParser
                         numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
                         lines.Add(newLine.ToString() + Environment.NewLine);
                         newLine.Clear();
+
+                    }
+                    else
+                    {
+                        newLine.Append(readChars[c]);
+                        lastValueWasbsR = false;
                     }
                 }
             }
+
 
             return hasValidEnd;
         }
 
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
         {
+            var usableLogs = logs.Where(l => l.Error != ErrorType.IncompleteLine).ToList();
             _currentCombatData.Clear();
-            for (var l = 0; l < logs.Count;l++)
+            for (var l = 0; l < usableLogs.Count;l++)
             {
-                if (logs[l].Source.IsLocalPlayer)
-                    LocalPlayerIdentified(logs[l].Source);
-                CheckForCombatState(logs[l], false);
+                if (usableLogs[l].Source.IsLocalPlayer)
+                    LocalPlayerIdentified(usableLogs[l].Source);
+                CheckForCombatState(usableLogs[l], false);
                 if (_isInCombat)
                 {
-                    _currentCombatData.Add(logs[l]);
+                    _currentCombatData.Add(usableLogs[l]);
                 }
             }
             HistoricalLogsFinished();
