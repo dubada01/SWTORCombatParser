@@ -17,6 +17,7 @@ namespace SWTORCombatParser.Model.LogParsing
     public static class CombatLogStateBuilder
     {
         public static event Action<Entity, SWTORClass> PlayerDiciplineChanged = delegate { };
+        public static event Action AreaEntered = delegate { };
         public static LogState CurrentState { get; set; } = new LogState();
 
         public static void ClearState()
@@ -55,12 +56,14 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private static void UpdateEncounterEntered(ParsedLogEntry log)
         {
+            AreaEntered();
             var location = log.LogLocation;
             var knownEncounters = RaidNameLoader.SupportedEncounters.Select(s=>EncounterInfo.GetCopy(s));
             if (knownEncounters.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)))
             {
                 var raidOfInterest = knownEncounters.First(r => log.LogLocation.Contains(r.LogName));
-                raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
+                var intendedDifficulty = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
+                raidOfInterest.Difficutly = intendedDifficulty != null ? intendedDifficulty : "Story";
                 var indendedNumberOfPlayers = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
                 raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers!=null? indendedNumberOfPlayers:"4";
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;

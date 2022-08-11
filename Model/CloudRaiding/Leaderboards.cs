@@ -1,5 +1,4 @@
-﻿//using MoreLinq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
@@ -54,19 +53,23 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
             if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                 return;
-            var bossName = newCombat.EncounterBossInfo;
-            var encounterName = newCombat.ParentEncounter.Name;
+            if (CurrentFightLeaderboard.Count == 0)
+                GetCurrentLeaderboard(newCombat);
+            //var bossName = newCombat.EncounterBossInfo;
+            //var encounterName = newCombat.ParentEncounter.Name;
             var localPlayerClass = state.GetCharacterClassAtTime(newCombat.LocalPlayer,newCombat.StartTime);
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
 
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
+                if (!CurrentFightLeaderboard.ContainsKey(enumVal))
+                    continue;
                 LeaderboardEntry topParse;
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
-                    topParse = PostgresConnection.GetTopLeaderboardForClass(bossName, encounterName, className, enumVal).Result;
+                    topParse = CurrentFightLeaderboard[enumVal].Where(v=>v.Class == className).MaxBy(v=>v.Value);
                 else
-                    topParse = PostgresConnection.GetTopLeaderboard(bossName, encounterName, enumVal).Result;
-                if (string.IsNullOrEmpty(topParse.Character))
+                    topParse = CurrentFightLeaderboard[enumVal].MaxBy(v => v.Value);
+                if (topParse == null || string.IsNullOrEmpty(topParse.Character))
                     continue;
                 TopLeaderboards[enumVal] = (topParse.Character, topParse.Value);
             }
@@ -132,10 +135,24 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                 {
                     var results = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
+                    if(bossName.Contains("4 "))
+                    {
+                        var oldFPResults = PostgresConnection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
+                        results.AddRange(oldFPResults);
+                    }
                     CurrentFightLeaderboard[enumVal] = results.Where(r => r.Class == className).ToList();
                 }
                 else
-                    CurrentFightLeaderboard[enumVal] = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
+                {
+                    var allResults = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
+                    if (bossName.Contains("4 "))
+                    {
+                        var oldFPResults = PostgresConnection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
+                        allResults.AddRange(oldFPResults);
+                    }
+                    CurrentFightLeaderboard[enumVal] = allResults;
+                }
+                    
 
             }
         }

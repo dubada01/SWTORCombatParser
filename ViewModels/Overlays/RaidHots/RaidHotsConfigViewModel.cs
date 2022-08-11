@@ -43,7 +43,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _currentOverlay = new RaidFrameOverlay();
 
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
-
+            CombatLogStateBuilder.AreaEntered += ReFindImage;
             _currentOverlayViewModel = new RaidFrameOverlayViewModel(_currentOverlay) { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable };
             _currentOverlayViewModel.NamesUpdated += ReFindImage;
             _currentOverlay.DataContext = _currentOverlayViewModel;
@@ -93,6 +93,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _currentOverlayViewModel.Columns = int.Parse(RaidFrameColumns);
             }
         }
+        public void HideRaidHots()
+        {
+            _currentOverlay.Hide();
+        }
         public bool RaidHotsEnabled
         {
             get => raidHotsEnabled; set
@@ -140,6 +144,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public ICommand StartAutoDetection => new CommandHandler(AutoDetection);
         private void ReFindImage()
         {
+            if (!RaidHotsEnabled)
+                return;
             AutoDetection(null);
         }
         private bool _preformingAutoDetection;
@@ -249,15 +255,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        private void SetClass(Entity arg1, SWTORClass arg2)
+
+        private void UpdateVisualsBasedOnRole(SWTORClass mostRecentDiscipline)
         {
-            if (_currentCharacter == arg1.Name + "/" + arg2.Discipline)
-                return;
-            _currentCharacter = arg1.Name + "/" + arg2.Discipline;
-            if (arg2.Role == Role.Healer)
-            {              
+            if (mostRecentDiscipline.Role == Role.Healer)
+            {
                 var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
-                App.Current.Dispatcher.Invoke(() => {
+                App.Current.Dispatcher.Invoke(() =>
+                {
                     RaidHotsEnabled = defaults.Acive;
                     _currentOverlayViewModel.FirePlayerChanged(_currentCharacter);
                 });
@@ -269,6 +274,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     RaidHotsEnabled = false;
                 });
             }
+        }
+
+        private void SetClass(Entity arg1, SWTORClass arg2)
+        {
+            if (_currentCharacter == arg1.Name + "/" + arg2.Discipline)
+                return;
+            _currentCharacter = arg1.Name + "/" + arg2.Discipline;
+            UpdateVisualsBasedOnRole(arg2);
         }
 
         internal void LiveParseActive(bool state)

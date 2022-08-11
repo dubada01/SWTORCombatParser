@@ -28,8 +28,8 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
                 BossNames = source.BossNames
             };
         }
-        public string Difficutly { get; set; } = "";
-        public string NumberOfPlayer { get; set; } = "";
+        public string Difficutly { get; set; } = "Story";
+        public string NumberOfPlayer { get; set; } = "4";
         private List<string> bossNames;
         public EncounterType EncounterType { get; set; }
         public string LogName { get; set; }

@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays.BossFrame;
+using SWTORCombatParser.ViewModels.Overlays.Room;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay;
 using SWTORCombatParser.Views.Timers;
@@ -31,6 +32,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private TimersCreationViewModel _timersViewModel;
         private RaidHotsConfigViewModel _raidHotsConfigViewModel;
         private BossFrameConfigViewModel _bossFrameViewModel;
+        private RoomOverlayViewModel _roomOverlayViewModel;
         private double maxScalar = 1.5d;
         private double minScalar = 0.5d;
         private double sizeScalar = 1d;
@@ -105,6 +107,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _bossFrameViewModel = new BossFrameConfigViewModel();
             BossFrameView = new BossFrameSetup(_bossFrameViewModel);
 
+            _roomOverlayViewModel = new RoomOverlayViewModel();
 
             TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
@@ -181,6 +184,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             _currentOverlays.Remove(obj);
         }
+        public void HideOverlays()
+        {
+            ResetOverlays();
+            _raidHotsConfigViewModel.HideRaidHots();
+        }
         public void ResetOverlays()
         {
             _currentCharacterName = "";
@@ -199,9 +207,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 overlaysLocked = value;
                 _timersViewModel.UpdateLock(value);
                 if (overlaysLocked)
+                {
                     _bossFrameViewModel.LockOverlays();
+                    _roomOverlayViewModel.LockOverlays();
+                }
                 else
+                {
                     _bossFrameViewModel.UnlockOverlays();
+                    _roomOverlayViewModel.UnlockOverlays();
+                }
+                    
                 ToggleOverlayLock();
             }
         }

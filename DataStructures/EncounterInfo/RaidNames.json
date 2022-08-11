@@ -14,7 +14,7 @@
   },
   {
     "LogName": "Karagga's Palace",
-    "Name": "Karagga’s Palace",
+    "Name": "Karaggaï¿½s Palace",
     "EncounterType": 1,
     "BossNames": [
       "Bonethrasher",
@@ -170,6 +170,17 @@
       "Trandosians~?~Hissyphus|Kronissus|Greus|Titax",
       "Huntmaster",
       "Apex Vanguard"
+    ]
+  },
+  {
+    "LogName": "R-4 Anomaly",
+    "Name": "R4",
+    "EncounterType": 1,
+    "BossNames": [
+      "IP-CPT",
+      "Watchdog",
+      "Lord Kanoth",
+      "Lady Dominique"
     ]
   }
 ]

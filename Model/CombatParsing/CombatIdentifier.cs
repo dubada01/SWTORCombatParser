@@ -64,7 +64,7 @@ namespace SWTORCombatParser
             NewCombatStarted();
         }
 
-        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs)
+        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false)
         {
             var state = CombatLogStateBuilder.CurrentState;
             var encounter = GetEncounterInfo(ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp);
@@ -97,7 +97,8 @@ namespace SWTORCombatParser
             if (newCombat.IsCombatWithBoss)
             {
                 var parts = newCombat.EncounterBossDifficultyParts;
-                EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
+                if(isRealtime)
+                    EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
             }
             CombatMetaDataParse.PopulateMetaData(newCombat);
             var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l=>l.Value.Modifier.ValueType == DamageType.absorbed).ToList());

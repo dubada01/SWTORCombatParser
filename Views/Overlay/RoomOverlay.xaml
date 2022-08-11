@@ -1,0 +1,22 @@
+﻿<Window x:Class="SWTORCombatParser.Views.Overlay.RoomOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
+        mc:Ignorable="d"
+        Title="RoomOverlay" Height="450" Width="800" AllowsTransparency="True" Background="{x:Null}" 
+        WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+    <Grid x:Name="MainArea" Visibility="{Binding IsActive, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip="Room Overlay">
+        <Border x:Name="Background" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
+                IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="3" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
+        </Border>
+        <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
+            <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
+                  Width="15" Height="15" Padding="0" Click="Button_Click"/>
+        </Viewbox>
+        <Image Source="{Binding ImagePath}"></Image>
+        <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
+               MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
+    </Grid>
+</Window>

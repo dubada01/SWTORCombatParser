@@ -66,7 +66,7 @@ namespace SWTORCombatParser.ViewModels
             MainWindowClosing.Hiding += () =>
             {
                 if (!SWTORDetector.SwtorRunning)
-                    _overlayViewModel.ResetOverlays();
+                    _overlayViewModel.HideOverlays();
                 if (SWTORDetector.SwtorRunning && !_combatMonitorViewModel.LiveParseActive)
                     _combatMonitorViewModel.EnableLiveParse();
                 if (SWTORDetector.SwtorRunning)
@@ -136,7 +136,7 @@ namespace SWTORCombatParser.ViewModels
             {
                 _combatMonitorViewModel.DisableLiveParse();
                 if (LoadingWindowFactory.MainWindowHidden)
-                    _overlayViewModel.ResetOverlays();
+                    _overlayViewModel.HideOverlays();
             }
         }
 

@@ -29,6 +29,7 @@ namespace SWTORCombatParser
         
         public EncounterInfo ParentEncounter;
         public string EncounterBossInfo => EncounterBossDifficultyParts == ("","","")?"": $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item2} {EncounterBossDifficultyParts.Item3}}}";
+        public string OldFlashpointBossInfo => EncounterBossDifficultyParts == ("", "", "") ? "" : $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item3}}}";
         public (string, string, string) EncounterBossDifficultyParts = ("","","");
 
         public List<string> RequiredDeadTargetsForKill { get; set; }
