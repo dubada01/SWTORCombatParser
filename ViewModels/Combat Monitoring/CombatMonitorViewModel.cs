@@ -285,7 +285,7 @@ namespace SWTORCombatParser.ViewModels
             }
             _totalLogsDuringCombat[combatStartTime].AddRange(obj);
             _usingHistoricalData = false;
-            var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList());
+            var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(),true);
             CombatIdentifier.UpdateOverlays(combatInfo);
             ParticipantsUpdated(combatInfo.CharacterParticipants);
             if (CurrentEncounter == null)
@@ -307,7 +307,7 @@ namespace SWTORCombatParser.ViewModels
             if (!_usingHistoricalData)
             {
                 CurrentEncounter.RemoveOngoing();
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj);
+                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj,true);
                 CombatIdentifier.FinalizeOverlays(combatInfo);
                 //LocalCombatLogCaching.SaveCombatLogs(combatInfo, true);
                 LiveCombatFinished(combatInfo);

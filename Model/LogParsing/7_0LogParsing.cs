@@ -182,7 +182,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ModifierDisplayValue = modifier.EffectiveDblValue.ToString("#,##0");
 
                 newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("~", ""));
+                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("~", "").Replace("*",""));
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""));
                 newValue.ValueType = GetValueType(valueParts[1]);
             }

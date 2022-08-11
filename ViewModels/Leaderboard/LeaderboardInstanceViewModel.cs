@@ -37,9 +37,18 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         public async void Populate(string encounter, string boss, string difficulty, string players)
         {
             Leaders.Clear();
-            var playersString = string.IsNullOrEmpty(players) ? "" : players +" ";
+            var isFlashpoint = string.IsNullOrEmpty(players);
+            var playersString = isFlashpoint ? "4 " : players +" ";
             var bossWithDifficulty = boss.Trim() + " " +$"{{{playersString}{difficulty}}}";
             var leaderboard = await PostgresConnection.GetEntriesForBossOfType(bossWithDifficulty, encounter, _leaderboardType);
+            if(isFlashpoint)
+            {
+                var oldFlashpointBossInfo = boss.Trim() + " " + $"{{{difficulty}}}";
+                var oldFlashpointBoard = await PostgresConnection.GetEntriesForBossOfType(oldFlashpointBossInfo, encounter, _leaderboardType);
+                leaderboard.AddRange(oldFlashpointBoard);
+            }
+            
+            
             var orderedLeaders = leaderboard.OrderByDescending(l => l.Value).ToList();
             for(var i = 0; i<orderedLeaders.Count; i++)
             {
