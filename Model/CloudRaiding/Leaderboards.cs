@@ -107,6 +107,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
                     foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
                     {
+                        if (!CurrentFightLeaderboard.ContainsKey(enumVal))
+                            continue;
                         var parses = CurrentFightLeaderboard[enumVal];
                         if (!parses.Any(p => p.Character == participant.Name))
                             returnData[participant][enumVal] = (0,false);
