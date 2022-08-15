@@ -2,6 +2,7 @@
 using SWTORCombatParser.ViewModels.Overlays.Room;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -139,6 +140,33 @@ namespace SWTORCombatParser.Views.Overlay
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             CloseOverlay();
+        }
+
+        internal void DrawCharacter(double xFraction, double yFraction, double facing)
+        {
+            Dispatcher.Invoke(() => {
+                var imageLocation = GetBoundingBox(RoomImage, ReferenceInfo);
+                Point characterLocation = new Point((imageLocation.Width * xFraction) + imageLocation.X, (imageLocation.Height * yFraction) + imageLocation.Y);
+                CharImage.Height = imageLocation.Width * 0.1;
+                CharImage.Width = imageLocation.Width * 0.1;
+                Canvas.SetLeft(CharImage, characterLocation.X - (CharImage.Width/2));
+                Canvas.SetTop(CharImage, characterLocation.Y - (CharImage.Height/2));
+
+                var Rotation = new RotateTransform(90, imageLocation.Width / 2, imageLocation.Height / 2);
+                ReferenceInfo.RenderTransform = Rotation;
+
+                var rotationTransform = new RotateTransform(facing*-1, CharImage.Width/2 , CharImage.Height/2);
+                CharImage.RenderTransform = rotationTransform;
+            });
+
+
+        }
+        private static Rect GetBoundingBox(FrameworkElement child, FrameworkElement parent)
+        {
+            GeneralTransform transform = child.TransformToAncestor(parent);
+            Point topLeft = transform.Transform(new Point(0, 0));
+            Point bottomRight = transform.Transform(new Point(child.ActualWidth, child.ActualHeight));
+            return new Rect(topLeft, bottomRight);
         }
     }
 }

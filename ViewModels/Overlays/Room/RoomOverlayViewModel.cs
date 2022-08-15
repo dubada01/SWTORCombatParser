@@ -14,11 +14,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room
 {
-    public class RoomOverlayViewModel:INotifyPropertyChanged
+    public class RoomOverlayViewModel : INotifyPropertyChanged
     {
         private DateTime _startTime;
 
@@ -33,6 +34,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         private string imagePath;
         private DispatcherTimer _dTimer;
         private bool _isTriggered;
+
         public RoomOverlayViewModel()
         {
             _dTimer = new DispatcherTimer();
@@ -48,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         {
             if (!_isActive || _isTriggered)
                 return;
-            ImagePath = "";
+            ImagePath = Path.Combine("../../resources/RoomOverlays/IP-CPT", "Empty.png"); ;
             _isTriggered = true;
             _currentBossName = arg2;
 
@@ -58,7 +60,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             _currentCombatOverlaySettings = _settings.FirstOrDefault(s => s.EncounterName == _currentBossName || s.EncounterName == "Any");
             if (_currentCombatOverlaySettings != null)
             {
-                App.Current.Dispatcher.Invoke(() => {
+                App.Current.Dispatcher.Invoke(() =>
+                {
                     IsActive = true;
                     OnPropertyChanged("IsActive");
                     _dTimer.Start();
@@ -70,6 +73,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         }
 
         public bool IsActive { get; set; }
+        public string CharImagePath => "../../resources/RoomOverlays/PlayerLocation.png";
         public string ImagePath
         {
             get => imagePath; set
@@ -79,14 +83,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             }
         }
         public event Action<bool> OnLocking = delegate { };
-        
+
 
         public bool OverlaysMoveable { get; set; }
         public void LockOverlays()
         {
             OnLocking(true);
             OverlaysMoveable = false;
-            IsActive=false;
+            IsActive = false;
             OnPropertyChanged("IsActive");
             OnPropertyChanged("OverlaysMoveable");
         }
@@ -102,10 +106,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         {
             if (!_isActive)
                 return;
+            //if (obj.Type == UpdateType.Start)
+            //{
+            //    OnBossEncounterDetected("test", "test", "test");
+            //}
             if (obj.Type == UpdateType.Stop)
             {
                 _isTriggered = false;
-                App.Current.Dispatcher.Invoke(() => {
+                _currentBossName = "";
+                App.Current.Dispatcher.Invoke(() =>
+                {
                     IsActive = false;
                     _dTimer.Stop();
                     _dTimer.Tick -= CheckForNewState;
@@ -122,8 +132,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             {
                 _currentUpdate = triggerdUpdate;
                 ImagePath = Path.Combine("../../resources/RoomOverlays/IP-CPT", _currentUpdate.ImageOverlayPath);
-                Debug.WriteLine(triggerdUpdate.ImageOverlayPath);
             }
+            var roomTop = _currentCombatOverlaySettings.Top;
+            var roomLeft = _currentCombatOverlaySettings.Left;
+            var roomWidth = _currentCombatOverlaySettings.Width;
+            var roomHeight = _currentCombatOverlaySettings.Height;
+
+            var location = CombatLogStateBuilder.CurrentState.CurrentLocalCharacterPosition;
+            var xFraction = (location.X - roomLeft) / roomWidth;
+            var yFraction = (location.Y - roomTop) / roomHeight;
+            _roomOverlay.DrawCharacter(xFraction, yFraction, location.Facing);
         }
 
         private void SetInitialPosition()

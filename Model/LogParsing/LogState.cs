@@ -55,6 +55,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public ConcurrentDictionary<string, ConcurrentDictionary<Guid,CombatModifier>> Modifiers { get; set; } = new ConcurrentDictionary<string, ConcurrentDictionary<Guid,CombatModifier>>();
         public object modifierLogLock = new object();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
+        public PositionData CurrentLocalCharacterPosition => CurrentCharacterPositions[LocalPlayer];
         public Entity LocalPlayer { get; internal set; }
 
         public bool WasPlayerDeadAtTime(Entity player, DateTime timestamp)

@@ -17,5 +17,9 @@ namespace SWTORCombatParser.DataStructures.RoomOverlay
     {
         public List<RoomOverlayUpdate> UpateObjects { get; set; } = new List<RoomOverlayUpdate>();
         public string EncounterName { get; set; } = "";
+        public double Top { get; set; }
+        public double Left { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
     }
 }

@@ -20,7 +20,15 @@ namespace SWTORCombatParser.DataStructures.RoomOverlay
                 File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(new List<RoomOverlaySettings>() { new RoomOverlaySettings() { EncounterName = "Template", UpateObjects = new List<RoomOverlayUpdate>() { new RoomOverlayUpdate() { ImageOverlayPath = "Test"} } } }));
             }
             var stringInfo = File.ReadAllText(_settingsPath);
-            return JsonConvert.DeserializeObject<List<RoomOverlaySettings>>(stringInfo);
+            var settings = JsonConvert.DeserializeObject<List<RoomOverlaySettings>>(stringInfo);
+
+            if(!settings.Any(s=>s.EncounterName == "IP-CPT"))
+            {
+                var ipCPT = JsonConvert.DeserializeObject<RoomOverlaySettings>(File.ReadAllText("DataStructures/RoomOverlay/IPCPT.json"));
+                settings.Add(ipCPT);
+                File.WriteAllText(_settingsPath,JsonConvert.SerializeObject(settings));
+            }
+            return settings;
         }
     }
 }

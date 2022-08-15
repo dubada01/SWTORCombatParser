@@ -55,6 +55,7 @@
     <None Remove="DataStructures\EncounterInfo\FlashpointInfo.json" />
     <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
     <None Remove="DataStructures\HOT Timers\timers.json" />
+    <None Remove="DataStructures\RoomOverlay\IPCPT.json" />
     <None Remove="resources\BossMaps\ZornToth.png" />
     <None Remove="resources\DoubleArrowIcon.png" />
     <None Remove="resources\dpsIcon.png" />
@@ -66,6 +67,7 @@
     <None Remove="resources\LocalPlayerIcon.png" />
     <None Remove="resources\question-mark.png" />
     <None Remove="resources\redX.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Empty.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_1.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_10.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_11.png" />
@@ -103,6 +105,7 @@
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_7.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_8.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_9.png" />
+    <None Remove="resources\RoomOverlays\PlayerLocation.png" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="resources\SwtorLogo_opaque.png" />
     <None Remove="resources\SWTORParsingIcon.ico" />
@@ -137,6 +140,9 @@
     <Content Include="DataStructures\HOT Timers\timers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="DataStructures\RoomOverlay\IPCPT.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\BossMaps\ZornToth.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -168,6 +174,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\redX.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Empty.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_1.png">
@@ -279,6 +288,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\PlayerLocation.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\SwtorLogo_opaque.png">

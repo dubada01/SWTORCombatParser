@@ -15,7 +15,16 @@
             <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
         </Viewbox>
-        <Image Source="{Binding ImagePath}"></Image>
+        <Canvas x:Name="ImageCanvas">
+            <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+            Margin="0,0,0,0" x:Name="ReferenceInfo" Canvas.Left="0" Canvas.Top="0"
+            Width="{Binding ActualWidth, ElementName=ImageCanvas}"
+            Height="{Binding ActualHeight, ElementName=ImageCanvas}">
+                <Image x:Name="RoomImage" Source="{Binding ImagePath}">
+                </Image>
+            </DockPanel>
+            <Image x:Name="CharImage" Source="{Binding CharImagePath}"></Image>
+        </Canvas>
         <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
     </Grid>
