@@ -31,12 +31,6 @@
 			"ImageOverlayPath": "Phase1_4.png"
 		},
 		{
-			"DisplayTimeSecondsElapsed": 25.0,
-			"TriggerTimeSecondeElapsed": 30.0,
-			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase1_5.png"
-		},
-		{
 			"DisplayTimeSecondsElapsed": 29.0,
 			"TriggerTimeSecondeElapsed": 34.0,
 			"VisibleBufferSeconds": 5.0,
