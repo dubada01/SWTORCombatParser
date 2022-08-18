@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -19,6 +20,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private bool bossFrameEnabled;
         private bool dotTrackingEnabled;
         private bool mechPredictionsEnabled;
+        private int combatDuration;
+        private DispatcherTimer _timer;
 
         public BrossFrameView View { get; set; }
         public bool OverlaysMoveable
@@ -67,9 +70,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public event Action<bool> OnLocking = delegate { };
         public event Action<BossFrameConfigViewModel> OverlayClosed = delegate { };
         public ObservableCollection<BossFrameViewModel> BossesDetected { get; set; } = new ObservableCollection<BossFrameViewModel>();
-
+        public int CombatDuration
+        {
+            get => combatDuration; set
+            {
+                combatDuration = value;
+                OnPropertyChanged();
+            }
+        }
         public BossFrameConfigViewModel()
         {
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer.Tick += (e,r) => { CombatDuration++; };
+
             CombatLogStreamer.CombatUpdated += OnNewLog;
             View = new BrossFrameView(this);
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
@@ -111,9 +125,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         public void OnNewLog(CombatStatusUpdate update)
         {
+            if(update.Type == UpdateType.Start)
+            {
+                StartTimer();
+            }
             if (update.Type == UpdateType.Stop)
             {
                 HideFrames();
+                StopTimer();
             }
             if (update.Logs == null || update.Type == UpdateType.Stop || update.Logs.Count == 0)
                 return;
@@ -128,7 +147,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     {
                         App.Current.Dispatcher.Invoke(() =>
                         {
-                            BossesDetected.Add(new BossFrameViewModel(boss,DotTrackingEnabled,MechPredictionsEnabled));
+                            BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled));
                             OnPropertyChanged("ShowFrame");
                         });
                     }
@@ -139,6 +158,18 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     }
                 }
             }
+        }
+
+        private void StopTimer()
+        {
+            _timer.Stop();
+            CombatDuration = 0;
+        }
+
+        private void StartTimer()
+        {
+            CombatDuration = 0;
+            _timer.Start();
         }
 
         private void HideFrames()

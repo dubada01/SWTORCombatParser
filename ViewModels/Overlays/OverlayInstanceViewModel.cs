@@ -204,24 +204,24 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType, (double, bool)> standings)
         {
             (double, bool) leaderboardRanking = (0, false);
-            if (Type == OverlayType.DPS)
+            if (Type == OverlayType.DPS && standings.ContainsKey(LeaderboardEntryType.Damage))
             {
                 leaderboardRanking = standings[LeaderboardEntryType.Damage];
             }
-            if (Type == OverlayType.FocusDPS)
+            if (Type == OverlayType.FocusDPS && standings.ContainsKey(LeaderboardEntryType.FocusDPS))
             {
                 leaderboardRanking = standings[LeaderboardEntryType.FocusDPS];
 
             }
-            if (Type == OverlayType.EHPS)
+            if (Type == OverlayType.EHPS && standings.ContainsKey(LeaderboardEntryType.EffectiveHealing))
             {
                 leaderboardRanking = standings[LeaderboardEntryType.EffectiveHealing];
             }
-            if (Type == OverlayType.HPS)
+            if (Type == OverlayType.HPS && standings.ContainsKey(LeaderboardEntryType.Healing))
             {
                 leaderboardRanking = standings[LeaderboardEntryType.Healing];
             }
-            if (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided)
+            if (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided && standings.ContainsKey(LeaderboardEntryType.Mitigation))
             {
                 leaderboardRanking = standings[LeaderboardEntryType.Mitigation];
             }

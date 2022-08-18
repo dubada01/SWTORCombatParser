@@ -26,7 +26,7 @@ namespace SWTORCombatParser.Model.Overlays
                 Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new RoomOverlayManager() { WidtHHeight = new Point(200, 300), Position = new Point() }));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new RoomOverlayManager() { WidtHHeight = new Point(200, 300), Position = new Point() ,Acive=true}));
             }
         }
         internal static void SetDefaults(Point point1, Point point2)
