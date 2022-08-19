@@ -7,6 +7,7 @@ using SWTORCombatParser.ViewModels.Overlays.BossFrame;
 using SWTORCombatParser.ViewModels.Overlays.Room;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay;
+using SWTORCombatParser.Views.Overlay.Room;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public TimersCreationView TimersView { get; set; }
         public BossFrameSetup BossFrameView { get; set; }
+        public RoomSetup RoomOverlaySetup { get; set; }
         public ObservableCollection<OverlayType> AvailableDamageOverlays { get; set; } = new ObservableCollection<OverlayType>();
         public ObservableCollection<OverlayType> AvailableHealOverlays { get; set; } = new ObservableCollection<OverlayType>();
         public ObservableCollection<OverlayType> AvailableMitigationOverlays { get; set; } = new ObservableCollection<OverlayType>();
@@ -108,6 +110,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             BossFrameView = new BossFrameSetup(_bossFrameViewModel);
 
             _roomOverlayViewModel = new RoomOverlayViewModel();
+            RoomOverlaySetup = new RoomSetup(_roomOverlayViewModel);
 
             TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
@@ -120,6 +123,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
             OnPropertyChanged("RaidHotsConfig");
             OnPropertyChanged("TimersView");
+            OnPropertyChanged("RoomOverlaySetup");
         }
 
 

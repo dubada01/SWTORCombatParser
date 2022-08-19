@@ -51,6 +51,9 @@
                 <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Raid HOTS">
                     <ContentPresenter Content="{Binding RaidHotsConfig}"></ContentPresenter>
                 </TabItem>
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Room Hazard">
+                    <ContentPresenter Content="{Binding RoomOverlaySetup}"></ContentPresenter>
+                </TabItem>
             </TabControl>
    
 
