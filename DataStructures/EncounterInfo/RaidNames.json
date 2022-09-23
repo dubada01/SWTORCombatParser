@@ -70,7 +70,7 @@
       "Gate Commander Draxus",
       "Grob'thok, Who Feeds the Forge",
       "Corruptor Zero",
-      "Dread Master Brontes~?~Dread Master Brontes|Left Hand of Brontes|Right Hand of Brontes"
+      "Dread Master Brontes~?~Dread Master Brontes*|Left Hand of Brontes|Right Hand of Brontes"
     ]
   },
   {
@@ -93,8 +93,8 @@
       "Sparky",
       "Quartermaster Bulo",
       "Torque",
-      "Master & Blaster~?~Master|Blaster",
-      "Coratanni"
+      "Master & Blaster~?~B0-55 Master Droid|Blaster*",
+      "Coratanni~?~Coratanni|Ruugar"
     ]
   },
   {
@@ -106,7 +106,7 @@
       "Sword Squadron~?~Sword Squadron Unit 1|Sword Squadron Unit 2",
       "The Underlurker",
       "Revanite Commanders~?~Deron Cadoruso|Lord Kurse|Sano Thrica",
-      "Revan~?~HK-47|Machine Core|Machine Focus|Revan"
+      "Revan~?~HK-47|Machine Core*|Machine Focus|Revan"
     ]
   },
   {
@@ -177,7 +177,7 @@
     "Name": "R4",
     "EncounterType": 1,
     "BossNames": [
-      "IP-CPT",
+      "IP-CPT~?~IP-CPT*|Overload Enforcer|Inferno Enforcer",
       "Watchdog",
       "Lord Kanoth",
       "Lady Dominique"

@@ -13,6 +13,10 @@ namespace SWTORCombatParser
 {
     public static class CombatMetaDataParse
     {
+        private static List<string> interruptAbilityNames = new List<string> { "Distraction", "Mind Snap","Force Kick","Disruption", "Force Leap","Force Charge","Riot Strike","Disabling Shot","Jolt" };
+        private static List<string> stunAbilityNames = new List<string> {"Electro Dart","Debilitate","Maim","Low Slash","Electrocute","Force Choke","Cryo Grenade","Dirty Kick","Force Stun","Force Stasis" };
+
+        private static List<string> abilitiesThatCanInterrupt => interruptAbilityNames.Concat(stunAbilityNames).ToList();
         public static void PopulateMetaData(Combat combatToPopulate)
         {
             var combat = combatToPopulate;
@@ -73,7 +77,7 @@ namespace SWTORCombatParser
 
                 var totalAbilitiesDone = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate").Count();
 
-                var interruptLogs = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityInterrupt");
+                var interruptLogs = outgoingLogs.Select((v,i)=>new {value=v,index=i}).Where(l => l.value.Effect.EffectType == EffectType.Event && l.index != 0 && l.value.Effect.EffectName == "AbilityInterrupt" && abilitiesThatCanInterrupt.Contains(outgoingLogs[l.index-1].Ability));
 
                 var totalHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
@@ -88,7 +92,7 @@ namespace SWTORCombatParser
                 Dictionary<string, double> _parriedAttackSums = CalculateEstimatedAvoidedDamage(combat, entity);
 
                 combat.TotalInterrupts[entity] = interruptLogs.Count();
-                combat.TotalThreat[entity] = outgoingLogs.Sum(l => l.Threat);
+                combat.TotalThreat[entity] = outgoingLogs.Sum(l => (long)l.Threat);
                 combat.MaxDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0 ? 0 : combat.OutgoingDamageLogs[entity].Max(l => l.Value.DblValue);
                 combat.MaxEffectiveDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0 ? 0 : combat.OutgoingDamageLogs[entity].Max(l => l.Value.EffectiveDblValue);
                 combat.MaxHeal[entity] = combat.OutgoingHealingLogs[entity].Count == 0 ? 0 : combat.OutgoingHealingLogs[entity].Max(l => l.Value.DblValue);
@@ -192,6 +196,8 @@ namespace SWTORCombatParser
             foreach(var abilityActivation in abilityActivateLogs.Where(l=>l.Target.IsCharacter))
             {
                 var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(abilityActivation.Source, abilityActivation.TimeStamp);
+                if (target == null)
+                    continue;
                 if (!returnDict.ContainsKey(target))
                     returnDict[target] = new List<DateTime>();
                 returnDict[target].Add(abilityActivation.TimeStamp);

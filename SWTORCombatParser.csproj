@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <VersionPrefix>1.1.8</VersionPrefix>
+    <VersionPrefix>1.1.10</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -71,40 +71,56 @@
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_1.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_10.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_11.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_11_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_12.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_13.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_13_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_2.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_3.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_4.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_4_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_5.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_6.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_6_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_7.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_8.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_8_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase1_9.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_1.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_10.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_10_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_11.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_12.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_2.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_2_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_3.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_3_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_4.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_5.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_5_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_6.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_7.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_7_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_8.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase3_9.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_9_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_1.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_10.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_11.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_12.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_12_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_2.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_2_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_3.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_4.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_5.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_5_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_6.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_7.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_7_plus.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_8.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_9.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_9_plus.png" />
     <None Remove="resources\RoomOverlays\PlayerLocation.png" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="resources\SwtorLogo_opaque.png" />
@@ -188,10 +204,16 @@
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_11.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_11_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_12.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_13.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_13_plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_2.png">
@@ -203,13 +225,22 @@
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_4.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_4_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_6_plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_7.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_8_plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase1_9.png">
@@ -221,6 +252,9 @@
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_10.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_10_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_11.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -230,7 +264,13 @@
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_2_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_3_plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_4.png">
@@ -239,16 +279,25 @@
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_5.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_5_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_6.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_7.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_7_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_8.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase3_9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_9_plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_1.png">
@@ -263,7 +312,13 @@
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_12.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_12_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_2_plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_3.png">
@@ -275,16 +330,25 @@
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_5.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_5_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_6.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_7.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_7_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_8.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_9_plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\RoomOverlays\PlayerLocation.png">

@@ -95,7 +95,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void HideRaidHots()
         {
-            _currentOverlay.Hide();
+            Application.Current.Dispatcher.Invoke(() => {
+                _currentOverlay.Hide();
+            });
         }
         public bool RaidHotsEnabled
         {

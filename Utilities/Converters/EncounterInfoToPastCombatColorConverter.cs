@@ -12,9 +12,9 @@ namespace SWTORCombatParser.Utilities.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var encounter = (EncounterInfo)value;
-            if (encounter == null)
-                return Brushes.WhiteSmoke;
+            var setterInfo = ((EncounterInfo,bool))value;
+            if (setterInfo.Item1 == null)
+                return setterInfo.Item2 ? Brushes.MediumAquamarine : Brushes.WhiteSmoke;
             return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("LightGrayGreenColor"));
         }
 

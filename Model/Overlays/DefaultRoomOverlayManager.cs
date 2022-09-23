@@ -14,6 +14,7 @@ namespace SWTORCombatParser.Model.Overlays
         public Point Position;
         public Point WidtHHeight;
         public bool Acive;
+        public bool ViewExtraData;
         public bool Locked;
     }
     public class DefaultRoomOverlayManager
@@ -26,7 +27,7 @@ namespace SWTORCombatParser.Model.Overlays
                 Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new RoomOverlayManager() { WidtHHeight = new Point(100, 100), Position = new Point(100,100) ,Acive=true}));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new RoomOverlayManager() { WidtHHeight = new Point(100, 100), Position = new Point(100,100) ,Acive=true, ViewExtraData = true}));
             }
         }
         internal static void SetDefaults(Point point1, Point point2)
@@ -36,22 +37,16 @@ namespace SWTORCombatParser.Model.Overlays
             currentdefaults.WidtHHeight = point2;
             SaveDefaults(currentdefaults);
         }
-        //internal static void SetDotTracking(bool track)
-        //{
-        //    var currentdefaults = GetDefaults();
-        //    currentdefaults.TrackDOTS = track;
-        //    SaveDefaults(currentdefaults);
-        //}
-        //internal static void SetPredictMechs(bool track)
-        //{
-        //    var currentdefaults = GetDefaults();
-        //    currentdefaults.PredictMechs = track;
-        //    SaveDefaults(currentdefaults);
-        //}
         internal static void SetActiveState(bool v)
         {
             var currentdefaults = GetDefaults();
             currentdefaults.Acive = v;
+            SaveDefaults(currentdefaults);
+        }
+        internal static void SetViewExtra(bool value)
+        {
+            var currentdefaults = GetDefaults();
+            currentdefaults.ViewExtraData = value;
             SaveDefaults(currentdefaults);
         }
         internal static void SetLockedState(bool locked)
@@ -71,5 +66,7 @@ namespace SWTORCombatParser.Model.Overlays
         {
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(toSave));
         }
+
+
     }
 }

@@ -94,6 +94,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             DamageTakenVM.Reset();
             HealingVM.Reset();
             HealingReceivedVM.Reset();
+            OnPropertyChanged("AvailableParticipants");
         }
     }
 }

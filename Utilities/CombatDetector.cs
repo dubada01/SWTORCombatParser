@@ -23,6 +23,7 @@ namespace SWTORCombatParser.Utilities
     public static class CombatDetector
     {
         private static List<string> _bossesKilledThisCombat = new List<string>();
+        private static List<string> _bossesSeenThisCombat = new List<string>();
         private static List<string> _combatResNames = new List<string> { "Revival", "Reanimation", "Heartrigger Patch", "Resuscitation Probe", "Emergency Medical Probe" ,"Onboard AED"};
         private static bool _bossCombat;
         private static BossInfo _currentBossInfo;
@@ -41,6 +42,7 @@ namespace SWTORCombatParser.Utilities
         {
             _bossCombat = false;
             _bossesKilledThisCombat = new List<string>();
+            _bossesSeenThisCombat = new List<string>();
             InCombat = false;
             _checkLogsForTimtout = false;
             _timeoutTimer.Stop();
@@ -78,12 +80,29 @@ namespace SWTORCombatParser.Utilities
                 _currentBossInfo = null;
             }
             
-            if (currentEncounter.BossInfos != null && currentEncounter.BossInfos.Any(b => b.TargetNames.Contains(line.Target.Name) || b.TargetNames.Contains(line.Source.Name)))
+            if (currentEncounter.BossInfos != null && line.Effect.EffectName == "Damage")
             {
-                _currentBossInfo = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(line.Target.Name) || b.TargetNames.Contains(line.Source.Name));
-                _bossCombat = true;
+                if(currentEncounter.BossInfos.Any(b => b.TargetNames.Contains(line.Target.Name)))
+                {
+                    if(!_bossesSeenThisCombat.Contains(line.Target.Name))
+                        _bossesSeenThisCombat.Add(line.Target.Name);
+                }
+                if (currentEncounter.BossInfos.Any(b => b.TargetNames.Contains(line.Source.Name)))
+                {
+                    if (!_bossesSeenThisCombat.Contains(line.Source.Name))
+                        _bossesSeenThisCombat.Add(line.Source.Name);
+                }
             }
-
+            if(_bossesSeenThisCombat.Count > 0)
+            {
+                var encounterInfo = currentEncounter.BossInfos.FirstOrDefault(b => _bossesSeenThisCombat.All(sb => b.TargetNames.Contains(sb)));
+                if (encounterInfo != null)
+                {
+                    _currentBossInfo = encounterInfo;
+                    _bossCombat = true;
+                }
+                
+            }
             if (_bossCombat && _combatResNames.Contains(line.Ability) && line.Effect.EffectName == "AbilityActivate")
             {
                 revivedPlayers.Add(CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(line.Source, line.TimeStamp));
@@ -101,7 +120,7 @@ namespace SWTORCombatParser.Utilities
             }
             if (line.Effect.EffectName == "ExitCombat" && InCombat)
             {
-                if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy || (!_bossCombat || _currentBossInfo.EncounterName == "Dread Master Styrak"))
+                if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy || (!_bossCombat || _currentBossInfo.EncounterName == "Dread Master Styrak" || _currentBossInfo.EncounterName == "Dread Master Calphayus"))
                 {
                     return EndCombat();
                 }
@@ -110,13 +129,13 @@ namespace SWTORCombatParser.Utilities
                     ExitCombatDetected(line,isRealTime);
                 }
             }
-            if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && _currentBossInfo != null && _currentBossInfo.EncounterName!="Dread Master Styrak" &&  InCombat)
+            if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && _currentBossInfo != null && (_currentBossInfo.EncounterName!="Dread Master Styrak" || _currentBossInfo.EncounterName == "Dread Master Calphayus") &&  InCombat)
             {
-                var bossKilled = currentEncounter.BossInfos.FirstOrDefault(bi => bi.TargetNames.Contains(line.Target.Name));
-                if (bossKilled != null)
+                var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.Name);
+                if (bossKilled)
                 {
-                    _bossesKilledThisCombat.Add(bossKilled.TargetNames.First(tn => tn == line.Target.Name));
-                    if (currentEncounter.BossInfos.Any(bi => bi.TargetNames.All(n => _bossesKilledThisCombat.Contains(n))))
+                    _bossesKilledThisCombat.Add(line.Target.Name);
+                    if (_currentBossInfo.TargetsRequiredForKill.All(n => _bossesKilledThisCombat.Contains(n)))
                     {
                         return EndCombat();
                     }
@@ -129,7 +148,7 @@ namespace SWTORCombatParser.Utilities
                 var characterDeathStates = CombatLogStateBuilder.CurrentState.PlayerDeathChangeInfo;
                 var logTime = line.TimeStamp;
                 var allDead = charactersWhoChangedAfterCombatStart.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
-                if (allDead)
+                if (allDead && charactersWhoChangedAfterCombatStart.Count > 0)
                 {
                     return EndCombat();
                 }

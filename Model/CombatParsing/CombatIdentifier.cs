@@ -22,7 +22,7 @@ namespace SWTORCombatParser
         private static object leaderboardLock = new object();
 
         private static bool _leaderboardsActive;
-
+        public static Combat CurrentCombat { get; set; }
         public static void FinalizeOverlays(Combat combat)
         {
             _leaderboardsActive = false;
@@ -43,7 +43,7 @@ namespace SWTORCombatParser
                     Leaderboards.StartGetPlayerLeaderboardStandings(combat);
                 });
              }
-            NewCombatAvailable(combat);
+            FireEvent(combat);
         }
         public static void FinalizeOverlay(Combat combat)
         {
@@ -56,6 +56,11 @@ namespace SWTORCombatParser
                     Leaderboards.StartGetPlayerLeaderboardStandings(combat);
                 });
             }
+            FireEvent(combat);
+        }
+        public static void FireEvent(Combat combat)
+        {
+            CurrentCombat = combat;
             NewCombatAvailable(combat);
         }
         public static void NotifyNewCombatStarted()
@@ -86,13 +91,13 @@ namespace SWTORCombatParser
             {
                 newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Unknown", NumberOfPlayer = "1", BossNames = new List<string> { "Warzone Training Dummy", "Operations Training Dummy" } };
                 newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
-                newCombat.RequiredDeadTargetsForKill = GetCurrentBossNames(ongoingLogs, newCombat.ParentEncounter);
+                newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, newCombat.ParentEncounter);
             }
             if (encounter !=  null && encounter.BossInfos != null)
             {
                 newCombat.ParentEncounter = encounter;
                 newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs,encounter);
-                newCombat.RequiredDeadTargetsForKill = GetCurrentBossNames(ongoingLogs, encounter);
+                newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, encounter);
             }
             if (newCombat.IsCombatWithBoss)
             {
@@ -103,6 +108,8 @@ namespace SWTORCombatParser
             CombatMetaDataParse.PopulateMetaData(newCombat);
             var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l=>l.Value.Modifier.ValueType == DamageType.absorbed).ToList());
             AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
+            AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
+            FireEvent(newCombat);
             return newCombat;
         }
 
@@ -117,47 +124,66 @@ namespace SWTORCombatParser
         {
             return CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStartTime);
         }
-        private static (string,string,string) GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        private static (string, string, string) GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
-                return ("","","");
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && !string.IsNullOrEmpty(l.Target.Name) && l.Effect.EffectName == "Damage");
+                return ("", "", "");
+
+            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && !string.IsNullOrEmpty(l.Target.Name) && l.Effect.EffectName == "Damage").ToList();
             if (currentEncounter.Name.Contains("Open World"))
             {
                 if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.Name.Contains("Training Dummy")))
                 {
                     var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.Name.Contains("Training Dummy"));
                     var dummyMaxHP = dummyTarget.MaxHP;
-                    return ("Parsing Dummy", dummyMaxHP + "HP","");
+                    return ("Parsing Dummy", dummyMaxHP + "HP", "");
                 }
                 else
                 {
                     return ("", "", "");
                 }
             }
-
-            foreach (var log in validLogs)
+            var bossesDetected = GetCurrentBossNames(validLogs, currentEncounter);
+            if (!bossesDetected.Any())
+                return ("", "", "");
+            var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetNames.Contains(t)));
+            if (boss!=null)
             {
-                if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
-                {
-                    var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
-                    return (boss.EncounterName, currentEncounter.NumberOfPlayer.Replace("Player", "").Trim(), currentEncounter.Difficutly);
-                }
+                return (boss.EncounterName, currentEncounter.NumberOfPlayer.Replace("Player", "").Trim(), currentEncounter.Difficutly);
             }
+
             return ("", "", "");
         }
         private static List<string> GetCurrentBossNames(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return new List<string>();
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectName == "Damage");
-            foreach (var log in validLogs)
+            var bossNamesFound = new List<string>();
+            foreach (var log in logs)
             {
-                if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name) || currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
+                if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name))
                 {
-                    var boss = currentEncounter.BossInfos.First(b => b.TargetNames.Contains(log.Source.Name) || b.TargetNames.Contains(log.Target.Name));
-                    return boss.TargetNames;
+                    bossNamesFound.Add(log.Source.Name);
                 }
+                if(currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
+                {
+                    bossNamesFound.Add(log.Target.Name);
+                }
+            }
+            return bossNamesFound.Distinct().ToList();
+        }
+        private static List<string> GetTargetsRequiredForKill(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        {
+            if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
+                return new List<string>();
+            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectName == "Damage").ToList();
+            var bossesDetected = GetCurrentBossNames(validLogs, currentEncounter);
+            if (!bossesDetected.Any())
+                return new List<string>();
+            var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetNames.Contains(t)));
+            if (boss != null)
+            {
+                return boss.TargetsRequiredForKill;
             }
             return new List<string>();
         }

@@ -48,8 +48,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public bool HasLeaderboard => Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS;
-        public GridLength LeaderboardRowHeight => (Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS) ? new GridLength(20) : new GridLength(0);
+        public bool HasLeaderboard => Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS || Type == OverlayType.FocusDPS;
+        public GridLength LeaderboardRowHeight => HasLeaderboard ? new GridLength(20) : new GridLength(0);
         public bool AddSecondaryToValue { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
         public event Action CloseRequested = delegate { };
@@ -167,6 +167,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void Refresh(Combat comb)
         {
+            if (comb == null)
+                return;
             lock (_refreshLock)
             {
                 ResetMetrics();
@@ -266,11 +268,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 {
                     UpdateSecondary(SecondaryType, metricToUpdate, combatToDisplay, participant);
                 }
-
-                OrderMetricBars();
-
             }
-
+            OrderMetricBars();
         }
         private void OrderMetricBars()
         {
@@ -356,14 +355,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.FocusDPS:
                     value = combat.EFocusDPS[participant];
                     break;
-                case OverlayType.Threat:
+                case OverlayType.ThreatPerSecond:
                     value = combat.TPS[participant];
+                    break;
+                case OverlayType.Threat:
+                    value = combat.TotalThreat[participant];
                     break;
                 case OverlayType.DamageTaken:
                     value = combat.DTPS[participant];
                     break;
                 case OverlayType.Mitigation:
                     value = combat.MPS[participant];
+                    break;
+                case OverlayType.DamageSavedDuringCD:
+                    value = combat.DamageSavedFromCDPerSecond[participant];
                     break;
                 case OverlayType.DamageAvoided:
                     value = combat.DAPS[participant];
@@ -382,6 +387,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case OverlayType.HealReactionTime:
                     value = combat.NumberOfHighSpeedReactions[participant];
+                    break;
+                case OverlayType.HealReactionTimeRatio:
+                    value = combat.NumberOfHighSpeedReactions[participant] / combat.AbilitiesActivated[participant].Count;
                     break;
                 case OverlayType.TankHealReactionTime:
                     value = combat.AverageTankDamageRecoveryTimeTotal[participant];

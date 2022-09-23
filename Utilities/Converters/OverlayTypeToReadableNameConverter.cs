@@ -32,10 +32,14 @@ namespace SWTORCombatParser.Utilities.Converters
                     return "Burst EHPS";
                 case OverlayType.HealReactionTime:
                     return "# of <2sec Reactions";
+                case OverlayType.HealReactionTimeRatio:
+                    return "Ratio of <2sec heals";
                 case OverlayType.TankHealReactionTime:
                     return "Heal Reaction: Tanks";
                 case OverlayType.Mitigation:
                     return "Damage Mitigation";
+                case OverlayType.DamageSavedDuringCD:
+                    return "Damage Saved During CDs";
                 case OverlayType.ShieldAbsorb:
                     return "Tank Shielding";
                 case OverlayType.DamageAvoided:
@@ -46,6 +50,8 @@ namespace SWTORCombatParser.Utilities.Converters
                     return "APM";
                 case OverlayType.InterruptCount:
                     return "Interrupt Count";
+                case OverlayType.ThreatPerSecond:
+                    return "Threat per second";
                 default:
                     return oType.ToString();
             }

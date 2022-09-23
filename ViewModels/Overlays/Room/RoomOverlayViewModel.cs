@@ -34,6 +34,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         private string imagePath;
         private DispatcherTimer _dTimer;
         private bool _isTriggered;
+        private bool viewExtraInfo;
 
         public RoomOverlayViewModel()
         {
@@ -50,7 +51,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         {
             if (!OverlayEnabled || _isTriggered)
                 return;
-            ImagePath = Path.Combine("../../resources/RoomOverlays/IP-CPT", "Empty.png"); ;
+            ImagePath = Path.Combine("../../../resources/RoomOverlays/IP-CPT", "Empty.png"); ;
             _isTriggered = true;
             _currentBossName = arg2;
 
@@ -69,6 +70,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                     _dTimer.Tick += CheckForNewState;
                 });
 
+            }
+        }
+        public bool ViewExtraInfo
+        {
+            get => viewExtraInfo; set
+            {
+                DefaultRoomOverlayManager.SetViewExtra(value);
+                viewExtraInfo = value;
+                OnPropertyChanged();
             }
         }
         public bool OverlayEnabled
@@ -90,7 +100,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             }
         }
         public bool IsActive { get; set; }
-        public string CharImagePath => "../../resources/RoomOverlays/PlayerLocation.png";
+        public string CharImagePath => "../../../resources/RoomOverlays/PlayerLocation.png";
         public string ImagePath
         {
             get => imagePath; set
@@ -123,10 +133,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         {
             if (!OverlayEnabled)
                 return;
-            //if (obj.Type == UpdateType.Start)
-            //{
-            //    OnBossEncounterDetected("test", "test", "test");
-            //}
             if (obj.Type == UpdateType.Stop)
             {
                 _isTriggered = false;
@@ -148,7 +154,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             if (triggerdUpdate != null && _currentUpdate != triggerdUpdate)
             {
                 _currentUpdate = triggerdUpdate;
-                ImagePath = Path.Combine("../../resources/RoomOverlays/IP-CPT", _currentUpdate.ImageOverlayPath);
+                var imageToUse = ViewExtraInfo && _currentUpdate.ImageOverlayPathExtra != "" ? _currentUpdate.ImageOverlayPathExtra : _currentUpdate.ImageOverlayPath;
+                ImagePath = Path.Combine("../../../resources/RoomOverlays/IP-CPT", imageToUse);
+                Debug.WriteLine(ImagePath);
             }
             var roomTop = _currentCombatOverlaySettings.Top;
             var roomLeft = _currentCombatOverlaySettings.Left;
@@ -165,6 +173,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         {
             var defaults = DefaultRoomOverlayManager.GetDefaults();
             OverlayEnabled = defaults.Acive;
+            ViewExtraInfo = defaults.ViewExtraData;
             _roomOverlay.Top = defaults.Position.Y;
             _roomOverlay.Left = defaults.Position.X;
             _roomOverlay.Width = defaults.WidtHHeight.X;
