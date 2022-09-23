@@ -19,6 +19,12 @@
                     <CheckBox HorizontalAlignment="Center" IsChecked="{Binding OverlayEnabled}"></CheckBox>
                 </StackPanel>
             </Viewbox>
+            <Viewbox MaxHeight="40" Grid.Row="1" Grid.Column="1">
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Foreground="WhiteSmoke" Text="View Extra Data"/>
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding ViewExtraInfo}"></CheckBox>
+                </StackPanel>
+            </Viewbox>
         </Grid>
     </Grid>
 </UserControl>

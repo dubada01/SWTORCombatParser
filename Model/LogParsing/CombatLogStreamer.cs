@@ -29,6 +29,7 @@ namespace SWTORCombatParser
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
         public event Action<string> NewSoftwareLog = delegate { };
         public static event Action HistoricalLogsFinished = delegate { };
+        public static event Action HistoricalLogsStarted = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
 
@@ -74,6 +75,7 @@ namespace SWTORCombatParser
 
         private void ParseExisitingLogs()
         {
+            HistoricalLogsStarted();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
             var currentLogs = CombatLogParser.ParseAllLines(file,true);
             int[] characters = new int[currentLogs.Count];

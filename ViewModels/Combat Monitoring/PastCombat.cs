@@ -33,6 +33,8 @@ namespace SWTORCombatParser.Model.CombatParsing
         public EncounterInfo EncounterInfo { get; set; }
         public Combat Combat { get; set; }
         public bool IsTrash => Combat!=null&&!Combat.IsCombatWithBoss && !IsCurrentCombat;
+        public bool WasBossKilled => Combat != null ? Combat.WasBossKilled : false;
+        public (EncounterInfo, bool) TextColorSetter => (EncounterInfo, WasBossKilled);
         public string CombatLabel { get; set; }
         public string CombatDuration
         {

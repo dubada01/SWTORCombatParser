@@ -19,16 +19,19 @@ namespace SWTORCombatParser.Model.Overlays
         HPS,
         EHPS,
         HealReactionTime,
+        HealReactionTimeRatio,
         TankHealReactionTime,
         BurstEHPS,
         Shielding,
         Mitigation,
+        DamageSavedDuringCD,
         ShieldAbsorb,
         DamageAvoided,
         Threat,
         DamageTaken,
         BurstDamageTaken,
-        InterruptCount
+        InterruptCount,
+        ThreatPerSecond
     }
     public class DefaultOverlayInfo
     {
@@ -81,9 +84,18 @@ namespace SWTORCombatParser.Model.Overlays
             try
             {
                 var currentDefaults = GetCurrentDefaults();
+
                 if (!currentDefaults.ContainsKey(characterName))
                 {
-                    InitializeDefaults(characterName);
+                    if (characterName.Contains("_") && currentDefaults.ContainsKey(characterName.Split('_')[0]))
+                    {
+                        CopyFromKey(characterName.Split('_')[0], characterName);
+                        currentDefaults = GetCurrentDefaults();
+                    }
+                    else
+                    {
+                        InitializeDefaults(characterName);
+                    }
                 }
                 var defaultsForToon = currentDefaults[characterName];
                 var enumVals = EnumUtil.GetValues<OverlayType>();
@@ -106,6 +118,20 @@ namespace SWTORCombatParser.Model.Overlays
             var currentDefaults = GetCurrentDefaults();
             currentDefaults[character] = data;
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+        }
+        private static void CopyFromKey(string from, string to)
+        {
+            var currentDefaults = GetCurrentDefaults();
+            var fromDefaults = currentDefaults[from];
+            if(fromDefaults == null)
+            {
+                InitializeDefaults(to);
+            }
+            else
+            {
+                currentDefaults[to] = currentDefaults[from];
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            }
         }
         private static void InitializeDefaults(string characterName)
         {

@@ -222,7 +222,7 @@ namespace SWTORCombatParser.ViewModels
             var localPlayer = obj.FirstOrDefault(c => c.IsLocalPlayer);
             if (localPlayer != null)
             {
-                _overlayViewModel.LocalPlayerIdentified(localPlayer);
+                //_overlayViewModel.LocalPlayerIdentified(localPlayer);
             }
         }
         private Entity localEntity;
@@ -237,7 +237,7 @@ namespace SWTORCombatParser.ViewModels
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
                     _histViewModel.Reset();
-                    _overlayViewModel.LocalPlayerIdentified(obj);
+                    //_overlayViewModel.LocalPlayerIdentified(obj);
                 }
                 localEntity = obj;
             });

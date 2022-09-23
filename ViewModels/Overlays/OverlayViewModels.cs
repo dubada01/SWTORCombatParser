@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.CloudRaiding;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
@@ -27,7 +28,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
         private Dictionary<OverlayType, DefaultOverlayInfo> _overlayDefaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
-        private string _currentCharacterName = "None";
+        private string _currentCharacterDiscipline = "None";
         private bool overlaysLocked = true;
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
@@ -38,6 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double minScalar = 0.5d;
         private double sizeScalar = 1d;
         private string sizeScalarString ="1";
+        private bool historicalParseFinished = false;
 
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public TimersCreationView TimersView { get; set; }
@@ -91,19 +93,23 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public OverlayViewModel()
         {
+            CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForDiscipline;
+            CombatLogStreamer.HistoricalLogsFinished += FinishHistoricalParse;
+            CombatLogStreamer.HistoricalLogsStarted += HistoricalLogsStarted;
+
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             DefaultOverlayManager.Init();
             DefaultTimersManager.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
-                if(enumVal == OverlayType.DPS || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.FocusDPS)
+                if (enumVal == OverlayType.DPS || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.FocusDPS)
                     AvailableDamageOverlays.Add(enumVal);
-                if (enumVal == OverlayType.HPS || enumVal == OverlayType.EHPS || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.TankHealReactionTime)
+                if (enumVal == OverlayType.HPS || enumVal == OverlayType.EHPS || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime)
                     AvailableHealOverlays.Add(enumVal);
-                if (enumVal == OverlayType.Mitigation || enumVal == OverlayType.ShieldAbsorb || enumVal == OverlayType.Shielding ||  enumVal == OverlayType.DamageTaken || enumVal == OverlayType.DamageAvoided)
+                if (enumVal == OverlayType.Mitigation || enumVal == OverlayType.ShieldAbsorb || enumVal == OverlayType.Shielding || enumVal == OverlayType.DamageTaken || enumVal == OverlayType.DamageAvoided || enumVal == OverlayType.DamageSavedDuringCD)
                     AvailableMitigationOverlays.Add(enumVal);
-                if (enumVal == OverlayType.APM || enumVal == OverlayType.InterruptCount)
+                if (enumVal == OverlayType.APM || enumVal == OverlayType.InterruptCount || enumVal == OverlayType.ThreatPerSecond || enumVal == OverlayType.Threat)
                     AvailableGeneralOverlays.Add(enumVal);
             }
             _bossFrameViewModel = new BossFrameConfigViewModel();
@@ -126,20 +132,26 @@ namespace SWTORCombatParser.ViewModels.Overlays
             OnPropertyChanged("RoomOverlaySetup");
         }
 
-
-        private void RaidHotsEnabledChanged(bool obj)
+        private void UpdateOverlaysForDiscipline(Entity character, SWTORClass arg2)
         {
-
-        }
-
-        private void CharacterLoaded(Entity character)
-        {
+            var nextDiscipline = character.Name + "_" + arg2.Discipline;
+            if (_currentCharacterDiscipline == nextDiscipline)
+                return;
             ResetOverlays();
+            _currentCharacterDiscipline = nextDiscipline;
+            _timersViewModel.TryShow();
+            _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterDiscipline);
+            if (historicalParseFinished)
+            {
+                UpdateOverlays();
+            }
+        }
+        private void UpdateOverlays()
+        {
             App.Current.Dispatcher.Invoke(() =>
             {
-                _timersViewModel.TryShow();
-                _currentCharacterName = character.Name;
-                _overlayDefaults = DefaultOverlayManager.GetDefaults(_currentCharacterName);
+                if (_overlayDefaults.Count == 0)
+                    return;
                 if (_overlayDefaults.First().Value.Locked)
                 {
                     OverlaysLocked = true;
@@ -153,7 +165,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     if (_overlayDefaults[enumVal].Acive)
                         CreateOverlay(enumVal);
                 }
+                _currentOverlays.ForEach(o => o.CharacterDetected(_currentCharacterDiscipline));
             });
+        }
+        private void FinishHistoricalParse()
+        {
+            historicalParseFinished = true;
+            UpdateOverlays();
+        }
+        private void HistoricalLogsStarted()
+        {
+            historicalParseFinished = false;
+        }
+        private void RaidHotsEnabledChanged(bool obj)
+        {
 
         }
 
@@ -166,12 +191,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 return;
 
             var viewModel = new OverlayInstanceViewModel(overlayType);
-            DefaultOverlayManager.SetActiveState(viewModel.Type, true, _currentCharacterName);
+            DefaultOverlayManager.SetActiveState(viewModel.Type, true, _currentCharacterDiscipline);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = !OverlaysLocked;
             _currentOverlays.Add(viewModel);
             var overlay = new InfoOverlay(viewModel);
-            overlay.SetPlayer(_currentCharacterName);
+            overlay.SetPlayer(_currentCharacterDiscipline);
             if (_overlayDefaults.ContainsKey(viewModel.Type))
             {
                 overlay.Top = _overlayDefaults[viewModel.Type].Position.Y;
@@ -180,6 +205,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 overlay.Height = _overlayDefaults[viewModel.Type].WidtHHeight.Y;
             }
             overlay.Show();
+            viewModel.Refresh(CombatIdentifier.CurrentCombat);
             if (OverlaysLocked)
                 viewModel.LockOverlays();
         }
@@ -195,7 +221,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void ResetOverlays()
         {
-            _currentCharacterName = "";
+            _currentCharacterDiscipline = "";
             foreach (var overlay in _currentOverlays.ToList())
             {
                 overlay.RequestClose();
@@ -232,7 +258,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             else
                 _currentOverlays.ForEach(o => o.LockOverlays());
             _raidHotsConfigViewModel.ToggleLock(OverlaysLocked);
-            DefaultOverlayManager.SetLockedState(OverlaysLocked, _currentCharacterName);
+            DefaultOverlayManager.SetLockedState(OverlaysLocked, _currentCharacterDiscipline);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -240,14 +266,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        internal void LocalPlayerIdentified(Entity localPlayer)
-        {
-            if (localPlayer != null && _currentCharacterName != localPlayer.Name)
-            {
-                CharacterLoaded(localPlayer);
-                _currentOverlays.ForEach(o => o.CharacterDetected(localPlayer.Name));
-            }
-        }
+        //internal void LocalPlayerIdentified(Entity localPlayer)
+        //{
+        //    if (localPlayer != null && _currentCharacterDiscipline != localPlayer.Name)
+        //    {
+        //        CharacterLoaded(localPlayer);
+        //        _currentOverlays.ForEach(o => o.CharacterDetected(localPlayer.Name));
+        //    }
+        //}
 
         internal void LiveParseStarted(bool state)
         {

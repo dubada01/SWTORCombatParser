@@ -118,24 +118,28 @@ namespace SWTORCombatParser.ViewModels.Overviews
         private void DisplayDamageTakenData(KeyValuePair<string, Combat> combat)
         {
             var comb = combat.Value;
-            Display(comb.GetByAbility(comb.IncomingDamageLogs[_selectedEntity]), combat.Key);
+            var defaultEntity = comb.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : comb.OutgoingDamageLogs.Keys.First();
+            Display(comb.GetByAbility(comb.IncomingDamageLogs[defaultEntity]), combat.Key);
         }
 
         private void DisplayHealingData(KeyValuePair<string, Combat> combat)
         {
             var comb = combat.Value;
-            Display(comb.GetByAbility(comb.OutgoingHealingLogs[_selectedEntity]), combat.Key);
+            var defaultEntity = comb.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : comb.OutgoingDamageLogs.Keys.First();
+            Display(comb.GetByAbility(comb.OutgoingHealingLogs[defaultEntity]), combat.Key);
         }
 
         private void DisplayDamageData(KeyValuePair<string, Combat> combat)
         {
             var comb = combat.Value;
-            Display(comb.GetByAbility(comb.OutgoingDamageLogs[_selectedEntity]), combat.Key);
+            var defaultEntity = comb.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : comb.OutgoingDamageLogs.Keys.First();
+            Display(comb.GetByAbility(comb.OutgoingDamageLogs[defaultEntity]), combat.Key);
         }
         private void DisplayHealingReceived(KeyValuePair<string, Combat> combat)
         {
             var comb = combat.Value;
-            Display(comb.GetByAbility(comb.IncomingHealingLogs[_selectedEntity]), combat.Key);
+            var defaultEntity = comb.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : comb.OutgoingDamageLogs.Keys.First();
+            Display(comb.GetByAbility(comb.IncomingHealingLogs[defaultEntity]), combat.Key);
 
         }
         private void Display(Dictionary<string, List<ParsedLogEntry>> data, string combatId)

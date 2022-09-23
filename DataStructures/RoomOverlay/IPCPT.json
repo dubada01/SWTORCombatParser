@@ -28,13 +28,15 @@
 			"DisplayTimeSecondsElapsed": 25.0,
 			"TriggerTimeSecondeElapsed": 30.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase1_4.png"
+			"ImageOverlayPath": "Phase1_4.png",
+			"ImageOverlayPathExtra": "Phase1_4_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 29.0,
 			"TriggerTimeSecondeElapsed": 34.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase1_6.png"
+			"ImageOverlayPath": "Phase1_6.png",
+			"ImageOverlayPathExtra": "Phase1_6_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 33.0,
@@ -46,7 +48,8 @@
 			"DisplayTimeSecondsElapsed": 40.0,
 			"TriggerTimeSecondeElapsed": 45.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase1_8.png"
+			"ImageOverlayPath": "Phase1_8.png",
+			"ImageOverlayPathExtra": "Phase1_8_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 44.0,
@@ -64,7 +67,8 @@
 			"DisplayTimeSecondsElapsed": 55.0,
 			"TriggerTimeSecondeElapsed": 60.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase1_11.png"
+			"ImageOverlayPath": "Phase1_11.png",
+			"ImageOverlayPathExtra": "Phase1_11_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 58.0,
@@ -76,7 +80,8 @@
 			"DisplayTimeSecondsElapsed": 63.0,
 			"TriggerTimeSecondeElapsed": 68.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase1_13.png"
+			"ImageOverlayPath": "Phase1_13.png",
+			"ImageOverlayPathExtra": "Phase1_13_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 68,
@@ -94,13 +99,15 @@
 			"DisplayTimeSecondsElapsed": 161.0,
 			"TriggerTimeSecondeElapsed": 166.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase3_2.png"
+			"ImageOverlayPath": "Phase3_2.png",
+			"ImageOverlayPathExtra": "Phase3_2_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 166.0,
 			"TriggerTimeSecondeElapsed": 171.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase3_3.png"
+			"ImageOverlayPath": "Phase3_3.png",
+			"ImageOverlayPathExtra": "Phase3_3_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 171.0,
@@ -112,7 +119,8 @@
 			"DisplayTimeSecondsElapsed": 176.0,
 			"TriggerTimeSecondeElapsed": 181.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase3_5.png"
+			"ImageOverlayPath": "Phase3_5.png",
+			"ImageOverlayPathExtra": "Phase3_5_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 180.0,
@@ -124,7 +132,8 @@
 			"DisplayTimeSecondsElapsed": 187.0,
 			"TriggerTimeSecondeElapsed": 192.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase3_7.png"
+			"ImageOverlayPath": "Phase3_7.png",
+			"ImageOverlayPathExtra": "Phase3_7_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 191.0,
@@ -136,13 +145,15 @@
 			"DisplayTimeSecondsElapsed": 195.0,
 			"TriggerTimeSecondeElapsed": 200.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase3_9.png"
+			"ImageOverlayPath": "Phase3_9.png",
+			"ImageOverlayPathExtra": "Phase3_9_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 201.0,
 			"TriggerTimeSecondeElapsed": 206.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase3_10.png"
+			"ImageOverlayPath": "Phase3_10.png",
+			"ImageOverlayPathExtra": "Phase3_10_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 205.0,
@@ -154,7 +165,8 @@
 			"DisplayTimeSecondsElapsed": 210.0,
 			"TriggerTimeSecondeElapsed": 215.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase3_12.png"
+			"ImageOverlayPath": "Phase3_12.png",
+			"ImageOverlayPathExtra": "Phase3_12_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 215,
@@ -172,7 +184,8 @@
 			"DisplayTimeSecondsElapsed": 308.0,
 			"TriggerTimeSecondeElapsed": 313.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase5_2.png"
+			"ImageOverlayPath": "Phase5_2.png",
+			"ImageOverlayPathExtra": "Phase5_2_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 313.0,
@@ -190,7 +203,8 @@
 			"DisplayTimeSecondsElapsed": 323.0,
 			"TriggerTimeSecondeElapsed": 328.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase5_5.png"
+			"ImageOverlayPath": "Phase5_5.png",
+			"ImageOverlayPathExtra": "Phase5_5_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 327.0,
@@ -202,7 +216,8 @@
 			"DisplayTimeSecondsElapsed": 333.0,
 			"TriggerTimeSecondeElapsed": 338.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase5_7.png"
+			"ImageOverlayPath": "Phase5_7.png",
+			"ImageOverlayPathExtra": "Phase5_7_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 338.0,
@@ -214,7 +229,8 @@
 			"DisplayTimeSecondsElapsed": 343.0,
 			"TriggerTimeSecondeElapsed": 348.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase5_9.png"
+			"ImageOverlayPath": "Phase5_9.png",
+			"ImageOverlayPathExtra": "Phase5_9_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 348.0,
@@ -232,7 +248,8 @@
 			"DisplayTimeSecondsElapsed": 357.0,
 			"TriggerTimeSecondeElapsed": 362.0,
 			"VisibleBufferSeconds": 5.0,
-			"ImageOverlayPath": "Phase5_12.png"
+			"ImageOverlayPath": "Phase5_12.png",
+			"ImageOverlayPathExtra": "Phase5_12_plus.png"
 		},
 		{
 			"DisplayTimeSecondsElapsed": 362,

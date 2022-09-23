@@ -12,6 +12,8 @@ namespace SWTORCombatParser.DataStructures.RoomOverlay
         public double TriggerTimeSecondeElapsed { get; set; } = 0;
         public double VisibleBufferSeconds { get; set; } = 5;
         public string ImageOverlayPath { get; set; } = "";
+        public string ImageOverlayPathExtra { get; set; } = "";
+
     }
     public class RoomOverlaySettings
     {

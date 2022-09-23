@@ -72,6 +72,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void SetSelection(Entity obj)
         {
+            if (!AvailableParticipants.Any(part=>part.Entity == obj))
+                return;
             var previouslySelected = AvailableParticipants.Where(p => p.Entity.Id != obj.Id).FirstOrDefault(p => p.IsSelected);
             if (previouslySelected != null)
                 previouslySelected.ToggleSelection();
