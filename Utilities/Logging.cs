@@ -9,7 +9,7 @@ namespace SWTORCombatParser.Utilities
 {
     public static class Logging
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string _logPath = Path.Combine(appDataPath, "logs.txt");
         private static object _logLock = new object();
         public static void LogError(string message)

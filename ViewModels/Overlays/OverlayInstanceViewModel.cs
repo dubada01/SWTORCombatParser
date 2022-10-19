@@ -125,6 +125,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     _metricBarsDict.TryRemove(entry.Key, out var ignore);
             }
             OnPropertyChanged("MetricBars");
+            if (obj.Count == 0)
+            {
+                OrderMetricBars();
+                return; 
+            }
             UpdateLeaderboardValues(obj);
         }
 
@@ -312,6 +317,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 metricBar.Value.LeaderboardRank = "0";
                 metricBar.Value.RankIsPersonalRecord = false;
                 var participant = metricBar.Value.Player;
+                if (leaderboardInfo.Count == 0)
+                    continue;
                 if (HasLeaderboard && leaderboardInfo.ContainsKey(participant) && leaderboardInfo[participant] != null)
                 {
                     AddLeaderboardStanding(metricBar.Value, leaderboardInfo[participant]);

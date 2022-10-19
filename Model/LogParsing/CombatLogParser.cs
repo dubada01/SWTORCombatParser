@@ -98,11 +98,6 @@ namespace SWTORCombatParser
 
             var logLines = new List<string>();
             var worked = GetAllLines(combatLog.Data, logLines);
-            //using (combatLog.Data)
-            //{
-            //    while (!combatLog.Data.EndOfStream)
-            //        logLines.Add(combatLog.Data.ReadLine());
-            //}
 
             var numberOfLines = logLines.Count;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];

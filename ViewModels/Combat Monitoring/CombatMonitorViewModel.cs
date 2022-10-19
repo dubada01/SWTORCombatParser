@@ -331,7 +331,7 @@ namespace SWTORCombatParser.ViewModels
                 var combatLogs = _totalLogsDuringCombat[combat].ToList();
                 if (combatLogs.Count == 0)
                     continue;
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs);
+                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs,false,true);
                 //LocalCombatLogCaching.SaveCombatLogs(combatInfo, false);
                 TryAddEncounter(combatInfo.StartTime);
                 AddCombatToEncounter(combatInfo,false);
@@ -344,6 +344,8 @@ namespace SWTORCombatParser.ViewModels
             _numberOfSelectedCombats = 0;
             _usingHistoricalData = false;
             UpdateVisibleEncounters();
+            if (_allEncounters.Any())
+                _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle();
         }
         private void TryAddEncounter(DateTime time)
         {

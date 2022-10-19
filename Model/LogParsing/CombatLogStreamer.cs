@@ -54,6 +54,7 @@ namespace SWTORCombatParser
         }
         public void MonitorLog(string logToMonitor)
         {
+            Logging.LogInfo("Starting live monitor of log - " + logToMonitor);
             Task.Run(() =>
             {
                 ResetMonitoring();
@@ -65,6 +66,7 @@ namespace SWTORCombatParser
         }
         public void ParseCompleteLog(string log)
         {
+            Logging.LogInfo("Loading existing log - " + log);
             ResetMonitoring();
             _logToMonitor = log;
             Task.Run(() =>
@@ -78,12 +80,14 @@ namespace SWTORCombatParser
             HistoricalLogsStarted();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
             var currentLogs = CombatLogParser.ParseAllLines(file,true);
+            Logging.LogInfo("Found " + currentLogs.Count + " log entries in "+_logToMonitor);
             int[] characters = new int[currentLogs.Count];
             Parallel.For(0, currentLogs.Count, i =>
             {
                 characters[i] = _fileEncoding.GetByteCount(currentLogs[i].LogText);
             });
             numberOfProcessedBytes = characters.Sum();
+            Logging.LogInfo("Processed " + numberOfProcessedBytes + " bytes of data in " + _logToMonitor);
             ParseHistoricalLog(currentLogs);
         }
 
@@ -122,8 +126,6 @@ namespace SWTORCombatParser
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, _fileEncoding))
             {
-                ParsingPerformanceProfiler test = new ParsingPerformanceProfiler();
-                test.StartLogProcessing();
                 List<string> lines = new List<string>();
                 bool hasValidEnd = GetNewlines(sr, lines);
 
@@ -144,72 +146,79 @@ namespace SWTORCombatParser
                 CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
                 var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentFrameData, CombatStartTime = _currentCombatStartTime };
                 CombatUpdated(updateMessage);
-                test.SaveProcessingInfo(lines.Count,true,true);
+                
             }
         }
 
         private bool GetNewlines(StreamReader sr, List<string> lines)
         {
-
-            sr.BaseStream.Seek(numberOfProcessedBytes, SeekOrigin.Begin);
-            bool hasValidEnd = false;
-            bool lastValueWasbsR = false;
-            StringBuilder newLine = new StringBuilder();
-
-            while (!sr.EndOfStream)
+            try
             {
-                char[] readChars = new char[2500];
-                sr.Read(readChars, 0, 2500);
 
-                for (var c = 0; c < readChars.Length; c++)
+
+                sr.BaseStream.Seek(numberOfProcessedBytes, SeekOrigin.Begin);
+                bool hasValidEnd = false;
+                bool lastValueWasbsR = false;
+                StringBuilder newLine = new StringBuilder();
+
+                while (!sr.EndOfStream)
                 {
-                    if (readChars[c] == '\0')
-                    {
-                        lastValueWasbsR = false;
-                        break;
-                    }
-                    if (readChars[c] == '\r')
-                    {
-                        lastValueWasbsR = true;
-                        continue;
-                    }
-                    if (readChars[c] == '\n' && lastValueWasbsR)
-                    {
-                        lastValueWasbsR = false;
-                        if (readChars[2499] == '\0' || sr.EndOfStream)
-                        {
-                            if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
-                            {
-                                lines.Add(newLine.ToString() + Environment.NewLine);
-                                numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
-                                break;
-                            }
-                            else
-                            {
-                                if (newLine.Length == 0)
-                                    continue;
-                                numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
-                                lines.Add(newLine.ToString() + Environment.NewLine);
-                                newLine.Clear();
-                            }
-                        }
-                        if (newLine.Length == 0)
-                            continue;
-                        numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
-                        lines.Add(newLine.ToString() + Environment.NewLine);
-                        newLine.Clear();
+                    char[] readChars = new char[2500];
+                    sr.Read(readChars, 0, 2500);
 
-                    }
-                    else
+                    for (var c = 0; c < readChars.Length; c++)
                     {
-                        newLine.Append(readChars[c]);
-                        lastValueWasbsR = false;
+                        if (readChars[c] == '\0')
+                        {
+                            lastValueWasbsR = false;
+                            break;
+                        }
+                        if (readChars[c] == '\r')
+                        {
+                            lastValueWasbsR = true;
+                            continue;
+                        }
+                        if (readChars[c] == '\n' && lastValueWasbsR)
+                        {
+                            lastValueWasbsR = false;
+                            if (readChars[2499] == '\0' || sr.EndOfStream)
+                            {
+                                if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
+                                {
+                                    lines.Add(newLine.ToString() + Environment.NewLine);
+                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
+                                    break;
+                                }
+                                else
+                                {
+                                    if (newLine.Length == 0)
+                                        continue;
+                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
+                                    lines.Add(newLine.ToString() + Environment.NewLine);
+                                    newLine.Clear();
+                                }
+                            }
+                            if (newLine.Length == 0)
+                                continue;
+                            numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
+                            lines.Add(newLine.ToString() + Environment.NewLine);
+                            newLine.Clear();
+
+                        }
+                        else
+                        {
+                            newLine.Append(readChars[c]);
+                            lastValueWasbsR = false;
+                        }
                     }
                 }
+                return hasValidEnd;
             }
-
-
-            return hasValidEnd;
+            catch(Exception e)
+            {
+                Logging.LogError("Error occured while parsing log file at position " + numberOfProcessedBytes+" - "+_logToMonitor+"\r\n"+"Exception Message: "+e.Message);
+                return false;
+            }
         }
 
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
@@ -226,6 +235,7 @@ namespace SWTORCombatParser
                     _currentCombatData.Add(usableLogs[l]);
                 }
             }
+            Logging.LogInfo("Parsed existing log - " + _logToMonitor);
             HistoricalLogsFinished();
         }
         private bool CheckIfStale()

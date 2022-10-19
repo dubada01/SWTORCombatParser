@@ -69,7 +69,7 @@ namespace SWTORCombatParser
             NewCombatStarted();
         }
 
-        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false)
+        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false)
         {
             var state = CombatLogStateBuilder.CurrentState;
             var encounter = GetEncounterInfo(ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp);
@@ -109,7 +109,8 @@ namespace SWTORCombatParser
             var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l=>l.Value.Modifier.ValueType == DamageType.absorbed).ToList());
             AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
             AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
-            FireEvent(newCombat);
+            if(!quietOverlays)
+                FireEvent(newCombat);
             return newCombat;
         }
 

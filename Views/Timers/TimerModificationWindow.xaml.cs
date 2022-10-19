@@ -42,10 +42,10 @@ namespace SWTORCombatParser.Views.Timers
         
         private void UpdateNameHelpText(object sender, TextChangedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(TimerName.Text))
-                TimerHelpText.Visibility = Visibility.Hidden;
-            else
-                TimerHelpText.Visibility = Visibility.Visible;
+            //if (!string.IsNullOrEmpty(TimerName.Text))
+            //    TimerHelpText.Visibility = Visibility.Hidden;
+            //else
+            //    TimerHelpText.Visibility = Visibility.Visible;
         }
         private void UpdateValueHelpText(object sender, TextChangedEventArgs e)
         {

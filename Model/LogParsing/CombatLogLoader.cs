@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SWTORCombatParser.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -97,6 +98,7 @@ namespace SWTORCombatParser
         }
         private static CombatLogFile LoadCombatLog(string path)
         {
+            Logging.LogInfo("Loading log - " + path);
             CombatLogFile fileData = new CombatLogFile();
             fileData.Name = Path.GetFileName(path);
             fileData.Path = path;

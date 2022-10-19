@@ -383,9 +383,17 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private static NpgsqlConnection ConnectToDB()
         {
-            var conn = new NpgsqlConnection(_dbConnectionString);
-            conn.Open();
-            return conn;
+            try
+            {
+                var conn = new NpgsqlConnection(_dbConnectionString);
+                conn.Open();
+                return conn;
+            }
+            catch(Exception e)
+            {
+                Logging.LogError("Failed to connect to database: " + e.Message);
+                throw new Exception("Failed to connect to database: " + e.Message);
+            }
         }
         private static string ReadEncryptedString(string encryptedString)
         {
