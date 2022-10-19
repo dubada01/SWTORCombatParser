@@ -47,16 +47,17 @@ namespace SWTORCombatParser.Model.LogParsing
                 if(log.Effect.EffectType == EffectType.TargetChanged)
                     UpdatePlayerTargets(log);
                 if (log.LogLocation != null)
-                    UpdateEncounterEntered(log);
+                    UpdateEncounterEntered(log, liveLog);
 
                 UpdateCombatModifierState(log);
                 return CurrentState;
             }
         }
 
-        private static void UpdateEncounterEntered(ParsedLogEntry log)
+        private static void UpdateEncounterEntered(ParsedLogEntry log, bool liveLog)
         {
-            AreaEntered();
+            if(liveLog)
+                AreaEntered();
             var location = log.LogLocation;
             var knownEncounters = RaidNameLoader.SupportedEncounters.Select(s=>EncounterInfo.GetCopy(s));
             if (knownEncounters.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)))
@@ -101,7 +102,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
-            if(parsedLine.Source.IsLocalPlayer)
+            if(parsedLine.Source.IsLocalPlayer && realTime)
                 PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
 
         }
@@ -135,7 +136,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (parsedLine.Effect.EffectType == EffectType.AbsorbShield)
                     return;
                 var effectName = parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName);
-                if (parsedLine.Effect.EffectType == EffectType.Apply && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
+                if (parsedLine.Effect.EffectType == EffectType.Apply &&  parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
                 {
                     if (!CurrentState.Modifiers.ContainsKey(effectName))
                     {
@@ -152,7 +153,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
                     mods.TryAdd(Guid.NewGuid(),new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
-                if (parsedLine.Effect.EffectType == EffectType.Remove && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
+                if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
                 {
                     if (string.IsNullOrEmpty(parsedLine.Source.Name))
                     {

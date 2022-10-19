@@ -10,7 +10,7 @@ namespace SWTORCombatParser.Utilities
 {
     public static class LocalCombatLogCaching
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser", "LocalCombats");
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser", "LocalCombats");
         public static void SaveCombatLogs(Combat swtorCombat, bool wasLive)
         {
             if (!Directory.Exists(appDataPath))

@@ -42,7 +42,7 @@ namespace SWTORCombatParser.Model.Overlays
     }
     public static class DefaultOverlayManager
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "character_overlay_info.json");
         public static void Init()
         {
@@ -97,7 +97,7 @@ namespace SWTORCombatParser.Model.Overlays
                         InitializeDefaults(characterName);
                     }
                 }
-                var defaultsForToon = currentDefaults[characterName];
+                  var defaultsForToon = currentDefaults[characterName];
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var overlayType in enumVals)
                 {

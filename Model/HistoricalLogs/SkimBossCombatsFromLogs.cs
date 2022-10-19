@@ -51,7 +51,7 @@ namespace SWTORCombatParser.Model.HistoricalLogs
         {
             ConcurrentBag<Combat> concurrentCombats = new ConcurrentBag<Combat>();
             Parallel.ForEach(logsSplitIntoCombats, logs => {
-                var combatCreated = CombatIdentifier.GenerateNewCombatFromLogs(logs);
+                var combatCreated = CombatIdentifier.GenerateNewCombatFromLogs(logs,false,true);
                 if (!string.IsNullOrEmpty(combatCreated.EncounterBossInfo))
                     concurrentCombats.Add(combatCreated);
             });

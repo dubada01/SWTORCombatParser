@@ -162,7 +162,8 @@
                             <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Name" FontFamily="{StaticResource MainFont}"></TextBlock>
                             <TextBox x:Name="TimerName" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding Name}"></TextBox>
                         </StackPanel>
-                        <TextBlock x:Name="TimerHelpText" IsHitTestVisible="False" Text="Timer Name" Foreground="{Binding TimerNameHelpTextColor}" FontSize="16" FontFamily="{StaticResource MainFont}" FontWeight="Light" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="75,0,0,0"></TextBlock>
+                        <!--<TextBlock x:Name="TimerHelpText" IsHitTestVisible="False" Text="Timer Name" Foreground="{Binding TimerNameHelpTextColor}" 
+                                   FontSize="18" FontFamily="{StaticResource MainFont}" FontWeight="Normal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="75,0,0,0"></TextBlock>-->
                     </Grid>
                 </Viewbox>
 

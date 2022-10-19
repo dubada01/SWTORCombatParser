@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Model.Overlays
     }
     public static class RaidFrameOverlayManager
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "raidframe_overlay_info.json");
         public static void Init()
         {

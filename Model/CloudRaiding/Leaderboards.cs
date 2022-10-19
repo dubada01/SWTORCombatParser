@@ -44,6 +44,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static void StartGetTopLeaderboardEntries(Combat newCombat)
         {
+            if(CurrentLeaderboardType == LeaderboardType.Off)
+            {
+                TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
+                TopLeaderboardEntriesAvailable(TopLeaderboards);
+                return;
+            }
             var state = CombatLogStateBuilder.CurrentState;
             CurrentCombat = newCombat;
             if (TopLeaderboards.Count > 0)
@@ -80,6 +86,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             lock (_updateLock)
             {
+                if (CurrentLeaderboardType == LeaderboardType.Off)
+                {
+                    CurrentFightLeaderboard = new Dictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
+                    LeaderboardStandingsAvailable(new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>());
+                    return;
+                }
                 var state = CombatLogStateBuilder.CurrentState;
                 if (!state.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                     return;
@@ -110,7 +122,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         if (!CurrentFightLeaderboard.ContainsKey(enumVal))
                             continue;
                         var parses = CurrentFightLeaderboard[enumVal];
-                        if (!parses.Any(p => p.Character == participant.Name))
+                        if (parses == null || !parses.Any(p => p.Character == participant.Name))
                             returnData[participant][enumVal] = (0,false);
                         else
                         {

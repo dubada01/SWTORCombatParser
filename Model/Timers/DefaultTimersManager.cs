@@ -27,7 +27,7 @@ namespace SWTORCombatParser.Model.Timers
     }
     public static class DefaultTimersManager
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
 
         private static string infoPath = Path.Combine(appDataPath, "timers_info_v2.json");
         private static string activePath = Path.Combine(appDataPath, "timers_active.json");

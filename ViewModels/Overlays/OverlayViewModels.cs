@@ -170,6 +170,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void FinishHistoricalParse()
         {
+            var localPlayer = CombatLogStateBuilder.CurrentState.LocalPlayer;
+            var currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now);
+            if (localPlayer == null)
+                return;
+            UpdateOverlaysForDiscipline(localPlayer, currentDiscipline);
             historicalParseFinished = true;
             UpdateOverlays();
         }

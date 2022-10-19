@@ -41,7 +41,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             RaidFrameOverlayManager.Init();
             
             _currentOverlay = new RaidFrameOverlay();
-
+            CombatLogStreamer.HistoricalLogsFinished += () => UpdateVisualsBasedOnRole(CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now));
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             CombatLogStateBuilder.AreaEntered += ReFindImage;
             _currentOverlayViewModel = new RaidFrameOverlayViewModel(_currentOverlay) { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable };
@@ -148,7 +148,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             if (!RaidHotsEnabled)
                 return;
-            AutoDetection(null);
+            Task.Run(() => {
+                Thread.Sleep(20000);
+                AutoDetection(null);
+            });
         }
         private bool _preformingAutoDetection;
         private void AutoDetection(object obj)
@@ -260,6 +263,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateVisualsBasedOnRole(SWTORClass mostRecentDiscipline)
         {
+            if (mostRecentDiscipline == null)
+                return;
             if (mostRecentDiscipline.Role == Role.Healer)
             {
                 var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);

@@ -120,7 +120,7 @@ namespace SWTORCombatParser.ViewModels
                 CombatEffects.Clear();
                 return;
             }
-            var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(combatLogsInView.ToList( ));
+            var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(combatLogsInView.ToList( ),true,true);
             UpdateMetaDataFromCombat(newCombat);
             var currentState = CombatLogStateBuilder.CurrentState;
             var modifiersDuringCombat = currentState.GetPersonalEffects(newCombat.StartTime, newCombat.EndTime, SelectedParticipant);

@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Model.Overlays
     }
     public class DefaultRoomOverlayManager
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "room_overlay_info.json");
         public static void Init()
         {
