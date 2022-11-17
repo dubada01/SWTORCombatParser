@@ -88,7 +88,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     var sheildLog = new ParsedLogEntry
                     {
                         TimeStamp = sheild.ShieldingTime,
-                        Ability = sheild.SheildName+" on "+sheild.Target.Name,
+                        Ability = sheild.SheildName,
                         Effect = new Effect()
                         {
                             EffectType = EffectType.AbsorbShield,

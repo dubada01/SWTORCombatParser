@@ -40,8 +40,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 UpdatePlayerDeathState(log);
                 SetCharacterPositions(log);
-                if(liveLog)
-                    OutrangedHealerAlert.CheckForOutrangingHealers(log.TimeStamp);
+                //if(liveLog)
+                    //OutrangedHealerAlert.CheckForOutrangingHealers(log.TimeStamp);
                 if(log.Effect.EffectType == EffectType.DisciplineChanged)
                     UpdatePlayerClassState(log,liveLog);
                 if(log.Effect.EffectType == EffectType.TargetChanged)

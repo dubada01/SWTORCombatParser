@@ -1,4 +1,4 @@
 {
-  "shouldUploadToDB": false,
+  "shouldUploadToDB": true,
   "shouldClearCacheWithEachBoss": false
 }

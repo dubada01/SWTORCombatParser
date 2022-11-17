@@ -34,12 +34,15 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             _leaderboardType = type;
             MetricName = type.ToString();
         }
-        public async void Populate(string encounter, string boss, string difficulty, string players)
+        public async void Populate(string encounter, string boss, string difficulty, string players, bool isParsing = false, long parsingHP = 0)
         {
             Leaders.Clear();
             var isFlashpoint = string.IsNullOrEmpty(players);
             var playersString = isFlashpoint ? "4 " : players +" ";
-            var bossWithDifficulty = boss.Trim() + " " +$"{{{playersString}{difficulty}}}";
+            playersString = isParsing ? "" : playersString;
+            var extraBossInfo = $"{{{playersString}{difficulty}}}";
+            extraBossInfo = isParsing ? $"{{{parsingHP}HP }}" : extraBossInfo;
+            var bossWithDifficulty = boss.Trim() + " " + extraBossInfo;
             var leaderboard = await PostgresConnection.GetEntriesForBossOfType(bossWithDifficulty, encounter, _leaderboardType);
             if(isFlashpoint)
             {

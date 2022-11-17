@@ -9,7 +9,8 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
     {
         Flashpoint,
         Operation,
-        Lair
+        Lair,
+        Parsing
     }
     public class BossInfo
     {
@@ -50,7 +51,7 @@ namespace SWTORCombatParser.DataStructures.RaidInfos
                 }).ToList();
             } 
         }
-        public bool IsBossEncounter => BossInfos.Count != 0;
+        public bool IsBossEncounter => BossInfos?.Count != 0;
         public List<BossInfo> BossInfos { get; set; } 
 
     }

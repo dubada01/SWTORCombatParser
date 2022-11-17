@@ -22,6 +22,16 @@
     ]
   },
   {
+    "LogName": "Boarding Party",
+    "Name": "Boarding Party",
+    "BossNames": [
+      "HXI-54 Juggernaut",
+      "Sakan Do'nair",
+      "Chief Engineer Kels",
+      "Officer Trio~?~Medical Officer Alon|Commander Jorland|Security Chief Massey"
+    ]
+  },
+  {
     "LogName": "Hammer Station",
     "Name": "Hammer Station",
     "BossNames": [

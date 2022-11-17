@@ -13,7 +13,7 @@ namespace SWTORCombatParser
 {
     public static class CombatMetaDataParse
     {
-        private static List<string> interruptAbilityNames = new List<string> { "Distraction", "Mind Snap","Force Kick","Disruption", "Force Leap","Force Charge","Riot Strike","Disabling Shot","Jolt" };
+        private static List<string> interruptAbilityNames = new List<string> { "Distraction", "Mind Snap","Force Kick","Disruption", "Force Leap","Force Charge","Riot Strike","Disabling Shot","Jolt" ,"Quell"};
         private static List<string> stunAbilityNames = new List<string> {"Electro Dart","Debilitate","Maim","Low Slash","Electrocute","Force Choke","Cryo Grenade","Dirty Kick","Force Stun","Force Stasis" };
 
         private static List<string> abilitiesThatCanInterrupt => interruptAbilityNames.Concat(stunAbilityNames).ToList();

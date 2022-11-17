@@ -1,7 +1,9 @@
-﻿using SWTORCombatParser.ViewModels;
+﻿using SWTORCombatParser.ViewModels.DataGrid;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,16 +14,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Views.DataGrid_Views
 {
     /// <summary>
-    /// Interaction logic for CombatMetaDataView.xaml
+    /// Interaction logic for DataGridView.xaml
     /// </summary>
-    public partial class CombatMetaDataView : UserControl
+    public partial class DataGridView : UserControl
     {
-        public CombatMetaDataView(CombatEfffectViewModel dataContext)
+        public DataGridView(DataGridViewModel vm)
         {
-            DataContext = dataContext;
+            DataContext = vm;
             InitializeComponent();
         }
     }

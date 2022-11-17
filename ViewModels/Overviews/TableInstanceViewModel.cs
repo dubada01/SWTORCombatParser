@@ -132,7 +132,10 @@ namespace SWTORCombatParser.ViewModels.Overviews
         private void DisplayHealingData(Combat combat)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingHealingLogs[defaultEntity]);
+            var healing = combat.OutgoingHealingLogs[defaultEntity];
+            var shielding = combat.ShieldingProvidedLogs[defaultEntity];
+            var both = healing.Concat(shielding);
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, both.ToList());
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {

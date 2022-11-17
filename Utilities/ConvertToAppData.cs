@@ -17,6 +17,8 @@ namespace SWTORCombatParser.Utilities
                 return;
             Directory.CreateDirectory(newPath);
 
+            if (!Directory.Exists(oldPath))
+                return;
             var currentDirectory = new DirectoryInfo(oldPath);
             currentDirectory.DeepCopy(newPath);
         }
