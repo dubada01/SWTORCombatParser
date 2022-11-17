@@ -93,9 +93,19 @@ namespace SWTORCombatParser.Utilities
                         _bossesSeenThisCombat.Add(line.Source.Name);
                 }
             }
+            if(line.Effect.EffectName == "Damage" && line.Target.Name.Contains("Training Dummy"))
+            {
+                if (!_bossesSeenThisCombat.Contains(line.Target.Name))
+                    _bossesSeenThisCombat.Add(line.Target.Name);
+            }
             if(_bossesSeenThisCombat.Count > 0)
             {
-                var encounterInfo = currentEncounter.BossInfos.FirstOrDefault(b => _bossesSeenThisCombat.All(sb => b.TargetNames.Contains(sb)));
+                if(_bossesSeenThisCombat.Any(b=>b.Contains("Training Dummy")))
+                {
+                    _currentBossInfo = new BossInfo() { EncounterName = "Parsing", TargetNames = new List<string> { _bossesSeenThisCombat.First() }, TargetsRequiredForKill = new List<string> { _bossesSeenThisCombat.First()} };
+                    _bossCombat = true;
+                }
+                var encounterInfo = currentEncounter.BossInfos?.FirstOrDefault(b => _bossesSeenThisCombat.All(sb => b.TargetNames.Contains(sb)));
                 if (encounterInfo != null)
                 {
                     _currentBossInfo = encounterInfo;

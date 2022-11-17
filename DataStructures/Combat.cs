@@ -32,9 +32,9 @@ namespace SWTORCombatParser
         public string OldFlashpointBossInfo => EncounterBossDifficultyParts == ("", "", "") ? "" : $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item3}}}";
         public (string, string, string) EncounterBossDifficultyParts = ("","","");
 
-        public List<string> RequiredDeadTargetsForKill { get; set; }
+        public List<string> RequiredDeadTargetsForKill { get; set; } = new List<string>();
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
-        public bool WasBossKilled =>RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => l.Target.Name == t && l.Effect.EffectName == "Death"));
+        public bool WasBossKilled =>RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => (l.Target.Name == t && l.Effect.EffectName == "Death")));
         public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
         {

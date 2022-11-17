@@ -1,12 +1,14 @@
 ﻿//using MoreLinq;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -69,12 +71,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Type = type;
             if (Type == OverlayType.EHPS)
             {
-                SecondaryType = OverlayType.Shielding;
+                SecondaryType = OverlayType.ProvidedAbsorb;
                 AddSecondaryToValue = true;
             }
             if (Type == OverlayType.HPS)
             {
-                SecondaryType = OverlayType.Shielding;
+                SecondaryType = OverlayType.ProvidedAbsorb;
                 AddSecondaryToValue = true;
             }
             if (Type == OverlayType.DPS)
@@ -278,15 +280,17 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void OrderMetricBars()
         {
+            if (!_metricBarsDict.Any())
+                return;
             try
             {
-                var maxValue = _metricBarsDict.MaxBy(m => double.Parse(m.Value.TotalValue)).Value.TotalValue;
+                var maxValue = _metricBarsDict.MaxBy(m => double.Parse(m.Value.TotalValue, CultureInfo.InvariantCulture)).Value.TotalValue;
                 foreach (var metric in _metricBarsDict)
                 {
-                    if (double.Parse(metric.Value.TotalValue) == 0 || (metric.Value.Value + metric.Value.SecondaryValue == 0) || double.IsInfinity(metric.Value.Value) || double.IsNaN(metric.Value.Value))
+                    if (double.Parse(metric.Value.TotalValue, CultureInfo.InvariantCulture) == 0 || (metric.Value.Value + metric.Value.SecondaryValue == 0) || double.IsInfinity(metric.Value.Value) || double.IsNaN(metric.Value.Value))
                         metric.Value.RelativeLength = 0;
                     else
-                        metric.Value.RelativeLength = double.Parse(maxValue) == 0 ? 0 : (double.Parse(metric.Value.TotalValue) / double.Parse(maxValue));
+                        metric.Value.RelativeLength = double.Parse(maxValue, CultureInfo.InvariantCulture) == 0 ? 0 : (double.Parse(metric.Value.TotalValue, CultureInfo.InvariantCulture) / double.Parse(maxValue, CultureInfo.InvariantCulture));
                 }
 
                 var listOfBars = new List<OverlayMetricInfo>();
@@ -306,7 +310,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             catch (Exception ex)
             {
-
+                Logging.LogError("Failed to order overlay metrics: "+ex.Message);
             }
 
         }
@@ -356,7 +360,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.EHPS:
                     value = combat.EHPS[participant];
                     break;
-                case OverlayType.Shielding:
+                case OverlayType.ProvidedAbsorb:
                     value = combat.PSPS[participant];
                     break;
                 case OverlayType.FocusDPS:

@@ -22,18 +22,20 @@ namespace SWTORCombatParser.Model.CloudRaiding
     }
     public static class BossMechanicInfoSkimmer
     {
-        private static string _dbConnectionString => ReadEncryptedString(JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@"connectionConfig.json"))["ConnectionString"].ToString());
-        public static async void AddBossInfoAfterCombat(Combat bossCombat, bool uploadToDb = true)
+        public static void AddBossInfoAfterCombat(Combat bossCombat, bool uploadToDb = true)
         {
-            if(uploadToDb == true)
+            if (uploadToDb == true)
             {
                 uploadToDb = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("BossMechanicSkimmerConfig.json"))["shouldUploadToDB"].Value<bool>();
 
             }
-            using (NpgsqlConnection connection = ConnectToDB())
+            if (!uploadToDb)
+                return;
+            try
             {
-                try
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
+
                     var bossInfo = bossCombat.ParentEncounter.BossInfos.First(b => b.EncounterName == bossCombat.EncounterBossDifficultyParts.Item1);
                     var bosses = bossCombat.Targets.Where(t => bossInfo.TargetNames.Contains(t.Name));
                     foreach (var boss in bosses)
@@ -52,21 +54,22 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                 " (start_time,seconds_elapsed,current_hp,boss_name,encounter_name,ability_name)" +
                                 $" VALUES ('{bossCombat.StartTime.ToUniversalTime()}','{secondsElapsed}','{currentHP}','{bossName.MakePGSQLSafe()}','{encounterName.MakePGSQLSafe()}','{abilityName.MakePGSQLSafe()}')", connection))
                             {
-                                await cmd.ExecuteNonQueryAsync();
+                                var r = cmd.ExecuteNonQueryAsync().Result;
                             }
                         }
                     }
-                }
-                catch(Exception ex)
-                {
+
 
                 }
-
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError("Boss mechanics upload database exception: " + ex.Message);
             }
         }
         private static NpgsqlConnection ConnectToDB()
         {
-            var conn = new NpgsqlConnection(_dbConnectionString);
+            var conn = new NpgsqlConnection(DatabaseIPGetter.GetCurrentConnectionString());
             conn.Open();
             return conn;
         }

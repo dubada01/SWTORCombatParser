@@ -11,17 +11,35 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
-    public class ParticipantSelectionViewModel:INotifyPropertyChanged
+    public class ParticipantSelectionViewModel : INotifyPropertyChanged
     {
+        private bool viewEnemies;
+
         public event Action<Entity> ParticipantSelected = delegate { };
+        public event Action<int> ViewEnemiesToggled = delegate { };
         public List<ParticipantViewModel> AvailableParticipants { get; set; } = new List<ParticipantViewModel>();
         public int Rows { get; set; }
         public int Columns { get; set; }
+        public Combat SelectedCombat { get; set; }
+        public Entity SelectedParticipant { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public ParticipantSelectionViewModel()
         {
             ParticipantSelectionHandler.SelectionUpdated += SetSelection;
+        }
+        public bool ViewEnemies
+        {
+            get => viewEnemies; set
+            {
+                viewEnemies = value;
+                SetParticipants(SelectedCombat);
+                UpdateParticipantsData(SelectedCombat);
+                var entitiesToShow = ViewEnemies ? SelectedCombat.AllEntities.Where(e=>e.IsBoss || e.IsCharacter).ToList() : SelectedCombat.CharacterParticipants;
+                ViewEnemiesToggled(entitiesToShow.Count);
+                if (!viewEnemies && SelectedParticipant.IsBoss)
+                    SetSelection(entitiesToShow.First(e => e.IsLocalPlayer));
+            }
         }
         public void SelectLocalPlayer()
         {
@@ -30,32 +48,30 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 return;
             SelectParticipant(uiElement);
         }
-        public void SetParticipants(List<Entity> availableEntities)
+        public List<Entity> SetParticipants(Combat combat)
         {
-            var participants = availableEntities.Select(e => GenerateInstance(e));
+            SelectedCombat = combat;
+            var entitiesToShow = ViewEnemies ? combat.AllEntities.Where(e => e.IsBoss || e.IsCharacter).ToList() : combat.CharacterParticipants;
+            var participants = entitiesToShow.Select(e => GenerateInstance(e));
             AvailableParticipants = new List<ParticipantViewModel>(participants);
             foreach (var participant in AvailableParticipants)
             {
                 participant.SelectionChanged += SelectParticipant;
             }
             UpdateLayout();
-            if(ParticipantSelectionHandler.CurrentlySelectedParticpant == null)
+            if (ParticipantSelectionHandler.CurrentlySelectedParticpant == null)
             {
                 SelectLocalPlayer();
             }
             OnPropertyChanged("AvailableParticipants");
+            return entitiesToShow;
         }
         private void UpdateLayout()
         {
-            if (AvailableParticipants.Count <= 4)
+            if (AvailableParticipants.Count <= 8)
             {
-                Columns = 4;
+                Columns = 8;
                 Rows = 1;
-            }
-            if (AvailableParticipants.Count > 4)
-            {
-                Columns = 4;
-                Rows = 2;
             }
             if (AvailableParticipants.Count > 8)
             {
@@ -72,13 +88,14 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void SetSelection(Entity obj)
         {
-            if (!AvailableParticipants.Any(part=>part.Entity == obj))
+            if (!AvailableParticipants.Any(part => part.Entity == obj))
                 return;
+            SelectedParticipant = obj;
             var previouslySelected = AvailableParticipants.Where(p => p.Entity.Id != obj.Id).FirstOrDefault(p => p.IsSelected);
             if (previouslySelected != null)
                 previouslySelected.ToggleSelection();
             var currentSelection = AvailableParticipants.First(p => p.Entity.Id == obj.Id);
-            if(!currentSelection.IsSelected)
+            if (!currentSelection.IsSelected)
                 currentSelection.ToggleSelection();
             ParticipantSelected(obj);
             ParticipantSelectionHandler.UpdateSelection(obj);
@@ -93,10 +110,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             viewModel.IsSelected = ParticipantSelectionHandler.CurrentlySelectedParticpant == viewModel.Entity;
             return viewModel;
         }
-        public void UpdateParticipantsData(Combat info)
+        public List<Entity> UpdateParticipantsData(Combat info)
         {
             AvailableParticipants.Clear();
-            foreach (var participant in info.CharacterParticipants)
+            var entitiesToView = ViewEnemies ? info.AllEntities.Where(e => e.IsBoss || e.IsCharacter).ToList() : info.CharacterParticipants;
+            foreach (var participant in entitiesToView)
             {
                 ParticipantViewModel participantViewModel = GenerateInstance(participant);
                 participantViewModel.SelectionChanged += SelectParticipant;
@@ -115,11 +133,12 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             AvailableParticipants = new List<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
             UpdateLayout();
             OnPropertyChanged("AvailableParticipants");
+            return entitiesToView;
         }
 
         private string GetRoleImage(SWTORClass sWTORClass)
         {
-            if(sWTORClass == null)
+            if (sWTORClass == null)
                 return "../../resources/question-mark.png";
             switch (sWTORClass.Role)
             {

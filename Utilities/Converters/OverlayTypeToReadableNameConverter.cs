@@ -44,8 +44,8 @@ namespace SWTORCombatParser.Utilities.Converters
                     return "Tank Shielding";
                 case OverlayType.DamageAvoided:
                     return "Damage Avoided";
-                case OverlayType.Shielding:
-                    return "Absorb";
+                case OverlayType.ProvidedAbsorb:
+                    return "Provided Abosrb";
                 case OverlayType.APM:
                     return "APM";
                 case OverlayType.InterruptCount:

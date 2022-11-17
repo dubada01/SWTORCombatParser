@@ -15,7 +15,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class TimerDatabaseAccess
     {
-        private static string _dbConnectionString => ReadEncryptedString(JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@"connectionConfig.json"))["ConnectionString"].ToString());
         public static List<string> GetAllTimerIds()
         {
             List<string> entriesFound = new List<string>();
@@ -105,15 +104,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private static NpgsqlConnection ConnectToDB()
         {
-            var conn = new NpgsqlConnection(_dbConnectionString);
+            var conn = new NpgsqlConnection(DatabaseIPGetter.GetCurrentConnectionString());
             conn.Open();
             return conn;
-        }
-        private static string ReadEncryptedString(string encryptedString)
-        {
-            var secret = "obscureButNotSecure";
-            var decryptedString = Crypto.DecryptStringAES(encryptedString, secret);
-            return decryptedString;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace SWTORCombatParser.Utilities.Converters
                 case OverlayType.APM:
                     return Brushes.MediumPurple;
                 case OverlayType.BurstDPS:
-                    return Brushes.Red;
+                    return Brushes.Tomato;
                 case OverlayType.DPS:
                     return Brushes.IndianRed;
                 case OverlayType.FocusDPS:
@@ -26,17 +26,17 @@ namespace SWTORCombatParser.Utilities.Converters
                 case OverlayType.BurstEHPS:
                     return Brushes.LimeGreen;
                 case OverlayType.EHPS:
-                    return Brushes.Green;
-                case OverlayType.HPS:
                     return Brushes.ForestGreen;
-                case OverlayType.Shielding:
+                case OverlayType.HPS:
+                    return Brushes.Green;
+                case OverlayType.ProvidedAbsorb:
                     return Brushes.CadetBlue;
                 case OverlayType.Threat:
                     return Brushes.Orchid;
                 case OverlayType.ThreatPerSecond:
                     return Brushes.DarkOrchid;
                 case OverlayType.BurstDamageTaken:
-                    return Brushes.SaddleBrown;
+                    return Brushes.DarkGoldenrod;
                 case OverlayType.DamageTaken:
                     return Brushes.Peru;
                 case OverlayType.Mitigation:

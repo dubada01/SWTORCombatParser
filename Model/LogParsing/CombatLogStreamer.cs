@@ -138,6 +138,7 @@ namespace SWTORCombatParser
 
                     if (result == ProcessedLineResult.Incomplete)
                     {
+                        Logging.LogError("Failed to parse line " + lines[line]);
                         throw new Exception("Failed to parse line: " + lines[line]);
                     }
                 }
@@ -154,8 +155,6 @@ namespace SWTORCombatParser
         {
             try
             {
-
-
                 sr.BaseStream.Seek(numberOfProcessedBytes, SeekOrigin.Begin);
                 bool hasValidEnd = false;
                 bool lastValueWasbsR = false;
@@ -229,7 +228,7 @@ namespace SWTORCombatParser
             {
                 if (usableLogs[l].Source.IsLocalPlayer)
                     LocalPlayerIdentified(usableLogs[l].Source);
-                CheckForCombatState(usableLogs[l], false);
+                CheckForCombatState(usableLogs[l], false,false);
                 if (_isInCombat)
                 {
                     _currentCombatData.Add(usableLogs[l]);
@@ -265,7 +264,7 @@ namespace SWTORCombatParser
             if (parsedLine.Source.IsLocalPlayer)
                 LocalPlayerIdentified(parsedLine.Source);
             parsedLine.LogName = Path.GetFileName(logName);
-            CheckForCombatState(parsedLine);
+            CheckForCombatState(parsedLine,true);
             NewLineStreamed(parsedLine);
             if (_isInCombat && !_isWaitingForExitCombatTimout)
             {
@@ -279,9 +278,9 @@ namespace SWTORCombatParser
             }
             return ProcessedLineResult.Success;
         }
-        private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true)
+        private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true,bool isrealtime = false)
         {
-            var currentCombatState = CombatDetector.CheckForCombatState(parsedLine);
+            var currentCombatState = CombatDetector.CheckForCombatState(parsedLine, isrealtime);
             if(currentCombatState == CombatState.ExitedByEntering)
             {
                 EndCombat(parsedLine);
@@ -308,6 +307,7 @@ namespace SWTORCombatParser
         }
         private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat)
         {
+            Logging.LogInfo("Parsing... Starting combat");
             _currentFrameData.Clear();
             _currentCombatData.Clear();
             _isInCombat = true;
@@ -320,6 +320,7 @@ namespace SWTORCombatParser
         }
         private void EndCombat(ParsedLogEntry parsedLine = null)
         {
+            Logging.LogInfo("Parsing... Ending combat");
             _isWaitingForExitCombatTimout = false;
             if (!_isInCombat)
                 return;
@@ -338,6 +339,7 @@ namespace SWTORCombatParser
             if (string.IsNullOrEmpty(_logToMonitor))
                 return;
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatData, CombatStartTime = _currentCombatStartTime };
+            Logging.LogInfo("Sending combat state change notification: " + updateMessage.Type + " at " + updateMessage.CombatStartTime + " with location " + updateMessage.CombatLocation);
             CombatUpdated(updateMessage);
             EncounterTimerTrigger.FireEnded();
         }

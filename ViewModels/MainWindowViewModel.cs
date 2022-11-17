@@ -5,12 +5,14 @@ using SWTORCombatParser.Plotting;
 using SWTORCombatParser.resources;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.BattleReview;
+using SWTORCombatParser.ViewModels.DataGrid;
 using SWTORCombatParser.ViewModels.HistoricalLogs;
 using SWTORCombatParser.ViewModels.Leaderboard;
 using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.Overviews;
 using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
+using SWTORCombatParser.Views.DataGrid_Views;
 using SWTORCombatParser.Views.HistoricalLogs;
 using SWTORCombatParser.Views.Leaderboard_View;
 using SWTORCombatParser.Views.PastCombatViews;
@@ -35,16 +37,20 @@ namespace SWTORCombatParser.ViewModels
         private CombatMonitorViewModel _combatMonitorViewModel;
         private OverlayViewModel _overlayViewModel;
         private OverviewViewModel _tableViewModel;
+        private DataGridViewModel _dataGridViewModel;
         private SoftwareLogViewModel _softwareLogViewModel;
         private OverviewViewModel _histViewModel;
+        private LeaderboardViewModel _leaderboardViewModel;
+
         private Dictionary<Guid, HistoricalCombatViewModel> _activeHistoricalCombatOverviews = new Dictionary<Guid, HistoricalCombatViewModel>();
         private int selectedTabIndex;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public string Title { get; set; }
         public ObservableCollection<TabInstance> ContentTabs { get; set; } = new ObservableCollection<TabInstance>();
+        public PastCombatsView PastCombatsView { get; set; }
 
-        private LeaderboardViewModel _leaderboardViewModel;
+        
 
         public int SelectedTabIndex
         {
@@ -72,29 +78,27 @@ namespace SWTORCombatParser.ViewModels
                 if (SWTORDetector.SwtorRunning)
                     _overlayViewModel.OverlaysLocked = true;
             };
-
-            _plotViewModel = new PlotViewModel();
-            var graphView = new GraphView(_plotViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Battle Plot" });
-
             _combatMonitorViewModel = new CombatMonitorViewModel();
             _combatMonitorViewModel.OnCombatSelected += SelectCombat;
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
-
-            //_combatMonitorViewModel.OnLiveCombatUpdate += UpdateCombat;
             Observable.FromEvent<Combat>(
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate += manager,
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate -= manager).Sample(TimeSpan.FromSeconds(2)).Subscribe(update => UpdateCombat(update));
-
             _combatMonitorViewModel.LiveCombatFinished += UpdateCombat;
             _combatMonitorViewModel.OnMonitoringStateChanged += MonitoringStarted;
-            _combatMonitorViewModel.ParticipantsUpdated += UpdateAvailableParticipants;
             _combatMonitorViewModel.LocalPlayerId += LocalPlayerChanged;
             _combatMonitorViewModel.OnHistoricalCombatsParsed += AddHistoricalViewer;
 
 
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
 
+            _dataGridViewModel = new DataGridViewModel();
+            var dataGridView = new DataGridView(_dataGridViewModel);
+            ContentTabs.Add(new TabInstance() { TabContent = dataGridView, HeaderText = "Raid Data" });
+
+            _plotViewModel = new PlotViewModel();
+            var graphView = new GraphView(_plotViewModel);
+            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Battle Plot" });
 
 
             _tableViewModel = new TableViewModel();
@@ -163,9 +167,6 @@ namespace SWTORCombatParser.ViewModels
             historyToRemove.Dispose();
             ContentTabs.Remove(tabToClose);
         }
-        public PastCombatsView PastCombatsView { get; set; }
-
-
         private void MonitoringStarted(bool state)
         {
             if(state)
@@ -174,37 +175,34 @@ namespace SWTORCombatParser.ViewModels
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
                     _histViewModel.Reset();
-                    
+                    _dataGridViewModel.Reset();
                 });
             _overlayViewModel.LiveParseStarted(state);
         }
 
-        private void UpdateCombat(Combat obj)
+        private void UpdateCombat(Combat updatedCombat)
         {
             if (LoadingWindowFactory.MainWindowHidden)
                 return;
             App.Current.Dispatcher.Invoke(delegate
             {
-                _plotViewModel.UpdateLivePlot(obj);
-                _tableViewModel.AddCombat(obj);
-                _histViewModel.AddCombat(obj);
-                _reviewViewModel.CombatSelected(obj);
+                _plotViewModel.UpdateLivePlot(updatedCombat);
+                _tableViewModel.AddCombat(updatedCombat);
+                _histViewModel.AddCombat(updatedCombat);
+                _reviewViewModel.CombatSelected(updatedCombat);
+                _dataGridViewModel.UpdateCombat(updatedCombat);
             });
         }
-        private void NewSoftwareLog(string log)
-        {
-            var newLog = new SoftwareLogInstance() { TimeStamp = DateTime.Now, Message = log };
-            _softwareLogViewModel.AddNewLog(newLog);
-        }
-        private void SelectCombat(Combat obj)
+        private void SelectCombat(Combat selectedCombat)
         {
             App.Current.Dispatcher.Invoke(delegate
             {
-                _plotViewModel.UpdateParticipants(obj.CharacterParticipants);
-                _plotViewModel.AddCombatPlot(obj);
-                _tableViewModel.AddCombat(obj);
-                _histViewModel.AddCombat(obj);
-                _reviewViewModel.CombatSelected(obj);
+                _plotViewModel.UpdateParticipants(selectedCombat);
+                _plotViewModel.AddCombatPlot(selectedCombat);
+                _tableViewModel.AddCombat(selectedCombat);
+                _histViewModel.AddCombat(selectedCombat);
+                _reviewViewModel.CombatSelected(selectedCombat);
+                _dataGridViewModel.AddCombat(selectedCombat);
             });
 
         }
@@ -215,15 +213,8 @@ namespace SWTORCombatParser.ViewModels
                 _plotViewModel.RemoveCombatPlot(obj);
                 _tableViewModel.RemoveCombat(obj);
                 _histViewModel.RemoveCombat(obj);
+                _dataGridViewModel.RemoveCombat(obj);
             });
-        }
-        private void UpdateAvailableParticipants(List<Entity> obj)
-        {
-            var localPlayer = obj.FirstOrDefault(c => c.IsLocalPlayer);
-            if (localPlayer != null)
-            {
-                //_overlayViewModel.LocalPlayerIdentified(localPlayer);
-            }
         }
         private Entity localEntity;
         private void LocalPlayerChanged(Entity obj)
@@ -237,7 +228,7 @@ namespace SWTORCombatParser.ViewModels
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
                     _histViewModel.Reset();
-                    //_overlayViewModel.LocalPlayerIdentified(obj);
+                    _dataGridViewModel.Reset();
                 }
                 localEntity = obj;
             });

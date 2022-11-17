@@ -16,7 +16,6 @@ namespace SWTORCombatParser
     public static class CombatLogParser
     {
         private static DateTime _logDate;
-        public static event Action<string> OnNewLog = delegate { };
 
         public static ParsedLogEntry ParseLine(string logEntry,long lineIndex, bool realTime = true)
         {
@@ -31,7 +30,7 @@ namespace SWTORCombatParser
             }
             catch (Exception e)
             {
-                OnNewLog(e.Message);
+                Logging.LogError("Log parsing error: " + e.Message + "\r\n" + logEntry);
                 return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
             }
         }

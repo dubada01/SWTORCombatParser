@@ -11,6 +11,10 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="0.85*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.85*"/>
+            <ColumnDefinition Width="0.15*"/>
+        </Grid.ColumnDefinitions>
         <Viewbox HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal">
                 <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableEncounters}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEncounter}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
@@ -19,7 +23,10 @@
                 <ComboBox  Style="{StaticResource NewComboStyle}" Visibility="{Binding ShowPlayerCount, Converter={StaticResource BooleanToVisibiityConverter}}" ItemsSource="{Binding AvailablePlayerCounts}" SelectedItem="{Binding SelectedPlayerCount}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
             </StackPanel>
         </Viewbox>
-        <DockPanel Grid.Row="1" LastChildFill="True" HorizontalAlignment="Stretch">
+        <Viewbox MaxHeight="15" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Bottom" >
+            <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Text="{Binding LeaderboardVersion}" FontSize="10" Opacity="0.6"></TextBlock>
+        </Viewbox>
+        <DockPanel Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="True" HorizontalAlignment="Stretch">
             <TabControl>
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabControl}">

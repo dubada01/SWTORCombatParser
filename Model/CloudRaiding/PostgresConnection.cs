@@ -16,7 +16,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class PostgresConnection
     {
         public static event Action LeaderboardUpdated = delegate { };
-        private static string _dbConnectionString => ReadEncryptedString(JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@"connectionConfig.json"))["ConnectionString"].ToString());
         public static async Task<bool> TryAddLeaderboardEntry(LeaderboardEntry newEntry)
         {
             if (newEntry.Value == 0)
@@ -64,34 +63,49 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task<int> RemoveLeaderBoardEntry(LeaderboardEntry entry)
         {
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("DELETE FROM public.boss_leaderboards " +
-  $"WHERE boss_name = '{entry.Boss.MakePGSQLSafe()}' and encounter_name = '{entry.Encounter.MakePGSQLSafe()}' and player_name = '{entry.Character.MakePGSQLSafe()}' and player_class = '{entry.Class.MakePGSQLSafe()}' and value_type = '{entry.Type}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    return await cmd.ExecuteNonQueryAsync();
+                    using (var cmd = new NpgsqlCommand("DELETE FROM public.boss_leaderboards " +
+      $"WHERE boss_name = '{entry.Boss.MakePGSQLSafe()}' and encounter_name = '{entry.Encounter.MakePGSQLSafe()}' and player_name = '{entry.Character.MakePGSQLSafe()}' and player_class = '{entry.Class.MakePGSQLSafe()}' and value_type = '{entry.Type}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
+                    {
+                        return await cmd.ExecuteNonQueryAsync();
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return 0;
             }
         }
         public static async void AddLeaderboardEntry(LeaderboardEntry newEntry)
         {
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("INSERT INTO public.boss_leaderboards" +
-                " (boss_name,encounter_name,player_name,player_class,value,value_type,software_version,duration_sec,verified_kill,timestamp)" +
-                $" VALUES ('{newEntry.Boss.MakePGSQLSafe()}','" +
-                $"{newEntry.Encounter.MakePGSQLSafe()}','" +
-                $"{newEntry.Character.MakePGSQLSafe()}','" +
-                $"{newEntry.Class.MakePGSQLSafe()}'," +
-                $"{newEntry.Value}," +
-                $"'{newEntry.Type}'," +
-                $"'{ Leaderboards._leaderboardVersion}'," +
-                $"'{ newEntry.Duration}'," +
-                $"'{ newEntry.VerifiedKill}'," +
-                $"'{newEntry.TimeStamp.ToUniversalTime()}')", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                   await cmd.ExecuteNonQueryAsync();
+                    using (var cmd = new NpgsqlCommand("INSERT INTO public.boss_leaderboards" +
+                    " (boss_name,encounter_name,player_name,player_class,value,value_type,software_version,duration_sec,verified_kill,timestamp)" +
+                    $" VALUES ('{newEntry.Boss.MakePGSQLSafe()}','" +
+                    $"{newEntry.Encounter.MakePGSQLSafe()}','" +
+                    $"{newEntry.Character.MakePGSQLSafe()}','" +
+                    $"{newEntry.Class.MakePGSQLSafe()}'," +
+                    $"{newEntry.Value}," +
+                    $"'{newEntry.Type}'," +
+                    $"'{Leaderboards._leaderboardVersion}'," +
+                    $"'{newEntry.Duration}'," +
+                    $"'{newEntry.VerifiedKill}'," +
+                    $"'{newEntry.TimeStamp.ToUniversalTime()}')", connection))
+                    {
+                        await cmd.ExecuteNonQueryAsync();
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
             }
         }
         public static async Task<LeaderboardEntry> GetTopLeaderboard(string bossName, string encounter, LeaderboardEntryType type)
@@ -115,233 +129,252 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new LeaderboardEntry();
             return entries.MaxBy(l => l.Value);
         }
-        public static async Task<List<LeaderboardEntry>> GetEntriesForBossAndCharacterWithClass(string bossName, string characterName, string className,string encounter, LeaderboardEntryType entryType)
+        public static async Task<List<LeaderboardEntry>> GetEntriesForBossAndCharacterWithClass(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_name = '{characterName.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                    $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_name = '{characterName.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
                     {
+
                         var reader = await cmd.ExecuteReaderAsync();
                         while (reader.Read())
                         {
                             entriesFound.Add(GetLightweightLeaderboardEntry(reader));
                         }
-                    }
-                    catch(Exception e)
-                    {
-                        Logging.LogError(e.Message);
-                    }
 
+
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
             }
             return entriesFound;
         }
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossAndCharacterWithClassFromTime(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType, DateTime from)
         {
-            Trace.WriteLine("Removing duplicates from time: "+from.ToUniversalTime().ToString());
+            Trace.WriteLine("Removing duplicates from time: " + from.ToUniversalTime().ToString());
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and " +
-                $"encounter_name = '{encounter.MakePGSQLSafe()}' and " +
-                $"player_name = '{characterName.MakePGSQLSafe()}' and " +
-                $"player_class = '{className.MakePGSQLSafe()}' and " +
-                $"value_type = '{entryType}' and " +
-                $"software_version = '{ Leaderboards._leaderboardVersion}' and " +
-                $"timestamp > '{from.ToUniversalTime()}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                    $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and " +
+                    $"encounter_name = '{encounter.MakePGSQLSafe()}' and " +
+                    $"player_name = '{characterName.MakePGSQLSafe()}' and " +
+                    $"player_class = '{className.MakePGSQLSafe()}' and " +
+                    $"value_type = '{entryType}' and " +
+                    $"software_version = '{Leaderboards._leaderboardVersion}' and " +
+                    $"timestamp > '{from.ToUniversalTime()}'", connection))
                     {
+
                         var reader = await cmd.ExecuteReaderAsync();
                         while (reader.Read())
                         {
                             entriesFound.Add(GetLightweightLeaderboardEntry(reader));
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Logging.LogError(e.Message);
+
+
                     }
 
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
             }
             return entriesFound;
         }
         public static List<LeaderboardEntry> GetEntriesForBossWithClassNonAsync(string bossName, string encounter, string className, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                    $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
                     {
+
                         var reader = cmd.ExecuteReader();
                         while (reader.Read())
                         {
                             entriesFound.Add(GetLightweightLeaderboardEntry(reader));
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Logging.LogError(e.Message);
+
                     }
                 }
             }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+            }
             return entriesFound.DistinctBy(e => e.Value).ToList();
         }
-        public static async Task<List<LeaderboardEntry>> GetEntriesForBossWithClass(string bossName,string encounter, string className, LeaderboardEntryType entryType)
+        public static async Task<List<LeaderboardEntry>> GetEntriesForBossWithClass(string bossName, string encounter, string className, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                    $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
                     {
+
                         var reader = await cmd.ExecuteReaderAsync();
                         while (reader.Read())
                         {
                             entriesFound.Add(GetLightweightLeaderboardEntry(reader));
                         }
-                    }
-                    catch(Exception e)
-                    {
-                        Logging.LogError(e.Message);
+
                     }
                 }
             }
-            return entriesFound.DistinctBy(e=>e.Value).ToList();
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+            }
+            return entriesFound.DistinctBy(e => e.Value).ToList();
         }
         public static async Task<List<string>> GetEncountersWithEntries()
         {
             List<string> entriesFound = new List<string>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT distinct encounter_name FROM public.boss_leaderboards " +
-                $"WHERE software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT distinct encounter_name FROM public.boss_leaderboards " +
+                    $"WHERE software_version='{Leaderboards._leaderboardVersion}'", connection))
                     {
+
                         var reader = await cmd.ExecuteReaderAsync();
                         while (reader.Read())
                         {
                             entriesFound.Add(reader.GetString(0));
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Logging.LogError(e.Message);
-                    }
+
 
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
             }
             return entriesFound.ToList();
         }
         public static async Task<List<string>> GetBossesFromEncounterWithEntries(string encounter)
         {
             List<string> bossesFound = new List<string>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT distinct boss_name FROM public.boss_leaderboards " +
-                $"WHERE encounter_name ='{encounter}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT distinct boss_name FROM public.boss_leaderboards " +
+                    $"WHERE encounter_name ='{encounter}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
                     {
+
                         var reader = await cmd.ExecuteReaderAsync();
                         while (reader.Read())
                         {
                             bossesFound.Add(reader.GetString(0));
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Logging.LogError(e.Message);
-                    }
 
+
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
             }
             return bossesFound.ToList();
         }
         public static List<LeaderboardEntry> GetEntriesForBossOfTypeNonAsync(string bossName, string encounter, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                $"WHERE boss_name='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                    $"WHERE boss_name='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
                     {
-                        var reader =  cmd.ExecuteReader();
+
+                        var reader = cmd.ExecuteReader();
                         while (reader.Read())
                         {
                             entriesFound.Add(GetLightweightLeaderboardEntry(reader));
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Logging.LogError(e.Message);
-                    }
 
+
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
             }
             return entriesFound.DistinctBy(e => e.Value).ToList();
         }
-        public static async Task<List<LeaderboardEntry>> GetEntriesForBossOfType(string bossName, string encounter,  LeaderboardEntryType entryType)
+        public static async Task<List<LeaderboardEntry>> GetEntriesForBossOfType(string bossName, string encounter, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                $"WHERE boss_name='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                    $"WHERE boss_name='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
                     {
+
                         var reader = await cmd.ExecuteReaderAsync();
                         while (reader.Read())
                         {
                             entriesFound.Add(GetLightweightLeaderboardEntry(reader));
                         }
-                    }
-                    catch(Exception e)
-                    {
-                        Logging.LogError(e.Message);
-                    }
 
+
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
             }
             return entriesFound.DistinctBy(e => e.Value).ToList();
         }
         public static async Task<List<LeaderboardEntry>> GetEntriesForCharacterOfType(string playerName, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                $"WHERE player_name ='{playerName.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{ Leaderboards._leaderboardVersion}'", connection))
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
-                    try
+                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
+                    $"WHERE player_name ='{playerName.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
                     {
+
                         var reader = await cmd.ExecuteReaderAsync();
                         while (reader.Read())
                         {
                             entriesFound.Add(GetLightweightLeaderboardEntry(reader));
                         }
-                    }
-                    catch(Exception e)
-                    {
-                        Logging.LogError(e.Message);
-                    }
 
+
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
             }
             return entriesFound.DistinctBy(e => e.Value).ToList();
         }
@@ -385,21 +418,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             try
             {
-                var conn = new NpgsqlConnection(_dbConnectionString);
+                var conn = new NpgsqlConnection(DatabaseIPGetter.GetCurrentConnectionString());
                 conn.Open();
                 return conn;
             }
             catch(Exception e)
             {
-                Logging.LogError("Failed to connect to database: " + e.Message);
-                throw new Exception("Failed to connect to database: " + e.Message);
+                throw new Exception("Connection attempt failed: " + e.Message);
             }
-        }
-        private static string ReadEncryptedString(string encryptedString)
-        {
-            var secret = "obscureButNotSecure";
-            var decryptedString = Crypto.DecryptStringAES(encryptedString, secret);
-            return decryptedString;
         }
     }
 }

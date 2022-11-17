@@ -67,13 +67,6 @@
         </Grid>
     </ControlTemplate>
 
-    <ControlTemplate x:Key="ComboBoxTextBox"
-                 TargetType="{x:Type TextBlock}">
-        <Border x:Name="PART_ContentHost"
-          Focusable="False"
-          Background="{TemplateBinding Background}" />
-    </ControlTemplate>
-
     <Style x:Key="NewComboStyle"
        TargetType="{x:Type ComboBox}">
         <Setter Property="Foreground" Value="WhiteSmoke"/>

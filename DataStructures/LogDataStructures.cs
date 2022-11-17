@@ -50,7 +50,7 @@ namespace SWTORCombatParser
         public string Ability { get; set; }
         public Effect Effect { get; set; }
         public Value Value { get; set; }
-        public int Threat { get; set; }
+        public long Threat { get; set; }
     }
     public class PositionData
     {
@@ -72,6 +72,7 @@ namespace SWTORCombatParser
         public bool IsCharacter;
         public bool IsLocalPlayer;
         public bool IsCompanion;
+        public bool IsBoss;
     }
     public class EntityInfo
     {

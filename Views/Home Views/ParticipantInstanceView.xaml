@@ -11,43 +11,9 @@
                 Background="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBackgroundConverter}, UpdateSourceTrigger=PropertyChanged}" 
                 BorderBrush="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBoarderConverter}, UpdateSourceTrigger=PropertyChanged}" BorderThickness="5" CornerRadius="4">
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal">
-                <Image Source="{Binding RoleImageSource}" Margin="0,0,5,0"></Image>
-                <Viewbox>
-                    <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="{Binding PlayerName}"/>
-                </Viewbox>
-              
-            </StackPanel>
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.33*"/>
-                    <ColumnDefinition Width="0.33*"/>
-                    <ColumnDefinition Width="0.33*"/>
-                </Grid.ColumnDefinitions>
-                <Viewbox HorizontalAlignment="Left" Grid.Column="0" Margin="2">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="DPS:"/>
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="IndianRed" Text="{Binding DPS}"/>
-                    </StackPanel>
-                </Viewbox>
-                <Viewbox HorizontalAlignment="Left" Grid.Column="1" Margin="2">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="HPS:"/>
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="MediumAquamarine" Text="{Binding HPS}"/>
-                    </StackPanel>
-                </Viewbox>
-                <Viewbox HorizontalAlignment="Left" Grid.Column="2" Margin="2">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="DTPS:"/>
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="Peru" Text="{Binding DTPS}"/>
-                    </StackPanel>
-                </Viewbox>
-            </Grid>
-            <Image MaxHeight="35" Source="../../resources/LocalPlayerIcon.png" Visibility="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,5,0" VerticalAlignment="Top"></Image>
+            <Image Opacity="0.75" Source="{Binding RoleImageSource}" HorizontalAlignment="Left" Margin="0,0,0,5"></Image>
+            <TextBlock Grid.Row="1" Margin="0,0,0,5" FontFamily="{StaticResource MainFont}" FontSize="15" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding PlayerName}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <Image MaxHeight="20" Source="../../resources/LocalPlayerIcon.png" Visibility="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,5,0" VerticalAlignment="Top"></Image>
         </Grid>
     </Border>
 </UserControl>

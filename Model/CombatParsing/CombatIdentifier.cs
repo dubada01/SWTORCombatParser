@@ -87,12 +87,6 @@ namespace SWTORCombatParser
                 Targets = GetTargets(ongoingLogs),
                 AllLogs = ongoingLogs
             };
-            if(newCombat.Targets.Any(t=>t.Name.Contains("Training Dummy")))
-            {
-                newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Unknown", NumberOfPlayer = "1", BossNames = new List<string> { "Warzone Training Dummy", "Operations Training Dummy" } };
-                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
-                newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, newCombat.ParentEncounter);
-            }
             if (encounter !=  null && encounter.BossInfos != null)
             {
                 newCombat.ParentEncounter = encounter;
@@ -104,6 +98,12 @@ namespace SWTORCombatParser
                 var parts = newCombat.EncounterBossDifficultyParts;
                 if(isRealtime)
                     EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
+            }
+            if (newCombat.Targets.Any(t => t.Name.Contains("Training Dummy")))
+            {
+                newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Unknown", NumberOfPlayer = "1",EncounterType = EncounterType.Parsing, BossNames = new List<string> { "Warzone Training Dummy", "Operations Training Dummy" } };
+                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
+                newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, newCombat.ParentEncounter);
             }
             CombatMetaDataParse.PopulateMetaData(newCombat);
             var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l=>l.Value.Modifier.ValueType == DamageType.absorbed).ToList());
@@ -137,7 +137,8 @@ namespace SWTORCombatParser
                 {
                     var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.Name.Contains("Training Dummy"));
                     var dummyMaxHP = dummyTarget.MaxHP;
-                    return ("Parsing Dummy", dummyMaxHP + "HP", "");
+                    currentEncounter.Difficutly = dummyMaxHP.ToString();
+                    return (dummyTarget.Entity.Name, dummyMaxHP + "HP", "");
                 }
                 else
                 {
@@ -164,10 +165,12 @@ namespace SWTORCombatParser
             {
                 if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name))
                 {
+                    log.Source.IsBoss = true;
                     bossNamesFound.Add(log.Source.Name);
                 }
                 if(currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
                 {
+                    log.Target.IsBoss = true;
                     bossNamesFound.Add(log.Target.Name);
                 }
             }

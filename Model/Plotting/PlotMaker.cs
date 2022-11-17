@@ -77,11 +77,11 @@ namespace SWTORCombatParser
             return zcores;
         }
 
-        internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data, bool isIncoming)
+        internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data, bool isIncoming, bool isShield = false)
         {
-            return data.Select(d => GetAnnotationForAbilitiy(d,isIncoming)).ToList();
+            return data.Select(d => GetAnnotationForAbilitiy(d,isIncoming,isShield)).ToList();
         }
-        private static (string,string) GetAnnotationForAbilitiy(ParsedLogEntry log, bool isIncoming)
+        private static (string,string) GetAnnotationForAbilitiy(ParsedLogEntry log, bool isIncoming, bool isShield)
         {
             var critMark = log.Value.WasCrit ? "*" : "";
             var stringToShow = log.Ability + ": "+ log.Value.DblValue + critMark;
@@ -98,6 +98,11 @@ namespace SWTORCombatParser
             {
                 stringToShow += "\n(" + log.Source.Name+")";
                 EffectivestringToShow += "\n(" + log.Source.Name+")";
+            }
+            if (isShield)
+            {
+                stringToShow += "\n(" + log.Target.Name + ")";
+                EffectivestringToShow += "\n(" + log.Target.Name + ")";
             }
             return (stringToShow, EffectivestringToShow);
         }
