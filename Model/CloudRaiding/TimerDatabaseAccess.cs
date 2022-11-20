@@ -5,6 +5,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -37,9 +38,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 using (var cmd = new NpgsqlCommand("INSERT INTO public.timers" +
                 " (timer_id,source,source_is_local,target,target_is_local,hp_percentage,name,trigger_type,expiration_trigger_id,ability,effect,is_periodic,is_alert,duration_sec,color,specific_boss,specific_encounter)" +
-                $" VALUES ('{newTimer.ShareId.MakePGSQLSafe()}','{newTimer.Source.MakePGSQLSafe()}','{newTimer.SourceIsLocal}','{newTimer.Target.MakePGSQLSafe()}',{newTimer.TargetIsLocal},'{newTimer.HPPercentage}','{newTimer.Name.MakePGSQLSafe()}'," +
+                $" VALUES ('{newTimer.ShareId.MakePGSQLSafe()}','{newTimer.Source.MakePGSQLSafe()}','{newTimer.SourceIsLocal}','{newTimer.Target.MakePGSQLSafe()}',{newTimer.TargetIsLocal},'{newTimer.HPPercentage.ToString(CultureInfo.InvariantCulture)}','{newTimer.Name.MakePGSQLSafe()}'," +
                 $"'{newTimer.TriggerType}','{newTimer.ExperiationTimerId.MakePGSQLSafe()}','{newTimer.Ability.MakePGSQLSafe()}','{newTimer.Effect.MakePGSQLSafe()}'" +
-                $",{newTimer.IsPeriodic},'{newTimer.IsAlert}','{newTimer.DurationSec}','{newTimer.TimerColor}','{newTimer.SpecificBoss.MakePGSQLSafe()}','{newTimer.SpecificEncounter.MakePGSQLSafe()}')", connection))
+                $",{newTimer.IsPeriodic},'{newTimer.IsAlert}','{newTimer.DurationSec.ToString(CultureInfo.InvariantCulture)}','{newTimer.TimerColor}','{newTimer.SpecificBoss.MakePGSQLSafe()}','{newTimer.SpecificEncounter.MakePGSQLSafe()}')", connection))
                 {
                     cmd.ExecuteNonQuery();
                 }

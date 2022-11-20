@@ -13,9 +13,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
 {
     public enum LeaderboardType
     {
+        Off,
         AllDiciplines,
-        LocalDicipline,
-        Off
+        LocalDicipline
     }
     public static class Leaderboards
     {
@@ -30,6 +30,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static Combat CurrentCombat;
         public static void UpdateLeaderboardType(LeaderboardType type)
         {
+            LeaderboardSettings.SaveLeaderboardSettings(type);
             CurrentLeaderboardType = type;
             CurrentFightLeaderboard.Clear();
             TopLeaderboards.Clear();

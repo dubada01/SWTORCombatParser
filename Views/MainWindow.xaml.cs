@@ -1,4 +1,5 @@
 ﻿using ScottPlot.Plottable;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Plotting;
 using SWTORCombatParser.resources;
@@ -107,7 +108,7 @@ namespace SWTORCombatParser
         }
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            if (!_actuallyClosing)
+            if (!_actuallyClosing && ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled"))
             {
                 e.Cancel = true;
                 if (ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring"))
@@ -121,7 +122,7 @@ namespace SWTORCombatParser
             else
             { 
                 MainWindowClosing.FireClosing();
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
         }
         private void Window_MouseLeave_1(object sender, System.Windows.Input.MouseEventArgs e)

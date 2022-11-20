@@ -4,6 +4,7 @@ using Npgsql;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -52,7 +53,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                 continue;
                             using (var cmd = new NpgsqlCommand("INSERT INTO public.boss_mechanics_data" +
                                 " (start_time,seconds_elapsed,current_hp,boss_name,encounter_name,ability_name)" +
-                                $" VALUES ('{bossCombat.StartTime.ToUniversalTime()}','{secondsElapsed}','{currentHP}','{bossName.MakePGSQLSafe()}','{encounterName.MakePGSQLSafe()}','{abilityName.MakePGSQLSafe()}')", connection))
+                                $" VALUES ('{bossCombat.StartTime.ToUniversalTime()}','{secondsElapsed.ToString(CultureInfo.InvariantCulture)}','{currentHP.ToString(CultureInfo.InvariantCulture)}','{bossName.MakePGSQLSafe()}','{encounterName.MakePGSQLSafe()}','{abilityName.MakePGSQLSafe()}')", connection))
                             {
                                 var r = cmd.ExecuteNonQueryAsync().Result;
                             }
