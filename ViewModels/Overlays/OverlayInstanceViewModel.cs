@@ -24,6 +24,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         public bool OverlaysMoveable { get; set; }
         public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
+        public bool UsingLeaderboard { get; set; }
         public double SizeScalar
         {
             get => sizeScalar; set
@@ -50,7 +51,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public bool HasLeaderboard => Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS || Type == OverlayType.FocusDPS;
+        public bool HasLeaderboard => (Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS || Type == OverlayType.FocusDPS) && UsingLeaderboard;
         public GridLength LeaderboardRowHeight => HasLeaderboard ? new GridLength(20) : new GridLength(0);
         public bool AddSecondaryToValue { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
@@ -106,10 +107,19 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged += UpdateLeaderboardType;
+            UpdateLeaderboardType(LeaderboardSettings.ReadLeaderboardSettings());
         }
 
         private void UpdateLeaderboardType(LeaderboardType obj)
         {
+            if(obj == LeaderboardType.Off)
+            {
+                UsingLeaderboard = false;
+            }
+            else
+            {
+                UsingLeaderboard = true;
+            }
             if (obj == LeaderboardType.AllDiciplines)
                 OverlayTypeImage = "../../resources/SwtorLogo_opaque.png";
             else
@@ -117,6 +127,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OverlayTypeImage = "../../resources/LocalPlayerIcon.png";
             }
             OnPropertyChanged("OverlayTypeImage");
+            OnPropertyChanged("HasLeaderboard");
         }
 
         private void UpdateTopEntries(Dictionary<LeaderboardEntryType, (string, double)> obj)

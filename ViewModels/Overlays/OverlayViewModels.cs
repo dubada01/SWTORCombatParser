@@ -98,6 +98,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatLogStreamer.HistoricalLogsStarted += HistoricalLogsStarted;
 
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
+            SelectedLeaderboardType = LeaderboardSettings.ReadLeaderboardSettings();
             DefaultOverlayManager.Init();
             DefaultTimersManager.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
