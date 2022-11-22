@@ -24,12 +24,17 @@
                     <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding TimerSourcesTypes}" SelectedItem="{Binding SelectedTimerSourceType}" Width="250" Height="40"></ComboBox>
                 </StackPanel>
             </Viewbox>
-            <Viewbox Grid.Column="1" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
+            <Viewbox Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Column="1" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="Timers Visible" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
                     <Viewbox MaxHeight="25">
-                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding TimerActiveCheck}"></CheckBox>
+                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding DisciplineTimersActive}"></CheckBox>
                     </Viewbox>
+                </StackPanel>
+            </Viewbox>
+            <Viewbox Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter},ConverterParameter=Inverted}" Grid.Column="1" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Margin="0,0,10,0" Opacity="0.5" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="Uses Boss Frame" FontFamily="{StaticResource MainFont}" FontSize="12"></TextBlock>
                 </StackPanel>
             </Viewbox>
         </Grid>

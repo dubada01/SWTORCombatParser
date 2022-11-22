@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,12 +27,25 @@ namespace SWTORCombatParser.Model.CloudLogging
                     var ipAddress = GetLocalIPAddress();
 
                     using (var cmd = new NpgsqlCommand("INSERT INTO public.cloud_logs" +
-                    " (timestamp,computer_name,ip_address,category,log_text)" +
-                    $" VALUES ('{GetUTCTimeStamp(DateTime.Now)}','" +
-                    $"{pcName}','" +
-                    $"{ipAddress}','" +
-                    $"{logCategory}','" +
-                    $"{logMessage}')", connection))
+                    " (timestamp,computer_name,ip_address,category,log_text,software_version)" +
+                    $" VALUES (" +
+                    $"@time," +
+                    $"@pc," +
+                    $"@ip," +
+                    $"@cat," +
+                    $"@log," +
+                    $"@ver)", connection)
+                    {
+                        Parameters =
+                        {
+                            new("time",GetUTCTimeStamp(DateTime.Now)),
+                            new("pc",pcName),
+                            new("ip",ipAddress),
+                            new("cat",logCategory),
+                            new("log",logMessage),
+                            new("ver",Assembly.GetExecutingAssembly().GetName().Version.ToString()),
+                        }
+                    })
                     {
                         await cmd.ExecuteNonQueryAsync();
                     }

@@ -107,7 +107,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public static TriggerType CheckForAbilityUse(ParsedLogEntry log, string ability, string source, string target, bool sourceIsLocal, bool targetIsLocal)
         {
-            if (log.Effect.EffectType != EffectType.Apply)
+            if (log.Effect.EffectType != EffectType.Event && log.Effect.EffectName != "AbilityActivate")
                 return TriggerType.None;
             if(SourceIsValid(log,source,sourceIsLocal) && TargetIsValid(log, target, targetIsLocal))
             {

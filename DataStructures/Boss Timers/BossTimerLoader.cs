@@ -19,6 +19,8 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
             if (currentBossTimers.Any(t => t.IsBossSource))
                 return;
             var bossTimers = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(@".\DataStructures\Boss Timers\BossTimers.json"));
+            if (bossTimers == null)
+                return;
             //var devTimers = JsonConvert.DeserializeObject<DefaultTimersData>(File.ReadAllText(@".\DataStructures\Boss Timers\DevTimers.json"));
             var bosses = bossTimers.ToObject<List<DefaultTimersData>>();
             //bosses.Add(devTimers);

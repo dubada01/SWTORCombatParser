@@ -49,30 +49,20 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimersWindowViewModel()
         {
             CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
-            EncounterTimerTrigger.EncounterDetected += OnBossEncounterDetected;
-            EncounterTimerTrigger.EncounterEnded += CloseIfDisplayingEncounter;
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
             CombatLogStreamer.NewLineStreamed += NewLogInANDOutOfCombat;
             _timerWindow = new TimersWindow(this);
+            CombatIdentifier.NewCombatAvailable += UpdateBossInfo;
         }
 
-        private void OnBossEncounterDetected(string encounter, string boss, string difficulty)
+        private void UpdateBossInfo(Combat obj)
         {
-            _currentBossInfo = (encounter, boss, difficulty);
-            if (_timerSource == null || !_timerSource.Contains('|'))
-                return;
-            var parts = _timerSource.Split('|');
-            if (parts[0] == encounter && parts[1] == boss && parts[2] == difficulty)
-            {
-                ShowTimers(!OverlaysMoveable);
-            }
+            if (obj != null && obj.IsCombatWithBoss)
+                _currentBossInfo = CombatIdentifier.CurrentCombat.EncounterBossDifficultyParts;
+            else
+                _currentBossInfo = ("", "", "");
         }
-        private void CloseIfDisplayingEncounter()
-        {
-            if (_timerSource == null || !_timerSource.Contains('|'))
-                return;
-            HideTimers();
-        }
+
         public void ShowTimers(bool isLocked)
         {
             if (!Active)
@@ -188,7 +178,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (timerEncounter == "All")
                 return true;
 
-            if (encounter.Name == timerEncounter && encounter.Difficutly == timerDifficulty && _currentBossInfo.Item2 == timerBoss)
+            if (encounter.Name == timerEncounter && (encounter.Difficutly == timerDifficulty || timerDifficulty == "All") && _currentBossInfo.Item1 == timerBoss)
                 return true;
             return false;
         }
@@ -197,7 +187,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (obj.Type == UpdateType.Start)
             {
-                _currentBossInfo = ("","","");
                 UncancellBeforeCombat();
             }
             if (obj.Type == UpdateType.Stop)
@@ -207,6 +196,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (obj.Logs == null || !_timersEnabled || obj.Type == UpdateType.Stop)
                 return;
             var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(obj.CombatStartTime);
+
             var logs = obj.Logs;
             foreach (var log in logs)
             {

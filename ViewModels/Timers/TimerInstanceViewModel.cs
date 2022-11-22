@@ -153,6 +153,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             else
             {
+                DisplayTimer = true;
                 DisplayTimerValue = false;
                 _dtimer.Tick += ClearAlert;
             }
