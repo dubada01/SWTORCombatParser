@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public Timer SourceTimer { get; set; } = new Timer();
         public bool IsHOT => SourceTimer.IsHot;
         public bool IsMechanic => SourceTimer.IsMechanic;
-        public bool CanEdit => !IsHOT && !IsMechanic;
+        public bool CanEdit => !IsHOT;
         public bool IsEnabled
         {
             get

@@ -138,7 +138,7 @@ namespace SWTORCombatParser
 
                     if (result == ProcessedLineResult.Incomplete)
                     {
-                        Logging.LogError("Failed to parse line " + lines[line]);
+                        Logging.LogError("Failed to parse line: " + lines[line]);
                         throw new Exception("Failed to parse line: " + lines[line]);
                     }
                 }

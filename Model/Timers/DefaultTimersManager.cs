@@ -20,24 +20,36 @@ namespace SWTORCombatParser.Model.Timers
         
         public List<Timer> Timers = new List<Timer>();
     }
-    public class TimersActive
-    {
-        public bool DisciplineActive { get; set; }
-        public bool EncounterActive { get; set; }
-    }
     public static class DefaultTimersManager
     {
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
 
-        private static string infoPath = Path.Combine(appDataPath, "timers_info_v2.json");
-        private static string activePath = Path.Combine(appDataPath, "timers_active.json");
-        public static void UpdateTimersActive(bool disciplineActive, bool encounterActive)
+        private static string infoPath = Path.Combine(appDataPath, "timers_info_v3.json");
+        private static string activePath = Path.Combine(appDataPath, "timers_active_v2.json");
+        public static void UpdateTimersActive(bool timersActive, string timerSource)
         {
-            File.WriteAllText(activePath, JsonConvert.SerializeObject(new TimersActive() { DisciplineActive = disciplineActive,EncounterActive=encounterActive }));
+            var currentActives = GetAllTimersActiveInfo();
+            
+            currentActives[timerSource] = timersActive;
+            SaveActiveTimersInfo(currentActives);
         }
-        public static TimersActive GetTimersActive()
+        public static bool GetTimersActive(string currentCharacter)
         {
-            return JsonConvert.DeserializeObject<TimersActive>(File.ReadAllText(activePath));
+            var activeInfo = GetAllTimersActiveInfo();
+            if (!activeInfo.ContainsKey(currentCharacter))
+            {
+                activeInfo[currentCharacter] = false;
+                SaveActiveTimersInfo(activeInfo);
+            }
+            return activeInfo[currentCharacter];
+        }
+        private static void SaveActiveTimersInfo(Dictionary<string,bool> activesInfo)
+        {
+            File.WriteAllText(activePath, JsonConvert.SerializeObject(activesInfo));
+        }
+        private static Dictionary<string,bool> GetAllTimersActiveInfo()
+        {
+            return JsonConvert.DeserializeObject<Dictionary<string, bool>>(File.ReadAllText(activePath));
         }
         public static void Init()
         {
@@ -49,7 +61,7 @@ namespace SWTORCombatParser.Model.Timers
             }
             if (!File.Exists(activePath))
             {
-                File.WriteAllText(activePath, JsonConvert.SerializeObject(new TimersActive()));
+                File.WriteAllText(activePath, JsonConvert.SerializeObject(new Dictionary<string, bool>()));
             }
         }
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)

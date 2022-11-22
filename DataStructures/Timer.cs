@@ -80,6 +80,7 @@ namespace SWTORCombatParser.DataStructures
                 TimerColor = TimerColor,
                 SpecificBoss = SpecificBoss,
                 SpecificEncounter = SpecificEncounter,
+                SpecificDifficulty = SpecificDifficulty,
                 ExperiationTimerId = ExperiationTimerId,
                 IsEnabled = IsEnabled,
                 TrackOutsideOfCombat = TrackOutsideOfCombat,

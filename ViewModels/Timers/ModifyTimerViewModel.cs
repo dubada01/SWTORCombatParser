@@ -22,6 +22,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private bool isAlert;
         private bool isPeriodic;
         private string selectedEncounter;
+        private string selectedDifficulty;
         private string selectedBoss;
         private bool isEditing;
         private List<string> defaultSourceTargets = new List<string> { "Any", "Local Player", "Custom" };
@@ -55,7 +56,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private Color selectedColor = Colors.CornflowerBlue;
 
         public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
-
+        public bool IsMechanicTimer { get; set; }
         public bool ShowAbilityOption { get; set; }
         public bool ShowEffectOption { get; set; }
         public bool ShowHPOption { get; set; }
@@ -283,7 +284,16 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged("AvailableBosses");
             }
         }
-
+        public List<string> AvailableDifficulties { get; set; } = new List<string> { "All", "Story", "Veteran", "Master" };
+        public string SelectedDifficulty
+        {
+            get => selectedDifficulty; set
+            {
+                if (string.IsNullOrEmpty(value))
+                    return;
+                selectedDifficulty = value;
+            }
+        }
         public List<string> AvailableBosses { get; set; } = new List<string>();
         public string SelectedBoss
         {
@@ -342,6 +352,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                 AvailableBosses = new List<string> { parts[1] };
                 selectedEncounter = parts[0];
                 SelectedBoss = parts[1];
+                SelectedDifficulty = parts[2];
+                IsMechanicTimer = true;
             }
             else
             {
@@ -349,12 +361,15 @@ namespace SWTORCombatParser.ViewModels.Timers
                 AvailableBosses.Insert(0, "All");
                 SelectedEncounter = "All";
                 SelectedBoss = "All";
+                SelectedDifficulty = "All";
+                IsMechanicTimer = false;
             }
             AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers;
             OnPropertyChanged("AvailableTimerNames");
             Id = Guid.NewGuid().ToString();
             AvailableTriggerTypes = Enum.GetValues<TimerKeyType>().ToList();
             HPPercentageDisplayBuffer = 5;
+            OnPropertyChanged("SelectedDifficulty");
             OnPropertyChanged("SelectedEncounter");
             OnPropertyChanged("SelectedBoss");
             OnPropertyChanged("AvailableBosses");
@@ -414,6 +429,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             HPPercentage = timerToEdit.HPPercentage;
             SelectedEncounter = timerToEdit.SpecificEncounter;
             SelectedBoss = timerToEdit.SpecificBoss;
+            SelectedDifficulty = timerToEdit.SpecificDifficulty;
             CanBeRefreshed = timerToEdit.CanBeRefreshed;
             HPPercentageDisplayBuffer = timerToEdit.HPPercentageDisplayBuffer;
             var addedAbilities = timerToEdit.AbilitiesThatRefresh.Select(a => new RefreshOptionViewModel() { Name = a }).ToList();
@@ -457,6 +473,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("SelectedEncounter");
             OnPropertyChanged("SelectedBoss");
             OnPropertyChanged("SelectedSource");
+            OnPropertyChanged("SelectedDifficulty");
             OnPropertyChanged("SelectedTarget");
             OnPropertyChanged("IsHot");
         }
@@ -498,13 +515,24 @@ namespace SWTORCombatParser.ViewModels.Timers
                 TimerColor = SelectedColor,
                 SpecificBoss = SelectedBoss,
                 SpecificEncounter = SelectedEncounter,
+                SpecificDifficulty = SelectedDifficulty,
                 CanBeRefreshed = CanBeRefreshed,
                 IsHot = IsHot,
-
+                IsMechanic = SelectedBoss != "All",
                 AbilitiesThatRefresh = AvailableRefreshOptions.Select(r => r.Name).ToList()
-
-
             };
+            if (newTimer.IsMechanic)
+            {
+                newTimer.Source = newTimer.SpecificBoss;
+                if (newTimer.TriggerType == TimerKeyType.EntityHP)
+                {
+                    newTimer.Target = newTimer.Source;
+                    newTimer.TargetIsLocal = newTimer.SourceIsLocal;
+                    newTimer.Source = "Any";
+                    newTimer.SourceIsLocal = false;
+                }
+            }
+
             OnNewTimer(newTimer, isEditing);
         }
         private bool Validate()

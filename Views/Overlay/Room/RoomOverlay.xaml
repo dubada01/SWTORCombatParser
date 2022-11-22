@@ -15,7 +15,7 @@
             <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
         </Viewbox>
-        <Canvas x:Name="ImageCanvas">
+        <Canvas IsHitTestVisible="False" x:Name="ImageCanvas">
             <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
             Margin="0,0,0,0" x:Name="ReferenceInfo" Canvas.Left="0" Canvas.Top="0"
             Width="{Binding ActualWidth, ElementName=ImageCanvas}"

@@ -53,7 +53,24 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                 continue;
                             using (var cmd = new NpgsqlCommand("INSERT INTO public.boss_mechanics_data" +
                                 " (start_time,seconds_elapsed,current_hp,boss_name,encounter_name,ability_name)" +
-                                $" VALUES ('{bossCombat.StartTime.ToUniversalTime()}','{secondsElapsed.ToString(CultureInfo.InvariantCulture)}','{currentHP.ToString(CultureInfo.InvariantCulture)}','{bossName.MakePGSQLSafe()}','{encounterName.MakePGSQLSafe()}','{abilityName.MakePGSQLSafe()}')", connection))
+                                $" VALUES " +
+                                $"(@p1," +
+                                $"@p2," +
+                                $"@p3," +
+                                $"@p4," +
+                                $"@p5," +
+                                $"@p6)", connection)
+                            {
+                                Parameters  =
+                                {
+                                    new ("p1",bossCombat.StartTime.ToUniversalTime()),
+                                    new ("p2",secondsElapsed.ToString(CultureInfo.InvariantCulture)),
+                                    new ("p3",currentHP.ToString(CultureInfo.InvariantCulture)),
+                                    new ("p4",bossName.MakePGSQLSafe()),
+                                    new ("p5",encounterName.MakePGSQLSafe()),
+                                    new ("p6",abilityName.MakePGSQLSafe())
+                                }
+                            })
                             {
                                 var r = cmd.ExecuteNonQueryAsync().Result;
                             }

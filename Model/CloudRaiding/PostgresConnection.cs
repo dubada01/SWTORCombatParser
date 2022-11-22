@@ -88,16 +88,31 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 {
                     using (var cmd = new NpgsqlCommand("INSERT INTO public.boss_leaderboards" +
                     " (boss_name,encounter_name,player_name,player_class,value,value_type,software_version,duration_sec,verified_kill,timestamp)" +
-                    $" VALUES ('{newEntry.Boss.MakePGSQLSafe()}','" +
-                    $"{newEntry.Encounter.MakePGSQLSafe()}','" +
-                    $"{newEntry.Character.MakePGSQLSafe()}','" +
-                    $"{newEntry.Class.MakePGSQLSafe()}'," +
-                    $"{newEntry.Value}," +
-                    $"'{newEntry.Type}'," +
-                    $"'{Leaderboards._leaderboardVersion}'," +
-                    $"'{newEntry.Duration}'," +
-                    $"'{newEntry.VerifiedKill}'," +
-                    $"'{newEntry.TimeStamp.ToUniversalTime()}')", connection))
+                    $" VALUES (@p1," +
+                    $"@p2," +
+                    $"@p3," +
+                    $"@p4," +
+                    $"@p5," +
+                    $"@p6," +
+                    $"@p7," +
+                    $"@p8," +
+                    $"@p9," +
+                    $"@p10)", connection)
+                    {
+                        Parameters =
+                        {
+                            new ("p1",newEntry.Boss.MakePGSQLSafe()),
+                            new ("p2",newEntry.Encounter.MakePGSQLSafe()),
+                            new ("p3",newEntry.Character.MakePGSQLSafe()),
+                            new ("p4",newEntry.Class.MakePGSQLSafe()),
+                            new ("p5",newEntry.Value),
+                            new ("p6",newEntry.Type),
+                            new ("p7",Leaderboards._leaderboardVersion),
+                            new ("p8",newEntry.Duration),
+                            new ("p9",newEntry.VerifiedKill),
+                            new ("p10",newEntry.TimeStamp.ToUniversalTime()),
+                        }
+                    })
                     {
                         await cmd.ExecuteNonQueryAsync();
                     }
