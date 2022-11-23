@@ -146,7 +146,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
             _disciplineTimersWindow = new TimersWindowViewModel();
-            _alertTimersWindow = new TimersWindowViewModel();
+            _alertTimersWindow = new TimersWindowViewModel(true);
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             CombatLogStreamer.HistoricalLogsFinished += SetDiscipline;
             RefreshAvaialbleTriggerOwners();

@@ -96,9 +96,10 @@ namespace SWTORCombatParser.Model.Overlays
                     else
                     {
                         InitializeDefaults(characterName);
+                        currentDefaults = GetCurrentDefaults();
                     }
                 }
-                  var defaultsForToon = currentDefaults[characterName];
+                var defaultsForToon = currentDefaults[characterName];
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var overlayType in enumVals)
                 {
@@ -138,10 +139,17 @@ namespace SWTORCombatParser.Model.Overlays
         {
             var currentDefaults = GetCurrentDefaults();
             var defaults = new Dictionary<string, DefaultOverlayInfo>();
-            var enumVals = EnumUtil.GetValues<OverlayType>();
-            foreach(var overlayType in enumVals)
+            if(characterName != "All")
             {
-                defaults[overlayType.ToString()] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                var enumVals = EnumUtil.GetValues<OverlayType>();
+                foreach (var overlayType in enumVals)
+                {
+                    defaults[overlayType.ToString()] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                }
+            }
+            else
+            {
+                defaults["Alerts"] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
             }
             currentDefaults[characterName] = defaults;
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
@@ -162,6 +170,10 @@ namespace SWTORCombatParser.Model.Overlays
                     if (typeIsValid)
                     {
                         playerTypedDefaults[typedResult.ToString()] = playerDefaults[overlayType];
+                    }
+                    else
+                    {
+                        playerTypedDefaults[overlayType] = playerDefaults[overlayType];
                     }
                 }
             }
