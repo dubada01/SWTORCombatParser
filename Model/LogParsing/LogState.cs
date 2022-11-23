@@ -122,9 +122,9 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!PlayerTargetsInfo.ContainsKey(player))
                 return new Entity();
             var targets = PlayerTargetsInfo[player];
-            if (targets.Keys.Where(v => v <= time).ToList().Count == 0)
+            if (!targets.Keys.Where(v => v <= time).Any())
                 return null;
-            return targets[targets.Keys.Where(v=>v <= time).ToList().MinBy(l => Math.Abs((time - l).TotalSeconds))];
+            return targets[targets.Keys.Where(v=>v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))];
         }
         public SWTORClass GetCharacterClassAtTime(string entityName, DateTime time)
         {

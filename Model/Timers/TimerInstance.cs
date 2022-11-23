@@ -48,15 +48,9 @@ namespace SWTORCombatParser.Model.Timers
                     {
                     ActiveTimerInstancesForTimer[i].Complete();
                 }
-                //ActiveTimerInstancesForTimer.ForEach(t => t.Complete());
-                //ActiveTimerInstancesForTimer.ForEach(t => TimerOfTypeExpired(t));
-                //ActiveTimerInstancesForTimer.Clear();
             }
             else
             {
-                //ActiveTimerInstancesForTimer.Remove(timer);
-                //TimerOfTypeExpired(timer);
-                //timer.Dispose();
                 timer.Complete();
             }
             
@@ -181,7 +175,13 @@ namespace SWTORCombatParser.Model.Timers
                     timerVm=CreateHPTimerInstance(currentHP,targetAdendum, targetId);
                 TimerNotifier.FireTimerTriggered(timerVm);
             }
-            if(wasTriggered == TriggerType.End)
+            if (wasTriggered == TriggerType.Start && ActiveTimerInstancesForTimer.Any(t => t.TargetId == targetId) && SourceTimer.TriggerType == TimerKeyType.AbilityUsed)
+            {
+                var timerToRefresh = ActiveTimerInstancesForTimer.First(t => t.TargetId == targetId);
+                timerToRefresh.Reset(log.TimeStamp);
+                //TimerNotifier.FireTimerTriggered(timerVm);
+            }
+            if (wasTriggered == TriggerType.End)
             {
                 var endedTimer = ActiveTimerInstancesForTimer.FirstOrDefault(t => t.TargetId == targetId);
 

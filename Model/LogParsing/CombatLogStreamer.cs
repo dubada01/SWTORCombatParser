@@ -28,7 +28,7 @@ namespace SWTORCombatParser
     {
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
         public event Action<string> NewSoftwareLog = delegate { };
-        public static event Action HistoricalLogsFinished = delegate { };
+        public static event Action<DateTime> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
@@ -235,7 +235,7 @@ namespace SWTORCombatParser
                 }
             }
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
-            HistoricalLogsFinished();
+            HistoricalLogsFinished(_currentCombatData.Count == 0? DateTime.Now : _currentCombatData.Max(l=>l.TimeStamp));
         }
         private bool CheckIfStale()
         {

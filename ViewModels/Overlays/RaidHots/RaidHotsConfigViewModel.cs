@@ -41,7 +41,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             RaidFrameOverlayManager.Init();
             
             _currentOverlay = new RaidFrameOverlay();
-            CombatLogStreamer.HistoricalLogsFinished += () => UpdateVisualsBasedOnRole(CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now));
+            CombatLogStreamer.HistoricalLogsFinished += (t) => 
+            {
+                var playerName = CombatLogStateBuilder.CurrentState.LocalPlayer.Name;
+                var classInfo = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(t);
+                _currentCharacter = playerName + "/" + classInfo.Discipline;
+                UpdateVisualsBasedOnRole(classInfo);
+            };
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             CombatLogStateBuilder.AreaEntered += ReFindImage;
             _currentOverlayViewModel = new RaidFrameOverlayViewModel(_currentOverlay) { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable };
@@ -55,8 +61,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _currentOverlay.Height = defaults.WidtHHeight.Y;
             _currentOverlay.Top = defaults.Position.Y;
             _currentOverlay.Left = defaults.Position.X;
-
-            
+            RaidFrameRows = defaults.Rows.ToString();
+            RaidFrameColumns = defaults.Columns.ToString();
         }
 
         public bool RaidFrameEditable => _isRaidFrameEditable;
@@ -79,6 +85,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 if (raidFrameRows == "")
                     return;
                 _currentOverlayViewModel.Rows = int.Parse(RaidFrameRows);
+                RaidFrameOverlayManager.SetRowsColumns(_currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns,_currentCharacter);
+                OnPropertyChanged();
             }
         }
         public string RaidFrameColumns
@@ -91,6 +99,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 if (raidFrameColumns == "")
                     return;
                 _currentOverlayViewModel.Columns = int.Parse(RaidFrameColumns);
+                RaidFrameOverlayManager.SetRowsColumns(_currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentCharacter);
+                OnPropertyChanged();
             }
         }
         public void HideRaidHots()
@@ -174,7 +184,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 });
                 _shouldCheckInitial = false;
                 _preformingAutoDetection = false;
-                //StartCheckForEndOfGroup();
             }); 
         }
         private void StartInitialCheck()
@@ -221,41 +230,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             StartPositioning(overlaysLocked);
         }
-
-        private void StartCheckForEndOfGroup()
-        {
-            Task.Run(() => {
-                while (RaidHotsEnabled && !_shouldCheckInitial)
-                {
-                    if (RaidFrameEditable)
-                    {
-                        Application.Current.Dispatcher.Invoke(() => {
-                            _currentOverlay.Opacity = 0; ;
-                        });
-                    }
-
-                    using (var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmap(_currentOverlayViewModel.TopLeft, (int)_currentOverlayViewModel.Width, (int)_currentOverlayViewModel.Height))
-                    {
-                        if (RaidFrameEditable)
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                _currentOverlay.Opacity = 1; ;
-                            });
-                        }
-
-                        var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
-                        if (redPixelAverage <= 0.015)
-                        {
-                            _currentOverlayViewModel.CurrentNames.Clear();
-                            break;
-                        }
-                        Thread.Sleep(3000);
-                    }
-                }
-            });
-
-        }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -268,6 +242,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             if (mostRecentDiscipline.Role == Role.Healer)
             {
                 var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
+                RaidFrameRows = defaults.Rows.ToString();
+                RaidFrameColumns = defaults.Columns.ToString();
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     RaidHotsEnabled = defaults.Acive;

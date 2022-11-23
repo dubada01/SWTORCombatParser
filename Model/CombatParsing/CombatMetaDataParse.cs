@@ -28,8 +28,8 @@ namespace SWTORCombatParser
 
                 var logsInScope = combat.GetLogsInvolvingEntity(entity);
 
-                var outgoingLogs = logsInScope.Where(log => log.Source == entity).ToList();
-                var incomingLogs = logsInScope.Where(log => log.Target == entity).ToList();
+                var outgoingLogs = logsInScope.Where(log => log.Source == entity);
+                var incomingLogs = logsInScope.Where(log => log.Target == entity);
 
                 combat.OutgoingDamageLogs[entity] = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
                 combat.OutgoingHealingLogs[entity] = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
@@ -77,7 +77,7 @@ namespace SWTORCombatParser
 
                 var totalAbilitiesDone = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate").Count();
 
-                var interruptLogs = outgoingLogs.Select((v,i)=>new {value=v,index=i}).Where(l => l.value.Effect.EffectType == EffectType.Event && l.index != 0 && l.value.Effect.EffectName == "AbilityInterrupt" && abilitiesThatCanInterrupt.Contains(outgoingLogs[l.index-1].Ability));
+                var interruptLogs = outgoingLogs.Select((v,i)=>new {value=v,index=i}).Where(l => l.value.Effect.EffectType == EffectType.Event && l.index != 0 && l.value.Effect.EffectName == "AbilityInterrupt" && abilitiesThatCanInterrupt.Contains(outgoingLogs.ElementAt(l.index-1).Ability));
 
                 var totalHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
