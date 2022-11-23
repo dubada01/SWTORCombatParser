@@ -54,7 +54,7 @@ namespace SWTORCombatParser.Model.Overlays
                 File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>>()));
             }
         }
-        public static void SetDefaults(OverlayType type, Point position, Point widtHHeight, string characterName)
+        public static void SetDefaults(string type, Point position, Point widtHHeight, string characterName)
         {
             var currentDefaults = GetDefaults(characterName);
             currentDefaults[type] = new DefaultOverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
@@ -69,7 +69,7 @@ namespace SWTORCombatParser.Model.Overlays
             }
             SaveResults(characterName, currentDefaults);
         }
-        public static void SetActiveState(OverlayType type, bool state, string characterName)
+        public static void SetActiveState(string type, bool state, string characterName)
         {
             var currentDefaults = GetDefaults(characterName);
             if (!currentDefaults.ContainsKey(type))
@@ -80,7 +80,7 @@ namespace SWTORCombatParser.Model.Overlays
             currentDefaults[type] = new DefaultOverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state, Locked = defaultModified.Locked };
             SaveResults(characterName, currentDefaults);
         }
-        public static Dictionary<OverlayType,DefaultOverlayInfo> GetDefaults(string characterName)
+        public static Dictionary<string,DefaultOverlayInfo> GetDefaults(string characterName)
         {
             try
             {
@@ -102,8 +102,8 @@ namespace SWTORCombatParser.Model.Overlays
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var overlayType in enumVals)
                 {
-                    if(!defaultsForToon.ContainsKey(overlayType))
-                        defaultsForToon[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 300 } };
+                    if(!defaultsForToon.ContainsKey(overlayType.ToString()))
+                        defaultsForToon[overlayType.ToString()] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 300 } };
                 }
                 return defaultsForToon;
             }
@@ -114,7 +114,7 @@ namespace SWTORCombatParser.Model.Overlays
             }
 
         }
-        private static void SaveResults(string character, Dictionary<OverlayType, DefaultOverlayInfo> data)
+        private static void SaveResults(string character, Dictionary<string, DefaultOverlayInfo> data)
         {
             var currentDefaults = GetCurrentDefaults();
             currentDefaults[character] = data;
@@ -137,31 +137,31 @@ namespace SWTORCombatParser.Model.Overlays
         private static void InitializeDefaults(string characterName)
         {
             var currentDefaults = GetCurrentDefaults();
-            var defaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
+            var defaults = new Dictionary<string, DefaultOverlayInfo>();
             var enumVals = EnumUtil.GetValues<OverlayType>();
             foreach(var overlayType in enumVals)
             {
-                defaults[overlayType] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                defaults[overlayType.ToString()] = new DefaultOverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
             }
             currentDefaults[characterName] = defaults;
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
-        private static Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>> GetCurrentDefaults()
+        private static Dictionary<string, Dictionary<string, DefaultOverlayInfo>> GetCurrentDefaults()
         {
             var stringInfo = File.ReadAllText(infoPath);
-            var typedDefaults = new Dictionary<string, Dictionary<OverlayType, DefaultOverlayInfo>>();
+            var typedDefaults = new Dictionary<string, Dictionary<string, DefaultOverlayInfo>>();
             var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, DefaultOverlayInfo>>>(stringInfo);
             foreach(var player in currentDefaults.Keys)
             {
                 var playerDefaults = currentDefaults[player];
-                var playerTypedDefaults = typedDefaults[player] = new Dictionary<OverlayType, DefaultOverlayInfo>();
+                var playerTypedDefaults = typedDefaults[player] = new Dictionary<string, DefaultOverlayInfo>();
                 foreach(var overlayType in playerDefaults.Keys)
                 {
                     OverlayType typedResult;
-                    var typeIsValid = Enum.TryParse<OverlayType>(overlayType, out typedResult);
+                    var typeIsValid = Enum.TryParse(overlayType, out typedResult);
                     if (typeIsValid)
                     {
-                        playerTypedDefaults[typedResult] = playerDefaults[overlayType];
+                        playerTypedDefaults[typedResult.ToString()] = playerDefaults[overlayType];
                     }
                 }
             }

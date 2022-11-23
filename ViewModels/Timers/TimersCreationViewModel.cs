@@ -32,6 +32,7 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class TimersCreationViewModel : INotifyPropertyChanged
     {
         private TimersWindowViewModel _disciplineTimersWindow;
+        private TimersWindowViewModel _alertTimersWindow;
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private TimerType selectedTimerSourceType = TimerType.Discipline;
         private bool _isLocked;
@@ -133,6 +134,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void HideTimers()
         {
             _disciplineTimersWindow.HideTimers();
+            //_alertTimersWindow.HideTimers();
         }
         public ObservableCollection<TimerRowInstanceViewModel> TimerRows { get; set; } = new ObservableCollection<TimerRowInstanceViewModel>();
 
@@ -144,6 +146,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
             _disciplineTimersWindow = new TimersWindowViewModel();
+            _alertTimersWindow = new TimersWindowViewModel();
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             CombatLogStreamer.HistoricalLogsFinished += SetDiscipline;
             RefreshAvaialbleTriggerOwners();
@@ -237,6 +240,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             newTimer.DeleteRequested += Delete;
             TimerRows.Add(newTimer);
             _disciplineTimersWindow.RefreshTimers();
+            _alertTimersWindow.RefreshTimers();
             UpdateRowColors();
         }
         private void SaveNewTimer(Timer timer)
@@ -247,6 +251,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void UpdateLock(bool state)
         {
             _disciplineTimersWindow.UpdateLock(state);
+            _alertTimersWindow.UpdateLock(state);
             _isLocked = state;
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
@@ -286,6 +291,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             DefaultTimersManager.RemoveTimerForCharacter(obj.SourceTimer, SelectedTimerSource);
             TimerRows.Remove(obj);
             _disciplineTimersWindow.RefreshTimers();
+            _alertTimersWindow.RefreshTimers();
             UpdateRowColors();
         }
 
@@ -319,6 +325,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             DefaultTimersManager.SetTimerEnabled(timerRow.IsEnabled, timerRow.SourceTimer);
             _disciplineTimersWindow.EnabledChangedForTimer(timerRow.IsEnabled, timerRow.SourceTimer.Id);
+            _alertTimersWindow.EnabledChangedForTimer(timerRow.IsEnabled, timerRow.SourceTimer.Id);
         }
         private void UpdateRowColors()
         {

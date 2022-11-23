@@ -2,6 +2,7 @@
 using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Views.Timers;
 using System;
@@ -18,11 +19,12 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class TimersWindowViewModel : INotifyPropertyChanged
     {
         private string _timerSource;
-        private TimersWindow _timerWindow;
+        private ITimerWindow _timerWindow;
         private bool _timersEnabled;
         private List<TimerInstance> _createdTimers = new List<TimerInstance>();
         private bool active;
         private (string, string, string) _currentBossInfo;
+        private bool isAlerts;
 
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
@@ -46,13 +48,29 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
 
-        public TimersWindowViewModel()
+        public TimersWindowViewModel(bool isAlert = false)
         {
             CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
             CombatLogStreamer.NewLineStreamed += NewLogInANDOutOfCombat;
-            _timerWindow = new TimersWindow(this);
+            isAlerts = isAlert;
+            if (isAlert)
+                _timerWindow = new AlertView(this);
+            else
+                _timerWindow = new TimersWindow(this);
             CombatIdentifier.NewCombatAvailable += UpdateBossInfo;
+            if (isAlerts)
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    var defaultTimersInfo = DefaultOverlayManager.GetDefaults("All")["Alerts"];
+                    _timerWindow.Top = defaultTimersInfo.Position.Y;
+                    _timerWindow.Left = defaultTimersInfo.Position.X;
+                    _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
+                    _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
+                    ShowTimers(!OverlaysMoveable);
+                });
+            }
         }
 
         private void UpdateBossInfo(Combat obj)
@@ -134,6 +152,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 timers = DefaultTimersManager.GetDefaults(_timerSource).Timers;
             }
+            var validTimers = isAlerts ? timers.Where(t => t.IsAlert) : timers.Where(t => !t.IsAlert);
             var timerInstances = timers.Select(t => new TimerInstance(t)).ToList();
             foreach (var timerInstance in timerInstances)
             {

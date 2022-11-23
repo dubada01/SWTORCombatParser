@@ -1,9 +1,12 @@
 ﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Overlays;
+using SWTORCombatParser.Model.Timers;
+using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -14,30 +17,28 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace SWTORCombatParser.Views.Overlay
+namespace SWTORCombatParser.Views.Timers
 {
     /// <summary>
-    /// Interaction logic for InfoOverlay.xaml
+    /// Interaction logic for AlertView.xaml
     /// </summary>
-    public partial class InfoOverlay : Window
+    public partial class AlertView : Window, ITimerWindow
     {
-        private OverlayInstanceViewModel viewModel;
+        private TimersWindowViewModel viewModel;
         private string _currentPlayerName;
-        public InfoOverlay(OverlayInstanceViewModel vm)
+        public AlertView(TimersWindowViewModel vm)
         {
             viewModel = vm;
             DataContext = vm;
             InitializeComponent();
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close,
-                new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
+    new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;
             vm.OnLocking += makeTransparent;
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
-            
             Loaded += OnLoaded;
         }
-
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             RemoveFromAppWindow();
@@ -49,9 +50,11 @@ namespace SWTORCombatParser.Views.Overlay
             int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
             SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
         }
+
         public const int WS_EX_TRANSPARENT = 0x00000020;
         public const int GWL_EXSTYLE = (-20);
-        private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
+        private const int WS_EX_APPWINDOW = 0x00040000;
+        private const int WS_EX_TOOLWINDOW = 0x00000080;
 
         [DllImport("user32.dll")]
         public static extern int GetWindowLong(IntPtr hwnd, int index);
@@ -68,7 +71,7 @@ namespace SWTORCombatParser.Views.Overlay
                     Background.Opacity = 0.1f;
                     ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-                    SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
+                    SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TRANSPARENT) & ~WS_EX_APPWINDOW);
                 }
                 else
                 {
@@ -82,45 +85,39 @@ namespace SWTORCombatParser.Views.Overlay
             });
 
         }
+        private void CloseOverlay()
+        {
+            Dispatcher.Invoke(() => {
+                Hide();
+            });
+
+        }
         public void SetPlayer(string playerName)
         {
             _currentPlayerName = playerName;
         }
-        private void CloseOverlay()
-        {
-            Dispatcher.Invoke(() => {
-                Close();
-            });
-   
-        }
-
         public void DragWindow(object sender, MouseButtonEventArgs args)
         {
             DragMove();
         }
         public void UpdateDefaults(object sender, MouseButtonEventArgs args)
         {
-            DefaultOverlayManager.SetDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            DefaultOverlayManager.SetDefaults("Alerts", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, "All");
         }
 
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             var yadjust = Height + e.VerticalChange;
             var xadjust = Width + e.HorizontalChange;
-            if(xadjust > 0)
+            if (xadjust > 0)
                 SetValue(WidthProperty, xadjust);
-            if(yadjust > 0)
+            if (yadjust > 0)
                 SetValue(HeightProperty, yadjust);
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            viewModel.OverlayClosing();
         }
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            DefaultOverlayManager.SetDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            DefaultOverlayManager.SetDefaults("Alerts",new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, "All");
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 
@@ -147,7 +144,6 @@ namespace SWTORCombatParser.Views.Overlay
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DefaultOverlayManager.SetActiveState(viewModel.Type.ToString(), false, _currentPlayerName);
             CloseOverlay();
         }
     }
