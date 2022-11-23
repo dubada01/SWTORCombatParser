@@ -276,9 +276,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 else
                 {
                     metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue };
-                    var worked = _metricBarsDict.TryAdd((participant.Name,false),metricToUpdate);
-                    if (!worked)
-                        Console.Write("No");
+                    _metricBarsDict.TryAdd((participant.Name,false),metricToUpdate);
                 }
 
                 UpdateMetric(Type, metricToUpdate, combatToDisplay, participant);

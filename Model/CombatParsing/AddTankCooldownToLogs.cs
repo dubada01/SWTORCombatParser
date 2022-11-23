@@ -49,7 +49,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             var modifiers = state.Modifiers;
 
             var damageLogs = combat.IncomingDamageLogs;
-            var damageTargets = damageLogs.Keys.ToList();
+            var damageTargets = damageLogs.Keys;
             
             foreach(var target in damageTargets)
             {
@@ -58,8 +58,8 @@ namespace SWTORCombatParser.Model.CombatParsing
 
 
                 var allLogs = damageLogs[target];
-                var logsForTarget = damageLogs[target].ToList();
-                var uniqueAbilities = logsForTarget.Select(d => d.Ability).Distinct().ToList();
+                var logsForTarget = damageLogs[target];
+                var uniqueAbilities = logsForTarget.Select(d => d.Ability).Distinct();
                 var averageDamageFromAbility = uniqueAbilities.ToDictionary(a => a, a => allLogs.Where(l => l.Ability == a).Select(v => v.Value.EffectiveDblValue).Average());
                 var cooldownsForTarget = modifiers
                     .Where(m => _tankCooldowns.Contains(m.Value.First().Value.EffectName))

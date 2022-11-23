@@ -106,7 +106,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             new ("p3",newEntry.Character.MakePGSQLSafe()),
                             new ("p4",newEntry.Class.MakePGSQLSafe()),
                             new ("p5",newEntry.Value),
-                            new ("p6",newEntry.Type),
+                            new ("p6",newEntry.Type.ToString()),
                             new ("p7",Leaderboards._leaderboardVersion),
                             new ("p8",newEntry.Duration),
                             new ("p9",newEntry.VerifiedKill),

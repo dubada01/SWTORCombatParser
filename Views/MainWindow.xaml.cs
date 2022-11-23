@@ -48,6 +48,16 @@ namespace SWTORCombatParser
             Hiding();
         }
     }
+    public static class HeaderSelectionState
+    {
+        public static event Action NewHeaderSelected = delegate { };
+        public static string CurrentlySelectedTabHeader = "";
+        public static void UpdateSelectedHeader(string header)
+        {
+            CurrentlySelectedTabHeader = header;
+            NewHeaderSelected();
+        }
+    }
     public partial class MainWindow : Window
     {
         private bool _actuallyClosing = false;
@@ -128,6 +138,16 @@ namespace SWTORCombatParser
         private void Window_MouseLeave_1(object sender, System.Windows.Input.MouseEventArgs e)
         {
             OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new System.Windows.Point { X = Left, Y = Top }, Width = ActualWidth, Height = ActualHeight });
+        }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count == 0)
+                return;
+            var tabInstance = e.AddedItems[0] as TabInstance;
+            if (tabInstance == null)
+                return;
+            HeaderSelectionState.UpdateSelectedHeader(tabInstance.HeaderText);
         }
     }
 }

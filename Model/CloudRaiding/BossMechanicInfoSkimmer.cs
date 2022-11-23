@@ -64,8 +64,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                 Parameters  =
                                 {
                                     new ("p1",bossCombat.StartTime.ToUniversalTime()),
-                                    new ("p2",secondsElapsed.ToString(CultureInfo.InvariantCulture)),
-                                    new ("p3",currentHP.ToString(CultureInfo.InvariantCulture)),
+                                    new ("p2",secondsElapsed),
+                                    new ("p3",currentHP),
                                     new ("p4",bossName.MakePGSQLSafe()),
                                     new ("p5",encounterName.MakePGSQLSafe()),
                                     new ("p6",abilityName.MakePGSQLSafe())

@@ -236,7 +236,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        private void EnableTimers()
+        private void EnableTimers(DateTime combatEndTime)
         {
             _timersEnabled = true;
         }

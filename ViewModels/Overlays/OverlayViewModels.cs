@@ -169,10 +169,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _currentOverlays.ForEach(o => o.CharacterDetected(_currentCharacterDiscipline));
             });
         }
-        private void FinishHistoricalParse()
+        private void FinishHistoricalParse(DateTime combatEndTime)
         {
             var localPlayer = CombatLogStateBuilder.CurrentState.LocalPlayer;
-            var currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now);
+            var currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
             if (localPlayer == null)
                 return;
             UpdateOverlaysForDiscipline(localPlayer, currentDiscipline);

@@ -78,11 +78,18 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 OnPropertyChanged();
             }
         }
+        private DateTime _lastUpdateTime;
+        private double _accurateDuration;
         public BossFrameConfigViewModel()
         {
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
-            _timer.Tick += (e,r) => { CombatDuration++; };
+            _timer.Tick += (e,r) => 
+            {
+                _accurateDuration += (DateTime.Now - _lastUpdateTime).TotalSeconds;
+                CombatDuration = (int)_accurateDuration;
+                _lastUpdateTime = DateTime.Now;
+            };
 
             CombatLogStreamer.CombatUpdated += OnNewLog;
             View = new BrossFrameView(this);
@@ -166,11 +173,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             _timer.Stop();
             CombatDuration = 0;
+            _accurateDuration = 0;
         }
 
         private void StartTimer()
         {
+            _lastUpdateTime = DateTime.Now;
             CombatDuration = 0;
+            _accurateDuration = 0;
             _timer.Start();
         }
 

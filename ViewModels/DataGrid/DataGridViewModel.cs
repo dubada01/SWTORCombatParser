@@ -24,7 +24,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private List<Combat> _allSelectedCombats = new List<Combat>();
         private List<OverlayType> _selectedColumnTypes = _defaultColumns;
         private static List<OverlayType> _defaultColumns = new List<OverlayType>() { OverlayType.DPS, OverlayType.BurstDPS, OverlayType.EHPS, OverlayType.BurstEHPS, OverlayType.DamageTaken, OverlayType.BurstDamageTaken, OverlayType.APM };
-        private ObservableCollection<MemberInfoViewModel> partyMembers;
+        private ObservableCollection<MemberInfoViewModel> partyMembers = new ObservableCollection<MemberInfoViewModel>();
         private ObservableCollection<DataGridHeaderViewModel> headerNames;
         private OverlayType _sortMetric;
         private SortingDirection _sortDirection;
@@ -38,10 +38,10 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             UpdateHeaders();
         }
 
-        private void UpdateLocalPlayer()
+        private void UpdateLocalPlayer(DateTime combatEndTime)
         {
             var player = CombatLogStateBuilder.CurrentState.LocalPlayer;
-            var discipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now);
+            var discipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
             if (player == null || discipline == null)
                 return;
             _localPlayer = player.Name + "_" + discipline.Discipline;
@@ -126,24 +126,28 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 return;
             var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
             var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns));
-            var sortedMembers = new ObservableCollection<MemberInfoViewModel>();
+            PartyMembers.Clear();
+            var sortedMembers = new List<MemberInfoViewModel>();
             if (_sortDirection == SortingDirection.Ascending)
             {
-                sortedMembers = new ObservableCollection<MemberInfoViewModel>(newPlayers.OrderBy(v => GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)));
+                sortedMembers = newPlayers.OrderBy(v => GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
             }
             if (_sortDirection == SortingDirection.Descending)
             {
-                sortedMembers = new ObservableCollection<MemberInfoViewModel>(newPlayers.OrderByDescending(v => GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)));
+                sortedMembers = newPlayers.OrderByDescending(v => GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
             }
             if(_sortDirection == SortingDirection.None)
             {
-                sortedMembers = new ObservableCollection<MemberInfoViewModel>(newPlayers);
+                sortedMembers = newPlayers.ToList();
             }
             for(var i = 0; i < sortedMembers.Count; i++)
             {
                 sortedMembers[i].AssignBackground(i);
             }
-            PartyMembers = sortedMembers;
+            foreach(var member in sortedMembers)
+            {
+                PartyMembers.Add(member);
+            }
         }
 
         private void Sort(SortingDirection arg1, string arg2)

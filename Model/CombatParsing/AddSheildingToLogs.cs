@@ -37,7 +37,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 var absorbsOnTarget = modifiers.Where(m => currentAbsorbAbilities.Contains(m.Value.First().Value.EffectName)).SelectMany(kvp => kvp.Value).Where(mod => mod.Value.Target == target).Select(kvp=>kvp.Value).ToList();
                 foreach (var log in logsForTarget)
                 {
-                    var activeAbsorbs = absorbsOnTarget.Where((m, i) => IsModifierActive(m, i, absorbsOnTarget, log)).OrderBy(a=>a.StartTime).ToList();
+                    var activeAbsorbs = absorbsOnTarget.Where(m => IsModifierActive(m, log)).OrderBy(a=>a.StartTime).ToList();
 
                     for (var i = 0; i<activeAbsorbs.Count; i++)
                     {
@@ -113,7 +113,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             modifiers.ForEach(m => m.Value.ForEach(mv => mv.Value.HasAbsorbBeenCounted=false));
         }
 
-        private static bool IsModifierActive(CombatModifier modifier, int i, List<CombatModifier> absorbsOnTarget, ParsedLogEntry log)
+        private static bool IsModifierActive(CombatModifier modifier, ParsedLogEntry log)
         {
             //todo mark modifiers are accounted for once they've been fully used 
             if (modifier.HasAbsorbBeenCounted)
@@ -121,9 +121,6 @@ namespace SWTORCombatParser.Model.CombatParsing
             if(modifier.StartTime < log.TimeStamp && (modifier.StopTime.AddSeconds(4.25) >= log.TimeStamp))
             {
                 return true;
-                if (i + 1 == absorbsOnTarget.Count)
-                    return true;
-                return modifier.StopTime.AddSeconds(4.25) < absorbsOnTarget[i+1].StartTime;
             }
             return false;
         }

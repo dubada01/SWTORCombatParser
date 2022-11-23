@@ -341,7 +341,7 @@ namespace SWTORCombatParser.ViewModels
                 Logging.LogInfo("Combat added to encounter");
             }
         }
-        private void HistoricalLogsFinished()
+        private void HistoricalLogsFinished(DateTime combatEndTime)
         {
             Logging.LogInfo("Processing logs into combats...");
             Logging.LogInfo("Detected "+ _totalLogsDuringCombat.Keys.Count() +" distinct combats");
@@ -375,6 +375,8 @@ namespace SWTORCombatParser.ViewModels
         }
         private void AddCombatToEncounter(Combat combat, bool isRealtime)
         {
+            if (CurrentEncounter == null)
+                return;
             CurrentEncounter.AddCombat(combat, isRealtime);
         }
         private void AddOngoingCombat(string location)

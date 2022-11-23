@@ -52,6 +52,8 @@
     <Color x:Key="BorderMediumColor">#FF888888</Color>
     <Color x:Key="BorderDarkColor">#FF444444</Color>
 
+    <Color x:Key="EHPSColor">#02bf61</Color>
+    
     <Color x:Key="PressedBorderLightColor">#FF888888</Color>
     <Color x:Key="PressedBorderDarkColor">#FF444444</Color>
 

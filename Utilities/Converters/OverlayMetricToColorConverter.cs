@@ -26,7 +26,7 @@ namespace SWTORCombatParser.Utilities.Converters
                 case OverlayType.BurstEHPS:
                     return Brushes.LimeGreen;
                 case OverlayType.EHPS:
-                    return Brushes.ForestGreen;
+                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("EHPSColor"));
                 case OverlayType.HPS:
                     return Brushes.Green;
                 case OverlayType.ProvidedAbsorb:

@@ -64,7 +64,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             _view = view;
             TimerNotifier.NewTimerTriggered += CheckForRaidHOT;
-            //CheckForUpdatedName();
         }
         private void CheckForRaidHOT(TimerInstanceViewModel obj)
         {
@@ -72,9 +71,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 var playerName = obj.TargetAddendem.ToLower();
                 var maxMatchingCharacters = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, playerName));
-                var match = LevenshteinDistance.Compute(maxMatchingCharacters, playerName);
-                if (match > 3)
-                    return;
                 var cellToUpdate = RaidHotCells.First(c => c.Name.ToLower() == maxMatchingCharacters);
                 cellToUpdate.AddTimer(obj);
             }

@@ -16,7 +16,7 @@
             <RowDefinition Height=".85*"/>
             <RowDefinition Height=".1*"/>
         </Grid.RowDefinitions>
-        <TabControl SelectedIndex="{Binding SelectedTabIndex}" ItemsSource="{Binding ContentTabs}" BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="{StaticResource Gray5Brush}" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}" SelectionChanged="TabControl_SelectionChanged"  ItemsSource="{Binding ContentTabs}" BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="{StaticResource Gray5Brush}" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabControl}">
                     <Setter Property="Template">
