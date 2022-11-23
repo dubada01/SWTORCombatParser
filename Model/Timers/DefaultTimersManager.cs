@@ -181,7 +181,7 @@ namespace SWTORCombatParser.Model.Timers
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
             }
 
-            var defaults = new DefaultTimersData() {TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(100, 200)};
+            var defaults = new DefaultTimersData() {TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(300, 200)};
             if (timerSource.Contains("|"))
                 defaults.IsBossSource = true;
             currentDefaults.Add(defaults);

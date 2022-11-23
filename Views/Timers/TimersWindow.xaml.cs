@@ -24,7 +24,18 @@ namespace SWTORCombatParser.Views.Timers
     /// <summary>
     /// Interaction logic for TimersWindow.xaml
     /// </summary>
-    public partial class TimersWindow : Window
+    public interface ITimerWindow
+    {
+        double Height { get; set; }
+        double Width { get; set; }
+        double Top { get; set; }
+        double Left { get; set; }
+        void Hide();
+        void Show();
+        void makeTransparent(bool shouldLock);
+        void SetPlayer(string player);
+    }
+    public partial class TimersWindow :  Window, ITimerWindow
     {
         private TimersWindowViewModel viewModel;
         private string _currentPlayerName;

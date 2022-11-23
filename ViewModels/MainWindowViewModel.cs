@@ -130,8 +130,7 @@ namespace SWTORCombatParser.ViewModels
         private void UpdateDataForNewTab()
         {
             if(CurrentlyDisplayedCombat != null && _allViewsUpToDate == false)
-                UpdateCombat(CurrentlyDisplayedCombat);
-            _allViewsUpToDate = true;
+                SelectCombat(CurrentlyDisplayedCombat);
         }
 
         private void ProcessChanged(bool obj)

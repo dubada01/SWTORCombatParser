@@ -27,7 +27,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
     {
 
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
-        private Dictionary<OverlayType, DefaultOverlayInfo> _overlayDefaults = new Dictionary<OverlayType, DefaultOverlayInfo>();
+        private Dictionary<string, DefaultOverlayInfo> _overlayDefaults = new Dictionary<string, DefaultOverlayInfo>();
         private string _currentCharacterDiscipline = "None";
         private bool overlaysLocked = true;
         private LeaderboardType selectedLeaderboardType;
@@ -161,9 +161,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
                 {
-                    if (!_overlayDefaults.ContainsKey(enumVal))
+                    if (!_overlayDefaults.ContainsKey(enumVal.ToString()))
                         continue;
-                    if (_overlayDefaults[enumVal].Acive)
+                    if (_overlayDefaults[enumVal.ToString()].Acive)
                         CreateOverlay(enumVal);
                 }
                 _currentOverlays.ForEach(o => o.CharacterDetected(_currentCharacterDiscipline));
@@ -197,18 +197,19 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 return;
 
             var viewModel = new OverlayInstanceViewModel(overlayType);
-            DefaultOverlayManager.SetActiveState(viewModel.Type, true, _currentCharacterDiscipline);
+            DefaultOverlayManager.SetActiveState(viewModel.Type.ToString(), true, _currentCharacterDiscipline);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = !OverlaysLocked;
             _currentOverlays.Add(viewModel);
             var overlay = new InfoOverlay(viewModel);
             overlay.SetPlayer(_currentCharacterDiscipline);
-            if (_overlayDefaults.ContainsKey(viewModel.Type))
+            var stringType = viewModel.Type.ToString();
+            if (_overlayDefaults.ContainsKey(stringType))
             {
-                overlay.Top = _overlayDefaults[viewModel.Type].Position.Y;
-                overlay.Left = _overlayDefaults[viewModel.Type].Position.X;
-                overlay.Width = _overlayDefaults[viewModel.Type].WidtHHeight.X;
-                overlay.Height = _overlayDefaults[viewModel.Type].WidtHHeight.Y;
+                overlay.Top = _overlayDefaults[stringType].Position.Y;
+                overlay.Left = _overlayDefaults[stringType].Position.X;
+                overlay.Width = _overlayDefaults[stringType].WidtHHeight.X;
+                overlay.Height = _overlayDefaults[stringType].WidtHHeight.Y;
             }
             overlay.Show();
             viewModel.Refresh(CombatIdentifier.CurrentCombat);
