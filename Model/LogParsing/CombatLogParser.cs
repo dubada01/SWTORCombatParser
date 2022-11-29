@@ -1,16 +1,14 @@
-﻿using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Utilities;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Model.LogParsing
 {
 
     public static class CombatLogParser

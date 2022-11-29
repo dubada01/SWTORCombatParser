@@ -1,17 +1,8 @@
-﻿using Microsoft.Win32;
-using SWTORCombatParser.Model.CloudRaiding;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.resources;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.HistoricalLogs;
-using SWTORCombatParser.Views;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -20,8 +11,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Win32;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.HistoricalLogs;
+using SWTORCombatParser.Views.Home_Views;
 
-namespace SWTORCombatParser.ViewModels
+namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
     public class CombatMonitorViewModel : INotifyPropertyChanged
     {

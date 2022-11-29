@@ -1,12 +1,10 @@
 ﻿using MoreLinq;
 using SWTORCombatParser.DataStructures.AbilityInfo;
-using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
@@ -115,7 +113,6 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         private static bool IsModifierActive(CombatModifier modifier, ParsedLogEntry log)
         {
-            //todo mark modifiers are accounted for once they've been fully used 
             if (modifier.HasAbsorbBeenCounted)
                 return false;
             if(modifier.StartTime < log.TimeStamp && (modifier.StopTime.AddSeconds(4.25) >= log.TimeStamp))

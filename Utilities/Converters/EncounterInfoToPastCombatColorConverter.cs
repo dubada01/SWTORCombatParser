@@ -1,10 +1,8 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Globalization;
-using System.Text;
 using System.Windows.Data;
 using System.Windows.Media;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.Utilities.Converters
 {

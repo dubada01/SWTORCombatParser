@@ -1,16 +1,15 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.CombatParsing;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatParsing;
 
-namespace SWTORCombatParser.ViewModels
+namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
     public class EncounterCombat:INotifyPropertyChanged
     {

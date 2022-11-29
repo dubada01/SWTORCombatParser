@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json;
-using SWTORCombatParser.Utilities;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using SWTORCombatParser.Utilities;
 using System.Windows;
 
 namespace SWTORCombatParser.Views

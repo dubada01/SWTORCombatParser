@@ -1,17 +1,10 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Npgsql;
+﻿using Npgsql;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.CloudLogging
 {

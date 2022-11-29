@@ -1,9 +1,6 @@
-﻿using SWTORCombatParser.Views.TableViews;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows;
+using SWTORCombatParser.Views.Overviews;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {

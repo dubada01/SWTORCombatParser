@@ -1,16 +1,12 @@
-﻿using MoreLinq;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.CloudRaiding;
+﻿using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Leaderboard_View;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.Leaderboard
 {

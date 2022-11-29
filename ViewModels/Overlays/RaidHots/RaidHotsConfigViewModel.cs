@@ -1,22 +1,19 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Overlays.RaidHots;
-using SWTORCombatParser.Views.Overlay.RaidHOTs;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Views.Overlay.RaidHOTs;
 
-namespace SWTORCombatParser.ViewModels.Overlays
+namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
     public class RaidHotsConfigViewModel:INotifyPropertyChanged
     {

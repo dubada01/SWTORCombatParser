@@ -2,15 +2,11 @@
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Media;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures.RaidInfos;
 using System.Collections.ObjectModel;
 using SWTORCombatParser.Model.Timers;
 
@@ -42,7 +38,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool TimerNameInError = false;
+        public bool TimerNameInError;
         public SolidColorBrush TimerNameHelpTextColor => TimerNameInError ? Brushes.Red : Brushes.LightGray;
         public string TriggerValueHelpText { get; set; }
 

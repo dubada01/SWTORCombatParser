@@ -1,12 +1,8 @@
 ﻿using SWTORCombatParser.Model.CloudRaiding;
-using Google.Cloud.Vision.V1;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Image = Google.Cloud.Vision.V1.Image;
 
 namespace SWTORCombatParser.Model.Overlays

@@ -14,12 +14,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows;
 using System.Windows.Input;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.ViewModels.Overlays.RaidHots;
+using SWTORCombatParser.Views.Overlay.BossFrame;
+using SWTORCombatParser.Views.Overlay.RaidHOTs;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {

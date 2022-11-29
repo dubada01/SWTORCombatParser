@@ -3,14 +3,12 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Views.Overlay.BossFrame;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Threading;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {

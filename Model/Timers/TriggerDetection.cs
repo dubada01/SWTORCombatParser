@@ -1,10 +1,9 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.LogParsing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using SWTORCombatParser.DataStructures;
 
-namespace SWTORCombatParser.ViewModels.Timers
+namespace SWTORCombatParser.Model.Timers
 {
     public enum TriggerType
     {

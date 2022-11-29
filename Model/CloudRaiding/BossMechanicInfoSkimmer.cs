@@ -3,12 +3,9 @@ using Newtonsoft.Json.Linq;
 using Npgsql;
 using SWTORCombatParser.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {

@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SWTORCombatParser.Model.CloudLogging;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Utilities
 {

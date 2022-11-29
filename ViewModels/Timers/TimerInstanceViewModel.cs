@@ -1,17 +1,8 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.Timers;
-using SWTORCombatParser.Utilities;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Timer = SWTORCombatParser.DataStructures.Timer;

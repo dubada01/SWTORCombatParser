@@ -1,12 +1,11 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.LogParsing;
+﻿using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
+using Timer = System.Timers.Timer;
 
 namespace SWTORCombatParser.Utilities
 {

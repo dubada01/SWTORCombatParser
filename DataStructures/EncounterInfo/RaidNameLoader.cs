@@ -1,10 +1,9 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using Newtonsoft.Json;
 
-namespace SWTORCombatParser.DataStructures.RaidInfos
+namespace SWTORCombatParser.DataStructures.EncounterInfo
 {
     public static class RaidNameLoader
     {

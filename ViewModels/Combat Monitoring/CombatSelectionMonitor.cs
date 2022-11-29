@@ -1,6 +1,8 @@
 ﻿using System;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
 
-namespace SWTORCombatParser.ViewModels
+namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
     public static class CombatSelectionMonitor
     {

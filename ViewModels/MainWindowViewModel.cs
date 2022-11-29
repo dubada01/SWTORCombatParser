@@ -1,8 +1,4 @@
-﻿using ScottPlot;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Plotting;
-using SWTORCombatParser.resources;
+﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.BattleReview;
 using SWTORCombatParser.ViewModels.DataGrid;
@@ -10,12 +6,10 @@ using SWTORCombatParser.ViewModels.HistoricalLogs;
 using SWTORCombatParser.ViewModels.Leaderboard;
 using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.Overviews;
-using SWTORCombatParser.ViewModels.SoftwareLogging;
 using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.DataGrid_Views;
 using SWTORCombatParser.Views.HistoricalLogs;
 using SWTORCombatParser.Views.Leaderboard_View;
-using SWTORCombatParser.Views.PastCombatViews;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,25 +18,31 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Media;
+using System.Windows;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.Home_View_Models;
+using SWTORCombatParser.Views.Battle_Review;
+using SWTORCombatParser.Views.Home_Views;
+using SWTORCombatParser.Views.Home_Views.PastCombatViews;
+using SWTORCombatParser.Views.Overlay;
+using SWTORCombatParser.Views.Overviews;
 
 namespace SWTORCombatParser.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        private PlotViewModel _plotViewModel;
-        private BattleReviewViewModel _reviewViewModel;
-        private CombatMonitorViewModel _combatMonitorViewModel;
-        private OverlayViewModel _overlayViewModel;
-        private OverviewViewModel _tableViewModel;
-        private DataGridViewModel _dataGridViewModel;
-        private SoftwareLogViewModel _softwareLogViewModel;
-        private OverviewViewModel _histViewModel;
-        private LeaderboardViewModel _leaderboardViewModel;
+        private readonly PlotViewModel _plotViewModel;
+        private readonly BattleReviewViewModel _reviewViewModel;
+        private readonly CombatMonitorViewModel _combatMonitorViewModel;
+        private readonly OverlayViewModel _overlayViewModel;
+        private readonly OverviewViewModel _tableViewModel;
+        private readonly DataGridViewModel _dataGridViewModel;
+        private readonly OverviewViewModel _histViewModel;
+        private readonly LeaderboardViewModel _leaderboardViewModel;
 
-        private Dictionary<Guid, HistoricalCombatViewModel> _activeHistoricalCombatOverviews = new Dictionary<Guid, HistoricalCombatViewModel>();
+        private readonly Dictionary<Guid, HistoricalCombatViewModel> _activeHistoricalCombatOverviews = new Dictionary<Guid, HistoricalCombatViewModel>();
         private int selectedTabIndex;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -51,7 +51,7 @@ namespace SWTORCombatParser.ViewModels
         public PastCombatsView PastCombatsView { get; set; }
 
         public Combat CurrentlyDisplayedCombat { get; set; }
-        private bool _allViewsUpToDate = false;
+        private bool _allViewsUpToDate;
 
         public int SelectedTabIndex
         {
@@ -67,24 +67,24 @@ namespace SWTORCombatParser.ViewModels
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
             ClassIdentifier.InitializeAvailableClasses();
             RaidNameLoader.LoadAllRaidNames();
-            SWTORDetector.StartMonitoring();
+            SwtorDetector.StartMonitoring();
 
-            SWTORDetector.SWTORProcessStateChanged += ProcessChanged;
+            SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
             MainWindowClosing.Hiding += () =>
             {
-                if (!SWTORDetector.SwtorRunning)
-                    _overlayViewModel.HideOverlays();
-                if (SWTORDetector.SwtorRunning && !_combatMonitorViewModel.LiveParseActive)
+                if (!SwtorDetector.SwtorRunning)
+                    _overlayViewModel!.HideOverlays();
+                if (SwtorDetector.SwtorRunning && !_combatMonitorViewModel!.LiveParseActive)
                     _combatMonitorViewModel.EnableLiveParse();
-                if (SWTORDetector.SwtorRunning)
-                    _overlayViewModel.OverlaysLocked = true;
+                if (SwtorDetector.SwtorRunning)
+                    _overlayViewModel!.OverlaysLocked = true;
             };
             _combatMonitorViewModel = new CombatMonitorViewModel();
             _combatMonitorViewModel.OnCombatSelected += SelectCombat;
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
             Observable.FromEvent<Combat>(
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate += manager,
-                manager => _combatMonitorViewModel.OnLiveCombatUpdate -= manager).Sample(TimeSpan.FromSeconds(2)).Subscribe(update => UpdateCombat(update));
+                manager => _combatMonitorViewModel.OnLiveCombatUpdate -= manager).Sample(TimeSpan.FromSeconds(2)).Subscribe(UpdateCombat);
             _combatMonitorViewModel.LiveCombatFinished += UpdateCombat;
             _combatMonitorViewModel.OnMonitoringStateChanged += MonitoringStarted;
             _combatMonitorViewModel.LocalPlayerId += LocalPlayerChanged;
@@ -105,8 +105,6 @@ namespace SWTORCombatParser.ViewModels
             _tableViewModel = new TableViewModel();
             var tableView = new OverviewView(_tableViewModel);
             ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Table" });
-
-            _softwareLogViewModel = new SoftwareLogViewModel();
 
             _histViewModel = new HistogramVeiewModel();
             var histView = new OverviewView(_histViewModel);
@@ -155,13 +153,13 @@ namespace SWTORCombatParser.ViewModels
         {
             if (combats.Count == 0)
                 return;
-            App.Current.Dispatcher.Invoke(() => {
+            Application.Current.Dispatcher.Invoke(() => {
                 var historyGuid = Guid.NewGuid();
                 var historyView = new HistoricalCombatView();
                 var viewModel = new HistoricalCombatViewModel(combats);
                 historyView.DataContext = viewModel;
                 _activeHistoricalCombatOverviews[historyGuid] = viewModel;
-                var histTab = new TabInstance() {IsHistoricalTab=true, TabContent = historyView, HeaderText = $"{combats.Last().StartTime.ToString("MM/dd")} to {combats.First().StartTime.ToString("MM/dd")}", HistoryID = historyGuid };
+                var histTab = new TabInstance() {IsHistoricalTab=true, TabContent = historyView, HeaderText = $"{combats.Last().StartTime.ToString("MM/dd")} to {combats.First().StartTime:MM/dd}", HistoryID = historyGuid };
                 histTab.RequestTabClose += CloseHistoricalReview;
                 ContentTabs.Add(histTab);
                 SelectedTabIndex = ContentTabs.Count-1;
@@ -177,7 +175,7 @@ namespace SWTORCombatParser.ViewModels
         private void MonitoringStarted(bool state)
         {
             if(state)
-                App.Current.Dispatcher.Invoke(delegate
+                Application.Current.Dispatcher.Invoke(delegate
                 {
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
@@ -192,7 +190,7 @@ namespace SWTORCombatParser.ViewModels
             CurrentlyDisplayedCombat = updatedCombat;
             if (LoadingWindowFactory.MainWindowHidden)
                 return;
-            App.Current.Dispatcher.Invoke(delegate
+            Application.Current.Dispatcher.Invoke(delegate
             {
                 if(HeaderSelectionState.CurrentlySelectedTabHeader == "Battle Plot")
                     _plotViewModel.UpdateLivePlot(updatedCombat);
@@ -210,7 +208,7 @@ namespace SWTORCombatParser.ViewModels
         private void SelectCombat(Combat selectedCombat)
         {
             CurrentlyDisplayedCombat = selectedCombat;
-            App.Current.Dispatcher.Invoke(delegate
+            Application.Current.Dispatcher.Invoke(delegate
             {
                 _plotViewModel.UpdateParticipants(selectedCombat);
                 _plotViewModel.AddCombatPlot(selectedCombat);
@@ -223,7 +221,7 @@ namespace SWTORCombatParser.ViewModels
         }
         private void UnselectCombat(Combat obj)
         {
-            App.Current.Dispatcher.Invoke(delegate
+            Application.Current.Dispatcher.Invoke(delegate
             {
                 _plotViewModel.RemoveCombatPlot(obj);
                 _tableViewModel.RemoveCombat(obj);
@@ -236,7 +234,7 @@ namespace SWTORCombatParser.ViewModels
         {
             if (localEntity == obj)
                 return;
-            App.Current.Dispatcher.Invoke(delegate
+            Application.Current.Dispatcher.Invoke(delegate
             {
                 if(localEntity != obj)
                 {

@@ -1,12 +1,8 @@
 ﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Overlays;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Media;
 
 namespace SWTORCombatParser.Utilities.Converters
 {

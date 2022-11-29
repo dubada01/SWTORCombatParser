@@ -1,13 +1,11 @@
 ﻿//using MoreLinq;
 using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
