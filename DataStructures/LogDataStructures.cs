@@ -1,11 +1,10 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.LogParsing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.LogParsing;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.DataStructures
 {
     public class DisplayableLogEntry
     {

@@ -1,17 +1,15 @@
-﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Plotting;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Newtonsoft.Json;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.Plotting;
+using SWTORCombatParser.ViewModels.Home_View_Models;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.DataStructures
 {
     public class Combat
     {
@@ -27,7 +25,7 @@ namespace SWTORCombatParser
         public int DurationSeconds => (int)Math.Round(DurationMS / 1000f);
 
         
-        public EncounterInfo ParentEncounter;
+        public EncounterInfo.EncounterInfo ParentEncounter;
         public string EncounterBossInfo => EncounterBossDifficultyParts == ("","","")?"": $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item2} {EncounterBossDifficultyParts.Item3}}}";
         public string OldFlashpointBossInfo => EncounterBossDifficultyParts == ("", "", "") ? "" : $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item3}}}";
         public (string, string, string) EncounterBossDifficultyParts = ("","","");

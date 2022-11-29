@@ -1,14 +1,12 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
-namespace SWTORCombatParser.Utilities
+namespace SWTORCombatParser.Utilities.Encounter_Selection
 {
     public class EncounterSelectionViewModel:INotifyPropertyChanged
     {

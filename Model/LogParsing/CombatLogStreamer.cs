@@ -1,22 +1,16 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.Alerts;
-using SWTORCombatParser.Model.CloudRaiding;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.resources;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Timers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Timers;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Model.LogParsing
 {
     public enum ProcessedLineResult
     {
@@ -27,7 +21,6 @@ namespace SWTORCombatParser
     public class CombatLogStreamer
     {
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
-        public event Action<string> NewSoftwareLog = delegate { };
         public static event Action<DateTime> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
@@ -69,10 +62,7 @@ namespace SWTORCombatParser
             Logging.LogInfo("Loading existing log - " + log);
             ResetMonitoring();
             _logToMonitor = log;
-            Task.Run(() =>
-            {
-                ParseExisitingLogs();
-            });
+            Task.Run(ParseExisitingLogs);
         }
 
         private void ParseExisitingLogs()
@@ -120,7 +110,8 @@ namespace SWTORCombatParser
                 return;
             ParseLogFile();
         }
-        internal void ParseLogFile()
+
+        private void ParseLogFile()
         {
             _currentFrameData = new List<ParsedLogEntry>();        
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -184,23 +175,23 @@ namespace SWTORCombatParser
                             {
                                 if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
                                 {
-                                    lines.Add(newLine.ToString() + Environment.NewLine);
-                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
+                                    lines.Add(newLine + Environment.NewLine);
+                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + Environment.NewLine);
                                     break;
                                 }
                                 else
                                 {
                                     if (newLine.Length == 0)
                                         continue;
-                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
-                                    lines.Add(newLine.ToString() + Environment.NewLine);
+                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + Environment.NewLine);
+                                    lines.Add(newLine + Environment.NewLine);
                                     newLine.Clear();
                                 }
                             }
                             if (newLine.Length == 0)
                                 continue;
-                            numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine.ToString() + Environment.NewLine);
-                            lines.Add(newLine.ToString() + Environment.NewLine);
+                            numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + Environment.NewLine);
+                            lines.Add(newLine + Environment.NewLine);
                             newLine.Clear();
 
                         }
@@ -211,7 +202,7 @@ namespace SWTORCombatParser
                         }
                     }
                 }
-                return hasValidEnd;
+                return false;
             }
             catch(Exception e)
             {
@@ -224,14 +215,14 @@ namespace SWTORCombatParser
         {
             var usableLogs = logs.Where(l => l.Error != ErrorType.IncompleteLine).ToList();
             _currentCombatData.Clear();
-            for (var l = 0; l < usableLogs.Count;l++)
+            foreach (var t in usableLogs)
             {
-                if (usableLogs[l].Source.IsLocalPlayer)
-                    LocalPlayerIdentified(usableLogs[l].Source);
-                CheckForCombatState(usableLogs[l], false,false);
+                if (t.Source.IsLocalPlayer)
+                    LocalPlayerIdentified(t.Source);
+                CheckForCombatState(t, false);
                 if (_isInCombat)
                 {
-                    _currentCombatData.Add(usableLogs[l]);
+                    _currentCombatData.Add(t);
                 }
             }
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
@@ -264,7 +255,7 @@ namespace SWTORCombatParser
             if (parsedLine.Source.IsLocalPlayer)
                 LocalPlayerIdentified(parsedLine.Source);
             parsedLine.LogName = Path.GetFileName(logName);
-            CheckForCombatState(parsedLine,true);
+            CheckForCombatState(parsedLine);
             NewLineStreamed(parsedLine);
             if (_isInCombat && !_isWaitingForExitCombatTimout)
             {

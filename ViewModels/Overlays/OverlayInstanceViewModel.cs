@@ -5,14 +5,14 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {

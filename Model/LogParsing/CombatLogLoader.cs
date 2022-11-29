@@ -1,12 +1,11 @@
-﻿using SWTORCombatParser.Utilities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SWTORCombatParser.Utilities;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Model.LogParsing
 {
     public class CombatLogFile
     {

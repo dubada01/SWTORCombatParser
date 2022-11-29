@@ -1,19 +1,16 @@
 ﻿//using MoreLinq;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.CloudRaiding;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Timers;
+
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.ViewModels.Timers;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class CombatIdentifier
     {

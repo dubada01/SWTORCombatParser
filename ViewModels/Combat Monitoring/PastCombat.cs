@@ -1,14 +1,10 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Utilities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows.Input;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
-namespace SWTORCombatParser.Model.CombatParsing
+namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
     public class PastCombat : INotifyPropertyChanged
     {

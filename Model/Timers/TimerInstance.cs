@@ -1,13 +1,9 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.Timers
 {

@@ -1,18 +1,16 @@
-﻿using ScottPlot;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.CombatMetaData;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows.Input;
-using System.Windows.Media;
+using ScottPlot;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 
-namespace SWTORCombatParser.ViewModels
+namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
     public class CombatEfffectViewModel : INotifyPropertyChanged
     {

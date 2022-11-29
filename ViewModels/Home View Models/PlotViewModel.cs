@@ -1,11 +1,4 @@
-﻿using ScottPlot;
-using ScottPlot.Plottable;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels;
-using SWTORCombatParser.ViewModels.Home_View_Models;
-using SWTORCombatParser.Views.Home_Views;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -15,8 +8,16 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Threading;
+using ScottPlot;
+using ScottPlot.Plottable;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Plotting;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.CombatMetaData;
+using SWTORCombatParser.Views.Home_Views;
 
-namespace SWTORCombatParser.Plotting
+namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
     public enum PlotType
     {

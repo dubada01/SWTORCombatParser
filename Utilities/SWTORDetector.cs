@@ -1,23 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Utilities
 {
-    public static class SWTORDetector
+    public static class SwtorDetector
     {
-        public static event Action<bool> SWTORProcessStateChanged = delegate { };
-        private static bool _monitorForSWTOR;
+        public static event Action<bool> SwtorProcessStateChanged = delegate { };
+        private static bool _monitorForSwtor;
         public static bool SwtorRunning;
         public static void StartMonitoring()
         {
-            _monitorForSWTOR = true;
+            _monitorForSwtor = true;
             Task.Run(() => {
-                while (_monitorForSWTOR)
+                while (_monitorForSwtor)
                 {
                     Process[] processCollection = Process.GetProcesses();
                     if(processCollection.Any(p=>p.ProcessName == "swtor"))
@@ -32,22 +30,20 @@ namespace SWTORCombatParser.Utilities
                             UpdateStatus();
                         SwtorRunning = false;
                     }
-                    if(SwtorRunning)
-                        Thread.Sleep(500);
-                    else
-                        Thread.Sleep(1500);
+
+                    Thread.Sleep(SwtorRunning ? 500 : 1500);
                 }
             });
         }
 
         private static void UpdateStatus()
         {
-            SWTORProcessStateChanged(!SwtorRunning);
+            SwtorProcessStateChanged(!SwtorRunning);
         }
 
         public static void StopMonitoring()
         {
-            _monitorForSWTOR = false;
+            _monitorForSwtor = false;
         }
     }
 }

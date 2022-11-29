@@ -1,13 +1,11 @@
-﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.CombatParsing;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {

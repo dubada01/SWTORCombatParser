@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Plotting;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {

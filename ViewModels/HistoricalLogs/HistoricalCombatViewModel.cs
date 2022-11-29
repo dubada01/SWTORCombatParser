@@ -1,6 +1,5 @@
 ﻿//using MoreLinq;
 using ScottPlot;
-using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.HistoricalLogs;
 using System;
 using System.Collections.Generic;
@@ -8,8 +7,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {

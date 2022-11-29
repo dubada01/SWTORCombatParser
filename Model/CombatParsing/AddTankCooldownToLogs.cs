@@ -1,12 +1,8 @@
-﻿using MoreLinq;
-using SWTORCombatParser.DataStructures.AbilityInfo;
-using SWTORCombatParser.Model.CloudRaiding;
-using SWTORCombatParser.Model.LogParsing;
+﻿using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
