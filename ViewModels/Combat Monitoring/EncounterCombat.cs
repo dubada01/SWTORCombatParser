@@ -8,6 +8,7 @@ using System.Windows;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -123,7 +124,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     IsVisible = combatsAreVisible,
                     CombatStartTime = combat.StartTime,
                     CombatDuration = combat.DurationSeconds.ToString("0"),
-                    CombatLabel = combat.IsCombatWithBoss? combat.EncounterBossInfo : string.Join(',', combat.Targets.Select(t => t.Name).Distinct()),
+                    CombatLabel = combat.IsCombatWithBoss? combat.EncounterBossInfo : combat.IsPvPCombat ? GetPVPCombatText(combat) : string.Join(',', combat.Targets.Select(t => t.Name).Distinct()),
                 };
                 pastCombatDisplay.PastCombatSelected += SelectCombat;
                 pastCombatDisplay.PastCombatUnSelected += UnselectCombat;
@@ -138,6 +139,14 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             OnPropertyChanged("NumberOfBossBattles");
             OnPropertyChanged("NumberOfTrashBattles");
         }
+
+        private string GetPVPCombatText(Combat combat)
+        {
+            return
+                $"Team Kills: {combat.AllLogs.Count(l => l.Effect.EffectName == "Death" && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}\r\n"+
+                $"Team Deaths: {combat.AllLogs.Count(l => l.Effect.EffectName == "Death" && !CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}";
+        }
+
         public void HideTrash()
         {
             viewingTrash = false;

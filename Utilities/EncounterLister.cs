@@ -9,7 +9,7 @@ namespace SWTORCombatParser.Utilities
         public static List<string> EncounterNames => GetEncounters();
         private static List<string> GetEncounters()
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             return encounters.Select(e => e.Name).ToList();
         }
         public static List<string> SortedEncounterNames => new List<string> { "All"}.Concat(GetSortedEncountersByType()).ToList();
@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Utilities
         public static List<EncounterInfo> SortedEncounterInfos => GetSortedEncounterInfos();
         private static List<EncounterInfo> GetSortedEncounterInfos()
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var flashpoints = encounters.Where(e => e.EncounterType == EncounterType.Flashpoint).OrderBy(f => f.Name);
             var operations = encounters.Where(e => e.EncounterType == EncounterType.Operation).OrderBy(o => o.Name);
             var lairs = encounters.Where(e => e.EncounterType == EncounterType.Lair).OrderBy(l => l.Name);
@@ -32,7 +32,7 @@ namespace SWTORCombatParser.Utilities
         }
         private static List<string> GetSortedEncountersByType()
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var flashpoints = encounters.Where(e => e.EncounterType == EncounterType.Flashpoint).OrderBy(f => f.Name);
             var flashpointNames = flashpoints.Select(f => f.Name);
             var operations = encounters.Where(e => e.EncounterType == EncounterType.Operation).OrderBy(o => o.Name);
@@ -50,7 +50,7 @@ namespace SWTORCombatParser.Utilities
         }
         public static List<string> GetBossesForEncounter(string encounter)
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
             if (encounterSelected == null)
                 return new List<string>();
@@ -58,13 +58,13 @@ namespace SWTORCombatParser.Utilities
         }
         public static List<string> GetAllTargetsForEncounter(string encounter)
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
             return encounterSelected.BossInfos.SelectMany(bi=>bi.TargetNames).ToList();
         }
         public static List<string> GetTargetsOfBossFight(string encounter, string bossFight)
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
             var bossOfEncouter = encounterSelected.BossInfos.FirstOrDefault(bi => bi.EncounterName == bossFight);
             if (bossOfEncouter == null)

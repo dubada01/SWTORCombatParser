@@ -60,9 +60,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return;
             if (CurrentFightLeaderboard.Count == 0)
                 GetCurrentLeaderboard(newCombat);
-            //var bossName = newCombat.EncounterBossInfo;
-            //var encounterName = newCombat.ParentEncounter.Name;
-            var localPlayerClass = state.GetCharacterClassAtTime(newCombat.LocalPlayer,newCombat.StartTime);
+            var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
 
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
@@ -99,7 +97,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
                 var returnData = new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>();
                 var bossName = newCombat.EncounterBossInfo;
-                var localPlayerClass = state.GetCharacterClassAtTime(newCombat.LocalPlayer, newCombat.StartTime);
+                var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
                 var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
                 foreach (var participant in newCombat.CharacterParticipants)
                 {
@@ -141,7 +139,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var state = CombatLogStateBuilder.CurrentState;
             var bossName = newCombat.EncounterBossInfo;
             var encounterName = newCombat.ParentEncounter.Name;
-            var localPlayerClass = state.GetCharacterClassAtTime(newCombat.LocalPlayer, newCombat.StartTime);
+            var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {

@@ -113,9 +113,19 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
         {
+            var combatStart = logs.OrderBy(t => t.TimeStamp).First().TimeStamp;
             var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectName == "Damage");
-            var targets = validLogs.Select(l => l.Target).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null).ToList();
-            targets.AddRange(validLogs.Select(l => l.Source).Where(t => !t.IsCharacter && !t.IsCompanion && t.Name != null));
+            var parsedLogEntries = validLogs.ToList();
+            var targets = parsedLogEntries.Select(l => l.Target).Where(
+                t => (!t.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(t,combatStart)) 
+                     && !t.IsCompanion 
+                     && t.Name != null).ToList();
+            var sources = parsedLogEntries.Select(l => l.Source)
+                .Where(s => (!s.IsCharacter|| CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(s,combatStart))
+                    && !s.IsCompanion 
+                    && s.Name != null);
+            targets.AddRange(sources);
+
             return targets.DistinctBy(t=>t.Name).ToList();
         }
         private static EncounterInfo GetEncounterInfo(DateTime combatStartTime)

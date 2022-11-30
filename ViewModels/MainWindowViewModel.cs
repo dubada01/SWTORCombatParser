@@ -66,7 +66,7 @@ namespace SWTORCombatParser.ViewModels
         {
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
             ClassIdentifier.InitializeAvailableClasses();
-            RaidNameLoader.LoadAllRaidNames();
+            EncounterLoader.LoadAllEncounters();
             SwtorDetector.StartMonitoring();
 
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;

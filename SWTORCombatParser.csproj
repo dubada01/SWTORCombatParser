@@ -364,6 +364,10 @@
     <Content Include="resources\tankIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Remove="DataStructures\EncounterInfo\PVPAreaNames.json" />
+    <Content Include="DataStructures\EncounterInfo\PVPAreaNames.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 
@@ -29,8 +30,13 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public EncounterInfo EncounterInfo { get; set; }
         public Combat Combat { get; set; }
         public bool IsTrash => Combat!=null&&!Combat.IsCombatWithBoss && !IsCurrentCombat;
-        public bool WasBossKilled => Combat != null ? Combat.WasBossKilled : false;
-        public (EncounterInfo, bool) TextColorSetter => (EncounterInfo, WasBossKilled);
+        public bool WasBossKilled => Combat?.WasBossKilled ?? false;
+
+        public SolidColorBrush PvPBorderInidcator =>
+            !IsPvPCombat ? Brushes.WhiteSmoke : WasPlayerKilled ? Brushes.IndianRed : Brushes.MediumAquamarine;
+        public bool WasPlayerKilled => Combat?.WasPlayerKilled(Combat.LocalPlayer) ?? false;
+        public bool IsPvPCombat => Combat?.IsPvPCombat ?? false;
+        public (EncounterInfo, bool,SolidColorBrush) TextColorSetter => (EncounterInfo, WasBossKilled,PvPBorderInidcator);
         public string CombatLabel { get; set; }
         public string CombatDuration
         {

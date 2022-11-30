@@ -40,18 +40,16 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public class LogState
     {
-        private static List<string> _healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
-        private static List<string> _tankDisciplines = new List<string> { "Darkness", "Immortal", "Sheild Tech", "Kinentic Combat", "Defense", "Sheild Specialist" };
         public ConcurrentDictionary<Entity,Dictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>>();
         public ConcurrentDictionary<Entity, Dictionary<DateTime, Entity>> PlayerTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, Entity>>();
         public Dictionary<Entity, Dictionary<DateTime, bool>> PlayerDeathChangeInfo = new Dictionary<Entity, Dictionary<DateTime, bool>>();
         public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new Dictionary<DateTime, EncounterInfo>();
+
         public LogVersion LogVersion { get; set; } = LogVersion.Legacy;
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public string CurrentLocation { get; set; }
-        public long MostRecentLogIndex = 0;
         public ConcurrentDictionary<string, ConcurrentDictionary<Guid,CombatModifier>> Modifiers { get; set; } = new ConcurrentDictionary<string, ConcurrentDictionary<Guid,CombatModifier>>();
-        public object modifierLogLock = new object();
+        public readonly object ModifierLogLock = new object();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public PositionData CurrentLocalCharacterPosition => LocalPlayer == null ? new PositionData() : CurrentCharacterPositions[LocalPlayer];
         public Entity LocalPlayer { get; internal set; }
@@ -79,21 +77,34 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return false;
         }
+        public bool IsPvpOpponentAtTime(Entity argTarget, DateTime combatStart)
+        {
+            return !argTarget.IsCompanion && GetCharacterClassAtTime(argTarget, combatStart).Discipline == null;
+        }
         public EncounterInfo GetEncounterActiveAtTime(DateTime time)
         {
             var encounterChangeTimes = EncounterEnteredInfo.Keys.OrderBy(t => t).ToList();
             if (encounterChangeTimes.Count == 0 || time < encounterChangeTimes.First())
                 return new EncounterInfo() { Name = "Unknown Encounter" };
+            return EncounterEnteredInfo[GetEncounterStartTime(time)];
+        }
+
+        private DateTime GetEncounterStartTime(DateTime time)
+        {
+            var encounterChangeTimes = EncounterEnteredInfo.Keys.OrderBy(t => t).ToList();
+            if (encounterChangeTimes.Count == 0 || time < encounterChangeTimes.First())
+                return time;
             if (time > encounterChangeTimes.Last())
-                return EncounterEnteredInfo[encounterChangeTimes.Last()];
+                return encounterChangeTimes.Last();
             for(var i = 0; i < encounterChangeTimes.Count; i++)
             {
                 if (encounterChangeTimes[i] == time)
-                    return EncounterEnteredInfo[encounterChangeTimes[i]];
+                    return encounterChangeTimes[i];
                 if (encounterChangeTimes[i] > time)
-                    return EncounterEnteredInfo[encounterChangeTimes[i - 1]];
+                    return encounterChangeTimes[i - 1];
             }
-            return new EncounterInfo() { Name = "Unknown Encounter" };
+
+            return time;
         }
         public SWTORClass GetLocalPlayerClassAtTime(DateTime time)
         {
@@ -102,7 +113,8 @@ namespace SWTORCombatParser.Model.LogParsing
             var classOfSource = PlayerClassChangeInfo[PlayerClassChangeInfo.Keys.First(k=>k.Id == LocalPlayer.Id)];
             if (classOfSource == null)
                 return new SWTORClass();
-            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds))];
+            var mostRecentClassChangeTime = classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds));
+            var classAtTime = classOfSource[mostRecentClassChangeTime];
             return classAtTime;
         }
         public SWTORClass GetCharacterClassAtTime(Entity entity, DateTime time)
@@ -112,41 +124,31 @@ namespace SWTORCombatParser.Model.LogParsing
             var classOfSource = PlayerClassChangeInfo[entity];
             if (classOfSource == null)
                 return new SWTORClass();
-            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds))];
+            
+            var mostRecentClassChangeTime = classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds));
+            var currentEncounter = GetEncounterActiveAtTime(time);
+            var encounterTime = GetEncounterStartTime(time);
+            var nextEncounterTime = GetNextEncounterStartTime(encounterTime);
+            if (currentEncounter.IsPvpEncounter && mostRecentClassChangeTime < encounterTime || nextEncounterTime < mostRecentClassChangeTime)
+                return new SWTORClass();
+
+            var classAtTime = classOfSource[mostRecentClassChangeTime];
             return classAtTime;
+        }
+
+        private DateTime GetNextEncounterStartTime(DateTime currentEncounterStartTime)
+        {
+            var unorderedStartTimes = EncounterEnteredInfo.Keys;
+            var orderedStartTimes = unorderedStartTimes.OrderBy(v => v).ToList();
+            return orderedStartTimes.Last() == currentEncounterStartTime ? currentEncounterStartTime :
+                EncounterEnteredInfo.Keys.ToList()[orderedStartTimes.IndexOf(currentEncounterStartTime)+1];
         }
         public Entity GetPlayerTargetAtTime(Entity player, DateTime time)
         {
             if (!PlayerTargetsInfo.ContainsKey(player))
                 return new Entity();
             var targets = PlayerTargetsInfo[player];
-            if (!targets.Keys.Where(v => v <= time).Any())
-                return null;
-            return targets[targets.Keys.Where(v=>v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))];
-        }
-        public SWTORClass GetCharacterClassAtTime(string entityName, DateTime time)
-        {
-            var entity = PlayerClassChangeInfo.Keys.FirstOrDefault(e => e.Name.ToLower() == entityName.ToLower());
-            if (entity == null)
-                return new SWTORClass();
-            var classOfSource = PlayerClassChangeInfo[entity];
-            if (classOfSource == null)
-                return new SWTORClass();
-            var classAtTime = classOfSource[classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds))];
-            return classAtTime;
-        }
-        public double GetCurrentHealsPerThreat(DateTime timeStamp, Entity source)
-        {
-            var classOfSource = GetCharacterClassAtTime(source, timeStamp);
-            double healsPerThreat = 2;
-            double healsModifier = 1;
-            if (classOfSource == null)
-                return healsPerThreat;
-            if (_healingDisciplines.Contains(classOfSource.Discipline))
-                healsModifier -= 0.1d;
-            if (_tankDisciplines.Contains(classOfSource.Discipline))
-                healsModifier += 1.5d;
-            return healsPerThreat/healsModifier;
+            return targets.Keys.Any(v => v <= time) ? targets[targets.Keys.Where(v=>v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : null;
         }
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
@@ -198,5 +200,7 @@ namespace SWTORCombatParser.Model.LogParsing
             });
             return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
         }
+
+
     }
 }

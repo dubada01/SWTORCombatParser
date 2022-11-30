@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Utilities
             Task.Run(() => {
                 while (_monitorForSwtor)
                 {
-                    Process[] processCollection = Process.GetProcesses();
+                    var processCollection = Process.GetProcesses();
                     if(processCollection.Any(p=>p.ProcessName == "swtor"))
                     {
                         if(!SwtorRunning)
@@ -31,7 +31,7 @@ namespace SWTORCombatParser.Utilities
                         SwtorRunning = false;
                     }
 
-                    Thread.Sleep(SwtorRunning ? 500 : 1500);
+                    Thread.Sleep(SwtorRunning ? 1500 : 5000);
                 }
             });
         }
