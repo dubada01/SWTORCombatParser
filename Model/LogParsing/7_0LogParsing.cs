@@ -308,7 +308,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 var compName = companionNameComponents[0].Trim();
                 var compId = long.Parse(companionNameComponents[1].Replace("}",""));
 
-                var companion = new Entity() { IsCharacter = true, Name = compName, Id = compId };
+                var companion = new Entity() { IsCharacter = true,IsCompanion = true,Name = compName, Id = compId };
                 var compEntity = _currentEntities.GetOrAdd(compId, companion);
                 entityToReturn.Entity = compEntity;
 

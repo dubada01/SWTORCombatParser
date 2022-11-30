@@ -49,7 +49,6 @@ namespace SWTORCombatParser.Views
             Width = windowInfo.Width;
             Height = windowInfo.Height;
             AddNotificationIcon();
-            //SWTORDetector.StartMonitoring();
         }
         private void AddNotificationIcon()
         {
@@ -109,6 +108,7 @@ namespace SWTORCombatParser.Views
             }
             else
             { 
+                SwtorDetector.StopMonitoring();
                 MainWindowClosing.FireClosing();
                 Environment.Exit(0);
             }

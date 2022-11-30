@@ -32,6 +32,7 @@ namespace SWTORCombatParser.DataStructures
 
         public List<string> RequiredDeadTargetsForKill { get; set; } = new List<string>();
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
+        public bool IsPvPCombat => Targets.Any(t => t.IsCharacter);
         public bool WasBossKilled =>RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => (l.Target.Name == t && l.Effect.EffectName == "Death")));
         public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)

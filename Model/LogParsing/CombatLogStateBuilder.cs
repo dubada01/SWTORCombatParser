@@ -35,33 +35,30 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 UpdatePlayerDeathState(log);
                 SetCharacterPositions(log);
-                //if(liveLog)
-                    //OutrangedHealerAlert.CheckForOutrangingHealers(log.TimeStamp);
+
                 if(log.Effect.EffectType == EffectType.DisciplineChanged)
                     UpdatePlayerClassState(log,liveLog);
                 if(log.Effect.EffectType == EffectType.TargetChanged)
                     UpdatePlayerTargets(log);
                 if (log.LogLocation != null)
                     UpdateEncounterEntered(log, liveLog);
-
                 UpdateCombatModifierState(log);
                 return CurrentState;
             }
         }
-
         private static void UpdateEncounterEntered(ParsedLogEntry log, bool liveLog)
         {
             if(liveLog)
                 AreaEntered();
-            var location = log.LogLocation;
-            var knownEncounters = RaidNameLoader.SupportedEncounters.Select(s=>EncounterInfo.GetCopy(s));
-            if (knownEncounters.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)))
+            var knownEncounters = EncounterLoader.SupportedEncounters.Select(EncounterInfo.GetCopy);
+            var encounterInfos = knownEncounters.ToList();
+            if (encounterInfos.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)))
             {
-                var raidOfInterest = knownEncounters.First(r => log.LogLocation.Contains(r.LogName));
-                var intendedDifficulty = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
-                raidOfInterest.Difficutly = intendedDifficulty != null ? intendedDifficulty : "Story";
-                var indendedNumberOfPlayers = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
-                raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers!=null? indendedNumberOfPlayers:"4";
+                var raidOfInterest = encounterInfos.First(r => log.LogLocation.Contains(r.LogName));
+                var intendedDifficulty = EncounterLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
+                raidOfInterest.Difficutly = intendedDifficulty ?? "Story";
+                var indendedNumberOfPlayers = EncounterLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
+                raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers ?? "4";
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
             }
             else
@@ -77,10 +74,12 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!log.Target.IsCharacter)
                 return;
             var player = log.Target;
-            if (!CurrentState.PlayerDeathChangeInfo.Keys.Any(k => k.Id == player.Id))
+            if (CurrentState.PlayerDeathChangeInfo.Keys.All(k => k.Id != player.Id))
             { 
-                CurrentState.PlayerDeathChangeInfo[player] = new Dictionary<DateTime, bool>();
-                CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
+                CurrentState.PlayerDeathChangeInfo[player] = new Dictionary<DateTime, bool>
+                {
+                    [log.TimeStamp] = false
+                };
             }
             if (log.Effect.EffectName == "Death")
                 CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = true;
@@ -99,7 +98,6 @@ namespace SWTORCombatParser.Model.LogParsing
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
             if(parsedLine.Source.IsLocalPlayer && realTime)
                 PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
-
         }
         private static void UpdatePlayerTargets(ParsedLogEntry log)
         {
@@ -121,10 +119,9 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!string.IsNullOrEmpty(log.Source.Name))
                 CurrentState.CurrentCharacterPositions[log.Source] = log.SourceInfo.Position;
         }
-        //private static int numberOf = 0;
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine)
         {
-            lock (CurrentState.modifierLogLock)
+            lock (CurrentState.ModifierLogLock)
             {
                 if (parsedLine.Error == ErrorType.IncompleteLine)
                     return;
