@@ -129,7 +129,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var currentEncounter = GetEncounterActiveAtTime(time);
             var encounterTime = GetEncounterStartTime(time);
             var nextEncounterTime = GetNextEncounterStartTime(encounterTime);
-            if (currentEncounter.IsPvpEncounter && mostRecentClassChangeTime < encounterTime || nextEncounterTime < mostRecentClassChangeTime)
+            if (currentEncounter.IsPvpEncounter && mostRecentClassChangeTime < encounterTime || (nextEncounterTime < mostRecentClassChangeTime && nextEncounterTime != encounterTime))
                 return new SWTORClass();
 
             var classAtTime = classOfSource[mostRecentClassChangeTime];

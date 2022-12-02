@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SWTORCombatParser.Views"
-             xmlns:local1="clr-namespace:SWTORCombatParser.ViewModels.Overlays" xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
+             xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -53,6 +52,9 @@
                 </TabItem>
                 <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Room Hazard">
                     <ContentPresenter Content="{Binding RoomOverlaySetup}"></ContentPresenter>
+                </TabItem>
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="PvP">
+                    <ContentPresenter Content="{Binding PvpOverlays}"></ContentPresenter>
                 </TabItem>
             </TabControl>
    

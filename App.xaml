@@ -43,6 +43,8 @@
             <converters:OverlayTypeToShowTotalConverter x:Key="OverlayTypeToShowTotalConverter"/>
             <converters:OverlayScalarToFontSize x:Key="OverlayScalarToFontSize"/>
             <converters:OverlayTypeToReadableNameConverter x:Key="OverlayTypeToReadableNameConverter"/>
+            <converters:OpponentInRangeToColorConverter x:Key="OpponentInRangeToColorConverter"/>
+            <converters:BooleanToHpBorderConverter x:Key="BooleanToHpBorderConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

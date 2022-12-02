@@ -64,9 +64,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             }
         }
         public bool ShowFrame => BossesDetected.Any() || OverlaysMoveable;
-        public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
-        public event Action<BossFrameConfigViewModel> OverlayClosed = delegate { };
         public ObservableCollection<BossFrameViewModel> BossesDetected { get; set; } = new ObservableCollection<BossFrameViewModel>();
         public int CombatDuration
         {
@@ -110,16 +108,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             OnLocking(true);
             OverlaysMoveable = false;
             OnPropertyChanged("OverlaysMoveable");
+            OnPropertyChanged("ShowFrame");
         }
         public void UnlockOverlays()
         {
             OnLocking(false);
             OverlaysMoveable = true;
             OnPropertyChanged("OverlaysMoveable");
-        }
-        public void OverlayClosing()
-        {
-            OverlayClosed(this);
+            OnPropertyChanged("ShowFrame");
         }
         private void UpdateBossFrameStates()
         {

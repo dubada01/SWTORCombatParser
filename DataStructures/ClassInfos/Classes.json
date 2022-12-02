@@ -4,6 +4,7 @@
       "Name": "Powertech",
       "Discipline": "Shield Tech",
       "Role": "Tank",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Oil Slick", "Heat Blast", "Firestorm" ]
@@ -12,6 +13,7 @@
       "Name": "Powertech",
       "Discipline": "Pyrotech",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Flaming Fist", "Incendiary Missile", "Immolate", "Scorch" ]
@@ -20,6 +22,7 @@
       "Name": "Powertech",
       "Discipline": "Advanced Prototype",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Retractable Blade", "Magnetic Blast", "Thermal Detonator", "Energy Burst" ]
@@ -28,6 +31,7 @@
       "Name": "Sniper",
       "Discipline": "Marksmanship",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Ambush", "Penetrating Blast", "Followthough", "Sniper Volley" ]
@@ -36,6 +40,7 @@
       "Name": "Sniper",
       "Discipline": "Engineering",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Explosive Probe", "Interrogation Probe", "Plasma Probe", "EMP Discharge" ]
@@ -44,6 +49,7 @@
       "Name": "Sniper",
       "Discipline": "Virulence",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Corrosive Grenade", "Cull", "Weakening Blast", "Lethal Shot" ]
@@ -52,6 +58,7 @@
       "Name": "Juggernaut",
       "Role": "Tank",
       "Discipline": "Immortal",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Aegis Assault", "Crushing Blow", "Backhand", "Invicible" ]
@@ -60,6 +67,7 @@
       "Name": "Juggernaut",
       "Role": "DPS",
       "Discipline": "Vengeance",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Shatter", "Impale", "Hew", "Vengeful Slam" ]
@@ -68,6 +76,7 @@
       "Name": "Juggernaut",
       "Role": "DPS",
       "Discipline": "Rage",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Raging Burst", "Obliterate", "Force Crush", "Furious Strike" ]
@@ -76,6 +85,7 @@
       "Name": "Assassin",
       "Role": "Tank",
       "Discipline": "Darkness",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Depredating Volts", "Dark Ward", "Wither", "Force Pull" ]
@@ -84,6 +94,7 @@
       "Name": "Assassin",
       "Role": "DPS",
       "Discipline": "Deception",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Reaping Strike", "Voltaic Slash", "Low Slash", "Ball Lightning" ]
@@ -92,6 +103,7 @@
       "Name": "Assassin",
       "Role": "DPS",
       "Discipline": "Hatred",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Death Field", "Eradicate", "Creeping Terror", "Leeching Strike" ]
@@ -99,6 +111,7 @@
     {
       "Name": "Sorcerer",
       "Discipline": "Corruption",
+      "IsRanged": true,
       "Role": "Healer",
       "SpecialThreatAbilities": [
         {
@@ -136,6 +149,7 @@
       "Name": "Sorcerer",
       "Discipline": "Lightning",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Chain Lightning", "Thundering Blast", "Lightning Flash", "Lightning Bolt" ]
@@ -144,6 +158,7 @@
       "Name": "Sorcerer",
       "Discipline": "Madness",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Death Field", "Creeping Terror", "Force Leech", "Demolish" ]
@@ -152,6 +167,7 @@
       "Name": "Operative",
       "Discipline": "Medicine",
       "Role": "Healer",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
         {
           "Name": "Surprise Comeback",
@@ -168,6 +184,7 @@
       "Name": "Operative",
       "Discipline": "Concealment",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Laceration", "Crippling Slice", "Volatile Substance", "Veiled Strike" ]
@@ -176,6 +193,7 @@
       "Name": "Operative",
       "Discipline": "Lethality",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Corrosive Assault", "Corrosive Grenade", "Toxic Blast", "Lethal Strike" ]
@@ -184,6 +202,7 @@
       "Name": "Marauder",
       "Discipline": "Annihilation",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Force Rend", "Rupture", "Annihilate", "Deadly Saber" ]
@@ -192,6 +211,7 @@
       "Name": "Marauder",
       "Discipline": "Carnage",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Gore", "Massacre", "Ferocity", "Devastating Blast" ]
@@ -200,6 +220,7 @@
       "Name": "Marauder",
       "Discipline": "Fury",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Raging Burst", "Obliterate", "Force Crush", "Furious Strike" ]
@@ -208,6 +229,7 @@
       "Name": "Mercenary",
       "Discipline": "Bodyguard",
       "Role": "Healer",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
         {
           "Name": "Responsive Safeguards",
@@ -228,6 +250,7 @@
       "Name": "Mercenary",
       "Discipline": "Arsenal",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
 
       ],
@@ -237,6 +260,7 @@
       "Name": "Mercenary",
       "Discipline": "Innovative Ordnance",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
 
       ],
@@ -246,6 +270,7 @@
       "Name": "Sage",
       "Discipline": "Seer",
       "Role": "Healer",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
 
         {
@@ -259,6 +284,7 @@
       "Name": "Sage",
       "Discipline": "Telekinetics",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Telekinetic Wave", "Turbulance", "Telekinetic Gust", "Telekinetic Burst" ]
@@ -267,6 +293,7 @@
       "Name": "Sage",
       "Discipline": "Balance",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Force In Balance", "Sever Force", "Force Serentity", "Vanquish" ]
@@ -275,6 +302,7 @@
       "Name": "Scoundrel",
       "Discipline": "Sawbones",
       "Role": "Healer",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Underworld Medicine", "Kolto Cloud", "Emergency Medpac", "Kolto Waves" ]
@@ -284,6 +312,7 @@
       "Name": "Scoundrel",
       "Discipline": "Scrapper",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Sucker Punch", "Shank Shot", "Blood Boiler", "Bludgon" ]
@@ -293,6 +322,7 @@
       "Name": "Scoundrel",
       "Discipline": "Ruffian",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Brutal Shots", "Shrap Bomb", "Sanguinary Shot", "Point Blank Shot" ]
@@ -302,6 +332,7 @@
       "Name": "Sentinel",
       "Discipline": "Watchman",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Force Melt", "Cauterize", "Merciless Slash", "Overload Saber" ]
@@ -311,6 +342,7 @@
       "Name": "Sentinel",
       "Discipline": "Combat",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Lance", "Blade Rush", "Precision", "Clashing Blast" ]
@@ -320,6 +352,7 @@
       "Name": "Sentinel",
       "Discipline": "Concentration",
       "Role": "DPS",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Focused Burst", "Zealous Leap", "Force Exhaustion", "Concentration Slice" ]
@@ -328,6 +361,7 @@
       "Name": "Commando",
       "Discipline": "Combat Medic",
       "Role": "Healer",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Advanced Medical Probe", "Kolto Bomb", "Successive Treatment" ]
@@ -336,6 +370,7 @@
       "Name": "Commando",
       "Discipline": "Gunnery",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Grav Round", "Demolition Round", "Vortex Bolt", "Boltstorm" ]
@@ -344,6 +379,7 @@
       "Name": "Commando",
       "Discipline": "Assault Specialist",
       "Role": "DPS",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Incendiary Round", "Assault Plastique", "Serrated Bolt", "Mag Bolt" ]
@@ -352,6 +388,7 @@
       "Name": "Guardian",
       "Role": "Tank",
       "Discipline": "Defense",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Warding Strike", "Guardian Slash", "Hilt Bash", "Warding Call" ]
@@ -360,6 +397,7 @@
       "Name": "Guardian",
       "Role": "DPS",
       "Discipline": "Vigilance",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Plasma Brand", "Overhead Slash", "Vigilant Thrust" ]
@@ -368,6 +406,7 @@
       "Name": "Guardian",
       "Role": "DPS",
       "Discipline": "Focus",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Focused Burst", "Zealous Leap", "Force Exhaustion", "Concentration Slice" ]
@@ -376,6 +415,7 @@
       "Name": "Vanguard",
       "Role": "Tank",
       "Discipline": "Shield Specialist",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Riot Gas", "Energy Blast", "Transpose", "Ion Storm" ]
@@ -384,6 +424,7 @@
       "Name": "Vanguard",
       "Role": "DPS",
       "Discipline": "Tactics",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Gut", "Tactical Surge", "Assult Plastique", "Cell Burst" ]
@@ -393,6 +434,7 @@
       "Name": "Vanguard",
       "Role": "DPS",
       "Discipline": "Plasmatech",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Gut", "Tactical Surge", "Assult Plastique", "Cell Burst" ]
@@ -401,6 +443,7 @@
       "Name": "Gunslinger",
       "Role": "DPS",
       "Discipline": "Sharpshooter",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Aimed Shot", "Trickshot", "Penetrating Round", "Burst Volley" ]
@@ -409,6 +452,7 @@
       "Name": "Gunslinger",
       "Role": "DPS",
       "Discipline": "Saboteur",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Explosive Charge", "Shock Charge", "Incindeary Grenade", "Sabatoge" ]
@@ -417,6 +461,7 @@
       "Name": "Gunslinger",
       "Role": "DPS",
       "Discipline": "Dirty Fighting",
+      "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Shrap Bomb", "Wounding Shots", "Hemorrhaging Blast", "Dirty Blast" ]
@@ -425,6 +470,7 @@
       "Name": "Shadow",
       "Role": "Tank",
       "Discipline": "Kinetic Combat",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Cascading Debris", "Kinetic Ward", "Slow Time", "Force Pull" ]
@@ -433,6 +479,7 @@
       "Name": "Shadow",
       "Role": "DPS",
       "Discipline": "Infiltration",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Vaulting Slash", "Clairvoyant", "Low Slash", "Psychokinetic Blast" ]
@@ -441,6 +488,7 @@
       "Name": "Shadow",
       "Role": "DPS",
       "Discipline": "Serenity",
+      "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
       "UniqueAbilities": [ "Force In Balance", "Squelch", "Sever Force", "Serentity Strike" ]

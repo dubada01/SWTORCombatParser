@@ -1,23 +1,32 @@
 ﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Overlays.BossFrame;
+using SWTORCombatParser.ViewModels.Overlays;
+using SWTORCombatParser.ViewModels.Overlays.PvP;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
-namespace SWTORCombatParser.Views.Overlay.BossFrame
+namespace SWTORCombatParser.Views.Overlay.PvP
 {
     /// <summary>
-    /// Interaction logic for BrossFrameView.xaml
+    /// Interaction logic for OpponentHpOverlay.xaml
     /// </summary>
-    public partial class BrossFrameView : Window
+    public partial class OpponentHpOverlay : Window
     {
-        private BossFrameConfigViewModel viewModel;
-
-        public BrossFrameView(BossFrameConfigViewModel vm)
+        private OpponentOverlayViewModel viewModel;
+        public OpponentHpOverlay(OpponentOverlayViewModel vm)
         {
-            InitializeComponent();
             viewModel = vm;
             DataContext = vm;
             InitializeComponent();
@@ -25,9 +34,9 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
                 new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;
             vm.OnLocking += makeTransparent;
+
             Loaded += OnLoaded;
         }
-
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             RemoveFromAppWindow();
@@ -41,20 +50,21 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
         }
         public const int WS_EX_TRANSPARENT = 0x00000020;
         public const int GWL_EXSTYLE = (-20);
+        private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
 
         [DllImport("user32.dll")]
         public static extern int GetWindowLong(IntPtr hwnd, int index);
 
         [DllImport("user32.dll")]
         public static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
-        private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
+
         public void makeTransparent(bool shouldLock)
         {
             Dispatcher.Invoke(() => {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
-                    Background.Opacity = 0.35f;
+                    Background.Opacity = 0.1f;
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                     SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
                 }
@@ -83,7 +93,7 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
         }
         public void UpdateDefaults(object sender, MouseButtonEventArgs args)
         {
-            DefaultBossFrameManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
+            DefaultGlobalOverlays.SetDefault("PvP_HP", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
         }
 
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -93,15 +103,13 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
             if (xadjust > 0)
                 SetValue(WidthProperty, xadjust);
             if (yadjust > 0)
-            { 
                 SetValue(HeightProperty, yadjust);
-                MainArea.MinHeight = yadjust;
-            }
         }
+
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            DefaultBossFrameManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
+            DefaultGlobalOverlays.SetDefault("PvP_HP", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 
@@ -128,7 +136,7 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DefaultBossFrameManager.SetActiveState(false);
+            DefaultGlobalOverlays.SetActive("PvP_HP", false);
             CloseOverlay();
         }
     }

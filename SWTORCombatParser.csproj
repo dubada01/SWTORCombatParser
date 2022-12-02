@@ -122,7 +122,9 @@
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_8.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_9.png" />
     <None Remove="resources\RoomOverlays\IP-CPT\Phase5_9_plus.png" />
+    <None Remove="resources\RoomOverlays\OpponentLocation.png" />
     <None Remove="resources\RoomOverlays\PlayerLocation.png" />
+    <None Remove="resources\RoomOverlays\TargetedOpponentLocation.png" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="resources\SwtorLogo_opaque.png" />
     <None Remove="resources\SWTORParsingIcon.ico" />
@@ -355,7 +357,13 @@
     <Content Include="resources\RoomOverlays\IP-CPT\Phase5_9_plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\RoomOverlays\OpponentLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\RoomOverlays\PlayerLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\TargetedOpponentLocation.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\SwtorLogo_opaque.png">

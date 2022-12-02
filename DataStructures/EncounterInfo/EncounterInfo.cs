@@ -35,14 +35,14 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         }
         public string Difficutly { get; set; } = "Story";
         public string NumberOfPlayer { get; set; } = "4";
-        private List<string> bossNames= new List<string>();
+        private List<string> bossNames;
         public EncounterType EncounterType { get; set; }
         public string LogName { get; set; }
         public string NamePlus => GetNamePlus();
         public string Name { get; set; }
         public List<string> BossNames { get => bossNames; set
             {
-                bossNames = value;
+                bossNames = value ?? new List<string>();
                 BossInfos = BossNames.Select(b => new BossInfo() 
                 { 
                     EncounterName = b.Contains("~?~") ? b.Split("~?~")[0] : b, 

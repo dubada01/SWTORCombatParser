@@ -151,17 +151,18 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             if(!runningInBackground)
                 LoadingWindowFactory.ShowLoading();
             OnMonitoringStateChanged(true);
-            var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-            //var mostRecentLog = Path.Join(_logPath, "test.txt");
-            //File.Delete(mostRecentLog);
-            //File.Create(mostRecentLog).Close();
+            //var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
+            var mostRecentLog = Path.Join(_logPath, "test.txt");
+            File.Delete(mostRecentLog);
+            File.Create(mostRecentLog).Close();
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
-            //Task.Run(() =>
-            //{
-            //    TransferLogData(mostRecentLog);
-            //    File.Delete(mostRecentLog);
-            //});
+            Task.Run(() =>
+            {
+                Thread.Sleep(1000);
+                TransferLogData(mostRecentLog);
+                File.Delete(mostRecentLog);
+            });
 
         }
         //TEST CODE
@@ -170,7 +171,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var encoding = Encoding.GetEncoding(1252);
-            var testFilesPath = @"C:\Users\duban\source\GameDevRepos\Orbs\SWTORCombatParser\TestCombatLogs";
+            var testFilesPath = @"C:\Users\David\Desktop\TestLogs";
             var files = Directory.EnumerateFiles(testFilesPath);
             foreach(var file in files)
             {
@@ -180,7 +181,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     {
                         while (!reader.EndOfStream)
                         {
-                            var numberOfLines = new Random().Next(10, 30);
+                            var numberOfLines = new Random().Next(40, 90);
                             List<string> lines = new List<string>();
                             for (int i = 0; i < numberOfLines; i++)
                             {

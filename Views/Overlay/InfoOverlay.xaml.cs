@@ -93,7 +93,7 @@ namespace SWTORCombatParser.Views.Overlay
         }
         public void UpdateDefaults(object sender, MouseButtonEventArgs args)
         {
-            DefaultOverlayManager.SetDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            DefaultCharacterOverlays.SetCharacterDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
         }
 
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -113,7 +113,7 @@ namespace SWTORCombatParser.Views.Overlay
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            DefaultOverlayManager.SetDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            DefaultCharacterOverlays.SetCharacterDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 
@@ -140,7 +140,7 @@ namespace SWTORCombatParser.Views.Overlay
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DefaultOverlayManager.SetActiveState(viewModel.Type.ToString(), false, _currentPlayerName);
+            DefaultCharacterOverlays.SetActiveStateCharacter(viewModel.Type.ToString(), false, _currentPlayerName);
             CloseOverlay();
         }
     }
