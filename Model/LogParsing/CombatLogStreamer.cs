@@ -53,6 +53,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 ResetMonitoring();
                 _logToMonitor = logToMonitor;
                 ParseExisitingLogs();
+                LoadingWindowFactory.HideLoading();
                 _monitorLog = true;
                 PollForUpdates();
             });
@@ -213,6 +214,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
         {
+            if(logs.Count ==0 ) return;
             var usableLogs = logs.Where(l => l.Error != ErrorType.IncompleteLine).ToList();
             _currentCombatData.Clear();
             foreach (var t in usableLogs)

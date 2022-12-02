@@ -152,7 +152,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 _currentUpdate = triggerdUpdate;
                 var imageToUse = ViewExtraInfo && _currentUpdate.ImageOverlayPathExtra != "" ? _currentUpdate.ImageOverlayPathExtra : _currentUpdate.ImageOverlayPath;
                 ImagePath = Path.Combine("../../../resources/RoomOverlays/IP-CPT", imageToUse);
-                Debug.WriteLine(ImagePath);
             }
             var roomTop = _currentCombatOverlaySettings.Top;
             var roomLeft = _currentCombatOverlaySettings.Left;

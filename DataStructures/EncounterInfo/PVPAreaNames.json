@@ -30,38 +30,35 @@
   {
     "Name": "Quesh Huttball Pit",
     "EncounterType": 5
-  }
-,
+  },
+  {
+    "Name": "Vandin",
+    "EncounterType": 5
+  },
   {
     "Name": "The Sky Shredder",
     "EncounterType": 5
-  }
-,
+  },
   {
     "Name": "Corellia Square",
     "EncounterType": 6
-  }
-,
+  },
   {
     "Name": "Makeb Mesa",
     "EncounterType": 6
-  }
-,
+  },
   {
     "Name": "Mandalorian Battle Ring",
     "EncounterType": 6
-  }
-,
+  },
   {
     "Name": "Orbital Station",
     "EncounterType": 6
-  }
-,
+  },
   {
     "Name": "Rishi Cove",
     "EncounterType": 6
-  }
-,
+  },
   {
     "Name": "Tatooine Canyon",
     "EncounterType": 6

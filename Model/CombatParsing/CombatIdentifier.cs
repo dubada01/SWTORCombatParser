@@ -96,6 +96,11 @@ namespace SWTORCombatParser.Model.CombatParsing
                 if(isRealtime)
                     EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
             }
+            //if (newCombat.IsPvPCombat)
+            //{
+            //    if (isRealtime)
+            //        EncounterTimerTrigger.FirePvpEncounterDetected();
+            //}
             if (newCombat.Targets.Any(t => t.Name.Contains("Training Dummy")))
             {
                 newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Unknown", NumberOfPlayer = "1",EncounterType = EncounterType.Parsing, BossNames = new List<string> { "Warzone Training Dummy", "Operations Training Dummy" } };

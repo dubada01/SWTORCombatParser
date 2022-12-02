@@ -92,7 +92,7 @@ namespace SWTORCombatParser.Views.Timers
         }
         public void UpdateDefaults(object sender, MouseButtonEventArgs args)
         {
-            DefaultOverlayManager.SetDefaults("Alerts", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, "All");
+            DefaultCharacterOverlays.SetCharacterDefaults("Alerts", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, "All");
         }
 
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -107,7 +107,7 @@ namespace SWTORCombatParser.Views.Timers
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            DefaultOverlayManager.SetDefaults("Alerts",new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, "All");
+            DefaultCharacterOverlays.SetCharacterDefaults("Alerts",new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, "All");
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 

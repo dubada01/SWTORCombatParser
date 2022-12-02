@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -60,9 +61,20 @@ namespace SWTORCombatParser.Model.LogParsing
                 var indendedNumberOfPlayers = EncounterLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
                 raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers ?? "4";
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
+                if (liveLog)
+                {
+                    if(raidOfInterest.IsPvpEncounter)
+                        EncounterTimerTrigger.FirePvpEncounterDetected();
+                    else
+                        EncounterTimerTrigger.FireNonPvpEncounterDetected();
+                }
+                    
+
             }
             else
             {
+                if (liveLog)
+                    EncounterTimerTrigger.FireNonPvpEncounterDetected();
                 var openWorldLocation = ": " + log.LogLocation;
 
                 var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World", BossInfos = new List<BossInfo> () };

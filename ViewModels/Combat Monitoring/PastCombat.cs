@@ -29,7 +29,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         public EncounterInfo EncounterInfo { get; set; }
         public Combat Combat { get; set; }
-        public bool IsTrash => Combat!=null&&!Combat.IsCombatWithBoss && !IsCurrentCombat;
+        public bool IsTrash => Combat!=null&&!Combat.IsCombatWithBoss && !IsCurrentCombat && !IsPvPCombat;
         public bool WasBossKilled => Combat?.WasBossKilled ?? false;
 
         public SolidColorBrush PvPBorderInidcator =>

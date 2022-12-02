@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Plotting;
 using SWTORCombatParser.ViewModels.Home_View_Models;
 
@@ -32,7 +33,7 @@ namespace SWTORCombatParser.DataStructures
 
         public List<string> RequiredDeadTargetsForKill { get; set; } = new List<string>();
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
-        public bool IsPvPCombat => Targets.Any(t => t.IsCharacter);
+        public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
         public bool WasBossKilled =>RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => (l.Target.Name == t && l.Effect.EffectName == "Death")));
         public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
