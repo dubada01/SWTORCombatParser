@@ -13,9 +13,8 @@
                 <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
                 <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
             </Grid.ColumnDefinitions>
-            <Border HorizontalAlignment="Stretch" Grid.Column="0" CornerRadius="0,5,5,0" Background="Firebrick"></Border>
+            <Border HorizontalAlignment="Stretch" Grid.Column="0" CornerRadius="0,5,5,0" Background="{Binding Menace, Converter={StaticResource MenaceTypeToBrushConverter}}"></Border>
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="DemiBold" FontFamily="{StaticResource MainFont}" FontSize="30" Grid.ColumnSpan="2"  Foreground="WhiteSmoke" Text="{Binding PlayerName}"></TextBlock>
-            <Image Visibility="{Binding IsMenace, Converter={StaticResource BooleanToVisibiityConverter}}" Source="{Binding MenaceIconSource}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5"></Image>
         </Grid>
     </Border>
 

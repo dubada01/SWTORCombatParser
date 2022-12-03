@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
@@ -31,6 +32,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
 
         public DataGridViewModel()
         {
+            IconFactory.Init();
             DataGridDefaults.Init();
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateColumns;
             CombatLogStreamer.HistoricalLogsFinished += UpdateLocalPlayer;

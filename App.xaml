@@ -45,6 +45,7 @@
             <converters:OverlayTypeToReadableNameConverter x:Key="OverlayTypeToReadableNameConverter"/>
             <converters:OpponentInRangeToColorConverter x:Key="OpponentInRangeToColorConverter"/>
             <converters:BooleanToHpBorderConverter x:Key="BooleanToHpBorderConverter"/>
+            <converters:MenaceTypeToBrushConverter x:Key="MenaceTypeToBrushConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

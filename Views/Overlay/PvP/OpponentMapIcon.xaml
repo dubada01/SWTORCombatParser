@@ -14,10 +14,10 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Viewbox>
-                <Image Source="../../../resources/question-mark.png" x:Name="Icon" RenderTransformOrigin="0.5,0.5"/>
+                <Image Source="../../../resources/RoomOverlays/OpponentLocation.png" x:Name="Icon" RenderTransformOrigin="0.5,0.5"/>
             </Viewbox>
-            <Viewbox HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10,10,0,0">
-                <Image Source="../../../resources/dpsIcon.png" x:Name="MenaceIcon" />
+            <Viewbox>
+                <Image Source="../../../resources/RoomOverlays/SelectionAdornment.png" x:Name="SelectionAdornment" />
             </Viewbox>
             
         </Grid>

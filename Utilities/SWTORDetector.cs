@@ -13,27 +13,34 @@ namespace SWTORCombatParser.Utilities
         public static bool SwtorRunning;
         public static void StartMonitoring()
         {
-            _monitorForSwtor = true;
-            Task.Run(() => {
-                while (_monitorForSwtor)
-                {
-                    var processCollection = Process.GetProcesses();
-                    if(processCollection.Any(p=>p.ProcessName == "swtor"))
+                _monitorForSwtor = true;
+                Task.Run(() => {
+                    while (_monitorForSwtor)
                     {
-                        if(!SwtorRunning)
-                            UpdateStatus();
-                        SwtorRunning = true;
-                    }
-                    else
-                    {
-                        if(SwtorRunning)
-                            UpdateStatus();
-                        SwtorRunning = false;
-                    }
+                        try
+                        {
+                            var processCollection = Process.GetProcesses();
+                            if (processCollection.Any(p => p.ProcessName == "swtor"))
+                            {
+                                if (!SwtorRunning)
+                                    UpdateStatus();
+                                SwtorRunning = true;
+                            }
+                            else
+                            {
+                                if (SwtorRunning)
+                                    UpdateStatus();
+                                SwtorRunning = false;
+                            }
 
-                    Thread.Sleep(SwtorRunning ? 1500 : 5000);
-                }
-            });
+                            Thread.Sleep(SwtorRunning ? 1500 : 5000);
+                        }
+                        catch (Exception e)
+                        {
+                            Logging.LogError("Error during process dection: " + e.Message);
+                        }
+                    }
+                });
         }
 
         private static void UpdateStatus()

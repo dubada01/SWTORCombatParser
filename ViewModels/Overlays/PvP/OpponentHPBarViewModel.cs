@@ -49,16 +49,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 OnPropertyChanged();
             }
         }
-        public bool IsMenace { get; set; }
-        public string MenaceIconSource => Menace == MenaceTypes.Dps ? Path.Combine(Environment.CurrentDirectory, "resources/dpsIcon.png") : Path.Combine(Environment.CurrentDirectory, "resources/healingIcon.png");
         public MenaceTypes Menace
         {
             get => menace; set
             {
                 menace = value;
-                if(menace!=MenaceTypes.None)
-                    IsMenace = true;
-                OnPropertyChanged("MenaceIconSource");
                 OnPropertyChanged("IsMenace");
             }
         }

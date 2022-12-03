@@ -117,7 +117,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
             catch (Exception e)
             {
-                Logging.LogError(e.Message);
+                Logging.LogError(JsonConvert.SerializeObject(e));
             }
         }
         public static async Task<LeaderboardEntry> GetTopLeaderboard(string bossName, string encounter, LeaderboardEntryType type)

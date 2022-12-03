@@ -1,5 +1,6 @@
 ﻿using MvvmHelpers;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Drawing;
@@ -27,7 +28,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                     ForegroundColor = System.Windows.Media.Brushes.WhiteSmoke;
                 Value = name;
                 DisplayIcon = true;
-                RoleIcon = ToBitmapImage(new Bitmap(Environment.CurrentDirectory + "/resources/"+ iconName));
+                RoleIcon = IconFactory.GetIcon(iconName);
                 return;
             }
             ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
@@ -42,22 +43,5 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             }
         }
         public SolidColorBrush ForegroundColor { get; set; }
-        public static BitmapImage ToBitmapImage(Bitmap bitmap)
-        {
-            using (var memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Png);
-                memory.Position = 0;
-
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                return bitmapImage;
-            }
-        }
     }
 }
