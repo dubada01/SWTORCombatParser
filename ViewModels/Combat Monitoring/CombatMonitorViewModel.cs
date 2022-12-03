@@ -151,18 +151,18 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             if(!runningInBackground)
                 LoadingWindowFactory.ShowLoading();
             OnMonitoringStateChanged(true);
-            //var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-            var mostRecentLog = Path.Join(_logPath, "test.txt");
-            File.Delete(mostRecentLog);
-            File.Create(mostRecentLog).Close();
+            var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
+            //var mostRecentLog = Path.Join(_logPath, "test.txt");
+            //File.Delete(mostRecentLog);
+            //File.Create(mostRecentLog).Close();
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
-            Task.Run(() =>
-            {
-                Thread.Sleep(1000);
-                TransferLogData(mostRecentLog);
-                File.Delete(mostRecentLog);
-            });
+            //Task.Run(() =>
+            //{
+            //    Thread.Sleep(1000);
+            //    TransferLogData(mostRecentLog);
+            //    File.Delete(mostRecentLog);
+            //});
 
         }
         //TEST CODE
@@ -181,7 +181,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     {
                         while (!reader.EndOfStream)
                         {
-                            var numberOfLines = new Random().Next(40, 90);
+                            var numberOfLines = new Random().Next(2, 5);
                             List<string> lines = new List<string>();
                             for (int i = 0; i < numberOfLines; i++)
                             {
@@ -193,7 +193,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                             fs.Flush();
 
 
-                            Thread.Sleep(100);
+                            Thread.Sleep(250);
                         }
                         fs.Flush();
                         fs.Close();

@@ -176,16 +176,8 @@ namespace SWTORCombatParser.Views.Overlay.PvP
                 Canvas.SetTop(RangeIndicator, imageLocation.Height / 2 - (RangeIndicator.Height / 2));
                 foreach (var opponent in opponentInfos) {
                     var img = opponentImages[opponentIndex];
-                    img.Icon.Source = opponent.IsTarget ?
-                    new BitmapImage(new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/TargetedOpponentLocation.png"))) :
-                    new BitmapImage(new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/OpponentLocation.png")));
-                    if (opponent.Menace != MenaceTypes.None)
-                    { 
-                        img.MenaceIcon.Visibility = Visibility.Visible;
-                        img.MenaceIcon.Source = new BitmapImage(GetUriFromMenaceType(opponent.Menace));
-                    }
-                    else
-                        img.MenaceIcon.Visibility = Visibility.Hidden;
+                    img.Icon.Source = new BitmapImage(GetUriFromMenaceType(opponent.Menace));
+                    img.SelectionAdornment.Visibility = opponent.IsTarget ? Visibility.Visible : Visibility.Hidden;
 
                     img.PlayerName.Text = opponent.Name;
                     img.Visibility = Visibility.Visible;
@@ -199,6 +191,8 @@ namespace SWTORCombatParser.Views.Overlay.PvP
 
                     
                     Point characterLocation = new Point((imageLocation.Width * xFraction) + imageLocation.Width/2, (imageLocation.Height * yFraction) + imageLocation.Height/2);
+                    characterLocation.X = Math.Max(0,Math.Min(characterLocation.X, imageLocation.Width));
+                    characterLocation.Y = Math.Max(0,Math.Min(characterLocation.Y, imageLocation.Height));
                     img.Height = imageLocation.Height * 0.1;
                     img.Width = img.Height;
                     Canvas.SetLeft(img, characterLocation.X - (img.Width / 2));
@@ -219,10 +213,10 @@ namespace SWTORCombatParser.Views.Overlay.PvP
             if (menace == MenaceTypes.None)
                 return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/OpponentLocation.png"));
             if (menace == MenaceTypes.Dps)
-                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/dpsIcon.png"));
+                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/DamageMenaceOpponentLocation.png"));
             if (menace == MenaceTypes.Healer)
-                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/healingIcon.png"));
-            return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png"));
+                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/HealMenaceOpponentLocation.png"));
+            return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/OpponentLocation.png"));
         }
 
         private void HideAllOpponents()

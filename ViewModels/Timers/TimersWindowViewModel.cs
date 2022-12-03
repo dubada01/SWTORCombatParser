@@ -63,7 +63,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    var defaultTimersInfo = DefaultCharacterOverlays.GetCharacterDefaults("All")["Alerts"];
+                    var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Alerts");
                     _timerWindow.Top = defaultTimersInfo.Position.Y;
                     _timerWindow.Left = defaultTimersInfo.Position.X;
                     _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;

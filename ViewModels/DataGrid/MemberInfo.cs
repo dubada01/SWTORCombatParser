@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             _info = info;
             _entity = e;
             IsLocalPlayer = e.IsLocalPlayer;
-            StatsSlots = new ObservableCollection<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i) {  Value = GetValue(i) }));
+            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i) {  Value = GetValue(i) }));
             StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, _entity.Name, GetIconPathFromClass(CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.Last().StartTime)), IsLocalPlayer));
             if(selectedColumns.Count < 10)
                 StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
@@ -105,12 +105,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             return classInfo.Role switch
             {
-                Role.Healer => "healingIcon.png",
-                Role.Tank => "tankIcon.png",
-                Role.DPS => "dpsIcon.png",
-                _ => "question-mark.png"
+                Role.Healer => "healer",
+                Role.Tank => "tank",
+                Role.DPS => "dps",
+                _ => "unknown"
             };
         }
-        public ObservableCollection<StatsSlotViewModel> StatsSlots { get; set; } = new ObservableCollection<StatsSlotViewModel>();
+        public List<StatsSlotViewModel> StatsSlots { get; set; } = new List<StatsSlotViewModel>();
     }
 }
