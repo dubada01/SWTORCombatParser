@@ -168,8 +168,8 @@ namespace SWTORCombatParser.Views.Overlay.PvP
 
                 var doubleRange = range * 2;
 
-                var imageWidthGameUnits = Math.Max(20, doubleRange + rangeBuffer);
-                var imageHeightGameUnits = Math.Max(20, doubleRange + rangeBuffer);
+                var imageWidthGameUnits = Math.Max(100, doubleRange + rangeBuffer);
+                var imageHeightGameUnits = Math.Max(100, doubleRange + rangeBuffer);
                 RangeIndicator.Width =imageLocation.Width * (doubleRange / imageWidthGameUnits);
                 RangeIndicator.Height =imageLocation.Height * (doubleRange / imageHeightGameUnits);
                 Canvas.SetLeft(RangeIndicator, imageLocation.Width / 2 - (RangeIndicator.Width / 2));

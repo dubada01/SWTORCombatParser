@@ -187,18 +187,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private void NewCombatInfo(Combat currentCombat)
         {
             _mostRecentCombat = currentCombat;
-            //var participants = currentCombat.CharacterParticipants;
-            //var opponents = participants.Where(p => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(p,currentCombat.StartTime));
-
-            //foreach (var opponent in opponents)
-            //{
-            //    OpponentPositionInfo.Add(new OpponentMapInfo { 
-            //        Position = CombatLogStateBuilder.CurrentState.CurrentCharacterPositions[opponent], 
-            //        Name = opponent.Name, 
-            //        Menace = GetMenaceType(opponent.Name),
-            //        IsTarget = IsCurrentTarget(opponent.Name)
-            //    });
-            //}
         }
 
 
