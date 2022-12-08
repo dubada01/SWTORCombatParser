@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,8 +48,9 @@ namespace SWTORCombatParser.Model.DataGrid
 
                 return defaultsForToon;
             }
-            catch (Exception e)
+            catch (Exception)
             {
+                Logging.LogInfo("Creating new source: " + characterName);
                 InitializeDefaults(characterName);
                 return GetCurrentDefaults()[characterName];
             }

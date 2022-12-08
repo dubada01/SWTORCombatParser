@@ -148,7 +148,6 @@ namespace SWTORCombatParser.Model.LogParsing
             try
             {
                 sr.BaseStream.Seek(numberOfProcessedBytes, SeekOrigin.Begin);
-                bool hasValidEnd = false;
                 bool lastValueWasbsR = false;
                 StringBuilder newLine = new StringBuilder();
 

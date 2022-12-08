@@ -9,7 +9,6 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 {
     public class EventHistoryViewModel:INotifyPropertyChanged
     {
-        private IDisposable _sliderUpdateSubscription;
         private Combat _currentlySelectedCombat;
         private DateTime _startTime;
         private List<Entity> _viewingEntities = new List<Entity>();

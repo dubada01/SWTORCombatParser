@@ -8,7 +8,7 @@
         Title="BrossFrameView" AllowsTransparency="True" Background="{x:Null}" 
         WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" SizeToContent="Height" ShowInTaskbar="False">
     <Grid x:Name="MainArea" Visibility="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip="Boss Info Frame">
-        <Border x:Name="Background" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
+        <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="3" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
         <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,2,0,0">

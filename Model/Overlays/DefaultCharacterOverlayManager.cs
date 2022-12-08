@@ -107,7 +107,7 @@ namespace SWTORCombatParser.Model.Overlays
                 }
                 return defaultsForToon;
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 InitializeCharacterDefaults(characterName);
                 return GetCurrentCharacterDefaults()[characterName];

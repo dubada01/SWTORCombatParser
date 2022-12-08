@@ -13,7 +13,6 @@ namespace SWTORCombatParser.Views.Timers
     public partial class TimerModificationWindow : Window
     {
         private ModifyTimerViewModel _vm;
-        private bool wasSaved = false;
         public TimerModificationWindow(ModifyTimerViewModel vm)
         {
             InitializeComponent();
@@ -45,7 +44,6 @@ namespace SWTORCombatParser.Views.Timers
         }
         private void CloseWindow(Timer throwAway, bool meh)
         {
-            wasSaved = true;
             Close();
             ObscureWindowFactory.CloseObscureWindow();
         }
