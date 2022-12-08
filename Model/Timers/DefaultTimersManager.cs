@@ -125,7 +125,7 @@ namespace SWTORCombatParser.Model.Timers
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
                 return currentDefaults.First(t=>t.TimerSource == timerSource);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 InitializeDefaults(timerSource);
                 var resetDefaults = File.ReadAllText(infoPath);
@@ -151,7 +151,7 @@ namespace SWTORCombatParser.Model.Timers
                 var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.IsBossSource).ToList();
                 return validDefaults;
             }
-            catch(JsonSerializationException e)
+            catch(JsonSerializationException)
             {
                 File.WriteAllText(infoPath, "");
                 return new List<DefaultTimersData>();

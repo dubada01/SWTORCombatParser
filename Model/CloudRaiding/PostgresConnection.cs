@@ -5,6 +5,7 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -107,7 +108,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             new ("p7",Leaderboards._leaderboardVersion),
                             new ("p8",newEntry.Duration),
                             new ("p9",newEntry.VerifiedKill),
-                            new ("p10",newEntry.TimeStamp.ToUniversalTime()),
+                            new ("p10",GetUTCTimeStamp(newEntry.TimeStamp)),
                         }
                     })
                     {
@@ -170,7 +171,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossAndCharacterWithClassFromTime(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType, DateTime from)
         {
-            Trace.WriteLine("Removing duplicates from time: " + from.ToUniversalTime().ToString());
+            Trace.WriteLine("Removing duplicates from time: " + GetUTCTimeStamp(from).ToString(CultureInfo.InvariantCulture));
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
             try
             {
@@ -183,7 +184,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     $"player_class = '{className.MakePGSQLSafe()}' and " +
                     $"value_type = '{entryType}' and " +
                     $"software_version = '{Leaderboards._leaderboardVersion}' and " +
-                    $"timestamp > '{from.ToUniversalTime()}'", connection))
+                    $"timestamp > '{GetUTCTimeStamp(from).ToString(CultureInfo.InvariantCulture)}'", connection))
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();

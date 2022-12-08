@@ -60,13 +60,13 @@ namespace SWTORCombatParser.Views.Overlay.Room
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
-                    Background.Opacity = 0.75f;
+                    BackgroundArea.Opacity = 0.75f;
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                     SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TRANSPARENT) & ~WS_EX_APPWINDOW);
                 }
                 else
                 {
-                    Background.Opacity = 0.45f;
+                    BackgroundArea.Opacity = 0.45f;
                     //Remove the WS_EX_TRANSPARENT flag from the extended window style
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                     SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);

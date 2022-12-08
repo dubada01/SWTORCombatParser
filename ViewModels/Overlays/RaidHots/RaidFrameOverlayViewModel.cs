@@ -63,6 +63,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 var playerName = obj.TargetAddendem.ToLower();
                 var maxMatchingCharacters = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, playerName));
+                if (LevenshteinDistance.Compute(maxMatchingCharacters, playerName) > playerName.Count() / 2)
+                    return;
                 var cellToUpdate = RaidHotCells.First(c => c.Name.ToLower() == maxMatchingCharacters);
                 cellToUpdate.AddTimer(obj);
             }

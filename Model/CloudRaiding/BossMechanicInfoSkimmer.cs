@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using SWTORCombatParser.DataStructures;
+using System.Globalization;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -60,7 +61,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             {
                                 Parameters  =
                                 {
-                                    new ("p1",bossCombat.StartTime.ToUniversalTime()),
+                                    new ("p1",GetUTCTimeStamp(DateTime.Now)),
                                     new ("p2",secondsElapsed),
                                     new ("p3",currentHP),
                                     new ("p4",bossName.MakePGSQLSafe()),
@@ -81,6 +82,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 Logging.LogError("Boss mechanics upload database exception: " + ex.Message);
             }
+        }
+        private static DateTime GetUTCTimeStamp(DateTime timeZone)
+        {
+            return timeZone.ToUniversalTime();
         }
         private static NpgsqlConnection ConnectToDB()
         {
