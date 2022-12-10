@@ -23,8 +23,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
     public class OpponentOverlayViewModel:INotifyPropertyChanged
     {
         private bool _isActive = false;
-        private OpponentHpOverlay _opponentHPView;
-        private OverlayInfo _settings;
+        private readonly OpponentHpOverlay _opponentHPView;
 
         private DispatcherTimer _dTimer;
         private bool _isTriggered;
@@ -37,7 +36,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _dTimer = new DispatcherTimer();
             _opponentHPView = new OpponentHpOverlay(this);
             _opponentHPView.Show();
-            _settings = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP");
             EncounterTimerTrigger.NonPvpEncounterEntered += OnPvpCombatEnded;
             EncounterTimerTrigger.PvPEncounterEntered += OnPvpCombatStarted;
             CombatLogStreamer.NewLineStreamed += NewLineStreamed;
@@ -46,21 +44,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
 
 
-
+        public event Action<string, bool> OverlayStateChanged = delegate { };
         public List<OpponentHPBarViewModel> OpponentHpBars { get; set; } = new List<OpponentHPBarViewModel>();
         private void OnPvpCombatStarted()
         {
             if (!OverlayEnabled || _isTriggered)
                 return;
             _isTriggered = true;
-            if (_settings.Acive)
+            if (GetCurrentActive())
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    _currentHps = new Dictionary<string, double>();
                     ShowFrame = true;
                     _mostRecentCombat = null;
-                    OpponentHpBars.Clear();
+                    ResetUI();
                     OnPropertyChanged("ShowFrame");
                     _dTimer.Start();
                     _dTimer.Interval = TimeSpan.FromSeconds(0.1);
@@ -76,8 +73,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
             _isTriggered = false;
             _mostRecentCombat = null;
-            OpponentHpBars.Clear();
-            _currentHps = new Dictionary<string, double>();
+            ResetUI();
             App.Current.Dispatcher.Invoke(() =>
             {
                 ShowFrame = false;
@@ -86,6 +82,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 OnPropertyChanged("ShowFrame");
             });
 
+        }
+
+        private void ResetUI()
+        {
+            OpponentHpBars.Clear();
+            _currentHps.Clear();
+            _lastUpdatedPlayer.Clear();
         }
         public bool OverlayEnabled
         {
@@ -108,6 +111,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     }
                     
                 }
+
+                OverlayStateChanged("OpponentHP", _isActive);
                 OnPropertyChanged();
             }
         }
@@ -118,7 +123,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             OnLocking(true);
             OverlaysMoveable = false;
-            ShowFrame = false;
+            if (!GetCurrentActive())
+                ShowFrame = false;
             OnPropertyChanged("ShowFrame");
             OnPropertyChanged("OverlaysMoveable");
         }
@@ -126,7 +132,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             OnLocking(false);
             OverlaysMoveable = true;
-            if (_settings.Acive)
+            if (GetCurrentActive())
                 ShowFrame = true;
             OnPropertyChanged("ShowFrame");
             OnPropertyChanged("OverlaysMoveable");
@@ -134,15 +140,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private void NewCombatInfo(Combat currentCombat)
         {
             _mostRecentCombat = currentCombat;
-            //var participants = currentCombat.CharacterParticipants;
-            //var opponents = participants.Where(p => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(p,currentCombat.StartTime));
-            //foreach(var opponent in opponents)
-            //{
-            //    var lastLogForPlayer = currentCombat.GetLogsInvolvingEntity(opponent).Last();
-            //    var hpOfPlayer = lastLogForPlayer.Source == opponent ? lastLogForPlayer.SourceInfo.CurrentHP : lastLogForPlayer.TargetInfo.CurrentHP;
-            //    var maxHpOfPlayer = lastLogForPlayer.Source == opponent ? lastLogForPlayer.SourceInfo.MaxHP : lastLogForPlayer.TargetInfo.MaxHP;
-            //    _currentHps[opponent.Name] = hpOfPlayer / maxHpOfPlayer;
-            //}
         }
         private void NewLineStreamed(ParsedLogEntry newLine)
         {
@@ -229,6 +226,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             return distanceBeween <= requiredRange;
         }
 
+        private bool GetCurrentActive()
+        {
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP");
+            return defaults.Acive;
+        }
         private void SetInitialPosition()
         {
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP");

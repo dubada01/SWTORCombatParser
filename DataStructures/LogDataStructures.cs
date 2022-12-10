@@ -47,6 +47,7 @@ namespace SWTORCombatParser.DataStructures
         public Entity Target => TargetInfo.Entity;
         public EntityInfo TargetInfo { get; set; }
         public string Ability { get; set; }
+        public string AbilityId { get; set; }
         public Effect Effect { get; set; }
         public Value Value { get; set; }
         public long Threat { get; set; }
@@ -86,6 +87,7 @@ namespace SWTORCombatParser.DataStructures
     {
         public EffectType EffectType { get; set; }
         public string EffectName { get; set; }
+        public string EffectId { get; set; }
     }
     public class Value
     {
@@ -101,6 +103,7 @@ namespace SWTORCombatParser.DataStructures
         public string AllDefensiveBuffs => string.Join(',', DefensiveBuffs.Select(db => db.Name));
         
         public DamageType ValueType { get; set; }
+        public string  ValueTypeId { get; set; }
 
         public Value Modifier;
         public bool WasCrit { get; set; }

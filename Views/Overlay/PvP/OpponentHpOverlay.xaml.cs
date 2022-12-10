@@ -136,8 +136,7 @@ namespace SWTORCombatParser.Views.Overlay.PvP
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DefaultGlobalOverlays.SetActive("PvP_HP", false);
-            CloseOverlay();
+            viewModel.OverlayEnabled = false;
         }
     }
 }

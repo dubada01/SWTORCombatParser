@@ -70,7 +70,7 @@ namespace SWTORCombatParser.Model.Timers
                 return TriggerType.None;
             if (TargetIsValid(log, target, targetIsLocal))
             {
-                if (log.Effect.EffectName == effect && log.Effect.EffectType == EffectType.Remove)
+                if ((log.Effect.EffectName == effect || log.Effect.EffectId == effect) && log.Effect.EffectType == EffectType.Remove)
                     return TriggerType.Start;
                 return TriggerType.None;
             }
@@ -83,19 +83,19 @@ namespace SWTORCombatParser.Model.Timers
             {
                 return TriggerType.End;
             }
-            if(log.Effect.EffectType == EffectType.Remove && log.Effect.EffectName == effect && SourceIsValid(log, source, sourceIsLocal))
+            if(log.Effect.EffectType == EffectType.Remove && (log.Effect.EffectName == effect || log.Effect.EffectId == effect) && SourceIsValid(log, source, sourceIsLocal))
             {
                 return TriggerType.End;
             }
             if (SourceIsValid(log, source, sourceIsLocal) && TargetIsValid(log, target, targetIsLocal))
             {
-                if(log.Effect.EffectName == effect && log.Effect.EffectType == EffectType.Apply)
+                if((log.Effect.EffectName == effect || log.Effect.EffectId == effect) && log.Effect.EffectType == EffectType.Apply)
                     return TriggerType.Start;
-                if (abilitiesThatRefresh.Contains(log.Ability) && log.Effect.EffectType == EffectType.Event && log.Ability == effect)
+                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId)) && log.Effect.EffectType == EffectType.Event && (log.Ability == effect || log.AbilityId == effect))
                 {
                     return TriggerType.Refresh;
                 }
-                if (abilitiesThatRefresh.Contains(log.Ability) && log.Effect.EffectType == EffectType.Apply && log.Ability != effect)
+                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId)) && log.Effect.EffectType == EffectType.Apply && (log.Ability != effect && log.AbilityId != effect))
                 {
                     return TriggerType.Refresh;
                 }
@@ -110,7 +110,7 @@ namespace SWTORCombatParser.Model.Timers
                 return TriggerType.None;
             if(SourceIsValid(log,source,sourceIsLocal) && TargetIsValid(log, target, targetIsLocal))
             {
-                if (log.Ability == ability)
+                if (log.Ability == ability || log.AbilityId == ability)
                     return TriggerType.Start;
                 return TriggerType.None;
             }
@@ -140,7 +140,7 @@ namespace SWTORCombatParser.Model.Timers
                 return true;
             if (source == "Any")
                 return true;
-            if (source == log.Source.Name)
+            if (source == log.Source.Name || source == log.Source.Id.ToString())
                 return true;
             return false;
         }
@@ -150,7 +150,7 @@ namespace SWTORCombatParser.Model.Timers
                 return true;
             if (target == "Any")
                 return true;
-            if (target == log.Target.Name)
+            if (target == log.Target.Name || target == log.Target.Id.ToString())
                 return true;
             return false;
         }
