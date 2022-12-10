@@ -30,20 +30,20 @@ namespace SWTORCombatParser.Model.LogParsing
             //    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
             if (logEntryInfos.Count < 5)
                 return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
-            try
-            {
+            //try
+           // {
                 var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
                 parsedLine.LogText = logEntry;
                 parsedLine.LogLineNumber = lineIndex;
                 if (realTime)
                     CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, true);
                 return parsedLine;
-            }
-            catch(Exception e)
-            {
-                Logging.LogError("Received incomplete log: " + e.Message + "\r\n"+logEntry);
-                return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
-            }
+           // }
+            //catch(Exception e)
+           // {
+               // Logging.LogError("Received incomplete log: " + e.Message + "\r\n"+logEntry);
+               // return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
+          //  }
 
         }
         private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
@@ -110,7 +110,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static Value ParseCharges(string value)
         {
             var chargesValue = new Value();
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value) || value == "()")
                 return chargesValue;
             var valueParts = value.Replace("(", string.Empty).Replace(")", string.Empty).Trim().Split(' ');
             chargesValue.StrValue = valueParts[0] + " " + valueParts[1];
@@ -149,7 +149,10 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 newValue.EffectiveDblValue = newValue.DblValue;
-                newValue.ValueType = GetValueType(valueParts[1].Replace("-", ""));
+                //newValue.ValueType = GetValueType(valueParts[1].Replace("-", ""));
+                newValue.ValueTypeId = valueParts[2].Replace("{", "").Replace("}", "").Trim();
+                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+
             }
             if (valueParts.Count == 4) // partially effective damage
             {
@@ -162,13 +165,16 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-                newValue.ValueType = GetValueType(valueParts[2].Replace("-", ""));
+
+                newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
+                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+
             }
             if(valueParts.Count == 6)// absorbed damage tank-weird
             {
                 var modifier = new Value
                 {
-                    ValueType = GetValueType(valueParts[4].Replace("-", ""))
+                    ValueType = GetValueTypeById(valueParts[5].Replace("{", "").Replace("}",""))
                 };
                 if (double.TryParse(valueParts[3].Replace("(", ""), out double value))
                     modifier.DblValue = value;
@@ -180,13 +186,17 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("~", "").Replace("*",""), CultureInfo.InvariantCulture);
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.ValueType = GetValueType(valueParts[1]);
+                //newValue.ValueType = GetValueType(valueParts[1]);
+                newValue.ValueTypeId = valueParts[2].Replace("{", "").Replace("}", "").Trim();
+                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                if (modifier.ValueType == DamageType.absorbed)
+                    newValue.EffectiveDblValue = newValue.DblValue;
             }
             if (valueParts.Count == 7) // absorbed damage non-tank
             {
                 var modifier = new Value
                 {
-                    ValueType = GetValueType(valueParts[5].Replace("-", "")),
+                    ValueType = GetValueTypeById(valueParts[6].Replace("{", "").Replace("}","")),
                     DblValue = double.Parse(valueParts[4].Replace("(", ""), CultureInfo.InvariantCulture)
                 };
                 modifier.EffectiveDblValue = modifier.DblValue;
@@ -197,14 +207,18 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.ValueType = GetValueType(valueParts[2]);
+                //newValue.ValueType = GetValueType(valueParts[2]);
+                newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
+                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                if (modifier.ValueType == DamageType.absorbed)
+                    newValue.EffectiveDblValue = newValue.DblValue;
             }
             if (valueParts.Count == 8) // tank shielding sheilds more than damage
             {
 
                 var modifier = new Value
                 {
-                    ValueType = GetValueType(valueParts[3].Replace("-", "")),
+                    ValueType = GetValueTypeById(valueParts[4].Replace("{", "").Replace("}","")),
                     DblValue = double.Parse(valueParts[5].Replace("(", ""), CultureInfo.InvariantCulture)
                 };
 
@@ -216,7 +230,9 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture) + modifier.EffectiveDblValue;
                 newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.ValueType = GetValueType(valueParts[1]);
+                //newValue.ValueType = GetValueType(valueParts[1]);
+                newValue.ValueTypeId = valueParts[2].Replace("{", "").Replace("}", "").Trim();
+                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
 
             }
             if (valueParts.Count == 9) // tank shielding shields less than or equal to damage
@@ -224,7 +240,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
                 var modifier = new Value
                 {
-                    ValueType = GetValueType(valueParts[4].Replace("-", "")),
+                    ValueType = GetValueTypeById(valueParts[5].Replace("{", "").Replace("}","")),
                     DblValue = double.Parse(valueParts[6].Replace("(", ""), CultureInfo.InvariantCulture)
                 };
 
@@ -236,8 +252,9 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-                newValue.ValueType = GetValueType(valueParts[2]);
-
+                //newValue.ValueType = GetValueType(valueParts[2]);
+                newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
+                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
             }
             newValue.DisplayValue = newValue.EffectiveDblValue.ToString("#,##0");
             return newValue;
@@ -339,6 +356,13 @@ namespace SWTORCombatParser.Model.LogParsing
             var splitVal = value.Split('{');
             return splitVal[0].Trim();
         }
+        private static string ParseAbilityId(string value)
+        {
+            if (value == "")
+                return "";
+            var splitVal = value.Split('{');
+            return splitVal[1].Replace("}","").Trim();
+        }
         private static Effect ParseEffect(string value)
         {
             var split = value.Split(':');
@@ -349,28 +373,36 @@ namespace SWTORCombatParser.Model.LogParsing
                 type = split[0];
                 name = split[1];
             }
-            
+
+            if (split.Length == 3)
+            {
+                type = split[0];
+                name = split[1] + split[2];
+            }
             var newEffect = new Effect
             {
-                EffectType = GetEffectType(type.Split('{')[0].Trim())
+                //EffectType = GetEffectType(type.Split('{')[0].Trim())
+                EffectType = GetEffectTypeById(type.Split('{')[1].Replace("}","").Trim())
             };
 
             var splitName = name.Split('{');
 
-            if (newEffect.EffectType == EffectType.DisciplineChanged)
+            switch (newEffect.EffectType)
             {
-                newEffect.EffectName = name;
-            }
-            else
-            {
-                if (newEffect.EffectType == EffectType.AreaEntered)
+                case EffectType.DisciplineChanged:
+                    newEffect.EffectName = name;
+                    break;
+                case EffectType.AreaEntered:
                 {
                     var difficulty = splitName.Length > 1 ? splitName[1].Split('}')[1].Trim() : "";
                     var areaInfo = splitName[0].Trim() + " " + difficulty;
                     newEffect.EffectName = areaInfo;
+                    break;
                 }
-                else
+                default:
                     newEffect.EffectName = splitName[0].Trim();
+                    newEffect.EffectId = splitName[1].Replace("}","").Trim();
+                    break;
             }
             if (newEffect.EffectType == EffectType.Event)
             {
@@ -415,6 +447,38 @@ namespace SWTORCombatParser.Model.LogParsing
                     return DamageType.unknown;
             }
         }
+        private static DamageType GetValueTypeById(string val)
+        {
+            switch (val)
+            {
+                case "836045448940874":
+                    return DamageType.energy;
+                case "836045448940873":
+                    return DamageType.kinetic;
+                case "836045448940876":
+                    return DamageType.intern;
+                case "836045448940875":
+                    return DamageType.elemental;
+                case "836045448945509":
+                    return DamageType.shield;
+                case "836045448945511":
+                    return DamageType.absorbed;
+                case "836045448945502":
+                    return DamageType.miss;
+                case "836045448945503":
+                    return DamageType.parry;
+                case "836045448945508":
+                    return DamageType.deflect;
+                case "836045448945505":
+                    return DamageType.dodge;
+                case "836045448945506":
+                    return DamageType.immune;
+                case "836045448945507":
+                    return DamageType.resist;
+                default:
+                    return DamageType.unknown;
+            }
+        }
         private static EffectType GetEffectType(string v)
         {
             switch (v)
@@ -434,6 +498,30 @@ namespace SWTORCombatParser.Model.LogParsing
                 case "DisciplineChanged":
                     return EffectType.DisciplineChanged;
                 case "ModifyCharges":
+                    return EffectType.ModifyCharges;
+                default:
+                    throw new Exception("No valid type");
+            }
+        }
+        private static EffectType GetEffectTypeById(string v)
+        {
+            switch (v)
+            {
+                case "836045448945477":
+                    return EffectType.Apply;
+                case "836045448945478":
+                    return EffectType.Remove;
+                case "836045448945472":
+                    return EffectType.Event;
+                case "836045448945473":
+                    return EffectType.Spend;
+                case "836045448945476":
+                    return EffectType.Restore;
+                case "836045448953664":
+                    return EffectType.AreaEntered;
+                case "836045448953665":
+                    return EffectType.DisciplineChanged;
+                case "836045448953666":
                     return EffectType.ModifyCharges;
                 default:
                     throw new Exception("No valid type");

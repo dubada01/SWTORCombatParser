@@ -17,20 +17,20 @@ namespace SWTORCombatParser.Model.LogParsing
 
         public static ParsedLogEntry ParseLine(string logEntry,long lineIndex, bool realTime = true)
         {
-            try
-            {
+            //try
+           // {
                 if (_logDate == DateTime.MinValue || realTime)
                     _logDate = DateTime.Now;
                 var listEntries = GetInfoComponents(logEntry);
 
                 return _7_0LogParsing.ParseLog(logEntry, lineIndex, _logDate, listEntries, realTime);
 
-            }
-            catch (Exception e)
-            {
-                Logging.LogError("Log parsing error: " + e.Message + "\r\n" + logEntry);
-                return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
-            }
+           // }
+           // catch (Exception e)
+            //{
+               // Logging.LogError("Log parsing error: " + e.Message + "\r\n" + logEntry);
+               // return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
+           //}
         }
         private static bool GetAllLines(StreamReader sr, List<string> lines)
         {
@@ -133,21 +133,35 @@ namespace SWTORCombatParser.Model.LogParsing
             var returnValues = new List<string>();
             int startIndex = 0;
             int numberOfCloses = 0;
+            bool isOpen = false;
+            bool needsSecondClose = false;
             for (var i = 0; i < log.Length; i++)
             {
-                if (log[i] == '[')
+                if (log[i] == '[' && !isOpen)
                 {
                     startIndex = i + 1;
+                    isOpen = true;
                     continue;
                 }
-                if (log[i] == ']')
+
+                if (log[i] == '[' && isOpen)
                 {
+                    needsSecondClose = true;
+                }
+                if (log[i] == ']' && !needsSecondClose)
+                {
+                    isOpen = false;
                     returnValues.Add(log.Substring(startIndex, i - startIndex));
                     numberOfCloses++;
                     if (numberOfCloses == 5)
                         return returnValues;
                     else
                         continue;
+                }
+
+                if (log[i] == ']' && needsSecondClose)
+                {
+                    needsSecondClose = false;
                 }
             }
             return returnValues;

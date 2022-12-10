@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using SWTORCombatParser;
 using System.IO;
+using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser_Test
 {

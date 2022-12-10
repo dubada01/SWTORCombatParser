@@ -53,19 +53,21 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             CombatIdentifier.NewCombatAvailable += NewCombatInfo;
             SetInitialPosition();
         }
+        public event Action<string, bool> OverlayStateChanged = delegate { };
         public List<OpponentMapInfo> OpponentPositionInfo { get; set; } = new List<OpponentMapInfo>();
         private void OnPvpCombatStarted()
         {
             if (!OverlayEnabled || _isTriggered)
                 return;
             _isTriggered = true;
-            if (_settings.Acive)
+            if (GetCurrentActive())
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     ShowFrame = true;
                     _mostRecentCombat = null;
                     OpponentPositionInfo.Clear();
+                    _lastUpdatedPlayer.Clear();
                     OnPropertyChanged("ShowFrame");
                     _dTimer.Start();
                     _dTimer.Interval = TimeSpan.FromSeconds(0.1);
@@ -82,6 +84,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _isTriggered = false;
             _mostRecentCombat = null;
             OpponentPositionInfo.Clear();
+            _lastUpdatedPlayer.Clear();
             App.Current.Dispatcher.Invoke(() =>
             {
                 ShowFrame = false;
@@ -113,6 +116,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     }
                     
                 }
+
+                OverlayStateChanged("MiniMap", _isActive);
                 OnPropertyChanged();
             }
         }
@@ -124,7 +129,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             OnLocking(true);
             OverlaysMoveable = false;
-            ShowFrame = false;
+            if (!GetCurrentActive())
+                ShowFrame = false;
             OnPropertyChanged("ShowFrame");
             OnPropertyChanged("OverlaysMoveable");
         }
@@ -132,7 +138,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             OnLocking(false);
             OverlaysMoveable = true;
-            if (_settings.Acive)
+            if (GetCurrentActive())
                 ShowFrame = true;
             OnPropertyChanged("ShowFrame");
             OnPropertyChanged("OverlaysMoveable");
@@ -222,8 +228,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private double GetLocalPlayerRange()
         {
             var localClass = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(_lastUpdate);
+            if (localClass == null)
+                return 0;
             var requiredRange = localClass.IsRanged ? 30 : 5;
             return requiredRange;
+        }
+
+        private bool GetCurrentActive()
+        {
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap");
+            return defaults.Acive;
         }
 
         private void SetInitialPosition()
