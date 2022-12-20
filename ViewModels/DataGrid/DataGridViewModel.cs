@@ -39,8 +39,10 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             UpdateHeaders();
         }
 
-        private void UpdateLocalPlayer(DateTime combatEndTime)
+        private void UpdateLocalPlayer(DateTime combatEndTime, bool localPlayerIdentified)
         {
+            if (!localPlayerIdentified)
+                return;
             var player = CombatLogStateBuilder.CurrentState.LocalPlayer;
             var discipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
             if (player == null || discipline == null)
@@ -123,8 +125,6 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private void UpdateUI()
         {
             UpdateHeaders();
-            if (_allSelectedCombats.Count == 0)
-                return;
             var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
             var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns));
             PartyMembers.Clear();

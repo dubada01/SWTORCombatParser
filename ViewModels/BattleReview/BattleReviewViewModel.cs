@@ -88,6 +88,13 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             OnPropertyChanged("AvailableEntities");
             UpdateVisuals();
         }
+
+        public void Reset()
+        {
+            _currentlySelectedCombats = new Combat();
+            ResetEntities(new List<AvailableEntity>());
+            UpdateVisuals();
+        }
         private void ResetEntities(List<AvailableEntity> newEntities)
         {
             var entitiesToRemove = AvailableEntities.Except(newEntities,new EntityComparison()).ToList();

@@ -24,6 +24,18 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private bool isTargeted;
         private double _value;
         private MenaceTypes menace;
+        private bool _isCurrentInfo;
+        private string _playerName;
+
+        public bool IsCurrentInfo
+        {
+            get => _isCurrentInfo;
+            set
+            {
+                _isCurrentInfo = value; 
+                OnPropertyChanged();
+            }
+        }
 
         public bool InRange
         {
@@ -74,7 +86,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 RemainderWidth = new GridLength(1 - _value, GridUnitType.Star);
             }
         }
-        public string PlayerName { get; set; }
+
+        public string PlayerName
+        {
+            get => _playerName;
+            set => _playerName = value;
+        }
 
 
         public OpponentHPBarViewModel(string playerName)

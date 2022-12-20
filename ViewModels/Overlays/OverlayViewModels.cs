@@ -45,7 +45,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double sizeScalar = 1d;
         private string sizeScalarString ="1";
         private bool historicalParseFinished = false;
-
+        public event Action OverlayLockStateChanged = delegate{};
         public PvpOverlaySetup PvpOverlays { get; set; }
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public TimersCreationView TimersView { get; set; }
@@ -181,14 +181,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _currentOverlays.ForEach(o => o.CharacterDetected(_currentCharacterDiscipline));
             });
         }
-        private void FinishHistoricalParse(DateTime combatEndTime)
+        private void FinishHistoricalParse(DateTime combatEndTime, bool localPlayerIdentified)
         {
+            historicalParseFinished = true;
+            if (!localPlayerIdentified)
+                return;
             var localPlayer = CombatLogStateBuilder.CurrentState.LocalPlayer;
             var currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
             if (localPlayer == null)
                 return;
             UpdateOverlaysForDiscipline(localPlayer, currentDiscipline);
-            historicalParseFinished = true;
             UpdateOverlays();
         }
         private void HistoricalLogsStarted()
@@ -269,6 +271,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                     
                 ToggleOverlayLock();
+                OverlayLockStateChanged();
+                OnPropertyChanged();
             }
         }
 

@@ -67,7 +67,7 @@ namespace SWTORCombatParser.ViewModels
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
-            SwtorDetector.StartMonitoring();
+            //SwtorDetector.StartMonitoring();
 
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
             MainWindowClosing.Hiding += () =>
@@ -115,7 +115,10 @@ namespace SWTORCombatParser.ViewModels
 
             _overlayViewModel = new OverlayViewModel();
             var overlayView = new OverlayView(_overlayViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = overlayView, HeaderText = "Overlays" });
+            var overlayTab = new TabInstance()
+                { TabContent = overlayView, HeaderText = "Overlays", IsOverlaysTab = true };
+            _overlayViewModel.OverlayLockStateChanged += overlayTab.UpdateLockIcon;
+            ContentTabs.Add(overlayTab);
 
             _leaderboardViewModel = new LeaderboardViewModel();
             var leaderboardView = new LeaderboardView(_leaderboardViewModel);
@@ -181,6 +184,7 @@ namespace SWTORCombatParser.ViewModels
                     _tableViewModel.Reset();
                     _histViewModel.Reset();
                     _dataGridViewModel.Reset();
+                    _reviewViewModel.Reset();
                 });
             _overlayViewModel.LiveParseStarted(state);
         }
@@ -192,16 +196,24 @@ namespace SWTORCombatParser.ViewModels
                 return;
             Application.Current.Dispatcher.Invoke(delegate
             {
-                if(HeaderSelectionState.CurrentlySelectedTabHeader == "Battle Plot")
-                    _plotViewModel.UpdateLivePlot(updatedCombat);
-                if (HeaderSelectionState.CurrentlySelectedTabHeader == "Table")
-                    _tableViewModel.AddCombat(updatedCombat);
-                if (HeaderSelectionState.CurrentlySelectedTabHeader == "Histogram")
-                    _histViewModel.AddCombat(updatedCombat);
-                if (HeaderSelectionState.CurrentlySelectedTabHeader == "Combat Log")
-                    _reviewViewModel.CombatSelected(updatedCombat);
-                if (HeaderSelectionState.CurrentlySelectedTabHeader == "Raid Data")
-                    _dataGridViewModel.UpdateCombat(updatedCombat);
+                switch (HeaderSelectionState.CurrentlySelectedTabHeader)
+                {
+                    case "Battle Plot":
+                        _plotViewModel.UpdateLivePlot(updatedCombat);
+                        break;
+                    case "Table":
+                        _tableViewModel.AddCombat(updatedCombat);
+                        break;
+                    case "Histogram":
+                        _histViewModel.AddCombat(updatedCombat);
+                        break;
+                    case "Combat Log":
+                        _reviewViewModel.CombatSelected(updatedCombat);
+                        break;
+                    case "Raid Data":
+                        _dataGridViewModel.UpdateCombat(updatedCombat);
+                        break;
+                }
             });
             _allViewsUpToDate = false;
         }

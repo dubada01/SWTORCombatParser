@@ -3,6 +3,7 @@
     {
       "Name": "Powertech",
       "Discipline": "Shield Tech",
+      "DisciplineId": "2031339142381604",
       "Role": "Tank",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -12,6 +13,7 @@
     {
       "Name": "Powertech",
       "Discipline": "Pyrotech",
+      "DisciplineId": "2031339142381602",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -21,6 +23,7 @@
     {
       "Name": "Powertech",
       "Discipline": "Advanced Prototype",
+      "DisciplineId": "2031339142381605",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -30,6 +33,7 @@
     {
       "Name": "Sniper",
       "Discipline": "Marksmanship",
+      "DisciplineId": "2031339142381591",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -39,6 +43,7 @@
     {
       "Name": "Sniper",
       "Discipline": "Engineering",
+      "DisciplineId": "2031339142381592",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -48,6 +53,7 @@
     {
       "Name": "Sniper",
       "Discipline": "Virulence",
+      "DisciplineId": "2031339142381589",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -58,6 +64,7 @@
       "Name": "Juggernaut",
       "Role": "Tank",
       "Discipline": "Immortal",
+      "DisciplineId": "2031339142381577",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -67,6 +74,7 @@
       "Name": "Juggernaut",
       "Role": "DPS",
       "Discipline": "Vengeance",
+      "DisciplineId": "2031339142381576",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -76,6 +84,7 @@
       "Name": "Juggernaut",
       "Role": "DPS",
       "Discipline": "Rage",
+      "DisciplineId": "2031339142381578",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -85,6 +94,7 @@
       "Name": "Assassin",
       "Role": "Tank",
       "Discipline": "Darkness",
+      "DisciplineId": "2031339142381582",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -94,6 +104,7 @@
       "Name": "Assassin",
       "Role": "DPS",
       "Discipline": "Deception",
+      "DisciplineId": "2031339142381583",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -103,6 +114,7 @@
       "Name": "Assassin",
       "Role": "DPS",
       "Discipline": "Hatred",
+      "DisciplineId": "2031339142381580",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -111,6 +123,7 @@
     {
       "Name": "Sorcerer",
       "Discipline": "Corruption",
+      "DisciplineId": "2031339142381587",
       "IsRanged": true,
       "Role": "Healer",
       "SpecialThreatAbilities": [
@@ -148,6 +161,7 @@
     {
       "Name": "Sorcerer",
       "Discipline": "Lightning",
+      "DisciplineId": "2031339142381586",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -157,6 +171,7 @@
     {
       "Name": "Sorcerer",
       "Discipline": "Madness",
+      "DisciplineId": "2031339142381584",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -166,6 +181,7 @@
     {
       "Name": "Operative",
       "Discipline": "Medicine",
+      "DisciplineId": "2031339142381596",
       "Role": "Healer",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -183,6 +199,7 @@
     {
       "Name": "Operative",
       "Discipline": "Concealment",
+      "DisciplineId": "2031339142381595",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -192,6 +209,7 @@
     {
       "Name": "Operative",
       "Discipline": "Lethality",
+      "DisciplineId": "2031339142381593",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -201,6 +219,7 @@
     {
       "Name": "Marauder",
       "Discipline": "Annihilation",
+      "DisciplineId": "2031339142381572",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -210,6 +229,7 @@
     {
       "Name": "Marauder",
       "Discipline": "Carnage",
+      "DisciplineId": "2031339142381573",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -219,6 +239,7 @@
     {
       "Name": "Marauder",
       "Discipline": "Fury",
+      "DisciplineId": "2031339142381574",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -228,6 +249,7 @@
     {
       "Name": "Mercenary",
       "Discipline": "Bodyguard",
+      "DisciplineId": "2031339142381600",
       "Role": "Healer",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -249,6 +271,7 @@
     {
       "Name": "Mercenary",
       "Discipline": "Arsenal",
+      "DisciplineId": "2031339142381601",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -259,6 +282,7 @@
     {
       "Name": "Mercenary",
       "Discipline": "Innovative Ordnance",
+      "DisciplineId": "2031339142381598",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -269,6 +293,7 @@
     {
       "Name": "Sage",
       "Discipline": "Seer",
+      "DisciplineId": "2031339142381619",
       "Role": "Healer",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -283,6 +308,7 @@
     {
       "Name": "Sage",
       "Discipline": "Telekinetics",
+      "DisciplineId": "2031339142381618",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -292,6 +318,7 @@
     {
       "Name": "Sage",
       "Discipline": "Balance",
+      "DisciplineId": "2031339142381616",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -301,6 +328,7 @@
     {
       "Name": "Scoundrel",
       "Discipline": "Sawbones",
+      "DisciplineId": "2031339142381631",
       "Role": "Healer",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -311,6 +339,7 @@
     {
       "Name": "Scoundrel",
       "Discipline": "Scrapper",
+      "DisciplineId": "2031339142381632",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -321,6 +350,7 @@
     {
       "Name": "Scoundrel",
       "Discipline": "Ruffian",
+      "DisciplineId": "2031339142381629",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -331,6 +361,7 @@
     {
       "Name": "Sentinel",
       "Discipline": "Watchman",
+      "DisciplineId": "2031339142381614",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -341,6 +372,7 @@
     {
       "Name": "Sentinel",
       "Discipline": "Combat",
+      "DisciplineId": "2031339142381613",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -351,6 +383,7 @@
     {
       "Name": "Sentinel",
       "Discipline": "Concentration",
+      "DisciplineId": "2031339142381611",
       "Role": "DPS",
       "IsRanged": false,
       "SpecialThreatAbilities": [
@@ -360,6 +393,7 @@
     {
       "Name": "Commando",
       "Discipline": "Combat Medic",
+      "DisciplineId": "2031339142381637",
       "Role": "Healer",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -369,6 +403,7 @@
     {
       "Name": "Commando",
       "Discipline": "Gunnery",
+      "DisciplineId": "2031339142381636",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -378,6 +413,7 @@
     {
       "Name": "Commando",
       "Discipline": "Assault Specialist",
+      "DisciplineId": "2031339142381634",
       "Role": "DPS",
       "IsRanged": true,
       "SpecialThreatAbilities": [
@@ -388,6 +424,7 @@
       "Name": "Guardian",
       "Role": "Tank",
       "Discipline": "Defense",
+      "DisciplineId": "2031339142381609",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -397,6 +434,7 @@
       "Name": "Guardian",
       "Role": "DPS",
       "Discipline": "Vigilance",
+      "DisciplineId": "2031339142381610",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -406,6 +444,7 @@
       "Name": "Guardian",
       "Role": "DPS",
       "Discipline": "Focus",
+      "DisciplineId": "2031339142381607",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -415,6 +454,7 @@
       "Name": "Vanguard",
       "Role": "Tank",
       "Discipline": "Shield Specialist",
+      "DisciplineId": "2031339142381641",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -424,6 +464,7 @@
       "Name": "Vanguard",
       "Role": "DPS",
       "Discipline": "Tactics",
+      "DisciplineId": "2031339142381640",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -434,6 +475,7 @@
       "Name": "Vanguard",
       "Role": "DPS",
       "Discipline": "Plasmatech",
+      "DisciplineId": "2031339142381638",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -443,6 +485,7 @@
       "Name": "Gunslinger",
       "Role": "DPS",
       "Discipline": "Sharpshooter",
+      "DisciplineId": "2031339142381627",
       "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
@@ -452,6 +495,7 @@
       "Name": "Gunslinger",
       "Role": "DPS",
       "Discipline": "Saboteur",
+      "DisciplineId": "2031339142381628",
       "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
@@ -461,6 +505,7 @@
       "Name": "Gunslinger",
       "Role": "DPS",
       "Discipline": "Dirty Fighting",
+      "DisciplineId": "2031339142381625",
       "IsRanged": true,
       "SpecialThreatAbilities": [
       ],
@@ -470,6 +515,7 @@
       "Name": "Shadow",
       "Role": "Tank",
       "Discipline": "Kinetic Combat",
+      "DisciplineId": "2031339142381622",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -479,6 +525,7 @@
       "Name": "Shadow",
       "Role": "DPS",
       "Discipline": "Infiltration",
+      "DisciplineId": "2031339142381620",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],
@@ -488,6 +535,7 @@
       "Name": "Shadow",
       "Role": "DPS",
       "Discipline": "Serenity",
+      "DisciplineId": "2031339142381623",
       "IsRanged": false,
       "SpecialThreatAbilities": [
       ],

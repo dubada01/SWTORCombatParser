@@ -104,7 +104,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 else
                 {
                     _opponentHPView.Show();
-                    if (OverlaysMoveable)
+                    if (OverlaysMoveable ||  _isTriggered)
                     {
                         ShowFrame = true;
                         OnPropertyChanged("ShowFrame");
@@ -123,7 +123,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             OnLocking(true);
             OverlaysMoveable = false;
-            if (!GetCurrentActive())
+            if (!GetCurrentActive()  || !_isTriggered)
                 ShowFrame = false;
             OnPropertyChanged("ShowFrame");
             OnPropertyChanged("OverlaysMoveable");
@@ -184,11 +184,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             var bars = new List<OpponentHPBarViewModel>();
             foreach (var opponent in sorted)
             {           
-                var newBar = new OpponentHPBarViewModel(opponent.Key) { Value = opponent.Value, InRange = IsInRangeOfLocalPlayer(opponent.Key), IsTargeted = IsCurrentTarget(opponent.Key), Menace = GetMenaceType(opponent.Key) };
+                var newBar = new OpponentHPBarViewModel(opponent.Key) { Value = opponent.Value, InRange = IsInRangeOfLocalPlayer(opponent.Key), IsCurrentInfo = IsCurrentInfo(opponent.Key), IsTargeted = IsCurrentTarget(opponent.Key), Menace = GetMenaceType(opponent.Key) };
                 bars.Add(newBar);
             }
             OpponentHpBars = bars;
             OnPropertyChanged("OpponentHpBars");
+        }
+
+        private bool IsCurrentInfo(string opponentKey)
+        {
+            var lastInfoTime = _lastUpdatedPlayer[opponentKey];
+            return (DateTime.Now - lastInfoTime).TotalSeconds < 5;
         }
 
         private MenaceTypes GetMenaceType(string key)
@@ -198,9 +204,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             var maxDPS = _mostRecentCombat.EDPS.Where(kvp=>CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
             if (maxDPS.Key.Name == key)
                 return MenaceTypes.Dps;
+            //Doesn't seem like the logs have information about healing done by opponents. Can't know who is the healing menace.
             var maxEHPS = _mostRecentCombat.EHPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
             if (maxEHPS.Key.Name == key)
-                return MenaceTypes.Healer;
+                return MenaceTypes.None;
             return MenaceTypes.None;
         }
 

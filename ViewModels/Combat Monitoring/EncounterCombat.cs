@@ -143,8 +143,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private string GetPVPCombatText(Combat combat)
         {
             return
-                $"Team Kills: {combat.AllLogs.Count(l => l.Effect.EffectName == "Death" && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}\r\n"+
-                $"Team Deaths: {combat.AllLogs.Count(l => l.Effect.EffectName == "Death" && !CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}";
+                $"Team Kills: {combat.AllLogs.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}\r\n"+
+                $"Team Deaths: {combat.AllLogs.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}";
         }
 
         public void HideTrash()

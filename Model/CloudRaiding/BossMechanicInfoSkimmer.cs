@@ -36,7 +36,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 {
 
                     var bossInfo = bossCombat.ParentEncounter.BossInfos.First(b => b.EncounterName == bossCombat.EncounterBossDifficultyParts.Item1);
-                    var bosses = bossCombat.Targets.Where(t => bossInfo.TargetNames.Contains(t.Name));
+                    var bosses = bossCombat.Targets.Where(t => bossInfo.TargetIds.Contains(t.Name));
                     foreach (var boss in bosses)
                     {
                         var infos = bossCombat.AbilitiesActivated[boss];

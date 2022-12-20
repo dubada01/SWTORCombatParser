@@ -12,9 +12,9 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             _availableClasses = ClassLoader.LoadAllClasses();
         }
-        public static SWTORClass IdentifyClass(string dicipline)
+        public static SWTORClass IdentifyClassById(string diciplineId)
         {
-            return _availableClasses.FirstOrDefault(c => c.Discipline == dicipline);
+            return _availableClasses.FirstOrDefault(c => c.DisciplineId == diciplineId);
         }
     }
 }

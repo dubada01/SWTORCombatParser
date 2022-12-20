@@ -16,6 +16,8 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
 using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 
 namespace SWTORCombatParser.ViewModels.Timers
@@ -28,12 +30,13 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class TimersCreationViewModel : INotifyPropertyChanged
     {
         private TimersWindowViewModel _disciplineTimersWindow;
-        private TimersWindowViewModel _alertTimersWindow;
+        private AlertsWindowViewModel _alertTimersWindow;
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private TimerType selectedTimerSourceType = TimerType.Discipline;
         private bool _isLocked;
         private Timer _timerEdited;
         private bool disciplineTimersActive;
+        private bool alertTimersActive;
 
         private List<DefaultTimersData> _savedTimersData = new List<DefaultTimersData>();
 
@@ -79,6 +82,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 OnPropertyChanged("AvailableTimerSources");
                 OnPropertyChanged("DisciplineTimerSelected");
+                OnPropertyChanged("SelectedTimerSourceType");
                 OnPropertyChanged("TimerActiveCheck");
             }
         }
@@ -121,6 +125,20 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
+
+        public bool AlertsActive
+        {
+            get => alertTimersActive;
+            set
+            {
+                if (value == alertTimersActive)
+                    return;
+                _alertTimersWindow.Active = value;
+                alertTimersActive = value;
+                DefaultGlobalOverlays.SetActive("Alerts",value);
+                OnPropertyChanged();
+            }
+        }
        
         public void TryShow()
         {
@@ -130,7 +148,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void HideTimers()
         {
             _disciplineTimersWindow.HideTimers();
-            //_alertTimersWindow.HideTimers();
         }
         public ObservableCollection<TimerRowInstanceViewModel> TimerRows { get; set; } = new ObservableCollection<TimerRowInstanceViewModel>();
 
@@ -142,7 +159,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
             _disciplineTimersWindow = new TimersWindowViewModel();
-            _alertTimersWindow = new TimersWindowViewModel(true);
+            _alertTimersWindow = new AlertsWindowViewModel();
+            alertTimersActive = _alertTimersWindow.Active;
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             CombatLogStreamer.HistoricalLogsFinished += SetDiscipline;
             RefreshAvaialbleTriggerOwners();
@@ -152,9 +170,9 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged("SelectedTimerSource");
             }
         }
-        private void SetDiscipline(DateTime combatEndTime)
+        private void SetDiscipline(DateTime combatEndTime, bool localPlayerIdentified)
         {
-            if (!CombatMonitorViewModel.IsLiveParseActive())
+            if (!CombatMonitorViewModel.IsLiveParseActive() || !localPlayerIdentified)
                 return;
             var mostRecentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
             if (mostRecentDiscipline == null)
@@ -249,16 +267,22 @@ namespace SWTORCombatParser.ViewModels.Timers
             _disciplineTimersWindow.UpdateLock(state);
             _alertTimersWindow.UpdateLock(state);
             _isLocked = state;
+            if(!_isLocked)
+                _alertTimersWindow.ShowTimers();
+            else
+                _alertTimersWindow.HideTimers();
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
         {
-            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive() || SelectedTimerSource == swtorclass.Discipline)
+            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive() || SelectedTimerSource == swtorclass.Discipline || CombatDetector.InCombat)
                 return;
             _disciplineTimersWindow.SetPlayer(swtorclass);
             if (!DisciplineTimersList.Contains(swtorclass.Discipline))
             {
                 DisciplineTimersList.Add(swtorclass.Discipline);
             }
+
+            SelectedTimerSourceType = TimerType.Discipline;
             SelectedTimerSource = swtorclass.Discipline;
 
             _disciplineTimersWindow.SetSource(SelectedTimerSource);

@@ -55,7 +55,7 @@ namespace SWTORCombatParser.Utilities
                     ExitCombatTimedOut(null, null);
                 }
             }
-            if (line.Effect.EffectName == "EnterCombat")
+            if (line.Effect.EffectId == _7_0LogParsing.EnterCombatId)
             {
                 if (!_justRevived)
                 {
@@ -79,32 +79,32 @@ namespace SWTORCombatParser.Utilities
                 _currentBossInfo = null;
             }
             
-            if (currentEncounter.BossInfos != null && line.Effect.EffectName == "Damage")
+            if (currentEncounter.BossInfos != null && line.Effect.EffectId == _7_0LogParsing._damageEffectId)
             {
-                if(currentEncounter.BossInfos.Any(b => b.TargetNames.Contains(line.Target.Name)))
+                if(currentEncounter.BossInfos.Any(b => b.TargetIds.Contains(line.Target.LogId.ToString())))
                 {
-                    if(!_bossesSeenThisCombat.Contains(line.Target.Name))
-                        _bossesSeenThisCombat.Add(line.Target.Name);
+                    if(!_bossesSeenThisCombat.Contains(line.Target.LogId.ToString()))
+                        _bossesSeenThisCombat.Add(line.Target.LogId.ToString());
                 }
-                if (currentEncounter.BossInfos.Any(b => b.TargetNames.Contains(line.Source.Name)))
+                if (currentEncounter.BossInfos.Any(b => b.TargetIds.Contains(line.Source.LogId.ToString())))
                 {
-                    if (!_bossesSeenThisCombat.Contains(line.Source.Name))
-                        _bossesSeenThisCombat.Add(line.Source.Name);
+                    if (!_bossesSeenThisCombat.Contains(line.Source.LogId.ToString()))
+                        _bossesSeenThisCombat.Add(line.Source.LogId.ToString());
                 }
             }
-            if(line.Effect.EffectName == "Damage" && line.Target.Name.Contains("Training Dummy"))
+            if(line.Effect.EffectId == _7_0LogParsing._damageEffectId && line.Target.Name.Contains("Training Dummy"))
             {
-                if (!_bossesSeenThisCombat.Contains(line.Target.Name))
-                    _bossesSeenThisCombat.Add(line.Target.Name);
+                if (!_bossesSeenThisCombat.Contains(line.Target.LogId.ToString()))
+                    _bossesSeenThisCombat.Add(line.Target.LogId.ToString());
             }
             if(_bossesSeenThisCombat.Count > 0)
             {
                 if(_bossesSeenThisCombat.Any(b=>b.Contains("Training Dummy")))
                 {
-                    _currentBossInfo = new BossInfo() { EncounterName = "Parsing", TargetNames = new List<string> { _bossesSeenThisCombat.First() }, TargetsRequiredForKill = new List<string> { _bossesSeenThisCombat.First()} };
+                    _currentBossInfo = new BossInfo() { EncounterName = "Parsing", TargetIds = new List<string> { _bossesSeenThisCombat.First() } };
                     _bossCombat = true;
                 }
-                var encounterInfo = currentEncounter.BossInfos?.FirstOrDefault(b => _bossesSeenThisCombat.All(sb => b.TargetNames.Contains(sb)));
+                var encounterInfo = currentEncounter.BossInfos?.FirstOrDefault(b => _bossesSeenThisCombat.All(sb => b.TargetIds.Contains(sb)));
                 if (encounterInfo != null)
                 {
                     _currentBossInfo = encounterInfo;
@@ -112,22 +112,22 @@ namespace SWTORCombatParser.Utilities
                 }
                 
             }
-            if (_bossCombat && _combatResNames.Contains(line.Ability) && line.Effect.EffectName == "AbilityActivate")
+            if (_bossCombat && _combatResNames.Contains(line.Ability) && line.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
             {
                 revivedPlayers.Add(CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(line.Source, line.TimeStamp));
             }
-            if ((_bossCombat && _currentBossInfo.EncounterName != "Revan" && !revivedPlayers.Any(c => c == line.Source) && line.Effect.EffectName == "Revived")||(!_bossCombat && line.Effect.EffectName == "Revived" && line.Source.IsLocalPlayer))
+            if ((_bossCombat && _currentBossInfo.EncounterName != "Revan" && !revivedPlayers.Any(c => c == line.Source) && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId)||(!_bossCombat && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId && line.Source.IsLocalPlayer))
             {
                 revivedPlayers.Clear();
                 return EndCombat();
             }
-            if (_bossCombat && line.Effect.EffectName == "Revived")
+            if (_bossCombat && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId)
             {
                 revivedPlayers.RemoveAll(c => c == line.Source);
                 if(line.Source.IsLocalPlayer)
                     _justRevived = true;
             }
-            if (line.Effect.EffectName == "ExitCombat" && InCombat)
+            if (line.Effect.EffectId == _7_0LogParsing.ExitCombatId && InCombat)
             {
                 if (CombatLogStateBuilder.CurrentState.LogVersion == LogVersion.Legacy || (!_bossCombat || _currentBossInfo.EncounterName == "Dread Master Styrak" || _currentBossInfo.EncounterName == "Dread Master Calphayus"))
                 {
@@ -138,19 +138,19 @@ namespace SWTORCombatParser.Utilities
                     ExitCombatDetected(line,isRealTime);
                 }
             }
-            if (line.Effect.EffectName == "Death" && !line.Target.IsCharacter && _currentBossInfo != null && (_currentBossInfo.EncounterName!="Dread Master Styrak" || _currentBossInfo.EncounterName == "Dread Master Calphayus") &&  InCombat)
+            if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && (_currentBossInfo.EncounterName!="Dread Master Styrak" || _currentBossInfo.EncounterName == "Dread Master Calphayus") &&  InCombat)
             {
-                var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.Name);
+                var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.Id.ToString());
                 if (bossKilled)
                 {
-                    _bossesKilledThisCombat.Add(line.Target.Name);
+                    _bossesKilledThisCombat.Add(line.Target.LogId.ToString());
                     if (_currentBossInfo.TargetsRequiredForKill.All(n => _bossesKilledThisCombat.Contains(n)))
                     {
                         return EndCombat();
                     }
                 }
             }
-            if (line.Effect.EffectName == "Death" && line.Target.IsCharacter && InCombat)
+            if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && line.Target.IsCharacter && InCombat)
             {
                 var characterClassUpdates = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo;
                 var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k > _inCombatStartTime)).Select(kvp => kvp.Key).ToList();
@@ -163,6 +163,8 @@ namespace SWTORCombatParser.Utilities
                 }
             }
 
+            if (InCombat && line.Effect.EffectType == EffectType.AreaEntered)
+                return EndCombat();
             if (InCombat)
                 return CombatState.InCombat;
             else

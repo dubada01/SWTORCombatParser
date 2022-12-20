@@ -31,7 +31,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>
-                                            <local:RaidHotInstance Height="15"/>
+                                            <local:RaidHotInstance Height="23"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

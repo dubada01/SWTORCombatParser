@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -138,7 +139,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             if (update.Logs == null || update.Type == UpdateType.Stop || update.Logs.Count == 0)
                 return;
             var logs = update.Logs;
-            var currentEncounterBossTargets = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp).BossInfos?.SelectMany(bi => bi.TargetNames).ToList();
+            var bossInfos = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp);
+            var currentEncounterBossTargets = EncounterLister.GetAllTargetsForEncounter(bossInfos.Name);
             if (currentEncounterBossTargets == null)
                 return;
             foreach (var log in logs)

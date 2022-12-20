@@ -53,12 +53,12 @@ namespace SWTORCombatParser.Model.LogParsing
                 AreaEntered();
             var knownEncounters = EncounterLoader.SupportedEncounters.Select(EncounterInfo.GetCopy);
             var encounterInfos = knownEncounters.ToList();
-            if (encounterInfos.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)))
+            if (encounterInfos.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)) || encounterInfos.Select(r=>r.LogId).Any(ln=>log.LogLocationId == ln && !string.IsNullOrEmpty(ln)))
             {
-                var raidOfInterest = encounterInfos.First(r => log.LogLocation.Contains(r.LogName));
-                var intendedDifficulty = EncounterLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
+                var raidOfInterest = encounterInfos.First(r => log.LogLocation.Contains(r.LogName) || log.LogLocationId == r.LogId);
+                var intendedDifficulty = EncounterLoader.GetLeaderboardFriendlyDifficulty(log.LogLocation);
                 raidOfInterest.Difficutly = intendedDifficulty ?? "Story";
-                var indendedNumberOfPlayers = EncounterLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
+                var indendedNumberOfPlayers = EncounterLoader.GetLeaderboardFriendlyPlayers(log.LogLocation);
                 raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers ?? "4";
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
                 if (liveLog)
@@ -77,7 +77,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     EncounterTimerTrigger.FireNonPvpEncounterDetected();
                 var openWorldLocation = ": " + log.LogLocation;
 
-                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World", BossInfos = new List<BossInfo> () };
+                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World"};
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
             }
         }
@@ -93,9 +93,9 @@ namespace SWTORCombatParser.Model.LogParsing
                     [log.TimeStamp] = false
                 };
             }
-            if (log.Effect.EffectName == "Death")
+            if (log.Effect.EffectId == _7_0LogParsing.DeathCombatId)
                 CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = true;
-            if(log.Effect.EffectName == "Revived")
+            if(log.Effect.EffectId == _7_0LogParsing.RevivedCombatId)
                 CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
         }
         private static void UpdatePlayerClassState(ParsedLogEntry parsedLine, bool realTime)
@@ -119,9 +119,9 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.PlayerTargetsInfo[log.Source] = new Dictionary<DateTime, Entity>();
             if (log.Error == ErrorType.IncompleteLine)
                 return;
-            if(log.Effect.EffectName == "TargetSet")
+            if(log.Effect.EffectId == _7_0LogParsing.TargetSetId)
                 CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = log.Target;
-            if (log.Effect.EffectName == "TargetCleared")
+            if (log.Effect.EffectId == _7_0LogParsing.TargetClearedId)
                 CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = Entity.EmptyEntity;
         }
         private static void SetCharacterPositions(ParsedLogEntry log)
@@ -140,7 +140,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (parsedLine.Effect.EffectType == EffectType.AbsorbShield)
                     return;
                 var effectName = parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName);
-                if (parsedLine.Effect.EffectType == EffectType.Apply &&  parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
+                if (parsedLine.Effect.EffectType == EffectType.Apply &&  parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {
                     if (!CurrentState.Modifiers.ContainsKey(effectName))
                     {
@@ -157,7 +157,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
                     mods.TryAdd(Guid.NewGuid(),new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
-                if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
+                if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {
                     if (string.IsNullOrEmpty(parsedLine.Source.Name))
                     {

@@ -34,7 +34,7 @@ namespace SWTORCombatParser.DataStructures
         public List<string> RequiredDeadTargetsForKill { get; set; } = new List<string>();
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
         public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
-        public bool WasBossKilled =>RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => (l.Target.Name == t && l.Effect.EffectName == "Death")));
+        public bool WasBossKilled =>RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => (l.Target.LogId.ToString() == t && l.Effect.EffectId == _7_0LogParsing.DeathCombatId)));
         public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
         {
@@ -42,7 +42,7 @@ namespace SWTORCombatParser.DataStructures
         }
         public bool WasPlayerKilled(Entity player)
         {
-            return GetLogsInvolvingEntity(player).Any(l => l.Target == player && l.Effect.EffectName == "Death");
+            return GetLogsInvolvingEntity(player).Any(l => l.Target == player && l.Effect.EffectId == _7_0LogParsing.DeathCombatId);
         }
         public ConcurrentDictionary<Entity,List<ParsedLogEntry>> OutgoingDamageLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingDamageLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
