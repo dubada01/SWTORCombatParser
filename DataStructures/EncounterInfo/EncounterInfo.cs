@@ -17,47 +17,94 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
     public class BossInfo
     {
         public string EncounterName { get; set; }
-        public List<string> TargetNames { get; set; } = new List<string>();
-        public List<string> TargetsRequiredForKill { get; set; } = new List<string>();
+        public List<string> TargetIds { get; set; } = new List<string>();
+        public List<string> TargetsRequiredForKill => TargetIds;
     }
     public class EncounterInfo
-    {
+    {        
+        private List<string> bossNames = new List<string>();
+        private Dictionary<string,Dictionary<string,List<long>>> bossIds = new Dictionary<string,Dictionary<string,List<long>>>();
+        private string _difficutly = "Story";
+        private string _numberOfPlayer = "4";
         public static EncounterInfo GetCopy(EncounterInfo source)
         {
             return new EncounterInfo
             {
                 LogName =  source.LogName,
+                LogId = source.LogId,
                 Name = source.Name,
-                BossInfos = source.BossInfos,
                 BossNames = source.BossNames,
-                EncounterType = source.EncounterType
+                BossIds = source.BossIds,
+                EncounterType = source.EncounterType,
+                BossInfos = source.BossInfos
+                
             };
         }
-        public string Difficutly { get; set; } = "Story";
-        public string NumberOfPlayer { get; set; } = "4";
-        private List<string> bossNames;
+
+        public string Difficutly
+        {
+            get => _difficutly;
+            set
+            {
+                _difficutly = value;
+                
+            }
+        }
+
+        public string NumberOfPlayer
+        {
+            get => _numberOfPlayer;
+            set
+            {
+                _numberOfPlayer = value; 
+                BossInfos = GetBossInfos();
+            }
+        }
+
+
         public EncounterType EncounterType { get; set; }
         public string LogName { get; set; }
+        public string LogId { get; set; }
         public string NamePlus => GetNamePlus();
         public string Name { get; set; }
-        public List<string> BossNames { get => bossNames; set
+        public List<string> BossNames 
+        { 
+            get => bossNames; 
+            set => bossNames = value ?? new List<string>();
+        }
+        public Dictionary<string,Dictionary<string,List<long>>> BossIds
+        {
+            get => bossIds;
+            set => bossIds = value ?? new Dictionary<string,Dictionary<string,List<long>>>();
+        }
+        private List<BossInfo> GetBossInfos()
+        {
+            if (bossIds.Count > 0)
             {
-                bossNames = value ?? new List<string>();
-                BossInfos = BossNames.Select(b => new BossInfo() 
-                { 
-                    EncounterName = b.Contains("~?~") ? b.Split("~?~")[0] : b, 
-                    TargetNames = b.Contains("~?~") ? b.Split("~?~")[1].Split('|').Select(n=>n.Replace("*","")).ToList() : new List<string>() { b },
-                    TargetsRequiredForKill = b.Contains("~?~") ? (b.Split("~?~")[1].Split('|').Any(n => n.Contains('*')) ? 
-                        b.Split("~?~")[1].Split('|').Where(n => n.Contains('*')).Select(n => n.Replace("*", "")).ToList()
-                        : b.Split("~?~")[1].Split('|').Select(n => n.Replace("*", "")).ToList()) : new List<string>() { b }
-
+                return BossIds.Select(bi => new BossInfo()
+                {
+                    EncounterName = bi.Key,
+                    TargetIds = bi.Value[((Difficutly == "Master" ?  "Veteran" : Difficutly) + " "+ NumberOfPlayer.Split(" ")[0])].Select(id=>id.ToString()).ToList(),
                 }).ToList();
-            } 
+            }
+
+            if (bossNames.Count == 0)
+                return new List<BossInfo>();
+            return BossNames.Select(b => new BossInfo() 
+            { 
+                EncounterName = b.Contains("~?~") ? b.Split("~?~")[0] : b, 
+                TargetIds = b.Contains("~?~") ? b.Split("~?~")[1].Split('|').Select(n=>n.Replace("*","")).ToList() : new List<string>() { b },
+
+            }).ToList();
         }
         public bool IsBossEncounter => BossInfos?.Count != 0;
         public bool IsPvpEncounter => (int)EncounterType >= 4;
-        public List<BossInfo> BossInfos { get; set; } = new();
+        public List<BossInfo> BossInfos { get; set; } = new List<BossInfo>();
 
+        public void UpdateBossInfos()
+        {
+            BossInfos = GetBossInfos();
+        }
         private string GetNamePlus()
         {
             if ((int)EncounterType < 4)

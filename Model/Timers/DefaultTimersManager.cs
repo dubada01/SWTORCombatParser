@@ -90,6 +90,13 @@ namespace SWTORCombatParser.Model.Timers
             defaults.Add(source);
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
         }
+
+        public static void ResetTimersForSource(string source)
+        {
+            var currentDefaults = GetDefaults(source);
+            currentDefaults.Timers.Clear();
+            SaveResults(source, currentDefaults);
+        }
         public static void AddTimerForSource(Timer timer, string source)
         {
             var currentDefaults = GetDefaults(source);

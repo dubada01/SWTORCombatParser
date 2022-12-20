@@ -21,7 +21,7 @@ namespace SWTORCombatParser.Model.LogParsing
     public class CombatLogStreamer
     {
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
-        public static event Action<DateTime> HistoricalLogsFinished = delegate { };
+        public static event Action<DateTime,bool> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
@@ -213,13 +213,16 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
         {
-            if(logs.Count ==0 ) return;
             var usableLogs = logs.Where(l => l.Error != ErrorType.IncompleteLine).ToList();
             _currentCombatData.Clear();
+            var localPlayerIdentified = false;
             foreach (var t in usableLogs)
             {
                 if (t.Source.IsLocalPlayer)
+                {
                     LocalPlayerIdentified(t.Source);
+                    localPlayerIdentified = true;
+                }
                 CheckForCombatState(t, false);
                 if (_isInCombat)
                 {
@@ -227,7 +230,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
             }
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
-            HistoricalLogsFinished(_currentCombatData.Count == 0? DateTime.Now : _currentCombatData.Max(l=>l.TimeStamp));
+            HistoricalLogsFinished(_currentCombatData.Count == 0? DateTime.Now : _currentCombatData.Max(l=>l.TimeStamp),localPlayerIdentified);
         }
         private bool CheckIfStale()
         {
@@ -333,7 +336,6 @@ namespace SWTORCombatParser.Model.LogParsing
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatData, CombatStartTime = _currentCombatStartTime };
             Logging.LogInfo("Sending combat state change notification: " + updateMessage.Type + " at " + updateMessage.CombatStartTime + " with location " + updateMessage.CombatLocation);
             CombatUpdated(updateMessage);
-            EncounterTimerTrigger.FireEnded();
         }
     }
 }

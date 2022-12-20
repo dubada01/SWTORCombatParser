@@ -40,6 +40,7 @@ namespace SWTORCombatParser.DataStructures
         public string LogText;
         public long LogLineNumber { get; set; }
         public string LogLocation { get; set; }
+        public string LogLocationId { get; set; }
         public DateTime TimeStamp { get; set; }
         public double SecondsSinceCombatStart { get; set; }
         public Entity Source => SourceInfo.Entity;
@@ -69,6 +70,7 @@ namespace SWTORCombatParser.DataStructures
         public static Entity EmptyEntity = new Entity();
         public string Name { get; set; }
         public long Id { get; set; }
+        public long LogId { get; set; }
         public bool IsCharacter;
         public bool IsLocalPlayer;
         public bool IsCompanion;

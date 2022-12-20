@@ -26,7 +26,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             if(!isActive)
                 return;
-            if ((obj.SourceTimer.Source == _bossInfo.Entity.Name || (obj.SourceTimer.TriggerType == DataStructures.TimerKeyType.EntityHP && obj.TargetAddendem == _bossInfo.Entity.Name)) && obj.SourceTimer.IsMechanic)
+            if (obj.SourceTimer.IsMechanic)
             {
                 obj.TimerExpired += RemoveTimer;
                 App.Current.Dispatcher.Invoke(() =>

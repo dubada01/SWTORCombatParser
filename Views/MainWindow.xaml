@@ -81,7 +81,11 @@
                                 <TextBlock Text="X"></TextBlock>
                             </Viewbox>
                         </Button>
-
+                        <Button Grid.Column="1" Height="20" Width="20" Style="{StaticResource RoundCornerButton}" Command="{Binding ToggleLockedCommand}" Visibility="{Binding IsOverlaysTab, Converter={StaticResource BooleanToVisibiityConverter}}">
+                            <Viewbox MaxHeight="15">
+                                <Image Source="{Binding OverlayLockIcon}"></Image>
+                            </Viewbox>
+                        </Button>
 
                     </Grid>
 

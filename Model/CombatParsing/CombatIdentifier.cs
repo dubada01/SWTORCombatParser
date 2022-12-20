@@ -119,7 +119,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
         {
             var combatStart = logs.OrderBy(t => t.TimeStamp).First().TimeStamp;
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectName == "Damage");
+            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectId == _7_0LogParsing._damageEffectId);
             var parsedLogEntries = validLogs.ToList();
             var targets = parsedLogEntries.Select(l => l.Target).Where(
                 t => (!t.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(t,combatStart)) 
@@ -142,7 +142,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             if (currentEncounter == null)
                 return ("", "", "");
 
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && !string.IsNullOrEmpty(l.Target.Name) && l.Effect.EffectName == "Damage").ToList();
+            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && !string.IsNullOrEmpty(l.Target.Name) && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
             if (currentEncounter.Name.Contains("Open World"))
             {
                 if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.Name.Contains("Training Dummy")))
@@ -160,7 +160,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             var bossesDetected = GetCurrentBossNames(validLogs, currentEncounter);
             if (!bossesDetected.Any())
                 return ("", "", "");
-            var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetNames.Contains(t)));
+            var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetIds.Contains(t)));
             if (boss!=null)
             {
                 return (boss.EncounterName, currentEncounter.NumberOfPlayer.Replace("Player", "").Trim(), currentEncounter.Difficutly);
@@ -175,15 +175,15 @@ namespace SWTORCombatParser.Model.CombatParsing
             var bossNamesFound = new List<string>();
             foreach (var log in logs)
             {
-                if (currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Source.Name))
+                if (currentEncounter.BossInfos.SelectMany(b => b.TargetIds).Contains(log.Source.LogId.ToString()))
                 {
                     log.Source.IsBoss = true;
-                    bossNamesFound.Add(log.Source.Name);
+                    bossNamesFound.Add(log.Source.LogId.ToString());
                 }
-                if(currentEncounter.BossInfos.SelectMany(b => b.TargetNames).Contains(log.Target.Name))
+                if(currentEncounter.BossInfos.SelectMany(b => b.TargetIds).Contains(log.Target.LogId.ToString()))
                 {
                     log.Target.IsBoss = true;
-                    bossNamesFound.Add(log.Target.Name);
+                    bossNamesFound.Add(log.Target.LogId.ToString());
                 }
             }
             return bossNamesFound.Distinct().ToList();
@@ -192,11 +192,11 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return new List<string>();
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectName == "Damage").ToList();
+            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
             var bossesDetected = GetCurrentBossNames(validLogs, currentEncounter);
             if (!bossesDetected.Any())
                 return new List<string>();
-            var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetNames.Contains(t)));
+            var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetIds.Contains(t)));
             if (boss != null)
             {
                 return boss.TargetsRequiredForKill;

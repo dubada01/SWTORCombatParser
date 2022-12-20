@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string selectedDifficulty;
         private string selectedBoss;
         private bool isEditing;
-        private List<string> defaultSourceTargets = new List<string> { "Any", "Local Player", "Custom" };
+        private List<string> defaultSourceTargets = new List<string> { "Any", "Local Player", "Any BUT Local", "Custom" };
         private List<string> addedCustomSources = new List<string>();
         private List<string> addedCustomTargets = new List<string>();
         private string customSource;
@@ -34,6 +34,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         public event Action OnCancelEdit = delegate { };
         public bool TargetIsLocal;
         public bool SourceIsLocal;
+        public bool TargetIsAnyButLocal;
+        public bool SourceIsAnyButLocal;
 
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -53,6 +55,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
         public bool IsMechanicTimer { get; set; }
+        public bool UseAudio { get; set; }
         public bool ShowAbilityOption { get; set; }
         public bool ShowEffectOption { get; set; }
         public bool ShowHPOption { get; set; }
@@ -132,6 +135,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                     SourceIsLocal = true;
                 else
                     SourceIsLocal = false;
+                if (SelectedSource == "Any BUT Local")
+                    SourceIsAnyButLocal = true;
+                else
+                    SourceIsAnyButLocal = false;
                 if (selectedSource == "Custom")
                 {
                     HasCustomSource = true;
@@ -180,6 +187,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                     TargetIsLocal = true;
                 else
                     TargetIsLocal = false;
+                if (SelectedTarget == "Any BUT Local")
+                    TargetIsAnyButLocal = true;
+                else
+                    TargetIsAnyButLocal = false;
                 if (selectedTarget == "Custom")
                 {
                     HasCustomTarget = true;
@@ -384,6 +395,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             HasTarget = false;
             HasCustomTarget = false;
             HasCustomSource = false;
+            UseAudio = false;
             IsHot = false;
             Effect = "";
             Ability = "";
@@ -402,6 +414,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("ShowHPOption");
             OnPropertyChanged("HasSource");
             OnPropertyChanged("HasTarget");
+            OnPropertyChanged("UseAudio");
         }
 
         public void Edit(Timer timerToEdit)
@@ -427,6 +440,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             SelectedBoss = timerToEdit.SpecificBoss;
             SelectedDifficulty = timerToEdit.SpecificDifficulty;
             CanBeRefreshed = timerToEdit.CanBeRefreshed;
+            UseAudio = timerToEdit.UseAudio;
             HPPercentageDisplayBuffer = timerToEdit.HPPercentageDisplayBuffer;
             var addedAbilities = timerToEdit.AbilitiesThatRefresh.Select(a => new RefreshOptionViewModel() { Name = a }).ToList();
             addedAbilities.ForEach(a => a.RemoveRequested += RemoveRefreshOption);
@@ -439,6 +453,18 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             if (timerToEdit.TargetIsLocal)
                 SelectedTarget = "Local Player";
+            else
+            {
+                SelectedTarget = timerToEdit.Target;
+            }
+            if (timerToEdit.SourceIsAnyButLocal)
+                SelectedSource = "Any BUT Local";
+            else
+            {
+                SelectedSource = timerToEdit.Source;
+            }
+            if (timerToEdit.TargetIsAnyButLocal)
+                SelectedTarget = "Any BUT Local";
             else
             {
                 SelectedTarget = timerToEdit.Target;
@@ -472,6 +498,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("SelectedDifficulty");
             OnPropertyChanged("SelectedTarget");
             OnPropertyChanged("IsHot");
+            OnPropertyChanged("UseAudio");
         }
         public void Cancel()
         {
@@ -496,8 +523,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 IsEnabled = true,
                 Source = SelectedSource,
                 SourceIsLocal = SourceIsLocal,
+                SourceIsAnyButLocal = SourceIsAnyButLocal,
                 Target = SelectedTarget,
                 TargetIsLocal = TargetIsLocal,
+                TargetIsAnyButLocal = TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
                 HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
                 TriggerType = SelectedTriggerType,
@@ -514,10 +543,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                 SpecificDifficulty = SelectedDifficulty,
                 CanBeRefreshed = CanBeRefreshed,
                 IsHot = IsHot,
+                UseAudio = UseAudio,
                 IsMechanic = SelectedBoss != "All",
                 AbilitiesThatRefresh = AvailableRefreshOptions.Select(r => r.Name).ToList()
             };
-            if (newTimer.IsMechanic)
+            /*if (newTimer.IsMechanic)
             {
                 newTimer.Source = newTimer.SpecificBoss;
                 if (newTimer.TriggerType == TimerKeyType.EntityHP)
@@ -527,7 +557,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     newTimer.Source = "Any";
                     newTimer.SourceIsLocal = false;
                 }
-            }
+            }*/
 
             OnNewTimer(newTimer, isEditing);
         }

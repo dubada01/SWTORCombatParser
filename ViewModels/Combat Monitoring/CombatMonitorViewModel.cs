@@ -101,6 +101,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 PastEncounters.Clear();
                 CurrentEncounter = null;
                 _totalLogsDuringCombat.Clear();
+                CombatIdentifier.CurrentCombat = new Combat();
                 CombatLogStateBuilder.ClearState();
                 ClearCombats();
             });
@@ -152,17 +153,17 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 LoadingWindowFactory.ShowLoading();
             OnMonitoringStateChanged(true);
             var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-            //var mostRecentLog = Path.Join(_logPath, "test.txt");
-            //File.Delete(mostRecentLog);
-            //File.Create(mostRecentLog).Close();
+            /*var mostRecentLog = Path.Join(_logPath, "test.txt");
+            File.Delete(mostRecentLog);
+            File.Create(mostRecentLog).Close();*/
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
-            //Task.Run(() =>
-            //{
-            //    Thread.Sleep(1000);
-            //    TransferLogData(mostRecentLog);
-            //    File.Delete(mostRecentLog);
-            //});
+            /*Task.Run(() =>
+            {
+                Thread.Sleep(1000);
+                TransferLogData(mostRecentLog);
+                File.Delete(mostRecentLog);
+            });*/
 
         }
         //TEST CODE
@@ -171,7 +172,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var encoding = Encoding.GetEncoding(1252);
-            var testFilesPath = @"C:\Users\David\Desktop\TestLogs";
+            var testFilesPath = @"C:\Users\duban\Desktop\TestLogs";
             var files = Directory.EnumerateFiles(testFilesPath);
             foreach(var file in files)
             {
@@ -181,7 +182,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     {
                         while (!reader.EndOfStream)
                         {
-                            var numberOfLines = new Random().Next(2, 5);
+                            var numberOfLines = new Random().Next(20, 50);
                             List<string> lines = new List<string>();
                             for (int i = 0; i < numberOfLines; i++)
                             {
@@ -341,7 +342,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 Logging.LogInfo("Combat added to encounter");
             }
         }
-        private void HistoricalLogsFinished(DateTime combatEndTime)
+        private void HistoricalLogsFinished(DateTime combatEndTime, bool localPlayerIdentified)
         {
             Logging.LogInfo("Processing logs into combats...");
             Logging.LogInfo("Detected "+ _totalLogsDuringCombat.Keys.Count() +" distinct combats");

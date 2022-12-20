@@ -208,17 +208,19 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             _participantsViewModel.UpdateParticipantsData(combatToPlot);
             lock (graphLock)
             {
+                Reset();
                 ResetEffectVisuals();
                 _currentCombats.Add(combatToPlot);
                 PlotCombat(combatToPlot, SelectedParticipant);
             }
         }
+
         public void RemoveCombatPlot(Combat combatToRemove)
         {
             lock (graphLock)
             {
                 ResetEffectVisuals();
-                if (!_currentCombats.Any(c => c.StartTime == combatToRemove.StartTime))
+                if (_currentCombats.All(c => c.StartTime != combatToRemove.StartTime))
                     return;
                 _currentCombats.Remove(_currentCombats.First(c => c.StartTime == combatToRemove.StartTime));
 

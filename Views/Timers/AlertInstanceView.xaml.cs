@@ -5,9 +5,9 @@ namespace SWTORCombatParser.Views.Timers
     /// <summary>
     /// Interaction logic for TimerInstanceView.xaml
     /// </summary>
-    public partial class TimerInstanceView : UserControl
+    public partial class AlertInstanceView : UserControl
     {
-        public TimerInstanceView()
+        public AlertInstanceView()
         {
             InitializeComponent();
         }

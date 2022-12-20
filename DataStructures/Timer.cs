@@ -27,8 +27,10 @@ namespace SWTORCombatParser.DataStructures
         }
         public string Source { get; set; } = "";
         public bool SourceIsLocal { get; set; }
+        public bool SourceIsAnyButLocal { get; set; }
         public string Target { get; set; } = "";
         public bool TargetIsLocal { get; set; }
+        public bool TargetIsAnyButLocal { get; set; }
         public double HPPercentage { get; set; }
         public double HPPercentageDisplayBuffer { get; set; } = 5;
         public string Name { get; set; }
@@ -47,6 +49,7 @@ namespace SWTORCombatParser.DataStructures
         public double DurationSec { get; set; }
         public double HideUntilSec { get; set; }
         public Color TimerColor { get; set; }
+        public bool UseAudio { get; set; }
         public string SpecificBoss { get; set; }
         public string SpecificEncounter { get; set; }
         public string SpecificDifficulty {get;set;}
@@ -84,7 +87,8 @@ namespace SWTORCombatParser.DataStructures
                 AbilitiesThatRefresh = AbilitiesThatRefresh,
                 IsHot = IsHot,
                 IsMechanic = IsMechanic,
-                HideUntilSec = HideUntilSec
+                HideUntilSec = HideUntilSec,
+                UseAudio = UseAudio
             };
         }
     }

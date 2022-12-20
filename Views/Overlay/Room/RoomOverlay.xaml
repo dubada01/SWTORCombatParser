@@ -8,6 +8,8 @@
         Title="RoomOverlay" Height="450" Width="800" AllowsTransparency="True" Background="{x:Null}" 
         WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
     <Grid x:Name="MainArea" Visibility="{Binding IsActive, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip="Room Overlay">
+
+        
         <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="3" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
@@ -27,5 +29,8 @@
         </Canvas>
         <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
+        <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
+            <TextBlock Text="ROOM HAZARDS" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
+        </Viewbox>
     </Grid>
 </Window>

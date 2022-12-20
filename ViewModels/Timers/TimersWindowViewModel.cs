@@ -11,6 +11,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Documents;
+using System.Windows.Threading;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 
@@ -24,16 +26,14 @@ namespace SWTORCombatParser.ViewModels.Timers
         private List<TimerInstance> _createdTimers = new List<TimerInstance>();
         private bool active;
         private (string, string, string) _currentBossInfo;
-        private bool isAlerts;
-
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
         public event Action<string> OnCharacterDetected = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool OverlaysMoveable { get; set; } = true;
-        public ObservableCollection<TimerInstanceViewModel> SwtorTimers { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
-
+        public bool OverlaysMoveable { get; set; }
+        public List<TimerInstanceViewModel> SwtorTimers { get; set; } = new List<TimerInstanceViewModel>();
+        public List<TimerInstanceViewModel> _allTimers = new List<TimerInstanceViewModel>();
         public string TimerTitle { get; set; }
         public bool Active
         {
@@ -45,32 +45,28 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     HideTimers();
                 }
+                else
+                {
+                    if (OverlaysMoveable)
+                    {
+                        App.Current.Dispatcher.Invoke(() =>
+                        {
+                            _timerWindow.Show();
+                        });
+                        
+                    } 
+                }
+
             }
         }
 
-        public TimersWindowViewModel(bool isAlert = false)
+        public TimersWindowViewModel()
         {
             CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
             CombatLogStreamer.NewLineStreamed += NewLogInANDOutOfCombat;
-            isAlerts = isAlert;
-            if (isAlert)
-                _timerWindow = new AlertView(this);
-            else
-                _timerWindow = new TimersWindow(this);
+            _timerWindow = new TimersWindow(this);
             CombatIdentifier.NewCombatAvailable += UpdateBossInfo;
-            if (isAlerts)
-            {
-                App.Current.Dispatcher.Invoke(() =>
-                {
-                    var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Alerts");
-                    _timerWindow.Top = defaultTimersInfo.Position.Y;
-                    _timerWindow.Left = defaultTimersInfo.Position.X;
-                    _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
-                    _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
-                    ShowTimers(!OverlaysMoveable);
-                });
-            }
         }
 
         private void UpdateBossInfo(Combat obj)
@@ -121,7 +117,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             TimerTitle = _timerSource + " Timers";
             OnPropertyChanged("TimerTitle");
-            SwtorTimers = new ObservableCollection<TimerInstanceViewModel>();
+            SwtorTimers = new List<TimerInstanceViewModel>();
             _timerWindow.SetPlayer(_timerSource);
             RefreshTimers();
             App.Current.Dispatcher.Invoke(() =>
@@ -152,35 +148,34 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 timers = DefaultTimersManager.GetDefaults(_timerSource).Timers;
             }
-            var validTimers = isAlerts ? timers.Where(t => t.IsAlert) : timers.Where(t => !t.IsAlert);
             var timerInstances = timers.Select(t => new TimerInstance(t)).ToList();
-            foreach (var timerInstance in timerInstances)
+            var nonAlerts = timerInstances.Where(t => !t.SourceTimer.IsAlert).ToList();
+            foreach (var timerInstance in nonAlerts)
             {
                 if (!string.IsNullOrEmpty(timerInstance.ExperiationTimerId))
                 {
-                    var trigger = timerInstances.First(t => t.SourceTimer.Id == timerInstance.ExperiationTimerId);
+                    var trigger = nonAlerts.First(t => t.SourceTimer.Id == timerInstance.ExperiationTimerId);
                     timerInstance.ExpirationTimer = trigger;
                 }
             }
-            timerInstances.ForEach(t => t.TimerOfTypeExpired += RefreshTimerVisuals);
-            timerInstances.ForEach(t => t.NewTimerInstance += AddTimerVisual);
-            _createdTimers = new List<TimerInstance>(timerInstances);
+            nonAlerts.ForEach(t => t.TimerOfTypeExpired += RefreshTimerVisuals);
+            nonAlerts.ForEach(t => t.NewTimerInstance += AddTimerVisual);
+            _createdTimers = new List<TimerInstance>(nonAlerts);
         }
 
         private void AddTimerVisual(TimerInstanceViewModel obj)
         {
-            if (obj.SourceTimer.IsHot)
+            if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic)
                 return;
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                SwtorTimers.Add(obj);
-                SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(SwtorTimers.OrderBy(t => t.TimerValue));
+
+                _allTimers.Add(obj);
+                SwtorTimers = new List<TimerInstanceViewModel>(_allTimers.OrderBy(t => t.TimerValue));
                 OnPropertyChanged("SwtorTimers");
-            });
+       
         }
 
         private void NewLogInANDOutOfCombat(ParsedLogEntry log)
-        {
+        {            
             var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
             var validTimers = _createdTimers.Where(t => t.TrackOutsideOfCombat && CheckEncounterAndBoss(t, currentEncounter));
             Parallel.ForEach(validTimers, timer =>
@@ -242,12 +237,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void RefreshTimerVisuals(TimerInstanceViewModel removedTimer)
         {
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                SwtorTimers.Remove(removedTimer);
-                SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(SwtorTimers.OrderBy(t => t.TimerValue));
+ 
+                _allTimers.Remove(removedTimer);
+                SwtorTimers = new List<TimerInstanceViewModel>(_allTimers.OrderBy(t => t.TimerValue));
                 OnPropertyChanged("SwtorTimers");
-            });
+       
 
         }
 
@@ -255,7 +249,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        private void EnableTimers(DateTime combatEndTime)
+        private void EnableTimers(DateTime combatEndTime, bool localPlayerIdentified)
         {
             _timersEnabled = true;
         }

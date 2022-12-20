@@ -32,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
-        public double DurationSec => SourceTimer.DurationSec;
+        public string DurationSec => SourceTimer.IsAlert ? "Alert" : SourceTimer.DurationSec.ToString();
         public SolidColorBrush RowBackground { get; set; }
         public SolidColorBrush TimerBackground => new SolidColorBrush(SourceTimer.TimerColor);
         public ICommand EditCommand => new CommandHandler(Edit);

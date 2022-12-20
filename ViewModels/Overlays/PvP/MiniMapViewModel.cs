@@ -1,23 +1,15 @@
-﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.PvP;
-using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
 using System.Windows.Threading;
-using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -109,7 +101,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 else
                 {
                     _miniMapView.Show();
-                    if (OverlaysMoveable)
+                    if (OverlaysMoveable || _isTriggered)
                     {
                         ShowFrame = true;
                         OnPropertyChanged("ShowFrame");
@@ -129,7 +121,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             OnLocking(true);
             OverlaysMoveable = false;
-            if (!GetCurrentActive())
+            if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
             OnPropertyChanged("ShowFrame");
             OnPropertyChanged("OverlaysMoveable");
@@ -211,9 +203,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             var maxDPS = _mostRecentCombat.EDPS.Where(kvp=>CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key,_mostRecentCombat.StartTime)).MaxBy(d => d.Value);
             if (maxDPS.Key.Name == key)
                 return MenaceTypes.Dps;
+            //Doesn't seem like the logs have information about healing done by opponents. Can't know who is the healing menace.
             var maxEHPS = _mostRecentCombat.EHPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
             if (maxEHPS.Key.Name == key)
-                return MenaceTypes.Healer;
+                return MenaceTypes.None;
             return MenaceTypes.None;
         }
 

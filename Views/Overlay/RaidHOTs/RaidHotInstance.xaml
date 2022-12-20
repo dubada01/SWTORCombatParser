@@ -7,13 +7,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="150">
     <Grid Margin="0,0,0,0">
-        <Border  Margin="0,2,0,2" BorderBrush="WhiteSmoke" BorderThickness="1" CornerRadius="2" Opacity="1">
+        <Border  Margin="0,2,0,2" BorderBrush="WhiteSmoke" BorderThickness="1" CornerRadius="2" Opacity="0.75">
             <Grid HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding BarWidth, Mode=OneWay}"/>
                     <ColumnDefinition Width="{Binding RemainderWidth, Mode=OneWay}"/>
                 </Grid.ColumnDefinitions>
-                <Border  Margin="0,0,0,0" Grid.Column="0" Opacity="1" CornerRadius="2" Background="{Binding TimerBackground}" ></Border>
+                <Border  Margin="0,0,0,0" Grid.Column="0" Opacity="0.75" CornerRadius="2" Background="{Binding TimerBackground}" ></Border>
             </Grid>
         </Border>
 

@@ -14,9 +14,9 @@ namespace SWTORCombatParser.Views.Timers
     /// </summary>
     public partial class AlertView : Window, ITimerWindow
     {
-        private TimersWindowViewModel viewModel;
+        private AlertsWindowViewModel viewModel;
         private string _currentPlayerName;
-        public AlertView(TimersWindowViewModel vm)
+        public AlertView(AlertsWindowViewModel vm)
         {
             viewModel = vm;
             DataContext = vm;
@@ -28,6 +28,7 @@ namespace SWTORCombatParser.Views.Timers
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
             Loaded += OnLoaded;
+            makeTransparent(true);
         }
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
@@ -92,7 +93,7 @@ namespace SWTORCombatParser.Views.Timers
         }
         public void UpdateDefaults(object sender, MouseButtonEventArgs args)
         {
-            DefaultCharacterOverlays.SetCharacterDefaults("Alerts", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, "All");
+            DefaultGlobalOverlays.SetDefault("Alerts", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
         }
 
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -107,7 +108,7 @@ namespace SWTORCombatParser.Views.Timers
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            DefaultCharacterOverlays.SetCharacterDefaults("Alerts",new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, "All");
+            DefaultGlobalOverlays.SetDefault("Alerts", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 

@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="200">
 
-    <Border  BorderBrush="{Binding IsTargeted, Converter={StaticResource BooleanToHpBorderConverter}}" BorderThickness="3" CornerRadius="5" Background="DimGray">
+    <Border Opacity="{Binding IsCurrentInfo, Converter={StaticResource OpponentInRangeToColorConverter}}"  BorderBrush="{Binding IsTargeted, Converter={StaticResource BooleanToHpBorderConverter}}" BorderThickness="3" CornerRadius="5" Background="DimGray">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>

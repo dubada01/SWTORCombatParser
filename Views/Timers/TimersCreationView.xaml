@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers"
              mc:Ignorable="d" 
              d:DesignHeight="1000" d:DesignWidth="700">
     <Grid>
@@ -13,7 +12,11 @@
             <RowDefinition Height="0.7*"/>
             <RowDefinition Height="0.15*"/>
         </Grid.RowDefinitions>
-        <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*"/>
                 <ColumnDefinition Width="*"/>
@@ -32,21 +35,30 @@
                     </Viewbox>
                 </StackPanel>
             </Viewbox>
+
             <Viewbox Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter},ConverterParameter=Inverted}" Grid.Column="1" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Margin="0,0,10,0" Opacity="0.5" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="Uses Boss Frame" FontFamily="{StaticResource MainFont}" FontSize="12"></TextBlock>
                 </StackPanel>
             </Viewbox>
         </Grid>
-        <Viewbox Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
+        <Viewbox  Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" MaxHeight="35" Margin="0,0,0,10">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="Alerts Visible" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
+                <Viewbox MaxHeight="25">
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding AlertsActive}"></CheckBox>
+                </Viewbox>
+            </StackPanel>
+        </Viewbox>
+        <Viewbox Grid.ColumnSpan="2" Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
             <StackPanel Orientation="Vertical">
                 <TextBlock Text="Ability Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
                 <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding DisciplineTimersList}" SelectedItem="{Binding SelectedTimerSource}" Width="250" Height="40"></ComboBox>
             </StackPanel>
         </Viewbox>
-        <ContentPresenter Content="{Binding EncounterSelectionView}" Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5"></ContentPresenter>
+        <ContentPresenter Grid.ColumnSpan="2" Content="{Binding EncounterSelectionView}" Visibility="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5"></ContentPresenter>
 
-        <Border BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="2" Background="Transparent">
+        <Border Grid.ColumnSpan="2" BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="2" Background="Transparent">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>

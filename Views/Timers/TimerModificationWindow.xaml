@@ -216,22 +216,14 @@
                         </StackPanel>
                     </Grid>
                 </Viewbox>
-                <Viewbox Grid.Row="4">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.6*"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="4">
                         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Is Periodic" FontFamily="{StaticResource MainFont}"></TextBlock>
-                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsPeriodic}"></CheckBox>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="5,0,0,0" Visibility="{Binding ShowRepeats, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Repeat Count" FontFamily="{StaticResource MainFont}"></TextBlock>
-                            <TextBox FontWeight="Normal" Width="75" Style="{StaticResource RoundedTextBox}" Text="{Binding Repeats}"></TextBox>
+                            <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Use Audio" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding UseAudio}"></CheckBox>
                         </StackPanel>
                     </Grid>
-                </Viewbox>
+
                 <Viewbox Grid.Row="5">
                     <Grid  >
                         <Grid.ColumnDefinitions>

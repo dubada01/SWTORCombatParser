@@ -38,8 +38,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             RaidFrameOverlayManager.Init();
             
             _currentOverlay = new RaidFrameOverlay();
-            CombatLogStreamer.HistoricalLogsFinished += (t) => 
+            CombatLogStreamer.HistoricalLogsFinished += (t,b) =>
             {
+                if (!b)
+                    return;
                 var playerName = CombatLogStateBuilder.CurrentState.LocalPlayer.Name;
                 var classInfo = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(t);
                 _currentCharacter = playerName + "/" + classInfo.Discipline;

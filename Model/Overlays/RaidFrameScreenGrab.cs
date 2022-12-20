@@ -14,9 +14,33 @@ namespace SWTORCombatParser.Model.Overlays
             Bitmap bmp = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppArgb);
             Graphics g = Graphics.FromImage(bmp);
             g.CopyFromScreen(rect.Left, rect.Top, 0, 0, bmp.Size, CopyPixelOperation.SourceCopy);
-
+            ExtractJustNames(bmp);
             return bmp;
         }
+
+        private static void ExtractJustNames(Bitmap raw)
+        {
+            for (var y = 0; y < raw.Height; y++)
+            {
+                for (var x = 0; x < raw.Width; x++)
+                {
+                    var c = raw.GetPixel(x, y);
+                    ColorToHSV(c,out var h, out _, out _);
+                    if(h < 75)
+                        raw.SetPixel(x,y,Color.Black);
+                }
+            }
+        }
+        private static void ColorToHSV(Color color, out double hue, out double saturation, out double value)
+        {
+            int max = Math.Max(color.R, Math.Max(color.G, color.B));
+            int min = Math.Min(color.R, Math.Min(color.G, color.B));
+
+            hue = color.GetHue();
+            saturation = (max == 0) ? 0 : 1d - (1d * min / max);
+            value = max / 255d;
+        }
+
         public static double GetRatioOfRedPixels(Bitmap raidFrame)
         {
             return GetRedPixels(raidFrame)/(double)(raidFrame.Width * raidFrame.Height);

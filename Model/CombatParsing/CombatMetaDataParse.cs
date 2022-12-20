@@ -10,10 +10,10 @@ namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class CombatMetaDataParse
     {
-        private static readonly List<string> _interruptAbilityNames = new List<string> { "Distraction", "Mind Snap","Force Kick","Disruption", "Force Leap","Force Charge","Riot Strike","Disabling Shot","Jolt" ,"Quell"};
-        private static List<string> stunAbilityNames = new List<string> {"Electro Dart","Debilitate","Maim","Low Slash","Electrocute","Force Choke","Cryo Grenade","Dirty Kick","Force Stun","Force Stasis" };
+        private static readonly List<string> _interruptAbilityIds = new List<string> { "963120646324224","987747988799488", "875086701658112","997020823191552","3433285187272704", "812105301229568","807750204391424","2204391964672000","3029313448312832","3029339218116608","875060931854336" ,"2204499338854400"};
+        private static List<string> stunAbilityIds = new List<string> {"814214130171904","814802540691456","3908961405239296","1962284658196480","808244125630464","807754499358720","958439131971584","807178973741056","1679250608357376","1261925816074240" };
 
-        private static List<string> abilitiesThatCanInterrupt => _interruptAbilityNames.Concat(stunAbilityNames).ToList();
+        private static List<string> abilityIdsThatCanInterrupt => _interruptAbilityIds.Concat(stunAbilityIds).ToList();
         public static void PopulateMetaData(Combat combatToPopulate)
         {
             var combat = combatToPopulate;
@@ -27,16 +27,16 @@ namespace SWTORCombatParser.Model.CombatParsing
 
                 var parsedLogEntries = outgoingLogs as ParsedLogEntry[] ?? outgoingLogs.ToArray();
                 combat.OutgoingDamageLogs[entity] = parsedLogEntries
-                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
                 combat.OutgoingHealingLogs[entity] = parsedLogEntries
-                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._healEffectId).ToList();
                 combat.AbilitiesActivated[entity] = parsedLogEntries.Where(l =>
-                    l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate").ToList();
+                    l.Effect.EffectType == EffectType.Event && l.Effect.EffectId == _7_0LogParsing.AbilityActivateId).ToList();
                 var logEntries = incomingLogs as ParsedLogEntry[] ?? incomingLogs.ToArray();
                 combat.IncomingDamageLogs[entity] = logEntries
-                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
                 combat.IncomingHealingLogs[entity] = logEntries
-                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._healEffectId).ToList();
 
                 var bigDamageTimestamps = GetTimestampOfBigHits(combat.IncomingDamageLogs[entity]);
                 combat.BigDamageTimestamps[entity] = bigDamageTimestamps;
@@ -81,12 +81,12 @@ namespace SWTORCombatParser.Model.CombatParsing
                 }
 
                 var totalAbilitiesDone = parsedLogEntries.Count(l =>
-                    l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate");
+                    l.Effect.EffectType == EffectType.Event && l.Effect.EffectId == _7_0LogParsing.AbilityActivateId);
 
                 var interruptLogs = parsedLogEntries.Select((v, i) => new { value = v, index = i }).Where(l =>
                     l.value.Effect.EffectType == EffectType.Event && l.index != 0 &&
-                    l.value.Effect.EffectName == "AbilityInterrupt" &&
-                    abilitiesThatCanInterrupt.Contains(parsedLogEntries.ElementAt(l.index - 1).Ability));
+                    l.value.Effect.EffectId == _7_0LogParsing.InterruptCombatId &&
+                    abilityIdsThatCanInterrupt.Contains(parsedLogEntries.ElementAt(l.index - 1).AbilityId));
 
                 var totalHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveHealingReceived =

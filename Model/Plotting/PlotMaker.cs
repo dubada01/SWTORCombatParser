@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.Plotting
@@ -83,12 +84,12 @@ namespace SWTORCombatParser.Model.Plotting
         {
             var critMark = log.Value.WasCrit ? "*" : "";
             var stringToShow = log.Ability + ": "+ log.Value.DblValue + critMark;
-            if(log.Target.IsCharacter && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
+            if(log.Target.IsCharacter && log.Effect.EffectId == _7_0LogParsing._damageEffectId && log.Value.Modifier != null)
             {
                 stringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
             }
             var EffectivestringToShow = log.Ability + ": " + log.Value.EffectiveDblValue + critMark;
-            if (log.Target.IsCharacter && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
+            if (log.Target.IsCharacter && log.Effect.EffectId == _7_0LogParsing._damageEffectId && log.Value.Modifier != null)
             {
                 EffectivestringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
             }

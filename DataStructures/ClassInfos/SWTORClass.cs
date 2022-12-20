@@ -20,6 +20,7 @@ namespace SWTORCombatParser.DataStructures.ClassInfos
     {
         public string Name { get; set; }
         public string Discipline { get; set; }
+        public string DisciplineId { get; set; }
         public bool IsRanged { get; set; }
         public Role Role { get; set; }
         public List<string> UniqueAbilities { get; set; }

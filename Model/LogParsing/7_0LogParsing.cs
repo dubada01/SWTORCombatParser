@@ -16,6 +16,20 @@ namespace SWTORCombatParser.Model.LogParsing
         private static ConcurrentDictionary<long,Entity> _currentEntities = new ConcurrentDictionary<long, Entity>();
 
         private static DateTime _dateTime;
+        public static string _damageEffectId = "836045448945501";
+        public static string _healEffectId = "836045448945500";
+        public static string _fallDamageEffectId = "836045448945484";
+        public static string _reflectedId = "836045448953649";
+        public static string EnterCombatId = "836045448945489";
+        public static string ExitCombatId = "836045448945490";
+        public static string DeathCombatId = "836045448945493";
+        public static string RevivedCombatId = "836045448945494";
+        public static string InterruptCombatId = "836045448945482";
+        public static string TargetSetId = "836045448953668";
+        public static string TargetClearedId = "836045448953669";
+        public static string AbilityActivateId = "836045448945479";
+        
+        
         public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, List<string> parsedLineInfo, bool realTime)
         {
             _dateTime = logDate;
@@ -58,14 +72,16 @@ namespace SWTORCombatParser.Model.LogParsing
             newEntry.SourceInfo = ParseEntity(entryInfo[1]);
             newEntry.TargetInfo = entryInfo[2] == "=" ? newEntry.SourceInfo : ParseEntity(entryInfo[2]);
             newEntry.Ability = ParseAbility(entryInfo[3]);
+            newEntry.AbilityId = ParseAbilityId(entryInfo[3]);
             newEntry.Effect = ParseEffect(entryInfo[4]);
-            if(newEntry.Effect.EffectName == "Death")
+            if(newEntry.Effect.EffectId == DeathCombatId)
             {
                 newEntry.TargetInfo.IsAlive = false;
             }
             if (newEntry.Effect.EffectType == EffectType.AreaEntered)
             {
                 newEntry.LogLocation = newEntry.Effect.EffectName;
+                newEntry.LogLocationId = newEntry.Effect.EffectId;
             }
             if (newEntry.Effect.EffectType == EffectType.DisciplineChanged)
             {
@@ -81,20 +97,20 @@ namespace SWTORCombatParser.Model.LogParsing
         private static SWTORClass GetClassFromDicipline(string effectName)
         {
             var parts = effectName.Split('/');
-            var spec = parts[1].Split('{')[0].Trim();
-            return ClassIdentifier.IdentifyClass(spec);
+            var spec = parts[1].Split('{')[1].Replace("}","").Trim();
+            return ClassIdentifier.IdentifyClassById(spec);
         }
 
         private static Value ParseValues(string valueString, Effect currentEffect)
         {
             var cleanValueString = valueString.Replace("(", "").Replace(")", "");
-            if (currentEffect.EffectType == EffectType.Apply && (currentEffect.EffectName == "Damage" || currentEffect.EffectName == "Heal"))
+            if (currentEffect.EffectType == EffectType.Apply && (currentEffect.EffectId == _damageEffectId || currentEffect.EffectId == _healEffectId))
                 return ParseValueNumber(valueString, currentEffect.EffectName);
             if (currentEffect.EffectType == EffectType.Restore || currentEffect.EffectType == EffectType.Spend)
                 return ParseResourceEventValue(valueString);
             if (currentEffect.EffectType == EffectType.Event)
                 return new Value() { StrValue = cleanValueString, DisplayValue = cleanValueString };
-            if (currentEffect.EffectType == EffectType.Apply && currentEffect.EffectName != "Damage" && currentEffect.EffectName != "Heal")
+            if (currentEffect.EffectType == EffectType.Apply && currentEffect.EffectId != _damageEffectId && currentEffect.EffectId != _healEffectId)
                 return ParseCharges(valueString);
             if(currentEffect.EffectType == EffectType.ModifyCharges)
             {
@@ -133,7 +149,7 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.ValueType = effectName == "Heal" ? DamageType.heal : DamageType.none;
+                newValue.ValueType = effectName == _healEffectId ? DamageType.heal : DamageType.none;
                 newValue.EffectiveDblValue = newValue.DblValue;
             }
             if (valueParts.Count == 2) // partially effective heal
@@ -156,7 +172,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (valueParts.Count == 4) // partially effective damage
             {
-                if (valueParts[2].Contains("reflected")) // damage reflected
+                if (valueParts[3].Contains(_reflectedId)) // damage reflected
                 {
                     newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                     newValue.EffectiveDblValue = newValue.DblValue;
@@ -342,9 +358,10 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             var id = long.Parse(name.Split(':')[1]);
             var splitVal = name.Split('{');
+            var logId = long.Parse(splitVal[1].Split('}')[0]);
             var entityName = splitVal[0].Trim();
 
-            var newEntity = new Entity() { IsCharacter = false, Name = entityName, Id = id };
+            var newEntity = new Entity() { IsCharacter = false, Name = entityName, Id = id ,LogId = logId};
             var entityToUse = _currentEntities.GetOrAdd(id, newEntity);
             entityToReturn.Entity = entityToUse;
         }
@@ -397,6 +414,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     var difficulty = splitName.Length > 1 ? splitName[1].Split('}')[1].Trim() : "";
                     var areaInfo = splitName[0].Trim() + " " + difficulty;
                     newEffect.EffectName = areaInfo;
+                    newEffect.EffectId = splitName[1].Split('}')[0];
                     break;
                 }
                 default:
@@ -406,46 +424,12 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (newEffect.EffectType == EffectType.Event)
             {
-                if (newEffect.EffectName == "TargetSet" || newEffect.EffectName == "TargetCleared")
+                if (newEffect.EffectId == TargetSetId || newEffect.EffectId == TargetClearedId)
                 {
                     newEffect.EffectType = EffectType.TargetChanged;
                 }
             }
             return newEffect;
-        }
-        private static DamageType GetValueType(string val)
-        {
-            switch (val)
-            {
-                case "energy":
-                    return DamageType.energy;
-                case "kinetic":
-                    return DamageType.kinetic;
-                case "internal":
-                    return DamageType.intern;
-                case "elemental":
-                    return DamageType.elemental;
-                case "shield":
-                    return DamageType.shield;
-                case "absorbed":
-                    return DamageType.absorbed;
-                case "miss":
-                    return DamageType.miss;
-                case "parry":
-                    return DamageType.parry;
-                case "deflect":
-                    return DamageType.deflect;
-                case "dodge":
-                    return DamageType.dodge;
-                case "immune":
-                    return DamageType.immune;
-                case "resist":
-                    return DamageType.resist;
-                case "cover":
-                    return DamageType.cover;
-                default:
-                    return DamageType.unknown;
-            }
         }
         private static DamageType GetValueTypeById(string val)
         {
@@ -477,30 +461,6 @@ namespace SWTORCombatParser.Model.LogParsing
                     return DamageType.resist;
                 default:
                     return DamageType.unknown;
-            }
-        }
-        private static EffectType GetEffectType(string v)
-        {
-            switch (v)
-            {
-                case "ApplyEffect":
-                    return EffectType.Apply;
-                case "RemoveEffect":
-                    return EffectType.Remove;
-                case "Event":
-                    return EffectType.Event;
-                case "Spend":
-                    return EffectType.Spend;
-                case "Restore":
-                    return EffectType.Restore;
-                case "AreaEntered":
-                    return EffectType.AreaEntered;
-                case "DisciplineChanged":
-                    return EffectType.DisciplineChanged;
-                case "ModifyCharges":
-                    return EffectType.ModifyCharges;
-                default:
-                    throw new Exception("No valid type");
             }
         }
         private static EffectType GetEffectTypeById(string v)
