@@ -147,24 +147,42 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 }
             });
         }
+
+        private bool _useTestLog = true;
         private void MonitorMostRecentLog(bool runningInBackground)
         {
             if(!runningInBackground)
                 LoadingWindowFactory.ShowLoading();
             OnMonitoringStateChanged(true);
-            var mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
-            /*var mostRecentLog = Path.Join(_logPath, "test.txt");
-            File.Delete(mostRecentLog);
-            File.Create(mostRecentLog).Close();*/
+            var mostRecentLog = "";
+            if (_useTestLog)
+            {
+#if DEBUG
+                mostRecentLog = Path.Join(_logPath, "test.txt");
+                File.Delete(mostRecentLog);
+                File.Create(mostRecentLog).Close();
+#else
+                mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
+#endif
+                
+            }
+            else
+            {
+                mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
+            }
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
-            /*Task.Run(() =>
+            if (_useTestLog)
             {
-                Thread.Sleep(1000);
-                TransferLogData(mostRecentLog);
-                File.Delete(mostRecentLog);
-            });*/
-
+#if DEBUG
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    TransferLogData(mostRecentLog);
+                    File.Delete(mostRecentLog);
+                });
+#endif
+            }
         }
         //TEST CODE
         private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");

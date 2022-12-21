@@ -2,6 +2,7 @@
 
   {
     "LogName": "The Black Talon",
+    "LogId": "833571547775679",
     "Name": "The Black Talon",
     "BossNames": [
       "Sergeant Boran",
@@ -12,6 +13,7 @@
   },
   {
     "LogName": "The Esseles",
+    "LogId": "833571547775678",
     "Name": "The Esseles",
     "BossNames": [
       "Ironfist",
@@ -23,6 +25,7 @@
   },
   {
     "LogName": "Boarding Party",
+    "LogId": "833571547775680",
     "Name": "Boarding Party",
     "BossNames": [
       "HXI-54 Juggernaut",
@@ -33,6 +36,7 @@
   },
   {
     "LogName": "Hammer Station",
+    "LogId": "833571547775682",
     "Name": "Hammer Station",
     "BossNames": [
       "DN-314 Tunneler",
@@ -42,6 +46,7 @@
   },
   {
     "LogName": "Athiss",
+    "LogId": "833571547775683",
     "Name": "Athiss",
     "BossNames": [
       "Professor Ley'arsha",
@@ -52,16 +57,19 @@
   },
   {
     "LogName": "Mandalorian Raiders",
+    "LogId": "833571547775687",
     "Name": "Mandalorian Raiders",
     "BossNames": [
       "Braxx the Bloodhound",
-      "Boarding Party~?~Taklan|Ezeraline|Magnus|Keenor|Rotham|Vincine|Kyrenic|Andan",
+      "Republic Boarding Party~?~Taklan|Ezeraline|Magnus|Keenor",
+      "Imperial Boarding Party~?~Rotham|Vincine|Kyrenic|Andan",
       "Gil",
       "Mavrix Varad"
     ]
   },
   {
     "LogName": "Cademimu",
+    "LogId": "833571547775684",
     "Name": "Cademimu",
     "BossNames": [
       "Officer Xander",
@@ -72,6 +80,7 @@
   },
   {
     "LogName": "The Red Reaper",
+    "LogId": "833571547775686",
     "Name": "The Red Reaper",
     "BossNames": [
       "Lord Kherus",
@@ -81,6 +90,7 @@
   },
   {
     "LogName": "Taral V",
+    "LogId": "833571547775677",
     "Name": "Taral V",
     "BossNames": [
       "Captain Shivanek & Ripper~?~Captain Shivanek|Ripper",
@@ -89,6 +99,7 @@
   },
   {
     "LogName": "Directive 7",
+    "LogId": "833571547775671",
     "Name": "Directive 7",
     "BossNames": [
       "Detector",
@@ -102,17 +113,18 @@
   },
   {
     "LogName": "The Battle of Ilum",
+    "LogId": "833571547775672",
     "Name": "The Battle of Ilum",
     "BossNames": [
       "Gark the Indomitable",
       "Velasu Graege & Drinda-Zel~?~Velasu Graege|Drinda-Zel",
       "Krel Thak",
-      "Commander Folek",
       "Darth Serevin"
     ]
   },
   {
     "LogName": "The False Emperor",
+    "LogId": "833571547775673",
     "Name": "The False Emperor",
     "BossNames": [
       "Tregg the Destroyer",
@@ -125,6 +137,7 @@
   },
   {
     "LogName": "Kaon Under Siege",
+    "LogId": "833571547775674",
     "Name": "Kaon Under Siege",
     "BossNames": [
       "Rakghoul Behemoth",
@@ -134,6 +147,7 @@
   },
   {
     "LogName": "Lost Island",
+    "LogId": "833571547775675",
     "Name": "Lost Island",
     "BossNames": [
       "Putrid Shaclaw",
@@ -146,6 +160,7 @@
   },
   {
     "LogName": "Czerka Corporate Labs",
+    "LogId": "137438993332",
     "Name": "Czerka Corporate Labs",
     "BossNames": [
       "CZ-8X Eradicator Droid",
@@ -155,6 +170,7 @@
   },
   {
     "LogName": "Czerka Research Biomes",
+    "LogId": "137438993342",
     "Name": "Czerka Core Meltdown",
     "BossNames": [
       "Enhanced Duneclaw",
@@ -164,6 +180,7 @@
   },
   {
     "LogName": "Assault on Tython",
+    "LogId": "833571547775709",
     "Name": "Assault on Tython",
     "BossNames": [
       "Major Imos",
@@ -176,6 +193,7 @@
   },
   {
     "LogName": "Korriban Incursion",
+    "LogId": "833571547775710",
     "Name": "Korriban Incursion",
     "BossNames": [
       "Master Riilna",
@@ -188,15 +206,18 @@
   },
   {
     "LogName": "Manaan Research Facility",
+    "LogId": "833571547775707",
     "Name": "Depths of Manaan",
     "BossNames": [
       "Sairisi",
       "Ortuno",
+      "M2-AUX Foreman",
       "Stivastin"
     ]
   },
   {
     "LogName": "Rakata Prime",
+    "LogId": "137438993543",
     "Name": "Legacy of the Rakata",
     "BossNames": [
       "Savage War Beast and War Chief Rehkta~?~Savage War Beast|War Chief Rehkta",
@@ -207,6 +228,7 @@
   },
   {
     "LogName": "Blood Hunt",
+    "LogId": "833571547775719",
     "Name": "Blood Hunt",
     "BossNames": [
       "Kyramla Gemas'rugam",
@@ -216,6 +238,7 @@
   },
   {
     "LogName": "Battle of Rishi",
+    "LogId": "833571547775720",
     "Name": "Battle of Rishi",
     "BossNames": [
       "Rarrook and Marko Ka~?~Rarrook|Marko Ka",
@@ -226,9 +249,10 @@
   },
   {
     "LogName": "Crisis on Umbara",
+    "LogId": "833571547775775",
     "Name": "Crisis on Umbara",
     "BossNames": [
-      "Technician Canni & Shadow Assassin Elli-Vaa~?~Technician Canni|Shadow Assassin Elli-Vaa",
+      "Technician Canni & Elli-Vaa~?~Technician Canni|Shadow Assassin Elli-Vaa",
       "Alpha Slybex",
       "Vixian Mauler",
       "Umbaran Spider Tank"
@@ -236,6 +260,7 @@
   },
   {
     "LogName": "A Traitor Among The Chiss",
+    "LogId": "833571547775777",
     "Name": "A Traitor Among The Chiss",
     "BossNames": [
       "Guardian Droid",
@@ -246,10 +271,11 @@
   },
   {
     "LogName": "Nathema",
+    "LogId": "833571547775764",
     "Name": "The Nathema Conspiracy",
     "BossNames": [
       "Voreclaw",
-      "Hand of Zildrog",
+      "Hands of Zildrog",
       "Ancient Guardian Droid",
       "Gemini 16",
       "Vinn Atrius & Zildrog~?~Vinn Atrius|Zildrog"
@@ -257,6 +283,7 @@
   },
   {
     "LogName": "Objective Meridian",
+    "LogId": "833571547775793",
     "Name": "Objective Meridian",
     "BossNames": [
       "R10-X6",
@@ -271,6 +298,7 @@
   },
   {
     "LogName": "Spirit of Vengeance",
+    "LogId": "833571547775795",
     "Name": "Spirit of Vengeance",
     "BossNames": [
       "Gorga Brak",
@@ -282,10 +310,12 @@
   },
   {
     "LogName": "Dantooine",
+    "LogId": "833571547775786",
     "Name": "Secrets of the Enclave",
     "BossNames": [
       "Graul",
-      "Republic/Imperial Troopers~?~Captain Meinar|Lord Ziliss|Lieutenant Osonu|Captain Dogah|Sergeant Corrick|Sergeant Kodo",
+      "Republic Squad~?~Captain Meinar|Lieutenant Osonu|Sergeant Corrick",
+      "Imperial Squad~?~Lord Ziliss|Captain Dogah|Sergeant Kodo",
       "Monstrous Terentatek",
       "Master Leeha Narezz",
       "Colonel Barden Golah"
@@ -293,15 +323,18 @@
   },
   {
     "LogName": "Ruins of Nul",
+    "LogId": "833571547775798",
     "Name": "Ruins of Nul",
     "BossNames": [
       "Apex Ranphyx",
       "Regnant",
+      "Droid Squad~?~AG-99 Warden Unit|ND-66 Warden Unit|PR-33 Warden Unit",
       "Darth Malgus"
     ]
   },
   {
     "LogName": "Maelstrom Prison",
+    "LogId": "833571547775676",
     "Name": "Maelstrom Prison",
     "BossNames": [
       "Colonel Daksh",

@@ -216,6 +216,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 Value = value,
                 IsLeaderboardValue = true,
                 RelativeLength = 1,
+                SizeScalar = SizeScalar,
                 MedalIconPath = "../../resources/firstPlaceLeaderboardIcon.png"
             };
             _metricBarsDict.TryAdd((characterName,true),metricbar);
@@ -275,7 +276,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 else
                 {
-                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue };
+                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, SizeScalar = SizeScalar};
                     _metricBarsDict.TryAdd((participant.Name,false),metricToUpdate);
                 }
 

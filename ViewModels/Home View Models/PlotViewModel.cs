@@ -11,6 +11,7 @@ using System.Windows.Threading;
 using ScottPlot;
 using ScottPlot.Plottable;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Plotting;
 using SWTORCombatParser.Utilities;

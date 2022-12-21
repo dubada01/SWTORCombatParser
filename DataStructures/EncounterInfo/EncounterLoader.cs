@@ -41,8 +41,9 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
             try
             {
                 var raids = JsonConvert.DeserializeObject<List<EncounterInfo>>(File.ReadAllText(@"DataStructures/EncounterInfo/RaidNames.json"));
-                NewRaidFormat.AddIdsToEncounters(raids);
+                LogIdFactory.AddIdsToEncounters(raids);
                 var flashpoints = JsonConvert.DeserializeObject<List<EncounterInfo>>(File.ReadAllText(@"DataStructures/EncounterInfo/FlashpointInfo.json"));
+                LogIdFactory.AddIdsToEncounters(flashpoints);
                 var pvpMatches = JsonConvert.DeserializeObject<List<EncounterInfo>>(File.ReadAllText(@"DataStructures/EncounterInfo/PVPAreaNames.json"));
                 foreach (var match in pvpMatches)
                 {

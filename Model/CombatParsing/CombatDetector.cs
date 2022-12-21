@@ -1,13 +1,13 @@
-﻿using SWTORCombatParser.Model.LogParsing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.LogParsing;
 using Timer = System.Timers.Timer;
 
-namespace SWTORCombatParser.Utilities
+namespace SWTORCombatParser.Model.CombatParsing
 {
     public enum CombatState
     {

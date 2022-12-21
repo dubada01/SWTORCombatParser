@@ -94,6 +94,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     return;
                 }
                 _currentOverlays.ForEach(overlay => overlay.SizeScalar = sizeScalar);
+                Settings.WriteSetting<double>("overlay_bar_scale",sizeScalar);
                 OnPropertyChanged();
             }
         }
@@ -102,7 +103,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForDiscipline;
             CombatLogStreamer.HistoricalLogsFinished += FinishHistoricalParse;
             CombatLogStreamer.HistoricalLogsStarted += HistoricalLogsStarted;
-
+            sizeScalar = Settings.ReadSettingOfType<double>("overlay_bar_scale");
+            sizeScalarString = sizeScalar.ToString();
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             SelectedLeaderboardType = LeaderboardSettings.ReadLeaderboardSettings();
             DefaultCharacterOverlays.Init();
@@ -214,6 +216,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             DefaultCharacterOverlays.SetActiveStateCharacter(viewModel.Type.ToString(), true, _currentCharacterDiscipline);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = !OverlaysLocked;
+            viewModel.SizeScalar = SizeScalar;
             _currentOverlays.Add(viewModel);
             var overlay = new InfoOverlay(viewModel);
             overlay.SetPlayer(_currentCharacterDiscipline);
