@@ -84,7 +84,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 return BossIds.Select(bi => new BossInfo()
                 {
                     EncounterName = bi.Key,
-                    TargetIds = bi.Value[((Difficutly == "Master" ?  "Veteran" : Difficutly) + " "+ NumberOfPlayer.Split(" ")[0])].Select(id=>id.ToString()).ToList(),
+                    TargetIds = bi.Value[GetKey(bi.Value.Keys.ToList())].Select(id=>id.ToString()).ToList(),
                 }).ToList();
             }
 
@@ -97,6 +97,16 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
 
             }).ToList();
         }
+
+        private string GetKey(List<string> availableModes)
+        {
+            if (NumberOfPlayer.Contains("4") && availableModes.All(m=>m=="All"))
+                return "All";
+            if (NumberOfPlayer.Contains("4") && availableModes.All(m => m != "All"))
+                return ((Difficutly == "Story" ? "Veteran" : Difficutly) + " " + NumberOfPlayer.Split(" ")[0]);
+            return ((Difficutly == "Master" ? "Veteran" : Difficutly) + " " + NumberOfPlayer.Split(" ")[0]);
+        }
+
         public bool IsBossEncounter => BossInfos?.Count != 0;
         public bool IsPvpEncounter => (int)EncounterType >= 4;
         public List<BossInfo> BossInfos { get; set; } = new List<BossInfo>();

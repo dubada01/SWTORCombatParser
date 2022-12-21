@@ -57,6 +57,8 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 var raidOfInterest = encounterInfos.First(r => log.LogLocation.Contains(r.LogName) || log.LogLocationId == r.LogId);
                 var intendedDifficulty = EncounterLoader.GetLeaderboardFriendlyDifficulty(log.LogLocation);
+                if (intendedDifficulty == null)
+                    return;
                 raidOfInterest.Difficutly = intendedDifficulty ?? "Story";
                 var indendedNumberOfPlayers = EncounterLoader.GetLeaderboardFriendlyPlayers(log.LogLocation);
                 raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers ?? "4";

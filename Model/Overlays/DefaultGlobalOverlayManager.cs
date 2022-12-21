@@ -32,15 +32,6 @@ namespace SWTORCombatParser.Model.Overlays
             currentDefaults[type] = new OverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = defaultModified.Acive };
             SaveDefaults(currentDefaults);
         }
-        public static void SetLocked(bool state)
-        {
-            var currentDefaults = ReadDefaultsFromFile();
-            foreach(var overlay in currentDefaults.Keys)
-            {
-                currentDefaults[overlay] = new OverlayInfo() { Position = currentDefaults[overlay].Position, WidtHHeight = currentDefaults[overlay].WidtHHeight, Locked=state,  Acive = currentDefaults[overlay].Acive };
-            }
-            SaveDefaults(currentDefaults);
-        }
         public static void SetActive(string type, bool state)
         {
             var currentDefaults = ReadDefaultsFromFile();
