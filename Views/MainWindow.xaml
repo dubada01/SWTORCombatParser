@@ -13,8 +13,8 @@
             <ColumnDefinition Width=".3*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height=".85*"/>
-            <RowDefinition Height=".1*"/>
+            <RowDefinition Height=".95*"/>
+            <RowDefinition Height=".05*"/>
         </Grid.RowDefinitions>
         <TabControl SelectedIndex="{Binding SelectedTabIndex}" SelectionChanged="TabControl_SelectionChanged"  ItemsSource="{Binding ContentTabs}" BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="{StaticResource Gray5Brush}" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
             <TabControl.Resources>
@@ -98,7 +98,10 @@
             </TabControl.ContentTemplate>
         </TabControl>
 
-        <ContentPresenter Grid.RowSpan="2"  Margin="5,5,5,5" Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
-
+        <ContentPresenter  Margin="5,5,5,5" Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
+        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock  Opacity="0.75"  Text="Log Latency (s):" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray8Brush}" VerticalAlignment="Center" Margin="0,0,10,0" HorizontalAlignment="Right"></TextBlock>
+            <TextBlock Opacity="0.75"  Text="{Binding CurrentLogOffsetMs}" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentLogOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+        </StackPanel>
     </Grid>
 </Window>

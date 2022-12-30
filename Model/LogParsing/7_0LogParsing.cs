@@ -82,6 +82,8 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 newEntry.LogLocation = newEntry.Effect.EffectName;
                 newEntry.LogLocationId = newEntry.Effect.EffectId;
+                if(!string.IsNullOrEmpty(newEntry.Effect.SecondEffectId))
+                    newEntry.LogDifficultyId = newEntry.Effect.SecondEffectId;
             }
             if (newEntry.Effect.EffectType == EffectType.DisciplineChanged)
             {
@@ -412,6 +414,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 case EffectType.AreaEntered:
                 {
                     var difficulty = splitName.Length > 1 ? splitName[1].Split('}')[1].Trim() : "";
+                    if (splitName.Length > 2)
+                        newEffect.SecondEffectId = splitName[2].Replace("}", "");
                     var areaInfo = splitName[0].Trim() + " " + difficulty;
                     newEffect.EffectName = areaInfo;
                     newEffect.EffectId = splitName[1].Split('}')[0];

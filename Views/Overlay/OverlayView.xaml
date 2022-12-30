@@ -31,6 +31,7 @@
                                                 </Border>
                                             </Border>
                                         </Border>
+                                        
                                         <TabPanel Background="Transparent" Grid.Row="0" IsItemsHost="true"/>
                                     </Grid>
                                 </ControlTemplate>
@@ -44,17 +45,8 @@
                 <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Timers">
                     <ContentPresenter Grid.Column="1" Content="{Binding TimersView}"></ContentPresenter>
                 </TabItem>
-                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Boss Frame">
-                    <ContentPresenter Content="{Binding BossFrameView}"/>
-                </TabItem>
-                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Raid HOTS">
-                    <ContentPresenter Content="{Binding RaidHotsConfig}"></ContentPresenter>
-                </TabItem>
-                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Room Hazard">
-                    <ContentPresenter Content="{Binding RoomOverlaySetup}"></ContentPresenter>
-                </TabItem>
-                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="PvP">
-                    <ContentPresenter Content="{Binding PvpOverlays}"></ContentPresenter>
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Setup">
+                    <ContentPresenter Grid.Column="1" Content="{Binding OthersSetupView}"></ContentPresenter>
                 </TabItem>
             </TabControl>
    

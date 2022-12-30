@@ -20,6 +20,14 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         public List<string> TargetIds { get; set; } = new List<string>();
         public List<string> TargetsRequiredForKill => TargetIds;
     }
+
+    public class MapInfo
+    {
+        public double MinX;
+        public double MaxX;
+        public double MinY;
+        public double MaxY;
+    }
     public class EncounterInfo
     {        
         private List<string> bossNames = new List<string>();
@@ -36,7 +44,8 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 BossNames = source.BossNames,
                 BossIds = source.BossIds,
                 EncounterType = source.EncounterType,
-                BossInfos = source.BossInfos
+                BossInfos = source.BossInfos,
+                MapInfo = source.MapInfo
                 
             };
         }
@@ -67,6 +76,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         public string LogId { get; set; }
         public string NamePlus => GetNamePlus();
         public string Name { get; set; }
+        public MapInfo MapInfo { get; set; }
         public List<string> BossNames 
         { 
             get => bossNames; 

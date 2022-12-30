@@ -9,32 +9,45 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
 {
     public static class EncounterLoader
     {
-        public static string GetLeaderboardFriendlyDifficulty(string logLocationString)
+        public static string GetLeaderboardFriendlyDifficulty(string difficultyId)
         {
-            var def = SupportedRaidDifficulties.FirstOrDefault(logLocationString.Contains);
-            return def switch
+            switch (difficultyId)
             {
-                "histoire" => "Story",
-                "vétéran" => "Veteran",
-                "maître" => "Master",
-                _ => def
-            };
+                case "836045448953651":
+                case "836045448953653":
+                case "836045448953658 ":
+                    return "Story";
+                case "836045448953652":
+                case "836045448953654":
+                case "836045448953657":
+                    return "Veteran";
+                case "836045448953655":
+                case "836045448953656":
+                case "836045448953659":
+                    return "Master";
+                default:
+                    return "";
+            }
         }
 
-        public static string GetLeaderboardFriendlyPlayers(string logLocationString)
+        public static string GetLeaderboardFriendlyPlayers(string difficultyId)
         {
-            var def = SupportedNumberOfPlayers.FirstOrDefault(logLocationString.Contains);
-            return def switch
+            switch (difficultyId)
             {
-                "8\u00A0joueurs" => "8 Player",
-                "16\u00A0joueurs" => "16 Player",
-                _ => def
-            };
+                case "836045448953651":
+                case "836045448953652":
+                case "836045448953655":
+                    return "8 Player";
+                case "836045448953653":
+                case "836045448953656":
+                case "836045448953654":
+                    return "16 Player";
+                default:
+                    return "";
+            }
         }
         public static List<EncounterInfo> SupportedEncounters = new List<EncounterInfo>();
         public static List<EncounterInfo> PVPEncounters = new List<EncounterInfo>();
-        public static List<string> SupportedRaidDifficulties = new List<string>() { "Story", "Veteran", "Master","histoire","vétéran","maître" };
-        public static List<string> SupportedNumberOfPlayers = new List<string>() { "8 Player", "16 Player","8\u00A0joueurs", "16\u00A0joueurs" };
 
         public static void LoadAllEncounters()
         {

@@ -21,7 +21,7 @@
             </Viewbox>
             
         </Grid>
-        <TextBlock Grid.Row="1" x:Name="PlayerName" Foreground="WhiteSmoke" FontSize="8" Text="Character Name" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" VerticalAlignment="Center"/>
+        <!-- <TextBlock Grid.Row="1" x:Name="PlayerName" Foreground="WhiteSmoke" FontSize="8" Text="Character Name" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" VerticalAlignment="Center"/> -->
     </Grid>
 
 

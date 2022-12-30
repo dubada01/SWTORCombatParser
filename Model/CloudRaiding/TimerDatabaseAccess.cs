@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Media;
+using Newtonsoft.Json;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -30,11 +31,15 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand("INSERT INTO public.timers" +
-                " (timer_id,source,source_is_local,target,target_is_local,hp_percentage,name,trigger_type,expiration_trigger_id,ability,effect,is_periodic,is_alert,duration_sec,color,specific_boss,specific_encounter)" +
-                $" VALUES ('{newTimer.ShareId.MakePGSQLSafe()}','{newTimer.Source.MakePGSQLSafe()}','{newTimer.SourceIsLocal}','{newTimer.Target.MakePGSQLSafe()}',{newTimer.TargetIsLocal},'{newTimer.HPPercentage.ToString(CultureInfo.InvariantCulture)}','{newTimer.Name.MakePGSQLSafe()}'," +
-                $"'{newTimer.TriggerType}','{newTimer.ExperiationTimerId.MakePGSQLSafe()}','{newTimer.Ability.MakePGSQLSafe()}','{newTimer.Effect.MakePGSQLSafe()}'" +
-                $",{newTimer.IsPeriodic},'{newTimer.IsAlert}','{newTimer.DurationSec.ToString(CultureInfo.InvariantCulture)}','{newTimer.TimerColor}','{newTimer.SpecificBoss.MakePGSQLSafe()}','{newTimer.SpecificEncounter.MakePGSQLSafe()}')", connection))
+                using (var cmd = new NpgsqlCommand("INSERT INTO public.timer_export" +
+                "(timer_id,timer_contents)" +
+                $" VALUES (@p1,@p2)", connection){
+                        Parameters =
+                        {
+                            new ("p1",newTimer.ShareId),
+                            new ("p2",JsonConvert.SerializeObject(newTimer)),
+                        }
+                    })
                 {
                     cmd.ExecuteNonQuery();
                 }
@@ -44,7 +49,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             using (NpgsqlConnection connection = ConnectToDB())
             {
-                using (var cmd = new NpgsqlCommand("SELECT * FROM public.timers " +
+                using (var cmd = new NpgsqlCommand("SELECT * FROM public.timer_export " +
                 $"WHERE timer_id='{timerId.MakePGSQLSafe()}'", connection))
                 {
                     var reader = cmd.ExecuteReader();
@@ -56,46 +61,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
             return null;
         }
-        public static List<Timer> GetTimersForEncounterBoss(string bossName, string encounter)
-        {
-            List<Timer> entriesFound = new List<Timer>();
-            using (NpgsqlConnection connection = ConnectToDB())
-            {
-                using (var cmd = new NpgsqlCommand("SELECT * FROM public.timers " +
-                $"WHERE specific_boss='{bossName.MakePGSQLSafe()}' and specific_encounter = '{encounter.MakePGSQLSafe()}'", connection))
-                {
-                    var reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        entriesFound.Add(GetTimer(reader));
-                    }
-                }
-            }
-            return entriesFound;
-        }
         private static Timer GetTimer(NpgsqlDataReader reader)
         {
-            return new Timer
-            {
-                ShareId = reader.GetString(1),
-                Source = reader.GetString(2),
-                SourceIsLocal = reader.GetBoolean(3),
-                Target = reader.GetString(4),
-                TargetIsLocal = reader.GetBoolean(5),
-                HPPercentage = reader.GetDouble(6),
-                Name = reader.GetString(7),
-                ExperiationTimerId = reader.GetString(8),
-                Ability = reader.GetString(9),
-                Effect = reader.GetString(10),
-                IsPeriodic = reader.GetBoolean(11),
-                IsAlert = reader.GetBoolean(12),
-                DurationSec = reader.GetDouble(13),
-                TimerColor = (Color)ColorConverter.ConvertFromString(reader.GetString(14)),
-                TriggerType = (TimerKeyType)Enum.Parse(typeof(TimerKeyType), reader.GetString(15)),
-                SpecificBoss = reader.GetString(16),
-                SpecificEncounter = reader.GetString(17)
-
-            };
+            var stringContents = reader.GetString(2);
+            return JsonConvert.DeserializeObject<Timer>(stringContents);
         }
         private static NpgsqlConnection ConnectToDB()
         {

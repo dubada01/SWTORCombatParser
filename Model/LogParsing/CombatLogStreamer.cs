@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public static event Action<DateTime,bool> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
+        public event Action<double> NewLogTimeOffsetMs = delegate { };
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
 
         private bool _isInCombat = false;
@@ -127,7 +129,6 @@ namespace SWTORCombatParser.Model.LogParsing
                 for (var line = 0; line < lines.Count; line++)
                 {
                     var result = ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor));
-
                     if (result == ProcessedLineResult.Incomplete)
                     {
                         Logging.LogError("Failed to parse line: " + lines[line]);
@@ -251,6 +252,8 @@ namespace SWTORCombatParser.Model.LogParsing
         private ProcessedLineResult ProcessNewLine(string line,long lineIndex,string logName)
         {
             var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
+            var timeOffset = Math.Abs((parsedLine.TimeStamp - DateTime.Now).TotalMilliseconds);
+            NewLogTimeOffsetMs(timeOffset);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
                 return ProcessedLineResult.Incomplete;

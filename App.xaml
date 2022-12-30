@@ -46,6 +46,7 @@
             <converters:OpponentInRangeToColorConverter x:Key="OpponentInRangeToColorConverter"/>
             <converters:BooleanToHpBorderConverter x:Key="BooleanToHpBorderConverter"/>
             <converters:MenaceTypeToBrushConverter x:Key="MenaceTypeToBrushConverter"/>
+            <converters:LogLatencyToColorConverter x:Key="LogLatencyToColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

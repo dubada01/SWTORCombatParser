@@ -68,7 +68,12 @@
                         <ComboBox FontWeight="Normal" Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTimerNames}" SelectedItem="{Binding SelectedExternalTimerName}"></ComboBox>
                     </StackPanel>
                 </Viewbox>
-                
+                <Viewbox MaxHeight="30" Margin="10,0,30,0" HorizontalAlignment="Right" Grid.Row="1"  VerticalAlignment="Center" Visibility="{Binding MultiClauseTrigger, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Margin="0,0,10,0" VerticalAlignment="Center" Padding="5" FontSize="13" Content="Condition A" FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Command="{Binding AddOrEditACommand}"></Button>
+                        <Button Margin="0,0,10,0" VerticalAlignment="Center" Padding="5" FontSize="13" Content="Condition B" FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Command="{Binding AddOrEditBCommand}"></Button>
+                    </StackPanel>
+                </Viewbox>
                 <!--<TextBlock x:Name="ValueHelpText" IsHitTestVisible="False" Grid.Row="2" Text="{Binding TriggerValueHelpText}" Foreground="{Binding TriggerValueHelpTextColor}" FontSize="16" FontFamily="{StaticResource MainFont}" FontWeight="Light" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="155,0,0,0"></TextBlock>-->
                 <Viewbox Grid.Row="2" Margin="0,0,10,0">
                     <Grid >
@@ -102,18 +107,16 @@
                         </StackPanel>
                     </Grid>
                 </Viewbox>
-                <Viewbox Grid.Row="4" Visibility="{Binding ShowEffectOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Column="0" HorizontalAlignment="Stretch"  Margin="10,15,0,0">
+                <Viewbox Grid.Row="4" Visibility="{Binding ShowEffectRefreshOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Column="0" HorizontalAlignment="Stretch"  Margin="10,15,0,0">
                     <Grid >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="4*"/>
                             <RowDefinition Height=".75*"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Margin="12,0,0,0"  HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <StackPanel Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Margin="10,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Can be refreshed" TextWrapping="Wrap" Width="80" FontFamily="{StaticResource MainFont}"></TextBlock>
                             <CheckBox ToolTip="Can this effect be refreshed by re-applying or via some other abilitiy?" VerticalAlignment="Center" IsChecked="{Binding CanBeRefreshed}"></CheckBox>
-                            <!--<TextBlock Margin="25,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Is HOT" TextWrapping="Wrap" Width="60" FontFamily="{StaticResource MainFont}"></TextBlock>
-                            <CheckBox ToolTip="Can this effect be refreshed by re-applying or via some other abilitiy?" VerticalAlignment="Center" IsChecked="{Binding IsHot}"></CheckBox>-->
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding CanBeRefreshed, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
@@ -138,6 +141,7 @@
                             <Button Width="60" Height="25" Margin="0,0,15,0" Style="{StaticResource ResourceKey=RoundCornerButton}" Command="{Binding SaveRefreshOptionCommand}" Content="Enter"></Button>
                             <TextBox PreviewKeyDown="SourceEntered" FontSize="15" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding CustomRefreshOption, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                         </StackPanel>
+                        <Rectangle Fill="Transparent" IsHitTestVisible="False" Visibility="{Binding CanBeRefreshed, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Height="205" Width="280" Grid.Row="1" Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center"></Rectangle>
                     </Grid>
                 </Viewbox>
 
@@ -156,7 +160,7 @@
                     <RowDefinition Height="2*"/>
                     <RowDefinition Height=".79*"/>
                 </Grid.RowDefinitions>
-                <Viewbox Margin="10,10,30,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Viewbox Margin="10,10,30,0" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsSubTrigger, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}">
                     <Grid>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Name" FontFamily="{StaticResource MainFont}"></TextBlock>
@@ -200,7 +204,7 @@
                         <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTriggerTypes}" SelectedItem="{Binding SelectedTriggerType}"></ComboBox>
                     </StackPanel>
                 </Viewbox>
-                <Viewbox  Grid.Row="3" Margin="0,0,25,0" Visibility="{Binding ShowHPOption, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}">
+                <Viewbox  Grid.Row="3" Margin="0,0,25,0" Visibility="{Binding ShowDurationOrAlert, Converter={StaticResource BooleanToVisibiityConverter}}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.5*"/>
@@ -214,17 +218,41 @@
                             <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Duration" FontFamily="{StaticResource MainFont}"></TextBlock>
                             <TextBox FontWeight="Normal" Width="75" Style="{StaticResource RoundedTextBox}" Text="{Binding DurationSec}"></TextBox>
                         </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="20,0,0,0" Visibility="{Binding ShowDuration, Converter={StaticResource BooleanToHiddenVisibilityConverter}, ConverterParameter=inverted}" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+                            <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Alert Text" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <TextBox FontWeight="Normal" Width="150" Style="{StaticResource RoundedTextBox}" Text="{Binding AlertText}"></TextBox>
+                        </StackPanel>
                     </Grid>
                 </Viewbox>
 
-                    <Grid Grid.Row="4">
-                        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Use Audio" FontFamily="{StaticResource MainFont}"></TextBlock>
-                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding UseAudio}"></CheckBox>
+                <Grid Grid.Row="4" Margin="0,0,25,0" Visibility="{Binding ShowDurationOrAlert, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.75*"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Use Audio" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding UseAudio}"></CheckBox>
+                    </StackPanel>
+
+                    <Grid Grid.Column="1" Visibility="{Binding UseAudio, Converter={StaticResource BooleanToVisibiityConverter}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="{Binding Placeholder}"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel  Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Margin="5,0,5,0" VerticalAlignment="Center" FontSize="18" Text="Audio" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <ComboBox VerticalAlignment="Center" Width="90" FontSize="15" ItemsSource="{Binding AudioTypes}" SelectedItem="{Binding SelectedAudioType}" Style="{StaticResource NewComboStyle}"></ComboBox>
+                        </StackPanel>
+                        <StackPanel Visibility="{Binding HasCustomAudio, Converter={StaticResource BooleanToVisibiityConverter}}" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+                            <Button Width="40" Height="20" Margin="10,0,5,0" Style="{StaticResource ResourceKey=RoundCornerButton}" Command="{Binding LoadAudioCommand}" Content="Load"></Button>
+                            <TextBlock Margin="5,0,5,0" VerticalAlignment="Center" FontSize="15" Text="Play @" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <TextBox  PreviewKeyDown="TargetEntered" FontWeight="Normal" Width="30" FontSize="15" HorizontalContentAlignment="Center" Style="{StaticResource RoundedTextBox}" Text="{Binding CustomAudioPlayTime, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                         </StackPanel>
                     </Grid>
+                </Grid>
 
-                <Viewbox Grid.Row="5">
+                <Viewbox Grid.Row="5" Visibility="{Binding ShowDurationOrAlert, Converter={StaticResource BooleanToVisibiityConverter}}">
                     <Grid  >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>

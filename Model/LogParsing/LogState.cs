@@ -110,6 +110,8 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (LocalPlayer == null)
                 return null;
+            if (PlayerClassChangeInfo.Keys.All(k => k.Id != LocalPlayer.Id))
+                return new SWTORClass();
             var classOfSource = PlayerClassChangeInfo[PlayerClassChangeInfo.Keys.First(k=>k.Id == LocalPlayer.Id)];
             if (classOfSource == null)
                 return new SWTORClass();
@@ -148,28 +150,39 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!PlayerTargetsInfo.ContainsKey(player))
                 return new Entity();
             var targets = PlayerTargetsInfo[player];
-            return targets.Keys.Any(v => v <= time) ? targets[targets.Keys.Where(v=>v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : null;
+            var targetKeys = targets.Keys.ToList();
+            return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v=>v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : null;
         }
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
             var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner).Select(kvp => kvp.Value).ToList();
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner).Select(kvp => kvp.Value);
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetEffectsWithTarget(DateTime startTime, DateTime endTime, Entity owner)
         {
             var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Target == owner).Select(kvp => kvp.Value).ToList();
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Target == owner).Select(kvp => kvp.Value);
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetPersonalEffects(DateTime startTime, DateTime endTime, Entity owner)
         {
             var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner && m.Value.Target == owner).Select(kvp=>kvp.Value).ToList();
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner && m.Value.Target == owner).Select(kvp=>kvp.Value);
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
 
-        private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, List<CombatModifier> inScopeModifiers)
+        public List<CombatModifier> IsEffectOnPlayerAtTime(DateTime time, Entity player, string effect)
+        {
+            if (!Modifiers.ContainsKey(effect))
+                return new List<CombatModifier>();
+            var instancesOfEffect = Modifiers[effect];
+            var activeModifiersOnPlayer = instancesOfEffect.Where(m =>
+                m.Value.StartTime <= time && (m.Value.StopTime > time || m.Value.StopTime == DateTime.MinValue)&& m.Value.Target.IsCharacter &&
+                m.Value.Target == player).Select(kvp=>kvp.Value).ToList();
+            return activeModifiersOnPlayer;
+        }
+        private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, IEnumerable<CombatModifier> inScopeModifiers)
         {
             var correctedModifiers = inScopeModifiers.Select(m =>
             {

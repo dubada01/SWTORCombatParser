@@ -20,6 +20,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         private double _hpTimerMonitor = 0;
         private double timerValue;
         private MediaPlayer _mediaPlayer;
+        private string _audioPath;
+        private int _playAtTime;
         public event Action<TimerInstanceViewModel> TimerExpired = delegate { };
         public event Action TimerTriggered = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
@@ -99,6 +101,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public TimerInstanceViewModel(Timer swtorTimer)
         {
+            _playAtTime = !string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(swtorTimer.CustomAudioPath) ? swtorTimer.AudioStartTime : 3;
+            _audioPath = !string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(swtorTimer.CustomAudioPath) ? swtorTimer.CustomAudioPath :
+                swtorTimer.IsAlert ? Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav") :
+                Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
             SourceTimer = swtorTimer;
             MaxTimerValue = swtorTimer.DurationSec;
             App.Current.Dispatcher.Invoke(() => { _mediaPlayer = new MediaPlayer(); });
@@ -151,15 +157,16 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     App.Current.Dispatcher.Invoke(() =>
                     {
-                        _mediaPlayer.Open(new Uri(
-                            Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav"),
+                        _mediaPlayer.Open(new Uri(_audioPath
+                            ,
                             UriKind.RelativeOrAbsolute));
                         _mediaPlayer.Play();
                     });
                 }
                 DisplayTimer = true;
                 DisplayTimerValue = false;
-                _dtimer.Tick += ClearAlert;
+                if(SourceTimer.TriggerType != TimerKeyType.HasEffect)
+                    _dtimer.Tick += ClearAlert;
             }
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
@@ -190,11 +197,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             _timerValue = _timerValue.Add(-1*(DateTime.Now - LastUpdate));
             TimerValue = _timerValue.TotalSeconds;
-            if (TimerValue <= 3 && timerValue > 2.8 && SourceTimer.UseAudio)
+            if (TimerValue <= _playAtTime
+                && timerValue > (_playAtTime - 0.2) && SourceTimer.UseAudio)
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    _mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory,"resources/Audio/3210_Sound.wav"),UriKind.RelativeOrAbsolute));
+                    _mediaPlayer.Open(new Uri(_audioPath,UriKind.RelativeOrAbsolute));
                     _mediaPlayer.Play();
                 });
             }
@@ -231,7 +239,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 if (SourceTimer.IsAlert)
                 {
-                    name =  SourceTimer.Name;
+                    name =  !string.IsNullOrEmpty(SourceTimer.AlertText) ? SourceTimer.AlertText : SourceTimer.Name;
                 }
                 else
                 {

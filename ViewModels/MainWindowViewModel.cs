@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Home_View_Models;
 using SWTORCombatParser.Views.Battle_Review;
@@ -50,6 +51,16 @@ namespace SWTORCombatParser.ViewModels
         public ObservableCollection<TabInstance> ContentTabs { get; set; } = new ObservableCollection<TabInstance>();
         public PastCombatsView PastCombatsView { get; set; }
 
+        public double CurrentLogOffsetMs
+        {
+            get => _currentLogOffsetMs;
+            set
+            {
+                _currentLogOffsetMs = value; 
+                OnPropertyChanged();
+            }
+        }
+
         public Combat CurrentlyDisplayedCombat { get; set; }
         private bool _allViewsUpToDate;
 
@@ -68,7 +79,7 @@ namespace SWTORCombatParser.ViewModels
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
             //SwtorDetector.StartMonitoring();
-
+            TimerController.Init();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
             MainWindowClosing.Hiding += () =>
             {
@@ -82,6 +93,9 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel = new CombatMonitorViewModel();
             _combatMonitorViewModel.OnCombatSelected += SelectCombat;
             _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
+            Observable.FromEvent<double>(
+                manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs += manager,
+                manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs -= manager).Buffer(TimeSpan.FromSeconds(2)).Subscribe(UpdateLogTimeOffset);
             Observable.FromEvent<Combat>(
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate += manager,
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate -= manager).Sample(TimeSpan.FromSeconds(2)).Subscribe(UpdateCombat);
@@ -189,6 +203,13 @@ namespace SWTORCombatParser.ViewModels
             _overlayViewModel.LiveParseStarted(state);
         }
 
+        private void UpdateLogTimeOffset(IList<double> logOffsetFor2Seconds)
+        {
+            if(!logOffsetFor2Seconds.Any())
+                return;
+            var average = logOffsetFor2Seconds.Average() / 1000d;
+            CurrentLogOffsetMs = Math.Round(average,1);
+        }
         private void UpdateCombat(Combat updatedCombat)
         {
             CurrentlyDisplayedCombat = updatedCombat;
@@ -242,6 +263,8 @@ namespace SWTORCombatParser.ViewModels
             });
         }
         private Entity localEntity;
+        private double _currentLogOffsetMs;
+
         private void LocalPlayerChanged(Entity obj)
         {
             if (localEntity == obj)

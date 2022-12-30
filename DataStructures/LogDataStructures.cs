@@ -41,6 +41,7 @@ namespace SWTORCombatParser.DataStructures
         public long LogLineNumber { get; set; }
         public string LogLocation { get; set; }
         public string LogLocationId { get; set; }
+        public string LogDifficultyId { get; set; }
         public DateTime TimeStamp { get; set; }
         public double SecondsSinceCombatStart { get; set; }
         public Entity Source => SourceInfo.Entity;
@@ -90,6 +91,7 @@ namespace SWTORCombatParser.DataStructures
         public EffectType EffectType { get; set; }
         public string EffectName { get; set; }
         public string EffectId { get; set; }
+        public string SecondEffectId { get; set; }
     }
     public class Value
     {

@@ -11,13 +11,22 @@ public static class Settings
     public static T ReadSettingOfType<T>(string settingName)
     {
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("MiscSettings.json"));
-        return (settingList[settingName] ?? throw new InvalidOperationException()).Value<T>();
+        try
+        {
+            return (settingList[settingName] ?? throw new InvalidOperationException()).Value<T>();
+        }
+        catch
+        {
+            var stringsetting = settingList[settingName].ToString();
+            return JsonConvert.DeserializeObject<T>(stringsetting);
+        }
+        
     }
 
     public static void WriteSetting<T>(string settingName, T value)
     {
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("MiscSettings.json"));
-        settingList[settingName] = value.ToString();
+        settingList[settingName] = JsonConvert.SerializeObject(value);
         File.WriteAllText("MiscSettings.json",JsonConvert.SerializeObject(settingList));
     }
 }

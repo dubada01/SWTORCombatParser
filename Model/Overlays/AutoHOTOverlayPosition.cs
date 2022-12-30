@@ -20,6 +20,7 @@ namespace SWTORCombatParser.Model.Overlays
         public static List<PlacedName> GetCurrentPlayerLayout(Point topLeftOfFrame, Bitmap swtorRaidFrame, int numberOfRows, int numberOfColumns)
         {
             var client = GoogleCloudPlatform.GetClient();
+
             var image = Image.FromBytes(ImageToByte2(swtorRaidFrame));
             var response = client.DetectText(image);
 

@@ -155,6 +155,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             BossTimerLoader.TryLoadBossTimers();
             HotTimerLoader.TryLoadHots();
+            DotTimerLoader.TryLoadDots();
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
@@ -204,6 +205,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             savedTimerSources = savedTimerSources.OrderBy(s => s).ToList();
             savedTimerSources.SwapItems(0, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "Shared")));
             savedTimerSources.SwapItems(1, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "HOTS")));
+            savedTimerSources.SwapItems(2, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "DOTS")));
 
             DisciplineTimersList = savedTimerSources;
             OnPropertyChanged("DisciplineTimersList");
@@ -230,6 +232,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (timer == null)
                 return;
             timer.IsEnabled = true;
+            timer.TimerSource = selectedTimerSource;
             NewTimer(timer, false);
         }
 
@@ -253,8 +256,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             newTimer.ShareRequested += Share;
             newTimer.DeleteRequested += Delete;
             TimerRows.Add(newTimer);
-            _disciplineTimersWindow.RefreshTimers();
-            _alertTimersWindow.RefreshTimers();
+            TimerController.RefreshAvailableTimers();
             UpdateRowColors();
         }
         private void SaveNewTimer(Timer timer)
@@ -310,8 +312,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             DefaultTimersManager.RemoveTimerForCharacter(obj.SourceTimer, SelectedTimerSource);
             TimerRows.Remove(obj);
-            _disciplineTimersWindow.RefreshTimers();
-            _alertTimersWindow.RefreshTimers();
+            TimerController.RefreshAvailableTimers();
             UpdateRowColors();
         }
 
@@ -344,8 +345,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void ActiveChanged(TimerRowInstanceViewModel timerRow)
         {
             DefaultTimersManager.SetTimerEnabled(timerRow.IsEnabled, timerRow.SourceTimer);
-            _disciplineTimersWindow.EnabledChangedForTimer(timerRow.IsEnabled, timerRow.SourceTimer.Id);
-            _alertTimersWindow.EnabledChangedForTimer(timerRow.IsEnabled, timerRow.SourceTimer.Id);
+            TimerController.RefreshAvailableTimers();
         }
         private void UpdateRowColors()
         {

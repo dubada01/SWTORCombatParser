@@ -12,7 +12,11 @@ namespace SWTORCombatParser.DataStructures
         EffectGained,
         EffectLost,
         TimerExpired,
-        TargetChanged
+        TargetChanged,
+        DamageTaken,
+        HasEffect,
+        And,
+        Or
     }
     public class Timer
     {
@@ -45,16 +49,22 @@ namespace SWTORCombatParser.DataStructures
         public bool CanBeRefreshed { get; set; }
         public List<string> AbilitiesThatRefresh { get; set; } = new List<string>();
         public bool IsAlert { get; set; }
+        public string AlertText { get; set; }
         public double AlertDuration { get; set; }
         public double DurationSec { get; set; }
         public double HideUntilSec { get; set; }
         public Color TimerColor { get; set; }
         public bool UseAudio { get; set; }
+        public string CustomAudioPath { get; set; }
+        public int AudioStartTime { get; set; } = 4;
         public string SpecificBoss { get; set; }
         public string SpecificEncounter { get; set; }
         public string SpecificDifficulty {get;set;}
         public bool IsHot { get; set; }
+        public bool IsBuiltInDot { get; set; }
         public bool IsMechanic { get; set; }
+        public Timer Clause1 { get; set; }
+        public Timer Clause2 { get; set; }
         public Timer Copy()
         {
             return new Timer()
@@ -75,6 +85,7 @@ namespace SWTORCombatParser.DataStructures
                 IsPeriodic = IsPeriodic,
                 Repeats = Repeats,
                 IsAlert = IsAlert,
+                AlertText = AlertText,
                 DurationSec = DurationSec,
                 TimerColor = TimerColor,
                 SpecificBoss = SpecificBoss,
@@ -88,7 +99,11 @@ namespace SWTORCombatParser.DataStructures
                 IsHot = IsHot,
                 IsMechanic = IsMechanic,
                 HideUntilSec = HideUntilSec,
-                UseAudio = UseAudio
+                UseAudio = UseAudio,
+                CustomAudioPath = CustomAudioPath,
+                AudioStartTime= AudioStartTime,
+                Clause1 = Clause1,
+                Clause2 = Clause2
             };
         }
     }
