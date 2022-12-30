@@ -36,21 +36,17 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool overlaysLocked = true;
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
-        private RaidHotsConfigViewModel _raidHotsConfigViewModel;
-        private AllPvPOverlaysViewModel _PvpOverlaysConfigViewModel;
-        private BossFrameConfigViewModel _bossFrameViewModel;
-        private RoomOverlayViewModel _roomOverlayViewModel;
+        private OthersOverlaySetupViewModel _otherOverlayViewModel;
         private double maxScalar = 1.5d;
         private double minScalar = 0.5d;
         private double sizeScalar = 1d;
         private string sizeScalarString ="1";
         private bool historicalParseFinished = false;
         public event Action OverlayLockStateChanged = delegate{};
-        public PvpOverlaySetup PvpOverlays { get; set; }
-        public RaidHOTsSteup RaidHotsConfig { get; set; }
+
         public TimersCreationView TimersView { get; set; }
-        public BossFrameSetup BossFrameView { get; set; }
-        public RoomSetup RoomOverlaySetup { get; set; }
+        public OtherOverlaySetupView OthersSetupView { get; set; }
+
         public ObservableCollection<OverlayType> AvailableDamageOverlays { get; set; } = new ObservableCollection<OverlayType>();
         public ObservableCollection<OverlayType> AvailableHealOverlays { get; set; } = new ObservableCollection<OverlayType>();
         public ObservableCollection<OverlayType> AvailableMitigationOverlays { get; set; } = new ObservableCollection<OverlayType>();
@@ -122,29 +118,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 if (enumVal == OverlayType.APM || enumVal == OverlayType.InterruptCount || enumVal == OverlayType.ThreatPerSecond || enumVal == OverlayType.Threat)
                     AvailableGeneralOverlays.Add(enumVal);
             }
-            _bossFrameViewModel = new BossFrameConfigViewModel();
-            BossFrameView = new BossFrameSetup(_bossFrameViewModel);
-
-            _roomOverlayViewModel = new RoomOverlayViewModel();
-            RoomOverlaySetup = new RoomSetup(_roomOverlayViewModel);
-
             TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
             TimersView.DataContext = _timersViewModel;
 
-            RaidHotsConfig = new RaidHOTsSteup();
-            _raidHotsConfigViewModel = new RaidHotsConfigViewModel();
-            _raidHotsConfigViewModel.EnabledChanged += RaidHotsEnabledChanged;
-            RaidHotsConfig.DataContext = _raidHotsConfigViewModel;
-
-            PvpOverlays = new PvpOverlaySetup();
-            _PvpOverlaysConfigViewModel = new AllPvPOverlaysViewModel();
-            PvpOverlays.DataContext = _PvpOverlaysConfigViewModel;
-
-
-            OnPropertyChanged("RaidHotsConfig");
-            OnPropertyChanged("TimersView");
-            OnPropertyChanged("RoomOverlaySetup");
+            _otherOverlayViewModel = new OthersOverlaySetupViewModel();
+            OthersSetupView = new OtherOverlaySetupView();
+            OthersSetupView.DataContext = _otherOverlayViewModel;
         }
 
         private void UpdateOverlaysForDiscipline(Entity character, SWTORClass arg2)
@@ -199,10 +179,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             historicalParseFinished = false;
         }
-        private void RaidHotsEnabledChanged(bool obj)
-        {
-
-        }
 
         public ICommand GenerateOverlay => new CommandHandler(CreateOverlay);
 
@@ -241,7 +217,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public void HideOverlays()
         {
             ResetOverlays();
-            _raidHotsConfigViewModel.HideRaidHots();
+            _otherOverlayViewModel.HideAll();
         }
         public void ResetOverlays()
         {
@@ -262,15 +238,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _timersViewModel.UpdateLock(value);
                 if (overlaysLocked)
                 {
-                    _bossFrameViewModel.LockOverlays();
-                    _roomOverlayViewModel.LockOverlays();
-                    _PvpOverlaysConfigViewModel.LockOverlays();
+                    _otherOverlayViewModel.UpdateLock(overlaysLocked);
                 }
                 else
                 {
-                    _bossFrameViewModel.UnlockOverlays();
-                    _roomOverlayViewModel.UnlockOverlays();
-                    _PvpOverlaysConfigViewModel.UnlockOverlays();
+                    _otherOverlayViewModel.UpdateLock(overlaysLocked);
                 }
                     
                 ToggleOverlayLock();
@@ -285,7 +257,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _currentOverlays.ForEach(o => o.UnlockOverlays());
             else
                 _currentOverlays.ForEach(o => o.LockOverlays());
-            _raidHotsConfigViewModel.ToggleLock(OverlaysLocked);
             DefaultCharacterOverlays.SetLockedStateCharacter(OverlaysLocked, _currentCharacterDiscipline);
         }
 
@@ -294,18 +265,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        //internal void LocalPlayerIdentified(Entity localPlayer)
-        //{
-        //    if (localPlayer != null && _currentCharacterDiscipline != localPlayer.Name)
-        //    {
-        //        CharacterLoaded(localPlayer);
-        //        _currentOverlays.ForEach(o => o.CharacterDetected(localPlayer.Name));
-        //    }
-        //}
 
         internal void LiveParseStarted(bool state)
         {
-            _raidHotsConfigViewModel.LiveParseActive(state);
+            _otherOverlayViewModel.UpdateLiveParse(state);
         }
     }
 }

@@ -17,13 +17,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         public Timer SourceTimer { get; set; } = new Timer();
         public bool IsHOT => SourceTimer.IsHot;
         public bool IsMechanic => SourceTimer.IsMechanic;
-        public bool CanEdit => !IsHOT;
+        public bool CanEdit => !IsHOT && !SourceTimer.IsBuiltInDot;
         public bool IsEnabled
         {
-            get
-            {
-                return _isEnabled;
-            }
+            get => _isEnabled;
             set
             {
                 _isEnabled = value;

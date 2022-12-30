@@ -17,6 +17,10 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
+using DateTime = System.DateTime;
 
 namespace SWTORCombatParser.Views.Overlay.PvP
 {
@@ -25,7 +29,8 @@ namespace SWTORCombatParser.Views.Overlay.PvP
     /// </summary>
     public partial class MiniMapView : Window
     {
-        private List<OpponentMapIcon> opponentImages => new List<OpponentMapIcon> { Op1, Op2, Op3, Op4, Op5, Op6, Op7, Op8 };
+        private MapInfo _currentMapInfo;
+        private List<OpponentMapIcon> opponentImages => new List<OpponentMapIcon> { Op1, Op2, Op3, Op4, Op5, Op6, Op7, Op8,Op9,Op10,Op11,Op12,Op13,Op14,Op15,Op16 };
         private MiniMapViewModel viewModel;
         public MiniMapView(MiniMapViewModel vm)
         {
@@ -36,7 +41,7 @@ namespace SWTORCombatParser.Views.Overlay.PvP
     new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;
             vm.OnLocking += makeTransparent;
-
+            HideAllOpponents();
             Loaded += OnLoaded;
         }
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -66,7 +71,7 @@ namespace SWTORCombatParser.Views.Overlay.PvP
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
-                    BackgroundArea.Opacity = 0.1f;
+                    BackgroundArea.Opacity = 0.05f;
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                     SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
                 }
@@ -140,86 +145,69 @@ namespace SWTORCombatParser.Views.Overlay.PvP
         {
             viewModel.OverlayEnabled = false;
         }
-        internal void UpdateCharacter(double facing)
+
+        private void UpdateIconPosition(double xFraction, double yFraction, double facing, OpponentMapInfo opponent,int opponentIndex)
         {
             Dispatcher.Invoke(() => {
+                var icon = opponent.IsLocalPlayer ? CharImage : opponentImages[opponentIndex];
+                icon.Icon.Source = new BitmapImage(GetUriFromMenaceType(opponent.IsEnemy,opponent.IsTarget,opponent.IsLocalPlayer));
+                icon.SelectionAdornment.Visibility = opponent.IsTarget ? Visibility.Visible : Visibility.Hidden;
+
+                //icon.PlayerName.Text = opponent.Name;
+                icon.Visibility = Visibility.Visible;
+                
                 var imageLocation = GetBoundingBox(Arena, ImageCanvas);
-                Point characterLocation = new Point((imageLocation.Width * .5) + imageLocation.X, (imageLocation.Height * .5) + imageLocation.Y);
-                CharImage.Height = imageLocation.Width * 0.1;
-                CharImage.Width = imageLocation.Width * 0.1;
-                Canvas.SetLeft(CharImage, characterLocation.X - (CharImage.Width / 2));
-                Canvas.SetTop(CharImage, characterLocation.Y - (CharImage.Height / 2));
 
-                //var Rotation = new RotateTransform(90, imageLocation.Width / 2, imageLocation.Height / 2);
-                //ImageCanvas.RenderTransform = Rotation;
+                var characterXposOverlay = imageLocation.Width * xFraction;
+                var characterYposOverlay = imageLocation.Height * yFraction;
 
-                var rotationTransform = new RotateTransform(facing * -1, CharImage.Width / 2, CharImage.Height / 2);
-                CharImage.RenderTransform = rotationTransform;
+                icon.Opacity = opponent.IsCurrentInfo ? 1 : 0.25;
+                Canvas.SetLeft(icon, characterXposOverlay - (icon.Width / 2));
+                Canvas.SetTop(icon, characterYposOverlay - (icon.Height / 2));
+
+                var rotationTransform = new RotateTransform(facing* -1, 0, 0);
+                icon.Icon.RenderTransform = rotationTransform;
             });
         }
-        
-        internal void AddOpponents(List<OpponentMapInfo> opponentInfos, PositionData localPosition, double range, int rangeBuffer)
-        {
+        internal void AddOpponents(List<OpponentMapInfo> opponentInfos,DateTime startTime)
+        {            
+            if (CombatIdentifier.CurrentCombat == null)
+                return;
+            var currentMap = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(startTime);
+            _currentMapInfo = currentMap.MapInfo;
+            var roomTop = _currentMapInfo.MinY;
+            var roomLeft = _currentMapInfo.MinX;
+            var roomWidth = _currentMapInfo.MaxX - _currentMapInfo.MinX;
+            var roomHeight = _currentMapInfo.MaxY - _currentMapInfo.MinY;
+            
             var opponentIndex = 0;
             HideAllOpponents();
-            Dispatcher.Invoke(() => {
-                var imageLocation = GetBoundingBox(Arena, ImageCanvas);
-
-                var doubleRange = range * 2;
-
-                var imageWidthGameUnits = Math.Max(100, doubleRange + rangeBuffer);
-                var imageHeightGameUnits = Math.Max(100, doubleRange + rangeBuffer);
-                RangeIndicator.Width =imageLocation.Width * (doubleRange / imageWidthGameUnits);
-                RangeIndicator.Height =imageLocation.Height * (doubleRange / imageHeightGameUnits);
-                Canvas.SetLeft(RangeIndicator, imageLocation.Width / 2 - (RangeIndicator.Width / 2));
-                Canvas.SetTop(RangeIndicator, imageLocation.Height / 2 - (RangeIndicator.Height / 2));
-                foreach (var opponent in opponentInfos) {
-                    var img = opponentImages[opponentIndex];
-                    img.Icon.Source = new BitmapImage(GetUriFromMenaceType(opponent.Menace));
-                    img.SelectionAdornment.Visibility = opponent.IsTarget ? Visibility.Visible : Visibility.Hidden;
-
-                    img.PlayerName.Text = opponent.Name;
-                    img.Visibility = Visibility.Visible;
-                    
-
-                    var trueXDistance = opponent.Position.X- localPosition.X;
-                    var trueYDistance = opponent.Position.Y - localPosition.Y;
-
-                    var xFraction = trueXDistance / imageWidthGameUnits;
-                    var yFraction = trueYDistance / imageHeightGameUnits;
-
-                    
-                    Point characterLocation = new Point((imageLocation.Width * xFraction) + imageLocation.Width/2, (imageLocation.Height * yFraction) + imageLocation.Height/2);
-                    characterLocation.X = Math.Max(0,Math.Min(characterLocation.X, imageLocation.Width));
-                    characterLocation.Y = Math.Max(0,Math.Min(characterLocation.Y, imageLocation.Height));
-                    img.Height = imageLocation.Height * 0.1;
-                    img.Width = img.Height;
-                    Canvas.SetLeft(img, characterLocation.X - (img.Width / 2));
-                    Canvas.SetTop(img, characterLocation.Y - (img.Width / 2));
-
-                    //var Rotation = new RotateTransform(90, imageLocation.Width / 2, imageLocation.Height / 2);
-                    //ImageCanvas.RenderTransform = Rotation;
-
-                    var rotationTransform = new RotateTransform(opponent.Position.Facing * -1, 0, 0);
-                    img.Icon.RenderTransform = rotationTransform;
-                    opponentIndex++;
-                }
-            });
+            foreach (var opponent in opponentInfos.Where(o=>o.IsEnemy != EnemyState.Friend && !o.IsLocalPlayer))
+            {            
+                var xFraction = (opponent.Position.X - roomLeft) / roomWidth;
+                var yFraction = (opponent.Position.Y - roomTop) / roomHeight;
+                UpdateIconPosition(xFraction,yFraction,opponent.Position.Facing,opponent,opponentIndex);
+                opponentIndex++;
+            }
         }
 
-        private Uri GetUriFromMenaceType(MenaceTypes menace)
+        private Uri GetUriFromMenaceType(EnemyState isEnemy, bool isTaget, bool isLocalPlayer)
         {
-            if (menace == MenaceTypes.None)
-                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/OpponentLocation.png"));
-            if (menace == MenaceTypes.Dps)
-                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/DamageMenaceOpponentLocation.png"));
-            if (menace == MenaceTypes.Healer)
-                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/HealMenaceOpponentLocation.png"));
-            return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/OpponentLocation.png"));
+            if(isLocalPlayer)
+                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/PlayerLocation.png"));
+            if (isEnemy == EnemyState.Enemy)
+            {
+                return isTaget ? 
+                    new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/TargetedEnemyLocation.png")) : 
+                    new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/EnemyLocation.png"));
+            }
+               
+            return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/UnknownPlayerLocation.png"));
         }
 
         private void HideAllOpponents()
         {
+            CharImage.Visibility = Visibility.Hidden;
             opponentImages.ForEach(o => o.Visibility = Visibility.Hidden);
         }
         private static Rect GetBoundingBox(FrameworkElement child, FrameworkElement parent)

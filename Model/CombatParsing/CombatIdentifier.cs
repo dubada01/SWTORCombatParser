@@ -101,9 +101,9 @@ namespace SWTORCombatParser.Model.CombatParsing
             //    if (isRealtime)
             //        EncounterTimerTrigger.FirePvpEncounterDetected();
             //}
-            if (newCombat.Targets.Any(t => t.Name.Contains("Training Dummy")))
+            if (newCombat.Targets.Any(t => t.LogId == 2857785339412480))
             {
-                newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Unknown", NumberOfPlayer = "1",EncounterType = EncounterType.Parsing, BossNames = new List<string> { "Warzone Training Dummy", "Operations Training Dummy" } };
+                newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Parsing", NumberOfPlayer = "1",EncounterType = EncounterType.Parsing, BossIds = new Dictionary<string, Dictionary<string, List<long>>>() {{"Training Dummy",new Dictionary<string, List<long>>(){{"Parsing 1",new List<long>{2857785339412480}}}} } };
                 newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
                 newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, newCombat.ParentEncounter);
             }
@@ -145,9 +145,9 @@ namespace SWTORCombatParser.Model.CombatParsing
             var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && !string.IsNullOrEmpty(l.Target.Name) && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
             if (currentEncounter.Name.Contains("Open World"))
             {
-                if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.Name.Contains("Training Dummy")))
+                if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.LogId == 2857785339412480))
                 {
-                    var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.Name.Contains("Training Dummy"));
+                    var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.LogId == 2857785339412480);
                     var dummyMaxHP = dummyTarget.MaxHP;
                     currentEncounter.Difficutly = dummyMaxHP.ToString();
                     return (dummyTarget.Entity.Name, dummyMaxHP + "HP", "");

@@ -81,7 +81,7 @@
         <Setter Property="ScrollViewer.CanContentScroll"
           Value="true" />
         <Setter Property="MinWidth"
-          Value="120" />
+          Value="80" />
         <Setter Property="MinHeight"
           Value="20" />
         <Setter Property="FontSize"

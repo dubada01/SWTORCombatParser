@@ -13,8 +13,17 @@ using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
+    public enum EnemyState
+    {
+        Unknown,
+        Enemy,
+        Friend
+    }
     public class OpponentMapInfo
     {
+        public EnemyState IsEnemy { get; set; }
+        public bool IsCurrentInfo { get; set; }
+        public bool IsLocalPlayer { get; set; }
         public string Name { get; set; }
         public MenaceTypes Menace { get; set; }
         public PositionData Position { get; set; }
@@ -46,7 +55,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             SetInitialPosition();
         }
         public event Action<string, bool> OverlayStateChanged = delegate { };
-        public List<OpponentMapInfo> OpponentPositionInfo { get; set; } = new List<OpponentMapInfo>();
+        public List<OpponentMapInfo> CharacterPositionInfos { get; set; } = new List<OpponentMapInfo>();
         private void OnPvpCombatStarted()
         {
             if (!OverlayEnabled || _isTriggered)
@@ -58,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 {
                     ShowFrame = true;
                     _mostRecentCombat = null;
-                    OpponentPositionInfo.Clear();
+                    CharacterPositionInfos.Clear();
                     _lastUpdatedPlayer.Clear();
                     OnPropertyChanged("ShowFrame");
                     _dTimer.Start();
@@ -75,7 +84,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
             _isTriggered = false;
             _mostRecentCombat = null;
-            OpponentPositionInfo.Clear();
+            CharacterPositionInfos.Clear();
             _lastUpdatedPlayer.Clear();
             App.Current.Dispatcher.Invoke(() =>
             {
@@ -113,7 +122,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 OnPropertyChanged();
             }
         }
-        public string CharImagePath => "../../../resources/RoomOverlays/PlayerLocation.png";
         public event Action<bool> OnLocking = delegate { };
         public bool OverlaysMoveable { get; set; }
         public bool ShowFrame { get; set; }
@@ -137,47 +145,42 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         private void NewStreamedLine(ParsedLogEntry newLine)
         {
-            if (_mostRecentCombat == null)
-                return;
             _lastUpdate = newLine.TimeStamp;
-            if (newLine.Source == newLine.Target && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.IsCharacter)
+            if (newLine.Source.Name != null && newLine.Source.IsCharacter)
             {
                 AddOrUpdateEntity(newLine.SourceInfo);
-                return;
             }
-            if(CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.Name != null && newLine.Source.IsCharacter)
-            {
-                AddOrUpdateEntity(newLine.SourceInfo);
-                return;
-            }
-            if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Target, newLine.TimeStamp) && newLine.Target.Name != null && newLine.Target.IsCharacter)
+            if (newLine.Target.Name != null && newLine.Target.IsCharacter)
             {
                 AddOrUpdateEntity(newLine.TargetInfo);
-                return;
             }
         }
         private void AddOrUpdateEntity(EntityInfo info)
         {
             _lastUpdatedPlayer[info.Entity.Name] = _lastUpdate;
-            if (OpponentPositionInfo.Any(p=>p.Name == info.Entity.Name))
+            if (CharacterPositionInfos.Any(p=>p.Name == info.Entity.Name))
             {
-                var update = OpponentPositionInfo.First(p => p.Name == info.Entity.Name);
+                var update = CharacterPositionInfos.First(p => p.Name == info.Entity.Name);
                 update.Position = info.Position;
                 update.Menace = GetMenaceType(info.Entity.Name);
                 update.IsTarget = IsCurrentTarget(info.Entity.Name);
+                update.IsEnemy = _mostRecentCombat == null ? EnemyState.Unknown : (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(info.Entity,_lastUpdate) ? EnemyState.Enemy : EnemyState.Friend);
             }
             else
             {
-                if(OpponentPositionInfo.Count == 8)
+                if(CharacterPositionInfos.Count == 16)
                 {
-                    OpponentPositionInfo.Remove(OpponentPositionInfo.MinBy(p => _lastUpdatedPlayer[p.Name]));
+                    CharacterPositionInfos.Remove(CharacterPositionInfos.MinBy(p => _lastUpdatedPlayer[p.Name]));
                 }
-                OpponentPositionInfo.Add(new OpponentMapInfo
+                CharacterPositionInfos.Add(new OpponentMapInfo
                 {
                     Position = info.Position,
                     Name = info.Entity.Name,
                     Menace = GetMenaceType(info.Entity.Name),
-                    IsTarget = IsCurrentTarget(info.Entity.Name)
+                    IsTarget = IsCurrentTarget(info.Entity.Name),
+                    IsLocalPlayer = info.Entity.IsLocalPlayer,
+                    IsEnemy = _mostRecentCombat == null ? EnemyState.Unknown : (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(info.Entity,_lastUpdate) ? EnemyState.Enemy : EnemyState.Friend)
+                    
                 });
             }
             
@@ -187,13 +190,19 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _mostRecentCombat = currentCombat;
         }
 
-
+        private bool IsCurrentInfo(string opponentKey)
+        {
+            var lastInfoTime = _lastUpdatedPlayer[opponentKey];
+            return (DateTime.Now - lastInfoTime).TotalSeconds < 5;
+        }
 
         private void CheckForNewState(object sender, EventArgs e)
         {
-            var localInfo = CombatLogStateBuilder.CurrentState.CurrentLocalCharacterPosition;
-            _miniMapView.UpdateCharacter(localInfo.Facing);
-            _miniMapView.AddOpponents(OpponentPositionInfo.ToList(), localInfo, GetLocalPlayerRange(), Buffer);
+            if (_lastUpdatedPlayer.Count == 0)
+                return;
+            var positionInfo = CharacterPositionInfos.ToList();
+            positionInfo.ForEach(p=>p.IsCurrentInfo = IsCurrentInfo(p.Name));
+            _miniMapView.AddOpponents(positionInfo,_lastUpdatedPlayer.MaxBy(kvp=>kvp.Value).Value);
         }
 
         private MenaceTypes GetMenaceType(string key)

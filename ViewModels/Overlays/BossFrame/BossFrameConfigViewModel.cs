@@ -140,6 +140,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 return;
             var logs = update.Logs;
             var bossInfos = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp);
+            if (bossInfos.BossNames.Count == 0)
+                return;
             var currentEncounterBossTargets = EncounterLister.GetAllTargetsForEncounter(bossInfos.Name);
             if (currentEncounterBossTargets == null)
                 return;

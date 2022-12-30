@@ -92,14 +92,14 @@ namespace SWTORCombatParser.Model.CombatParsing
                         _bossesSeenThisCombat.Add(line.Source.LogId.ToString());
                 }
             }
-            if(line.Effect.EffectId == _7_0LogParsing._damageEffectId && line.Target.Name.Contains("Training Dummy"))
+            if(line.Effect.EffectId == _7_0LogParsing._damageEffectId && line.Target.LogId == 2857785339412480)
             {
                 if (!_bossesSeenThisCombat.Contains(line.Target.LogId.ToString()))
                     _bossesSeenThisCombat.Add(line.Target.LogId.ToString());
             }
             if(_bossesSeenThisCombat.Count > 0)
             {
-                if(_bossesSeenThisCombat.Any(b=>b.Contains("Training Dummy")))
+                if(_bossesSeenThisCombat.Any(b=>b == "2857785339412480"))
                 {
                     _currentBossInfo = new BossInfo() { EncounterName = "Parsing", TargetIds = new List<string> { _bossesSeenThisCombat.First() } };
                     _bossCombat = true;
@@ -140,7 +140,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && (_currentBossInfo.EncounterName!="Dread Master Styrak" || _currentBossInfo.EncounterName == "Dread Master Calphayus") &&  InCombat)
             {
-                var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.Id.ToString());
+                var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.LogId.ToString());
                 if (bossKilled)
                 {
                     _bossesKilledThisCombat.Add(line.Target.LogId.ToString());

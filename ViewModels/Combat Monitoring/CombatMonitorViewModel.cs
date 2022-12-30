@@ -33,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private bool _usingHistoricalData = true;
         private object combatAddLock = new object();
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
-
+        private bool _stubLogs;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
@@ -41,6 +41,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public event Action<Combat> OnCombatUnselected = delegate { };
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
         public event Action<Combat> LiveCombatFinished = delegate { };
+        public event Action<double> OnNewLogTimeOffsetMs = delegate { };
         public event Action<string> OnNewLog = delegate { };
         public event Action<Entity> LocalPlayerId = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
@@ -71,18 +72,26 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         public CombatMonitorViewModel()
         {
+            _stubLogs = Settings.ReadSettingOfType<bool>("stub_logs");
             HistoricalRange = new HistoricalRangeWiget();
             _historicalRangeVM = new HistoricalRangeSelectionViewModel();
             _historicalRangeVM.HistoricalCombatsParsed += OnNewHistoricalCombats;
             HistoricalRange.DataContext = _historicalRangeVM;
 
             _combatLogStreamer = new CombatLogStreamer();
+            _combatLogStreamer.NewLogTimeOffsetMs += UpdateLogOffset;
             _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
             CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
                 manager => CombatLogStreamer.CombatUpdated += manager,
                 manager => CombatLogStreamer.CombatUpdated -= manager).Subscribe(update => NewCombatStatusAlert(update));
         }
+
+        private void UpdateLogOffset(double offset)
+        {
+            OnNewLogTimeOffsetMs(offset);
+        }
+
         private void OnNewHistoricalCombats(List<Combat> historicalCombats)
         {
             OnHistoricalCombatsParsed(historicalCombats);
@@ -148,14 +157,13 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             });
         }
 
-        private bool _useTestLog = true;
         private void MonitorMostRecentLog(bool runningInBackground)
         {
             if(!runningInBackground)
                 LoadingWindowFactory.ShowLoading();
             OnMonitoringStateChanged(true);
             var mostRecentLog = "";
-            if (_useTestLog)
+            if (_stubLogs)
             {
 #if DEBUG
                 mostRecentLog = Path.Join(_logPath, "test.txt");
@@ -172,7 +180,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             }
             _combatLogStreamer.MonitorLog(mostRecentLog);
             OnNewLog("Started Monitoring: " + mostRecentLog);
-            if (_useTestLog)
+            if (_stubLogs)
             {
 #if DEBUG
                 Task.Run(() =>
@@ -200,7 +208,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     {
                         while (!reader.EndOfStream)
                         {
-                            var numberOfLines = new Random().Next(20, 50);
+                            var numberOfLines = new Random().Next(85, 150);
                             List<string> lines = new List<string>();
                             for (int i = 0; i < numberOfLines; i++)
                             {

@@ -56,12 +56,15 @@ namespace SWTORCombatParser.Model.LogParsing
             if (encounterInfos.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)) || encounterInfos.Select(r=>r.LogId).Any(ln=>log.LogLocationId == ln && !string.IsNullOrEmpty(ln)))
             {
                 var raidOfInterest = encounterInfos.First(r => log.LogLocation.Contains(r.LogName) || log.LogLocationId == r.LogId);
-                var intendedDifficulty = EncounterLoader.GetLeaderboardFriendlyDifficulty(log.LogLocation);
-                if (intendedDifficulty == null)
-                    return;
-                raidOfInterest.Difficutly = intendedDifficulty ?? "Story";
-                var indendedNumberOfPlayers = EncounterLoader.GetLeaderboardFriendlyPlayers(log.LogLocation);
-                raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers ?? "4";
+                if (!raidOfInterest.IsPvpEncounter)
+                {
+                    var intendedDifficulty = EncounterLoader.GetLeaderboardFriendlyDifficulty(log.LogDifficultyId);
+                    if (string.IsNullOrEmpty(intendedDifficulty))
+                        return;
+                    raidOfInterest.Difficutly = intendedDifficulty;
+                    var indendedNumberOfPlayers = EncounterLoader.GetLeaderboardFriendlyPlayers(log.LogDifficultyId);
+                    raidOfInterest.NumberOfPlayer = string.IsNullOrEmpty(indendedNumberOfPlayers) ? "4" : indendedNumberOfPlayers;
+                }
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
                 if (liveLog)
                 {

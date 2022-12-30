@@ -11,7 +11,6 @@
             <RowDefinition Height="50"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Button Style="{StaticResource RoundCornerButton}" Width="40" Height="40" Content="♲" Background="{StaticResource Gray5Brush}" Opacity="0.5" Foreground="WhiteSmoke" FontSize="25" HorizontalAlignment="Right" Command="{Binding RefreshLayoutCommand}"></Button>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding RaidHotCells}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>

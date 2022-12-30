@@ -4,8 +4,11 @@ using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatParsing;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
@@ -18,6 +21,7 @@ namespace SWTORCombatParser.Model.Timers
         public event Action<TimerInstanceViewModel> TimerOfTypeExpired = delegate { };
         public Timer SourceTimer;
         private readonly Dictionary<Guid,TimerInstanceViewModel> _activeTimerInstancesForTimer = new Dictionary<Guid,TimerInstanceViewModel>();
+        private (string, string, string) _currentBossInfo;
         public bool TrackOutsideOfCombat { get; set; }
         public bool IsEnabled { get; set; }
         public string ExperiationTimerId { get; set; }
@@ -35,6 +39,7 @@ namespace SWTORCombatParser.Model.Timers
             ExperiationTimerId = sourceTimer.ExperiationTimerId;
             IsEnabled = sourceTimer.IsEnabled;
             TrackOutsideOfCombat = sourceTimer.TrackOutsideOfCombat;
+            CombatIdentifier.NewCombatAvailable += UpdateBossInfo;
         }
 
         public void Cancel()
@@ -59,12 +64,14 @@ namespace SWTORCombatParser.Model.Timers
         }
 
         public void CheckForTrigger(ParsedLogEntry log, DateTime startTime)
-        {
+        {            
+            var currentDiscipline =
+                CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(log.TimeStamp).Discipline;
             if (SourceTimer.Name.Contains("Other's") &&
-                !(CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(log.TimeStamp).Discipline ==
-                  "Bodyguard" ||
-                  CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(log.TimeStamp).Discipline ==
-                  "Combat Medic"))
+                currentDiscipline is not ("Bodyguard" or "Combat Medic"))
+                return;
+            if (SourceTimer.IsMechanic && !CheckEncounterAndBoss(this,
+                    CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp)))
                 return;
             TriggerType wasTriggered = TriggerType.None;
             if (!IsEnabled || _isCancelled)
@@ -72,6 +79,7 @@ namespace SWTORCombatParser.Model.Timers
             var targetAdendum = "";
             long targetId = 0;
             double currentHP = 100;
+
             switch (SourceTimer.TriggerType)
             {
                 case TimerKeyType.CombatStart:
@@ -145,14 +153,22 @@ namespace SWTORCombatParser.Model.Timers
                     wasTriggered = TriggerDetection.CheckForTargetChange(log, SourceTimer.Source,
                         SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal,
                         SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal);
+                    break;                
+                case TimerKeyType.DamageTaken:
+                    wasTriggered = TriggerDetection.CheckForDamageTaken(log, SourceTimer.Source,
+                        SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal, SourceTimer.Ability);
+                    break;
+                case TimerKeyType.HasEffect:
+                    wasTriggered = TriggerDetection.CheckForHasEffect(log, SourceTimer.Target, SourceTimer.TargetIsLocal, SourceTimer.TargetIsAnyButLocal, SourceTimer.Effect);
                     break;
             }
 
             if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
             {
-
                 var timerToRestart = _activeTimerInstancesForTimer.FirstOrDefault(t => t.Value.TargetId == targetId)
                     .Value;
+
                 if (SourceTimer.IsHot && !CombatLogStateBuilder.CurrentState
                         .GetPlayerTargetAtTime(log.Source, log.TimeStamp).IsCharacter)
                 {
@@ -162,13 +178,13 @@ namespace SWTORCombatParser.Model.Timers
                 }
 
                 if (timerToRestart != null)
-                {
+                {                
+                    if (log.TimeStamp - timerToRestart.StartTime < TimeSpan.FromSeconds(1))
+                        return;
                     timerToRestart.Reset(log.TimeStamp);
                 }
                 else
                 {
-                    var currentTarget =
-                        CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp);
                     if (SourceTimer.IsHot && log.Target.IsCharacter)
                     {
                         var timerVm = CreateTimerInstance(log.TimeStamp, targetAdendum, targetId);
@@ -217,7 +233,25 @@ namespace SWTORCombatParser.Model.Timers
             }
 
         }
+        private void UpdateBossInfo(Combat obj)
+        {
+            if (obj != null && obj.IsCombatWithBoss)
+                _currentBossInfo = CombatIdentifier.CurrentCombat.EncounterBossDifficultyParts;
+            else
+                _currentBossInfo = ("", "", "");
+        }        
+        private bool CheckEncounterAndBoss(TimerInstance t, EncounterInfo encounter)
+        {
+            var timerEncounter = t.SourceTimer.SpecificEncounter;
+            var timerDifficulty = t.SourceTimer.SpecificDifficulty;
+            var timerBoss = t.SourceTimer.SpecificBoss;
+            if (timerEncounter == "All")
+                return true;
 
+            if (encounter.Name == timerEncounter && (encounter.Difficutly == timerDifficulty || timerDifficulty == "All") && _currentBossInfo.Item1 == timerBoss)
+                return true;
+            return false;
+        }
         private TimerInstanceViewModel CreateTimerInstance(DateTime timeStamp, string targetAdendum = "", long targetId = 0)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);

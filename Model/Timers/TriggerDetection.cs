@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 
@@ -45,22 +46,22 @@ namespace SWTORCombatParser.Model.Timers
             if (TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
             {
                 var targetHPPercent = (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP) * 100;
-                if (targetHPPercent <= (hPPercentage + hpDisplayBuffer) && targetHPPercent > hPPercentage)
-                    return TriggerType.Start;
                 if (targetHPPercent <= hPPercentage)
                     return TriggerType.End;
                 if (targetHPPercent > (hPPercentage + hpDisplayBuffer))
                     return TriggerType.End;
+                if (targetHPPercent <= (hPPercentage + hpDisplayBuffer) && targetHPPercent > hPPercentage)
+                    return TriggerType.Start;
             }
             if (SourceIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
             {
                 var sourceHPPercentage = (log.SourceInfo.CurrentHP / log.SourceInfo.MaxHP) * 100;
-                if (sourceHPPercentage <= (hPPercentage + hpDisplayBuffer) && sourceHPPercentage > hPPercentage)
-                    return TriggerType.Start;
                 if (sourceHPPercentage <= hPPercentage)
                     return TriggerType.End;
                 if (sourceHPPercentage > (hPPercentage + hpDisplayBuffer))
                     return TriggerType.End;
+                if (sourceHPPercentage <= (hPPercentage + hpDisplayBuffer) && sourceHPPercentage > hPPercentage)
+                    return TriggerType.Start;
             }
             return TriggerType.None;
         }
@@ -90,8 +91,11 @@ namespace SWTORCombatParser.Model.Timers
             }
             if (SourceIsValid(log, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
             {
-                if((log.Effect.EffectName == effect || log.Effect.EffectId == effect) && log.Effect.EffectType == EffectType.Apply)
+                if ((log.Effect.EffectName == effect || log.Effect.EffectId == effect) &&
+                    log.Effect.EffectType == EffectType.Apply)
+                {
                     return TriggerType.Start;
+                }
                 if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId)) && log.Effect.EffectType == EffectType.Event && (log.Ability == effect || log.AbilityId == effect))
                 {
                     return TriggerType.Refresh;
@@ -141,7 +145,7 @@ namespace SWTORCombatParser.Model.Timers
                 return true;
             if (source == "Any")
                 return true;
-            if (source == log.Source.Name || source == log.Source.Id.ToString())
+            if (source == log.Source.Name || source == log.Source.LogId.ToString())
                 return true;
             return false;
         }
@@ -153,7 +157,7 @@ namespace SWTORCombatParser.Model.Timers
                 return true;
             if (target == "Any")
                 return true;
-            if (target == log.Target.Name || target == log.Target.Id.ToString())
+            if (target == log.Target.Name || target == log.Target.LogId.ToString())
                 return true;
             return false;
         }
@@ -163,6 +167,37 @@ namespace SWTORCombatParser.Model.Timers
             if (log.Effect.EffectType == EffectType.TargetChanged && SourceIsValid(log, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal) && log.Effect.EffectId == _7_0LogParsing.TargetSetId)
             {
                 return TriggerType.Start;
+            }
+            return TriggerType.None;
+        }
+
+        public static TriggerType CheckForDamageTaken(ParsedLogEntry log,  string source, bool sourceIsLocal, string target, bool targetIsLocal, bool targetIsAnyButLocal, bool sourceIsAnyButLocal, string ability)
+        {
+            if (log.Effect.EffectType == EffectType.Apply && (log.Ability == ability || log.AbilityId == ability) && log.Effect.EffectId == _7_0LogParsing._damageEffectId && SourceIsValid(log, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            {
+                return TriggerType.Start;
+            }
+            return TriggerType.None;
+        }
+
+        public static TriggerType CheckForHasEffect(ParsedLogEntry log,string target, bool targetIsLocal, bool targetIsAnyButLocal, string sourceTimerEffect)
+        {
+            if (TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            {
+                var effectsActiveOnTarget =
+                    CombatLogStateBuilder.CurrentState.IsEffectOnPlayerAtTime(log.TimeStamp, log.Target,
+                        sourceTimerEffect);
+                if(effectsActiveOnTarget != null && effectsActiveOnTarget.Count > 0 && effectsActiveOnTarget.Any(e=>e.EffectName == sourceTimerEffect))
+                    return TriggerType.Start;
+                return TriggerType.End;
+            }           
+            if (SourceIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            {                var effectsActiveOnSource =
+                    CombatLogStateBuilder.CurrentState.IsEffectOnPlayerAtTime(log.TimeStamp, log.Source,
+                        sourceTimerEffect);
+                if(effectsActiveOnSource != null && effectsActiveOnSource.Count > 0 && effectsActiveOnSource.Any(e=>e.EffectName == sourceTimerEffect))
+                    return TriggerType.Start;
+                return TriggerType.End;
             }
             return TriggerType.None;
         }
