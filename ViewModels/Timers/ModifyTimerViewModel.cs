@@ -1039,8 +1039,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 case TimerKeyType.Or:
                 case TimerKeyType.And:
                 {
+                    CanChangeCombatTracking = true;
                     MultiClauseTrigger = true;
                     OnPropertyChanged("MultiClauseTrigger");
+                    OnPropertyChanged("CanChangeCombatTracking");
                     break;
                 }
             }

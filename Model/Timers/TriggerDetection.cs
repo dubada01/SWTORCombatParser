@@ -201,5 +201,65 @@ namespace SWTORCombatParser.Model.Timers
             }
             return TriggerType.None;
         }
+
+        public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime)
+        {
+            var condAStatus = CheckForTrigger(log, sourceTimer.Clause1, startTime);
+            var condBStatus = CheckForTrigger(log, sourceTimer.Clause2, startTime);
+            if (sourceTimerTriggerType == TimerKeyType.And)
+            {
+                return condAStatus == TriggerType.Start && condBStatus == TriggerType.Start ? TriggerType.Start : TriggerType.End;
+            }
+            if (sourceTimerTriggerType == TimerKeyType.Or)
+            {
+                return condAStatus == TriggerType.Start || condBStatus == TriggerType.Start ? TriggerType.Start : TriggerType.End;
+            }
+
+            return TriggerType.None;
+        }
+
+        private static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime)
+        {
+            switch (SourceTimer.TriggerType)
+            {
+                case TimerKeyType.CombatStart:
+                    return CheckForComabatStart(log);
+                    break;
+                case TimerKeyType.AbilityUsed:
+                    return CheckForAbilityUse(log, SourceTimer.Ability, SourceTimer.Source,
+                        SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal,
+                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.EffectGained:
+                    return CheckForEffectGain(log, SourceTimer.Effect,
+                        SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target,
+                        SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
+                        SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.EffectLost:
+                   return CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target,
+                        SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
+                        SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.EntityHP:
+                    return CheckForHP(log, SourceTimer.HPPercentage,
+                        SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.FightDuration:
+                    return CheckForFightDuration(log, SourceTimer.CombatTimeElapsed, startTime);
+                case TimerKeyType.TargetChanged:
+                    return CheckForTargetChange(log, SourceTimer.Source,
+                        SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.DamageTaken:
+                    return CheckForDamageTaken(log, SourceTimer.Source,
+                        SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal, SourceTimer.Ability);
+                case TimerKeyType.HasEffect:
+                    return CheckForHasEffect(log, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.TargetIsAnyButLocal, SourceTimer.Effect);
+                case TimerKeyType.And:
+                case TimerKeyType.Or:
+                    return CheckForDualEffect(SourceTimer,log, SourceTimer.TriggerType,startTime);
+            }
+            return TriggerType.None;
+        }
     }
 }
