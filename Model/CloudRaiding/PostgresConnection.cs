@@ -66,7 +66,17 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("DELETE FROM public.boss_leaderboards " +
-      $"WHERE boss_name = '{entry.Boss.MakePGSQLSafe()}' and encounter_name = '{entry.Encounter.MakePGSQLSafe()}' and player_name = '{entry.Character.MakePGSQLSafe()}' and player_class = '{entry.Class.MakePGSQLSafe()}' and value_type = '{entry.Type}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
+      $"WHERE boss_name = @p1 and encounter_name =  @p2 and player_name =  @p3 and player_class =  @p4 and value_type =  @p5 and software_version= @p6", connection){
+                               Parameters =
+                               {
+                                   new ("p1",entry.Boss),
+                                   new ("p2",entry.Encounter),
+                                   new ("p3",entry.Character),
+                                   new ("p4",entry.Class),
+                                   new ("p5",entry.Type.ToString()),
+                                   new ("p6",Leaderboards._leaderboardVersion),
+                               }
+                           })
                     {
                         return await cmd.ExecuteNonQueryAsync();
                     }
@@ -99,10 +109,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     {
                         Parameters =
                         {
-                            new ("p1",newEntry.Boss.MakePGSQLSafe()),
-                            new ("p2",newEntry.Encounter.MakePGSQLSafe()),
-                            new ("p3",newEntry.Character.MakePGSQLSafe()),
-                            new ("p4",newEntry.Class.MakePGSQLSafe()),
+                            new ("p1",newEntry.Boss),
+                            new ("p2",newEntry.Encounter),
+                            new ("p3",newEntry.Character),
+                            new ("p4",newEntry.Class),
                             new ("p5",newEntry.Value),
                             new ("p6",newEntry.Type.ToString()),
                             new ("p7",Leaderboards._leaderboardVersion),
@@ -150,7 +160,17 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_name = '{characterName.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
+                    $"WHERE boss_name = @p1 and encounter_name = @p2 and player_name = @p3 and player_class = @p4 and value_type = @p5 and software_version= @p6", connection){
+                               Parameters =
+                               {
+                                   new ("p1",bossName),
+                                   new ("p2",encounter),
+                                   new ("p3",characterName),
+                                   new ("p4",className),
+                                   new ("p5",entryType.ToString()),
+                                   new ("p6",Leaderboards._leaderboardVersion),
+                               }
+                           })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -171,20 +191,30 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossAndCharacterWithClassFromTime(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType, DateTime from)
         {
-            Trace.WriteLine("Removing duplicates from time: " + GetUTCTimeStamp(from).ToString(CultureInfo.InvariantCulture));
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and " +
-                    $"encounter_name = '{encounter.MakePGSQLSafe()}' and " +
-                    $"player_name = '{characterName.MakePGSQLSafe()}' and " +
-                    $"player_class = '{className.MakePGSQLSafe()}' and " +
-                    $"value_type = '{entryType}' and " +
-                    $"software_version = '{Leaderboards._leaderboardVersion}' and " +
-                    $"timestamp > '{GetUTCTimeStamp(from).ToString(CultureInfo.InvariantCulture)}'", connection))
+                    $"WHERE boss_name = @p1 and " +
+                    $"encounter_name = @p2 and " +
+                    $"player_name = @p3 and " +
+                    $"player_class = @p4 and " +
+                    $"value_type = @p5 and " +
+                    $"software_version = @p6 and " +
+                    $"timestamp > @p6::timestamp", connection){
+                               Parameters =
+                               {
+                                   new ("p1",bossName),
+                                   new ("p2",encounter),
+                                   new ("p3",characterName),
+                                   new ("p4",className),
+                                   new ("p5",entryType.ToString()),
+                                   new ("p6",Leaderboards._leaderboardVersion),
+                                   new ("p6",GetUTCTimeStamp(from).ToString("yyyy-MM-dd HH:00:00")),
+                               }
+                           })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -212,7 +242,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
+                    $"WHERE boss_name = @p1 and encounter_name = @p2 and player_class = @p3 and value_type = @p4 and software_version = @p5", connection){
+                               Parameters =
+                               {
+                                   new ("p1",bossName),
+                                   new ("p2",encounter),
+                                   new ("p3",className),
+                                   new ("p4",entryType.ToString()),
+                                   new ("p5",Leaderboards._leaderboardVersion),
+                               }
+                           })
                     {
 
                         var reader = cmd.ExecuteReader();
@@ -238,7 +277,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name ='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and player_class = '{className.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
+                                                       $"WHERE boss_name = @p1 and encounter_name = @p2 and player_class = @p3 and value_type = @p4 and software_version = @p5", connection){
+                               Parameters =
+                               {
+                                   new ("p1",bossName),
+                                   new ("p2",encounter),
+                                   new ("p3",className),
+                                   new ("p4",entryType.ToString()),
+                                   new ("p5",Leaderboards._leaderboardVersion),
+                               }
+                           })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -291,7 +339,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT distinct boss_name FROM public.boss_leaderboards " +
-                    $"WHERE encounter_name ='{encounter}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
+                    $"WHERE encounter_name = @p1 and software_version = @p2", connection){
+                               Parameters =
+                               {
+                                   new ("p1",encounter),
+                                   new ("p2",Leaderboards._leaderboardVersion),
+                               }
+                           })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -310,33 +364,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
             return bossesFound.ToList();
         }
-        public static List<LeaderboardEntry> GetEntriesForBossOfTypeNonAsync(string bossName, string encounter, LeaderboardEntryType entryType)
-        {
-            List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            try
-            {
-                using (NpgsqlConnection connection = ConnectToDB())
-                {
-                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
-                    {
-
-                        var reader = cmd.ExecuteReader();
-                        while (reader.Read())
-                        {
-                            entriesFound.Add(GetLightweightLeaderboardEntry(reader));
-                        }
-
-
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError(e.Message);
-            }
-            return entriesFound.DistinctBy(e => e.Value).ToList();
-        }
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossOfType(string bossName, string encounter, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
@@ -345,34 +372,15 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name='{bossName.MakePGSQLSafe()}' and encounter_name = '{encounter.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
-                    {
-
-                        var reader = await cmd.ExecuteReaderAsync();
-                        while (reader.Read())
-                        {
-                            entriesFound.Add(GetLightweightLeaderboardEntry(reader));
-                        }
-
-
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError(e.Message);
-            }
-            return entriesFound.DistinctBy(e => e.Value).ToList();
-        }
-        public static async Task<List<LeaderboardEntry>> GetEntriesForCharacterOfType(string playerName, LeaderboardEntryType entryType)
-        {
-            List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            try
-            {
-                using (NpgsqlConnection connection = ConnectToDB())
-                {
-                    using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE player_name ='{playerName.MakePGSQLSafe()}' and value_type = '{entryType}' and software_version='{Leaderboards._leaderboardVersion}'", connection))
+                    $"WHERE boss_name = @p1 and encounter_name = @p2 and value_type = @p3 and software_version = @p4", connection){
+                               Parameters =
+                               {
+                                   new ("p1",bossName),
+                                   new ("p2",encounter),
+                                   new ("p3",entryType.ToString()),
+                                   new ("p4",Leaderboards._leaderboardVersion),
+                               }
+                           })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -393,6 +401,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private static LeaderboardEntry GetLightweightLeaderboardEntry(NpgsqlDataReader reader)
         {
+            var encounterName = reader.GetString(5);
+            if (encounterName.Contains('"'))
+                encounterName = encounterName.Replace('"', '\'');
             return new LeaderboardEntry
             {
                 Boss = reader.GetString(0),
@@ -400,7 +411,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 Class = reader.GetString(2),
                 Value = reader.GetDouble(3),
                 Type = (LeaderboardEntryType)Enum.Parse(typeof(LeaderboardEntryType), reader.GetString(4)),
-                Encounter = reader.GetString(5),
+                Encounter = encounterName,
                 VerifiedKill = reader.GetBoolean(6),
                 TimeStamp = ((DateTime)reader.GetTimeStamp(7)), 
                 Duration = reader.GetInt32(8)

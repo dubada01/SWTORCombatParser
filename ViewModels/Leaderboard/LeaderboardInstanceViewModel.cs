@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.CloudRaiding;
+﻿using System.Collections.Generic;
+using SWTORCombatParser.Model.CloudRaiding;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         public event PropertyChangedEventHandler PropertyChanged;
         public string MetricName { get; set; }
 
-        public ObservableCollection<LeaderboardEntry> Leaders { get; set; } = new ObservableCollection<LeaderboardEntry>();
+        public List<LeaderboardEntry> Leaders { get; set; } = new List<LeaderboardEntry>();
         public LeaderboardInstanceViewModel(LeaderboardEntryType type)
         {
             _leaderboardType = type;
@@ -32,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         }
         public async void Populate(string encounter, string boss, string difficulty, string players, bool isParsing = false, long parsingHP = 0)
         {
-            Leaders.Clear();
+            var newLeaders = new List<LeaderboardEntry>();
             var isFlashpoint = string.IsNullOrEmpty(players);
             var playersString = isFlashpoint ? "4 " : players +" ";
             playersString = isParsing ? "" : playersString;
@@ -57,10 +58,12 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
                 {
                     backgroundColor= Brushes.DimGray;
                 }
-                    Leaders.Add(new LeaderboardEntry {Position = i+1,Player = entry.Character, Metric = entry.Value, Discipline = entry.Class, Duration = entry.Duration.ToString(),CombatTime = entry.TimeStamp.ToString(), RowBackground = backgroundColor });
+                newLeaders.Add(new LeaderboardEntry {Position = i+1,Player = entry.Character, Metric = entry.Value, Discipline = entry.Class, Duration = entry.Duration.ToString(),CombatTime = entry.TimeStamp.ToString(), RowBackground = backgroundColor });
 
 
             }
+
+            Leaders = newLeaders;
             OnPropertyChanged("Leaders");
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)

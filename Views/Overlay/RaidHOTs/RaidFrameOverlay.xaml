@@ -26,7 +26,21 @@
                             </Grid.RowDefinitions>
                             <TextBlock Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}" 
                                        IsHitTestVisible="False" Text="{Binding Name}" Background="Transparent" Foreground="WhiteSmoke"></TextBlock>
-                            <ItemsControl Grid.RowSpan="2" ItemsSource="{Binding RaidHotsOnPlayer}">
+                            <ItemsControl Visibility="{Binding UsingSubtleHOTView, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Grid.RowSpan="2" ItemsSource="{Binding RaidHotsOnPlayer}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <local:RaidHotInstance Height="23"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                            <ItemsControl Visibility="{Binding UsingSubtleHOTView, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.RowSpan="2" ItemsSource="{Binding RaidHotsOnPlayer}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>

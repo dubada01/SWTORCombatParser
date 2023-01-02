@@ -59,15 +59,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void CheckForRaidHOT(TimerInstanceViewModel obj)
         {
-            if (obj.SourceTimer.IsHot && CurrentNames.Any() && obj.TargetAddendem != null)
-            {
-                var playerName = obj.TargetAddendem.ToLower();
-                var maxMatchingCharacters = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, playerName));
-                //if (LevenshteinDistance.Compute(maxMatchingCharacters, playerName) > playerName.Count() / 2)
-                   // return;
-                var cellToUpdate = RaidHotCells.First(c => c.Name.ToLower() == maxMatchingCharacters);
-                cellToUpdate.AddTimer(obj);
-            }
+            if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null) return;
+            
+            var playerName = obj.TargetAddendem.ToLower();
+            var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, playerName));
+            if (LevenshteinDistance.Compute(bestMatch, playerName) > 4)
+                return;
+            var cellToUpdate = RaidHotCells.First(c => c.Name.ToLower() == bestMatch);
+            cellToUpdate.AddTimer(obj);
         }
         public void UpdateNames(List<PlacedName> orderedNames)
         {
@@ -111,10 +110,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
             else
             {
-                RaidHotCells.RemoveAll(v => !CurrentNames.Any(c=>c.Name.ToLower() == v.Name.ToLower()));
+                RaidHotCells.RemoveAll(v => CurrentNames.All(c => c.Name.ToLower() != v.Name.ToLower()));
                 foreach (var detectedName in CurrentNames)
                 {
-                    var cellForName = RaidHotCells.FirstOrDefault(c => c.Name.ToLower() == detectedName.Name.ToLower());
+                    var bestMatch = RaidHotCells.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), detectedName.Name.ToLower()));
+                    if (bestMatch!=null && LevenshteinDistance.Compute(bestMatch.Name.ToLower(), detectedName.Name.ToLower()) <= 3)
+                    {
+                        bestMatch.Column = detectedName.Column;
+                        bestMatch.Row = detectedName.Row;
+                    }
+                    else
+                    {
+                        RaidHotCells.Add(new RaidHotCell { Column = detectedName.Column, Row = detectedName.Row, Name = detectedName.Name });
+                    }
+                    /*var cellForName = RaidHotCells.FirstOrDefault(c => c.Name.ToLower() == detectedName.Name.ToLower());
                     if (cellForName != null)
                     {
                         cellForName.Column = detectedName.Column;
@@ -123,7 +132,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     else
                     {
                         RaidHotCells.Add(new RaidHotCell { Column = detectedName.Column, Row = detectedName.Row, Name = detectedName.Name });
-                    }
+                    }*/
 
                 }
             }

@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var newConnectionString = currentConnectionString.Replace(hostname, GetCurrentRemoteServerIP());
             return newConnectionString;
         }
-        private static string GetCurrentRemoteServerIP()
+        public static string GetCurrentRemoteServerIP()
         {
             if ((DateTime.Now - _mostRecentIpTime).TotalMinutes < 1 && !string.IsNullOrEmpty(_currentIP))
                 return _currentIP;

@@ -14,21 +14,21 @@ namespace SWTORCombatParser.Utilities.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var latency = (double)value;
-            if(latency < 1)
-            {
-                return Brushes.Green;
-            }
             if(latency < 2)
             {
-                return Brushes.YellowGreen;
+                return Brushes.LightGreen;
             }
             if(latency < 3)
             {
+                return Brushes.YellowGreen;
+            }
+            if(latency < 3.5)
+            {
                 return Brushes.Orange;
             }
-            if(latency >= 3)
+            if(latency >= 3.5)
             {
-                return Brushes.Red;
+                return Brushes.Tomato;
             }
             return Brushes.WhiteSmoke;
         }

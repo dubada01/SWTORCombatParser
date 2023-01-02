@@ -16,7 +16,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height=".75*"/>
-                    <RowDefinition Height="1"/>
+                    <RowDefinition Height="11"/>
                     <RowDefinition Height=".75*"/>
                     <RowDefinition Height="1"/>
                     <RowDefinition Height="*"/>
@@ -40,23 +40,20 @@
                                 Command="{Binding  ToggleLiveParseCommand}"></Button>
                     </Viewbox>
                 </Grid>
-                <Rectangle Grid.Row="1" Fill="DimGray" HorizontalAlignment="Stretch" Margin="2,0,2,0"></Rectangle>
+                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <TextBlock  Text="Log Latency (s):" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray9Brush}" VerticalAlignment="Center" Margin="0,0,10,0" HorizontalAlignment="Right"></TextBlock>
+                    <TextBlock  Text="{Binding CurrentLogOffsetMs}" FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentLogOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+                </StackPanel>
                 <Grid Grid.Row="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="1">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.85*"/>
-                            <ColumnDefinition Width="0.25*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Style="{StaticResource RoundedTextBox}" FontSize="10" MinHeight="20" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" MaxHeight="40" Margin="5,15,0,15" IsReadOnly="True"></TextBox>
-                        <Viewbox VerticalAlignment="Center" Grid.Column="1" MaxHeight="30">
-                            <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Width="40" Margin="5,0,5,0" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
-                        </Viewbox>
-                    </Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.85*"/>
+                        <ColumnDefinition Width="0.25*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Style="{StaticResource RoundedTextBox}" FontSize="10" VerticalContentAlignment="Center" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" Margin="5,12,0,12" IsReadOnly="True"></TextBox>
+                    <Viewbox VerticalAlignment="Center" Grid.Column="1" MaxHeight="20">
+                        <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Width="40" Margin="5,0,5,0" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
+                    </Viewbox>
                 </Grid>
                 <Rectangle Grid.Row="3" Fill="DimGray" Margin="2,0,2,0"></Rectangle>
                 <ContentPresenter Margin="0,5,0,0" Grid.Row="4" Content="{Binding HistoricalRange}"></ContentPresenter>

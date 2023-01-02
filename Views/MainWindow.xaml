@@ -99,9 +99,14 @@
         </TabControl>
 
         <ContentPresenter  Margin="5,5,5,5" Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
-        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
-            <TextBlock  Opacity="0.75"  Text="Log Latency (s):" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray8Brush}" VerticalAlignment="Center" Margin="0,0,10,0" HorizontalAlignment="Right"></TextBlock>
-            <TextBlock Opacity="0.75"  Text="{Binding CurrentLogOffsetMs}" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentLogOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+        <StackPanel HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Foreground="{StaticResource Gray10Brush}" Text="Parsely" Margin="0,0,5,0"></TextBlock>
+            <Button VerticalAlignment="Center" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Width="30" Padding="2" Background="{Binding UploadButtonBackground}" Command="{Binding UploadToParselyCommand}">
+                <Image Source="/resources/uploadToParselyIcon.png" Height="15"></Image>
+            </Button>
+            <Button Visibility="{Binding CanOpenParsely, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Width="30" Padding="2" Background="WhiteSmoke" Command="{Binding OpenParselyCommand}">
+                <Image Source="/resources/openParselyIcon.png" Height="15"></Image>
+            </Button>
         </StackPanel>
     </Grid>
 </Window>

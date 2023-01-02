@@ -17,7 +17,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         private List<LeaderboardInstanceViewModel> _viewModels = new List<LeaderboardInstanceViewModel>();
         private string selectedDifficulty;
         private string selectedPlayerCount;
-        private Dictionary<string,long> _parsingLevels = new Dictionary<string, long> { { "1 Million" ,1000000}, { "3.25 Million", 3250000 }, { "6.5 Million", 6500000 }, { "10 Million", 10000000 }, { "Story", 0 },{ "Veteran", 0 },{ "Master", 0 } };
+        private Dictionary<string,long> _parsingLevels = new Dictionary<string, long> { { "1 Million" ,1000000}, { "2 Million", 2000000 }, { "3.25 Million", 3250000 }, { "6.5 Million", 6500000 }, { "10 Million", 10000000 }, { "Story", 0 },{ "Veteran", 0 },{ "Master", 0 } };
         private List<string> _allDifficulties = new List<string> { "Story", "Veteran", "Master" };
         private List<string> _allPlayerCounts = new List<string> { "8", "16" };
 

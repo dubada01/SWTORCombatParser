@@ -14,7 +14,7 @@ namespace SWTORCombatParser.Model.Overlays
             Bitmap bmp = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppArgb);
             Graphics g = Graphics.FromImage(bmp);
             g.CopyFromScreen(rect.Left, rect.Top, 0, 0, bmp.Size, CopyPixelOperation.SourceCopy);
-            ExtractJustNames(bmp);
+            //ExtractJustNames(bmp);
             return bmp;
         }
 

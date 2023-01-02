@@ -15,6 +15,7 @@ namespace SWTORCombatParser.DataStructures
         TargetChanged,
         DamageTaken,
         HasEffect,
+        IsFacing,
         And,
         Or
     }
@@ -73,10 +74,12 @@ namespace SWTORCombatParser.DataStructures
                 Name = Name,
                 Source = Source,
                 SourceIsLocal = SourceIsLocal,
+                SourceIsAnyButLocal = SourceIsAnyButLocal,
                 Target = Target,
                 AlertDuration = AlertDuration,
                 CombatTimeElapsed = CombatTimeElapsed,
                 TargetIsLocal = TargetIsLocal,
+                TargetIsAnyButLocal= TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
                 HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
                 TriggerType = TriggerType,
