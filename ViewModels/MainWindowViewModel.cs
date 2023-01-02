@@ -29,6 +29,13 @@ using SWTORCombatParser.Views.Home_Views;
 using SWTORCombatParser.Views.Home_Views.PastCombatViews;
 using SWTORCombatParser.Views.Overlay;
 using SWTORCombatParser.Views.Overviews;
+using System.Windows.Input;
+using SWTORCombatParser.Model.CloudRaiding;
+using System.Windows.Media;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Diagnostics;
+using System.Security.Policy;
 
 namespace SWTORCombatParser.ViewModels
 {
@@ -42,6 +49,10 @@ namespace SWTORCombatParser.ViewModels
         private readonly DataGridViewModel _dataGridViewModel;
         private readonly OverviewViewModel _histViewModel;
         private readonly LeaderboardViewModel _leaderboardViewModel;
+        private Entity localEntity;
+        private string parselyLink;
+        private bool canOpenParsely;
+        private SolidColorBrush uploadButtonBackground = Brushes.WhiteSmoke;
 
         private readonly Dictionary<Guid, HistoricalCombatViewModel> _activeHistoricalCombatOverviews = new Dictionary<Guid, HistoricalCombatViewModel>();
         private int selectedTabIndex;
@@ -50,16 +61,6 @@ namespace SWTORCombatParser.ViewModels
         public string Title { get; set; }
         public ObservableCollection<TabInstance> ContentTabs { get; set; } = new ObservableCollection<TabInstance>();
         public PastCombatsView PastCombatsView { get; set; }
-
-        public double CurrentLogOffsetMs
-        {
-            get => _currentLogOffsetMs;
-            set
-            {
-                _currentLogOffsetMs = value; 
-                OnPropertyChanged();
-            }
-        }
 
         public Combat CurrentlyDisplayedCombat { get; set; }
         private bool _allViewsUpToDate;
@@ -125,12 +126,12 @@ namespace SWTORCombatParser.ViewModels
             ContentTabs.Add(new TabInstance() { TabContent = histView, HeaderText = "Histogram" });
 
             _reviewViewModel = new BattleReviewViewModel();
-            ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel),HeaderText = "Combat Log" });
+            ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log" });
 
             _overlayViewModel = new OverlayViewModel();
             var overlayView = new OverlayView(_overlayViewModel);
             var overlayTab = new TabInstance()
-                { TabContent = overlayView, HeaderText = "Overlays", IsOverlaysTab = true };
+            { TabContent = overlayView, HeaderText = "Overlays", IsOverlaysTab = true };
             _overlayViewModel.OverlayLockStateChanged += overlayTab.UpdateLockIcon;
             ContentTabs.Add(overlayTab);
 
@@ -140,11 +141,62 @@ namespace SWTORCombatParser.ViewModels
 
             SelectedTabIndex = 0;
             HeaderSelectionState.NewHeaderSelected += UpdateDataForNewTab;
+            ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
+        }
+        public SolidColorBrush UploadButtonBackground
+        {
+            get => uploadButtonBackground; set
+            {
+                uploadButtonBackground = value;
+                OnPropertyChanged();
+            }
+        }
+        public ICommand OpenParselyCommand => new CommandHandler(OpenParsely);
+
+
+        public bool CanOpenParsely
+        {
+            get => canOpenParsely; set
+            {
+                canOpenParsely = value;
+                OnPropertyChanged();
+            }
+        }
+        private void OpenParsely(object obj)
+        {
+            Process.Start(new ProcessStartInfo(parselyLink) { UseShellExecute = true });
+        }
+
+        public ICommand UploadToParselyCommand => new CommandHandler(UploadToParsely);
+        private void HandleParselyUploadComplete(bool status, string link)
+        {
+            if (status)
+            {
+                UploadButtonBackground = Brushes.MediumSeaGreen;
+                parselyLink = link;
+                CanOpenParsely = true;
+            }
+            else
+            {
+                UploadButtonBackground = Brushes.Salmon;
+                CanOpenParsely = false;
+            }
+            Task.Run(() =>
+            {
+                Thread.Sleep(2000);
+                UploadButtonBackground = Brushes.WhiteSmoke;
+            });
+        }
+        private void UploadToParsely(object obj)
+        {
+            ParselyUploader.UploadCurrentCombat(_combatMonitorViewModel.GetActiveFile());
+
+            UploadButtonBackground = Brushes.CornflowerBlue;
         }
 
         private void UpdateDataForNewTab()
         {
-            if(CurrentlyDisplayedCombat != null && _allViewsUpToDate == false)
+            if (CurrentlyDisplayedCombat != null && _allViewsUpToDate == false)
                 SelectCombat(CurrentlyDisplayedCombat);
         }
 
@@ -170,16 +222,17 @@ namespace SWTORCombatParser.ViewModels
         {
             if (combats.Count == 0)
                 return;
-            Application.Current.Dispatcher.Invoke(() => {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
                 var historyGuid = Guid.NewGuid();
                 var historyView = new HistoricalCombatView();
                 var viewModel = new HistoricalCombatViewModel(combats);
                 historyView.DataContext = viewModel;
                 _activeHistoricalCombatOverviews[historyGuid] = viewModel;
-                var histTab = new TabInstance() {IsHistoricalTab=true, TabContent = historyView, HeaderText = $"{combats.Last().StartTime.ToString("MM/dd")} to {combats.First().StartTime:MM/dd}", HistoryID = historyGuid };
+                var histTab = new TabInstance() { IsHistoricalTab = true, TabContent = historyView, HeaderText = $"{combats.Last().StartTime.ToString("MM/dd")} to {combats.First().StartTime:MM/dd}", HistoryID = historyGuid };
                 histTab.RequestTabClose += CloseHistoricalReview;
                 ContentTabs.Add(histTab);
-                SelectedTabIndex = ContentTabs.Count-1;
+                SelectedTabIndex = ContentTabs.Count - 1;
             });
 
         }
@@ -191,7 +244,7 @@ namespace SWTORCombatParser.ViewModels
         }
         private void MonitoringStarted(bool state)
         {
-            if(state)
+            if (state)
                 Application.Current.Dispatcher.Invoke(delegate
                 {
                     _plotViewModel.Reset();
@@ -205,10 +258,10 @@ namespace SWTORCombatParser.ViewModels
 
         private void UpdateLogTimeOffset(IList<double> logOffsetFor2Seconds)
         {
-            if(!logOffsetFor2Seconds.Any())
+            if (!logOffsetFor2Seconds.Any())
                 return;
             var average = logOffsetFor2Seconds.Average() / 1000d;
-            CurrentLogOffsetMs = Math.Round(average,1);
+            _combatMonitorViewModel.CurrentLogOffsetMs = Math.Round(average, 1);
         }
         private void UpdateCombat(Combat updatedCombat)
         {
@@ -262,16 +315,13 @@ namespace SWTORCombatParser.ViewModels
                 _dataGridViewModel.RemoveCombat(obj);
             });
         }
-        private Entity localEntity;
-        private double _currentLogOffsetMs;
-
         private void LocalPlayerChanged(Entity obj)
         {
             if (localEntity == obj)
                 return;
             Application.Current.Dispatcher.Invoke(delegate
             {
-                if(localEntity != obj)
+                if (localEntity != obj)
                 {
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();

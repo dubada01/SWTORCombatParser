@@ -96,16 +96,11 @@ namespace SWTORCombatParser.Model.CombatParsing
                 if(isRealtime)
                     EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
             }
-            //if (newCombat.IsPvPCombat)
-            //{
-            //    if (isRealtime)
-            //        EncounterTimerTrigger.FirePvpEncounterDetected();
-            //}
             if (newCombat.Targets.Any(t => t.LogId == 2857785339412480))
             {
                 newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Parsing", NumberOfPlayer = "1",EncounterType = EncounterType.Parsing, BossIds = new Dictionary<string, Dictionary<string, List<long>>>() {{"Training Dummy",new Dictionary<string, List<long>>(){{"Parsing 1",new List<long>{2857785339412480}}}} } };
                 newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
-                newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, newCombat.ParentEncounter);
+                newCombat.RequiredDeadTargetsForKill = new List<string> { "2857785339412480" };
             }
             CombatMetaDataParse.PopulateMetaData(newCombat);
             var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l=>l.Value.Modifier.ValueType == DamageType.absorbed).ToList());

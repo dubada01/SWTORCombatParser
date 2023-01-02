@@ -47,6 +47,7 @@ namespace SWTORCombatParser.Model.LogParsing
             _fileEncoding = Encoding.GetEncoding(1252);
             CombatDetector.AlertExitCombatTimedOut += OnExitCombatTimedOut;
         }
+        public string CurrentLog => _logToMonitor;
         public void MonitorLog(string logToMonitor)
         {
             Logging.LogInfo("Starting live monitor of log - " + logToMonitor);
@@ -122,7 +123,8 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 List<string> lines = new List<string>();
                 bool hasValidEnd = GetNewlines(sr, lines);
-
+                sr.Close();
+                fs.Close();
                 if (lines.Count == 0)
                     return;          
                 

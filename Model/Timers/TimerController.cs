@@ -53,13 +53,17 @@ public static class TimerController
     {
         _timersEnabled = true;
     }
+
+    private static string _currentDiscipline;
     private static void NewLogStreamed(ParsedLogEntry log)
-    {            
+    {     
+        if(_currentDiscipline == null)
+            _currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(log.TimeStamp).Discipline;
         Parallel.ForEach(_availableTimers, timer =>
         {
             if(!timer.TrackOutsideOfCombat && !CombatDetector.InCombat)
                 return;
-            timer.CheckForTrigger(log, DateTime.Now);
+            timer.CheckForTrigger(log, DateTime.Now,_currentDiscipline);
         });
     }
 
@@ -68,6 +72,7 @@ public static class TimerController
         if (obj.Type == UpdateType.Start)
         {
             UncancellBeforeCombat();
+            _currentDiscipline =  CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(obj.CombatStartTime).Discipline;
         }
         if (obj.Type == UpdateType.Stop)
         {

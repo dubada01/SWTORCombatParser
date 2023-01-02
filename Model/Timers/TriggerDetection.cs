@@ -16,6 +16,52 @@ namespace SWTORCombatParser.Model.Timers
     }
     public static class TriggerDetection
     {
+        public static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime)
+        {
+            switch (SourceTimer.TriggerType)
+            {
+                case TimerKeyType.CombatStart:
+                    return CheckForComabatStart(log);
+                case TimerKeyType.AbilityUsed:
+                    return CheckForAbilityUse(log, SourceTimer.Ability, SourceTimer.Source,
+                        SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal,
+                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.EffectGained:
+                    return CheckForEffectGain(log, SourceTimer.Effect,
+                        SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target,
+                        SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
+                        SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.EffectLost:
+                   return CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target,
+                        SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
+                        SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.EntityHP:
+                    return CheckForHP(log, SourceTimer.HPPercentage,
+                        SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.FightDuration:
+                    return CheckForFightDuration(log, SourceTimer.CombatTimeElapsed, startTime);
+                case TimerKeyType.TargetChanged:
+                    return CheckForTargetChange(log, SourceTimer.Source,
+                        SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal);
+                case TimerKeyType.DamageTaken:
+                    return CheckForDamageTaken(log, SourceTimer.Source,
+                        SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal, SourceTimer.Ability);
+                case TimerKeyType.HasEffect:
+                    return CheckForHasEffect(log, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.TargetIsAnyButLocal, SourceTimer.Effect);
+                case TimerKeyType.IsFacing:
+                    return CheckForFacing(log, SourceTimer.Source, SourceTimer.SourceIsLocal,
+                        SourceTimer.Target, SourceTimer.TargetIsLocal, SourceTimer.TargetIsAnyButLocal,
+                        SourceTimer.SourceIsAnyButLocal);
+                case TimerKeyType.And:
+                case TimerKeyType.Or:
+                    return CheckForDualEffect(SourceTimer,log, SourceTimer.TriggerType,startTime);
+            }
+            return TriggerType.None;
+        }
         public static double GetCurrentTargetHPPercent(ParsedLogEntry log, long targetId)
         {
             var value = -100d;
@@ -145,6 +191,8 @@ namespace SWTORCombatParser.Model.Timers
                 return true;
             if (source == "Any")
                 return true;
+            if (source == "Players" && log.Source.IsCharacter)
+                return true;
             if (source == log.Source.Name || source == log.Source.LogId.ToString())
                 return true;
             return false;
@@ -157,12 +205,14 @@ namespace SWTORCombatParser.Model.Timers
                 return true;
             if (target == "Any")
                 return true;
+            if (target == "Players" && log.Target.IsCharacter)
+                return true;
             if (target == log.Target.Name || target == log.Target.LogId.ToString())
                 return true;
             return false;
         }
 
-        internal static TriggerType CheckForTargetChange(ParsedLogEntry log, string source, bool sourceIsLocal, string target, bool targetIsLocal, bool targetIsAnyButLocal, bool sourceIsAnyButLocal)
+        private static TriggerType CheckForTargetChange(ParsedLogEntry log, string source, bool sourceIsLocal, string target, bool targetIsLocal, bool targetIsAnyButLocal, bool sourceIsAnyButLocal)
         {
             if (log.Effect.EffectType == EffectType.TargetChanged && SourceIsValid(log, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal) && log.Effect.EffectId == _7_0LogParsing.TargetSetId)
             {
@@ -202,6 +252,31 @@ namespace SWTORCombatParser.Model.Timers
             return TriggerType.None;
         }
 
+        public static TriggerType CheckForFacing(ParsedLogEntry log, string source, bool sourceIsLocal, string target,
+            bool targetIsLocal, bool targetIsAnyButLocal, bool sourceIsAnyButLocal)
+        {
+            if (SourceIsValid(log, source, sourceIsLocal, sourceIsAnyButLocal) &&
+                TargetIsValid(log, target, targetIsLocal, targetIsAnyButLocal))
+            {
+                var sourceHeading = log.SourceInfo.Position.Facing;
+                var dotProd = (log.SourceInfo.Position.X * log.TargetInfo.Position.X) + (log.SourceInfo.Position.Y * log.TargetInfo.Position.Y);
+                var sourceMag = Math.Sqrt(Math.Pow(log.SourceInfo.Position.X, 2)+Math.Pow(log.SourceInfo.Position.Y, 2));
+                var targetMag = Math.Sqrt(Math.Pow(log.TargetInfo.Position.X, 2)+Math.Pow(log.TargetInfo.Position.Y, 2));
+
+                var cosVal = dotProd / (sourceMag * targetMag);
+                var angleBetweenSourceAndTarget = Math.Acos(cosVal);
+                if ((sourceHeading - 10) >= angleBetweenSourceAndTarget ||
+                    sourceHeading + 10 <= angleBetweenSourceAndTarget)
+                {
+                    return TriggerType.Start;
+                }
+                else
+                    return TriggerType.End;
+            }
+
+            return TriggerType.None;
+        }
+
         public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime)
         {
             var condAStatus = CheckForTrigger(log, sourceTimer.Clause1, startTime);
@@ -218,48 +293,6 @@ namespace SWTORCombatParser.Model.Timers
             return TriggerType.None;
         }
 
-        private static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime)
-        {
-            switch (SourceTimer.TriggerType)
-            {
-                case TimerKeyType.CombatStart:
-                    return CheckForComabatStart(log);
-                    break;
-                case TimerKeyType.AbilityUsed:
-                    return CheckForAbilityUse(log, SourceTimer.Ability, SourceTimer.Source,
-                        SourceTimer.Target, SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal,
-                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal);
-                case TimerKeyType.EffectGained:
-                    return CheckForEffectGain(log, SourceTimer.Effect,
-                        SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target,
-                        SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
-                        SourceTimer.TargetIsAnyButLocal);
-                case TimerKeyType.EffectLost:
-                   return CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target,
-                        SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
-                        SourceTimer.TargetIsAnyButLocal);
-                case TimerKeyType.EntityHP:
-                    return CheckForHP(log, SourceTimer.HPPercentage,
-                        SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Target, SourceTimer.TargetIsLocal,
-                        SourceTimer.TargetIsAnyButLocal);
-                case TimerKeyType.FightDuration:
-                    return CheckForFightDuration(log, SourceTimer.CombatTimeElapsed, startTime);
-                case TimerKeyType.TargetChanged:
-                    return CheckForTargetChange(log, SourceTimer.Source,
-                        SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal,
-                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal);
-                case TimerKeyType.DamageTaken:
-                    return CheckForDamageTaken(log, SourceTimer.Source,
-                        SourceTimer.SourceIsLocal, SourceTimer.Target, SourceTimer.TargetIsLocal,
-                        SourceTimer.SourceIsAnyButLocal, SourceTimer.TargetIsAnyButLocal, SourceTimer.Ability);
-                case TimerKeyType.HasEffect:
-                    return CheckForHasEffect(log, SourceTimer.Target, SourceTimer.TargetIsLocal,
-                        SourceTimer.TargetIsAnyButLocal, SourceTimer.Effect);
-                case TimerKeyType.And:
-                case TimerKeyType.Or:
-                    return CheckForDualEffect(SourceTimer,log, SourceTimer.TriggerType,startTime);
-            }
-            return TriggerType.None;
-        }
+        
     }
 }

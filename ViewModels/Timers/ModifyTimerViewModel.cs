@@ -23,7 +23,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string selectedDifficulty;
         private string selectedBoss;
         private bool isEditing;
-        private List<string> defaultSourceTargets = new List<string> { "Any", "Local Player", "Any BUT Local", "Custom" };
+        private List<string> defaultSourceTargets = new List<string> { "Any","Players", "Local Player", "Any BUT Local", "Custom" };
         private List<string> addedCustomSources = new List<string>();
         private List<string> addedCustomTargets = new List<string>();
         private string customSource;
@@ -854,6 +854,28 @@ namespace SWTORCombatParser.ViewModels.Timers
                         return false;
                     }
                     return true;
+                }                
+                case TimerKeyType.IsFacing:
+                {
+                    if (string.IsNullOrEmpty(Name))
+                    {
+                        TimerNameInError = true;
+                        OnPropertyChanged("TimerNameHelpTextColor");
+                        return false;
+                    }                    
+                    if (string.IsNullOrEmpty(SourceText))
+                    {
+                        ValueInError = true;
+                        OnPropertyChanged("TimerNameHelpTextColor");
+                        return false;
+                    }
+                    if (string.IsNullOrEmpty(TargetText))
+                    {
+                        ValueInError = true;
+                        OnPropertyChanged("TimerNameHelpTextColor");
+                        return false;
+                    }
+                    return true;
                 }
                 case TimerKeyType.And: case TimerKeyType.Or:
                 {
@@ -1034,6 +1056,21 @@ namespace SWTORCombatParser.ViewModels.Timers
                     OnPropertyChanged("TrackOutsideOfCombat");
                     OnPropertyChanged("CanChangeCombatTracking");
                     OnPropertyChanged("ShowCombatDurationOption");
+                    break;
+                }
+                case TimerKeyType.IsFacing:
+                {
+                    HasTarget = true;
+                    HasSource = true;
+                    CanChangeCombatTracking = true;
+                    TargetText = "When Faced";
+                    SourceText = "When Faced By";
+                    OnPropertyChanged("HasTarget");
+                    OnPropertyChanged("HasSource");
+                    OnPropertyChanged("TargetText");
+                    OnPropertyChanged("SourceText");
+                    OnPropertyChanged("CanChangeCombatTracking");
+                    OnPropertyChanged("TrackOutsideOfCombat");
                     break;
                 }
                 case TimerKeyType.Or:

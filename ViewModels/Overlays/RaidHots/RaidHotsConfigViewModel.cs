@@ -176,7 +176,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 {
                     _currentOverlay.Opacity = 1;
                 });
-                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayout(_currentOverlayViewModel.TopLeft, raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns);
+                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.TopLeft,
+                    raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns).Result;
+                if(names.Count == 0)
+                {
+                    //fallback to GCP for now...
+                    names = AutoHOTOverlayPosition.GetCurrentPlayerLayout(_currentOverlayViewModel.TopLeft, raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns);
+                }
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     _currentOverlayViewModel.UpdateNames(names);

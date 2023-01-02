@@ -220,10 +220,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return false;
             if (combat.WasBossKilled)
                 return true;
-            if (combat.DurationSeconds < 250)
-                return false;
-            if (!combat.WasPlayerKilled(player))
-                return true;
             return false;
         }
         private static bool CheckForValidParseUpload(Combat combat)

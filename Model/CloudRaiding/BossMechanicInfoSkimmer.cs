@@ -23,6 +23,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
     {
         public static void AddBossInfoAfterCombat(Combat bossCombat, bool uploadToDb = true)
         {
+            if (bossCombat.ParentEncounter.Name == "Parsing")
+                return;
             if (uploadToDb == true)
             {
                 uploadToDb = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("BossMechanicSkimmerConfig.json"))["shouldUploadToDB"].Value<bool>();

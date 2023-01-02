@@ -144,7 +144,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                         AddSeries(plotType, "Health Percentage", Color.LightGoldenrodYellow, false, false);
                         break;
                     default:
-                        Trace.WriteLine("Invalid Series");
                         break;
                 }
             }

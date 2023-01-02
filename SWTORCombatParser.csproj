@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.3.7</VersionPrefix>
+    <VersionPrefix>1.4.1</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -71,6 +71,7 @@
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\Loading.gif" />
     <None Remove="resources\LocalPlayerIcon.png" />
+    <None Remove="resources\openParselyIcon.png" />
     <None Remove="resources\question-mark.png" />
     <None Remove="resources\redX.png" />
     <None Remove="resources\RoomOverlays\DamageMenaceOpponentLocation.png" />
@@ -137,6 +138,7 @@
     <None Remove="resources\SwtorLogo_opaque.png" />
     <None Remove="resources\SWTORParsingIcon.ico" />
     <None Remove="resources\tankIcon.png" />
+    <None Remove="resources\uploadToParselyIcon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -189,6 +191,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\LocalPlayerIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\openParselyIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\question-mark.png">
@@ -395,6 +400,9 @@
     </Content>
     <None Remove="resources\Audio\AlertSound.wav" />
     <Content Include="resources\Audio\AlertSound.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\uploadToParselyIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="DataStructures\DOT Timers\timers.json">
