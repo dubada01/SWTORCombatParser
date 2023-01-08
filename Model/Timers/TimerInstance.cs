@@ -68,10 +68,8 @@ namespace SWTORCombatParser.Model.Timers
             timer.Dispose();
         }
 
-        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime,string currentDiscipline)
+        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime,string currentDiscipline, List<TimerInstanceViewModel> activeTimers)
         {
-            if (SourceTimer.Name.Contains("Other's"))
-                Console.WriteLine("test");
             if (SourceTimer.Name.Contains("Other's") &&
                 currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                 return;
@@ -81,41 +79,23 @@ namespace SWTORCombatParser.Model.Timers
             if (!IsEnabled || _isCancelled)
                 return;
             
-            var wasTriggered = TriggerDetection.CheckForTrigger(log, SourceTimer, startTime);
+            var wasTriggered = TriggerDetection.CheckForTrigger(log, SourceTimer, startTime,activeTimers);
             if (wasTriggered == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
                 return;
             var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
-            
+
             if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
             {
-                var timerToRestart = _activeTimerInstancesForTimer.FirstOrDefault(t => t.Value.TargetId == targetInfo.Id)
+                var timerToRestart = _activeTimerInstancesForTimer
+                    .FirstOrDefault(t => t.Value.TargetId == targetInfo.Id)
                     .Value;
-
-                /*if (SourceTimer.IsHot && !CombatLogStateBuilder.CurrentState
-                        .GetPlayerTargetAtTime(log.Source, log.TimeStamp).IsCharacter)
-                {
-                    var localPlayerid = CombatLogStateBuilder.CurrentState.LocalPlayer.Id;
-                    timerToRestart = _activeTimerInstancesForTimer
-                        .FirstOrDefault(t => t.Value.TargetId == localPlayerid).Value;
-                }*/
-
                 if (timerToRestart != null)
-                {                
+                {
                     if (log.TimeStamp - timerToRestart.StartTime < TimeSpan.FromSeconds(1))
                         return;
                     timerToRestart.Reset(log.TimeStamp);
                 }
-                else
-                {
-                    /*if (SourceTimer.IsHot && log.Target.IsCharacter)
-                    {
-                        var timerVm = CreateTimerInstance(log);
-                        TimerNotifier.FireTimerTriggered(timerVm);
-                    }*/
-                }
             }
-
-            
             if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
             {
                 if (wasTriggered == TriggerType.Start)
@@ -132,15 +112,19 @@ namespace SWTORCombatParser.Model.Timers
 
                     if (_activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
                     {
-                        CreateHPTimerInstance(log.TimeStamp, currentHP, targetInfo.Name, targetInfo.Id);
+                        CreateHPTimerInstance(currentHP, targetInfo.Name, targetInfo.Id);
                     }
                 }
+            }            
+            if (wasTriggered == TriggerType.Start &&
+                             !_activeTimerInstancesForTimer.Any() && (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or))
+            {
+                CreateTimerInstance(log,targetInfo.Name, targetInfo.Id);
             }
             if (wasTriggered == TriggerType.Start &&
-                _activeTimerInstancesForTimer.All(t => t.Value.TargetId != log.Target.Id))
+                _activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id) && !(SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or))
             {
-                var vm = CreateTimerInstance(log);
-                TimerNotifier.FireTimerTriggered(vm);
+                CreateTimerInstance(log,targetInfo.Name, targetInfo.Id);
             }
 
             if (wasTriggered == TriggerType.Start &&
@@ -185,7 +169,7 @@ namespace SWTORCombatParser.Model.Timers
         {
             if (triggerType == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
                 return new TimerTargetInfo();
-            if(sourceTimer.TriggerType == TimerKeyType.EntityHP)
+            if(sourceTimer.TriggerType == TimerKeyType.EntityHP && triggerType != TriggerType.None)
             {
                 var hpTargetInfo = TriggerDetection.GetTargetId(log, SourceTimer.Target,
                     SourceTimer.TargetIsLocal, SourceTimer.TargetIsAnyButLocal);
@@ -198,7 +182,7 @@ namespace SWTORCombatParser.Model.Timers
             if(triggerType == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
             {
                 var currentTarget =
-                    CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp);
+                    CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp).Entity;
                 return new TimerTargetInfo()
                 {
                     Name = currentTarget.Name,
@@ -232,7 +216,7 @@ namespace SWTORCombatParser.Model.Timers
             return false;
         }
 
-        private TimerInstanceViewModel CreateBlankTimer(DateTime startTime)
+        private void CreateBlankTimer(DateTime startTime)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.StartTime = startTime;
@@ -241,22 +225,20 @@ namespace SWTORCombatParser.Model.Timers
             _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             timerVM.TriggerTimeTimer(startTime);
             NewTimerInstance(timerVM);
-            return timerVM;
         }
-        private TimerInstanceViewModel CreateTimerInstance(ParsedLogEntry log)
+        private void CreateTimerInstance(ParsedLogEntry log,string targetAdendum = "", long targetId = 0)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.StartTime = log.TimeStamp;
             timerVM.TimerId = Guid.NewGuid();
             timerVM.TimerExpired += CompleteTimer;
-            timerVM.TargetAddendem = log.Target.Name;
-            timerVM.TargetId = log.Target.Id;
+            timerVM.TargetAddendem = targetAdendum;
+            timerVM.TargetId = targetId;
             _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             timerVM.TriggerTimeTimer(log.TimeStamp);
             NewTimerInstance(timerVM);
-            return timerVM;
         }
-        private TimerInstanceViewModel CreateHPTimerInstance(DateTime timeStamp, double currentHP,string targetAdendum = "", long targetId = 0)
+        private void CreateHPTimerInstance(double currentHP,string targetAdendum = "", long targetId = 0)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.TimerExpired += CompleteTimer;
@@ -266,7 +248,6 @@ namespace SWTORCombatParser.Model.Timers
             _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             timerVM.TriggerHPTimer(currentHP);
             NewTimerInstance(timerVM);
-            return timerVM;
         }
     }
 }

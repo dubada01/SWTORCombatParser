@@ -1,14 +1,18 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class TimerRowInstanceViewModel
+    public class TimerRowInstanceViewModel:INotifyPropertyChanged
     {
         private bool _isEnabled;
+        private SolidColorBrush _rowBackground;
 
         public event Action<TimerRowInstanceViewModel> EditRequested = delegate { };
         public event Action<TimerRowInstanceViewModel> ShareRequested = delegate { };
@@ -30,7 +34,17 @@ namespace SWTORCombatParser.ViewModels.Timers
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public string DurationSec => SourceTimer.IsAlert ? "Alert" : SourceTimer.DurationSec.ToString();
-        public SolidColorBrush RowBackground { get; set; }
+
+        public SolidColorBrush RowBackground
+        {
+            get => _rowBackground;
+            set
+            {
+                _rowBackground = value;
+                OnPropertyChanged();
+            }
+        }
+
         public SolidColorBrush TimerBackground => new SolidColorBrush(SourceTimer.TimerColor);
         public ICommand EditCommand => new CommandHandler(Edit);
         private void Edit(object t)
@@ -46,6 +60,21 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void Delete(object t)
         {
             DeleteRequested(this);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }

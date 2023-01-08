@@ -355,6 +355,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     TimerRows[i].RowBackground = Brushes.Gray;
                 }
+                else
+                {
+                    TimerRows[i].RowBackground = Brushes.Transparent;
+                }
             }
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)

@@ -18,7 +18,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             isActive = dotTrackingEnabled;
             _bossInfo = bossInfo;
-            TimerNotifier.NewTimerTriggered += OnNewTimer;
+            TimerController.TimerTiggered += OnNewTimer;
         }
         public void SetActive(bool state)
         {

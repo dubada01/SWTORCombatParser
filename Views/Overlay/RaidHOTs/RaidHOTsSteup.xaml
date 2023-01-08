@@ -37,15 +37,17 @@
                 </Grid>
 
             </Viewbox>
-            <Viewbox Grid.Row="3" MaxHeight="50">
-                <Button FontFamily="{StaticResource MainFont}" Command="{Binding StartAutoDetection}" Style="{StaticResource RoundCornerButton}" Foreground="WhiteSmoke" Background="{StaticResource ParticipantHPSBrush}" FontSize="17" Width="150" Height="60" Content="Update Players"></Button>
-            </Viewbox>
+
             <Viewbox MaxHeight="40" Grid.Row="1">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Foreground="WhiteSmoke" Text="HOT Tracking Enabled"/>
                     <CheckBox HorizontalAlignment="Center" IsChecked="{Binding RaidHotsEnabled}"></CheckBox>
                 </StackPanel>
             </Viewbox>
+            <Viewbox MaxHeight="60" Grid.Row="3">
+                <Button Margin="0,15,0,10" Style="{StaticResource RoundCornerButton}" Height="75" Width="200" Content="Refresh Players" Background="CornflowerBlue" Foreground="WhiteSmoke" FontSize="20" FontWeight="Bold" FontFamily="{StaticResource MainFont}" Command="{Binding ManuallyRefreshPlayersCommand}"></Button>
+            </Viewbox>
+            
         </Grid>
     </Grid>
 </UserControl>

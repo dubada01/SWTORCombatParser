@@ -41,7 +41,7 @@ namespace SWTORCombatParser.Model.LogParsing
     public class LogState
     {
         public ConcurrentDictionary<Entity,Dictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>>();
-        public ConcurrentDictionary<Entity, Dictionary<DateTime, Entity>> PlayerTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, Entity>>();
+        public ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>> PlayerTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>>();
         public Dictionary<Entity, Dictionary<DateTime, bool>> PlayerDeathChangeInfo = new Dictionary<Entity, Dictionary<DateTime, bool>>();
         public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new Dictionary<DateTime, EncounterInfo>();
 
@@ -109,7 +109,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public SWTORClass GetLocalPlayerClassAtTime(DateTime time)
         {
             if (LocalPlayer == null)
-                return null;
+                return new SWTORClass();
             if (PlayerClassChangeInfo.Keys.All(k => k.Id != LocalPlayer.Id))
                 return new SWTORClass();
             var classOfSource = PlayerClassChangeInfo[PlayerClassChangeInfo.Keys.First(k=>k.Id == LocalPlayer.Id)];
@@ -145,10 +145,10 @@ namespace SWTORCombatParser.Model.LogParsing
             return orderedStartTimes.Last() == currentEncounterStartTime ? currentEncounterStartTime :
                 EncounterEnteredInfo.Keys.ToList()[orderedStartTimes.IndexOf(currentEncounterStartTime)+1];
         }
-        public Entity GetPlayerTargetAtTime(Entity player, DateTime time)
+        public EntityInfo GetPlayerTargetAtTime(Entity player, DateTime time)
         {
             if (!PlayerTargetsInfo.ContainsKey(player))
-                return new Entity();
+                return new EntityInfo();
             var targets = PlayerTargetsInfo[player];
             var targetKeys = targets.Keys.ToList();
             return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v=>v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : null;

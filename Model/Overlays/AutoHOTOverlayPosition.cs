@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SWTORCombatParser.Utilities;
-using Image = Google.Cloud.Vision.V1.Image;
 using System;
 
 namespace SWTORCombatParser.Model.Overlays
@@ -26,8 +25,8 @@ namespace SWTORCombatParser.Model.Overlays
     {
         private static string ocr_url = "/ocr";
         private static string ocr_port = "8651";
-        public static async Task<List<PlacedName>> GetCurrentPlayerLayoutLOCAL(Point topLeftOfFrame, Bitmap swtorRaidFrame,
-            int numberOfRows, int numberOfColumns)
+        public static async Task<List<PlacedName>> GetCurrentPlayerLayoutLOCAL(Point topLeftOfFrame, MemoryStream raidFrameStream,
+            int numberOfRows, int numberOfColumns,int height, int width)
         {
             try
             {
@@ -35,10 +34,9 @@ namespace SWTORCombatParser.Model.Overlays
                 {
                     using (var content = new MultipartFormDataContent())
                     {
-                        using (var stream = new MemoryStream())
+                        using (raidFrameStream)
                         {
-                            swtorRaidFrame.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                            var test = new ByteArrayContent(stream.ToArray());
+                            var test = new ByteArrayContent(raidFrameStream.ToArray());
                             content.Add(test, "file", "orbs_overlay.png");
                             var baseUrl = DatabaseIPGetter.GetCurrentRemoteServerIP();
                             var fullUrl = $"http://{baseUrl}:{ocr_port}{ocr_url}";
@@ -57,7 +55,7 @@ namespace SWTORCombatParser.Model.Overlays
                                     return new List<PlacedName>();
                                 }
 
-                                return GetNamesFromResponse(JsonConvert.DeserializeObject<Dictionary<string, List<List<double>>>>(jsonObject["response"].ToString()), swtorRaidFrame, topLeftOfFrame, numberOfRows, numberOfColumns);
+                                return GetNamesFromResponse(JsonConvert.DeserializeObject<Dictionary<string, List<List<double>>>>(jsonObject["response"].ToString()), height,width, topLeftOfFrame, numberOfRows, numberOfColumns);
                             }
                         }
 
@@ -72,12 +70,12 @@ namespace SWTORCombatParser.Model.Overlays
 
         }
 
-        private static List<PlacedName> GetNamesFromResponse(Dictionary<string, List<List<double>>> ocrResponse,Bitmap swtorRaidFrame,Point topLeftOfFrame,int numberOfRows, int numberOfColumns)
+        private static List<PlacedName> GetNamesFromResponse(Dictionary<string, List<List<double>>> ocrResponse,int height, int width,Point topLeftOfFrame,int numberOfRows, int numberOfColumns)
         {
             var validEntries = ocrResponse.Where(kvp=>kvp.Key.All(c=>char.IsLetter(c)|| c == '-' || c =='\'') && kvp.Key.Length > 2).OrderBy(kv=>kv.Value[0][0]);
             
-            double rowHeights = swtorRaidFrame.Height / numberOfRows;
-            double columnWidth = swtorRaidFrame.Width / numberOfColumns;
+            double rowHeights = height / (double)numberOfRows;
+            double columnWidth = width / (double)numberOfColumns;
             
             var placedNames = new List<PlacedName>();
 
@@ -100,11 +98,11 @@ namespace SWTORCombatParser.Model.Overlays
             }
             return placedNames;
         }
-        public static List<PlacedName> GetCurrentPlayerLayout(Point topLeftOfFrame, Bitmap swtorRaidFrame, int numberOfRows, int numberOfColumns)
+        public static List<PlacedName> GetCurrentPlayerLayout(Point topLeftOfFrame, Image swtorRaidFrame, int numberOfRows, int numberOfColumns)
         {
             var client = GoogleCloudPlatform.GetClient();
 
-            var image = Image.FromBytes(ImageToByte2(swtorRaidFrame));
+            var image = Google.Cloud.Vision.V1.Image.FromBytes(ImageToByte2(swtorRaidFrame));
             var response = client.DetectText(image);
 
             var validEntites = response.Where(r =>r.Description.All(c=>char.IsLetter(c)|| c == '-' || c =='\'')).GroupBy(n=>n.Description).Select(g=>g.First()).ToList();
@@ -131,11 +129,11 @@ namespace SWTORCombatParser.Model.Overlays
             }
             return placedNames;
         }
-        private static byte[] ImageToByte2(Bitmap img)
+        private static byte[] ImageToByte2(Image img)
         {
             using (var stream = new MemoryStream())
             {
-                img.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                img.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
                 return stream.ToArray();
             }
         }

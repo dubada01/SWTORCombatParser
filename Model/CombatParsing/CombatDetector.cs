@@ -114,7 +114,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (_bossCombat && _combatResNames.Contains(line.Ability) && line.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
             {
-                revivedPlayers.Add(CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(line.Source, line.TimeStamp));
+                revivedPlayers.Add(CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(line.Source, line.TimeStamp).Entity);
             }
             if ((_bossCombat && _currentBossInfo.EncounterName != "Revan" && !revivedPlayers.Any(c => c == line.Source) && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId)||(!_bossCombat && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId && line.Source.IsLocalPlayer))
             {
