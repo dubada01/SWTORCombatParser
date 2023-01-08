@@ -80,7 +80,7 @@ namespace SWTORCombatParser.DataStructures
     public class EntityInfo
     {
         public SWTORClass Class { get; set; }
-        public Entity Entity { get; set; } = new Entity();
+        public Entity Entity { get; set; } = Entity.EmptyEntity;
         public PositionData Position { get; set; } = new PositionData();
         public double MaxHP { get; set; }
         public double CurrentHP { get; set; } = -500;

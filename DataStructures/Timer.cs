@@ -24,6 +24,8 @@ namespace SWTORCombatParser.DataStructures
         private bool isEnabled;
         public string TimerSource { get; set; }
         public string CharacterDiscipline { get; set; }
+        public bool IsSubTimer { get; set; }
+        public string ParentTimerId { get; set; }
         public string Id { get; set; }
         public string ShareId { get; set; }
         public bool IsEnabled {
@@ -45,6 +47,7 @@ namespace SWTORCombatParser.DataStructures
         public double CombatTimeElapsed { get; set; }
         public string Ability { get; set; } = "";
         public string Effect { get; set; } = "";
+        public bool ResetOnEffectLoss { get; set; }
         public bool IsPeriodic { get; set; }
         public int Repeats { get; set; }
         public bool CanBeRefreshed { get; set; }
@@ -71,7 +74,9 @@ namespace SWTORCombatParser.DataStructures
             return new Timer()
             {
                 Id = Id,
+                ParentTimerId = ParentTimerId,
                 Name = Name,
+                IsSubTimer = IsSubTimer,
                 Source = Source,
                 SourceIsLocal = SourceIsLocal,
                 SourceIsAnyButLocal = SourceIsAnyButLocal,
@@ -85,6 +90,7 @@ namespace SWTORCombatParser.DataStructures
                 TriggerType = TriggerType,
                 Ability = Ability,
                 Effect = Effect,
+                ResetOnEffectLoss = ResetOnEffectLoss,
                 IsPeriodic = IsPeriodic,
                 Repeats = Repeats,
                 IsAlert = IsAlert,

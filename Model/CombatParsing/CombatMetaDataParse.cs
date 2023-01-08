@@ -226,7 +226,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             var returnDict = new Dictionary<Entity, List<DateTime>>();
             foreach(var abilityActivation in abilityActivateLogs.Where(l=>l.Target.IsCharacter))
             {
-                var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(abilityActivation.Source, abilityActivation.TimeStamp);
+                var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(abilityActivation.Source, abilityActivation.TimeStamp).Entity;
                 if (target == null)
                     continue;
                 if (!returnDict.ContainsKey(target))

@@ -2,6 +2,7 @@
 using SWTORCombatParser.ViewModels.Timers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using SWTORCombatParser.DataStructures;
 
@@ -16,7 +17,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             isActive = mechTrackingEnabled;
             _bossInfo = bossInfo;
-            TimerNotifier.NewTimerTriggered += OnNewTimer;
+            TimerController.TimerTiggered += OnNewTimer;
         }
         public void SetActive(bool state)
         {
@@ -29,13 +30,18 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             if (obj.SourceTimer.IsMechanic)
             {
                 obj.TimerExpired += RemoveTimer;
+                var unorderedUpcomingMechs = UpcomingMechanics.ToList();
+                unorderedUpcomingMechs.Add(obj);
+                var ordered = unorderedUpcomingMechs.OrderByDescending(t =>
+                    t.SourceTimer.DurationSec == 0 ? t.SourceTimer.HPPercentage : t.SourceTimer.DurationSec);
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    UpcomingMechanics.Add(obj);
+                    UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);
+                    OnPropertyChanged("UpcomingMechanics");
                 });
             }
         }
-
+        
         private void RemoveTimer(TimerInstanceViewModel obj)
         {
             App.Current.Dispatcher.Invoke(() => {

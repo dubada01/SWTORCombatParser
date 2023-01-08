@@ -213,7 +213,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool IsCurrentTarget(string key)
         {
-            var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(CombatLogStateBuilder.CurrentState.LocalPlayer, _lastUpdate);
+            var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(CombatLogStateBuilder.CurrentState.LocalPlayer, _lastUpdate).Entity;
             if (target == null)
                 return false;
             return target.Name == key;

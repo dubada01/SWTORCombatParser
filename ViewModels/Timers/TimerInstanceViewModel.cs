@@ -165,7 +165,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 DisplayTimer = true;
                 DisplayTimerValue = false;
-                if(SourceTimer.TriggerType != TimerKeyType.HasEffect)
+                if(SourceTimer.TriggerType != TimerKeyType.HasEffect && !(SourceTimer.TriggerType == TimerKeyType.Or && (SourceTimer.Clause1.TriggerType == TimerKeyType.EntityHP || SourceTimer.Clause2.TriggerType == TimerKeyType.EntityHP)))
                     _dtimer.Tick += ClearAlert;
             }
             OnPropertyChanged("TimerValue");

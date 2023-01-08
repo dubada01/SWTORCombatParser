@@ -105,7 +105,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             SelectedLeaderboardType = LeaderboardSettings.ReadLeaderboardSettings();
             DefaultCharacterOverlays.Init();
             DefaultGlobalOverlays.Init();
-            DefaultTimersManager.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {

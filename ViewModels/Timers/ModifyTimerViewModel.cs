@@ -59,6 +59,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
         public bool IsMechanicTimer { get; set; }
+        public string ParentTimerId { get; set; }
         public bool UseAudio
         {
             get => useAudio; set
@@ -140,6 +141,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                 UpdateUIForTriggerType();
             }
         }
+
+        public bool ResetOnEffectLoss { get; set; }
         public bool TrackOutsideOfCombat { get; set; }
         public bool CanChangeCombatTracking { get; set; }
         public string Ability { get; set; } = "";
@@ -408,11 +411,12 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void AddOrEditA(object obj)
         {
-            var vm = new ModifyTimerViewModel();
+            var vm = new ModifyTimerViewModel(_currentSelectedPlayer);
             vm.Name = "Clause 1";
             vm.ShowColor = false;
             vm.ShowDurationOrAlert = false;
             vm.IsSubTrigger = true;
+            vm.ParentTimerId = Id;
             vm.OnNewTimer += (timer,editing) =>
             {
                 NewClauseTimer(timer,1);
@@ -428,11 +432,12 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void AddOrEditB(object obj)
         {                
-            var vm = new ModifyTimerViewModel();
+            var vm = new ModifyTimerViewModel(_currentSelectedPlayer);
             vm.Name = "Clause 2";
             vm.IsSubTrigger = true;
             vm.ShowColor = false;
             vm.ShowDurationOrAlert = false;
+            vm.ParentTimerId = Id;
             vm.OnNewTimer += (timer,editing) =>
             {
                 NewClauseTimer(timer,2);
@@ -518,11 +523,13 @@ namespace SWTORCombatParser.ViewModels.Timers
             CombatDuration = 0;
             ShowEffectRefreshOption = false;
             MultiClauseTrigger = false;
+            ResetOnEffectLoss = false;
             if (!IsSubTrigger)
             {
                 ShowColor = true;
                 ShowDurationOrAlert = true;
             }
+            OnPropertyChanged("ResetOnEffectLoss");
             OnPropertyChanged("ShowColor");
             OnPropertyChanged("ShowDurationOrAlert");
             OnPropertyChanged("Effect");
@@ -559,6 +566,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             IsPeriodic = timerToEdit.IsPeriodic;
             Repeats = timerToEdit.Repeats;
             Effect = timerToEdit.Effect;
+            ResetOnEffectLoss = timerToEdit.ResetOnEffectLoss;
             Ability = timerToEdit.Ability;
             IsHot = timerToEdit.IsHot;
             TrackOutsideOfCombat = timerToEdit.TrackOutsideOfCombat;
@@ -572,7 +580,17 @@ namespace SWTORCombatParser.ViewModels.Timers
             CanBeRefreshed = timerToEdit.CanBeRefreshed;
             UseAudio = timerToEdit.UseAudio;
             _clause1 = timerToEdit.Clause1;
+            if (_clause1 != null)
+            {
+                _clause1.ParentTimerId = Id;
+                _clause1.IsSubTimer = true;
+            }
             _clause2 = timerToEdit.Clause2;
+            if (_clause2 != null)
+            {
+                _clause2.ParentTimerId = Id;
+                _clause2.IsSubTimer = true;
+            }
             if(timerToEdit.CustomAudioPath != null && AudioTypes.Contains(timerToEdit.CustomAudioPath))
             {
                 SelectedAudioType = timerToEdit.CustomAudioPath;
@@ -643,6 +661,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("UseAudio");
             OnPropertyChanged("SelectedAudioType");
             OnPropertyChanged("CustomAudioPlayTime");
+            OnPropertyChanged("ResetOnEffectLoss");
         }
         public void Cancel()
         {
@@ -660,8 +679,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             var newTimer = new Timer()
             {
                 Id = Id,
+                ParentTimerId = ParentTimerId,
+                IsSubTimer = IsSubTrigger,
                 TimerSource = _currentSelectedPlayer,
                 Name = Name,
+                ResetOnEffectLoss = ResetOnEffectLoss,
                 TrackOutsideOfCombat = TrackOutsideOfCombat,
                 CombatTimeElapsed = CombatDuration,
                 IsEnabled = true,

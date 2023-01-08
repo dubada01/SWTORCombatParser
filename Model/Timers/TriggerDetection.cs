@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Model.Timers
 {
@@ -16,7 +17,7 @@ namespace SWTORCombatParser.Model.Timers
     }
     public static class TriggerDetection
     {
-        public static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime)
+        public static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime,List<TimerInstanceViewModel> activeTimers)
         {
             switch (SourceTimer.TriggerType)
             {
@@ -30,7 +31,7 @@ namespace SWTORCombatParser.Model.Timers
                     return CheckForEffectGain(log, SourceTimer.Effect,
                         SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target,
                         SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
-                        SourceTimer.TargetIsAnyButLocal);
+                        SourceTimer.TargetIsAnyButLocal,SourceTimer.ResetOnEffectLoss);
                 case TimerKeyType.EffectLost:
                    return CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target,
                         SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
@@ -58,7 +59,7 @@ namespace SWTORCombatParser.Model.Timers
                         SourceTimer.SourceIsAnyButLocal);
                 case TimerKeyType.And:
                 case TimerKeyType.Or:
-                    return CheckForDualEffect(SourceTimer,log, SourceTimer.TriggerType,startTime);
+                    return CheckForDualEffect(SourceTimer,log, SourceTimer.TriggerType,startTime,activeTimers);
             }
             return TriggerType.None;
         }
@@ -77,11 +78,11 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static Entity GetTargetId(ParsedLogEntry log, string target, bool targetIsLocal, bool targetIsAnyButLocal)
         {
-            if (TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 return log.Target;
             }
-            if (SourceIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (SourceIsValid(log.Source, target, targetIsLocal,targetIsAnyButLocal))
             {
                 return log.Source;
             }
@@ -89,7 +90,7 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static TriggerType CheckForHP(ParsedLogEntry log, double hPPercentage, double hpDisplayBuffer, string target, bool targetIsLocal, bool targetIsAnyButLocal)
         {
-            if (TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 var targetHPPercent = (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP) * 100;
                 if (targetHPPercent <= hPPercentage)
@@ -99,7 +100,7 @@ namespace SWTORCombatParser.Model.Timers
                 if (targetHPPercent <= (hPPercentage + hpDisplayBuffer) && targetHPPercent > hPPercentage)
                     return TriggerType.Start;
             }
-            if (SourceIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (SourceIsValid(log.Source, target, targetIsLocal,targetIsAnyButLocal))
             {
                 var sourceHPPercentage = (log.SourceInfo.CurrentHP / log.SourceInfo.MaxHP) * 100;
                 if (sourceHPPercentage <= hPPercentage)
@@ -116,7 +117,7 @@ namespace SWTORCombatParser.Model.Timers
         {
             if (log.Effect.EffectType != EffectType.Remove)
                 return TriggerType.None;
-            if (TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 if ((log.Effect.EffectName == effect || log.Effect.EffectId == effect) && log.Effect.EffectType == EffectType.Remove)
                     return TriggerType.Start;
@@ -125,17 +126,17 @@ namespace SWTORCombatParser.Model.Timers
             return TriggerType.None;
         }
 
-        public static TriggerType CheckForEffectGain(ParsedLogEntry log, string effect, List<string> abilitiesThatRefresh, string source, string target, bool sourceIsLocal, bool targetIsLocal,bool sourceIsAnyButLocal, bool targetIsAnyButLocal)
+        public static TriggerType CheckForEffectGain(ParsedLogEntry log, string effect, List<string> abilitiesThatRefresh, string source, string target, bool sourceIsLocal, bool targetIsLocal,bool sourceIsAnyButLocal, bool targetIsAnyButLocal, bool resetOnEffectLost)
         {
-            if(log.Effect.EffectType == EffectType.Event && log.Effect.EffectId == _7_0LogParsing.DeathCombatId && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if(log.Effect.EffectType == EffectType.Event && log.Effect.EffectId == _7_0LogParsing.DeathCombatId && TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 return TriggerType.End;
             }
-            if(log.Effect.EffectType == EffectType.Remove && (log.Effect.EffectName == effect || log.Effect.EffectId == effect) && SourceIsValid(log, source, sourceIsLocal,sourceIsAnyButLocal))
+            if(log.Effect.EffectType == EffectType.Remove && (log.Effect.EffectName == effect || log.Effect.EffectId == effect) && SourceIsValid(log.Source, source, sourceIsLocal,sourceIsAnyButLocal) && resetOnEffectLost)
             {
                 return TriggerType.End;
             }
-            if (SourceIsValid(log, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (SourceIsValid(log.Source, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 if ((log.Effect.EffectName == effect || log.Effect.EffectId == effect) &&
                     log.Effect.EffectType == EffectType.Apply)
@@ -159,7 +160,7 @@ namespace SWTORCombatParser.Model.Timers
         {
             if (log.Effect.EffectType != EffectType.Event && log.Effect.EffectId != _7_0LogParsing.AbilityActivateId)
                 return TriggerType.None;
-            if(SourceIsValid(log,source,sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if(SourceIsValid(log.Source,source,sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 if (log.Ability == ability || log.AbilityId == ability)
                     return TriggerType.Start;
@@ -183,38 +184,38 @@ namespace SWTORCombatParser.Model.Timers
                 return TriggerType.None;
         }
 
-        private static bool SourceIsValid(ParsedLogEntry log, string source, bool sourceIsLocal, bool sourceIsAnyButLocal)
+        private static bool SourceIsValid(Entity entity, string source, bool sourceIsLocal, bool sourceIsAnyButLocal)
         {
-            if (sourceIsAnyButLocal && !log.Source.IsLocalPlayer)
+            if (sourceIsAnyButLocal && !entity.IsLocalPlayer)
                 return true;
-            if (sourceIsLocal && log.Source.IsLocalPlayer)
+            if (sourceIsLocal && entity.IsLocalPlayer)
                 return true;
             if (source == "Any")
                 return true;
-            if (source == "Players" && log.Source.IsCharacter)
+            if (source == "Players" && entity.IsCharacter)
                 return true;
-            if (source == log.Source.Name || source == log.Source.LogId.ToString())
+            if (source == entity.Name || source == entity.LogId.ToString())
                 return true;
             return false;
         }
-        private static bool TargetIsValid(ParsedLogEntry log, string target, bool targetIsLocal, bool targetIsAnyButLocal)
+        private static bool TargetIsValid(Entity entity, string target, bool targetIsLocal, bool targetIsAnyButLocal)
         {
-            if (targetIsAnyButLocal && !log.Target.IsLocalPlayer)
+            if (targetIsAnyButLocal && !entity.IsLocalPlayer)
                 return true;
-            if (targetIsLocal && log.Target.IsLocalPlayer)
+            if (targetIsLocal && entity.IsLocalPlayer)
                 return true;
             if (target == "Any")
                 return true;
-            if (target == "Players" && log.Target.IsCharacter)
+            if (target == "Players" && entity.IsCharacter)
                 return true;
-            if (target == log.Target.Name || target == log.Target.LogId.ToString())
+            if (target == entity.Name || target == entity.LogId.ToString())
                 return true;
             return false;
         }
 
         private static TriggerType CheckForTargetChange(ParsedLogEntry log, string source, bool sourceIsLocal, string target, bool targetIsLocal, bool targetIsAnyButLocal, bool sourceIsAnyButLocal)
         {
-            if (log.Effect.EffectType == EffectType.TargetChanged && SourceIsValid(log, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal) && log.Effect.EffectId == _7_0LogParsing.TargetSetId)
+            if (log.Effect.EffectType == EffectType.TargetChanged && SourceIsValid(log.Source, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal) && log.Effect.EffectId == _7_0LogParsing.TargetSetId)
             {
                 return TriggerType.Start;
             }
@@ -223,7 +224,7 @@ namespace SWTORCombatParser.Model.Timers
 
         public static TriggerType CheckForDamageTaken(ParsedLogEntry log,  string source, bool sourceIsLocal, string target, bool targetIsLocal, bool targetIsAnyButLocal, bool sourceIsAnyButLocal, string ability)
         {
-            if (log.Effect.EffectType == EffectType.Apply && (log.Ability == ability || log.AbilityId == ability) && log.Effect.EffectId == _7_0LogParsing._damageEffectId && SourceIsValid(log, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (log.Effect.EffectType == EffectType.Apply && (log.Ability == ability || log.AbilityId == ability) && log.Effect.EffectId == _7_0LogParsing._damageEffectId && SourceIsValid(log.Source, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 return TriggerType.Start;
             }
@@ -232,7 +233,7 @@ namespace SWTORCombatParser.Model.Timers
 
         public static TriggerType CheckForHasEffect(ParsedLogEntry log,string target, bool targetIsLocal, bool targetIsAnyButLocal, string sourceTimerEffect)
         {
-            if (TargetIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 var effectsActiveOnTarget =
                     CombatLogStateBuilder.CurrentState.IsEffectOnPlayerAtTime(log.TimeStamp, log.Target,
@@ -241,7 +242,7 @@ namespace SWTORCombatParser.Model.Timers
                     return TriggerType.Start;
                 return TriggerType.End;
             }           
-            if (SourceIsValid(log, target, targetIsLocal,targetIsAnyButLocal))
+            if (SourceIsValid(log.Source, target, targetIsLocal,targetIsAnyButLocal))
             {                var effectsActiveOnSource =
                     CombatLogStateBuilder.CurrentState.IsEffectOnPlayerAtTime(log.TimeStamp, log.Source,
                         sourceTimerEffect);
@@ -255,8 +256,8 @@ namespace SWTORCombatParser.Model.Timers
         public static TriggerType CheckForFacing(ParsedLogEntry log, string source, bool sourceIsLocal, string target,
             bool targetIsLocal, bool targetIsAnyButLocal, bool sourceIsAnyButLocal)
         {
-            if (SourceIsValid(log, source, sourceIsLocal, sourceIsAnyButLocal) &&
-                TargetIsValid(log, target, targetIsLocal, targetIsAnyButLocal))
+            if (SourceIsValid(log.Source, source, sourceIsLocal, sourceIsAnyButLocal) &&
+                TargetIsValid(log.Target, target, targetIsLocal, targetIsAnyButLocal))
             {
                 var sourceHeading = log.SourceInfo.Position.Facing;
                 var dotProd = (log.SourceInfo.Position.X * log.TargetInfo.Position.X) + (log.SourceInfo.Position.Y * log.TargetInfo.Position.Y);
@@ -277,18 +278,27 @@ namespace SWTORCombatParser.Model.Timers
             return TriggerType.None;
         }
 
-        public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime)
+        public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime, List<TimerInstanceViewModel> activeTimers)
         {
-            var condAStatus = CheckForTrigger(log, sourceTimer.Clause1, startTime);
-            var condBStatus = CheckForTrigger(log, sourceTimer.Clause2, startTime);
+            var subTimersForTimer = activeTimers.Where(t => t.SourceTimer.ParentTimerId == sourceTimer.Id).Select(t=>t.SourceTimer);
             if (sourceTimerTriggerType == TimerKeyType.And)
             {
-                return condAStatus == TriggerType.Start && condBStatus == TriggerType.Start ? TriggerType.Start : TriggerType.End;
+                return subTimersForTimer.Contains(sourceTimer.Clause1) && subTimersForTimer.Contains(sourceTimer.Clause2) ? TriggerType.Start : TriggerType.End;
             }
             if (sourceTimerTriggerType == TimerKeyType.Or)
             {
-                return condAStatus == TriggerType.Start || condBStatus == TriggerType.Start ? TriggerType.Start : TriggerType.End;
+                return subTimersForTimer.Contains(sourceTimer.Clause1) || subTimersForTimer.Contains(sourceTimer.Clause2) ? TriggerType.Start : TriggerType.End;
             }
+            // var condAStatus = CheckForTrigger(log, sourceTimer.Clause1, startTime);
+            // var condBStatus = CheckForTrigger(log, sourceTimer.Clause2, startTime);
+            // if (sourceTimerTriggerType == TimerKeyType.And)
+            // {
+            //     return condAStatus == TriggerType.Start && condBStatus == TriggerType.Start ? TriggerType.Start : TriggerType.End;
+            // }
+            // if (sourceTimerTriggerType == TimerKeyType.Or)
+            // {
+            //     return condAStatus == TriggerType.Start || condBStatus == TriggerType.Start ? TriggerType.Start : TriggerType.End;
+            // }
 
             return TriggerType.None;
         }

@@ -145,6 +145,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         private void NewStreamedLine(ParsedLogEntry newLine)
         {
+            if (!_isTriggered)
+                return;
             _lastUpdate = newLine.TimeStamp;
             if (newLine.Source.Name != null && newLine.Source.IsCharacter)
             {
@@ -221,7 +223,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool IsCurrentTarget(string key)
         {
-            var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(CombatLogStateBuilder.CurrentState.LocalPlayer, _lastUpdate);
+            var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(CombatLogStateBuilder.CurrentState.LocalPlayer, _lastUpdate).Entity;
             if (target == null)
                 return false;
             return target.Name == key;

@@ -73,9 +73,9 @@ namespace SWTORCombatParser.DataStructures
                 return new List<Point>();
             var timeStamps = PlotMaker.GetPlotXVals(logs, StartTime);
             var values = logs.Select(l => l.Value.EffectiveDblValue);
-            var tenSecondAverage = PlotMaker.GetPlotYValRates(values.ToArray(), timeStamps);
+            var twentySecondAverage = PlotMaker.GetPlotYValRates(values.ToArray(), timeStamps,20d);
 
-            var peaks = PlotMaker.GetPeaksOfMean(tenSecondAverage, 20);
+            var peaks = PlotMaker.GetPeaksOfMean(twentySecondAverage, 20);
             var validPeaks = peaks.Where(p => p.Item1 > 10);
             return validPeaks.Select(p => new Point() { X = p.Item1, Y = p.Item2 }).ToList();
 

@@ -33,7 +33,7 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                     timer.Id = Guid.NewGuid().ToString();
                     if(timer.TriggerType == TimerKeyType.EntityHP)
                     {
-                        timer.Target = timer.Source;
+                        timer.Target = timer.SpecificBoss;
                         timer.TargetIsLocal = timer.SourceIsLocal;
                         timer.Source = "Any";
                         timer.SourceIsLocal = false;
