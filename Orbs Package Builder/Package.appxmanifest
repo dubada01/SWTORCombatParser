@@ -9,7 +9,7 @@
   <Identity
     Name="37053DubaTech.OldRepublicBattleParser"
     Publisher="CN=BA3DD863-3798-48E1-9914-1F93B78F55BD"
-    Version="1.4.2.0" />
+    Version="1.4.4.0" />
 
   <Properties>
     <DisplayName>Old Republic: Battle Parser</DisplayName>

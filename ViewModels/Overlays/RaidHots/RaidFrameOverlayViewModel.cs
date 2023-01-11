@@ -64,7 +64,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, playerName));
             if (LevenshteinDistance.Compute(bestMatch, playerName) > 4)
                 return;
-            var cellToUpdate = RaidHotCells.First(c => c.Name.ToLower() == bestMatch);
+            var cellToUpdate = RaidHotCells.FirstOrDefault(c => c.Name.ToLower() == bestMatch);
+            if (cellToUpdate == null)
+                return;
             cellToUpdate.AddTimer(obj);
         }
         public void UpdateNames(List<PlacedName> orderedNames)

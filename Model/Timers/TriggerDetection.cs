@@ -280,29 +280,27 @@ namespace SWTORCombatParser.Model.Timers
 
         public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime, List<TimerInstanceViewModel> activeTimers)
         {
-            var subTimersForTimer = activeTimers.Where(t => t.SourceTimer.ParentTimerId == sourceTimer.Id).Select(t=>t.SourceTimer);
+            var durationTriggers = new List<TimerKeyType>
+                { TimerKeyType.HasEffect, TimerKeyType.EntityHP, TimerKeyType.IsTimerTriggered };
+            var subTimersForTimer = activeTimers.Where(t =>t.SourceTimer.IsSubTimer && t.SourceTimer.ParentTimerId == sourceTimer.Id).Select(t=>t.SourceTimer);
+            
+            var clause1State = durationTriggers.Contains(sourceTimer.Clause1.TriggerType)
+                ? subTimersForTimer.Contains(sourceTimer.Clause1)
+                : CheckForTrigger(log, sourceTimer.Clause1, startTime, activeTimers) == TriggerType.Start;
+            var clause2State = durationTriggers.Contains(sourceTimer.Clause2.TriggerType)
+                ? subTimersForTimer.Contains(sourceTimer.Clause2)
+                : CheckForTrigger(log, sourceTimer.Clause2, startTime, activeTimers) == TriggerType.Start;
+            
             if (sourceTimerTriggerType == TimerKeyType.And)
             {
-                return subTimersForTimer.Contains(sourceTimer.Clause1) && subTimersForTimer.Contains(sourceTimer.Clause2) ? TriggerType.Start : TriggerType.End;
+                return clause1State && clause2State ? TriggerType.Start : TriggerType.None;
             }
             if (sourceTimerTriggerType == TimerKeyType.Or)
             {
-                return subTimersForTimer.Contains(sourceTimer.Clause1) || subTimersForTimer.Contains(sourceTimer.Clause2) ? TriggerType.Start : TriggerType.End;
+                return clause1State || clause2State ? TriggerType.Start : TriggerType.None;
             }
-            // var condAStatus = CheckForTrigger(log, sourceTimer.Clause1, startTime);
-            // var condBStatus = CheckForTrigger(log, sourceTimer.Clause2, startTime);
-            // if (sourceTimerTriggerType == TimerKeyType.And)
-            // {
-            //     return condAStatus == TriggerType.Start && condBStatus == TriggerType.Start ? TriggerType.Start : TriggerType.End;
-            // }
-            // if (sourceTimerTriggerType == TimerKeyType.Or)
-            // {
-            //     return condAStatus == TriggerType.Start || condBStatus == TriggerType.Start ? TriggerType.Start : TriggerType.End;
-            // }
 
             return TriggerType.None;
         }
-
-        
     }
 }

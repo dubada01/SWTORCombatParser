@@ -1,5 +1,5 @@
 {
   "overlay_bar_scale": 1.0,
-  "stub_logs": true,
+  "stub_logs": false,
   "custom_audio_paths": []
 }

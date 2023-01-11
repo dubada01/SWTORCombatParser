@@ -17,7 +17,8 @@ namespace SWTORCombatParser.DataStructures
         HasEffect,
         IsFacing,
         And,
-        Or
+        Or,
+        IsTimerTriggered
     }
     public class Timer
     {

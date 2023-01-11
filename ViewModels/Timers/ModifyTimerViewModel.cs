@@ -481,10 +481,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 SelectedDifficulty = "All";
                 IsMechanicTimer = false;
             }
-            var customAudio = Settings.ReadSettingOfType<List<string>>("custom_audio_paths");
+            var customAudio = Settings.GetListSetting<string>("custom_audio_paths");
             if (customAudio != null && customAudio.Count > 0)
             {
-                AudioTypes = customAudio;
+                AudioTypes = customAudio.Distinct().ToList();
             }
             if(timerSource != "")
                 AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers;
@@ -674,7 +674,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void Save(object obj)
         {
             var isValid = Validate();
-            if (!isValid)
+            if (!isValid || SelectedAudioType == "Custom")
                 return;
             var newTimer = new Timer()
             {

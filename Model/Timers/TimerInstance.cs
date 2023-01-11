@@ -117,19 +117,14 @@ namespace SWTORCombatParser.Model.Timers
                 }
             }            
             if (wasTriggered == TriggerType.Start &&
-                             !_activeTimerInstancesForTimer.Any() && (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or))
-            {
-                CreateTimerInstance(log,targetInfo.Name, targetInfo.Id);
-            }
-            if (wasTriggered == TriggerType.Start &&
-                _activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id) && !(SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or))
+                _activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
             {
                 CreateTimerInstance(log,targetInfo.Name, targetInfo.Id);
             }
 
             if (wasTriggered == TriggerType.Start &&
                 _activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id) &&
-                SourceTimer.TriggerType == TimerKeyType.AbilityUsed)
+                (SourceTimer.TriggerType == TimerKeyType.AbilityUsed || SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or))
             {
                 var timerToRefresh = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id).Value;
                 timerToRefresh.Reset(log.TimeStamp);
@@ -179,7 +174,7 @@ namespace SWTORCombatParser.Model.Timers
                     Id = hpTargetInfo.Id
                 };
             }
-            if(triggerType == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
+            if((triggerType == TriggerType.Refresh && SourceTimer.CanBeRefreshed) || (triggerType== TriggerType.Start && (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or)))
             {
                 var currentTarget =
                     CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp).Entity;
