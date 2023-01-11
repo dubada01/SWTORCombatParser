@@ -23,7 +23,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string _audioPath;
         private int _playAtTime;
         public event Action<TimerInstanceViewModel> TimerExpired = delegate { };
-        public event Action TimerTriggered = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<int> ChargesUpdated = delegate { };
         public int Charges
@@ -116,8 +115,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             else
             {
-                _timerValue = TimeSpan.FromSeconds(3);
-                _dtimer.Interval = TimeSpan.FromSeconds(3);
+                _timerValue = TimeSpan.FromSeconds(swtorTimer.IsSubTimer ? 0 : 3);
+                _dtimer.Interval = TimeSpan.FromSeconds(swtorTimer.IsSubTimer ? 0 : 3);
             }
             MaxTimerValue = _timerValue.TotalSeconds;
             TimerValue = _timerValue.TotalSeconds;
@@ -176,7 +175,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             _dtimer.Start();
             StartTime = DateTime.Now;
             LastUpdate = StartTime;
-            TimerTriggered();
         }
         public void TriggerHPTimer(double currentHP)
         {
@@ -188,7 +186,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             TimerValue = SourceTimer.HPPercentage;
             _dtimer.Tick += UpdateHP;
             _dtimer.Start();
-            TimerTriggered();
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");

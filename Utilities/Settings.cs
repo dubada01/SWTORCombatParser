@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xaml;
 using Newtonsoft.Json;
@@ -8,19 +9,17 @@ namespace SWTORCombatParser.Utilities;
 
 public static class Settings
 {
+    public static List<T> GetListSetting<T>(string settingName)
+    {
+        var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("MiscSettings.json"));
+        var stringsetting = settingList[settingName].ToString();
+        return JsonConvert.DeserializeObject<List<T>>(stringsetting);
+    }
     public static T ReadSettingOfType<T>(string settingName)
     {
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("MiscSettings.json"));
-        try
-        {
-            return (settingList[settingName] ?? throw new InvalidOperationException()).Value<T>();
-        }
-        catch
-        {
-            var stringsetting = settingList[settingName].ToString();
-            return JsonConvert.DeserializeObject<T>(stringsetting);
-        }
-        
+        return (settingList[settingName] ?? throw new InvalidOperationException()).Value<T>();
+
     }
 
     public static void WriteSetting<T>(string settingName, T value)

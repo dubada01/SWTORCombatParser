@@ -18,6 +18,7 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
             var timers = (timerToLoad["Timers"] as JArray).ToObject<List<Timer>>();
             foreach(var timer in timers)
             {
+                timer.ResetOnEffectLoss = true;
                 DefaultTimersManager.AddTimerForSource(timer, "HOTS");
             }
         }
