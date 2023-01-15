@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Model.LogParsing
     public static class CombatLogStateBuilder
     {
         public static event Action<Entity, SWTORClass> PlayerDiciplineChanged = delegate { };
-        public static event Action AreaEntered = delegate { };
+        public static event Action<EncounterInfo> AreaEntered = delegate { };
         public static LogState CurrentState { get; set; } = new LogState();
 
         public static void ClearState()
@@ -49,8 +49,6 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static void UpdateEncounterEntered(ParsedLogEntry log, bool liveLog)
         {
-            if(liveLog)
-                AreaEntered();
             var knownEncounters = EncounterLoader.SupportedEncounters.Select(EncounterInfo.GetCopy);
             var encounterInfos = knownEncounters.ToList();
             if (encounterInfos.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)) || encounterInfos.Select(r=>r.LogId).Any(ln=>log.LogLocationId == ln && !string.IsNullOrEmpty(ln)))
@@ -68,6 +66,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
                 if (liveLog)
                 {
+                    AreaEntered(raidOfInterest);
                     if(raidOfInterest.IsPvpEncounter)
                         EncounterTimerTrigger.FirePvpEncounterDetected();
                     else
@@ -78,12 +77,16 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             else
             {
-                if (liveLog)
-                    EncounterTimerTrigger.FireNonPvpEncounterDetected();
                 var openWorldLocation = ": " + log.LogLocation;
 
-                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World"};
+                var openWorldEncounter = new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World" };
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
+                if (liveLog)
+                {
+                    AreaEntered(openWorldEncounter);
+                    EncounterTimerTrigger.FireNonPvpEncounterDetected();
+                }
+
             }
         }
         private static void UpdatePlayerDeathState(ParsedLogEntry log)

@@ -73,17 +73,19 @@ namespace SWTORCombatParser.Model.Overlays
         private static List<PlacedName> GetNamesFromResponse(Dictionary<string, List<List<double>>> ocrResponse,int height, int width,Point topLeftOfFrame,int numberOfRows, int numberOfColumns)
         {
             var validEntries = ocrResponse.Where(kvp=>kvp.Key.All(c=>char.IsLetter(c)|| c == '-' || c =='\'') && kvp.Key.Length > 2).OrderBy(kv=>kv.Value[0][0]);
-            
+            var correctedEntries = validEntries.Select(ve => 
+                new KeyValuePair<string, List<List<double>>>(ve.Key,
+                    ve.Value.Select(coord=>coord.Select(ConvertCoordWithCompressionFactor).ToList()).ToList()));
             double rowHeights = height / (double)numberOfRows;
             double columnWidth = width / (double)numberOfColumns;
             
             var placedNames = new List<PlacedName>();
 
-            foreach (var validEntry in validEntries)
+            foreach (var validEntry in correctedEntries)
             {
                 var topLeft = validEntry.Value[0];
-                var row = (int)(topLeft[1] / rowHeights);
-                var column = (int)(topLeft[0] / columnWidth);
+                var row = (int)Math.Round(topLeft[1] / rowHeights);
+                var column =(int)Math.Round((topLeft[0] / columnWidth));
                 var nameAtLocation = placedNames.FirstOrDefault(n => n.Row == row && n.Column == column);
                 if (nameAtLocation == null)
                 {
@@ -98,37 +100,12 @@ namespace SWTORCombatParser.Model.Overlays
             }
             return placedNames;
         }
-        public static List<PlacedName> GetCurrentPlayerLayout(Point topLeftOfFrame, Image swtorRaidFrame, int numberOfRows, int numberOfColumns)
+
+        private static double ConvertCoordWithCompressionFactor(double value)
         {
-            var client = GoogleCloudPlatform.GetClient();
-
-            var image = Google.Cloud.Vision.V1.Image.FromBytes(ImageToByte2(swtorRaidFrame));
-            var response = client.DetectText(image);
-
-            var validEntites = response.Where(r =>r.Description.All(c=>char.IsLetter(c)|| c == '-' || c =='\'')).GroupBy(n=>n.Description).Select(g=>g.First()).ToList();
-
-            double rowHeights = swtorRaidFrame.Height / numberOfRows;
-            double columnWidth = swtorRaidFrame.Width / numberOfColumns;
-
-            var placedNames = new List<PlacedName>();
-
-            foreach (var validEntry in validEntites)
-            {
-                var topLeft = validEntry.BoundingPoly.Vertices[0];
-                var row = (int)(topLeft.Y / rowHeights);
-                var column = (int)(topLeft.X / columnWidth);
-                var nameAtLocation = placedNames.FirstOrDefault(n => n.Row == row && n.Column == column);
-                if (nameAtLocation == null)
-                {
-                    placedNames.Add(new PlacedName() { Name = validEntry.Description, Row = row, Column = column, Vertices = validEntry.BoundingPoly.Vertices.Select(v=>new Point(v.X+ topLeftOfFrame.X,v.Y+ topLeftOfFrame.Y)).ToList() });
-                }
-                else
-                {
-                    nameAtLocation.Name += " " + validEntry.Description;
-                }
-            }
-            return placedNames;
+            return value * (1 + (1 - RaidFrameScreenGrab.CurrentCompressionFactor));
         }
+       
         private static byte[] ImageToByte2(Image img)
         {
             using (var stream = new MemoryStream())

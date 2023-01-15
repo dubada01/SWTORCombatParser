@@ -12,6 +12,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
     {
         private EntityInfo _bossInfo;
         private bool isActive;
+        private object timerLock = new object();
         public ObservableCollection<TimerInstanceViewModel> UpcomingMechanics { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
         public MechanicsTimersModuleViewModel(EntityInfo bossInfo, bool mechTrackingEnabled)
         {
@@ -27,26 +28,30 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             if(!isActive)
                 return;
-            if (obj.SourceTimer.IsMechanic)
+            lock (timerLock)
             {
-                obj.TimerExpired += RemoveTimer;
-                var unorderedUpcomingMechs = UpcomingMechanics.ToList();
-                unorderedUpcomingMechs.Add(obj);
-                var ordered = unorderedUpcomingMechs.OrderByDescending(t =>
-                    t.SourceTimer.DurationSec == 0 ? t.SourceTimer.HPPercentage : t.SourceTimer.DurationSec);
-                App.Current.Dispatcher.Invoke(() =>
+                if (obj.SourceTimer.IsMechanic)
                 {
-                    UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);
-                    OnPropertyChanged("UpcomingMechanics");
-                });
+                    obj.TimerExpired += RemoveTimer;
+                    var unorderedUpcomingMechs = UpcomingMechanics.ToList();
+                    unorderedUpcomingMechs.Add(obj);
+                    var ordered = unorderedUpcomingMechs.OrderByDescending(t =>
+                        t.SourceTimer.DurationSec == 0 ? t.SourceTimer.HPPercentage : t.SourceTimer.DurationSec);
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);
+                        OnPropertyChanged("UpcomingMechanics");
+                    });
+                }
             }
         }
         
-        private void RemoveTimer(TimerInstanceViewModel obj)
+        private void RemoveTimer(TimerInstanceViewModel obj,bool endedNatrually)
         {
-            App.Current.Dispatcher.Invoke(() => {
-                UpcomingMechanics.Remove(obj);
-            });
+            lock (timerLock)
+            {
+                App.Current.Dispatcher.Invoke(() => { UpcomingMechanics.Remove(obj); });
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

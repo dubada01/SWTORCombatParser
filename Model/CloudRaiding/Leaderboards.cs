@@ -56,7 +56,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 TopLeaderboardEntriesAvailable(TopLeaderboards);
                 return;
             }
-            if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
+            if (newCombat.LocalPlayer == null || !CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                 return;
             if (CurrentFightLeaderboard.Count == 0)
                 GetCurrentLeaderboard(newCombat);
@@ -90,7 +90,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     return;
                 }
                 var state = CombatLogStateBuilder.CurrentState;
-                if (!state.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
+                if (newCombat.LocalPlayer == null || !state.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                     return;
                 if (CurrentFightLeaderboard.Count == 0)
                     GetCurrentLeaderboard(newCombat);

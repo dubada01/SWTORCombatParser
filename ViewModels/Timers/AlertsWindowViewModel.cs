@@ -72,38 +72,41 @@ public class AlertsWindowViewModel:INotifyPropertyChanged
     {
         if (!Active)
             return;
-        _timerWindow.Show();
+        App.Current.Dispatcher.Invoke(() =>
+        {
+            _timerWindow.Show();
+        });
     }
 
     public void HideTimers()
     {
         App.Current.Dispatcher.Invoke(() => { _timerWindow.Hide(); });
     }
-
+    private object _timerChangeLock = new object();
     private void AddTimerVisual(TimerInstanceViewModel obj)
     {
         if (obj.SourceTimer.IsHot || !Active || !obj.SourceTimer.IsAlert)
             return;
-        App.Current.Dispatcher.Invoke(() =>
+        ShowTimers();
+
+        lock (_timerChangeLock)
         {
-            ShowTimers();
             _currentTimers.Add(obj);
             SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
-            OnPropertyChanged("SwtorTimers");
-        });
+        }
+        OnPropertyChanged("SwtorTimers");
     }
 
     private void RefreshTimerVisuals(TimerInstanceViewModel removedTimer)
     {
-        App.Current.Dispatcher.Invoke(() =>
+        lock (_timerChangeLock)
         {
             _currentTimers.Remove(removedTimer);
             SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
-            if(SwtorTimers.Count == 0)
-                HideTimers();
-            OnPropertyChanged("SwtorTimers");
-        });
-
+        }
+        if (SwtorTimers.Count == 0)
+            HideTimers();
+        OnPropertyChanged("SwtorTimers");
     }
 
     protected void OnPropertyChanged([CallerMemberName] string name = null)

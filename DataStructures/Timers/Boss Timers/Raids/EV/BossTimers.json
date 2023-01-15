@@ -1,10 +1,10 @@
 [{
-  "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+  "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
   "IsBossSource": true,
   "Position": "0,0",
   "WidtHHeight": "300,200",
   "Timers": [{
-    "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+    "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
     "CharacterDiscipline": null,
     "Id": "",
     "ShareId": null,
@@ -41,7 +41,7 @@
     "IsBuiltInDot": false,
     "IsMechanic": true
   },{
-    "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+    "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
     "CharacterDiscipline": null,
     "Id": "",
     "ShareId": null,
@@ -79,7 +79,7 @@
     "IsMechanic": true
   }
   ,{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -117,7 +117,7 @@
       "IsMechanic": true
     }
   ,{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -155,7 +155,7 @@
       "IsMechanic": true
     }
   ,{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -192,7 +192,7 @@
       "IsBuiltInDot": false,
       "IsMechanic": true
     }  ,{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -229,7 +229,7 @@
       "IsBuiltInDot": false,
       "IsMechanic": true
     },{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -266,7 +266,7 @@
       "IsBuiltInDot": false,
       "IsMechanic": true
     },{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -303,7 +303,7 @@
       "IsBuiltInDot": false,
       "IsMechanic": true
     },{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -340,7 +340,7 @@
       "IsBuiltInDot": false,
       "IsMechanic": true
     },{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -377,7 +377,7 @@
       "IsBuiltInDot": false,
       "IsMechanic": true
     },{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -414,7 +414,7 @@
       "IsBuiltInDot": false,
       "IsMechanic": true
     },{
-      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3|Veteran",
+      "TimerSource": "Eternity Vault|Annihilation Droid XRR-3",
       "CharacterDiscipline": null,
       "Id": "",
       "ShareId": null,
@@ -453,13 +453,13 @@
     }
   ]},
   {
-    "TimerSource": "Eternity Vault|Soa|Veteran",
+    "TimerSource": "Eternity Vault|Soa",
     "IsBossSource": true,
     "Position": "0,0",
     "WidtHHeight": "300,200",
     "Timers": [
       {
-        "TimerSource": "Eternity Vault|Soa|Veteran",
+        "TimerSource": "Eternity Vault|Soa",
         "CharacterDiscipline": null,
         "Id": "",
         "ShareId": null,
@@ -497,7 +497,7 @@
         "IsMechanic": true
       },
       {
-        "TimerSource": "Eternity Vault|Soa|Veteran",
+        "TimerSource": "Eternity Vault|Soa",
         "CharacterDiscipline": null,
         "Id": "",
         "ShareId": null,

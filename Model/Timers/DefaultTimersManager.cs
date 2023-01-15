@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using ScottPlot.Styles;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using System;
@@ -61,7 +62,24 @@ namespace SWTORCombatParser.Model.Timers
             {
                 File.WriteAllText(activePath, JsonConvert.SerializeObject(new Dictionary<string, bool>()));
             }
+            CorrectBossSourceNames();
         }
+
+        private static void CorrectBossSourceNames()
+        {
+            var stringInfo = File.ReadAllText(infoPath);
+
+            var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
+            foreach (var mech in currentDefaults)
+            {
+                var parts = mech.TimerSource.Split("|");
+                if (parts.Length == 2 || parts.Length == 1)
+                    continue;
+                mech.TimerSource = string.Join("|", parts[0], parts[1]);
+            }
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+        }
+
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)
         {
             var currentDefaults = GetDefaults(characterName);
@@ -88,6 +106,7 @@ namespace SWTORCombatParser.Model.Timers
             if (defaults.Any(t => t.TimerSource == source.TimerSource))
             {
                 var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
+                sourceToUpdate.Timers.RemoveAll(t => t.IsBuiltInMechanic);
                 sourceToUpdate.Timers = source.Timers;
             }
             else
@@ -109,10 +128,13 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static void RemoveTimerForCharacter(Timer timer, string character)
         {
-            var currentDefaults = GetDefaults(character);
-            var valueToRemove = currentDefaults.Timers.First(t => TimerEquality.Equals(timer,t));
-            currentDefaults.Timers.Remove(valueToRemove);
-            SaveResults(character, currentDefaults);
+            var currentDefaults = GetAllDefaults();
+            var valueToRemove = currentDefaults.SelectMany(s=>s.Timers).First(t => TimerEquality.Equals(timer, t));
+            foreach(var source in currentDefaults)
+            {
+                source.Timers.Remove(valueToRemove);
+            }
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
         public static void SetTimerEnabled(bool state, Timer timer)
         {

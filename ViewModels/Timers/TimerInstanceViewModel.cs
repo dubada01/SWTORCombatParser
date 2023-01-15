@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -22,7 +23,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         private MediaPlayer _mediaPlayer;
         private string _audioPath;
         private int _playAtTime;
-        public event Action<TimerInstanceViewModel> TimerExpired = delegate { };
+        private bool isActive;
+        public event Action<TimerInstanceViewModel,bool> TimerExpired = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<int> ChargesUpdated = delegate { };
         public int Charges
@@ -125,7 +127,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void ClearAlert(object sender, EventArgs args)
         {
-            Complete();
+            Complete(true);
         }
         public void Reset(DateTime timeStampOfReset)
         {
@@ -164,13 +166,15 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 DisplayTimer = true;
                 DisplayTimerValue = false;
-                if(SourceTimer.TriggerType != TimerKeyType.HasEffect && !(SourceTimer.TriggerType == TimerKeyType.Or && (SourceTimer.Clause1.TriggerType == TimerKeyType.EntityHP || SourceTimer.Clause2.TriggerType == TimerKeyType.EntityHP)))
+                if (SourceTimer.TriggerType != TimerKeyType.HasEffect &&
+                        !SourceTimer.IsSubTimer)
                     _dtimer.Tick += ClearAlert;
             }
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
 
+            isActive = true;
             _dtimer.IsEnabled = true;
             _dtimer.Start();
             StartTime = DateTime.Now;
@@ -186,6 +190,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             TimerValue = SourceTimer.HPPercentage;
             _dtimer.Tick += UpdateHP;
             _dtimer.Start();
+            isActive = true;
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
@@ -211,19 +216,26 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("RemainderWidth");
             LastUpdate = DateTime.Now;
             if (TimerValue <= 0)
-                Complete();
+                Complete(true);
         }
         public void UpdateHP(object sender, EventArgs args)
         {
             _hpTimerMonitor = CurrentMonitoredHP;
             if (_hpTimerMonitor <= SourceTimer.HPPercentage)
-                Complete();
+                Complete(true);
         }
-        public void Complete()
+        private object completeLock = new object();
+        public void Complete(bool endedNatrually)
         {
-            _dtimer?.Stop();
-            _dtimer.IsEnabled = false;
-            TimerExpired(this);
+            lock(completeLock)
+            {
+                if (!isActive) return;
+                isActive = false;
+                _dtimer.Stop();
+                _dtimer.IsEnabled = false;
+                Debug.WriteLine("Complete! - " + SourceTimer.Name+ ": was cancelled?" + !endedNatrually);
+                TimerExpired(this, endedNatrually);
+            }
         }
         private string GetTimerName()
         {
@@ -240,7 +252,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 else
                 {
-                    name = SourceTimer.Name + (string.IsNullOrEmpty(TargetAddendem) ? "" : " on ") + TargetAddendem;
+                    name = SourceTimer.Name + (SourceTimer.ShowTargetOnTimerUI ? ((string.IsNullOrEmpty(TargetAddendem) ? "" : " on ") + TargetAddendem) : "");
                 }
             }
 
@@ -253,7 +265,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public void Dispose()
         {
-            _dtimer?.Stop();
+            isActive = false;
+            _dtimer.Stop();
             _dtimer.IsEnabled = false;
         }
     }

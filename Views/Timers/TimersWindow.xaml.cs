@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.Timers;
+﻿using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Runtime.InteropServices;
@@ -22,12 +23,13 @@ namespace SWTORCombatParser.Views.Timers
         void Show();
         void makeTransparent(bool shouldLock);
         void SetPlayer(string player);
+        void SetIdText(string text);
     }
     public partial class TimersWindow :  Window, ITimerWindow
     {
-        private TimersWindowViewModel viewModel;
+        private ITimerWindowViewModel viewModel;
         private string _currentPlayerName;
-        public TimersWindow(TimersWindowViewModel vm)
+        public TimersWindow(ITimerWindowViewModel vm)
         {
             viewModel = vm;
             DataContext = vm;
@@ -94,6 +96,10 @@ namespace SWTORCombatParser.Views.Timers
             });
 
         }
+        public void SetIdText(string text)
+        {
+            IdentiferText.Text = text;
+        }
         public void SetPlayer(string playerName)
         {
             _currentPlayerName = playerName;
@@ -104,7 +110,10 @@ namespace SWTORCombatParser.Views.Timers
         }
         public void UpdateDefaults(object sender, MouseButtonEventArgs args)
         {
-            DefaultTimersManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            if (_currentPlayerName == "Encounter")
+                DefaultGlobalOverlays.SetDefault("Encounter", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
+            else
+                DefaultTimersManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
         }
 
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -119,7 +128,10 @@ namespace SWTORCombatParser.Views.Timers
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            DefaultTimersManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            if (_currentPlayerName == "Encounter")
+                DefaultGlobalOverlays.SetDefault("Encounter", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
+            else
+                DefaultTimersManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 

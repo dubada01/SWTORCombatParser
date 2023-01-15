@@ -38,7 +38,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             }
         }
 
-        private void RemoveTimer(TimerInstanceViewModel obj)
+        private void RemoveTimer(TimerInstanceViewModel obj, bool endedNatrually)
         {
             App.Current.Dispatcher.Invoke(() => {
                 ActiveDOTS.Remove(obj);

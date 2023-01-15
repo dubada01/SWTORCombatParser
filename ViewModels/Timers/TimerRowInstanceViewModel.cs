@@ -15,6 +15,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private SolidColorBrush _rowBackground;
 
         public event Action<TimerRowInstanceViewModel> EditRequested = delegate { };
+        public event Action<TimerRowInstanceViewModel> CopyRequested = delegate { };
         public event Action<TimerRowInstanceViewModel> ShareRequested = delegate { };
         public event Action<TimerRowInstanceViewModel> DeleteRequested = delegate { };
         public event Action<TimerRowInstanceViewModel> ActiveChanged = delegate { };
@@ -55,6 +56,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void Share(object t)
         {
             ShareRequested(this);
+        }
+        public ICommand CopyCommand => new CommandHandler(Copy);
+
+        private void Copy(object obj)
+        {
+            CopyRequested(this);
         }
         public ICommand DeleteCommand => new CommandHandler(Delete);
         private void Delete(object t)

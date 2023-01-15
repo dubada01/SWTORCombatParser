@@ -13,6 +13,10 @@ namespace SWTORCombatParser.Model.Timers;
 
 public static class TimerController
 {
+    private static bool historicalParseFinished;
+    private static DateTime _startTime;
+    private static string _currentDiscipline;
+    private static object _logReadObject = new object();
     private static List<TimerInstance> _availableTimers = new List<TimerInstance>();
     private static List<TimerInstanceViewModel> _currentlyActiveTimers = new List<TimerInstanceViewModel>();
     private static bool _timersEnabled;
@@ -21,12 +25,18 @@ public static class TimerController
     public static void Init()
     {
         CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
+        CombatLogStreamer.HistoricalLogsStarted += HistoricalStarted;
         CombatLogStreamer.CombatUpdated += CombatStateUpdated;
         CombatLogStreamer.NewLineStreamed += NewLogStreamed;
         DefaultTimersManager.Init();
         RefreshAvailableTimers();
     }
-    
+
+    private static void HistoricalStarted()
+    {
+        historicalParseFinished = false;
+    }
+
     public static void RefreshAvailableTimers()
     {
         _availableTimers.ForEach(t => t.TimerOfTypeExpired -= OnTimerExpired);
@@ -39,9 +49,30 @@ public static class TimerController
         _availableTimers = allTimers.Select(t => new TimerInstance(t)).ToList();
         foreach (var timerInstance in _availableTimers)
         {
-            if (string.IsNullOrEmpty(timerInstance.ExperiationTimerId)) continue;
-            var trigger = _availableTimers.First(t => t.SourceTimer.Id == timerInstance.ExperiationTimerId);
-            timerInstance.ExpirationTimer = trigger;
+            if (timerInstance.SourceTimer.IsSubTimer)
+            {
+                var parentTimer = _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.ParentTimerId);
+                if (parentTimer != null)
+                {
+                    timerInstance.ParentTimer = parentTimer;
+                }
+            }
+            if (!string.IsNullOrEmpty(timerInstance.ExperiationTimerId))
+            {
+                var trigger = _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.ExperiationTimerId);
+                if (trigger != null)
+                {
+                    timerInstance.ExpirationTimer = trigger;
+                }
+            }
+            if (!string.IsNullOrEmpty(timerInstance.CancellationTimerId)) 
+            {
+                var cancelTrigger = _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.CancellationTimerId);
+                if (cancelTrigger != null)
+                {
+                    timerInstance.CancelTimer = cancelTrigger;
+                }
+            }
         }
         _availableTimers.ForEach(t => t.TimerOfTypeExpired += OnTimerExpired);
         _availableTimers.ForEach(t => t.NewTimerInstance += AddTimerVisual);
@@ -54,7 +85,7 @@ public static class TimerController
         _currentlyActiveTimers.Add(t);
     }
 
-    private static void OnTimerExpired(TimerInstanceViewModel t)
+    private static void OnTimerExpired(TimerInstanceViewModel t, bool endedNatrually)
     {
         if(!t.SourceTimer.IsSubTimer)
             TimerExpired(t);
@@ -62,29 +93,30 @@ public static class TimerController
     }
     private static void EnableTimers(DateTime combatEndTime, bool localPlayerIdentified)
     {
+        historicalParseFinished = true;
         _timersEnabled = true;
     }
 
-    private static DateTime _startTime;
-    private static string _currentDiscipline;
-    private static object _logReadObject = new object();
     private static void NewLogStreamed(ParsedLogEntry log)
     {
         lock (_logReadObject)
         {
             if(_currentDiscipline == null)
                 _currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(log.TimeStamp).Discipline;
+            var encounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
             Parallel.ForEach(_availableTimers, timer =>
             {
                 if(!timer.TrackOutsideOfCombat && !CombatDetector.InCombat)
                     return;
-                timer.CheckForTrigger(log, _startTime,_currentDiscipline,_currentlyActiveTimers.ToList());
+                timer.CheckForTrigger(log, _startTime,_currentDiscipline,_currentlyActiveTimers.ToList(), encounter);
             });
         }
     }
 
     private static void CombatStateUpdated(CombatStatusUpdate obj)
     {
+        if (!historicalParseFinished)
+            return;
         if (obj.Type == UpdateType.Start)
         {
             _startTime = obj.CombatStartTime;
