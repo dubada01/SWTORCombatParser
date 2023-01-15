@@ -43,7 +43,7 @@
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
         </Grid>
         <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
-            <TextBlock Text="DISCIPLINE TIMERS" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
+            <TextBlock x:Name="IdentiferText" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
         </Viewbox>
     </Grid>
 </Window>

@@ -139,18 +139,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             if (update.Logs == null || update.Type == UpdateType.Stop || update.Logs.Count == 0)
                 return;
             var logs = update.Logs;
-            var bossInfos = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp);
-            if (bossInfos.BossNames.Count == 0)
+            var encounterInfo = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp);
+            if (encounterInfo.BossNames.Count == 0)
                 return;
-            var currentEncounterBossTargets = EncounterLister.GetAllTargetsForEncounter(bossInfos.Name);
-            if (currentEncounterBossTargets == null)
-                return;
-            foreach (var log in logs)
+            var currentEncounterBossTargets = encounterInfo.BossInfos.SelectMany(b => b.TargetIds).ToList();
+
+            foreach (var log in logs.Where(l=>l.Effect.EffectType != EffectType.TargetChanged))
             {
-                if (currentEncounterBossTargets.Contains(log.Source.Name) || currentEncounterBossTargets.Contains(log.Target.Name))
+                if (currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) || currentEncounterBossTargets.Contains(log.Target.LogId.ToString()))
                 {
-                    EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.Name) ? log.SourceInfo : log.TargetInfo;
-                    if (!BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name))
+                    EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) ? log.SourceInfo : log.TargetInfo;
+                    if (BossesDetected.All(b => b.CurrentBoss.Name != boss.Entity.Name))
                     {
                         App.Current.Dispatcher.Invoke(() =>
                         {

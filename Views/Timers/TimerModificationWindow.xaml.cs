@@ -68,5 +68,9 @@ namespace SWTORCombatParser.Views.Timers
                 _vm.SaveTarget();
             }
         }
+        public void DragWindow(object sender, MouseButtonEventArgs args)
+        {
+            DragMove();
+        }
     }
 }

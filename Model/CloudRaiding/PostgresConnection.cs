@@ -203,7 +203,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     $"player_class = @p4 and " +
                     $"value_type = @p5 and " +
                     $"software_version = @p6 and " +
-                    $"timestamp > @p6::timestamp", connection){
+                    $"timestamp > to_timestamp(@p6,\'YYYY-MM-DD hh24:mi:ss\')", connection){
                                Parameters =
                                {
                                    new ("p1",bossName),

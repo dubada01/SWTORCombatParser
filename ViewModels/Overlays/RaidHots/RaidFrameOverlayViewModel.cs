@@ -8,9 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
@@ -22,6 +24,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private bool editable;
         private bool active;
         private RaidFrameOverlay _view;
+        private bool _usingDecreasedAccuracy;
         public bool Editable
         {
             get => editable;
@@ -61,20 +64,34 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null) return;
             
             var playerName = obj.TargetAddendem.ToLower();
-            var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, playerName));
-            if (LevenshteinDistance.Compute(bestMatch, playerName) > 4)
+            var normalName = GetNameWithoutSpecials(playerName);
+            
+            var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, normalName));
+            if (LevenshteinDistance.Compute(bestMatch, normalName) > 4 && !_usingDecreasedAccuracy)
                 return;
             var cellToUpdate = RaidHotCells.FirstOrDefault(c => c.Name.ToLower() == bestMatch);
             if (cellToUpdate == null)
                 return;
             cellToUpdate.AddTimer(obj);
         }
+
+        private string GetNameWithoutSpecials(string name)
+        {
+            return new string(name.Normalize(NormalizationForm.FormD)
+                .ToCharArray()
+                .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                .ToArray()).Replace("\'","").Replace("-","");
+        }
         public void UpdateNames(List<PlacedName> orderedNames)
         {
-
             CurrentNames = orderedNames;
 
             UpdateCells();
+        }
+
+        public void SetTextMatchAccuracy(bool useLowAccuracy)
+        {
+            _usingDecreasedAccuracy = useLowAccuracy;
         }
         public int Rows
         {
@@ -124,8 +141,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                         sourceCell.Row = detectedName.Row;
                         inPosCell.Row = inPosCellRow;
                         inPosCell.Column = inPosCellColumn;
-
-
                     }
                     else
                     {
@@ -183,7 +198,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             ScreenWidth = screenWidth;
             OnPropertyChanged("RowHeight");
             OnPropertyChanged("ColumnWidth");
-            Debug.WriteLine("Top Left Updated");
             SizeSet = true;
         }
 

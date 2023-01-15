@@ -1,42 +1,22 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
+﻿using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Threading;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public interface ITimerWindowViewModel
+    public class EncounterTimerWindowViewModel:INotifyPropertyChanged, ITimerWindowViewModel
     {
-        bool OverlaysMoveable { get; set; }
-        event Action<bool> OnLocking;
-        event Action CloseRequested;
-        event Action<string> OnCharacterDetected;
-        void HideTimers();
-        void ShowTimers(bool locked);
-        void SetPlayer(SWTORClass classInfo);
-        void UpdateLock(bool locked);
-        void SetSource(string source);
-        bool Active { get; set; }
-    }
-    public class TimersWindowViewModel : INotifyPropertyChanged, ITimerWindowViewModel
-    {
-        private string _timerSource;
         private ITimerWindow _timerWindow;
-        private bool _timersEnabled;
-        private List<TimerInstance> _activeTimers = new List<TimerInstance>();
         private bool active;
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
@@ -59,27 +39,60 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 else
                 {
-                    if (OverlaysMoveable)
+
+                    App.Current.Dispatcher.Invoke(() =>
                     {
-                        App.Current.Dispatcher.Invoke(() =>
-                        {
-                            _timerWindow.Show();
-                        });
-                        
-                    } 
+                        _timerWindow.Show();
+                    });
+
                 }
 
             }
         }
 
-        public TimersWindowViewModel()
+        public EncounterTimerWindowViewModel()
         {
+            TimerTitle = "Boss Timers";
+            OnPropertyChanged("TimerTitle");
+            SwtorTimers = new List<TimerInstanceViewModel>();
+
             TimerController.TimerExpired += RemoveTimer;
             TimerController.TimerTiggered += AddTimerVisual;
+            CombatLogStateBuilder.AreaEntered += AreaEntered;
+            CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
             _timerWindow = new TimersWindow(this);
-            _timerWindow.SetIdText("DISCIPLINE TIMERS");
+            _timerWindow.SetIdText("BOSS TIMERS");
+            _timerWindow.SetPlayer("Encounter");
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Encounter"); ;
+                _timerWindow.Top = defaultTimersInfo.Position.Y;
+                _timerWindow.Left = defaultTimersInfo.Position.X;
+                _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
+                _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
+            });
         }
 
+        private void CheckForArea(DateTime arg1, bool arg2)
+        {
+            var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(DateTime.Now);
+            if (currentArea.IsBossEncounter)
+            {
+                Active = true;
+            }
+            else
+                Active = false;
+        }
+
+        private void AreaEntered(EncounterInfo areaInfo)
+        {
+            if (areaInfo.IsBossEncounter)
+            {
+                Active = true;
+            }
+            else
+                Active = false;
+        }
 
         public void ShowTimers(bool isLocked)
         {
@@ -99,42 +112,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerWindow.Hide();
             });
         }
-        public void SetSource(string sourceName)
-        {
-            if (_timerSource == sourceName)
-                return;
-            _timerSource = sourceName;
-            UpdateSource();
-        }
-        public void SetPlayer(SWTORClass swtorclass)
-        {
-            if (_timerSource == swtorclass.Discipline)
-                return;
-            _timerSource = swtorclass.Discipline;
-            UpdateSource();
-        }
-        private void UpdateSource()
-        {                
-            if (_timerSource.Contains('|') || _timerSource == "Shared" || _timerSource == "HOTS")
-                return;
-            TimerTitle = _timerSource + " Timers";
-            OnPropertyChanged("TimerTitle");
-            SwtorTimers = new List<TimerInstanceViewModel>();
-            _timerWindow.SetPlayer(_timerSource);
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                var defaultTimersInfo = DefaultTimersManager.GetDefaults(_timerSource);
-                _timerWindow.Top = defaultTimersInfo.Position.Y;
-                _timerWindow.Left = defaultTimersInfo.Position.X;
-                _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
-                _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
-                ShowTimers(!OverlaysMoveable);
-            });
-        }
         private object _timerChangeLock = new object();
         private void AddTimerVisual(TimerInstanceViewModel obj)
         {
-            if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert)
+            if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert)
                 return;
             lock (_timerChangeLock)
             {
@@ -166,5 +147,14 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnLocking(value);
         }
 
+        public void SetPlayer(SWTORClass classInfo)
+        {
+            
+        }
+
+        public void SetSource(string source)
+        {
+            
+        }
     }
 }

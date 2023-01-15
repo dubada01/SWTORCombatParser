@@ -1,5 +1,4 @@
-﻿using Google.Type;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.PvP;
 using System;

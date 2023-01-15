@@ -19,6 +19,7 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
             foreach(var timer in timers)
             {
                 timer.IsBuiltInDot = true;
+                timer.ResetOnEffectLoss= true;
                 DefaultTimersManager.AddTimerForSource(timer, "DOTS");
             }
         }

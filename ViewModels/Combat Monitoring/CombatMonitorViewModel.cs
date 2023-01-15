@@ -351,7 +351,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true);
+                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true,combatEndUpdate:true);
                 CombatIdentifier.FinalizeOverlays(combatInfo);
                 LiveCombatFinished(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))

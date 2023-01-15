@@ -44,8 +44,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     if (StaticNamePixelIndicies.Count == 0)
                         StaticNamePixelIndicies = newStaticPixels;
                     StaticPixelChanges = GetDifferencesInList(newStaticPixels, StaticNamePixelIndicies);
-                    if(StaticPixelChanges.Count > 0)
-                        Debug.WriteLine("Changed: "+StaticPixelChanges.Count);
                     PixelIndexDiffCount = StaticPixelChanges.Count;
                     NameJustChanged = PixelIndexDiffCount > ratioChangeThreshold;
                     StaticNamePixelIndicies = newStaticPixels;
@@ -97,7 +95,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void RemoveFromList(TimerInstanceViewModel obj)
+        private void RemoveFromList(TimerInstanceViewModel obj, bool endedNatrually)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {

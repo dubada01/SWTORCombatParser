@@ -83,6 +83,10 @@ namespace SWTORCombatParser.Views.Timers
             });
 
         }
+        public void SetIdText(string text)
+        {
+
+        }
         public void SetPlayer(string playerName)
         {
             _currentPlayerName = playerName;

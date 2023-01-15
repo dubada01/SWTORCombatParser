@@ -23,13 +23,16 @@ namespace SWTORCombatParser.DataStructures
     public class Timer
     {
         private bool isEnabled;
+        private string specificDifficulty;
+
         public string TimerSource { get; set; }
         public string CharacterDiscipline { get; set; }
         public bool IsSubTimer { get; set; }
         public string ParentTimerId { get; set; }
         public string Id { get; set; }
         public string ShareId { get; set; }
-        public bool IsEnabled {
+        public bool IsEnabled
+        {
             get => isEnabled;
             set => isEnabled = value;
         }
@@ -38,11 +41,13 @@ namespace SWTORCombatParser.DataStructures
         public bool SourceIsAnyButLocal { get; set; }
         public string Target { get; set; } = "";
         public bool TargetIsLocal { get; set; }
+        public bool ShowTargetOnTimerUI { get; set; }
         public bool TargetIsAnyButLocal { get; set; }
         public double HPPercentage { get; set; }
         public double HPPercentageDisplayBuffer { get; set; } = 5;
         public string Name { get; set; }
         public TimerKeyType TriggerType { get; set; }
+        public string SelectedCancelTimerId { get; set; }
         public bool TrackOutsideOfCombat { get; set; }
         public string ExperiationTimerId { get; set; }
         public double CombatTimeElapsed { get; set; }
@@ -64,9 +69,30 @@ namespace SWTORCombatParser.DataStructures
         public int AudioStartTime { get; set; } = 4;
         public string SpecificBoss { get; set; }
         public string SpecificEncounter { get; set; }
-        public string SpecificDifficulty {get;set;}
+        public bool ActiveForStory { get; set; }
+        public bool ActiveForVeteran { get; set; }
+        public bool ActiveForMaster { get; set; }
+        public string SpecificDifficulty { get => specificDifficulty; set 
+            {
+                specificDifficulty = value;
+                if (specificDifficulty == "All")
+                {
+                    ActiveForStory = true;
+                    ActiveForVeteran = true;
+                    ActiveForMaster = true;
+                }
+                if (specificDifficulty == "Story")
+                    ActiveForStory = true;
+                if (specificDifficulty == "Veteran")
+                    ActiveForVeteran = true;
+                if (specificDifficulty == "Master")
+                    ActiveForMaster = true;
+
+            }
+        }
         public bool IsHot { get; set; }
         public bool IsBuiltInDot { get; set; }
+        public bool IsBuiltInMechanic { get; set; }
         public bool IsMechanic { get; set; }
         public Timer Clause1 { get; set; }
         public Timer Clause2 { get; set; }
@@ -75,6 +101,7 @@ namespace SWTORCombatParser.DataStructures
             return new Timer()
             {
                 Id = Id,
+                SelectedCancelTimerId = SelectedCancelTimerId,
                 ParentTimerId = ParentTimerId,
                 Name = Name,
                 IsSubTimer = IsSubTimer,
@@ -82,10 +109,11 @@ namespace SWTORCombatParser.DataStructures
                 SourceIsLocal = SourceIsLocal,
                 SourceIsAnyButLocal = SourceIsAnyButLocal,
                 Target = Target,
+                ShowTargetOnTimerUI = ShowTargetOnTimerUI,
                 AlertDuration = AlertDuration,
                 CombatTimeElapsed = CombatTimeElapsed,
                 TargetIsLocal = TargetIsLocal,
-                TargetIsAnyButLocal= TargetIsAnyButLocal,
+                TargetIsAnyButLocal = TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
                 HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
                 TriggerType = TriggerType,
@@ -111,9 +139,13 @@ namespace SWTORCombatParser.DataStructures
                 HideUntilSec = HideUntilSec,
                 UseAudio = UseAudio,
                 CustomAudioPath = CustomAudioPath,
-                AudioStartTime= AudioStartTime,
+                AudioStartTime = AudioStartTime,
                 Clause1 = Clause1,
-                Clause2 = Clause2
+                Clause2 = Clause2,
+                ActiveForStory= ActiveForStory,
+                ActiveForVeteran= ActiveForVeteran,
+                ActiveForMaster= ActiveForMaster,
+               
             };
         }
     }

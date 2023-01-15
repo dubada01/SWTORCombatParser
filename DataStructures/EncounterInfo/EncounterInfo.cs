@@ -120,11 +120,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         public bool IsBossEncounter => BossInfos?.Count != 0;
         public bool IsPvpEncounter => (int)EncounterType >= 4;
         public List<BossInfo> BossInfos { get; set; } = new List<BossInfo>();
-
-        public void UpdateBossInfos()
-        {
-            BossInfos = GetBossInfos();
-        }
+        
         private string GetNamePlus()
         {
             if ((int)EncounterType < 4)

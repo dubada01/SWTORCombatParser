@@ -36,6 +36,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private bool _waitingForUpdate;
         private bool _liveParseActive;
         private bool _outOfCombatDetecting;
+        private bool _decreasedSpecificity;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> EnabledChanged = delegate { };
@@ -68,6 +69,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             RaidFrameRows = defaults.Rows.ToString();
             RaidFrameColumns = defaults.Columns.ToString();
 
+        }
+
+        public bool DecreasedSpecificity
+        {
+            get => _decreasedSpecificity;
+            set
+            {
+                _decreasedSpecificity = value; 
+                _currentOverlayViewModel.SetTextMatchAccuracy(_decreasedSpecificity);
+            }
         }
 
         public ICommand ManuallyRefreshPlayersCommand => new CommandHandler(_ => { AutoDetection(); });
@@ -171,7 +182,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     _currentOverlayViewModel.Width, _currentOverlayViewModel.Height, _currentOverlayViewModel.Rows);
                 var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.TopLeft,
                     raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentOverlayViewModel.Height,_currentOverlayViewModel.Width).Result;
-
+                raidFrameBitmap.Dispose();
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     _currentOverlayViewModel.UpdateNames(names);

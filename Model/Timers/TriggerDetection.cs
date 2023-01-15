@@ -33,9 +33,9 @@ namespace SWTORCombatParser.Model.Timers
                         SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
                         SourceTimer.TargetIsAnyButLocal,SourceTimer.ResetOnEffectLoss);
                 case TimerKeyType.EffectLost:
-                   return CheckForEffectLoss(log, SourceTimer.Effect, SourceTimer.Target,
-                        SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
-                        SourceTimer.TargetIsAnyButLocal);
+                   return CheckForEffectLoss(log, SourceTimer.Effect,SourceTimer.Source, SourceTimer.Target,
+                       SourceTimer.SourceIsLocal, SourceTimer.TargetIsLocal, SourceTimer.SourceIsAnyButLocal,
+                       SourceTimer.TargetIsAnyButLocal);
                 case TimerKeyType.EntityHP:
                     return CheckForHP(log, SourceTimer.HPPercentage,
                         SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Target, SourceTimer.TargetIsLocal,
@@ -113,11 +113,11 @@ namespace SWTORCombatParser.Model.Timers
             return TriggerType.None;
         }
 
-        public static TriggerType CheckForEffectLoss(ParsedLogEntry log, string effect, string target, bool targetIsLocal,bool sourceIsAnyButLocal, bool targetIsAnyButLocal)
+        public static TriggerType CheckForEffectLoss(ParsedLogEntry log, string effect,string source, string target, bool sourceIsLocal, bool targetIsLocal,bool sourceIsAnyButLocal, bool targetIsAnyButLocal)
         {
             if (log.Effect.EffectType != EffectType.Remove)
                 return TriggerType.None;
-            if (TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
+            if (TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal) && SourceIsValid(log.Source,source,sourceIsLocal,sourceIsAnyButLocal))
             {
                 if ((log.Effect.EffectName == effect || log.Effect.EffectId == effect) && log.Effect.EffectType == EffectType.Remove)
                     return TriggerType.Start;
@@ -281,7 +281,7 @@ namespace SWTORCombatParser.Model.Timers
         public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime, List<TimerInstanceViewModel> activeTimers)
         {
             var durationTriggers = new List<TimerKeyType>
-                { TimerKeyType.HasEffect, TimerKeyType.EntityHP, TimerKeyType.IsTimerTriggered };
+                { TimerKeyType.HasEffect, TimerKeyType.EntityHP, TimerKeyType.IsTimerTriggered,TimerKeyType.TimerExpired };
             var subTimersForTimer = activeTimers.Where(t =>t.SourceTimer.IsSubTimer && t.SourceTimer.ParentTimerId == sourceTimer.Id).Select(t=>t.SourceTimer);
             
             var clause1State = durationTriggers.Contains(sourceTimer.Clause1.TriggerType)

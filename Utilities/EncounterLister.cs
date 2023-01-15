@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.Utilities
 {
