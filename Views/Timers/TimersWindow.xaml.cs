@@ -41,6 +41,7 @@ namespace SWTORCombatParser.Views.Timers
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
             Loaded += OnLoaded;
+            makeTransparent(true);
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)

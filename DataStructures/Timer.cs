@@ -55,7 +55,8 @@ namespace SWTORCombatParser.DataStructures
             set
             {
                 _hpPercentageDisplayBuffer = value;
-                HPPercentageUpper = HPPercentage + value;
+                if(HPPercentageUpper == 0)
+                    HPPercentageUpper = HPPercentage + value;
             }
         }
 
