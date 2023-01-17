@@ -220,7 +220,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var vm = new ModifyTimerViewModel(SelectedTimerSource);
             vm.OnNewTimer += NewTimer;
             var t = new TimerModificationWindow(vm);
-            t.Show();
+            t.ShowDialog();
         }
         public string ImportId { get; set; }
         public ICommand ImportCommand => new CommandHandler(Import);
@@ -351,7 +351,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             } while (currentIds.Contains(id));
             obj.SourceTimer.ShareId = id;
             var shareWindow = new TimerSharePopup(id);
-            shareWindow.Show();
+            shareWindow.ShowDialog();
             DefaultTimersManager.SetIdForTimer(obj.SourceTimer, SelectedTimerSource, id);
             TimerDatabaseAccess.AddTimer(obj.SourceTimer);
         }
@@ -363,8 +363,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             vm.OnNewTimer += NewTimer;
             vm.OnCancelEdit += CancelEdit;
             var t = new TimerModificationWindow(vm);
-            t.Show();
             vm.Edit(_timerEdited.Copy());
+            t.ShowDialog();
         }
         private void ActiveChanged(TimerRowInstanceViewModel timerRow)
         {

@@ -560,10 +560,10 @@ public static class LogIdFactory
                         {
                             "SCYVA", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 4108140513591296L} },
-                                { "Story 16", new List<long>() { 4158786767945728L,4108140513591296L } },
-                                { "Veteran 8", new List<long>() { 4158791062913024L,4108140513591296L } },
-                                { "Veteran 16", new List<long>() { 4158859782389760L,4108140513591296L } },
+                                { "Story 8", new List<long>() { 4108140513591296L,4126527268585472L} },
+                                { "Story 16", new List<long>() { 4158786767945728L,4108140513591296L,4126527268585472L } },
+                                { "Veteran 8", new List<long>() { 4158791062913024L,4108140513591296L, 4126527268585472L} },
+                                { "Veteran 16", new List<long>() { 4158859782389760L,4108140513591296L,4126527268585472L } },
                             }
                         }
                         ,

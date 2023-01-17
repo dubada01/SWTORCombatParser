@@ -30,13 +30,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 return;
             lock (timerLock)
             {
-                if (obj.SourceTimer.IsMechanic)
+                if (obj.SourceTimer.IsMechanic && obj.SourceTimer.TriggerType == TimerKeyType.EntityHP)
                 {
                     obj.TimerExpired += RemoveTimer;
                     var unorderedUpcomingMechs = UpcomingMechanics.ToList();
                     unorderedUpcomingMechs.Add(obj);
-                    var ordered = unorderedUpcomingMechs.OrderByDescending(t =>
-                        t.SourceTimer.DurationSec == 0 ? t.SourceTimer.HPPercentage : t.SourceTimer.DurationSec);
+                    var ordered = unorderedUpcomingMechs.OrderByDescending(t =>t.SourceTimer.HPPercentage);
                     App.Current.Dispatcher.Invoke(() =>
                     {
                         UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);

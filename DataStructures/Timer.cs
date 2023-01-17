@@ -18,7 +18,9 @@ namespace SWTORCombatParser.DataStructures
         IsFacing,
         And,
         Or,
-        IsTimerTriggered
+        IsTimerTriggered,
+        NewEntitySpawn,
+        AbsorbShield
     }
     public class Timer
     {
@@ -45,6 +47,7 @@ namespace SWTORCombatParser.DataStructures
         public bool TargetIsAnyButLocal { get; set; }
         public double HPPercentage { get; set; }
         public double HPPercentageDisplayBuffer { get; set; } = 5;
+        public double AbsorbValue { get; set; }
         public string Name { get; set; }
         public TimerKeyType TriggerType { get; set; }
         public string SelectedCancelTimerId { get; set; }
@@ -116,6 +119,7 @@ namespace SWTORCombatParser.DataStructures
                 TargetIsAnyButLocal = TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
                 HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
+                AbsorbValue = AbsorbValue,
                 TriggerType = TriggerType,
                 Ability = Ability,
                 Effect = Effect,

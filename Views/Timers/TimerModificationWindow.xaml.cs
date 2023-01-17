@@ -16,10 +16,11 @@ namespace SWTORCombatParser.Views.Timers
         public TimerModificationWindow(ModifyTimerViewModel vm)
         {
             InitializeComponent();
-            DataContext = vm;
             _vm = vm;
-            this.Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth/2) - (750/2d);
-            this.Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight/2) - (450/2d);
+            DataContext = vm;
+            Owner = App.Current.MainWindow;
+            Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth/2) - (750/2d);
+            Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight/2) - (450/2d);
             TimerName.TextChanged += UpdateNameHelpText;
             EffectName.TextChanged += UpdateValueHelpText;
             AbilityName.TextChanged += UpdateValueHelpText;
@@ -45,12 +46,10 @@ namespace SWTORCombatParser.Views.Timers
         private void CloseWindow(Timer throwAway, bool meh)
         {
             Close();
-            ObscureWindowFactory.CloseObscureWindow();
         }
         private void Cancel(object sender, RoutedEventArgs e)
         {
             _vm.Cancel();
-            ObscureWindowFactory.CloseObscureWindow();
             Close();
         }
 

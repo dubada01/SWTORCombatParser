@@ -66,6 +66,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string hideUntilTime = "";
         private double hideUntilSeconds;
         private double durationSec;
+        private double _absorbValue;
+        private bool _showAbsorbOption;
 
         public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
         public bool IsMechanicTimer { get; set; }
@@ -120,6 +122,17 @@ namespace SWTORCombatParser.ViewModels.Timers
         public bool ShowEffectOption { get; set; }
         public bool ShowEffectRefreshOption { get; set; }
         public bool ShowHPOption { get; set; }
+
+        public bool ShowAbsorbOption
+        {
+            get => _showAbsorbOption;
+            set
+            {
+                _showAbsorbOption = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool MultiClauseTrigger { get; set; }
 
 
@@ -224,6 +237,17 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
+
+        public double AbsorbValue
+        {
+            get => _absorbValue;
+            set
+            {
+                _absorbValue = value;
+                OnPropertyChanged();
+            }
+        }
+
         public double CombatDuration { get; set; }
         public ObservableCollection<string> AvailableSources { get; set; } = new ObservableCollection<string>();
         public string SelectedSource
@@ -430,7 +454,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public bool ShowDuration => !IsAlert;
+        public bool ShowDuration => !IsAlert && SelectedTriggerType != TimerKeyType.AbsorbShield;
         public bool ShowColor { get; set; } = true;
         public bool ShowDurationOrAlert { get; set; } = true;
         public bool IsPeriodic
@@ -574,6 +598,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             ShowAbilityOption = false;
             ShowEffectOption = false;
             ShowHPOption = false;
+            ShowAbsorbOption = false;
             ShowCombatDurationOption = false;
             ShowExternalTriggerOption = false;
             TrackOutsideOfCombat = false;
@@ -584,7 +609,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             HasCustomAudio = false;
             UseAudio = false;
             IsHot = false;
-            selectedAudioType = "Built in";
             Effect = "";
             Ability = "";
             AlertText = "";
@@ -620,6 +644,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("TrackOutsideOfCombat");
             OnPropertyChanged("AlertText");
             OnPropertyChanged("MultiClauseTrigger");
+            OnPropertyChanged("ShowDuration");
         }
 
         public void Edit(Timer timerToEdit)
@@ -645,6 +670,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             SelectedCancelTimerId = timerToEdit.SelectedCancelTimerId;
             SelectedCancelTimer = string.IsNullOrEmpty(SelectedCancelTimerId) ? _missingTimerValue : (!string.IsNullOrEmpty(SelectedCancelTimerId) && AvailableTimersForCharacter.All(t => t.Id != SelectedCancelTimerId)) ? _missingTimerValue : AvailableTimersForCharacter.First(t => t.Id == SelectedCancelTimerId).Name;
             DurationSec = timerToEdit.DurationSec;
+            AbsorbValue = timerToEdit.AbsorbValue;
             HideUntilTime = timerToEdit.HideUntilSec.ToString();
             HPPercentage = timerToEdit.HPPercentage;
             SelectedEncounter = timerToEdit.SpecificEncounter;
@@ -779,13 +805,14 @@ namespace SWTORCombatParser.ViewModels.Timers
                 TargetIsAnyButLocal = TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
                 HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
+                AbsorbValue = AbsorbValue,
                 TriggerType = SelectedTriggerType,
                 ExperiationTimerId = SelectedExternalTimerId,
                 Ability = Ability,
                 Effect = Effect,
                 IsPeriodic = IsPeriodic,
                 Repeats = Repeats,
-                IsAlert = IsAlert || (DurationSec == 0 && SelectedTriggerType != TimerKeyType.EntityHP),
+                IsAlert = IsAlert || (DurationSec == 0 && SelectedTriggerType != TimerKeyType.EntityHP && SelectedTriggerType != TimerKeyType.AbsorbShield),
                 AlertText = AlertText,
                 DurationSec = DurationSec,
                 HideUntilSec = hideUntilSeconds,
@@ -840,6 +867,44 @@ namespace SWTORCombatParser.ViewModels.Timers
                         }
                         return true;
                     }
+                case TimerKeyType.NewEntitySpawn:
+                {
+                    if (string.IsNullOrEmpty(Name))
+                    {
+                        TimerNameInError = true;
+                        OnPropertyChanged("TimerNameHelpTextColor");
+                        return false;
+                    }
+                    if (string.IsNullOrEmpty(SourceText))
+                    {
+                        ValueInError = true;
+                        OnPropertyChanged("TriggerValueHelpTextColor");
+                        return false;
+                    }
+                    return true;
+                }
+                case TimerKeyType.AbsorbShield:
+                {
+                    if (string.IsNullOrEmpty(Name))
+                    {
+                        TimerNameInError = true;
+                        OnPropertyChanged("TimerNameHelpTextColor");
+                        return false;
+                    }
+                    if (string.IsNullOrEmpty(SourceText))
+                    {
+                        ValueInError = true;
+                        OnPropertyChanged("TriggerValueHelpTextColor");
+                        return false;
+                    }
+                    if (string.IsNullOrEmpty(Ability))
+                    {
+                        ValueInError = true;
+                        OnPropertyChanged("TriggerValueHelpTextColor");
+                        return false;
+                    }
+                    return true;
+                }
                 case TimerKeyType.TargetChanged:
                     {
                         if (string.IsNullOrEmpty(Name))
@@ -1202,6 +1267,33 @@ namespace SWTORCombatParser.ViewModels.Timers
                         OnPropertyChanged("CanChangeCombatTracking");
                         break;
                     }
+                case TimerKeyType.NewEntitySpawn:
+                {
+                    HasSource = true;
+                    CanChangeCombatTracking = false;
+                    SourceText = "When Spawned";
+                    OnPropertyChanged("HasSource");
+                    OnPropertyChanged("SourceText");
+                    OnPropertyChanged("CanChangeCombatTracking");
+                    OnPropertyChanged("TrackOutsideOfCombat");
+                    break;
+                }
+                case TimerKeyType.AbsorbShield:
+                {
+                    HasSource = true;
+                    SourceText = "Entity";
+                    ShowAbsorbOption = true;
+                    CanChangeCombatTracking = false;
+                    ShowAbilityOption = true;
+                    ShowDurationOrAlert = false;
+                    OnPropertyChanged("ShowDuration");
+                    OnPropertyChanged("HasSource");
+                    OnPropertyChanged("ShowDurationOrAlert");
+                    OnPropertyChanged("SourceText");
+                    OnPropertyChanged("CanChangeCombatTracking");
+                    OnPropertyChanged("ShowAbilityOption");
+                    break;
+                }
             }
         }
         private void InitSourceAndTargetValues()

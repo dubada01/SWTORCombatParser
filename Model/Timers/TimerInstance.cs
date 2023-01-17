@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
@@ -23,6 +24,8 @@ namespace SWTORCombatParser.Model.Timers
     {
         private bool historicalParseEnded;
         private bool _isCancelled;
+        private List<long> _alreadyDetectedEntities = new List<long>();
+        private AbsorbShieldManager _absorbShieldManager;
         private TimerInstance expirationTimer;
         private TimerInstance cancelTimer;
         public event Action<TimerInstanceViewModel> NewTimerInstance = delegate { };
@@ -102,16 +105,13 @@ namespace SWTORCombatParser.Model.Timers
         {
             historicalParseEnded = true;
         }
-        private object cancelLock = new object();
+
         public void Cancel()
         {
-            lock (cancelLock)
-            {
-                if (_isCancelled) return;
-                _isCancelled = true;
-                var currentActiveTimers = _activeTimerInstancesForTimer.Values.ToList();
-                currentActiveTimers.ForEach(t => t.Complete(false));
-            }
+            if (_isCancelled) return;
+            _isCancelled = true;
+            var currentActiveTimers = _activeTimerInstancesForTimer.Values.ToList();
+            currentActiveTimers.ForEach(t => t.Complete(false));
         }
 
         public void UnCancel()
@@ -138,12 +138,23 @@ namespace SWTORCombatParser.Model.Timers
             if (!IsEnabled || _isCancelled)
                 return;
 
-            var wasTriggered = TriggerDetection.CheckForTrigger(log, SourceTimer, startTime, activeTimers);
+            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
+            {
+                var damage = _absorbShieldManager?.CheckForDamage(log);
+                if(damage.HasValue)
+                    _activeTimerInstancesForTimer.First().Value.DamageDoneToAbsorb += damage.Value;
+            }
+                
+            
+            var wasTriggered = TriggerDetection.CheckForTrigger(log, SourceTimer, startTime, activeTimers,_alreadyDetectedEntities);
 
             if (wasTriggered == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
                 return;
             var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
-
+            
+            if(wasTriggered == TriggerType.Start && SourceTimer.TriggerType == TimerKeyType.NewEntitySpawn)
+                _alreadyDetectedEntities.Add(targetInfo.Id);
+            
             if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
             {
                 var timerToRestart = _activeTimerInstancesForTimer
@@ -156,25 +167,38 @@ namespace SWTORCombatParser.Model.Timers
                     timerToRestart.Reset(log.TimeStamp);
                 }
             }
-            if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
-            {
-                if (wasTriggered == TriggerType.Start)
-                {
-                    var currentHP = TriggerDetection.GetCurrentTargetHPPercent(log, targetInfo.Id);
-                    var hpTimer = _activeTimerInstancesForTimer.FirstOrDefault(t =>
-                            t.Value.SourceTimer.TriggerType == TimerKeyType.EntityHP &&
-                            t.Value.TargetId == targetInfo.Id)
-                        .Value;
-                    if (hpTimer != null)
-                    {
-                        hpTimer.CurrentMonitoredHP = currentHP;
-                    }
 
-                    if (_activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
-                    {
-                        CreateHPTimerInstance(currentHP, targetInfo.Name, targetInfo.Id);
-                    }
+            if (SourceTimer.TriggerType == TimerKeyType.EntityHP && wasTriggered == TriggerType.Start)
+            {
+                var currentHP = TriggerDetection.GetCurrentTargetHPPercent(log, targetInfo.Id);
+                var hpTimer = _activeTimerInstancesForTimer.FirstOrDefault(t =>
+                        t.Value.SourceTimer.TriggerType == TimerKeyType.EntityHP &&
+                        t.Value.TargetId == targetInfo.Id)
+                    .Value;
+                if (hpTimer != null)
+                {
+                    hpTimer.CurrentMonitoredHP = currentHP;
                 }
+
+                if (_activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
+                {
+                    CreateHPTimerInstance(currentHP, targetInfo.Name, targetInfo.Id);
+                }
+            }
+
+            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.Start)
+            {
+                _absorbShieldManager = new AbsorbShieldManager(log.Source);
+                CreateAbsorbTimerInstance(SourceTimer.AbsorbValue, SourceTimer.Ability, log.Source.Id);
+            }
+            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.End)
+            {
+                if (_activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id))
+                {
+                    var absorbTimer = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id);
+                    absorbTimer.Value.Complete(true);
+                }
+                _absorbShieldManager = null;
             }
             if (wasTriggered == TriggerType.Start &&
                 _activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
@@ -195,9 +219,14 @@ namespace SWTORCombatParser.Model.Timers
                 var endedTimer = _activeTimerInstancesForTimer.FirstOrDefault(t => t.Value.TargetId == targetInfo.Id).Value;
 
                 if (endedTimer == null)
+                {
                     return;
+                }
+
                 if (log.TimeStamp - endedTimer.StartTime < TimeSpan.FromSeconds(1))
+                {
                     return;
+                }
                 endedTimer.Complete(true);
             }
 
@@ -224,6 +253,25 @@ namespace SWTORCombatParser.Model.Timers
         {
             if (triggerType == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
                 return new TimerTargetInfo();
+            if (sourceTimer.TriggerType == TimerKeyType.AbsorbShield)
+            {
+                return new TimerTargetInfo()
+                {
+                    Name = log.Source.Name,
+                    Id = log.Source.Id
+                };
+            }
+
+            if (sourceTimer.TriggerType == TimerKeyType.NewEntitySpawn && triggerType == TriggerType.Start)
+            {
+                var newEntityInfo = TriggerDetection.GetTargetId(log, SourceTimer.Source,
+                    SourceTimer.SourceIsLocal, SourceTimer.SourceIsAnyButLocal);
+                return new TimerTargetInfo()
+                {
+                    Name = newEntityInfo.Name,
+                    Id = newEntityInfo.Id
+                };
+            }
             if (sourceTimer.TriggerType == TimerKeyType.EntityHP && triggerType != TriggerType.None)
             {
                 var hpTargetInfo = TriggerDetection.GetTargetId(log, SourceTimer.Target,
@@ -269,6 +317,7 @@ namespace SWTORCombatParser.Model.Timers
             if (obj.Type == UpdateType.Stop && historicalParseEnded)
             { 
                 _currentBossInfo = ("", "", "");
+                _alreadyDetectedEntities.Clear();
             }
         }
         private bool CheckEncounterAndBoss(TimerInstance t, EncounterInfo encounter)
@@ -321,6 +370,18 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TargetId = targetId;
             _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             timerVM.TriggerHPTimer(currentHP);
+            NewTimerInstance(timerVM);
+        }
+
+        private void CreateAbsorbTimerInstance(double maxAbsorb, string abilityName, long targetId)
+        {
+            var timerVM = new TimerInstanceViewModel(SourceTimer);
+            timerVM.TimerExpired += CompleteTimer;
+            timerVM.TimerId = Guid.NewGuid();
+            timerVM.TargetAddendem = abilityName;
+            timerVM.TargetId = targetId;
+            _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            timerVM.TriggerAbsorbTimer(maxAbsorb);
             NewTimerInstance(timerVM);
         }
     }

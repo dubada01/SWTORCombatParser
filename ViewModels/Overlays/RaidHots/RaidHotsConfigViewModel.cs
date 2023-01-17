@@ -196,31 +196,35 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 return;
             }
             _shouldCheckForRaidFrame = true;
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 Thread.Sleep(500);
                 while (_shouldCheckForRaidFrame)
                 {
+                    if (CombatDetector.InCombat)
+                    {
+                        Thread.Sleep(100);
+                        continue;
+                    }
+
                     using (var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmap(
                                _currentOverlayViewModel.TopLeft, _currentOverlayViewModel.Width,
                                _currentOverlayViewModel.Height))
                     {
-                        using (Bitmap testImage =
-                               RaidFrameScreenGrab.UpdateCellNamePixels(_currentOverlayViewModel, raidFrameBitmap))
-                        {
-                            
-                            var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
-                            if (redPixelAverage > 0.05 && !CombatDetector.InCombat &&
-                                _currentOverlayViewModel.RaidHotCells.Any(c => c.NameJustChanged))
-                            {
-                                testImage.Save(Guid.NewGuid().ToString()+".bmp");
-                                _currentOverlayViewModel.RaidHotCells.ForEach(c => c.NameJustChanged = false);
-                                AutoDetection();
-                                Thread.Sleep(5000);
-                            }
+                        RaidFrameScreenGrab.UpdateCellNamePixels(_currentOverlayViewModel, raidFrameBitmap);
 
-                            else
-                                Thread.Sleep(1000);
+                        var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
+                        if (redPixelAverage > 0.05 &&
+                            _currentOverlayViewModel.RaidHotCells.Any(c => c.NameJustChanged))
+                        {
+                            _currentOverlayViewModel.RaidHotCells.ForEach(c => c.NameJustChanged = false);
+                            AutoDetection();
+                            Thread.Sleep(5000);
                         }
+
+                        else
+                            Thread.Sleep(1000);
+
                     }
                 }
             });
