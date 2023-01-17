@@ -59,7 +59,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private bool canBeRefreshed;
         private string effect = "";
         private string customRefreshOption;
-        private double hPPercentageDisplayBuffer;
+        private double _hPPercentageUpper;
         private string hPTriggerText = "Lower Bound";
         private Color selectedColor = Colors.CornflowerBlue;
         private string selectedCancelTimer;
@@ -229,11 +229,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
         public double HPPercentage { get; set; }
-        public double HPPercentageDisplayBuffer
+        public double HPPercentageUpper
         {
-            get => hPPercentageDisplayBuffer; set
+            get => _hPPercentageUpper; set
             {
-                hPPercentageDisplayBuffer = value;
+                _hPPercentageUpper = value;
                 OnPropertyChanged();
             }
         }
@@ -584,7 +584,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             
             AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
             AvailableTriggerTypes = Enum.GetValues<TimerKeyType>().ToList();
-            HPPercentageDisplayBuffer = 5;
+            HPPercentageUpper = 5;
             OnPropertyChanged("AvailableTimerNames");
             OnPropertyChanged("SelectedEncounter");
             OnPropertyChanged("SelectedBoss");
@@ -673,6 +673,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             AbsorbValue = timerToEdit.AbsorbValue;
             HideUntilTime = timerToEdit.HideUntilSec.ToString();
             HPPercentage = timerToEdit.HPPercentage;
+            HPPercentageUpper = timerToEdit.HPPercentageUpper;
             SelectedEncounter = timerToEdit.SpecificEncounter;
             SelectedBoss = timerToEdit.SpecificBoss;
             ActiveForStory = timerToEdit.ActiveForStory;
@@ -702,7 +703,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 SelectedAudioType = "Built in";
             }
             CustomAudioPlayTime = timerToEdit.AudioStartTime;
-            HPPercentageDisplayBuffer = timerToEdit.HPPercentageDisplayBuffer;
+            
             var addedAbilities = timerToEdit.AbilitiesThatRefresh.Select(a => new RefreshOptionViewModel() { Name = a }).ToList();
             addedAbilities.ForEach(a => a.RemoveRequested += RemoveRefreshOption);
             AvailableRefreshOptions = new ObservableCollection<RefreshOptionViewModel>(addedAbilities);
@@ -804,7 +805,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 TargetIsLocal = TargetIsLocal,
                 TargetIsAnyButLocal = TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
-                HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
+                HPPercentageUpper = HPPercentageUpper,
                 AbsorbValue = AbsorbValue,
                 TriggerType = SelectedTriggerType,
                 ExperiationTimerId = SelectedExternalTimerId,
