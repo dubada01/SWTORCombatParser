@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.4.7</VersionPrefix>
+    <VersionPrefix>1.4.8</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -409,9 +409,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Remove="MiscSettings.json" />
-    <Content Include="MiscSettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Remove="resources\RoomOverlays\EnemyLocation.png" />
     <Content Include="resources\RoomOverlays\EnemyLocation.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

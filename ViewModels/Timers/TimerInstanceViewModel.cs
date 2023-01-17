@@ -19,6 +19,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         private int charges;
         private bool displayTimer;
         private double _hpTimerMonitor = 0;
+        private double _absorbRemaining = 0;
+        private double _maxAbsorb = 0;
         private double timerValue;
         private MediaPlayer _mediaPlayer;
         private string _audioPath;
@@ -43,6 +45,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public bool ShowCharges => Charges > 1;
         public Timer SourceTimer { get; set; } = new Timer();
         public double CurrentMonitoredHP { get; set; }
+        public double DamageDoneToAbsorb { get; set; }
         public string TargetAddendem { get; set; }
         public long TargetId { get; set; }
         public string TimerName => GetTimerName();
@@ -140,6 +143,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void TriggerTimeTimer(DateTime timeStampWhenTrigged)
         {
+            Debug.WriteLine("+++++ Triggered! - " + SourceTimer.Name);
             if (!SourceTimer.IsAlert)
             {
                 if (SourceTimer.HideUntilSec == 0)
@@ -195,6 +199,23 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
         }
+
+        public void TriggerAbsorbTimer(double maxAbsorb)
+        {
+            DisplayTimer = true;
+            DisplayTimerValue = false;
+            MaxTimerValue = 1d;
+            TimerValue = 1d;
+            DamageDoneToAbsorb = 0;
+            _absorbRemaining = maxAbsorb;
+            _maxAbsorb = maxAbsorb;
+            _dtimer.Tick += UpdateAbsorb;
+            _dtimer.Start();
+            isActive = true;
+            OnPropertyChanged("TimerValue");
+            OnPropertyChanged("BarWidth");
+            OnPropertyChanged("RemainderWidth");
+        }
         public void Tick(object sender, EventArgs args)
         {
             _timerValue = _timerValue.Add(-1*(DateTime.Now - LastUpdate));
@@ -224,6 +245,18 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (_hpTimerMonitor <= SourceTimer.HPPercentage)
                 Complete(true);
         }
+
+        public void UpdateAbsorb(object sender, EventArgs args)
+        {
+            _absorbRemaining = _maxAbsorb - DamageDoneToAbsorb;
+            TimerValue = _absorbRemaining / _maxAbsorb;
+            if(TimerValue <= 0)
+                Complete(true);
+            OnPropertyChanged("TimerValue");
+            OnPropertyChanged("TimerName");
+            OnPropertyChanged("BarWidth");
+            OnPropertyChanged("RemainderWidth");
+        }
         private object completeLock = new object();
         public void Complete(bool endedNatrually)
         {
@@ -233,7 +266,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 isActive = false;
                 _dtimer.Stop();
                 _dtimer.IsEnabled = false;
-                Debug.WriteLine("Complete! - " + SourceTimer.Name+ ": was cancelled?" + !endedNatrually);
+                Debug.WriteLine("----- Complete! - " + SourceTimer.Name+ " Was cancelled: " + !endedNatrually);
                 TimerExpired(this, endedNatrually);
             }
         }
@@ -244,7 +277,12 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 name = SourceTimer.Name + ": " + SourceTimer.HPPercentage.ToString("N2") + "%";
             }
-            else
+
+            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
+            {
+                name = $"{SourceTimer.Name}: ({_absorbRemaining:n0}/{_maxAbsorb:n0})";
+            }
+            if(SourceTimer.TriggerType != TimerKeyType.AbsorbShield && SourceTimer.TriggerType != TimerKeyType.EntityHP)
             {
                 if (SourceTimer.IsAlert)
                 {

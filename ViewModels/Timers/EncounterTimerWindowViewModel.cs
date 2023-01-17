@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -115,7 +116,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private object _timerChangeLock = new object();
         private void AddTimerVisual(TimerInstanceViewModel obj)
         {
-            if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert)
+            if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert || obj.SourceTimer.TriggerType == TimerKeyType.EntityHP)
                 return;
             lock (_timerChangeLock)
             {

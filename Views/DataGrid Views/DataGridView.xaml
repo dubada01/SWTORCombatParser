@@ -27,7 +27,7 @@
                 <DataTemplate>
                     <Grid>
                         <Grid Visibility="{Binding IsRealHeader, Converter={StaticResource BooleanToVisibiityConverter}}">
-                            <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Text}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FontSize="15" FontWeight="DemiBold" Foreground="Beige" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Text}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FontSize="13" FontWeight="DemiBold" Foreground="Beige" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                             </TextBlock>
                             <Rectangle HorizontalAlignment="Right" Width="1.5" Fill="Gray"></Rectangle>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Documents;
 using SWTORCombatParser.DataStructures;
@@ -20,6 +21,9 @@ public static class TimerController
     private static List<TimerInstance> _availableTimers = new List<TimerInstance>();
     private static List<TimerInstanceViewModel> _currentlyActiveTimers = new List<TimerInstanceViewModel>();
     private static bool _timersEnabled;
+
+    private static List<IDisposable> _showTimerSubs = new List<IDisposable>();
+    private static List<IDisposable> _hideTimerSubs = new List<IDisposable>();
     public static event Action<TimerInstanceViewModel> TimerExpired = delegate { };
     public static event Action<TimerInstanceViewModel> TimerTiggered = delegate { };
     public static void Init()
@@ -39,8 +43,8 @@ public static class TimerController
 
     public static void RefreshAvailableTimers()
     {
-        _availableTimers.ForEach(t => t.TimerOfTypeExpired -= OnTimerExpired);
-        _availableTimers.ForEach(t => t.NewTimerInstance -= AddTimerVisual);
+        _hideTimerSubs.ForEach(s=>s.Dispose());
+        _showTimerSubs.ForEach(s=>s.Dispose());
         var allDefaults = DefaultTimersManager.GetAllDefaults();
         var timers = allDefaults.SelectMany(t => t.Timers);
         var secondaryTimers = timers.Where(t=>t.Clause1 != null).Select(t => t.Clause1);
@@ -74,8 +78,15 @@ public static class TimerController
                 }
             }
         }
-        _availableTimers.ForEach(t => t.TimerOfTypeExpired += OnTimerExpired);
-        _availableTimers.ForEach(t => t.NewTimerInstance += AddTimerVisual);
+
+        _hideTimerSubs = _availableTimers.Select(t => Observable.FromEvent<Action<TimerInstanceViewModel,bool>,Tuple<TimerInstanceViewModel,bool>>(
+            onNextHandler =>(p1, p2) => onNextHandler(Tuple.Create(p1,p2)),
+            manager => t.TimerOfTypeExpired += manager,
+            manager => t.TimerOfTypeExpired -= manager
+        ).Subscribe(args=>OnTimerExpired(args.Item1,args.Item2))).ToList();
+        _showTimerSubs = _availableTimers.Select(t =>
+            Observable.FromEvent<TimerInstanceViewModel>(handler => t.NewTimerInstance += handler,
+                handler => t.NewTimerInstance -= handler).Subscribe(AddTimerVisual)).ToList();
     }
 
     private static void AddTimerVisual(TimerInstanceViewModel t)

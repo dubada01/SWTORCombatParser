@@ -119,6 +119,18 @@
                         </StackPanel>
                     </Grid>
                 </Viewbox>
+                <Viewbox Visibility="{Binding ShowAbsorbOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="3" Margin="0,0,10,0">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="16" Text="Absorb Amount" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <TextBox Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding AbsorbValue}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </Viewbox>
                 <Viewbox Grid.Row="4" Visibility="{Binding ShowEffectRefreshOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Column="0" HorizontalAlignment="Stretch"  Margin="10,15,0,0">
                     <Grid >
                         <Grid.RowDefinitions>

@@ -103,7 +103,7 @@ namespace SWTORCombatParser.Model.Overlays
             value = max / 255d;
         }
 
-        public static Bitmap UpdateCellNamePixels(RaidFrameOverlayViewModel raidViewModel, Bitmap raidFrame)
+        public static void UpdateCellNamePixels(RaidFrameOverlayViewModel raidViewModel, Bitmap raidFrame)
         {
             var rows = raidViewModel.Rows;
             var columns = raidViewModel.Columns;
@@ -164,9 +164,6 @@ namespace SWTORCombatParser.Model.Overlays
                 if(fullRedHPPixelCount[(cell.Column, cell.Row)] > 100)
                     cell.NamePixelIndicies = namePixelIndicies[(cell.Column, cell.Row)];
             }
-
-            return CreateTestImage(raidViewModel.RaidHotCells.SelectMany(kvp => kvp.StaticPixelChanges).ToList(),
-                new Bitmap(raidFrame));
         }
 
         private static Bitmap CreateTestImage(List<int> nameIndicies,Bitmap testImage)
