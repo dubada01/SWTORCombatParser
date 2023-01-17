@@ -26,6 +26,7 @@ namespace SWTORCombatParser.DataStructures
     {
         private bool isEnabled;
         private string specificDifficulty;
+        private double _hpPercentageDisplayBuffer = 5;
 
         public string TimerSource { get; set; }
         public string CharacterDiscipline { get; set; }
@@ -46,7 +47,18 @@ namespace SWTORCombatParser.DataStructures
         public bool ShowTargetOnTimerUI { get; set; }
         public bool TargetIsAnyButLocal { get; set; }
         public double HPPercentage { get; set; }
-        public double HPPercentageDisplayBuffer { get; set; } = 5;
+        public double HPPercentageUpper { get; set; }
+
+        public double HPPercentageDisplayBuffer
+        {
+            get => _hpPercentageDisplayBuffer;
+            set
+            {
+                _hpPercentageDisplayBuffer = value;
+                HPPercentageUpper = HPPercentage + value;
+            }
+        }
+
         public double AbsorbValue { get; set; }
         public string Name { get; set; }
         public TimerKeyType TriggerType { get; set; }
@@ -118,6 +130,7 @@ namespace SWTORCombatParser.DataStructures
                 TargetIsLocal = TargetIsLocal,
                 TargetIsAnyButLocal = TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
+                HPPercentageUpper = HPPercentageUpper,
                 HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
                 AbsorbValue = AbsorbValue,
                 TriggerType = TriggerType,

@@ -64,7 +64,7 @@
                         <TextBlock Grid.Row="0"  Grid.Column="2" Margin="0,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Right"  FontSize="20" Text="%" FontFamily="{StaticResource MainFont}"></TextBlock>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="18" TextWrapping="Wrap" Width="120" Text="Upper Bound" FontFamily="{StaticResource MainFont}"></TextBlock>
-                        <TextBox Grid.Row="2" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Grid.Column="1" FontWeight="Normal" Width="60" Style="{StaticResource RoundedTextBox}" Text="{Binding HPPercentageDisplayBuffer}"></TextBox>
+                        <TextBox Grid.Row="2" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Grid.Column="1" FontWeight="Normal" Width="60" Style="{StaticResource RoundedTextBox}" Text="{Binding HPPercentageUpper}"></TextBox>
                         <TextBlock Grid.Row="2"  Grid.Column="2" Margin="0,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20" Text="%" FontFamily="{StaticResource MainFont}"></TextBlock>
                     </Grid>
                 </Viewbox>

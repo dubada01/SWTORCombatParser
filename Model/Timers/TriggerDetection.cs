@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Model.Timers
                        SourceTimer.TargetIsAnyButLocal);
                 case TimerKeyType.EntityHP:
                     return CheckForHP(log, SourceTimer.HPPercentage,
-                        SourceTimer.HPPercentageDisplayBuffer, SourceTimer.Target, SourceTimer.TargetIsLocal,
+                        SourceTimer.HPPercentageUpper, SourceTimer.Target, SourceTimer.TargetIsLocal,
                         SourceTimer.TargetIsAnyButLocal);
                 case TimerKeyType.FightDuration:
                     return CheckForFightDuration(log, SourceTimer.CombatTimeElapsed, startTime);
@@ -91,16 +91,16 @@ namespace SWTORCombatParser.Model.Timers
             }
             return null;
         }
-        public static TriggerType CheckForHP(ParsedLogEntry log, double hPPercentage, double hpDisplayBuffer, string target, bool targetIsLocal, bool targetIsAnyButLocal)
+        public static TriggerType CheckForHP(ParsedLogEntry log, double hPPercentage, double hpPercentageUpper, string target, bool targetIsLocal, bool targetIsAnyButLocal)
         {
             if (TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 var targetHPPercent = (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP) * 100;
                 if (targetHPPercent <= hPPercentage)
                     return TriggerType.End;
-                if (targetHPPercent > (hPPercentage + hpDisplayBuffer))
+                if (targetHPPercent > hpPercentageUpper)
                     return TriggerType.End;
-                if (targetHPPercent <= (hPPercentage + hpDisplayBuffer) && targetHPPercent > hPPercentage)
+                if (targetHPPercent <= hpPercentageUpper && targetHPPercent > hPPercentage)
                     return TriggerType.Start;
             }
             if (SourceIsValid(log.Source, target, targetIsLocal,targetIsAnyButLocal))
@@ -108,9 +108,9 @@ namespace SWTORCombatParser.Model.Timers
                 var sourceHPPercentage = (log.SourceInfo.CurrentHP / log.SourceInfo.MaxHP) * 100;
                 if (sourceHPPercentage <= hPPercentage)
                     return TriggerType.End;
-                if (sourceHPPercentage > (hPPercentage + hpDisplayBuffer))
+                if (sourceHPPercentage > hpPercentageUpper)
                     return TriggerType.End;
-                if (sourceHPPercentage <= (hPPercentage + hpDisplayBuffer) && sourceHPPercentage > hPPercentage)
+                if (sourceHPPercentage <= hpPercentageUpper && sourceHPPercentage > hPPercentage)
                     return TriggerType.Start;
             }
             return TriggerType.None;
