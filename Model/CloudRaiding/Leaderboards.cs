@@ -19,6 +19,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     {
         public static string _leaderboardVersion = "2";
         public static object _updateLock = new object();
+        private static object _getLock = new object();
         public static LeaderboardType CurrentLeaderboardType;
         public static event Action<Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>> LeaderboardStandingsAvailable = delegate { };
         public static event Action<Dictionary<LeaderboardEntryType, (string, double)>> TopLeaderboardEntriesAvailable = delegate { };
@@ -43,39 +44,49 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static void StartGetTopLeaderboardEntries(Combat newCombat)
         {
-            if(CurrentLeaderboardType == LeaderboardType.Off)
+            lock (_getLock)
             {
-                TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
-                TopLeaderboardEntriesAvailable(TopLeaderboards);
-                return;
-            }
-            var state = CombatLogStateBuilder.CurrentState;
-            CurrentCombat = newCombat;
-            if (TopLeaderboards.Count > 0)
-            { 
-                TopLeaderboardEntriesAvailable(TopLeaderboards);
-                return;
-            }
-            if (newCombat.LocalPlayer == null || !CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
-                return;
-            if (CurrentFightLeaderboard.Count == 0)
-                GetCurrentLeaderboard(newCombat);
-            var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
-            var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
+                if (CurrentLeaderboardType == LeaderboardType.Off)
+                {
+                    TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
+                    TopLeaderboardEntriesAvailable(TopLeaderboards);
+                    return;
+                }
 
-            foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
-            {
-                if (!CurrentFightLeaderboard.ContainsKey(enumVal))
-                    continue;
-                LeaderboardEntry topParse;
-                if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
-                    topParse = CurrentFightLeaderboard[enumVal].Where(v=>v.Class == className).MaxBy(v=>v.Value);
-                else
-                    topParse = CurrentFightLeaderboard[enumVal].MaxBy(v => v.Value);
-                if (topParse == null || string.IsNullOrEmpty(topParse.Character))
-                    continue;
-                TopLeaderboards[enumVal] = (topParse.Character, topParse.Value);
+                var state = CombatLogStateBuilder.CurrentState;
+                CurrentCombat = newCombat;
+                if (TopLeaderboards.Count > 0)
+                {
+                    TopLeaderboardEntriesAvailable(TopLeaderboards);
+                    return;
+                }
+
+                if (newCombat.LocalPlayer == null ||
+                    !CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
+                    return;
+                if (CurrentFightLeaderboard.Count == 0)
+                    GetCurrentLeaderboard(newCombat);
+                var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
+                var className = localPlayerClass == null
+                    ? "Unknown"
+                    : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
+
+                foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
+                {
+                    if (!CurrentFightLeaderboard.ContainsKey(enumVal))
+                        continue;
+                    LeaderboardEntry topParse;
+                    if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
+                        topParse = CurrentFightLeaderboard[enumVal].Where(v => v.Class == className)
+                            .MaxBy(v => v.Value);
+                    else
+                        topParse = CurrentFightLeaderboard[enumVal].MaxBy(v => v.Value);
+                    if (topParse == null || string.IsNullOrEmpty(topParse.Character))
+                        continue;
+                    TopLeaderboards[enumVal] = (topParse.Character, topParse.Value);
+                }
             }
+
             TopLeaderboardEntriesAvailable(TopLeaderboards);
 
         }

@@ -14,6 +14,7 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class TimerInstanceViewModel : INotifyPropertyChanged, IDisposable
     {
         private DispatcherTimer _dtimer;
+        private System.Timers.Timer _timer;
         private TimeSpan _timerValue;
         private bool displayTimerValue;
         private int charges;
@@ -49,7 +50,20 @@ namespace SWTORCombatParser.ViewModels.Timers
         public string TargetAddendem { get; set; }
         public long TargetId { get; set; }
         public string TimerName => GetTimerName();
-        public double MaxTimerValue { get; set; }
+
+        public double MaxTimerValue
+        {
+            get => _maxTimerValue;
+            set
+            {
+                _maxTimerValue = value;
+                
+                OnPropertyChanged("TimerDuration");
+            }
+        }
+
+        public double CurrentRatio => TimerValue / MaxTimerValue;
+        public Duration TimerDuration { get; set; }
         public Color TimerColor => SourceTimer.TimerColor;
         public SolidColorBrush TimerBackground => new SolidColorBrush(TimerColor);
 
@@ -61,14 +75,11 @@ namespace SWTORCombatParser.ViewModels.Timers
 
                 if (MaxTimerValue == 0 || TimerValue < 0 || TimerValue > MaxTimerValue)
                 {
-                    OnPropertyChanged("RemainderWidth");
-                    OnPropertyChanged("BarWidth");
-                    return; 
+                    TimerDuration  = new Duration(TimeSpan.Zero);
                 }
-                RemainderWidth = GetRemainderWidth();
-                BarWidth = GetBarWidth();
-                OnPropertyChanged("RemainderWidth");
-                OnPropertyChanged("BarWidth");
+                else
+                    TimerDuration = new Duration(TimeSpan.FromSeconds(timerValue));
+                OnPropertyChanged("TimerDuration");
             }
         }
         public bool DisplayTimer
@@ -89,20 +100,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
 
 
-        public GridLength RemainderWidth { get; set; } = new GridLength(0, GridUnitType.Star);
-
-        private GridLength GetRemainderWidth()
-        {
-            
-            return (SourceTimer.IsAlert ? new GridLength(0, GridUnitType.Star) : new GridLength(1 - (TimerValue / MaxTimerValue), GridUnitType.Star));
-        }
-
-        public GridLength BarWidth { get; set; } = new GridLength(1, GridUnitType.Star);
-
-        private GridLength GetBarWidth()
-        {
-            return (SourceTimer.IsAlert ? new GridLength(1, GridUnitType.Star) : new GridLength(TimerValue / MaxTimerValue, GridUnitType.Star));
-        }
         public TimerInstanceViewModel(Timer swtorTimer)
         {
             _playAtTime = !string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(swtorTimer.CustomAudioPath) ? swtorTimer.AudioStartTime : 3;
@@ -112,16 +109,24 @@ namespace SWTORCombatParser.ViewModels.Timers
             SourceTimer = swtorTimer;
             MaxTimerValue = swtorTimer.DurationSec;
             App.Current.Dispatcher.Invoke(() => { _mediaPlayer = new MediaPlayer(); });
-            _dtimer = new DispatcherTimer(DispatcherPriority.Normal, Application.Current.Dispatcher);
+            _dtimer = new DispatcherTimer(DispatcherPriority.Background, Application.Current.Dispatcher);
+            //_timer = new System.Timers.Timer();
             if (!swtorTimer.IsAlert)
             {
                 _timerValue = TimeSpan.FromSeconds(MaxTimerValue);
                 _dtimer.Interval = TimeSpan.FromMilliseconds(100);
+                //_timer.Interval = 100d;
             }
             else
             {
                 _timerValue = TimeSpan.FromSeconds(swtorTimer.IsSubTimer ? 0 : 3);
-                _dtimer.Interval = TimeSpan.FromSeconds(swtorTimer.IsSubTimer ? 0 : 3);
+                
+                if (SourceTimer.IsSubTimer)
+                {
+                    return;
+                }
+                _dtimer.Interval = TimeSpan.FromSeconds(3);
+               // _timer.Interval =  3000d;
             }
             MaxTimerValue = _timerValue.TotalSeconds;
             TimerValue = _timerValue.TotalSeconds;
@@ -137,13 +142,15 @@ namespace SWTORCombatParser.ViewModels.Timers
             var offset = (DateTime.Now - timeStampOfReset).TotalSeconds * -1;
             StartTime = timeStampOfReset;
             _timerValue = TimeSpan.FromSeconds(MaxTimerValue + offset);
+            TimerValue = MaxTimerValue + offset;
+            OnPropertyChanged("TimerDuration");
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
         }
         public void TriggerTimeTimer(DateTime timeStampWhenTrigged)
         {
-            Debug.WriteLine("+++++ Triggered! - " + SourceTimer.Name);
+            Debug.WriteLine(DateTime.Now + ": +++++ Triggered! - " + SourceTimer.Name);
             if (!SourceTimer.IsAlert)
             {
                 if (SourceTimer.HideUntilSec == 0)
@@ -155,6 +162,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerValue = TimeSpan.FromSeconds(MaxTimerValue + offset);
                 TimerValue = _timerValue.TotalSeconds;
                 _dtimer.Tick += Tick;
+                // _timer.Elapsed += Tick;
             }
             else
             {
@@ -171,8 +179,9 @@ namespace SWTORCombatParser.ViewModels.Timers
                 DisplayTimer = true;
                 DisplayTimerValue = false;
                 if (SourceTimer.TriggerType != TimerKeyType.HasEffect &&
-                        !SourceTimer.IsSubTimer)
+                    !SourceTimer.IsSubTimer)
                     _dtimer.Tick += ClearAlert;
+                // _timer.Elapsed += ClearAlert;
             }
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
@@ -181,6 +190,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             isActive = true;
             _dtimer.IsEnabled = true;
             _dtimer.Start();
+            // _timer.Enabled = true;
+            // _timer.Start();
             StartTime = DateTime.Now;
             LastUpdate = StartTime;
         }
@@ -258,6 +269,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("RemainderWidth");
         }
         private object completeLock = new object();
+        private double _maxTimerValue;
+
         public void Complete(bool endedNatrually)
         {
             lock(completeLock)
@@ -266,7 +279,9 @@ namespace SWTORCombatParser.ViewModels.Timers
                 isActive = false;
                 _dtimer.Stop();
                 _dtimer.IsEnabled = false;
-                Debug.WriteLine("----- Complete! - " + SourceTimer.Name+ " Was cancelled: " + !endedNatrually);
+                /*_timer.Stop();
+                _timer.Enabled = false;*/
+                Debug.WriteLine(DateTime.Now + ": ----- Complete! - " + SourceTimer.Name+ " Was cancelled: " + !endedNatrually);
                 TimerExpired(this, endedNatrually);
             }
         }
@@ -303,9 +318,9 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public void Dispose()
         {
-            isActive = false;
-            _dtimer.Stop();
-            _dtimer.IsEnabled = false;
+            //isActive = false;
+            //_dtimer.Stop();
+            //_dtimer.IsEnabled = false;
         }
     }
 }
