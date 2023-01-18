@@ -12,11 +12,21 @@
             <ColumnDefinition Width="70"/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="{Binding BarWidth, Mode=OneWay}"/>
-                <ColumnDefinition Width="{Binding RemainderWidth, Mode=OneWay}"/>
-            </Grid.ColumnDefinitions>
-            <Border BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" ></Border>
+            <Border x:Name="TimerBar" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" >
+                <Border.RenderTransform>
+                    <ScaleTransform x:Name="BarScale" ScaleX="{Binding CurrentRatio, Mode=OneTime}" ScaleY="1"></ScaleTransform>
+                </Border.RenderTransform>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="BarScale" Storyboard.TargetProperty="ScaleX" From="{Binding CurrentRatio}" To="0" Duration="{Binding TimerDuration}"></DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+            </Border>
+            
         </Grid>
         <TextBlock x:Name="ValueText" Margin="0,0,10,0" Grid.Column="1" FontSize="18" Visibility="{Binding DisplayTimerValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TimerValue, StringFormat=N1}"></TextBlock>
 

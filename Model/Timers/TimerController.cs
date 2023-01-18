@@ -17,15 +17,16 @@ public static class TimerController
     private static bool historicalParseFinished;
     private static DateTime _startTime;
     private static string _currentDiscipline;
-    private static object _logReadObject = new object();
     private static List<TimerInstance> _availableTimers = new List<TimerInstance>();
     private static List<TimerInstanceViewModel> _currentlyActiveTimers = new List<TimerInstanceViewModel>();
     private static bool _timersEnabled;
 
     private static List<IDisposable> _showTimerSubs = new List<IDisposable>();
     private static List<IDisposable> _hideTimerSubs = new List<IDisposable>();
+    private static List<IDisposable> _reorderSubs = new List<IDisposable>();
     public static event Action<TimerInstanceViewModel> TimerExpired = delegate { };
     public static event Action<TimerInstanceViewModel> TimerTiggered = delegate { };
+    public static event Action ReorderRequested = delegate {  };
     public static void Init()
     {
         CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
@@ -45,6 +46,7 @@ public static class TimerController
     {
         _hideTimerSubs.ForEach(s=>s.Dispose());
         _showTimerSubs.ForEach(s=>s.Dispose());
+        _reorderSubs.ForEach(s=>s.Dispose());
         var allDefaults = DefaultTimersManager.GetAllDefaults();
         var timers = allDefaults.SelectMany(t => t.Timers);
         var secondaryTimers = timers.Where(t=>t.Clause1 != null).Select(t => t.Clause1);
@@ -87,10 +89,18 @@ public static class TimerController
         _showTimerSubs = _availableTimers.Select(t =>
             Observable.FromEvent<TimerInstanceViewModel>(handler => t.NewTimerInstance += handler,
                 handler => t.NewTimerInstance -= handler).Subscribe(AddTimerVisual)).ToList();
+        _reorderSubs = _availableTimers.Select(t =>
+            Observable.FromEvent(handler => t.ReorderRequested += handler,
+                handler => t.ReorderRequested -= handler).Subscribe(_=>ReorderRequest())).ToList();
     }
 
+    private static void ReorderRequest()
+    {
+        ReorderRequested();
+    }
     private static void AddTimerVisual(TimerInstanceViewModel t)
     {
+        Debug.WriteLine(DateTime.Now+": Attempting to add visual for "+t.SourceTimer.Name);
         if(!t.SourceTimer.IsSubTimer)
             TimerTiggered(t);
         _currentlyActiveTimers.Add(t);
@@ -110,17 +120,13 @@ public static class TimerController
 
     private static void NewLogStreamed(ParsedLogEntry log)
     {
-        lock (_logReadObject)
+        _currentDiscipline ??= CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(log.TimeStamp).Discipline;
+        var encounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
+        foreach (var timer in _availableTimers)
         {
-            if(_currentDiscipline == null)
-                _currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(log.TimeStamp).Discipline;
-            var encounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
-            Parallel.ForEach(_availableTimers, timer =>
-            {
-                if(!timer.TrackOutsideOfCombat && !CombatDetector.InCombat)
-                    return;
-                timer.CheckForTrigger(log, _startTime,_currentDiscipline,_currentlyActiveTimers.ToList(), encounter);
-            });
+            if (!timer.TrackOutsideOfCombat && !CombatDetector.InCombat)
+                return;
+            timer.CheckForTrigger(log, _startTime, _currentDiscipline, _currentlyActiveTimers.ToList(), encounter);
         }
     }
 

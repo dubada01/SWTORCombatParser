@@ -187,8 +187,7 @@ namespace SWTORCombatParser.Model.Timers
         {
             if ((log.TimeStamp - startTime).TotalSeconds >= combatTimeElapsed)
                 return TriggerType.Start;
-            else
-                return TriggerType.None;
+            return TriggerType.None;
         }
 
         private static bool SourceIsValid(Entity entity, string source, bool sourceIsLocal, bool sourceIsAnyButLocal)
@@ -317,7 +316,6 @@ namespace SWTORCombatParser.Model.Timers
             {
                 if (!detectedEnemies.Contains(log.Source.Id))
                 {
-                    Debug.WriteLine("New Entity "+log.Source.Id);
                     return TriggerType.Start;
                 }
             }
@@ -327,7 +325,6 @@ namespace SWTORCombatParser.Model.Timers
             {
                 if (!detectedEnemies.Contains(log.Target.Id))
                 {
-                    Debug.WriteLine("New Entity "+log.Target.Id);
                     return TriggerType.Start;
                 }
             }
