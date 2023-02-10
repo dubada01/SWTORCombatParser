@@ -131,14 +131,14 @@ namespace SWTORCombatParser.Model.Timers
 
         public static TriggerType CheckForEffectGain(ParsedLogEntry log, string effect, List<string> abilitiesThatRefresh, string source, string target, bool sourceIsLocal, bool targetIsLocal,bool sourceIsAnyButLocal, bool targetIsAnyButLocal, bool resetOnEffectLost)
         {
-            if(log.Effect.EffectType == EffectType.Event && log.Effect.EffectId == _7_0LogParsing.DeathCombatId && TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
+            if(log.Effect.EffectType == EffectType.Event && log.Effect.EffectId == _7_0LogParsing.DeathCombatId && TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal) && resetOnEffectLost)
             {
                 return TriggerType.End;
             }
             if (SourceIsValid(log.Source, source, sourceIsLocal,sourceIsAnyButLocal) && TargetIsValid(log.Target, target, targetIsLocal,targetIsAnyButLocal))
             {
                 if (log.Effect.EffectType == EffectType.Remove &&
-                    (log.Effect.EffectName == effect || log.Effect.EffectId == effect))
+                    (log.Effect.EffectName == effect || log.Effect.EffectId == effect) && resetOnEffectLost)
                     return TriggerType.End;
                 if ((log.Effect.EffectName == effect || log.Effect.EffectId == effect) &&
                     log.Effect.EffectType == EffectType.Apply)

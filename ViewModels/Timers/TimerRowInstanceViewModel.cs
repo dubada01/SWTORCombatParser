@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public Timer SourceTimer { get; set; } = new Timer();
         public bool IsHOT => SourceTimer.IsHot;
         public bool IsMechanic => SourceTimer.IsMechanic;
-        public bool CanEdit => !IsHOT && !SourceTimer.IsBuiltInDot;
+        public bool CanEdit => !IsHOT && !SourceTimer.IsBuiltInDot && !SourceTimer.IsBuiltInMechanic;
         public bool IsEnabled
         {
             get => _isEnabled;
@@ -32,6 +33,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ActiveChanged(this);
             }
         }
+        public string AudioImageSource => SourceTimer.UseAudio ? Environment.CurrentDirectory + "/resources/audioIcon.png" : Environment.CurrentDirectory + "/resources/mutedIcon.png";
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public string DurationSec => SourceTimer.IsAlert ? "Alert" : SourceTimer.DurationSec.ToString();
@@ -47,6 +49,15 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
 
         public SolidColorBrush TimerBackground => new SolidColorBrush(SourceTimer.TimerColor);
+        public ICommand ToggleAudioCommand => new CommandHandler(ToggleAudio);
+
+        private void ToggleAudio(object obj)
+        {
+            SourceTimer.UseAudio= !SourceTimer.UseAudio;
+            DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio,SourceTimer);
+            OnPropertyChanged("AudioImageSource");
+        }
+
         public ICommand EditCommand => new CommandHandler(Edit);
         private void Edit(object t)
         {

@@ -12,6 +12,7 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
     {
         public static void TryLoadBossTimers()
         {
+            DefaultTimersManager.ClearBuiltinMechanics();
             var currentBossTimers = DefaultTimersManager.GetAllDefaults();
             currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
             List<DefaultTimersData> bossTimerData = new List<DefaultTimersData>();
@@ -20,7 +21,22 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                 var bossTimers = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(file));
                 if (bossTimers == null)
                     continue;
-                bossTimerData.AddRange(bossTimers.ToObject<List<DefaultTimersData>>());
+                var bossTimerDeserialized = bossTimers.ToObject<List<DefaultTimersData>>();
+                bool updatedIds = false;
+                foreach (var boss in bossTimerDeserialized)
+                {
+                    foreach (var timer in boss.Timers)
+                    {
+                        if (string.IsNullOrEmpty(timer.Id))
+                        {
+                            timer.Id = Guid.NewGuid().ToString();
+                            updatedIds = true;
+                        }
+                    }
+                }
+                if(updatedIds)
+                    File.WriteAllText(file,JsonConvert.SerializeObject(bossTimerDeserialized));
+                bossTimerData.AddRange(bossTimerDeserialized);
             }
             
             foreach (var source in bossTimerData)
@@ -30,7 +46,6 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                 source.IsBossSource = true;
                 foreach (var timer in source.Timers)
                 {
-                    timer.Id = Guid.NewGuid().ToString();
                     if(timer.TriggerType == TimerKeyType.EntityHP)
                     {
                         timer.Target = timer.SpecificBoss;

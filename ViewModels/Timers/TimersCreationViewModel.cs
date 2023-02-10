@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using SWTORCombatParser.DataStructures.ClassInfos;
@@ -154,9 +155,13 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public TimersCreationViewModel()
         {
-            BossTimerLoader.TryLoadBossTimers();
-            HotTimerLoader.TryLoadHots();
-            DotTimerLoader.TryLoadDots();
+            var task = Task.Run(() =>
+            {
+                BossTimerLoader.TryLoadBossTimers();
+                HotTimerLoader.TryLoadHots();
+                DotTimerLoader.TryLoadDots();
+            });
+            task.Wait();
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
@@ -307,7 +312,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void UpdateTimerRows()
         {
             _savedTimersData = DefaultTimersManager.GetAllDefaults();
-            var allValidTimers = _savedTimersData.Where(t => SelectedTimerSource.Contains("|") ? CompareEncounters(t.TimerSource,SelectedTimerSource) : t.TimerSource == SelectedTimerSource).ToList();
+            var allValidTimers = _savedTimersData.Where(t => SelectedTimerSource.Contains('|') ? CompareEncounters(t.TimerSource,SelectedTimerSource) : t.TimerSource == SelectedTimerSource).ToList();
             List<TimerRowInstanceViewModel> timerObjects = new List<TimerRowInstanceViewModel>();
             if (allValidTimers.Count() == 0)
                 timerObjects = new List<TimerRowInstanceViewModel>();

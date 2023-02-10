@@ -58,9 +58,7 @@ namespace SWTORCombatParser.Model.Timers
         private void ExpirationTimerEnded(TimerInstanceViewModel vm, bool endedNatrually)
         {
             if (!endedNatrually) return;
-            Debug.WriteLine(DateTime.Now + ": Expiration Triggered!");
             CreateTimerNoTarget(DateTime.Now);
-            Debug.WriteLine(DateTime.Now + ": Expiration Timer started!");
         }
         public string CancellationTimerId { get; set; }
         public TimerInstance CancelTimer
@@ -84,6 +82,7 @@ namespace SWTORCombatParser.Model.Timers
                 {
                     Cancel();
                 };
+                parentTimer.ReorderRequested += Cancel;
             }
         }
 
@@ -95,7 +94,6 @@ namespace SWTORCombatParser.Model.Timers
             ParentTimerId = sourceTimer.ParentTimerId;
             IsEnabled = sourceTimer.IsEnabled;
             TrackOutsideOfCombat = sourceTimer.TrackOutsideOfCombat;
-            CombatIdentifier.NewBossCombatDetected += UpdateBossInfo;
             CombatLogStreamer.CombatUpdated += UpdateCombatState;
             CombatLogStreamer.HistoricalLogsFinished += FinishedHistoricalLogs;
             CombatLogStreamer.HistoricalLogsStarted += StartedHistoricalLogs;
@@ -114,6 +112,8 @@ namespace SWTORCombatParser.Model.Timers
 
         public void Cancel()
         {
+            if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
+                _singleUseTriggerUsed = true;
             var currentActiveTimers = _activeTimerInstancesForTimer.Values.ToList();
             currentActiveTimers.ForEach(t => t.Complete(false));
         }
@@ -129,8 +129,10 @@ namespace SWTORCombatParser.Model.Timers
             timer.Dispose();
         }
 
-        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter)
+        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string,string,string) bossData)
         {
+            if(bossData.Item1 != "")
+                UpdateBossInfo(bossData,log.TimeStamp);
             if (SourceTimer.Name.Contains("Other's") &&
                 currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                 return;
@@ -142,8 +144,11 @@ namespace SWTORCombatParser.Model.Timers
             if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
             {
                 var damage = _absorbShieldManager?.CheckForDamage(log);
-                if(damage.HasValue)
-                    _activeTimerInstancesForTimer.First().Value.DamageDoneToAbsorb += damage.Value;
+                if (damage.HasValue)
+                {
+                    if(_activeTimerInstancesForTimer.Any())
+                        _activeTimerInstancesForTimer.FirstOrDefault().Value.DamageDoneToAbsorb += damage.Value;
+                }
             }
                 
             
@@ -209,8 +214,17 @@ namespace SWTORCombatParser.Model.Timers
                 {
                     _singleUseTriggerUsed = true;
                 }
-                if(SourceTimer.TriggerType != TimerKeyType.FightDuration)
-                    CreateTimerInstance(log, targetInfo.Name, targetInfo.Id);
+
+                if (SourceTimer.TriggerType != TimerKeyType.FightDuration)
+                {
+                    if (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or)
+                    {
+                        if(!_activeTimerInstancesForTimer.Any())
+                            CreateTimerInstance(log, targetInfo.Name, targetInfo.Id);
+                    }
+                    else
+                        CreateTimerInstance(log, targetInfo.Name, targetInfo.Id);
+                }
             }
 
             if (wasTriggered == TriggerType.Start &&
@@ -243,7 +257,12 @@ namespace SWTORCombatParser.Model.Timers
             {
                 UpdateCharges(log, targetInfo);
             }
-
+            if(wasTriggered == TriggerType.Start)
+                Task.Run(() =>
+                {
+                    Thread.Sleep(250);
+                    ReorderRequested();
+                });
         }
 
         private void UpdateCharges(ParsedLogEntry log, TimerTargetInfo targetInfo)
@@ -357,7 +376,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TriggerTimeTimer(startTime);
             NewTimerInstance(timerVM);
         }
-        private void CreateTimerInstance(ParsedLogEntry log, string targetAdendum = "", long targetId = 0)
+        private void CreateTimerInstance(ParsedLogEntry log, string targetAdendum, long targetId)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.StartTime = log.TimeStamp;
@@ -369,7 +388,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TriggerTimeTimer(log.TimeStamp);
             NewTimerInstance(timerVM);
         }
-        private void CreateHPTimerInstance(double currentHP, string targetAdendum = "", long targetId = 0)
+        private void CreateHPTimerInstance(double currentHP, string targetAdendum, long targetId)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.TimerExpired += CompleteTimer;

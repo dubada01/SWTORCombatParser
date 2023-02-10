@@ -46,6 +46,7 @@
     "BossNames": [
       "The Writhing Horror",
       "The Dread Guard~?~Kel'sara|Ciphas|Heirad",
+      "Dreadful Entity",
       "Operator IX",
       "Kephess the Undying",
       "The Terror From Beyond"
@@ -59,6 +60,7 @@
     "BossNames": [
       "Dash'Roode",
       "Titan 6",
+      "Hateful Entity",
       "Thrasher",
       "Operations Chief",
       "Olok the Shadow",
@@ -76,7 +78,7 @@
       "Gate Commander Draxus",
       "Grob'thok, Who Feeds the Forge",
       "Corruptor Zero",
-      "Dread Master Brontes~?~Dread Master Brontes*|Left Hand of Brontes|Right Hand of Brontes"
+      "Dread Master Brontes~?~Dread Master Brontes|Left Hand of Brontes|Right Hand of Brontes"
     ]
   },
   {
@@ -101,7 +103,7 @@
       "Sparky",
       "Quartermaster Bulo",
       "Torque",
-      "Master & Blaster~?~B0-55 Master Droid|Blaster*",
+      "Master & Blaster~?~BO-55 Master Droid|Blaster",
       "Coratanni~?~Coratanni|Ruugar"
     ]
   },
@@ -115,7 +117,7 @@
       "Sword Squadron~?~Sword Squadron Unit 1|Sword Squadron Unit 2",
       "The Underlurker",
       "Revanite Commanders~?~Deron Cadoruso|Lord Kurse|Sano Thrica",
-      "Revan~?~HK-47|Machine Core*|Machine Focus|Revan"
+      "Revan~?~HK-47|Machine Core|Machine Focus|Revan"
     ]
   },
   {

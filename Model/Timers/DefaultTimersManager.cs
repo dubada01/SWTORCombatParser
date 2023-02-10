@@ -102,18 +102,33 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static void AddSource(DefaultTimersData source)
         {
+            if (source.TimerSource == "")
+                return;
             var defaults = GetAllDefaults();
             if (defaults.Any(t => t.TimerSource == source.TimerSource))
             {
                 var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
-                sourceToUpdate.Timers.RemoveAll(t => t.IsBuiltInMechanic);
-                sourceToUpdate.Timers = source.Timers;
+                foreach (var timer in source.Timers)
+                {
+                    if(sourceToUpdate.Timers.Any(t=>t.Id == timer.Id))
+                        continue;
+                    sourceToUpdate.Timers.Add(timer);
+                }
             }
             else
                 defaults.Add(source);
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
         }
 
+        public static void ClearBuiltinMechanics()
+        {
+            var allTimers = GetAllDefaults();
+            foreach (var source in allTimers)
+            {
+                source.Timers.RemoveAll(t => t.IsBuiltInMechanic);
+            }
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
+        }
         public static void ResetTimersForSource(string source)
         {
             var currentDefaults = GetDefaults(source);
@@ -141,6 +156,13 @@ namespace SWTORCombatParser.Model.Timers
             var currentDefaults = GetDefaults(timer.TimerSource);
             var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
             timerToModify.IsEnabled = state;
+            SaveResults(timerToModify.TimerSource, currentDefaults);
+        }
+        public static void SetTimerAudio(bool state, Timer timer)
+        {
+            var currentDefaults = GetDefaults(timer.TimerSource);
+            var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+            timerToModify.UseAudio = state;
             SaveResults(timerToModify.TimerSource, currentDefaults);
         }
         public static DefaultTimersData GetDefaults(string timerSource)

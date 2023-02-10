@@ -59,7 +59,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             SwtorTimers = new List<TimerInstanceViewModel>();
 
             TimerController.TimerExpired += RemoveTimer;
-            TimerController.TimerTiggered += AddTimerVisual;
+            TimerController.TimerTriggered += AddTimerVisual;
             TimerController.ReorderRequested += ReorderTimers;
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
@@ -116,31 +116,32 @@ namespace SWTORCombatParser.ViewModels.Timers
             });
         }
         private object _timerChangeLock = new object();
-        private void AddTimerVisual(TimerInstanceViewModel obj)
+        private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert || obj.SourceTimer.TriggerType == TimerKeyType.EntityHP)
+            if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert ||
+                obj.SourceTimer.TriggerType == TimerKeyType.EntityHP)
+            {
+                callback(obj);
                 return;
-            Debug.WriteLine(DateTime.Now+": Attempting to add visual for "+obj.SourceTimer.Name);
+            }
             lock (_timerChangeLock)
             {
                 _visibleTimers.Add(obj);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
                 OnPropertyChanged("SwtorTimers");
-                Debug.WriteLine(DateTime.Now+": Added visual for "+obj.SourceTimer.Name);
+                callback(obj);
             }
         }
 
-        private void RemoveTimer(TimerInstanceViewModel removedTimer)
+        private void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
         {
-            Debug.WriteLine(DateTime.Now+": Attempting removal");
             lock (_timerChangeLock)
             {
                 _visibleTimers.Remove(removedTimer);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
                 OnPropertyChanged("SwtorTimers");
-                Debug.WriteLine(DateTime.Now+": timer removed: "+removedTimer.TimerName);
+                callback(removedTimer);
             }
-            Debug.WriteLine(DateTime.Now+": Unlocked after removal!");
 
         }
 

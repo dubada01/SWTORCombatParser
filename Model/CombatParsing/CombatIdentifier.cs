@@ -135,12 +135,12 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             return CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStartTime);
         }
-        private static (string, string, string) GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        public static (string, string, string) GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
                 return ("", "", "");
 
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && !string.IsNullOrEmpty(l.Target.Name) && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
+            var validLogs = logs.Where(l => !(l.Effect.EffectType == EffectType.TargetChanged && l.Source.IsCharacter) && !string.IsNullOrEmpty(l.Target.Name)).ToList();
             if (currentEncounter.Name.Contains("Open World"))
             {
                 if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.LogId == 2857785339412480))

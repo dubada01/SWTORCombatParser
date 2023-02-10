@@ -17,7 +17,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
     public class DataGridViewModel : INotifyPropertyChanged
     {
         private List<OverlayType> _columnOrder = new List<OverlayType> {
-            OverlayType.DPS,OverlayType.FocusDPS,OverlayType.BurstDPS,
+            OverlayType.DPS,OverlayType.NonEDPS,OverlayType.FocusDPS,OverlayType.BurstDPS,
             OverlayType.EHPS,OverlayType.HPS, OverlayType.BurstEHPS, OverlayType.HealReactionTime,
             OverlayType.DamageTaken, OverlayType.BurstDamageTaken, OverlayType.Mitigation, OverlayType.ShieldAbsorb, OverlayType.ProvidedAbsorb, OverlayType.DamageAvoided, OverlayType.ThreatPerSecond,OverlayType.DamageSavedDuringCD,
             OverlayType.InterruptCount, OverlayType.APM};
@@ -191,6 +191,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                     value = combats.SelectMany(c => c.APM).Where(v => v.Key == participant).Select(v => v.Value).Average();
                     break;
                 case OverlayType.DPS:
+                    value = combats.SelectMany(c => c.EDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                    break;
+                case OverlayType.NonEDPS:
                     value = combats.SelectMany(c => c.DPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
                     break;
                 case OverlayType.EHPS:

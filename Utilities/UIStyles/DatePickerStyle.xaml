@@ -336,7 +336,7 @@
                                Foreground="{TemplateBinding Foreground}"
                                Focusable="{TemplateBinding Focusable}"
                                HorizontalContentAlignment="Center"
-                               Grid.Row="0"
+                               Grid.Row="0" Text="{Binding Path=SelectedDate, StringFormat='dd/MM'}"
                                VerticalContentAlignment="Center" Style="{StaticResource DatePickerTextBoxStyle1}" />
                             <Grid x:Name="PART_DisabledVisual"
                   Grid.ColumnSpan="2"

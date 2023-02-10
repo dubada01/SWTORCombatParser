@@ -18,6 +18,8 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.Tomato;
                 case OverlayType.DPS:
                     return Brushes.IndianRed;
+                case OverlayType.NonEDPS:
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#d44c73"));
                 case OverlayType.FocusDPS:
                     return Brushes.OrangeRed;
                 case OverlayType.BurstEHPS:

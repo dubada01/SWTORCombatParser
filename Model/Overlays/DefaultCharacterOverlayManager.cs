@@ -30,7 +30,8 @@ namespace SWTORCombatParser.Model.Overlays
         DamageTaken,
         BurstDamageTaken,
         InterruptCount,
-        ThreatPerSecond
+        ThreatPerSecond,
+        NonEDPS,
     }
     public class OverlayInfo
     {

@@ -367,6 +367,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case OverlayType.DPS:
                     value = combat.ERegDPS[participant];
                     break;
+                case OverlayType.NonEDPS:
+                    value = combat.DPS[participant];
+                    break;
                 case OverlayType.EHPS:
                     value = combat.EHPS[participant];
                     break;

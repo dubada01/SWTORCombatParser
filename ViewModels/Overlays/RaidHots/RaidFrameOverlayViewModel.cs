@@ -13,6 +13,8 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
@@ -57,11 +59,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public RaidFrameOverlayViewModel(RaidFrameOverlay view)
         {
             _view = view;
-            TimerController.TimerTiggered += CheckForRaidHOT;
+            TimerController.TimerTriggered += CheckForRaidHOT;
         }
-        private void CheckForRaidHOT(TimerInstanceViewModel obj)
+        private void CheckForRaidHOT(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null) return;
+            if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null ||
+                obj.SourceTimer.IsSubTimer)
+            {
+                callback(obj);
+                return;
+            }
             
             var playerName = obj.TargetAddendem.ToLower();
             var normalName = GetNameWithoutSpecials(playerName);
@@ -73,6 +80,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             if (cellToUpdate == null)
                 return;
             cellToUpdate.AddTimer(obj);
+            callback(obj);
         }
 
         private string GetNameWithoutSpecials(string name)
@@ -113,47 +121,103 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 UpdateCells();
             }
         }
-
+        private object _cellUpdateLock = new object();
         private void UpdateCells()
         {
-            var workingList = RaidHotCells.ToList();
-            if (!CurrentNames.Any() || RaidHotCells.Count != (Rows*Columns))
+            lock (_cellUpdateLock)
             {
-                InitRaidCells();
-                RaidHotCells = RaidHotCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-                OnPropertyChanged("RaidHotCells");
-                return;
-            }
-            else
+                Task.Run(() =>
             {
-                //RaidHotCells.RemoveAll(v => CurrentNames.All(c => c.Name.ToLower() != v.Name.ToLower()));
-                workingList.Where(v => CurrentNames.All(c => c.Name.ToLower() != v.Name.ToLower())).ToList().ForEach(c => c.Name = "");
-                foreach (var detectedName in CurrentNames)
+
+
+
+                if (!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns))
                 {
-                    var sourceCell = workingList.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), detectedName.Name.ToLower()));
-                    if (sourceCell!=null && LevenshteinDistance.Compute(sourceCell.Name.ToLower(), detectedName.Name.ToLower()) <= 3)
-                    {
-                        var inPosCell = workingList.First(c => c.Row == detectedName.Row && c.Column == detectedName.Column);
-                        var inPosCellRow = sourceCell.Row;
-                        var inPosCellColumn = sourceCell.Column;
-
-                        sourceCell.Column = detectedName.Column;
-                        sourceCell.Row = detectedName.Row;
-                        inPosCell.Row = inPosCellRow;
-                        inPosCell.Column = inPosCellColumn;
-                    }
-                    else
-                    {
-                        var inPosCell = workingList.First(c=>c.Row== detectedName.Row && c.Column == detectedName.Column);
-                        inPosCell.Name = detectedName.Name.ToUpper();
-                        //RaidHotCells.Add(new RaidHotCell { Column = detectedName.Column, Row = detectedName.Row, Name = detectedName.Name.ToUpper() });
-                    }
+                    InitRaidCells();
+                    RaidHotCells = RaidHotCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
+                    OnPropertyChanged("RaidHotCells");
+                    return;
                 }
-            }
-            //FillInRaidCells();
-            RaidHotCells = workingList.OrderBy(c => c.Row * Columns + c.Column).ToList();
+                else
+                {
+                    var currentCells = RaidHotCells.ToList();
+                    for (var x = 0; x < Columns; x++)
+                    {
+                        for (var y = 0; y < Rows; y++)
+                        {
+                            var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
+                            var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
 
-            OnPropertyChanged("RaidHotCells");
+                            if (detectedAtCell == null) // there is no text detected here
+                            {
+                                if (string.IsNullOrEmpty(currentCell.Name)) //both cells are still empty can safely move on
+                                    continue;
+                                // the detected cell is empty, but there was a name here previously. Check to see if the name moved somewhere else.
+                                MoveCells(currentCell, currentCells);
+                            }
+                            else // there is text detected here
+                            {
+                                var nameMatches =
+                                    LevenshteinDistance.Compute(detectedAtCell.Name.ToLower(), currentCell.Name.ToLower()) <= 2;
+                                if (nameMatches) // both cells still have the same name, safely move on
+                                    continue;
+
+                                //name doesn't match. Check for move
+                                var cellWithName = currentCells.MinBy(s =>
+                                    LevenshteinDistance.Compute(s.Name.ToLower(), detectedAtCell.Name.ToLower()));
+                                if (LevenshteinDistance.Compute(cellWithName.Name.ToLower(), detectedAtCell.Name.ToLower()) <=
+                                    2)
+                                {
+                                    MoveCells(currentCell, currentCells);
+                                    MoveCells(cellWithName, currentCells);
+                                }
+                                else
+                                    currentCell.Name = detectedAtCell.Name.ToUpper();
+                            }
+                        }
+
+                    }
+
+                    for (var x = 0; x < Columns; x++)
+                    {
+                        for (var y = 0; y < Rows; y++)
+                        {
+                            var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
+                            var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
+                            if (detectedAtCell == null)
+                                currentCell.Name = "";
+                        }
+                    }
+                    RaidHotCells = currentCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
+
+                    OnPropertyChanged("RaidHotCells");
+                }
+
+
+            });
+            }
+        }
+
+        private RaidHotCell MoveCells(RaidHotCell currentCell, List<RaidHotCell> currentCells)
+        {
+            var movedName = CurrentNames.MinBy(s =>
+                LevenshteinDistance.Compute(s.Name.ToLower(), currentCell.Name.ToLower()));
+            if (LevenshteinDistance.Compute(movedName.Name.ToLower(), currentCell.Name.ToLower()) <=
+                2) // if the closest name is close enough to be matching. Move it.
+            {
+                //need to take the cell in the grid that is going to receive the newly moved name and move it to this newly empty spot and clear the name.
+                var source = currentCells.First(c => c.Column == movedName.Column && c.Row == movedName.Row);
+                source.Column = currentCell.Column;
+                source.Row = currentCell.Row;
+
+                //move the cell with the name and data to the new location that has been cleared and moved to make room for it
+                currentCell.Column = movedName.Column;
+                currentCell.Row = movedName.Row;
+                
+                return source;
+            }
+
+            return null;
         }
 
         private void InitRaidCells()

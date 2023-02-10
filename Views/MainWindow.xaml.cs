@@ -38,6 +38,7 @@ namespace SWTORCombatParser.Views
     }
     public partial class MainWindow : Window
     {
+        private NotifyIcon _notifyIcon1;
         private bool _actuallyClosing = false;
         public MainWindow()
         {
@@ -66,12 +67,12 @@ namespace SWTORCombatParser.Views
             contextMenu1.Items.AddRange(
                         new ToolStripMenuItem[] { menuItem2,menuItem1 });
 
-            var notifyIcon1 = new NotifyIcon(components);
-            notifyIcon1.Icon = new Icon("resources/SWTORParsingIcon.ico");
-            notifyIcon1.ContextMenuStrip = contextMenu1;
-            notifyIcon1.Text = System.Windows.Forms.Application.ProductName;
-            notifyIcon1.Visible = true;
-            notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
+            _notifyIcon1 = new NotifyIcon(components);
+            _notifyIcon1.Icon = new Icon("resources/SWTORParsingIcon.ico");
+            _notifyIcon1.ContextMenuStrip = contextMenu1;
+            _notifyIcon1.Text = System.Windows.Forms.Application.ProductName;
+            _notifyIcon1.Visible = true;
+            _notifyIcon1.DoubleClick += new EventHandler(notifyIcon1_DoubleClick);
         }
 
         private void ShowClick(object sender, EventArgs e)
@@ -107,7 +108,9 @@ namespace SWTORCombatParser.Views
                 Hide();
             }
             else
-            { 
+            {
+                _notifyIcon1.Visible = false;
+                _notifyIcon1.Dispose();
                 SwtorDetector.StopMonitoring();
                 MainWindowClosing.FireClosing();
                 Environment.Exit(0);

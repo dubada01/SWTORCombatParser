@@ -20,6 +20,7 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
             {
                 timer.IsBuiltInDot = true;
                 timer.ResetOnEffectLoss= true;
+                timer.TrackOutsideOfCombat = false;
                 DefaultTimersManager.AddTimerForSource(timer, "DOTS");
             }
         }
