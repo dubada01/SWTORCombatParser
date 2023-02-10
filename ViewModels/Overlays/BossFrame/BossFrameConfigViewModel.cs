@@ -129,7 +129,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             if(update.Type == UpdateType.Start)
             {
-                StartTimer();
+                StartTimer(update.CombatStartTime);
             }
             if (update.Type == UpdateType.Stop)
             {
@@ -160,7 +160,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     else
                     {
                         var activeBoss = BossesDetected.First(b => b.CurrentBoss.Name == boss.Entity.Name);
-                        activeBoss.LogWithBoss(boss);
+                        if (boss.CurrentHP == 0)
+                        {
+                            App.Current.Dispatcher.Invoke(() =>
+                            {
+                                BossesDetected.Remove(activeBoss);
+                                OnPropertyChanged("ShowFrame");
+                            });
+                            
+                        }
+                        else
+                            activeBoss.LogWithBoss(boss);
                     }
                 }
             }
@@ -173,11 +183,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             _accurateDuration = 0;
         }
 
-        private void StartTimer()
+        private void StartTimer(DateTime startTime)
         {
-            _lastUpdateTime = DateTime.Now;
-            CombatDuration = 0;
+            _lastUpdateTime = startTime;
             _accurateDuration = 0;
+            CombatDuration = 0;
             _timer.Start();
         }
 

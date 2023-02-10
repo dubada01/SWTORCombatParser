@@ -102,7 +102,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 RaidHotsOnPlayer.Remove(obj);
             });
         }
-
+        private void RefreshList()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var current = RaidHotsOnPlayer.OrderBy(t => t.TimerValue);
+                RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(current);
+                OnPropertyChanged("RaidHotsOnPlayer");
+            });
+        }
         internal void AddTimer(TimerInstanceViewModel obj)
         {
             Application.Current.Dispatcher.Invoke(() =>
@@ -111,6 +119,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             });
 
             obj.TimerExpired += RemoveFromList;
+            obj.TimerRefreshed += RefreshList;
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

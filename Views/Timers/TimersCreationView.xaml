@@ -85,12 +85,11 @@
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="0.05*"/>
                         <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="0.05*" MinWidth="50"/>
+                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
                         <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="0.05*" MinWidth="50"/>
+                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
                         <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="0.075*"/>
-                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="0.077*"/>
                     </Grid.ColumnDefinitions>
                     <Rectangle Fill="DimGray" Grid.Column="1" Margin="0,2,0,2"></Rectangle>
                     <Rectangle Fill="DimGray" Grid.Column="3" Margin="0,2,0,2"></Rectangle>
@@ -121,11 +120,13 @@
                                         <ColumnDefinition Width="0.3"/>
                                         <ColumnDefinition Width="0.05*"/>
                                         <ColumnDefinition Width="0.3"/>
-                                        <ColumnDefinition Width="0.05*" MinWidth="50"/>
+                                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
                                         <ColumnDefinition Width="0.3"/>
-                                        <ColumnDefinition Width="0.05*" MinWidth="50"/>
+                                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
                                         <ColumnDefinition Width="0.3"/>
-                                        <ColumnDefinition Width="0.05*" MinWidth="50"/>
+                                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
+                                        <ColumnDefinition Width="0.3"/>
+                                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
                                         <ColumnDefinition Width="0.3"/>
                                         <ColumnDefinition Width="0.025*"/>
                                     </Grid.ColumnDefinitions>
@@ -137,6 +138,7 @@
                                     <Rectangle Fill="DimGray" Grid.Column="11"></Rectangle>
                                     <Rectangle Fill="DimGray" Grid.Column="13"></Rectangle>
                                     <Rectangle Fill="DimGray" Grid.Column="15"></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="17"></Rectangle>
                                     <TextBlock Margin="5,0,0,0" Grid.Column="0" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="14" VerticalAlignment="Center" Text="{Binding Name}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Margin="5,0,0,0" Grid.Column="2" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding Type}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                                     <Grid Margin="5,3,5,3" Grid.Column="4" VerticalAlignment="Center" >
@@ -144,10 +146,19 @@
                                     </Grid>
                                     <TextBlock Margin="5,0,0,0" Grid.Column="6" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
                                     <CheckBox Margin="0,0,0,0" Grid.Column="8" VerticalAlignment="Center" IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center"/>
-                                    <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}"  FontSize="10" VerticalAlignment="Center" Content="Edit" Command="{Binding EditCommand}" HorizontalAlignment="Stretch"/>
-                                    <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" FontSize="10" VerticalAlignment="Center" Content="Share" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch"/>
-                                    <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" MaxWidth="100" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="14" FontFamily="{StaticResource MainFont}" FontSize="10" VerticalAlignment="Center" Content="Copy" Command="{Binding CopyCommand}" HorizontalAlignment="Stretch"/>
-                                    <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="16" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="16" Height="16" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                    <Button ToolTip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
+                                        <Image Height="20" Source="{Binding AudioImageSource}"/>
+                                    </Button>
+                                    <Button ToolTip="Edit" Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
+                                        <Image Height="20" Source="../../resources/editIcon.png"/>
+                                    </Button>
+                                    <Button ToolTip="Share" Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="14" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding ShareCommand}" HorizontalAlignment="Stretch">
+                                        <Image Height="20" Source="../../resources/shareIcon.png"/>
+                                    </Button>
+                                    <Button ToolTip="Duplicate" Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="16" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding CopyCommand}" HorizontalAlignment="Stretch">
+                                        <Image Height="20" Source="../../resources/copyIcon.png"/>
+                                    </Button>
+                                    <Button Visibility="{Binding CanEdit, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="18" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

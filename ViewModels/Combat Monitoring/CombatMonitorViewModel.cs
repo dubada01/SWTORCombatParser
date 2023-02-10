@@ -34,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private object combatAddLock = new object();
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private bool _stubLogs;
-        private readonly int _linesPerWriteMin = 8500;
+        private readonly int _linesPerWriteMin = 850;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
@@ -97,7 +97,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
                 manager => CombatLogStreamer.CombatUpdated += manager,
-                manager => CombatLogStreamer.CombatUpdated -= manager).Subscribe(update => NewCombatStatusAlert(update));
+                manager => CombatLogStreamer.CombatUpdated -= manager).Subscribe(NewCombatStatusAlert);
         }
 
         private void UpdateLogOffset(double offset)
@@ -232,7 +232,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                             fs.Flush();
 
 
-                            Thread.Sleep(250);
+                            Thread.Sleep(25);
                         }
                         fs.Flush();
                         fs.Close();

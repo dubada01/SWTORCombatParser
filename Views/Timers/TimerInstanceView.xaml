@@ -12,9 +12,9 @@
             <ColumnDefinition Width="70"/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
-            <Border x:Name="TimerBar" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" >
+            <Border x:Name="TimerBar" Visibility="{Binding SourceTimer.TriggerType, Converter={StaticResource AbsorbTimerBarVisibilityConverter}, ConverterParameter=inverted}" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" >
                 <Border.RenderTransform>
-                    <ScaleTransform x:Name="BarScale" ScaleX="{Binding CurrentRatio, Mode=OneTime}" ScaleY="1"></ScaleTransform>
+                    <ScaleTransform x:Name="BarScale" ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
                 </Border.RenderTransform>
                 <Border.Triggers>
                     <EventTrigger RoutedEvent="Loaded">
@@ -26,7 +26,11 @@
                     </EventTrigger>
                 </Border.Triggers>
             </Border>
-            
+            <Border x:Name="AbsorbBar" Visibility="{Binding SourceTimer.TriggerType, Converter={StaticResource AbsorbTimerBarVisibilityConverter}}" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" >
+                <Border.RenderTransform>
+                    <ScaleTransform ScaleX="{Binding CurrentRatio, UpdateSourceTrigger=PropertyChanged}" ScaleY="1"></ScaleTransform>
+                </Border.RenderTransform>
+            </Border>
         </Grid>
         <TextBlock x:Name="ValueText" Margin="0,0,10,0" Grid.Column="1" FontSize="18" Visibility="{Binding DisplayTimerValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TimerValue, StringFormat=N1}"></TextBlock>
 

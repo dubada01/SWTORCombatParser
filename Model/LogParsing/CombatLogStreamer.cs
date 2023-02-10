@@ -122,7 +122,7 @@ namespace SWTORCombatParser.Model.LogParsing
             using (var sr = new StreamReader(fs, _fileEncoding))
             {
                 List<string> lines = new List<string>();
-                bool hasValidEnd = GetNewlines(sr, lines);
+                GetNewlines(sr, lines);
                 sr.Close();
                 fs.Close();
                 if (lines.Count == 0)
@@ -133,8 +133,8 @@ namespace SWTORCombatParser.Model.LogParsing
                     var result = ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor));
                     if (result == ProcessedLineResult.Incomplete)
                     {
-                        Logging.LogError("Failed to parse line: " + lines[line]);
-                        throw new Exception("Failed to parse line: " + lines[line]);
+                        Logging.LogInfo("Failed to parse line: " + lines[line]);
+                        numberOfProcessedBytes = 0;
                     }
                 }
                 if (!_isInCombat)
@@ -146,7 +146,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
         }
 
-        private bool GetNewlines(StreamReader sr, List<string> lines)
+        private void GetNewlines(StreamReader sr, List<string> lines)
         {
             try
             {
@@ -158,7 +158,6 @@ namespace SWTORCombatParser.Model.LogParsing
                 {
                     char[] readChars = new char[2500];
                     sr.Read(readChars, 0, 2500);
-
                     for (var c = 0; c < readChars.Length; c++)
                     {
                         if (readChars[c] == '\0')
@@ -205,12 +204,10 @@ namespace SWTORCombatParser.Model.LogParsing
                         }
                     }
                 }
-                return false;
             }
             catch(Exception e)
             {
                 Logging.LogError("Error occured while parsing log file at position " + numberOfProcessedBytes+" - "+_logToMonitor+"\r\n"+"Exception Message: "+e.Message);
-                return false;
             }
         }
 

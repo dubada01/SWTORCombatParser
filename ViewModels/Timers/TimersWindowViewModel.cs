@@ -75,7 +75,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimersWindowViewModel()
         {
             TimerController.TimerExpired += RemoveTimer;
-            TimerController.TimerTiggered += AddTimerVisual;
+            TimerController.TimerTriggered += AddTimerVisual;
             TimerController.ReorderRequested += ReorderTimers;
             _timerWindow = new TimersWindow(this);
             _timerWindow.SetIdText("DISCIPLINE TIMERS");
@@ -133,24 +133,29 @@ namespace SWTORCombatParser.ViewModels.Timers
             });
         }
         private object _timerChangeLock = new object();
-        private void AddTimerVisual(TimerInstanceViewModel obj)
+        private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert)
+            {
+                callback(obj);
                 return;
+            }
             lock (_timerChangeLock)
             {
                 _visibleTimers.Add(obj);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+                callback(obj);
             }
             OnPropertyChanged("SwtorTimers");
         }
 
-        private void RemoveTimer(TimerInstanceViewModel removedTimer)
+        private void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
         {
             lock (_timerChangeLock)
             {
                 _visibleTimers.Remove(removedTimer);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+                callback(removedTimer);
             }
             OnPropertyChanged("SwtorTimers");
         }

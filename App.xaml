@@ -47,6 +47,7 @@
             <converters:BooleanToHpBorderConverter x:Key="BooleanToHpBorderConverter"/>
             <converters:MenaceTypeToBrushConverter x:Key="MenaceTypeToBrushConverter"/>
             <converters:LogLatencyToColorConverter x:Key="LogLatencyToColorConverter"/>
+            <converters:AbsorbTimerBarVisibilityConverter x:Key="AbsorbTimerBarVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

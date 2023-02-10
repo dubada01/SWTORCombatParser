@@ -4,6 +4,7 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -74,6 +75,7 @@ namespace SWTORCombatParser.Model.LogParsing
             newEntry.Ability = ParseAbility(entryInfo[3]);
             newEntry.AbilityId = ParseAbilityId(entryInfo[3]);
             newEntry.Effect = ParseEffect(entryInfo[4]);
+
             if(newEntry.Effect.EffectId == DeathCombatId)
             {
                 newEntry.TargetInfo.IsAlive = false;
@@ -90,6 +92,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newEntry.SourceInfo.Class = GetClassFromDicipline(newEntry.Effect.EffectName);
             }
             newEntry.Value = ParseValues(value, newEntry.Effect);
+            
             if(!threat.Contains('.'))
                 newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : long.Parse(threat.Replace("<", "").Replace(">", ""));
 
@@ -152,7 +155,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 newValue.ValueType = effectName == _healEffectId ? DamageType.heal : DamageType.none;
-                newValue.EffectiveDblValue = newValue.DblValue;
+                newValue.EffectiveDblValue = newValue.DblValue > 0 ? newValue.DblValue : 0;
             }
             if (valueParts.Count == 2) // partially effective heal
             {
@@ -183,6 +186,21 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+
+                newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
+                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+
+            }
+            if (valueParts.Count == 5) // partially effective reflected damage
+            {
+                if (valueParts[4].Contains(_reflectedId)) // damage reflected
+                {
+                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                    return newValue;
+                }
+                newValue.WasCrit = valueParts[0].Contains("*");
+                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
 
                 newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);

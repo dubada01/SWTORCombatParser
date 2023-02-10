@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.Timers;
+﻿using System;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -18,21 +19,21 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             isActive = mechTrackingEnabled;
             _bossInfo = bossInfo;
-            TimerController.TimerTiggered += OnNewTimer;
+            TimerController.TimerTriggered += OnNewTimer;
+            TimerController.TimerExpired += RemoveTimer;
         }
         public void SetActive(bool state)
         {
             isActive = state;
         }
-        private void OnNewTimer(TimerInstanceViewModel obj)
+        private void OnNewTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if(!isActive)
                 return;
             lock (timerLock)
             {
-                if (obj.SourceTimer.IsMechanic && obj.SourceTimer.TriggerType == TimerKeyType.EntityHP)
+                if (obj.SourceTimer.IsMechanic && obj.SourceTimer.TriggerType == TimerKeyType.EntityHP && !obj.SourceTimer.IsSubTimer)
                 {
-                    obj.TimerExpired += RemoveTimer;
                     var unorderedUpcomingMechs = UpcomingMechanics.ToList();
                     unorderedUpcomingMechs.Add(obj);
                     var ordered = unorderedUpcomingMechs.OrderByDescending(t =>t.SourceTimer.HPPercentage);
@@ -42,14 +43,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                         OnPropertyChanged("UpcomingMechanics");
                     });
                 }
+                callback(obj);
             }
         }
         
-        private void RemoveTimer(TimerInstanceViewModel obj,bool endedNatrually)
+        private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             lock (timerLock)
             {
                 App.Current.Dispatcher.Invoke(() => { UpcomingMechanics.Remove(obj); });
+                callback(obj);
             }
         }
 

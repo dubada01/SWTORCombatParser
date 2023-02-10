@@ -56,7 +56,7 @@ public class AlertsWindowViewModel:INotifyPropertyChanged
     {
         _timerWindow = new AlertView(this);
         TimerController.TimerExpired += RefreshTimerVisuals;
-        TimerController.TimerTiggered += AddTimerVisual;
+        TimerController.TimerTriggered += AddTimerVisual;
         App.Current.Dispatcher.Invoke(() =>
         {
             var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Alerts");
@@ -83,26 +83,31 @@ public class AlertsWindowViewModel:INotifyPropertyChanged
         App.Current.Dispatcher.Invoke(() => { _timerWindow.Hide(); });
     }
     private object _timerChangeLock = new object();
-    private void AddTimerVisual(TimerInstanceViewModel obj)
+    private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
     {
-        if (obj.SourceTimer.IsHot || !Active || !obj.SourceTimer.IsAlert)
+        if (obj.SourceTimer.IsHot || !Active || !obj.SourceTimer.IsAlert || obj.SourceTimer.IsSubTimer)
+        {
+            callback(obj);
             return;
+        }
         ShowTimers();
 
         lock (_timerChangeLock)
         {
             _currentTimers.Add(obj);
             SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
+            callback(obj);
         }
         OnPropertyChanged("SwtorTimers");
     }
 
-    private void RefreshTimerVisuals(TimerInstanceViewModel removedTimer)
+    private void RefreshTimerVisuals(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
     {
         lock (_timerChangeLock)
         {
             _currentTimers.Remove(removedTimer);
             SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
+            callback(removedTimer);
         }
         if (SwtorTimers.Count == 0)
             HideTimers();
