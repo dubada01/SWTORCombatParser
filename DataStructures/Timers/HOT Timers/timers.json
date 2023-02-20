@@ -302,7 +302,7 @@
       "IsHot": true
     },
     {
-      "TimerSource": "Shared",
+      "TimerSource": "HOTS",
       "CharacterDiscipline": null,
       "Id": "be83dc2d-102d-495c-9f70-1d6c13e59b7d",
       "ShareId": null,

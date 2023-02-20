@@ -10,7 +10,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private static List<SWTORClass> _availableClasses = new List<SWTORClass>();
         public static void InitializeAvailableClasses()
         {
-            _availableClasses = ClassLoader.LoadAllClasses();
+            _availableClasses = ClassLoader.LoadAllClasses().Result;
         }
         public static SWTORClass IdentifyClassById(string diciplineId)
         {

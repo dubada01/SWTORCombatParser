@@ -204,7 +204,7 @@ namespace SWTORCombatParser.Model.Timers
             try
             {
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
-                var classes = ClassLoader.LoadAllClasses();
+                var classes = ClassLoader.LoadAllClasses().Result;
                 var validSources = classes.Select(c => c.Discipline);
                 var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS"|| c.TimerSource == "DOTS" || c.IsBossSource).ToList();
                 return validDefaults;
@@ -222,7 +222,7 @@ namespace SWTORCombatParser.Model.Timers
 
             currentDefaults.Remove(currentDefaults.First(cd => cd.TimerSource == timerSource));
             currentDefaults.Add(data);
-            var classes = ClassLoader.LoadAllClasses();
+            var classes = ClassLoader.LoadAllClasses().Result;
             var validSources = classes.Select(c => c.Discipline);
             var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource == "DOTS" || c.IsBossSource);
 
@@ -241,7 +241,7 @@ namespace SWTORCombatParser.Model.Timers
             if (timerSource.Contains("|"))
                 defaults.IsBossSource = true;
             currentDefaults.Add(defaults);
-            var classes = ClassLoader.LoadAllClasses();
+            var classes = ClassLoader.LoadAllClasses().Result;
             var validSources = classes.Select(c => c.Discipline);
             var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource == "DOTS" || c.IsBossSource);
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
