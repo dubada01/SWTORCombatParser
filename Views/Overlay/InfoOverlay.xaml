@@ -27,6 +27,10 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="{Binding ValueWidth}"/>
                                 </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
                                 <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="{Binding SecondaryBarWidth, Mode=TwoWay}"/>
@@ -36,6 +40,7 @@
                                     <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Margin="0,0,0,0" Grid.Column="1" CornerRadius="{Binding BarRadius}" Background="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
                                     <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Grid.Column="0" CornerRadius="{Binding BarRadiusSecondary}" Background="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
                                 </Grid>
+                                
                                 <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="{Binding FontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TotalValue}"></TextBlock>
    
                                 <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,2,3">
@@ -44,10 +49,13 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0" Visibility="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" Margin="2,5,5,3" Source="{Binding MedalIconPath}"></Image>
-                                    <TextBlock Margin="0,3,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{Binding InfoFontSize}" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" ></TextBlock>
+                                    <TextBlock Margin="0,5,3,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="{Binding RankFontSize}" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" >
+                                    </TextBlock>
                                     <TextBlock Margin="0,3,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding PlayerName}" ></TextBlock>
                                 </Grid>
+                                <Rectangle Grid.Row="1" Visibility="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.ColumnSpan="2" Fill="Transparent" Height="5"></Rectangle>
                             </Grid>
+                            
                             <!--</Viewbox>-->
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

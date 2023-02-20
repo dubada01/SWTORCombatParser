@@ -110,7 +110,7 @@ namespace SWTORCombatParser.Model.Timers
                 var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
                 foreach (var timer in source.Timers)
                 {
-                    if(sourceToUpdate.Timers.Any(t=>t.Id == timer.Id))
+                    if(sourceToUpdate.Timers.Any(t=>t.Id == timer.Id) || timer.Id == "")
                         continue;
                     sourceToUpdate.Timers.Add(timer);
                 }
@@ -120,13 +120,10 @@ namespace SWTORCombatParser.Model.Timers
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
         }
 
-        public static void ClearBuiltinMechanics()
+        public static void ClearBuiltinMechanics(int currentrev)
         {
             var allTimers = GetAllDefaults();
-            foreach (var source in allTimers)
-            {
-                source.Timers.RemoveAll(t => t.IsBuiltInMechanic);
-            }
+            allTimers.RemoveAll(s => s.Timers.Any(t => t.IsBuiltInMechanic) || s.Timers.Any(t=>t.BuiltInMechanicRev < currentrev && !(t.IsHot || t.IsBuiltInDot || t.BuiltInMechanicRev == 0)));
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
         }
         public static void ResetTimersForSource(string source)
@@ -135,10 +132,16 @@ namespace SWTORCombatParser.Model.Timers
             currentDefaults.Timers.Clear();
             SaveResults(source, currentDefaults);
         }
-        public static void AddTimerForSource(Timer timer, string source)
+        public static void AddTimersForSource(List<Timer> timers, string source)
         {
             var currentDefaults = GetDefaults(source);
-            currentDefaults.Timers.Add(timer);
+            foreach (var timer in timers)
+            {
+                if (currentDefaults.Timers.Any(t => t.Id == timer.Id))
+                    return;
+                currentDefaults.Timers.Add(timer);
+            }
+
             SaveResults(source, currentDefaults);
         }
         public static void RemoveTimerForCharacter(Timer timer, string character)

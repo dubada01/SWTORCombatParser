@@ -48,6 +48,7 @@
             <converters:MenaceTypeToBrushConverter x:Key="MenaceTypeToBrushConverter"/>
             <converters:LogLatencyToColorConverter x:Key="LogLatencyToColorConverter"/>
             <converters:AbsorbTimerBarVisibilityConverter x:Key="AbsorbTimerBarVisibilityConverter"/>
+            <converters:TimerTriggerTypeToNameConverter x:Key="TimerTriggerTypeToNameConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

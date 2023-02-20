@@ -20,6 +20,8 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         private ITimerWindow _timerWindow;
         private bool active;
+        private bool inBossRoom;
+        private bool isEnabled;
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
         public event Action<string> OnCharacterDetected = delegate { };
@@ -29,6 +31,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         public List<TimerInstanceViewModel> SwtorTimers { get; set; } = new List<TimerInstanceViewModel>();
         public List<TimerInstanceViewModel> _visibleTimers = new List<TimerInstanceViewModel>();
         public string TimerTitle { get; set; }
+
+        public void Closing()
+        {
+            Active = false;
+        }
         public bool Active
         {
             get => active;
@@ -63,6 +70,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             TimerController.ReorderRequested += ReorderTimers;
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
+            DefaultBossFrameManager.DefaultsUpdated += UpdateState;
+            isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
             _timerWindow = new TimersWindow(this);
             _timerWindow.SetIdText("BOSS TIMERS");
             _timerWindow.SetPlayer("Encounter");
@@ -76,25 +85,50 @@ namespace SWTORCombatParser.ViewModels.Timers
             });
         }
 
+        private void UpdateState()
+        {
+            isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
+            if(active && !isEnabled && !OverlaysMoveable)
+            {
+                Active = false;
+            }
+            if(inBossRoom && isEnabled)
+            {
+                Active = true;
+            }
+        }
+
         private void CheckForArea(DateTime arg1, bool arg2)
         {
             var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(DateTime.Now);
             if (currentArea.IsBossEncounter)
             {
-                Active = true;
+                if(isEnabled)
+                    Active = true;
+                inBossRoom = true;
             }
             else
-                Active = false;
+            { 
+                if(!OverlaysMoveable)
+                    Active = false;
+                inBossRoom = false;
+            }
         }
 
         private void AreaEntered(EncounterInfo areaInfo)
         {
             if (areaInfo.IsBossEncounter)
             {
-                Active = true;
+                if(isEnabled)
+                    Active = true;
+                inBossRoom = true;
             }
             else
-                Active = false;
+            {
+                if (!OverlaysMoveable)
+                    Active = false;
+                inBossRoom = false;
+            }
         }
 
         public void ShowTimers(bool isLocked)
@@ -119,7 +153,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert ||
-                obj.SourceTimer.TriggerType == TimerKeyType.EntityHP)
+                obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
             {
                 callback(obj);
                 return;
@@ -162,6 +196,17 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void UpdateLock(bool value)
         {
             OverlaysMoveable = !value;
+            if (OverlaysMoveable)
+            {
+                Active = true;
+            }
+            else
+            {
+                if (!inBossRoom || !isEnabled)
+                {
+                    Active = false;
+                }
+            }
             OnPropertyChanged("OverlaysMoveable");
             OnLocking(value);
         }

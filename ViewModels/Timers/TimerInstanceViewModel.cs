@@ -108,7 +108,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (swtorTimer.UseAudio)
             {
-                if (swtorTimer.IsBuiltInMechanic)
+                if (swtorTimer.IsBuiltInMechanic || swtorTimer.BuiltInMechanicRev > 0)
                 {
                     _audioPath = Path.Combine(Environment.CurrentDirectory, "resources/Audio/TimerAudio/",swtorTimer.CustomAudioPath);
                 }
@@ -123,7 +123,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 Application.Current.Dispatcher.Invoke(() => { 
                     _mediaPlayer = new MediaPlayer();
                     _mediaPlayer.Open(new Uri(_audioPath, UriKind.RelativeOrAbsolute));
-                    _mediaPlayer.MediaOpened += SetDuration;
+                    if(swtorTimer.AudioStartTime == 0)
+                        _mediaPlayer.MediaOpened += SetDuration;
+                    else
+                        _playAtTime= swtorTimer.AudioStartTime;
                 });
 
             }
@@ -156,6 +159,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             StartTime = timeStampOfReset;
             TimerValue = MaxTimerValue + offset;
             TimerRefreshed();
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                if(_mediaPlayer!= null)
+                    _mediaPlayer.Stop();
+            });
             OnPropertyChanged("TimerDuration");
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");

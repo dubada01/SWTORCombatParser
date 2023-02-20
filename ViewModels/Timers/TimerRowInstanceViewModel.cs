@@ -55,6 +55,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             SourceTimer.UseAudio= !SourceTimer.UseAudio;
             DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio,SourceTimer);
+            TimerController.RefreshAvailableTimers();
             OnPropertyChanged("AudioImageSource");
         }
 
@@ -93,6 +94,23 @@ namespace SWTORCombatParser.ViewModels.Timers
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+        }
+        private bool previousAudioSetting;
+        internal void SetAudio(bool muted)
+        {
+            if (muted)
+            { 
+                previousAudioSetting = SourceTimer.UseAudio;
+                SourceTimer.UseAudio = !muted;
+            }
+            else
+            {
+                SourceTimer.UseAudio = previousAudioSetting;
+            }
+            
+            DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
+            TimerController.RefreshAvailableTimers();
+            OnPropertyChanged("AudioImageSource");
         }
     }
 }

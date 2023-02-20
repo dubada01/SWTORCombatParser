@@ -30,6 +30,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public bool HasAbsorbBeenCounted { get; set; }
         public string Name { get; set; }
         public string EffectName { get; set; }
+        public string EffectId { get; set; }
         public CombatModfierType Type { get; set; }
         public Entity Source { get; set; }
         public Entity Target { get; set; }

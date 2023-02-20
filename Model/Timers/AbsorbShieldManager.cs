@@ -14,7 +14,7 @@ public class AbsorbShieldManager
 
     public double CheckForDamage(ParsedLogEntry log)
     {
-        if (log.Target == _target && log.Effect.EffectType == EffectType.Apply &&
+        if (log.Target.LogId == _target.LogId && log.Effect.EffectType == EffectType.Apply &&
             log.Effect.EffectId == _7_0LogParsing._damageEffectId)
         {
             return log.Value.DblValue;

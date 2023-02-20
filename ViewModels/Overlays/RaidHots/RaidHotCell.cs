@@ -28,7 +28,19 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 OnPropertyChanged();
             }
         }
-        public bool NameJustChanged { get; set; }
+        public void Reset()
+        {
+            Name = "";
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                RaidHotsOnPlayer.Clear();
+            });
+            NameJustChanged = true;
+            StaticPixelChanges.Clear();
+            StaticNamePixelIndicies.Clear();
+            NamePixelIndicies.Clear();
+        }
+        public bool NameJustChanged { get; set; } = true;
         public int PixelIndexDiffCount { get; set; }
         public List<int> StaticNamePixelIndicies { get; set; } = new List<int>();
         public List<int> StaticPixelChanges { get; set; } = new List<int>();
@@ -79,6 +91,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 OnPropertyChanged();
             }
         }
+
+        public bool HasHOT => RaidHotsOnPlayer.Any();
         public bool UsingSubtleHOTView
         {
             get => usingSubtleHOTView; set

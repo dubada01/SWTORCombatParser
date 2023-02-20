@@ -63,9 +63,31 @@ namespace SWTORCombatParser.Model.Timers
                     return CheckForDualEffect(SourceTimer,log, SourceTimer.TriggerType,startTime,activeTimers,alreadyDetectedEntities);
                 case TimerKeyType.NewEntitySpawn:
                     return CheckForEnemySpawn(SourceTimer, log, alreadyDetectedEntities);
+                case TimerKeyType.EntityDeath:
+                    return CheckForEntityDeath(SourceTimer, log);
+                case TimerKeyType.VariableCheck:
+                    return CheckForVariable(SourceTimer);
             }
             return TriggerType.None;
         }
+
+        private static TriggerType CheckForVariable(Timer sourceTimer)
+        {
+            var currentValue = VariableManager.GetValue(sourceTimer.VariableName);
+            switch(sourceTimer.ComparisonAction)
+            {
+                case VariableComparisons.Equals:
+                    return currentValue == sourceTimer.ComparisonVal ? TriggerType.Start: TriggerType.None;
+                case VariableComparisons.Less:
+                    return currentValue < sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
+                case VariableComparisons.Greater:
+                    return currentValue > sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
+                case VariableComparisons.Between:
+                    return currentValue > sourceTimer.ComparisonValMin && currentValue < sourceTimer.ComparisonValMax ? TriggerType.Start : TriggerType.None;
+            }
+            return TriggerType.None;
+        }
+
         public static double GetCurrentTargetHPPercent(ParsedLogEntry log, long targetId)
         {
             var value = -100d;
@@ -196,7 +218,7 @@ namespace SWTORCombatParser.Model.Timers
                 return true;
             if (sourceIsLocal && entity.IsLocalPlayer)
                 return true;
-            if (source == "Any" || source == "Ignore")
+            if (source == "Any" || source == "Ignore" || string.IsNullOrEmpty(source))
                 return true;
             if (source == "Players" && entity.IsCharacter)
                 return true;
@@ -210,7 +232,7 @@ namespace SWTORCombatParser.Model.Timers
                 return true;
             if (targetIsLocal && entity.IsLocalPlayer)
                 return true;
-            if (target == "Any" || target == "Ignore")
+            if (target == "Any" || target == "Ignore" || string.IsNullOrEmpty(target))
                 return true;
             if (target == "Players" && entity.IsCharacter)
                 return true;
@@ -244,7 +266,7 @@ namespace SWTORCombatParser.Model.Timers
                 var effectsActiveOnTarget =
                     CombatLogStateBuilder.CurrentState.IsEffectOnPlayerAtTime(log.TimeStamp, log.Target,
                         sourceTimerEffect);
-                if(effectsActiveOnTarget != null && effectsActiveOnTarget.Count > 0 && effectsActiveOnTarget.Any(e=>e.EffectName == sourceTimerEffect))
+                if(effectsActiveOnTarget != null && effectsActiveOnTarget.Count > 0 && effectsActiveOnTarget.Any(e=>e.EffectName == sourceTimerEffect || e.EffectId == sourceTimerEffect))
                     return TriggerType.Start;
                 return TriggerType.End;
             }           
@@ -252,7 +274,7 @@ namespace SWTORCombatParser.Model.Timers
             {                var effectsActiveOnSource =
                     CombatLogStateBuilder.CurrentState.IsEffectOnPlayerAtTime(log.TimeStamp, log.Source,
                         sourceTimerEffect);
-                if(effectsActiveOnSource != null && effectsActiveOnSource.Count > 0 && effectsActiveOnSource.Any(e=>e.EffectName == sourceTimerEffect))
+                if(effectsActiveOnSource != null && effectsActiveOnSource.Count > 0 && effectsActiveOnSource.Any(e=>e.EffectName == sourceTimerEffect || e.EffectId == sourceTimerEffect))
                     return TriggerType.Start;
                 return TriggerType.End;
             }
@@ -324,6 +346,28 @@ namespace SWTORCombatParser.Model.Timers
                     sourceTimer.SourceIsAnyButLocal))
             {
                 if (!detectedEnemies.Contains(log.Target.Id))
+                {
+                    return TriggerType.Start;
+                }
+            }
+
+            return TriggerType.None;
+        }
+        public static TriggerType CheckForEntityDeath(Timer sourceTimer, ParsedLogEntry log)
+        {
+            if (SourceIsValid(log.Source, sourceTimer.Source, sourceTimer.SourceIsLocal,
+                    sourceTimer.SourceIsAnyButLocal))
+            {
+                if (log.Effect.EffectId == _7_0LogParsing.DeathCombatId)
+                {
+                    return TriggerType.Start;
+                }
+            }
+
+            if (TargetIsValid(log.Target, sourceTimer.Source, sourceTimer.SourceIsLocal,
+                    sourceTimer.SourceIsAnyButLocal))
+            {
+                if (log.Effect.EffectId == _7_0LogParsing.DeathCombatId)
                 {
                     return TriggerType.Start;
                 }

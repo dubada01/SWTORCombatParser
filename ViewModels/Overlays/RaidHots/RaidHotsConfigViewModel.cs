@@ -223,7 +223,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                         }
 
                         else
+                        { 
+                            if(redPixelAverage < 0.05)
+                            {
+                                _currentOverlayViewModel.Reset();
+                            }
                             Thread.Sleep(1000);
+                        }
 
                     }
                 }

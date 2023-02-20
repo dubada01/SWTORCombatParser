@@ -103,6 +103,17 @@
                         </StackPanel>
                     </Grid>
                 </Viewbox>
+                <Viewbox Grid.Row="2" Margin="0,0,10,0" Visibility="{Binding IsCheckingVariable, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Text="Variable:" TextWrapping="Wrap" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableVariables}" SelectedItem="{Binding SelectedVariable}"></ComboBox>
+                        </StackPanel>
+                    </Grid>
+                </Viewbox>
                 <Viewbox Grid.Row="3" Margin="0,0,10,0">
                     <Grid >
                         <Grid.RowDefinitions>
@@ -116,6 +127,23 @@
                         <StackPanel Visibility="{Binding HasCustomTarget, Converter={StaticResource BooleanToVisibiityConverter}}" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right"  Margin="0,0,30,0">
                             <Button Width="60" Height="25" Margin="0,0,15,0" Style="{StaticResource ResourceKey=RoundCornerButton}" Command="{Binding SaveTargetCommand}" Content="Enter"></Button>
                             <TextBox  PreviewKeyDown="TargetEntered" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding CustomTarget, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </Viewbox>
+                <Viewbox Grid.Row="3" Margin="0,0,10,0" Visibility="{Binding IsCheckingVariable, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="16" Text="Comparison:" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableComparisons}" SelectedItem="{Binding SelectedComparison}"></ComboBox>
+                        </StackPanel>
+                        <TextBox Margin="0,5,0,0" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding IsCheckingSingleValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontWeight="Normal" Width="50"  Style="{StaticResource RoundedTextBox}" Text="{Binding VariableComparisonVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        <StackPanel Margin="0,5,0,0" Visibility="{Binding IsCheckingSingleValue, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+                            <TextBox Margin="0,0,3,0" FontWeight="Normal" Width="50" Style="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" Text="{Binding VariableMinVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                            <TextBox Margin="3,0,0,0" FontWeight="Normal" Width="50" Style="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" Text="{Binding VariableMaxVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                         </StackPanel>
                     </Grid>
                 </Viewbox>
@@ -308,11 +336,11 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="2*"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Visibility="{Binding HasTarget, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <StackPanel Grid.Row="0" Visibility="{Binding DisplayTargetToggle, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                             <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Show Target" FontFamily="{StaticResource MainFont}"></TextBlock>
                             <CheckBox VerticalAlignment="Center" IsChecked="{Binding ShowTargetOnTimerUI}"></CheckBox>
                         </StackPanel>
-                        <StackPanel Grid.Row="1" Visibility="{Binding ShowDuration, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Vertical">
+                        <StackPanel Grid.Row="1" Visibility="{Binding ShowDurationOrAlert, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Vertical">
                             <TextBlock Margin="10,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Hide Until" FontFamily="{StaticResource MainFont}"></TextBlock>
                             <TextBox FontWeight="Normal" Width="35" FontSize="12" HorizontalContentAlignment="Center" Style="{StaticResource RoundedTextBox}" Text="{Binding HideUntilTime, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                         </StackPanel>
@@ -332,7 +360,27 @@
                         </Grid>
                     </Viewbox>
                 </Grid>
-
+                <Grid Grid.Row="5" Grid.RowSpan="2" Visibility="{Binding IsModifyingVariables, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height=".75*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Margin="0,0,0,0" Width="75" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Text="Variable:" TextWrapping="Wrap" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <ComboBox Width="150" Style="{StaticResource NewComboStyle}" FontFamily="{StaticResource MainFont}" ItemsSource="{Binding AvailableVariables}" SelectedItem="{Binding SelectedModifyVariable}"></ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <Button Margin="0,0,15,0" Width="60" HorizontalAlignment="Right" Style="{StaticResource RoundCornerButton}" VerticalAlignment="Center" FontSize="16" Content="Add" FontFamily="{StaticResource MainFont}" Command="{Binding AddCustomVariableCommand}"></Button>
+                        <TextBox Width="150" Style="{StaticResource RoundedTextBox}" FontSize="15" FontFamily="{StaticResource MainFont}" Text="{Binding AddedVariable}"></TextBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Margin="0,0,0,0" Width="75" HorizontalAlignment="Right"  VerticalAlignment="Center" FontSize="16" Text="Action:" TextWrapping="Wrap" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <ComboBox Width="100" Style="{StaticResource NewComboStyle}" FontFamily="{StaticResource MainFont}" ItemsSource="{Binding AvailableActions}" SelectedItem="{Binding SelectedAction}"></ComboBox>
+                    </StackPanel>
+                    <TextBox Grid.Row="3" Style="{StaticResource RoundedTextBox}" FontFamily="{StaticResource MainFont}" FontSize="15" Width="50" VerticalAlignment="Center" HorizontalContentAlignment="Center" Text="{Binding VariableModificationValue}"></TextBox>
+                </Grid>
                 <Viewbox Grid.Row="7" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,6,15,5">
                     <Button  Style="{StaticResource RoundCornerButton}" Command="{Binding SaveCommand}" Width="100" Height="40" Content="Save" FontFamily="{StaticResource MainFont}" FontSize="18" ></Button>
                 </Viewbox>
@@ -340,6 +388,10 @@
             <StackPanel Grid.Row="1" Visibility="{Binding CanChangeCombatTracking, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal">
                 <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" FontSize="18" Text="Track outside of combat" TextWrapping="Wrap" Width="120" FontFamily="{StaticResource MainFont}"></TextBlock>
                 <CheckBox VerticalAlignment="Center" IsChecked="{Binding TrackOutsideOfCombat}"></CheckBox>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
+                <TextBlock Margin="0,0,0,7" VerticalAlignment="Center" FontSize="15" Text="Modify Variables" TextWrapping="Wrap" Width="120" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <CheckBox Margin="0,0,10,10" VerticalAlignment="Center" IsChecked="{Binding IsModifyingVariables}"></CheckBox>
             </StackPanel>
         </Grid>
     </Border>

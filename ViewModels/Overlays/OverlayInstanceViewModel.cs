@@ -217,7 +217,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 IsLeaderboardValue = true,
                 RelativeLength = 1,
                 SizeScalar = SizeScalar,
-                MedalIconPath = "../../resources/firstPlaceLeaderboardIcon.png"
+                MedalIconPath = "../../resources/crownIcon.png"
             };
             _metricBarsDict.TryAdd((characterName,true),metricbar);
             OrderMetricBars();

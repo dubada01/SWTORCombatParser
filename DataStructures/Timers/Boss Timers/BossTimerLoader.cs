@@ -12,32 +12,22 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
     {
         public static void TryLoadBossTimers()
         {
-            DefaultTimersManager.ClearBuiltinMechanics();
-            var currentBossTimers = DefaultTimersManager.GetAllDefaults();
-            currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
             List<DefaultTimersData> bossTimerData = new List<DefaultTimersData>();
-            foreach (var file in Directory.EnumerateFiles(@".\DataStructures\Timers\Boss Timers\Raids","*",SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(@".\DataStructures\Timers\Boss Timers\Raids", "*", SearchOption.AllDirectories))
             {
                 var bossTimers = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(file));
                 if (bossTimers == null)
                     continue;
                 var bossTimerDeserialized = bossTimers.ToObject<List<DefaultTimersData>>();
-                bool updatedIds = false;
-                foreach (var boss in bossTimerDeserialized)
-                {
-                    foreach (var timer in boss.Timers)
-                    {
-                        if (string.IsNullOrEmpty(timer.Id))
-                        {
-                            timer.Id = Guid.NewGuid().ToString();
-                            updatedIds = true;
-                        }
-                    }
-                }
-                if(updatedIds)
-                    File.WriteAllText(file,JsonConvert.SerializeObject(bossTimerDeserialized));
                 bossTimerData.AddRange(bossTimerDeserialized);
             }
+
+            var currentRev = bossTimerData.First().Timers.First().BuiltInMechanicRev;
+
+            DefaultTimersManager.ClearBuiltinMechanics(currentRev);
+            var currentBossTimers = DefaultTimersManager.GetAllDefaults();
+            currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
+
             
             foreach (var source in bossTimerData)
             {
@@ -54,7 +44,6 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                         timer.SourceIsLocal = false;
                     }
                     timer.IsMechanic = true;
-                    timer.IsBuiltInMechanic = true;
                 }
                 DefaultTimersManager.AddSource(source);
             }

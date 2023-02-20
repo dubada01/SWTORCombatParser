@@ -71,16 +71,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
             
             var playerName = obj.TargetAddendem.ToLower();
-            var normalName = GetNameWithoutSpecials(playerName);
-            
-            var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, normalName));
-            if (LevenshteinDistance.Compute(bestMatch, normalName) > 4 && !_usingDecreasedAccuracy)
-                return;
-            var cellToUpdate = RaidHotCells.FirstOrDefault(c => c.Name.ToLower() == bestMatch);
+            var cellToUpdate = GetCellThatMatchesName(playerName);
             if (cellToUpdate == null)
                 return;
             cellToUpdate.AddTimer(obj);
             callback(obj);
+        }
+        public void Reset()
+        {
+            foreach(var cell in RaidHotCells)
+            {
+                cell.Reset();
+            }
+        }
+        private RaidHotCell GetCellThatMatchesName(string playerName)
+        {
+            var normalName = GetNameWithoutSpecials(playerName);
+
+            var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, normalName));
+            if (LevenshteinDistance.Compute(bestMatch, normalName) > 4 && !_usingDecreasedAccuracy)
+                return null;
+            return RaidHotCells.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), bestMatch));
         }
 
         private string GetNameWithoutSpecials(string name)
@@ -122,79 +133,93 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
         }
         private object _cellUpdateLock = new object();
+
         private void UpdateCells()
         {
             lock (_cellUpdateLock)
             {
                 Task.Run(() =>
-            {
-
-
-
-                if (!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns))
                 {
-                    InitRaidCells();
-                    RaidHotCells = RaidHotCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-                    OnPropertyChanged("RaidHotCells");
-                    return;
-                }
-                else
-                {
-                    var currentCells = RaidHotCells.ToList();
-                    for (var x = 0; x < Columns; x++)
+
+                    if (!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns))
                     {
-                        for (var y = 0; y < Rows; y++)
+                        InitRaidCells();
+                        RaidHotCells = RaidHotCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
+                        OnPropertyChanged("RaidHotCells");
+                    }
+                    else
+                    {
+                        var currentCells = RaidHotCells.ToList();
+                        for (var x = 0; x < Columns; x++)
                         {
-                            var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
-                            var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
-
-                            if (detectedAtCell == null) // there is no text detected here
+                            for (var y = 0; y < Rows; y++)
                             {
-                                if (string.IsNullOrEmpty(currentCell.Name)) //both cells are still empty can safely move on
-                                    continue;
-                                // the detected cell is empty, but there was a name here previously. Check to see if the name moved somewhere else.
-                                MoveCells(currentCell, currentCells);
-                            }
-                            else // there is text detected here
-                            {
-                                var nameMatches =
-                                    LevenshteinDistance.Compute(detectedAtCell.Name.ToLower(), currentCell.Name.ToLower()) <= 2;
-                                if (nameMatches) // both cells still have the same name, safely move on
-                                    continue;
+                                var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
+                                var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
 
-                                //name doesn't match. Check for move
-                                var cellWithName = currentCells.MinBy(s =>
-                                    LevenshteinDistance.Compute(s.Name.ToLower(), detectedAtCell.Name.ToLower()));
-                                if (LevenshteinDistance.Compute(cellWithName.Name.ToLower(), detectedAtCell.Name.ToLower()) <=
-                                    2)
+                                if (detectedAtCell == null) // there is no text detected here
                                 {
+                                    if (string.IsNullOrEmpty(currentCell
+                                            .Name)) //both cells are still empty can safely move on
+                                        continue;
+                                    // the detected cell is empty, but there was a name here previously. Check to see if the name moved somewhere else.
                                     MoveCells(currentCell, currentCells);
-                                    MoveCells(cellWithName, currentCells);
                                 }
-                                else
-                                    currentCell.Name = detectedAtCell.Name.ToUpper();
+                                else // there is text detected here
+                                {
+                                    var nameMatches =
+                                        LevenshteinDistance.Compute(detectedAtCell.Name.ToLower(),
+                                            currentCell.Name.ToLower()) <= 2;
+                                    if (nameMatches) // both cells still have the same name, safely move on
+                                        continue;
+
+                                    //name doesn't match. Check for move
+                                    var cellWithName = currentCells.MinBy(s =>
+                                        LevenshteinDistance.Compute(s.Name.ToLower(), detectedAtCell.Name.ToLower()));
+                                    if (LevenshteinDistance.Compute(cellWithName.Name.ToLower(),
+                                            detectedAtCell.Name.ToLower()) <=
+                                        2)
+                                    {
+                                        MoveCells(currentCell, currentCells);
+                                        MoveCells(cellWithName, currentCells);
+                                    }
+                                    else
+                                        currentCell.Name = detectedAtCell.Name.ToUpper();
+                                }
+                            }
+
+                        }
+
+                        for (var x = 0; x < Columns; x++)
+                        {
+                            for (var y = 0; y < Rows; y++)
+                            {
+                                var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
+                                var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
+                                if (detectedAtCell == null)
+                                {
+                                    currentCell.Reset(); 
+                                }
                             }
                         }
-
-                    }
-
-                    for (var x = 0; x < Columns; x++)
-                    {
-                        for (var y = 0; y < Rows; y++)
+                        var playersWithHots = TimerController.GetActiveTimers().Where(t=>t.SourceTimer.IsHot).Select(t=>t.TargetAddendem);
+                        foreach (var player in playersWithHots)
                         {
-                            var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
-                            var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
-                            if (detectedAtCell == null)
-                                currentCell.Name = "";
+                            var playerCell = GetCellThatMatchesName(player);
+                            if (playerCell != null && !playerCell.HasHOT)
+                            {
+                                var timer = TimerController.GetActiveTimers().First(t => t.TargetAddendem == player);
+                                if (timer.TimerValue > 0)
+                                    playerCell.AddTimer(timer);
+                                else
+                                    timer.Complete(false);
+                            }
                         }
+                        RaidHotCells = currentCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
+
+                        OnPropertyChanged("RaidHotCells");
                     }
-                    RaidHotCells = currentCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-
-                    OnPropertyChanged("RaidHotCells");
-                }
-
-
-            });
+                });
             }
         }
 
@@ -233,18 +258,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 }
             }
         }
-        private void FillInRaidCells()
-        {
-            for (var r = 0; r < Rows; r++)
-            {
-                for (var c = 0; c < Columns; c++)
-                {
-                    if(!RaidHotCells.Any(v=>v.Row == r && v.Column == c))
-                        RaidHotCells.Add(new RaidHotCell { Column = c, Row = r, Name = "" });
 
-                }
-            }
-        }
         public List<RaidHotCell> RaidHotCells { get; set; } = new List<RaidHotCell>();
 
         public event PropertyChangedEventHandler PropertyChanged;

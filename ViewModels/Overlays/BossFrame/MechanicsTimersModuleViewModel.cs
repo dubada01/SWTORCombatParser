@@ -32,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 return;
             lock (timerLock)
             {
-                if (obj.SourceTimer.IsMechanic && obj.SourceTimer.TriggerType == TimerKeyType.EntityHP && !obj.SourceTimer.IsSubTimer)
+                if (obj.SourceTimer.IsMechanic && (obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield) && !obj.SourceTimer.IsSubTimer)
                 {
                     var unorderedUpcomingMechs = UpcomingMechanics.ToList();
                     unorderedUpcomingMechs.Add(obj);

@@ -13,7 +13,7 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
             /*var currentHotTimers = DefaultTimersManager.GetDefaults("HOTS");
             if (currentHotTimers.Timers.Count > 0)
                 return;*/
-            DefaultTimersManager.ResetTimersForSource("DOTS");
+            //DefaultTimersManager.ResetTimersForSource("DOTS");
             var timerToLoad = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@".\DataStructures\Timers\DOT Timers\timers.json"));
             var timers = (timerToLoad["Timers"] as JArray).ToObject<List<Timer>>();
             foreach(var timer in timers)
@@ -21,8 +21,8 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
                 timer.IsBuiltInDot = true;
                 timer.ResetOnEffectLoss= true;
                 timer.TrackOutsideOfCombat = false;
-                DefaultTimersManager.AddTimerForSource(timer, "DOTS");
             }
+            DefaultTimersManager.AddTimersForSource(timers, "DOTS");
         }
     }
 }
