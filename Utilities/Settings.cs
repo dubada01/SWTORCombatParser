@@ -31,6 +31,15 @@ public static class Settings
         var stringsetting = settingList[settingName].ToString();
         return JsonConvert.DeserializeObject<List<T>>(stringsetting);
     }
+    public static Dictionary<T,T2> GetDictionarySetting<T,T2>(string settingName)
+    {
+        Init();
+        var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
+        if (!settingList.ContainsKey(settingName))
+            settingList[settingName] = JsonConvert.SerializeObject(new Dictionary<string,int>());
+        var stringsetting = settingList[settingName].ToString();
+        return JsonConvert.DeserializeObject<Dictionary<T,T2>>(stringsetting);
+    }
     public static T ReadSettingOfType<T>(string settingName)
     {
         Init();

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.4.11</VersionPrefix>
+    <VersionPrefix>1.4.16</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -25,18 +25,54 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
     <Compile Remove="Installer Project\**" />
     <Compile Remove="Orbs Package Builder\**" />
     <Compile Remove="SWTORCombatParser_Test\**" />
     <Compile Remove="UWP Images\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
     <EmbeddedResource Remove="Installer Project\**" />
     <EmbeddedResource Remove="Orbs Package Builder\**" />
     <EmbeddedResource Remove="SWTORCombatParser_Test\**" />
     <EmbeddedResource Remove="UWP Images\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
     <None Remove="Installer Project\**" />
     <None Remove="Orbs Package Builder\**" />
     <None Remove="SWTORCombatParser_Test\**" />
     <None Remove="UWP Images\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
     <Page Remove="Installer Project\**" />
     <Page Remove="Orbs Package Builder\**" />
     <Page Remove="SWTORCombatParser_Test\**" />
@@ -66,6 +102,16 @@
     <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
     <None Remove="DataStructures\HOT Timers\timers.json" />
     <None Remove="DataStructures\RoomOverlay\IPCPT.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Dxun\Dxun.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Eternity Vault\Eternity Vault.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Explosive Conflict\Explosive Conflict.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Karagga%27s Palace\Karagga%27s Palace.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\R4\R4.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Scum and Villainy\Scum and Villainy.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Terror From Beyond\Terror From Beyond.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Dread Palace\The Dread Palace.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Gods from the Machine\The Gods from the Machine.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json" />
     <None Remove="LoggingConfig.json" />
     <None Remove="resources\audioIcon.png" />
     <None Remove="resources\Audio\TimerAudio\Amy\1.mp3" />
@@ -110,6 +156,7 @@
     <None Remove="resources\Audio\TimerAudio\Yolo\9.mp3" />
     <None Remove="resources\BossMaps\ZornToth.png" />
     <None Remove="resources\copyIcon.png" />
+    <None Remove="resources\crownIcon.png" />
     <None Remove="resources\DoubleArrowIcon.png" />
     <None Remove="resources\dpsIcon.png" />
     <None Remove="resources\editIcon.png" />
@@ -343,6 +390,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\copyIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\crownIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\DoubleArrowIcon.png">
@@ -623,9 +673,6 @@
     <Content Update="DataStructures\Timers\Boss Timers\Raids\EternityVault\BossTimers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\EV\BossTimers.json" />
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\KP\BossTimers.json" />
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\BossTimers.json" />
     <None Remove="resources\Audio\TimerAudio\Abduct.mp3" />
     <Content Include="resources\Audio\TimerAudio\Abduct.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -1570,46 +1617,6 @@
     <Content Include="resources\Audio\TimerAudio\ZoneSalvo.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\TfB\Terror From Beyond.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\TfB\Terror From Beyond.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\SnV\Scum and Villainy.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\SnV\Scum and Villainy.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\Rav\The Ravagers.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\Rav\The Ravagers.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\R4\R4.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\R4\R4.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\KP\Karagga's Palace.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\KP\Karagga's Palace.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\Gods\The Gods from the Machine.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\Gods\The Gods from the Machine.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\EV\Eternity Vault.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\EV\Eternity Vault.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\EC\Explosive Conflict.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\EC\Explosive Conflict.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\Dxun.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\Duxn\Dxun.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\DP\The Dread Palace.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\DP\The Dread Palace.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -1636,6 +1643,39 @@
 
   <ItemGroup>
     <Content Include="resources\SWTORParsingIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Dxun\Dxun.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Eternity Vault\Eternity Vault.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Explosive Conflict\Explosive Conflict.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Karagga's Palace\Karagga's Palace.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\R4\R4.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Scum and Villainy\Scum and Villainy.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Terror From Beyond\Terror From Beyond.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Dread Palace\The Dread Palace.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Gods from the Machine\The Gods from the Machine.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

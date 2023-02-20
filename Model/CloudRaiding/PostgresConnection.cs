@@ -448,7 +448,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
             catch(Exception e)
             {
-                throw new Exception("Connection attempt failed: " + e.Message);
+                throw new Exception("Connection attempt failed: " + JsonConvert.SerializeObject(e));
             }
         }
     }

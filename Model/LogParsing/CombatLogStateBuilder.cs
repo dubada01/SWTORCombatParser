@@ -163,7 +163,7 @@ namespace SWTORCombatParser.Model.LogParsing
                         incompleteEffect.Value.StopTime = parsedLine.TimeStamp;
                         incompleteEffect.Value.Complete = true;
                     }
-                    mods.TryAdd(Guid.NewGuid(),new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    mods.TryAdd(Guid.NewGuid(),new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, EffectId = parsedLine.Effect.EffectId, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
                 if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {

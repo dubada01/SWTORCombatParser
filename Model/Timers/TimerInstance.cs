@@ -35,6 +35,7 @@ namespace SWTORCombatParser.Model.Timers
         public Timer SourceTimer;
         private readonly Dictionary<Guid, TimerInstanceViewModel> _activeTimerInstancesForTimer = new Dictionary<Guid, TimerInstanceViewModel>();
         private (string, string, string) _currentBossInfo;
+        private EncounterInfo _currentEncounter;
         private TimerInstance parentTimer;
 
         public bool TrackOutsideOfCombat { get; set; }
@@ -57,8 +58,15 @@ namespace SWTORCombatParser.Model.Timers
 
         private void ExpirationTimerEnded(TimerInstanceViewModel vm, bool endedNatrually)
         {
-            if (!endedNatrually) return;
-            CreateTimerNoTarget(DateTime.Now);
+            if (SourceTimer.ShouldModifyVariable)
+            {
+                ModifyVariable(SourceTimer);
+                return;
+            }
+            if (endedNatrually && CheckEncounterAndBoss(this,_currentEncounter))
+            {
+                CreateTimerNoTarget(DateTime.Now);
+            }
         }
         public string CancellationTimerId { get; set; }
         public TimerInstance CancelTimer
@@ -131,12 +139,13 @@ namespace SWTORCombatParser.Model.Timers
 
         public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string,string,string) bossData)
         {
+            _currentEncounter = currentEncounter;
             if(bossData.Item1 != "")
                 UpdateBossInfo(bossData,log.TimeStamp);
             if (SourceTimer.Name.Contains("Other's") &&
                 currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                 return;
-            if ((SourceTimer.IsMechanic && !CheckEncounterAndBoss(this, currentEncounter)) || SourceTimer.TriggerType == TimerKeyType.CombatStart)
+            if ((SourceTimer.IsMechanic && !CheckEncounterAndBoss(this, _currentEncounter)) || SourceTimer.TriggerType == TimerKeyType.CombatStart)
                 return;
             if (!IsEnabled || _singleUseTriggerUsed)
                 return;
@@ -156,6 +165,13 @@ namespace SWTORCombatParser.Model.Timers
 
             if (wasTriggered == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
                 return;
+
+            if (SourceTimer.ShouldModifyVariable && wasTriggered == TriggerType.Start)
+            {
+                ModifyVariable(SourceTimer);
+                return;
+            }
+
             var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
             
             if(wasTriggered == TriggerType.Start && SourceTimer.TriggerType == TimerKeyType.NewEntitySpawn)
@@ -263,6 +279,22 @@ namespace SWTORCombatParser.Model.Timers
                     Thread.Sleep(250);
                     ReorderRequested();
                 });
+        }
+
+        private void ModifyVariable(Timer sourceTimer)
+        {
+            switch (sourceTimer.ModifyVariableAction)
+            {
+                case VariableModifications.Add:
+                    VariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
+                    break;
+                case VariableModifications.Subtract:
+                    VariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue > 0 ? sourceTimer.VariableModificationValue * -1 : sourceTimer.VariableModificationValue);
+                    break;
+                case VariableModifications.Set:
+                    VariableManager.SetVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
+                    break;
+            }
         }
 
         private void UpdateCharges(ParsedLogEntry log, TimerTargetInfo targetInfo)

@@ -86,9 +86,13 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged("DisciplineTimerSelected");
                 OnPropertyChanged("SelectedTimerSourceType");
                 OnPropertyChanged("TimerActiveCheck");
+                OnPropertyChanged("VisibleTimerSelected");
             }
         }
         public bool DisciplineTimerSelected => SelectedTimerSourceType == TimerType.Discipline;
+
+        public bool VisibleTimerSelected => DisciplineTimerSelected && SelectedTimerSource != "Shared" &&
+                                            SelectedTimerSource != "HOTS" && SelectedTimerSource != "DOTS";
         public List<string> AvailableTimerSources { get; set; }
         public string SelectedTimerSource
         {
@@ -98,6 +102,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
                 OnPropertyChanged();
                 UpdateTimerRows();
+                OnPropertyChanged("VisibleTimerSelected");
             }
         }
         public List<string> EncounterTimersList { get; set; } = new List<string>();
@@ -155,13 +160,9 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public TimersCreationViewModel()
         {
-            var task = Task.Run(() =>
-            {
-                BossTimerLoader.TryLoadBossTimers();
-                HotTimerLoader.TryLoadHots();
-                DotTimerLoader.TryLoadDots();
-            });
-            task.Wait();
+            BossTimerLoader.TryLoadBossTimers();
+            HotTimerLoader.TryLoadHots();
+            DotTimerLoader.TryLoadDots();
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
@@ -172,12 +173,14 @@ namespace SWTORCombatParser.ViewModels.Timers
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             CombatLogStreamer.HistoricalLogsFinished += SetDiscipline;
             RefreshAvaialbleTriggerOwners();
+            TimerController.RefreshAvailableTimers();
             if (DisciplineTimersList.Count > 0)
             {
                 SelectedTimerSource = DisciplineTimersList[0];
                 OnPropertyChanged("SelectedTimerSource");
             }
         }
+
         private void SetDiscipline(DateTime combatEndTime, bool localPlayerIdentified)
         {
             if (!CombatMonitorViewModel.IsLiveParseActive() || !localPlayerIdentified)
@@ -203,7 +206,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void RefreshAvaialbleTriggerOwners()
         {
             _savedTimersData = DefaultTimersManager.GetAllDefaults();
-            if (!_savedTimersData.Any(t => t.TimerSource == "Shared"))
+            if (_savedTimersData.All(t => t.TimerSource != "Shared"))
             {
                 _savedTimersData.Add(new DefaultTimersData() { TimerSource = "Shared" });
                 DefaultTimersManager.SetSavedTimers(new List<Timer>(), "Shared");
@@ -227,6 +230,23 @@ namespace SWTORCombatParser.ViewModels.Timers
             var t = new TimerModificationWindow(vm);
             t.ShowDialog();
         }
+        public string AudioImageSource => !allMuted ? Environment.CurrentDirectory + "/resources/audioIcon.png" : Environment.CurrentDirectory + "/resources/mutedIcon.png";
+        private bool allMuted = false;
+        public ICommand ToggleAudioCommand => new CommandHandler(ToggleAudio);
+
+        private void ToggleAudio(object obj)
+        {
+            allMuted= !allMuted;
+            OnPropertyChanged("AudioImageSource");
+            Task.Run(() => {
+                foreach (var timer in TimerRows)
+                {
+                    timer.SetAudio(allMuted);
+                }
+            });
+
+        }
+
         public string ImportId { get; set; }
         public ICommand ImportCommand => new CommandHandler(Import);
 
@@ -277,7 +297,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void SaveNewTimer(Timer timer)
         {
-            DefaultTimersManager.AddTimerForSource(timer, SelectedTimerSource);
+            DefaultTimersManager.AddTimersForSource(new List<Timer>(){timer}, SelectedTimerSource);
 
         }
         public void UpdateLock(bool state)

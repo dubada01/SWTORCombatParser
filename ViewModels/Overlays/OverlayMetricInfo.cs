@@ -31,6 +31,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 sizeScalar = value;
                 OnPropertyChanged("FontSize");
                 OnPropertyChanged("InfoFontSize");
+                OnPropertyChanged("RankFontSize");
                 OnPropertyChanged("BarHeight");
                 OnPropertyChanged("ValueWidth");
             }
@@ -38,6 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength ValueWidth => new GridLength(defaultValueWidth*SizeScalar, GridUnitType.Pixel);
         public double FontSize => defaultFontSize * SizeScalar;
         public double InfoFontSize => FontSize - 2;
+        public double RankFontSize => InfoFontSize - 5;
         public double BarHeight => defaultBarHeight * SizeScalar;
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
@@ -51,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool RankIsPersonalRecord { get; set; }
         public string LeaderboardRank
         {
-            get => leaderboardRank == 0 ? "" : leaderboardRank.ToString() + ". ";
+            get => leaderboardRank == 0 ? "" : leaderboardRank.ToString();
             set
             {
                 leaderboardRank = int.Parse(value);

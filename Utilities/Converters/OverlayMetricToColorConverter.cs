@@ -10,6 +10,10 @@ namespace SWTORCombatParser.Utilities.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if(parameter!= null && (bool)parameter == true)
+            {
+                return Brushes.DarkGoldenrod;
+            }
             switch ((OverlayType)value)
             {
                 case OverlayType.APM:

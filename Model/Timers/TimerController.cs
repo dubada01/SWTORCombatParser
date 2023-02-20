@@ -94,6 +94,14 @@ public static class TimerController
                 handler => t.ReorderRequested -= handler).Subscribe(_=>ReorderRequest())).ToList();
     }
 
+    public static List<TimerInstanceViewModel> GetActiveTimers()
+    {
+        lock (_currentTimersModLock)
+        {
+            return _currentlyActiveTimers;
+        }
+    }
+
     private static void ReorderRequest()
     {
         ReorderRequested();
@@ -150,6 +158,7 @@ public static class TimerController
             return;
         if (obj.Type == UpdateType.Start)
         {
+            VariableManager.ResetVariables();
             _startTime = obj.CombatStartTime;
             UncancellBeforeCombat();
             _currentDiscipline =  CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(obj.CombatStartTime).Discipline;

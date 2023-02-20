@@ -29,6 +29,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         void SetPlayer(SWTORClass classInfo);
         void UpdateLock(bool locked);
         void SetSource(string source);
+        void Closing();
         bool Active { get; set; }
     }
     public class TimersWindowViewModel : INotifyPropertyChanged, ITimerWindowViewModel
@@ -47,6 +48,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         public List<TimerInstanceViewModel> SwtorTimers { get; set; } = new List<TimerInstanceViewModel>();
         public List<TimerInstanceViewModel> _visibleTimers = new List<TimerInstanceViewModel>();
         public string TimerTitle { get; set; }
+        public void Closing()
+        {
+            Active = false;
+        }
         public bool Active
         {
             get => active;

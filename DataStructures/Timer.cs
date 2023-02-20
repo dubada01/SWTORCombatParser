@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SWTORCombatParser.Model.Timers;
+using System.Collections.Generic;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.DataStructures
@@ -20,7 +21,9 @@ namespace SWTORCombatParser.DataStructures
         Or,
         IsTimerTriggered,
         NewEntitySpawn,
-        AbsorbShield
+        AbsorbShield,
+        EntityDeath,
+        VariableCheck
     }
     public class Timer
     {
@@ -109,13 +112,24 @@ namespace SWTORCombatParser.DataStructures
         public bool IsHot { get; set; }
         public bool IsBuiltInDot { get; set; }
         public bool IsBuiltInMechanic { get; set; }
+        public int BuiltInMechanicRev { get; set; }
         public bool IsMechanic { get; set; }
         public Timer Clause1 { get; set; }
         public Timer Clause2 { get; set; }
+        public string VariableName { get; set; }
+        public string ModifyVariableName { get; set; }
+        public VariableModifications ModifyVariableAction { get; set; }
+        public int VariableModificationValue { get; set; }
+        public VariableComparisons ComparisonAction { get; set; }
+        public int ComparisonVal { get; set; }
+        public int ComparisonValMin { get; set; }
+        public int ComparisonValMax { get; set; }
+        public bool ShouldModifyVariable { get; set; }
         public Timer Copy()
         {
             return new Timer()
             {
+                TimerSource = TimerSource,
                 Id = Id,
                 SelectedCancelTimerId = SelectedCancelTimerId,
                 ParentTimerId = ParentTimerId,
@@ -163,6 +177,15 @@ namespace SWTORCombatParser.DataStructures
                 ActiveForStory= ActiveForStory,
                 ActiveForVeteran= ActiveForVeteran,
                 ActiveForMaster= ActiveForMaster,
+                ComparisonVal = ComparisonVal,
+                ComparisonAction = ComparisonAction,
+                VariableName= VariableName,
+                ComparisonValMax= ComparisonValMax,
+                ComparisonValMin= ComparisonValMin,
+                ModifyVariableAction= ModifyVariableAction,
+                ModifyVariableName= ModifyVariableName,
+                VariableModificationValue= VariableModificationValue,
+                ShouldModifyVariable = ShouldModifyVariable
                
             };
         }
