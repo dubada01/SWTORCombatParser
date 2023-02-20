@@ -6,19 +6,26 @@
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.BossFrame"
         mc:Ignorable="d"
         Title="BrossFrameView" AllowsTransparency="True" Background="{x:Null}" 
-        WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave" SizeToContent="Height">
+        WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" SizeToContent="Height" ShowInTaskbar="False">
     <Grid x:Name="MainArea" Visibility="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip="Boss Info Frame">
-        <Border x:Name="Background" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
+        <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="3" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
+        <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,2,0,0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Duration: " Foreground="{StaticResource Gray10Brush}"></TextBlock>
+                <TextBlock Text="{Binding CombatDuration}" Foreground="{StaticResource Gray12Brush}"></TextBlock>
+            </StackPanel>
+            
+        </Viewbox>
         <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
             <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
         </Viewbox>
-        <ItemsControl ItemsSource="{Binding BossesDetected}">
+        <ItemsControl Margin="0,30,0,0" ItemsSource="{Binding BossesDetected}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid Margin="5,0,5,25">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
                             <RowDefinition Height="*"/>
@@ -26,12 +33,15 @@
                         </Grid.RowDefinitions>
                         <ContentPresenter Grid.Row="0" Content="{Binding DOTSContent}"></ContentPresenter>
                         <ContentPresenter Grid.Row="1" Content="{Binding HPContent}"></ContentPresenter>
-                        <ContentPresenter Grid.Row="2" Content="{Binding TimersContent}"></ContentPresenter>
+                        <ContentPresenter Grid.Row="2" Content="{Binding MechanicsModule}"></ContentPresenter>
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
         <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
+        <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
+            <TextBlock Text="BOSS FRAME" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
+        </Viewbox>
     </Grid>
 </Window>

@@ -1,16 +1,12 @@
-﻿using MoreLinq;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.CloudRaiding;
+﻿using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Leaderboard_View;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.Leaderboard
 {
@@ -21,6 +17,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         private List<LeaderboardInstanceViewModel> _viewModels = new List<LeaderboardInstanceViewModel>();
         private string selectedDifficulty;
         private string selectedPlayerCount;
+        private Dictionary<string,long> _parsingLevels = new Dictionary<string, long> { { "1 Million" ,1000000}, { "2 Million", 2000000 }, { "3.25 Million", 3250000 }, { "6.5 Million", 6500000 }, { "10 Million", 10000000 }, { "Story", 0 },{ "Veteran", 0 },{ "Master", 0 } };
         private List<string> _allDifficulties = new List<string> { "Story", "Veteran", "Master" };
         private List<string> _allPlayerCounts = new List<string> { "8", "16" };
 
@@ -32,10 +29,10 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             get => selectedEncounter;
             set
             {
-                if (value.Name.Contains("--"))
+                if (value == null || value.Name.Contains("--"))
                     return;
                 selectedEncounter=value;
-                ShowPlayerCount = selectedEncounter.EncounterType != EncounterType.Flashpoint;
+                ShowPlayerCount = selectedEncounter.EncounterType != EncounterType.Flashpoint && selectedEncounter.Name != "Dummy Parsing";
                 if (!ShowPlayerCount)
                     selectedPlayerCount = "";
                 OnPropertyChanged("ShowPlayerCount");
@@ -43,6 +40,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
                 OnPropertyChanged();
             }
         }
+        public string LeaderboardVersion { get; set; }
         public bool ShowPlayerCount { get; set; }
         public List<string> AvailableBosses { get; set; }
         public string SelectedBoss
@@ -64,7 +62,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
                 OnPropertyChanged();
                 if (selectedDifficulty == null)
                     return;
-                _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, SelectedDifficulty, SelectedPlayerCount));
+                _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, SelectedDifficulty, SelectedPlayerCount, SelectedEncounter.Name == "Parsing", _parsingLevels[selectedDifficulty]));
             }
         }
         public ObservableCollection<string> AvailablePlayerCounts { get; set; } = new ObservableCollection<string>();
@@ -76,7 +74,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
                 OnPropertyChanged();
                 if (selectedPlayerCount == null)
                     return;
-                _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, SelectedDifficulty, SelectedPlayerCount));
+                _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, SelectedDifficulty, SelectedPlayerCount, SelectedEncounter.Name == "Parsing", _parsingLevels[selectedDifficulty]));
             }
         }
         public LeaderboardInstance DamageContent { get; set; }
@@ -113,15 +111,17 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
 
             SetAvailableEncounters();
             PostgresConnection.LeaderboardUpdated += SetAvailableEncounters;
+            LeaderboardVersion = $"leaderboard v" + Leaderboards._leaderboardVersion;
         }
         private async void SetAvailableEncounters()
         {
             var savedEncounters = await PostgresConnection.GetEncountersWithEntries();
             var allEncounters = EncounterLister.SortedEncounterInfos;
+            allEncounters.Insert(0, new EncounterInfo {Name = "Parsing"} );
             App.Current.Dispatcher.Invoke(() => {
                 AvailableEncounters = allEncounters.Where(e => savedEncounters.Contains(e.Name) || e.Name.Contains("--")).ToList();
                 OnPropertyChanged("AvailableEncounters");
-                SelectedEncounter = AvailableEncounters[1];
+                SelectedEncounter = AvailableEncounters[0];
             });
         }
         private async void SetSelectedEncounter()
@@ -133,6 +133,8 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             var bossesForEncounter = EncounterLister.GetBossesForEncounter(SelectedEncounter.Name);
 
             AvailableBosses = bossesForEncounter.Where(b => names.Contains(b)).ToList();
+            if (SelectedEncounter.Name == "Parsing")
+                AvailableBosses = names.Distinct().ToList();
             if(AvailableBosses.Any())
                 SelectedBoss = AvailableBosses[0];
             OnPropertyChanged("AvailableBosses");
@@ -149,18 +151,30 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
 
             foreach(var combo in cleaned)
             {
-                if (combo.Length > 1)
-                { 
-                    if(!counts.Contains(combo[0].Trim()))
-                        counts.Add(combo[0].Trim());
-                    difficulties.Add(combo[1].Trim());
+                if(SelectedEncounter.Name == "Parsing")
+                {
+                    difficulties.Add(combo[0].Trim().Replace("HP",""));
                 }
                 else
                 {
-                    difficulties.Add(combo[0].Trim());
+                    if (combo.Length > 1)
+                    {
+                        if (!counts.Contains(combo[0].Trim()))
+                            counts.Add(combo[0].Trim());
+                        difficulties.Add(combo[1].Trim());
+                    }
+                    else
+                    {
+                        difficulties.Add(combo[0].Trim());
+                    }
                 }
             }
-            AvailableDifficulties = new ObservableCollection<string>(_allDifficulties.Where(d => difficulties.Contains(d)));
+            if(SelectedEncounter.Name == "Parsing")
+            {
+                AvailableDifficulties = new ObservableCollection<string>(_parsingLevels.Where(d => difficulties.Contains(d.Value.ToString())).Select(kv=>kv.Key));
+            }
+            else
+                AvailableDifficulties = new ObservableCollection<string>(_allDifficulties.Where(d=>difficulties.Contains(d)));
             AvailablePlayerCounts = new ObservableCollection<string>(_allPlayerCounts.Where(c => counts.Contains(c)));
             OnPropertyChanged("AvailableDifficulties");
             OnPropertyChanged("AvailablePlayerCounts");
@@ -171,8 +185,9 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
                 selectedPlayerCount = AvailablePlayerCounts[0];
             OnPropertyChanged("SelectedDifficulty");
             OnPropertyChanged("SelectedPlayerCount");
-            _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, selectedDifficulty, selectedPlayerCount));
+            _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, selectedDifficulty, selectedPlayerCount,SelectedEncounter.Name == "Parsing", _parsingLevels[selectedDifficulty]));
         }
+
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

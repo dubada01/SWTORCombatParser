@@ -1,10 +1,9 @@
-﻿using MoreLinq;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using System;
+﻿//using MoreLinq;
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.Model.HistoricalLogs
 {

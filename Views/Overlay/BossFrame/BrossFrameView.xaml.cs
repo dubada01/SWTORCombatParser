@@ -1,20 +1,10 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.BossFrame;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SWTORCombatParser.Views.Overlay.BossFrame
 {
@@ -35,7 +25,19 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
                 new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;
             vm.OnLocking += makeTransparent;
-            vm.CloseRequested += CloseOverlay;
+            Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            RemoveFromAppWindow();
+        }
+
+        private void RemoveFromAppWindow()
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
         }
         public const int WS_EX_TRANSPARENT = 0x00000020;
         public const int GWL_EXSTYLE = (-20);
@@ -45,20 +47,20 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
 
         [DllImport("user32.dll")]
         public static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
-
+        private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
         public void makeTransparent(bool shouldLock)
         {
             Dispatcher.Invoke(() => {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
-                    Background.Opacity = 0.35f;
+                    BackgroundArea.Opacity = 0.35f;
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                     SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
                 }
                 else
                 {
-                    Background.Opacity = 0.45f;
+                    BackgroundArea.Opacity = 0.45f;
                     //Remove the WS_EX_TRANSPARENT flag from the extended window style
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                     SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);
@@ -95,11 +97,6 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
                 SetValue(HeightProperty, yadjust);
                 MainArea.MinHeight = yadjust;
             }
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            viewModel.OverlayClosing();
         }
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)

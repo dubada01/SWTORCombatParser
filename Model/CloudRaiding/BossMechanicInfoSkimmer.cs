@@ -3,11 +3,10 @@ using Newtonsoft.Json.Linq;
 using Npgsql;
 using SWTORCombatParser.Utilities;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using System.Globalization;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -22,27 +21,24 @@ namespace SWTORCombatParser.Model.CloudRaiding
     }
     public static class BossMechanicInfoSkimmer
     {
-        private static string _dbConnectionString => ReadEncryptedString(JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@"connectionConfig.json"))["ConnectionString"].ToString());
-        public static void ClearCache()
+        public static void AddBossInfoAfterCombat(Combat bossCombat, bool uploadToDb = true)
         {
-            File.Delete(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "boss_mechanics_data_new.csv"));
-        }
-        public static async void AddBossInfoAfterCombat(Combat bossCombat, bool uploadToDb = true)
-        {
-            if(uploadToDb == true)
+            if (bossCombat.ParentEncounter.Name == "Parsing")
+                return;
+            if (uploadToDb == true)
             {
                 uploadToDb = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("BossMechanicSkimmerConfig.json"))["shouldUploadToDB"].Value<bool>();
 
             }
-            //var clearCache = JsonConvert.DeserializeObject<JObject>(File.ReadAllText("BossMechanicSkimmerConfig.json"))["shouldClearCacheWithEachBoss"].Value<bool>();
-            //if (clearCache)
-                //ClearCache();
-            using (NpgsqlConnection connection = ConnectToDB())
+            if (!uploadToDb)
+                return;
+            try
             {
-                try
+                using (NpgsqlConnection connection = ConnectToDB())
                 {
+
                     var bossInfo = bossCombat.ParentEncounter.BossInfos.First(b => b.EncounterName == bossCombat.EncounterBossDifficultyParts.Item1);
-                    var bosses = bossCombat.Targets.Where(t => bossInfo.TargetNames.Contains(t.Name));
+                    var bosses = bossCombat.Targets.Where(t => bossInfo.TargetIds.Contains(t.Name));
                     foreach (var boss in bosses)
                     {
                         var infos = bossCombat.AbilitiesActivated[boss];
@@ -53,28 +49,49 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             var bossName = boss.Name;
                             var encounterName = bossCombat.ParentEncounter.NamePlus;
                             var abilityName = activation.Ability;
-                            //File.AppendAllText(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"boss_mechanics_data_new.csv"), JsonConvert.SerializeObject(new ParseBossInfo { start_time = bossCombat.StartTime, seconds_elapsed = secondsElapsed, boss_name = bossName, current_hp = currentHP, encounter_name = encounterName, ability_name = abilityName }) + "\n");
                             if (!uploadToDb)
                                 continue;
                             using (var cmd = new NpgsqlCommand("INSERT INTO public.boss_mechanics_data" +
                                 " (start_time,seconds_elapsed,current_hp,boss_name,encounter_name,ability_name)" +
-                                $" VALUES ('{bossCombat.StartTime.ToUniversalTime()}','{secondsElapsed}','{currentHP}','{bossName.MakePGSQLSafe()}','{encounterName.MakePGSQLSafe()}','{abilityName.MakePGSQLSafe()}')", connection))
+                                $" VALUES " +
+                                $"(@p1," +
+                                $"@p2," +
+                                $"@p3," +
+                                $"@p4," +
+                                $"@p5," +
+                                $"@p6)", connection)
                             {
-                                await cmd.ExecuteNonQueryAsync();
+                                Parameters  =
+                                {
+                                    new ("p1",GetUTCTimeStamp(DateTime.Now)),
+                                    new ("p2",secondsElapsed),
+                                    new ("p3",currentHP),
+                                    new ("p4",bossName.MakePGSQLSafe()),
+                                    new ("p5",encounterName.MakePGSQLSafe()),
+                                    new ("p6",abilityName.MakePGSQLSafe())
+                                }
+                            })
+                            {
+                                var r = cmd.ExecuteNonQueryAsync().Result;
                             }
                         }
                     }
-                }
-                catch(Exception ex)
-                {
+
 
                 }
-
             }
+            catch (Exception ex)
+            {
+                Logging.LogError("Boss mechanics upload database exception: " + ex.Message);
+            }
+        }
+        private static DateTime GetUTCTimeStamp(DateTime timeZone)
+        {
+            return timeZone.ToUniversalTime();
         }
         private static NpgsqlConnection ConnectToDB()
         {
-            var conn = new NpgsqlConnection(_dbConnectionString);
+            var conn = new NpgsqlConnection(DatabaseIPGetter.GetCurrentConnectionString());
             conn.Open();
             return conn;
         }

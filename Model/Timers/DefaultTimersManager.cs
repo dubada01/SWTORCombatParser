@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace SWTORCombatParser.Model.Timers
@@ -14,29 +12,42 @@ namespace SWTORCombatParser.Model.Timers
     public class DefaultTimersData
     {
         public string TimerSource;
-
+        public bool IsBossSource;
         public Point Position;
         public Point WidtHHeight;
         
         public List<Timer> Timers = new List<Timer>();
     }
-    public class TimersActive
-    {
-        public bool DisciplineActive { get; set; }
-        public bool EncounterActive { get; set; }
-    }
     public static class DefaultTimersManager
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
-        private static string infoPath = Path.Combine(appDataPath, "timers_info.json");
-        private static string activePath = Path.Combine(appDataPath, "timers_active.json");
-        public static void UpdateTimersActive(bool disciplineActive, bool encounterActive)
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+
+        private static string infoPath = Path.Combine(appDataPath, "timers_info_v3.json");
+        private static string activePath = Path.Combine(appDataPath, "timers_active_v2.json");
+        public static void UpdateTimersActive(bool timersActive, string timerSource)
         {
-            File.WriteAllText(activePath, JsonConvert.SerializeObject(new TimersActive() { DisciplineActive = disciplineActive,EncounterActive=encounterActive }));
+            var currentActives = GetAllTimersActiveInfo();
+            
+            currentActives[timerSource] = timersActive;
+            SaveActiveTimersInfo(currentActives);
         }
-        public static TimersActive GetTimersActive()
+        public static bool GetTimersActive(string currentCharacter)
         {
-            return JsonConvert.DeserializeObject<TimersActive>(File.ReadAllText(activePath));
+            var activeInfo = GetAllTimersActiveInfo();
+            if (!activeInfo.ContainsKey(currentCharacter))
+            {
+                activeInfo[currentCharacter] = false;
+                SaveActiveTimersInfo(activeInfo);
+            }
+            return activeInfo[currentCharacter];
+        }
+        private static void SaveActiveTimersInfo(Dictionary<string,bool> activesInfo)
+        {
+            File.WriteAllText(activePath, JsonConvert.SerializeObject(activesInfo));
+        }
+        private static Dictionary<string,bool> GetAllTimersActiveInfo()
+        {
+            return JsonConvert.DeserializeObject<Dictionary<string, bool>>(File.ReadAllText(activePath));
         }
         public static void Init()
         {
@@ -48,7 +59,7 @@ namespace SWTORCombatParser.Model.Timers
             }
             if (!File.Exists(activePath))
             {
-                File.WriteAllText(activePath, JsonConvert.SerializeObject(new TimersActive()));
+                File.WriteAllText(activePath, JsonConvert.SerializeObject(new Dictionary<string, bool>()));
             }
         }
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)
@@ -70,6 +81,25 @@ namespace SWTORCombatParser.Model.Timers
             var currentDefaults = GetDefaults(character);
             currentDefaults.Timers = currentTimers;
             SaveResults(character, currentDefaults);
+        }
+        public static void AddSource(DefaultTimersData source)
+        {
+            var defaults = GetAllDefaults();
+            if (defaults.Any(t => t.TimerSource == source.TimerSource))
+            {
+                var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
+                sourceToUpdate.Timers = source.Timers;
+            }
+            else
+                defaults.Add(source);
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
+        }
+
+        public static void ResetTimersForSource(string source)
+        {
+            var currentDefaults = GetDefaults(source);
+            currentDefaults.Timers.Clear();
+            SaveResults(source, currentDefaults);
         }
         public static void AddTimerForSource(Timer timer, string source)
         {
@@ -106,12 +136,16 @@ namespace SWTORCombatParser.Model.Timers
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
                 return currentDefaults.First(t=>t.TimerSource == timerSource);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 InitializeDefaults(timerSource);
                 var resetDefaults = File.ReadAllText(infoPath);
                 return JsonConvert.DeserializeObject<List<DefaultTimersData>>(resetDefaults).First(t=>t.TimerSource == timerSource);
             }
+        }
+        public static List<DefaultTimersData> GetAllMechanicsDefaults()
+        {
+            return GetAllDefaults().Where(d => d.IsBossSource).ToList();
         }
         public static List<DefaultTimersData> GetAllDefaults()
         {
@@ -125,10 +159,10 @@ namespace SWTORCombatParser.Model.Timers
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
                 var classes = ClassLoader.LoadAllClasses();
                 var validSources = classes.Select(c => c.Discipline);
-                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|')).ToList();
+                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS"|| c.TimerSource == "DOTS" || c.IsBossSource).ToList();
                 return validDefaults;
             }
-            catch(JsonSerializationException e)
+            catch(JsonSerializationException)
             {
                 File.WriteAllText(infoPath, "");
                 return new List<DefaultTimersData>();
@@ -143,7 +177,7 @@ namespace SWTORCombatParser.Model.Timers
             currentDefaults.Add(data);
             var classes = ClassLoader.LoadAllClasses();
             var validSources = classes.Select(c => c.Discipline);
-            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|'));
+            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource == "DOTS" || c.IsBossSource);
 
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
@@ -156,12 +190,13 @@ namespace SWTORCombatParser.Model.Timers
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
             }
 
-            var defaults = new DefaultTimersData() {TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(100, 200)};
-
+            var defaults = new DefaultTimersData() {TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(300, 200)};
+            if (timerSource.Contains("|"))
+                defaults.IsBossSource = true;
             currentDefaults.Add(defaults);
             var classes = ClassLoader.LoadAllClasses();
             var validSources = classes.Select(c => c.Discipline);
-            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource.Contains('|'));
+            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource == "DOTS" || c.IsBossSource);
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
     }

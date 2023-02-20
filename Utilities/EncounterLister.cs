@@ -1,9 +1,6 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -12,7 +9,7 @@ namespace SWTORCombatParser.Utilities
         public static List<string> EncounterNames => GetEncounters();
         private static List<string> GetEncounters()
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             return encounters.Select(e => e.Name).ToList();
         }
         public static List<string> SortedEncounterNames => new List<string> { "All"}.Concat(GetSortedEncountersByType()).ToList();
@@ -20,7 +17,7 @@ namespace SWTORCombatParser.Utilities
         public static List<EncounterInfo> SortedEncounterInfos => GetSortedEncounterInfos();
         private static List<EncounterInfo> GetSortedEncounterInfos()
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var flashpoints = encounters.Where(e => e.EncounterType == EncounterType.Flashpoint).OrderBy(f => f.Name);
             var operations = encounters.Where(e => e.EncounterType == EncounterType.Operation).OrderBy(o => o.Name);
             var lairs = encounters.Where(e => e.EncounterType == EncounterType.Lair).OrderBy(l => l.Name);
@@ -35,7 +32,7 @@ namespace SWTORCombatParser.Utilities
         }
         private static List<string> GetSortedEncountersByType()
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var flashpoints = encounters.Where(e => e.EncounterType == EncounterType.Flashpoint).OrderBy(f => f.Name);
             var flashpointNames = flashpoints.Select(f => f.Name);
             var operations = encounters.Where(e => e.EncounterType == EncounterType.Operation).OrderBy(o => o.Name);
@@ -53,26 +50,29 @@ namespace SWTORCombatParser.Utilities
         }
         public static List<string> GetBossesForEncounter(string encounter)
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
             if (encounterSelected == null)
                 return new List<string>();
-            return encounterSelected.BossInfos.Select(bi=>bi.EncounterName).ToList();
+            return encounterSelected.BossIds.Keys.ToList();
         }
         public static List<string> GetAllTargetsForEncounter(string encounter)
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
-            return encounterSelected.BossInfos.SelectMany(bi=>bi.TargetNames).ToList();
+            return encounterSelected.BossNames.SelectMany(bn=>bn.Contains("~?~")?bn.Split("~?~")[1].Split('|').ToList() : new List<string>{bn}).ToList();
         }
         public static List<string> GetTargetsOfBossFight(string encounter, string bossFight)
         {
-            var encounters = RaidNameLoader.SupportedEncounters;
+            var encounters = EncounterLoader.SupportedEncounters;
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
-            var bossOfEncouter = encounterSelected.BossInfos.FirstOrDefault(bi => bi.EncounterName == bossFight);
-            if (bossOfEncouter == null)
-                return new List<string>();
-            return bossOfEncouter.TargetNames;
+            var rawBossNamesForFight = encounterSelected.BossNames.FirstOrDefault(bn =>
+                bn.Contains("~?~") ? bn.Split("~?~")[0] == bossFight : bn == bossFight);
+            if (rawBossNamesForFight.Contains("~?~"))
+            {
+                return rawBossNamesForFight.Split("~?~")[1].Split("|").ToList();
+            }
+            return new List<string>(){rawBossNamesForFight};
         }
     }
 }

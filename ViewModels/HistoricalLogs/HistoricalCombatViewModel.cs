@@ -1,6 +1,5 @@
-﻿using MoreLinq;
+﻿//using MoreLinq;
 using ScottPlot;
-using SWTORCombatParser.DataStructures.RaidInfos;
 using SWTORCombatParser.Model.HistoricalLogs;
 using System;
 using System.Collections.Generic;
@@ -8,8 +7,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {
@@ -26,7 +25,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         {
             HistoryPlot = new WpfPlot();
             var titleAxis = HistoryPlot.Plot.XAxis2;
-            titleAxis.Label(label: "Battle History Metadata", size: 25);
+            titleAxis.Label(label: "Battle History Metadata", size: 25, color: Color.WhiteSmoke);
             HistoryPlot.Plot.YAxis.Label(label: "Value", size: 15);
             HistoryPlot.Plot.XAxis.Label(label: "Date", size: 15);
             HistoryPlot.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
@@ -105,16 +104,16 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         {
             var filteredCombats = CombatsDuringHistory.Where(c => c.LocalPlayer == SelectedLocalEntity && c.ParentEncounter.NamePlus == SelectedEncounter.NamePlus && c.EncounterBossDifficultyParts.Item1 == SelectedBoss);
             var logsToView = new List<HistoricalLogEntry>();
-            var maxAPM = filteredCombats.MaxBy(c => c.APM[SelectedLocalEntity]).First().APM[SelectedLocalEntity];
-            var maxDPS = filteredCombats.MaxBy(c => c.EDPS[SelectedLocalEntity]).First().EDPS[SelectedLocalEntity];
-            var maxHPS = filteredCombats.MaxBy(c => c.EHPS[SelectedLocalEntity]).First().EHPS[SelectedLocalEntity];
-            var maxDTPS = filteredCombats.MaxBy(c => c.EDTPS[SelectedLocalEntity]).First().EDTPS[SelectedLocalEntity];
-            var maxHTPS = filteredCombats.MaxBy(c => c.EHTPS[SelectedLocalEntity]).First().EHTPS[SelectedLocalEntity];
+            var maxAPM = filteredCombats.MaxBy(c => c.APM[SelectedLocalEntity]).APM[SelectedLocalEntity];
+            var maxDPS = filteredCombats.MaxBy(c => c.EDPS[SelectedLocalEntity]).EDPS[SelectedLocalEntity];
+            var maxHPS = filteredCombats.MaxBy(c => c.EHPS[SelectedLocalEntity]).EHPS[SelectedLocalEntity];
+            var maxDTPS = filteredCombats.MaxBy(c => c.EDTPS[SelectedLocalEntity]).EDTPS[SelectedLocalEntity];
+            var maxHTPS = filteredCombats.MaxBy(c => c.EHTPS[SelectedLocalEntity]).EHTPS[SelectedLocalEntity];
             foreach (var combat in filteredCombats)
             {
                 var logEntry = new HistoricalLogEntry()
                 {
-                    Boss = combat.EncounterBossInfo,
+                    Boss = combat.EncounterBossDifficultyParts.Item1,
                     Kill = combat.WasBossKilled,
                     Encounter = selectedEncounter.Name,
                     Character = SelectedLocalEntity.Name,
@@ -133,39 +132,14 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                     HTPSMeter = combat.EHTPS[SelectedLocalEntity] / maxHTPS
                 };
                 logsToView.Add(logEntry);
-                //foreach (var participant in combat.CharacterParticipants)
-                //{
-
-                //    var logEntry = new HistoricalLogEntry()
-                //    {
-                //        Boss = combat.EncounterBossInfo,
-                //        Kill = combat.WasBossKilled,
-                //        Encounter = selectedEncounter.Name,
-                //        Character = participant.Name,
-                //        LocalPlayer = participant == SelectedLocalEntity,
-                //        Date = combat.StartTime,
-                //        Duration = (int)combat.DurationSeconds,
-                //        APM = combat.APM[participant],
-                //        APMMeter = combat.APM[participant] / maxDPS,
-                //        DPS = combat.EDPS[participant],
-                //        DPSMeter = combat.EDPS[participant] / maxDPS,
-                //        HPS = combat.EHPS[participant],
-                //        HPSMeter = combat.EHPS[participant] / maxHPS,
-                //        DTPS = combat.EDTPS[participant],
-                //        DTPSMeter = combat.EDTPS[participant] / maxDTPS,
-                //        HTPS = combat.EHTPS[participant],
-                //        HTPSMeter = combat.EHTPS[participant] / maxHTPS
-                //    };
-                //    logsToView.Add(logEntry);
-                //}
             }
-            for (var i = 0; i < logsToView.Count; i++)
+
+            DataToView = logsToView.OrderByDescending(c => c.Date).ToList();
+            for (var i = 0; i < DataToView.Count; i++)
             {
                 if (i % 2 == 0)
-                    logsToView[i].RowBackground = System.Windows.Media.Brushes.WhiteSmoke;
+                    DataToView[i].RowBackground = System.Windows.Media.Brushes.DimGray;
             }
-            DataToView = logsToView.OrderByDescending(c => c.Date).ToList();
-
             OnPropertyChanged("DataToView");
             UpdatePlot();
         }

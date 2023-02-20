@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
 
-namespace SWTORCombatParser.Plotting
+namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
     public class LegendItemViewModel : INotifyPropertyChanged
     {

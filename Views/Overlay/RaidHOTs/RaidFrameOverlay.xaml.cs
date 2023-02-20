@@ -1,20 +1,10 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 {
@@ -23,14 +13,23 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
     /// </summary>
     public partial class RaidFrameOverlay : Window
     {
-        public const int WS_EX_TRANSPARENT = 0x00000020;
-        public const int GWL_EXSTYLE = (-20);
+        private const int WS_EX_TRANSPARENT = 0x00000020;
+        private const int GWL_EXSTYLE = (-20);
+        private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
         private string _currentPlayerName = "no character";
         public RaidFrameOverlay()
         {
             InitializeComponent();
             Loaded += Hello;
         }
+
+        private void RemoveFromAppWindow()
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
+        }
+        
         public void SetPlayer(string playerName)
         {
             _currentPlayerName = playerName;
@@ -41,7 +40,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 Top = defaults.Position.Y;
                 Left = defaults.Position.X;
             });
-
+            var viewModel = DataContext as RaidFrameOverlayViewModel;
+            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
         }
         private void Hello(object sender, RoutedEventArgs e)
         {
@@ -49,6 +49,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
             viewModel.ToggleLocked += makeTransparent;
             viewModel.PlayerChanged += SetPlayer;
+            RemoveFromAppWindow();
         }
 
         public void DragWindow(object sender, MouseButtonEventArgs args)
@@ -119,6 +120,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 
         public void makeTransparent(bool shouldLock)
         {
+            Console.WriteLine("Transparent Toggle");
             Dispatcher.Invoke(() => {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)

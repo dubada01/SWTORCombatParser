@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Style x:Key="RoundedTextBox" TargetType="{x:Type TextBox}">
         <Setter Property="Padding" Value="5"/>
-        <Setter Property="Foreground" Value="LightGray"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
         <Setter Property="FontSize" Value="20"/>
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Background" Value="{StaticResource Gray8Brush}"/>
@@ -24,12 +24,12 @@ VerticalScrollBarVisibility="Hidden"/>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
                             <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Gray4Brush}"/>
-                            <Setter Property="Foreground" Value="LightGray" />
+                            <Setter Property="Foreground" Value="WhiteSmoke" />
                             <Setter Property="Background" TargetName="border" Value="{StaticResource Gray10Brush}" />
                             <Setter Property="FontWeight" Value="Bold" />
                         </Trigger>
                         <Trigger Property="IsFocused" Value="true">
-                            <Setter Property="Foreground" Value="LightGray" />
+                            <Setter Property="Foreground" Value="WhiteSmoke"/>
                             <Setter Property="Background" TargetName="border" Value="{StaticResource Gray10Brush}"/>
                             <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Gray2Brush}"/>
                         </Trigger>

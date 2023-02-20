@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows.Media;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -32,8 +31,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
     }
     public enum SortingOption
     {
-        BySource,
         ByAbility,
+        BySource,
         ByTarget
     }
     public class TableInstanceViewModel :OverviewInstanceViewModel, INotifyPropertyChanged
@@ -120,7 +119,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         private void DisplayDamageTakenData(Combat combat)
         {
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingDamageLogs[_selectedEntity]);
+            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingDamageLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
@@ -130,7 +130,11 @@ namespace SWTORCombatParser.ViewModels.Overviews
 
         private void DisplayHealingData(Combat combat)
         {
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingHealingLogs[_selectedEntity]);
+            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
+            var healing = combat.OutgoingHealingLogs[defaultEntity];
+            var shielding = combat.ShieldingProvidedLogs[defaultEntity];
+            var both = healing.Concat(shielding);
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, both.ToList());
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
@@ -140,7 +144,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
 
         private void DisplayDamageData(Combat combat)
         {
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingDamageLogs[_selectedEntity]);
+            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingDamageLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
@@ -149,8 +154,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         private void DisplayHealingReceived(Combat combat)
         {
-
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingHealingLogs[_selectedEntity]);
+            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingHealingLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {

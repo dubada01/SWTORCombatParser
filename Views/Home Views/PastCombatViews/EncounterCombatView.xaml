@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.PastCombatViews.EncounterCombatView"
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.PastCombatViews.EncounterCombatView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SWTORCombatParser.Views.PastCombatViews"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:pastCombatViews="clr-namespace:SWTORCombatParser.Views.Home_Views.PastCombatViews"
              mc:Ignorable="d" 
              d:DesignHeight="250" d:DesignWidth="400">
     <Grid>
@@ -81,7 +81,7 @@
         <ItemsControl ItemsSource="{Binding EncounterCombats}" Grid.Row="1">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <local:PastCombatInstanceView Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibiityConverter}}"/>
+                    <pastCombatViews:PastCombatInstanceView Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibiityConverter}}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

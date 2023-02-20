@@ -1,14 +1,11 @@
-﻿using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Utilities;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows.Input;
+using System.Windows.Media;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
-namespace SWTORCombatParser.Model.CombatParsing
+namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
     public class PastCombat : INotifyPropertyChanged
     {
@@ -32,7 +29,14 @@ namespace SWTORCombatParser.Model.CombatParsing
         }
         public EncounterInfo EncounterInfo { get; set; }
         public Combat Combat { get; set; }
-        public bool IsTrash => Combat!=null&&!Combat.IsCombatWithBoss && !IsCurrentCombat;
+        public bool IsTrash => Combat!=null&&!Combat.IsCombatWithBoss && !IsCurrentCombat && !IsPvPCombat;
+        public bool WasBossKilled => Combat?.WasBossKilled ?? false;
+
+        public SolidColorBrush PvPBorderInidcator =>
+            !IsPvPCombat ? Brushes.WhiteSmoke : WasPlayerKilled ? Brushes.IndianRed : Brushes.MediumAquamarine;
+        public bool WasPlayerKilled => Combat?.WasPlayerKilled(Combat.LocalPlayer) ?? false;
+        public bool IsPvPCombat => Combat?.IsPvPCombat ?? false;
+        public (EncounterInfo, bool,SolidColorBrush) TextColorSetter => (EncounterInfo, WasBossKilled,PvPBorderInidcator);
         public string CombatLabel { get; set; }
         public string CombatDuration
         {

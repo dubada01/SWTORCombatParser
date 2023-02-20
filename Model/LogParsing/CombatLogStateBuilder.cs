@@ -1,15 +1,11 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Model.Alerts;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -17,6 +13,7 @@ namespace SWTORCombatParser.Model.LogParsing
     public static class CombatLogStateBuilder
     {
         public static event Action<Entity, SWTORClass> PlayerDiciplineChanged = delegate { };
+        public static event Action AreaEntered = delegate { };
         public static LogState CurrentState { get; set; } = new LogState();
 
         public static void ClearState()
@@ -39,37 +36,53 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 UpdatePlayerDeathState(log);
                 SetCharacterPositions(log);
-                if(liveLog)
-                    OutrangedHealerAlert.CheckForOutrangingHealers(log.TimeStamp);
+
                 if(log.Effect.EffectType == EffectType.DisciplineChanged)
                     UpdatePlayerClassState(log,liveLog);
                 if(log.Effect.EffectType == EffectType.TargetChanged)
                     UpdatePlayerTargets(log);
                 if (log.LogLocation != null)
-                    UpdateEncounterEntered(log);
-
+                    UpdateEncounterEntered(log, liveLog);
                 UpdateCombatModifierState(log);
                 return CurrentState;
             }
         }
-
-        private static void UpdateEncounterEntered(ParsedLogEntry log)
+        private static void UpdateEncounterEntered(ParsedLogEntry log, bool liveLog)
         {
-            var location = log.LogLocation;
-            var knownEncounters = RaidNameLoader.SupportedEncounters.Select(s=>EncounterInfo.GetCopy(s));
-            if (knownEncounters.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)))
+            if(liveLog)
+                AreaEntered();
+            var knownEncounters = EncounterLoader.SupportedEncounters.Select(EncounterInfo.GetCopy);
+            var encounterInfos = knownEncounters.ToList();
+            if (encounterInfos.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)) || encounterInfos.Select(r=>r.LogId).Any(ln=>log.LogLocationId == ln && !string.IsNullOrEmpty(ln)))
             {
-                var raidOfInterest = knownEncounters.First(r => log.LogLocation.Contains(r.LogName));
-                raidOfInterest.Difficutly = RaidNameLoader.SupportedRaidDifficulties.FirstOrDefault(f => log.LogLocation.Contains(f));
-                var indendedNumberOfPlayers = RaidNameLoader.SupportedNumberOfPlayers.FirstOrDefault(f => log.LogLocation.Contains(f));
-                raidOfInterest.NumberOfPlayer = indendedNumberOfPlayers!=null? indendedNumberOfPlayers:"";
+                var raidOfInterest = encounterInfos.First(r => log.LogLocation.Contains(r.LogName) || log.LogLocationId == r.LogId);
+                if (!raidOfInterest.IsPvpEncounter)
+                {
+                    var intendedDifficulty = EncounterLoader.GetLeaderboardFriendlyDifficulty(log.LogDifficultyId);
+                    if (string.IsNullOrEmpty(intendedDifficulty))
+                        return;
+                    raidOfInterest.Difficutly = intendedDifficulty;
+                    var indendedNumberOfPlayers = EncounterLoader.GetLeaderboardFriendlyPlayers(log.LogDifficultyId);
+                    raidOfInterest.NumberOfPlayer = string.IsNullOrEmpty(indendedNumberOfPlayers) ? "4" : indendedNumberOfPlayers;
+                }
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
+                if (liveLog)
+                {
+                    if(raidOfInterest.IsPvpEncounter)
+                        EncounterTimerTrigger.FirePvpEncounterDetected();
+                    else
+                        EncounterTimerTrigger.FireNonPvpEncounterDetected();
+                }
+                    
+
             }
             else
             {
+                if (liveLog)
+                    EncounterTimerTrigger.FireNonPvpEncounterDetected();
                 var openWorldLocation = ": " + log.LogLocation;
 
-                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World", BossInfos = new List<BossInfo> { new BossInfo { EncounterName= "Parsing Dummy", TargetNames = new List<string> { "Operations Training Dummy", "Subject Alpha"} } } };
+                var openWorldEncounter =  new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World"};
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
             }
         }
@@ -78,14 +91,16 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!log.Target.IsCharacter)
                 return;
             var player = log.Target;
-            if (!CurrentState.PlayerDeathChangeInfo.Keys.Any(k => k.Id == player.Id))
+            if (CurrentState.PlayerDeathChangeInfo.Keys.All(k => k.Id != player.Id))
             { 
-                CurrentState.PlayerDeathChangeInfo[player] = new Dictionary<DateTime, bool>();
-                CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
+                CurrentState.PlayerDeathChangeInfo[player] = new Dictionary<DateTime, bool>
+                {
+                    [log.TimeStamp] = false
+                };
             }
-            if (log.Effect.EffectName == "Death")
+            if (log.Effect.EffectId == _7_0LogParsing.DeathCombatId)
                 CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = true;
-            if(log.Effect.EffectName == "Revived")
+            if(log.Effect.EffectId == _7_0LogParsing.RevivedCombatId)
                 CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
         }
         private static void UpdatePlayerClassState(ParsedLogEntry parsedLine, bool realTime)
@@ -98,22 +113,21 @@ namespace SWTORCombatParser.Model.LogParsing
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
-            if(parsedLine.Source.IsLocalPlayer)
+            if(parsedLine.Source.IsLocalPlayer && realTime)
                 PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
-
         }
         private static void UpdatePlayerTargets(ParsedLogEntry log)
         {
             if (!log.Source.IsCharacter)
                 return;
             if (!CurrentState.PlayerTargetsInfo.ContainsKey(log.Source))
-                CurrentState.PlayerTargetsInfo[log.Source] = new Dictionary<DateTime, Entity>();
+                CurrentState.PlayerTargetsInfo[log.Source] = new Dictionary<DateTime, EntityInfo>();
             if (log.Error == ErrorType.IncompleteLine)
                 return;
-            if(log.Effect.EffectName == "TargetSet")
-                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = log.Target;
-            if (log.Effect.EffectName == "TargetCleared")
-                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = Entity.EmptyEntity;
+            if(log.Effect.EffectId == _7_0LogParsing.TargetSetId)
+                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = log.TargetInfo;
+            if (log.Effect.EffectId == _7_0LogParsing.TargetClearedId)
+                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = new EntityInfo();
         }
         private static void SetCharacterPositions(ParsedLogEntry log)
         {
@@ -122,33 +136,33 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!string.IsNullOrEmpty(log.Source.Name))
                 CurrentState.CurrentCharacterPositions[log.Source] = log.SourceInfo.Position;
         }
-        //private static int numberOf = 0;
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine)
         {
-            lock (CurrentState.modifierLogLock)
+            lock (CurrentState.ModifierLogLock)
             {
                 if (parsedLine.Error == ErrorType.IncompleteLine)
                     return;
                 if (parsedLine.Effect.EffectType == EffectType.AbsorbShield)
                     return;
                 var effectName = parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName);
-                if (parsedLine.Effect.EffectType == EffectType.Apply && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
+                if (parsedLine.Effect.EffectType == EffectType.Apply &&  parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {
                     if (!CurrentState.Modifiers.ContainsKey(effectName))
                     {
-                        CurrentState.Modifiers[effectName] = new List<CombatModifier>();
+                        CurrentState.Modifiers[effectName] = new ConcurrentDictionary<Guid, CombatModifier>();
                     }
-                    var modsOfType = CurrentState.Modifiers[effectName];
-                    var filteredMods = modsOfType.Where(m=> m.Target == parsedLine.Target && m.Source == parsedLine.Source && !m.Complete);
+                    ConcurrentDictionary<Guid, CombatModifier> mods = new ConcurrentDictionary<Guid, CombatModifier>();
+                    CurrentState.Modifiers.TryGetValue(effectName, out mods);
+                    var filteredMods = mods.Where(m=> m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete);
                     var incompleteEffect = filteredMods.FirstOrDefault();
-                    if (incompleteEffect != null)
+                    if (incompleteEffect.Value != null)
                     {
-                        incompleteEffect.StopTime = parsedLine.TimeStamp;
-                        incompleteEffect.Complete = true;
+                        incompleteEffect.Value.StopTime = parsedLine.TimeStamp;
+                        incompleteEffect.Value.Complete = true;
                     }
-                    modsOfType.Add(new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    mods.TryAdd(Guid.NewGuid(),new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
                 }
-                if (parsedLine.Effect.EffectType == EffectType.Remove && (parsedLine.Target.IsCharacter || parsedLine.Target.IsCompanion) && parsedLine.Effect.EffectName != "Damage" && parsedLine.Effect.EffectName != "Heal")
+                if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {
                     if (string.IsNullOrEmpty(parsedLine.Source.Name))
                     {
@@ -156,13 +170,13 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
                     if (!CurrentState.Modifiers.ContainsKey(effectName))
                         return;
-                    var filteredMods = CurrentState.Modifiers[effectName].Where(m => m.Target == parsedLine.Target && m.Source == parsedLine.Source && !m.Complete).ToList();
+                    var filteredMods = CurrentState.Modifiers[effectName].Where(m => m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete).ToList();
 
                     var effectToEnd = filteredMods.FirstOrDefault();
-                    if (effectToEnd != null)
+                    if (effectToEnd.Value != null)
                     {
-                        effectToEnd.StopTime = parsedLine.TimeStamp;
-                        effectToEnd.Complete = true;
+                        effectToEnd.Value.StopTime = parsedLine.TimeStamp;
+                        effectToEnd.Value.Complete = true;
                     }
                 }
             }

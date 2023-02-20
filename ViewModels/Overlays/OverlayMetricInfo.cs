@@ -1,8 +1,10 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -12,9 +14,30 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double _value;
         private double _secondaryValue;
         private int leaderboardRank;
+        private static double defaultBarHeight = 35;
+        private static double defaultFontSize = 18;
+        private static double defaultValueWidth = 70;
+
         private string valueStringFormat = "#,##0";
+        private double sizeScalar=1;
+
         public string MedalIconPath { get; set; } = "../../resources/redX.png";
         public string InfoText => $"{Type}: {(int)Value}" + (SecondaryType != OverlayType.None ? $"\n{SecondaryType}: {(int)SecondaryValue}" : "");
+        public double SizeScalar
+        {
+            get => sizeScalar; set
+            {
+                sizeScalar = value;
+                OnPropertyChanged("FontSize");
+                OnPropertyChanged("InfoFontSize");
+                OnPropertyChanged("BarHeight");
+                OnPropertyChanged("ValueWidth");
+            }
+        }
+        public GridLength ValueWidth => new GridLength(defaultValueWidth*SizeScalar, GridUnitType.Pixel);
+        public double FontSize => defaultFontSize * SizeScalar;
+        public double InfoFontSize => FontSize - 2;
+        public double BarHeight => defaultBarHeight * SizeScalar;
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
@@ -27,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool RankIsPersonalRecord { get; set; }
         public string LeaderboardRank
         {
-            get => leaderboardRank == 0?"":leaderboardRank.ToString()+". ";
+            get => leaderboardRank == 0 ? "" : leaderboardRank.ToString() + ". ";
             set
             {
                 leaderboardRank = int.Parse(value);
@@ -46,6 +69,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 if (Type == OverlayType.HealReactionTime)
                     valueStringFormat = "#,##0.##";
+                if (Type == OverlayType.HealReactionTimeRatio)
+                    valueStringFormat = "0.###";
 
                 if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue == 0 || TotalValue == "0" || TotalValue == "-0")
                 {
@@ -55,8 +80,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 relativeLength = value;
                 if (SecondaryType != OverlayType.None)
                 {
-                    var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands|System.Globalization.NumberStyles.Float);
-                    var secondaryFraction = SecondaryValue / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.Float);
+                    var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var secondaryFraction = SecondaryValue / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture);
                     BarWidth = new GridLength(relativeLength * primaryFraction, GridUnitType.Star);
                     SecondaryBarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
                     RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
@@ -103,7 +128,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue : SecondaryValue*-1)).ToString(valueStringFormat);
+        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue : SecondaryValue * -1)).ToString(valueStringFormat, CultureInfo.InvariantCulture);
         public void Reset()
         {
             Value = 0;

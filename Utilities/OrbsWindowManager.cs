@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace SWTORCombatParser.Utilities
@@ -17,7 +13,7 @@ namespace SWTORCombatParser.Utilities
     }
     public static class OrbsWindowManager
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "main_window_position.json");
         public static void SaveWindowSizeAndPosition(OrbsWindowInfo windowInfo)
         {

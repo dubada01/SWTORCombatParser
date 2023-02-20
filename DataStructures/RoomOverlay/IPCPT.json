@@ -1,0 +1,266 @@
+﻿{
+	"UpateObjects": [
+		{
+			"DisplayTimeSecondsElapsed": 0,
+			"TriggerTimeSecondeElapsed": 0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Empty.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 11.0,
+			"TriggerTimeSecondeElapsed": 16.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_1.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 15.0,
+			"TriggerTimeSecondeElapsed": 20.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_2.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 20.0,
+			"TriggerTimeSecondeElapsed": 25.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_3.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 25.0,
+			"TriggerTimeSecondeElapsed": 30.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_4.png",
+			"ImageOverlayPathExtra": "Phase1_4_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 29.0,
+			"TriggerTimeSecondeElapsed": 34.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_6.png",
+			"ImageOverlayPathExtra": "Phase1_6_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 33.0,
+			"TriggerTimeSecondeElapsed": 38.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_7.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 40.0,
+			"TriggerTimeSecondeElapsed": 45.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_8.png",
+			"ImageOverlayPathExtra": "Phase1_8_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 44.0,
+			"TriggerTimeSecondeElapsed": 49.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_9.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 48.0,
+			"TriggerTimeSecondeElapsed": 53.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_10.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 55.0,
+			"TriggerTimeSecondeElapsed": 60.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_11.png",
+			"ImageOverlayPathExtra": "Phase1_11_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 58.0,
+			"TriggerTimeSecondeElapsed": 63.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_12.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 63.0,
+			"TriggerTimeSecondeElapsed": 68.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase1_13.png",
+			"ImageOverlayPathExtra": "Phase1_13_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 68,
+			"TriggerTimeSecondeElapsed": 73,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Empty.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 158.0,
+			"TriggerTimeSecondeElapsed": 163.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_1.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 161.0,
+			"TriggerTimeSecondeElapsed": 166.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_2.png",
+			"ImageOverlayPathExtra": "Phase3_2_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 166.0,
+			"TriggerTimeSecondeElapsed": 171.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_3.png",
+			"ImageOverlayPathExtra": "Phase3_3_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 171.0,
+			"TriggerTimeSecondeElapsed": 176.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_4.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 176.0,
+			"TriggerTimeSecondeElapsed": 181.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_5.png",
+			"ImageOverlayPathExtra": "Phase3_5_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 180.0,
+			"TriggerTimeSecondeElapsed": 185.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_6.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 187.0,
+			"TriggerTimeSecondeElapsed": 192.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_7.png",
+			"ImageOverlayPathExtra": "Phase3_7_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 191.0,
+			"TriggerTimeSecondeElapsed": 196.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_8.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 195.0,
+			"TriggerTimeSecondeElapsed": 200.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_9.png",
+			"ImageOverlayPathExtra": "Phase3_9_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 201.0,
+			"TriggerTimeSecondeElapsed": 206.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_10.png",
+			"ImageOverlayPathExtra": "Phase3_10_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 205.0,
+			"TriggerTimeSecondeElapsed": 210.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_11.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 210.0,
+			"TriggerTimeSecondeElapsed": 215.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase3_12.png",
+			"ImageOverlayPathExtra": "Phase3_12_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 215,
+			"TriggerTimeSecondeElapsed": 220,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Empty.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 304.0,
+			"TriggerTimeSecondeElapsed": 309.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_1.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 308.0,
+			"TriggerTimeSecondeElapsed": 313.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_2.png",
+			"ImageOverlayPathExtra": "Phase5_2_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 313.0,
+			"TriggerTimeSecondeElapsed": 318.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_3.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 318.0,
+			"TriggerTimeSecondeElapsed": 323.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_4.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 323.0,
+			"TriggerTimeSecondeElapsed": 328.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_5.png",
+			"ImageOverlayPathExtra": "Phase5_5_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 327.0,
+			"TriggerTimeSecondeElapsed": 332.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_6.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 333.0,
+			"TriggerTimeSecondeElapsed": 338.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_7.png",
+			"ImageOverlayPathExtra": "Phase5_7_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 338.0,
+			"TriggerTimeSecondeElapsed": 343.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_8.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 343.0,
+			"TriggerTimeSecondeElapsed": 348.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_9.png",
+			"ImageOverlayPathExtra": "Phase5_9_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 348.0,
+			"TriggerTimeSecondeElapsed": 353.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_10.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 352.0,
+			"TriggerTimeSecondeElapsed": 357.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_11.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 357.0,
+			"TriggerTimeSecondeElapsed": 362.0,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Phase5_12.png",
+			"ImageOverlayPathExtra": "Phase5_12_plus.png"
+		},
+		{
+			"DisplayTimeSecondsElapsed": 362,
+			"TriggerTimeSecondeElapsed": 367,
+			"VisibleBufferSeconds": 5.0,
+			"ImageOverlayPath": "Empty.png"
+		}
+	],
+	"EncounterName": "IP-CPT",
+	"Top": -45.0,
+	"Left": -187.0,
+	"Width": 60.0,
+	"Height": 58.0
+}

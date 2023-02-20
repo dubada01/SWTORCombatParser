@@ -1,25 +1,24 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.Boss_Timers;
 using SWTORCombatParser.DataStructures.HOT_Timers;
 using SWTORCombatParser.Model.CloudRaiding;
-using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
-using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -31,13 +30,13 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class TimersCreationViewModel : INotifyPropertyChanged
     {
         private TimersWindowViewModel _disciplineTimersWindow;
-        private TimersWindowViewModel _encounterTimersWindow;
+        private AlertsWindowViewModel _alertTimersWindow;
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private TimerType selectedTimerSourceType = TimerType.Discipline;
         private bool _isLocked;
         private Timer _timerEdited;
         private bool disciplineTimersActive;
-        private bool encounterTimersActive;
+        private bool alertTimersActive;
 
         private List<DefaultTimersData> _savedTimersData = new List<DefaultTimersData>();
 
@@ -51,7 +50,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         public List<TimerType> TimerSourcesTypes { get; set; } = new List<TimerType> { TimerType.Discipline, TimerType.Encounter};
 
         private string selectedTimerSource;
-        private bool timerActiveCheck;
 
         public TimerType SelectedTimerSourceType
         {
@@ -60,14 +58,12 @@ namespace SWTORCombatParser.ViewModels.Timers
                 selectedTimerSourceType = value;
                 if (selectedTimerSourceType == TimerType.Encounter)
                 {
-                    TimerActiveCheck = EncounterTimersActive;
                     AvailableTimerSources = EncounterTimersList;
                     var currentSelection = _enounterSelectionViewModel.GetCurrentSelection();
                     UpdateSelectedEncounter(currentSelection.Item1, currentSelection.Item2, currentSelection.Item3);
                 }
                 if (selectedTimerSourceType == TimerType.Discipline)
                 {
-                    TimerActiveCheck = DisciplineTimersActive;
                     AvailableTimerSources = DisciplineTimersList;
                     var mostRecentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now);
                     if(mostRecentDiscipline != null)
@@ -77,11 +73,16 @@ namespace SWTORCombatParser.ViewModels.Timers
                         {
                             SelectedTimerSource = source;
                         }
+
                     }
-                    _encounterTimersWindow.HideTimers();
+                    else
+                    {
+                        SelectedTimerSource = "Shared";
+                    }
                 }
                 OnPropertyChanged("AvailableTimerSources");
                 OnPropertyChanged("DisciplineTimerSelected");
+                OnPropertyChanged("SelectedTimerSourceType");
                 OnPropertyChanged("TimerActiveCheck");
             }
         }
@@ -92,33 +93,13 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => selectedTimerSource; set
             {
                 selectedTimerSource = value;
-                if (value.Contains('|'))
-                {
-                    _encounterTimersWindow.SetSource(SelectedTimerSource);
-                    _encounterTimersWindow.ShowTimers(_isLocked);
-                }
-                
-                else
-                    _disciplineTimersWindow.SetSource(SelectedTimerSource);
-                
+
                 OnPropertyChanged();
                 UpdateTimerRows();
             }
         }
         public List<string> EncounterTimersList { get; set; } = new List<string>();
         public List<string> DisciplineTimersList { get; set; } = new List<string>();
-
-        public bool TimerActiveCheck
-        {
-            get => timerActiveCheck; set
-            {
-                timerActiveCheck = value;
-                if (SelectedTimerSourceType == TimerType.Discipline)
-                    DisciplineTimersActive = value;
-                if (SelectedTimerSourceType == TimerType.Encounter)
-                    EncounterTimersActive = value;
-            }
-        }
 
         public bool DisciplineTimersActive
         {
@@ -140,44 +121,47 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     _disciplineTimersWindow.Active = false;
                 }
-                DefaultTimersManager.UpdateTimersActive(DisciplineTimersActive, EncounterTimersActive);
+                DefaultTimersManager.UpdateTimersActive(DisciplineTimersActive,SelectedTimerSource);
                 OnPropertyChanged();
             }
         }
-        public bool EncounterTimersActive
+
+        public bool AlertsActive
         {
-            get => encounterTimersActive; set
+            get => alertTimersActive;
+            set
             {
-                if (value == encounterTimersActive)
+                if (value == alertTimersActive)
                     return;
-                encounterTimersActive = value;
-                if (encounterTimersActive)
-                {
-                    _encounterTimersWindow.Active = true;
-                }
-                else
-                {
-                    _encounterTimersWindow.Active = false;
-                }
-                DefaultTimersManager.UpdateTimersActive(DisciplineTimersActive, EncounterTimersActive);
+                _alertTimersWindow.Active = value;
+                alertTimersActive = value;
+                DefaultGlobalOverlays.SetActive("Alerts",value);
                 OnPropertyChanged();
             }
+        }
+       
+        public void TryShow()
+        {
+            if (DisciplineTimersActive)
+                _disciplineTimersWindow.ShowTimers(_isLocked);
         }
         public void HideTimers()
         {
             _disciplineTimersWindow.HideTimers();
-            _encounterTimersWindow.HideTimers();
         }
         public ObservableCollection<TimerRowInstanceViewModel> TimerRows { get; set; } = new ObservableCollection<TimerRowInstanceViewModel>();
 
         public TimersCreationViewModel()
         {
+            BossTimerLoader.TryLoadBossTimers();
             HotTimerLoader.TryLoadHots();
+            DotTimerLoader.TryLoadDots();
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
             _disciplineTimersWindow = new TimersWindowViewModel();
-            _encounterTimersWindow = new TimersWindowViewModel();
+            _alertTimersWindow = new AlertsWindowViewModel();
+            alertTimersActive = _alertTimersWindow.Active;
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
             CombatLogStreamer.HistoricalLogsFinished += SetDiscipline;
             RefreshAvaialbleTriggerOwners();
@@ -186,20 +170,27 @@ namespace SWTORCombatParser.ViewModels.Timers
                 SelectedTimerSource = DisciplineTimersList[0];
                 OnPropertyChanged("SelectedTimerSource");
             }
-            var actives = DefaultTimersManager.GetTimersActive();
-            DisciplineTimersActive = actives.DisciplineActive;
-            EncounterTimersActive = actives.EncounterActive;
-            TimerActiveCheck = disciplineTimersActive;
         }
-        private void SetDiscipline()
+        private void SetDiscipline(DateTime combatEndTime, bool localPlayerIdentified)
         {
-            if (!CombatMonitorViewModel.IsLiveParseActive())
+            if (!CombatMonitorViewModel.IsLiveParseActive() || !localPlayerIdentified)
                 return;
-            var mostRecentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now);
+            var mostRecentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
+            if (mostRecentDiscipline == null)
+                return;
             var source = DisciplineTimersList.FirstOrDefault(v => v.Contains(mostRecentDiscipline.Discipline));
+            if (source == null)
+            {
+                source = mostRecentDiscipline.Discipline;
+                DisciplineTimersList.Add(source);
+                DefaultTimersManager.UpdateTimersActive(false, source);
+            }
+            DisciplineTimersActive = DefaultTimersManager.GetTimersActive(source);
+            OnPropertyChanged("DisciplineTimersActive");
             if (!string.IsNullOrEmpty(source))
             {
                 SelectedTimerSource = source;
+                _disciplineTimersWindow.SetSource(SelectedTimerSource);
             }
         }
         private void RefreshAvaialbleTriggerOwners()
@@ -214,6 +205,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             savedTimerSources = savedTimerSources.OrderBy(s => s).ToList();
             savedTimerSources.SwapItems(0, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "Shared")));
             savedTimerSources.SwapItems(1, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "HOTS")));
+            savedTimerSources.SwapItems(2, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "DOTS")));
 
             DisciplineTimersList = savedTimerSources;
             OnPropertyChanged("DisciplineTimersList");
@@ -240,6 +232,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (timer == null)
                 return;
             timer.IsEnabled = true;
+            timer.TimerSource = selectedTimerSource;
             NewTimer(timer, false);
         }
 
@@ -263,7 +256,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             newTimer.ShareRequested += Share;
             newTimer.DeleteRequested += Delete;
             TimerRows.Add(newTimer);
-            _disciplineTimersWindow.RefreshTimers();
+            TimerController.RefreshAvailableTimers();
             UpdateRowColors();
         }
         private void SaveNewTimer(Timer timer)
@@ -274,14 +267,29 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void UpdateLock(bool state)
         {
             _disciplineTimersWindow.UpdateLock(state);
+            _alertTimersWindow.UpdateLock(state);
             _isLocked = state;
+            if(!_isLocked)
+                _alertTimersWindow.ShowTimers();
+            else
+                _alertTimersWindow.HideTimers();
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
         {
-            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive())
+            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive() || SelectedTimerSource == swtorclass.Discipline || CombatDetector.InCombat)
                 return;
             _disciplineTimersWindow.SetPlayer(swtorclass);
+            if (!DisciplineTimersList.Contains(swtorclass.Discipline))
+            {
+                DisciplineTimersList.Add(swtorclass.Discipline);
+            }
+
+            SelectedTimerSourceType = TimerType.Discipline;
             SelectedTimerSource = swtorclass.Discipline;
+
+            _disciplineTimersWindow.SetSource(SelectedTimerSource);
+            DisciplineTimersActive = DefaultTimersManager.GetTimersActive(SelectedTimerSource);
+
             RefreshAvaialbleTriggerOwners();
         }
         private void UpdateTimerRows()
@@ -304,7 +312,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             DefaultTimersManager.RemoveTimerForCharacter(obj.SourceTimer, SelectedTimerSource);
             TimerRows.Remove(obj);
-            _disciplineTimersWindow.RefreshTimers();
+            TimerController.RefreshAvailableTimers();
             UpdateRowColors();
         }
 
@@ -337,7 +345,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void ActiveChanged(TimerRowInstanceViewModel timerRow)
         {
             DefaultTimersManager.SetTimerEnabled(timerRow.IsEnabled, timerRow.SourceTimer);
-            _disciplineTimersWindow.EnabledChangedForTimer(timerRow.IsEnabled, timerRow.SourceTimer.Id);
+            TimerController.RefreshAvailableTimers();
         }
         private void UpdateRowColors()
         {
@@ -346,6 +354,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 if (i % 2 == 1)
                 {
                     TimerRows[i].RowBackground = Brushes.Gray;
+                }
+                else
+                {
+                    TimerRows[i].RowBackground = Brushes.Transparent;
                 }
             }
         }

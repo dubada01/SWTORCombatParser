@@ -1,16 +1,12 @@
-﻿using ScottPlot;
-using SWTORCombatParser.Views.Battle_Review;
+﻿using SWTORCombatParser.Views.Battle_Review;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
@@ -90,6 +86,13 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             entities.ForEach(l => l.EntitiySelectionUpdated += UpdateSelectedEntities);
             ResetEntities(entities);
             OnPropertyChanged("AvailableEntities");
+            UpdateVisuals();
+        }
+
+        public void Reset()
+        {
+            _currentlySelectedCombats = new Combat();
+            ResetEntities(new List<AvailableEntity>());
             UpdateVisuals();
         }
         private void ResetEntities(List<AvailableEntity> newEntities)

@@ -1,10 +1,6 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using System;
+﻿using SWTORCombatParser.DataStructures.ClassInfos;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
@@ -16,9 +12,9 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             _availableClasses = ClassLoader.LoadAllClasses();
         }
-        public static SWTORClass IdentifyClass(string dicipline)
+        public static SWTORClass IdentifyClassById(string diciplineId)
         {
-            return _availableClasses.FirstOrDefault(c => c.Discipline == dicipline);
+            return _availableClasses.FirstOrDefault(c => c.DisciplineId == diciplineId);
         }
     }
 }

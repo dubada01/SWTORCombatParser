@@ -1,30 +1,34 @@
 ﻿using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
     public class DotModuleViewModel : INotifyPropertyChanged
     {
         private EntityInfo _bossInfo;
+        private bool isActive;
+
         public ObservableCollection<TimerInstanceViewModel> ActiveDOTS { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
 
-        public DotModuleViewModel(EntityInfo bossInfo)
+        public DotModuleViewModel(EntityInfo bossInfo, bool dotTrackingEnabled)
         {
+            isActive = dotTrackingEnabled;
             _bossInfo = bossInfo;
-            TimerNotifier.NewTimerTriggered += OnNewTimer;
+            TimerController.TimerTiggered += OnNewTimer;
         }
-
+        public void SetActive(bool state)
+        {
+            isActive = state;
+        }
         private void OnNewTimer(TimerInstanceViewModel obj)
         {
-            if (obj.TargetAddendem == _bossInfo.Entity.Name)
+            if (!isActive)
+                return;
+            if (obj.TargetAddendem == _bossInfo.Entity.Name && !obj.SourceTimer.IsMechanic)
             {
                 obj.TimerExpired += RemoveTimer;
                 App.Current.Dispatcher.Invoke(() =>

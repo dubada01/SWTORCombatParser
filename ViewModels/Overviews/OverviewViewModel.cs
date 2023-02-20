@@ -1,10 +1,10 @@
-﻿using System;
+﻿using SWTORCombatParser.Model;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -21,6 +21,16 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public List<Combat> CurrentlySelectedCombats = new List<Combat>();
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public OverviewViewModel()
+        {
+            ParticipantSelectionHandler.SelectionUpdated += UpdateSelectedEntity;
+        }
+
+        private void UpdateSelectedEntity(Entity obj)
+        {
+            SelectedEntity = obj;
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -33,6 +43,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 selectedEntity = value;
                 if (selectedEntity == null)
                     return;
+                ParticipantSelectionHandler.UpdateSelection(SelectedEntity);
                 DamageVM.UpdateEntity(selectedEntity);
                 HealingVM.UpdateEntity(selectedEntity);
                 DamageTakenVM.UpdateEntity(selectedEntity);
@@ -82,6 +93,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             DamageTakenVM.Reset();
             HealingVM.Reset();
             HealingReceivedVM.Reset();
+            OnPropertyChanged("AvailableParticipants");
         }
     }
 }
