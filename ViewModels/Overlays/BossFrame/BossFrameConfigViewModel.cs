@@ -129,7 +129,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             if(update.Type == UpdateType.Start)
             {
-                StartTimer();
+                StartTimer(update.CombatStartTime);
             }
             if (update.Type == UpdateType.Stop)
             {
@@ -139,18 +139,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             if (update.Logs == null || update.Type == UpdateType.Stop || update.Logs.Count == 0)
                 return;
             var logs = update.Logs;
-            var bossInfos = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp);
-            if (bossInfos.BossNames.Count == 0)
+            var encounterInfo = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp);
+            if (encounterInfo.BossNames.Count == 0)
                 return;
-            var currentEncounterBossTargets = EncounterLister.GetAllTargetsForEncounter(bossInfos.Name);
-            if (currentEncounterBossTargets == null)
-                return;
-            foreach (var log in logs)
+            var currentEncounterBossTargets = encounterInfo.BossInfos.SelectMany(b => b.TargetIds).ToList();
+
+            foreach (var log in logs.Where(l=>l.Effect.EffectType != EffectType.TargetChanged))
             {
-                if (currentEncounterBossTargets.Contains(log.Source.Name) || currentEncounterBossTargets.Contains(log.Target.Name))
+                if ((currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) && log.SourceInfo.CurrentHP > 0) || (currentEncounterBossTargets.Contains(log.Target.LogId.ToString()) && log.TargetInfo.CurrentHP > 0))
                 {
-                    EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.Name) ? log.SourceInfo : log.TargetInfo;
-                    if (!BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name))
+                    EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) ? log.SourceInfo : log.TargetInfo;
+                    if (BossesDetected.All(b => b.CurrentBoss.Name != boss.Entity.Name))
                     {
                         App.Current.Dispatcher.Invoke(() =>
                         {
@@ -161,7 +160,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     else
                     {
                         var activeBoss = BossesDetected.First(b => b.CurrentBoss.Name == boss.Entity.Name);
-                        activeBoss.LogWithBoss(boss);
+                        if (boss.CurrentHP == 0)
+                        {
+                            App.Current.Dispatcher.Invoke(() =>
+                            {
+                                BossesDetected.Remove(activeBoss);
+                                OnPropertyChanged("ShowFrame");
+                            });
+                            
+                        }
+                        else
+                            activeBoss.LogWithBoss(boss);
                     }
                 }
             }
@@ -174,11 +183,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             _accurateDuration = 0;
         }
 
-        private void StartTimer()
+        private void StartTimer(DateTime startTime)
         {
-            _lastUpdateTime = DateTime.Now;
-            CombatDuration = 0;
+            _lastUpdateTime = startTime;
             _accurateDuration = 0;
+            CombatDuration = 0;
             _timer.Start();
         }
 

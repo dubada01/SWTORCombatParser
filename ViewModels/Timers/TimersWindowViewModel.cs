@@ -18,7 +18,21 @@ using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class TimersWindowViewModel : INotifyPropertyChanged
+    public interface ITimerWindowViewModel
+    {
+        bool OverlaysMoveable { get; set; }
+        event Action<bool> OnLocking;
+        event Action CloseRequested;
+        event Action<string> OnCharacterDetected;
+        void HideTimers();
+        void ShowTimers(bool locked);
+        void SetPlayer(SWTORClass classInfo);
+        void UpdateLock(bool locked);
+        void SetSource(string source);
+        void Closing();
+        bool Active { get; set; }
+    }
+    public class TimersWindowViewModel : INotifyPropertyChanged, ITimerWindowViewModel
     {
         private string _timerSource;
         private ITimerWindow _timerWindow;
@@ -34,6 +48,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         public List<TimerInstanceViewModel> SwtorTimers { get; set; } = new List<TimerInstanceViewModel>();
         public List<TimerInstanceViewModel> _visibleTimers = new List<TimerInstanceViewModel>();
         public string TimerTitle { get; set; }
+        public void Closing()
+        {
+            Active = false;
+        }
         public bool Active
         {
             get => active;
@@ -62,8 +80,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimersWindowViewModel()
         {
             TimerController.TimerExpired += RemoveTimer;
-            TimerController.TimerTiggered += AddTimerVisual;
+            TimerController.TimerTriggered += AddTimerVisual;
+            TimerController.ReorderRequested += ReorderTimers;
             _timerWindow = new TimersWindow(this);
+            _timerWindow.SetIdText("DISCIPLINE TIMERS");
         }
 
 
@@ -117,29 +137,44 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ShowTimers(!OverlaysMoveable);
             });
         }
-
-        private void AddTimerVisual(TimerInstanceViewModel obj)
+        private object _timerChangeLock = new object();
+        private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert)
+            {
+                callback(obj);
                 return;
-            _visibleTimers.Add(obj);
-            SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-            OnPropertyChanged("SwtorTimers");
-        }
-        
-        private void RemoveTimer(TimerInstanceViewModel removedTimer)
-        {
-            _visibleTimers.Remove(removedTimer);
-            SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+            }
+            lock (_timerChangeLock)
+            {
+                _visibleTimers.Add(obj);
+                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+                callback(obj);
+            }
             OnPropertyChanged("SwtorTimers");
         }
 
+        private void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
+        {
+            lock (_timerChangeLock)
+            {
+                _visibleTimers.Remove(removedTimer);
+                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+                callback(removedTimer);
+            }
+            OnPropertyChanged("SwtorTimers");
+        }
+        private void ReorderTimers()
+        {
+            SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+            OnPropertyChanged("SwtorTimers");
+        }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        internal void UpdateLock(bool value)
+        public void UpdateLock(bool value)
         {
             OverlaysMoveable = !value;
             OnPropertyChanged("OverlaysMoveable");

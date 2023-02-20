@@ -28,8 +28,8 @@
                     <Grid Margin="5,0,5,25">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="3*"/>
+                            <RowDefinition Height="2*"/>
+                            <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
                         <ContentPresenter Grid.Row="0" Content="{Binding DOTSContent}"></ContentPresenter>
                         <ContentPresenter Grid.Row="1" Content="{Binding HPContent}"></ContentPresenter>

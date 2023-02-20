@@ -36,6 +36,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private bool _waitingForUpdate;
         private bool _liveParseActive;
         private bool _outOfCombatDetecting;
+        private bool _decreasedSpecificity;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> EnabledChanged = delegate { };
@@ -68,6 +69,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             RaidFrameRows = defaults.Rows.ToString();
             RaidFrameColumns = defaults.Columns.ToString();
 
+        }
+
+        public bool DecreasedSpecificity
+        {
+            get => _decreasedSpecificity;
+            set
+            {
+                _decreasedSpecificity = value; 
+                _currentOverlayViewModel.SetTextMatchAccuracy(_decreasedSpecificity);
+            }
         }
 
         public ICommand ManuallyRefreshPlayersCommand => new CommandHandler(_ => { AutoDetection(); });
@@ -171,7 +182,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     _currentOverlayViewModel.Width, _currentOverlayViewModel.Height, _currentOverlayViewModel.Rows);
                 var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.TopLeft,
                     raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentOverlayViewModel.Height,_currentOverlayViewModel.Width).Result;
-
+                raidFrameBitmap.Dispose();
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     _currentOverlayViewModel.UpdateNames(names);
@@ -185,31 +196,41 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 return;
             }
             _shouldCheckForRaidFrame = true;
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 Thread.Sleep(500);
                 while (_shouldCheckForRaidFrame)
                 {
+                    if (CombatDetector.InCombat)
+                    {
+                        Thread.Sleep(100);
+                        continue;
+                    }
+
                     using (var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmap(
                                _currentOverlayViewModel.TopLeft, _currentOverlayViewModel.Width,
                                _currentOverlayViewModel.Height))
                     {
-                        using (Bitmap testImage =
-                               RaidFrameScreenGrab.UpdateCellNamePixels(_currentOverlayViewModel, raidFrameBitmap))
-                        {
-                            
-                            var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
-                            if (redPixelAverage > 0.05 && !CombatDetector.InCombat &&
-                                _currentOverlayViewModel.RaidHotCells.Any(c => c.NameJustChanged))
-                            {
-                                testImage.Save(Guid.NewGuid().ToString()+".bmp");
-                                _currentOverlayViewModel.RaidHotCells.ForEach(c => c.NameJustChanged = false);
-                                AutoDetection();
-                                Thread.Sleep(5000);
-                            }
+                        RaidFrameScreenGrab.UpdateCellNamePixels(_currentOverlayViewModel, raidFrameBitmap);
 
-                            else
-                                Thread.Sleep(1000);
+                        var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
+                        if (redPixelAverage > 0.05 &&
+                            _currentOverlayViewModel.RaidHotCells.Any(c => c.NameJustChanged))
+                        {
+                            _currentOverlayViewModel.RaidHotCells.ForEach(c => c.NameJustChanged = false);
+                            AutoDetection();
+                            Thread.Sleep(5000);
                         }
+
+                        else
+                        { 
+                            if(redPixelAverage < 0.05)
+                            {
+                                _currentOverlayViewModel.Reset();
+                            }
+                            Thread.Sleep(1000);
+                        }
+
                     }
                 }
             });

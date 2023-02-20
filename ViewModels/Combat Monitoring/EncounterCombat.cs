@@ -177,7 +177,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         private void SelectCombat(PastCombat combat)
         {
-            Debug.WriteLine("Selected");
             PastCombatSelected(combat);
         }
         private void UnselectCombat(PastCombat combat)

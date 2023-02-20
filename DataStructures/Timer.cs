@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SWTORCombatParser.Model.Timers;
+using System.Collections.Generic;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.DataStructures
@@ -17,18 +18,27 @@ namespace SWTORCombatParser.DataStructures
         HasEffect,
         IsFacing,
         And,
-        Or
+        Or,
+        IsTimerTriggered,
+        NewEntitySpawn,
+        AbsorbShield,
+        EntityDeath,
+        VariableCheck
     }
     public class Timer
     {
         private bool isEnabled;
+        private string specificDifficulty;
+        private double _hpPercentageDisplayBuffer = 5;
+
         public string TimerSource { get; set; }
         public string CharacterDiscipline { get; set; }
         public bool IsSubTimer { get; set; }
         public string ParentTimerId { get; set; }
         public string Id { get; set; }
         public string ShareId { get; set; }
-        public bool IsEnabled {
+        public bool IsEnabled
+        {
             get => isEnabled;
             set => isEnabled = value;
         }
@@ -37,11 +47,26 @@ namespace SWTORCombatParser.DataStructures
         public bool SourceIsAnyButLocal { get; set; }
         public string Target { get; set; } = "";
         public bool TargetIsLocal { get; set; }
+        public bool ShowTargetOnTimerUI { get; set; }
         public bool TargetIsAnyButLocal { get; set; }
         public double HPPercentage { get; set; }
-        public double HPPercentageDisplayBuffer { get; set; } = 5;
+        public double HPPercentageUpper { get; set; }
+
+        public double HPPercentageDisplayBuffer
+        {
+            get => _hpPercentageDisplayBuffer;
+            set
+            {
+                _hpPercentageDisplayBuffer = value;
+                if(HPPercentageUpper == 0)
+                    HPPercentageUpper = HPPercentage + value;
+            }
+        }
+
+        public double AbsorbValue { get; set; }
         public string Name { get; set; }
         public TimerKeyType TriggerType { get; set; }
+        public string SelectedCancelTimerId { get; set; }
         public bool TrackOutsideOfCombat { get; set; }
         public string ExperiationTimerId { get; set; }
         public double CombatTimeElapsed { get; set; }
@@ -63,17 +88,50 @@ namespace SWTORCombatParser.DataStructures
         public int AudioStartTime { get; set; } = 4;
         public string SpecificBoss { get; set; }
         public string SpecificEncounter { get; set; }
-        public string SpecificDifficulty {get;set;}
+        public bool ActiveForStory { get; set; }
+        public bool ActiveForVeteran { get; set; }
+        public bool ActiveForMaster { get; set; }
+        public string SpecificDifficulty { get => specificDifficulty; set 
+            {
+                specificDifficulty = value;
+                if (specificDifficulty == "All")
+                {
+                    ActiveForStory = true;
+                    ActiveForVeteran = true;
+                    ActiveForMaster = true;
+                }
+                if (specificDifficulty == "Story")
+                    ActiveForStory = true;
+                if (specificDifficulty == "Veteran")
+                    ActiveForVeteran = true;
+                if (specificDifficulty == "Master")
+                    ActiveForMaster = true;
+
+            }
+        }
         public bool IsHot { get; set; }
         public bool IsBuiltInDot { get; set; }
+        public bool IsBuiltInMechanic { get; set; }
+        public int BuiltInMechanicRev { get; set; }
         public bool IsMechanic { get; set; }
         public Timer Clause1 { get; set; }
         public Timer Clause2 { get; set; }
+        public string VariableName { get; set; }
+        public string ModifyVariableName { get; set; }
+        public VariableModifications ModifyVariableAction { get; set; }
+        public int VariableModificationValue { get; set; }
+        public VariableComparisons ComparisonAction { get; set; }
+        public int ComparisonVal { get; set; }
+        public int ComparisonValMin { get; set; }
+        public int ComparisonValMax { get; set; }
+        public bool ShouldModifyVariable { get; set; }
         public Timer Copy()
         {
             return new Timer()
             {
+                TimerSource = TimerSource,
                 Id = Id,
+                SelectedCancelTimerId = SelectedCancelTimerId,
                 ParentTimerId = ParentTimerId,
                 Name = Name,
                 IsSubTimer = IsSubTimer,
@@ -81,12 +139,15 @@ namespace SWTORCombatParser.DataStructures
                 SourceIsLocal = SourceIsLocal,
                 SourceIsAnyButLocal = SourceIsAnyButLocal,
                 Target = Target,
+                ShowTargetOnTimerUI = ShowTargetOnTimerUI,
                 AlertDuration = AlertDuration,
                 CombatTimeElapsed = CombatTimeElapsed,
                 TargetIsLocal = TargetIsLocal,
-                TargetIsAnyButLocal= TargetIsAnyButLocal,
+                TargetIsAnyButLocal = TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
+                HPPercentageUpper = HPPercentageUpper,
                 HPPercentageDisplayBuffer = HPPercentageDisplayBuffer,
+                AbsorbValue = AbsorbValue,
                 TriggerType = TriggerType,
                 Ability = Ability,
                 Effect = Effect,
@@ -110,9 +171,22 @@ namespace SWTORCombatParser.DataStructures
                 HideUntilSec = HideUntilSec,
                 UseAudio = UseAudio,
                 CustomAudioPath = CustomAudioPath,
-                AudioStartTime= AudioStartTime,
+                AudioStartTime = AudioStartTime,
                 Clause1 = Clause1,
-                Clause2 = Clause2
+                Clause2 = Clause2,
+                ActiveForStory= ActiveForStory,
+                ActiveForVeteran= ActiveForVeteran,
+                ActiveForMaster= ActiveForMaster,
+                ComparisonVal = ComparisonVal,
+                ComparisonAction = ComparisonAction,
+                VariableName= VariableName,
+                ComparisonValMax= ComparisonValMax,
+                ComparisonValMin= ComparisonValMin,
+                ModifyVariableAction= ModifyVariableAction,
+                ModifyVariableName= ModifyVariableName,
+                VariableModificationValue= VariableModificationValue,
+                ShouldModifyVariable = ShouldModifyVariable
+               
             };
         }
     }

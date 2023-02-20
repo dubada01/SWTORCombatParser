@@ -49,6 +49,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 case OverlayType.DPS:
                     value = combats.SelectMany(c => c.EDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
                     break;
+                case OverlayType.NonEDPS:
+                    value = combats.SelectMany(c => c.DPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                    break;
                 case OverlayType.EHPS:
                     value = combats.SelectMany(c => c.EHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
                     value += combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value).Average();

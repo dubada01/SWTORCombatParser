@@ -145,6 +145,14 @@ public static class LogIdFactory
                                 { "Veteran 8", new List<long>() { 3010424182145024L } },
                                 { "Veteran 16", new List<long>() { 3010432772079616L } },
                             }
+                        },                        {
+                            "Dreadful Entity", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3057806261354496L } },
+                                { "Story 16", new List<long>() { 3057806261354496L } },
+                                { "Veteran 8", new List<long>() { 3057806261354496L } },
+                                { "Veteran 16", new List<long>() { 3057806261354496L} },
+                            }
                         },
                         {
                             "The Dread Guard", new Dictionary<string, List<long>>()
@@ -204,6 +212,14 @@ public static class LogIdFactory
                                 { "Story 16", new List<long>() { 3152463045591040L } },
                                 { "Veteran 8", new List<long>() { 3152458750623744L } },
                                 { "Veteran 16", new List<long>() { 3152467340558336L} },
+                            }
+                        },{
+                            "Hateful Entity", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3264737785675776L } },
+                                { "Story 16", new List<long>() { 3264737785675776L } },
+                                { "Veteran 8", new List<long>() { 3264737785675776L } },
+                                { "Veteran 16", new List<long>() { 3264737785675776L} },
                             }
                         },
                         {
@@ -560,10 +576,10 @@ public static class LogIdFactory
                         {
                             "SCYVA", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 4108140513591296L} },
-                                { "Story 16", new List<long>() { 4158786767945728L,4108140513591296L } },
-                                { "Veteran 8", new List<long>() { 4158791062913024L,4108140513591296L } },
-                                { "Veteran 16", new List<long>() { 4158859782389760L,4108140513591296L } },
+                                { "Story 8", new List<long>() { 4108140513591296L,4126527268585472L} },
+                                { "Story 16", new List<long>() { 4158786767945728L,4108140513591296L,4126527268585472L } },
+                                { "Veteran 8", new List<long>() { 4158791062913024L,4108140513591296L, 4126527268585472L} },
+                                { "Veteran 16", new List<long>() { 4158859782389760L,4108140513591296L,4126527268585472L } },
                             }
                         }
                         ,

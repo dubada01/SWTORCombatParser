@@ -1,8 +1,10 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -12,18 +14,22 @@ namespace SWTORCombatParser.ViewModels.Timers
 {
     public class TimerInstanceViewModel : INotifyPropertyChanged, IDisposable
     {
-        private DispatcherTimer _dtimer;
-        private TimeSpan _timerValue;
+        private DateTime _lastUpdateTime;
+        private double _maxTimerValue =1;
         private bool displayTimerValue;
         private int charges;
         private bool displayTimer;
         private double _hpTimerMonitor = 0;
-        private double timerValue;
+        private double _absorbRemaining = 0;
+        private double _maxAbsorb = 0;
+        private double timerValue = 1;
+        private int _updateIntervalMs;
         private MediaPlayer _mediaPlayer;
         private string _audioPath;
-        private int _playAtTime;
-        public event Action<TimerInstanceViewModel> TimerExpired = delegate { };
-        public event Action TimerTriggered = delegate { };
+        private double _playAtTime;
+        private bool isActive;
+        public event Action<TimerInstanceViewModel,bool> TimerExpired = delegate { };
+        public event Action TimerRefreshed = delegate {  };
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<int> ChargesUpdated = delegate { };
         public int Charges
@@ -38,14 +44,27 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public Guid TimerId { get; set; }
         public DateTime StartTime { get; set; }
-        public DateTime LastUpdate { get; set; }
         public bool ShowCharges => Charges > 1;
         public Timer SourceTimer { get; set; } = new Timer();
         public double CurrentMonitoredHP { get; set; }
+        public double DamageDoneToAbsorb { get; set; }
         public string TargetAddendem { get; set; }
         public long TargetId { get; set; }
         public string TimerName => GetTimerName();
-        public double MaxTimerValue { get; set; }
+
+        public double MaxTimerValue
+        {
+            get => _maxTimerValue;
+            set
+            {
+                _maxTimerValue = value;
+                
+                OnPropertyChanged("TimerDuration");
+            }
+        }
+
+        public double CurrentRatio =>double.IsNaN(TimerValue / MaxTimerValue) ? 1 : (TimerValue / MaxTimerValue);
+        public Duration TimerDuration { get; set; }
         public Color TimerColor => SourceTimer.TimerColor;
         public SolidColorBrush TimerBackground => new SolidColorBrush(TimerColor);
 
@@ -57,14 +76,14 @@ namespace SWTORCombatParser.ViewModels.Timers
 
                 if (MaxTimerValue == 0 || TimerValue < 0 || TimerValue > MaxTimerValue)
                 {
-                    OnPropertyChanged("RemainderWidth");
-                    OnPropertyChanged("BarWidth");
-                    return; 
+                    TimerDuration  = new Duration(TimeSpan.FromSeconds(MaxTimerValue));
                 }
-                RemainderWidth = GetRemainderWidth();
-                BarWidth = GetBarWidth();
-                OnPropertyChanged("RemainderWidth");
-                OnPropertyChanged("BarWidth");
+                else
+                    TimerDuration = new Duration(TimeSpan.FromSeconds(timerValue));
+                OnPropertyChanged("TimerDuration");
+                if (SourceTimer.TriggerType != TimerKeyType.AbsorbShield) return;
+                OnPropertyChanged("CurrentRatio");
+                OnPropertyChanged("TimerName");
             }
         }
         public bool DisplayTimer
@@ -85,60 +104,74 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
 
 
-        public GridLength RemainderWidth { get; set; } = new GridLength(0, GridUnitType.Star);
-
-        private GridLength GetRemainderWidth()
-        {
-            
-            return (SourceTimer.IsAlert ? new GridLength(0, GridUnitType.Star) : new GridLength(1 - (TimerValue / MaxTimerValue), GridUnitType.Star));
-        }
-
-        public GridLength BarWidth { get; set; } = new GridLength(1, GridUnitType.Star);
-
-        private GridLength GetBarWidth()
-        {
-            return (SourceTimer.IsAlert ? new GridLength(1, GridUnitType.Star) : new GridLength(TimerValue / MaxTimerValue, GridUnitType.Star));
-        }
         public TimerInstanceViewModel(Timer swtorTimer)
         {
-            _playAtTime = !string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(swtorTimer.CustomAudioPath) ? swtorTimer.AudioStartTime : 3;
-            _audioPath = !string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(swtorTimer.CustomAudioPath) ? swtorTimer.CustomAudioPath :
-                swtorTimer.IsAlert ? Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav") :
-                Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
+            if (swtorTimer.UseAudio)
+            {
+                if (swtorTimer.IsBuiltInMechanic || swtorTimer.BuiltInMechanicRev > 0)
+                {
+                    _audioPath = Path.Combine(Environment.CurrentDirectory, "resources/Audio/TimerAudio/",swtorTimer.CustomAudioPath);
+                }
+                else
+                {
+                    _audioPath = !string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(swtorTimer.CustomAudioPath) ? swtorTimer.CustomAudioPath :
+                        swtorTimer.IsAlert ?  Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav") :
+                        Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
+                }
+
+
+                Application.Current.Dispatcher.Invoke(() => { 
+                    _mediaPlayer = new MediaPlayer();
+                    _mediaPlayer.Open(new Uri(_audioPath, UriKind.RelativeOrAbsolute));
+                    if(swtorTimer.AudioStartTime == 0)
+                        _mediaPlayer.MediaOpened += SetDuration;
+                    else
+                        _playAtTime= swtorTimer.AudioStartTime;
+                });
+
+            }
+
             SourceTimer = swtorTimer;
             MaxTimerValue = swtorTimer.DurationSec;
-            App.Current.Dispatcher.Invoke(() => { _mediaPlayer = new MediaPlayer(); });
-            _dtimer = new DispatcherTimer(DispatcherPriority.Normal, Application.Current.Dispatcher);
+            TimerValue = swtorTimer.DurationSec;
+            OnPropertyChanged("CurrentRatio");
+            
             if (!swtorTimer.IsAlert)
             {
-                _timerValue = TimeSpan.FromSeconds(MaxTimerValue);
-                _dtimer.Interval = TimeSpan.FromMilliseconds(100);
+                _updateIntervalMs = 100;
             }
             else
             {
-                _timerValue = TimeSpan.FromSeconds(3);
-                _dtimer.Interval = TimeSpan.FromSeconds(3);
+                _updateIntervalMs = 3000;
             }
-            MaxTimerValue = _timerValue.TotalSeconds;
-            TimerValue = _timerValue.TotalSeconds;
         }
 
-
-        private void ClearAlert(object sender, EventArgs args)
+        private void SetDuration(object sender, EventArgs e)
         {
-            Complete();
+            Application.Current.Dispatcher.Invoke(() => {
+                _playAtTime = _mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
+            });
         }
+
         public void Reset(DateTime timeStampOfReset)
         {
             var offset = (DateTime.Now - timeStampOfReset).TotalSeconds * -1;
             StartTime = timeStampOfReset;
-            _timerValue = TimeSpan.FromSeconds(MaxTimerValue + offset);
+            TimerValue = MaxTimerValue + offset;
+            TimerRefreshed();
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                if(_mediaPlayer!= null)
+                    _mediaPlayer.Stop();
+            });
+            OnPropertyChanged("TimerDuration");
             OnPropertyChanged("TimerValue");
             OnPropertyChanged("BarWidth");
             OnPropertyChanged("RemainderWidth");
         }
-        public void TriggerTimeTimer(DateTime timeStampWhenTrigged)
+        public async void TriggerTimeTimer(DateTime timeStampWhenTrigged)
         {
+            isActive = true;
             if (!SourceTimer.IsAlert)
             {
                 if (SourceTimer.HideUntilSec == 0)
@@ -147,9 +180,22 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 DisplayTimerValue = true;
                 var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds * -1;
-                _timerValue = TimeSpan.FromSeconds(MaxTimerValue + offset);
-                TimerValue = _timerValue.TotalSeconds;
-                _dtimer.Tick += Tick;
+
+
+                offset = 0;
+
+
+                TimerValue = MaxTimerValue + offset;
+                _lastUpdateTime = DateTime.Now;
+                OnPropertyChanged("CurrentRatio");
+                OnPropertyChanged("TimerValue");
+                while (TimerValue > 0 && isActive)
+                {
+                    UpdateTimeBasedTimer();
+                    await Task.Delay(_updateIntervalMs);
+                }
+                if(isActive)
+                    Complete(true);
             }
             else
             {
@@ -157,28 +203,20 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     App.Current.Dispatcher.Invoke(() =>
                     {
-                        _mediaPlayer.Open(new Uri(_audioPath
-                            ,
-                            UriKind.RelativeOrAbsolute));
                         _mediaPlayer.Play();
                     });
                 }
                 DisplayTimer = true;
                 DisplayTimerValue = false;
-                if(SourceTimer.TriggerType != TimerKeyType.HasEffect && !(SourceTimer.TriggerType == TimerKeyType.Or && (SourceTimer.Clause1.TriggerType == TimerKeyType.EntityHP || SourceTimer.Clause2.TriggerType == TimerKeyType.EntityHP)))
-                    _dtimer.Tick += ClearAlert;
+                if (SourceTimer.TriggerType != TimerKeyType.HasEffect && !SourceTimer.IsSubTimer)
+                {
+                    await Task.Delay(_updateIntervalMs);
+                    Complete(true);
+                }
             }
-            OnPropertyChanged("TimerValue");
-            OnPropertyChanged("BarWidth");
-            OnPropertyChanged("RemainderWidth");
 
-            _dtimer.IsEnabled = true;
-            _dtimer.Start();
-            StartTime = DateTime.Now;
-            LastUpdate = StartTime;
-            TimerTriggered();
         }
-        public void TriggerHPTimer(double currentHP)
+        public async void TriggerHPTimer(double currentHP)
         {
             DisplayTimer = true;
             DisplayTimerValue = true;
@@ -186,48 +224,65 @@ namespace SWTORCombatParser.ViewModels.Timers
             CurrentMonitoredHP = currentHP;
             _hpTimerMonitor = currentHP;
             TimerValue = SourceTimer.HPPercentage;
-            _dtimer.Tick += UpdateHP;
-            _dtimer.Start();
-            TimerTriggered();
             OnPropertyChanged("TimerValue");
-            OnPropertyChanged("BarWidth");
-            OnPropertyChanged("RemainderWidth");
-        }
-        public void Tick(object sender, EventArgs args)
-        {
-            _timerValue = _timerValue.Add(-1*(DateTime.Now - LastUpdate));
-            TimerValue = _timerValue.TotalSeconds;
-            if (TimerValue <= _playAtTime
-                && timerValue > (_playAtTime - 0.2) && SourceTimer.UseAudio)
+            isActive = true;
+            while (_hpTimerMonitor > SourceTimer.HPPercentage && isActive)
             {
-                App.Current.Dispatcher.Invoke(() =>
+                _hpTimerMonitor = CurrentMonitoredHP;
+                await Task.Delay(_updateIntervalMs);
+            }
+            if(isActive)
+                Complete(true);
+
+        }
+
+        public async void TriggerAbsorbTimer(double maxAbsorb)
+        {
+            DisplayTimer = true;
+            DisplayTimerValue = false;
+            MaxTimerValue = 1d;
+            TimerValue = 1d;
+            OnPropertyChanged("TimerValue");
+            DamageDoneToAbsorb = 0;
+            _absorbRemaining = maxAbsorb;
+            _maxAbsorb = maxAbsorb;
+            isActive = true;
+            while (TimerValue > 0 && isActive)
+            {
+                _absorbRemaining = _maxAbsorb - DamageDoneToAbsorb;
+                TimerValue = _absorbRemaining / _maxAbsorb;
+                OnPropertyChanged("TimerValue");
+                await Task.Delay(_updateIntervalMs);
+            }
+            if(isActive)
+                Complete(true);
+        }
+
+        private void UpdateTimeBasedTimer()
+        {
+            var deltaTime = (DateTime.Now - _lastUpdateTime).TotalSeconds;
+            _lastUpdateTime = DateTime.Now;
+            TimerValue -= deltaTime;
+            OnPropertyChanged("TimerValue");
+            if (SourceTimer.UseAudio && TimerValue <= _playAtTime
+                && timerValue > (_playAtTime - 0.2))
+            {
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    _mediaPlayer.Open(new Uri(_audioPath,UriKind.RelativeOrAbsolute));
                     _mediaPlayer.Play();
                 });
             }
             if (SourceTimer.HideUntilSec > 0 && !DisplayTimer && TimerValue <= SourceTimer.HideUntilSec)
                 DisplayTimer = true;
+        }
+        public void Complete(bool endedNatrually)
+        {
+            if (!isActive) return;
+            isActive = false;
+            TimerValue = 0;
+            TimerExpired(this, endedNatrually);
+        }
 
-            OnPropertyChanged("TimerValue");
-            OnPropertyChanged("BarWidth");
-            OnPropertyChanged("RemainderWidth");
-            LastUpdate = DateTime.Now;
-            if (TimerValue <= 0)
-                Complete();
-        }
-        public void UpdateHP(object sender, EventArgs args)
-        {
-            _hpTimerMonitor = CurrentMonitoredHP;
-            if (_hpTimerMonitor <= SourceTimer.HPPercentage)
-                Complete();
-        }
-        public void Complete()
-        {
-            _dtimer?.Stop();
-            _dtimer.IsEnabled = false;
-            TimerExpired(this);
-        }
         private string GetTimerName()
         {
             var name = "";
@@ -235,7 +290,12 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 name = SourceTimer.Name + ": " + SourceTimer.HPPercentage.ToString("N2") + "%";
             }
-            else
+
+            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
+            {
+                name = $"{SourceTimer.Name}: ({_absorbRemaining:n0}/{_maxAbsorb:n0})";
+            }
+            if(SourceTimer.TriggerType != TimerKeyType.AbsorbShield && SourceTimer.TriggerType != TimerKeyType.EntityHP)
             {
                 if (SourceTimer.IsAlert)
                 {
@@ -243,7 +303,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 else
                 {
-                    name = SourceTimer.Name + (string.IsNullOrEmpty(TargetAddendem) ? "" : " on ") + TargetAddendem;
+                    name = SourceTimer.Name + (SourceTimer.ShowTargetOnTimerUI ? ((string.IsNullOrEmpty(TargetAddendem) ? "" : " on ") + TargetAddendem) : "");
                 }
             }
 
@@ -256,8 +316,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public void Dispose()
         {
-            _dtimer?.Stop();
-            _dtimer.IsEnabled = false;
+            TimerValue = 0;
+            isActive = false;
         }
     }
 }

@@ -12,12 +12,10 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
     {
         private EncounterInfo selectedEncounter;
         private string selectedBoss;
-        private string selectedDifficulty;
         private string selectedPlayerCount;
-        private List<string> _allDifficulties = new List<string> { "Story", "Veteran", "Master" };
         private List<string> _allPlayerCounts = new List<string> { "8", "16" };
 
-        public event Action<string,string,string> SelectionUpdated = delegate { };
+        public event Action<string,string> SelectionUpdated = delegate { };
 
         public event PropertyChangedEventHandler PropertyChanged;
         public List<EncounterInfo> AvailableEncounters { get; set; }
@@ -49,18 +47,6 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
                 SetSelectedBoss();
             }
         }
-        public ObservableCollection<string> AvailableDifficulties { get; set; } = new ObservableCollection<string>();
-        public string SelectedDifficulty
-        {
-            get => selectedDifficulty; set
-            {
-                selectedDifficulty = value;
-                OnPropertyChanged();
-                if (selectedDifficulty == null)
-                    return;
-                SelectionUpdated(selectedEncounter.Name, selectedBoss, selectedDifficulty);
-            }
-        }
         public ObservableCollection<string> AvailablePlayerCounts { get; set; } = new ObservableCollection<string>();
         public string SelectedPlayerCount
         {
@@ -72,9 +58,9 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
                     return;
             }
         }
-        public (string,string,string) GetCurrentSelection()
+        public (string,string) GetCurrentSelection()
         {
-            return (selectedEncounter.Name,selectedBoss, selectedDifficulty);
+            return (selectedEncounter.Name,selectedBoss);
         }
         private List<string> _populatedEncounters = new List<string>();
         public EncounterSelectionViewModel(bool showPlayerCount = true, List<string> populatedEncounters = null)
@@ -110,22 +96,13 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
         }
         private void SetSelectedBoss()
         {
-            if (!_populatedEncounters.Any())
-                AvailableDifficulties = new ObservableCollection<string>(_allDifficulties);
-            else
-                AvailableDifficulties = new ObservableCollection<string>(_allDifficulties.Where(e => _populatedEncounters.Any(pe => pe.Split("|")[2] == e && pe.Split("|")[0] == SelectedEncounter.Name && pe.Split("|")[1] == SelectedBoss)));
-
             AvailablePlayerCounts = new ObservableCollection<string>(_allPlayerCounts);
-            OnPropertyChanged("AvailableDifficulties");
             OnPropertyChanged("AvailablePlayerCounts");
 
-            if (!AvailableDifficulties.Contains(selectedDifficulty))
-                selectedDifficulty = AvailableDifficulties[0];
             if (AvailablePlayerCounts.Any() && !AvailablePlayerCounts.Contains(selectedPlayerCount))
                 selectedPlayerCount = AvailablePlayerCounts[0];
-            OnPropertyChanged("SelectedDifficulty");
             OnPropertyChanged("SelectedPlayerCount");
-            SelectionUpdated(selectedEncounter.Name, selectedBoss, selectedDifficulty);
+            SelectionUpdated(selectedEncounter.Name, selectedBoss);
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

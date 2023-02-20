@@ -10,6 +10,10 @@ namespace SWTORCombatParser.Utilities.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if(parameter!= null && (bool)parameter == true)
+            {
+                return Brushes.DarkGoldenrod;
+            }
             switch ((OverlayType)value)
             {
                 case OverlayType.APM:
@@ -18,6 +22,8 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.Tomato;
                 case OverlayType.DPS:
                     return Brushes.IndianRed;
+                case OverlayType.NonEDPS:
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#d44c73"));
                 case OverlayType.FocusDPS:
                     return Brushes.OrangeRed;
                 case OverlayType.BurstEHPS:

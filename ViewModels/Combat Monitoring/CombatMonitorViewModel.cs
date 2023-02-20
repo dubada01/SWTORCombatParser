@@ -34,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private object combatAddLock = new object();
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private bool _stubLogs;
-        private readonly int _linesPerWriteMin = 80;
+        private readonly int _linesPerWriteMin = 850;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
@@ -97,7 +97,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
                 manager => CombatLogStreamer.CombatUpdated += manager,
-                manager => CombatLogStreamer.CombatUpdated -= manager).Subscribe(update => NewCombatStatusAlert(update));
+                manager => CombatLogStreamer.CombatUpdated -= manager).Subscribe(NewCombatStatusAlert);
         }
 
         private void UpdateLogOffset(double offset)
@@ -225,18 +225,14 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                         while (!reader.EndOfStream)
                         {
                             var numberOfLines = new Random().Next(_linesPerWriteMin, _linesPerWriteMin * 2);
-                            List<string> lines = new List<string>();
-                            for (int i = 0; i < numberOfLines; i++)
-                            {
-                                lines.Add(reader.ReadLine() + "\r\n");
-                            }
-
-                            var stringBytes = encoding.GetBytes(string.Join("", lines));
+                            char[] buffer = new char[numberOfLines];
+                            reader.Read(buffer);
+                            var stringBytes = encoding.GetBytes(string.Join("", buffer));
                             fs.Write(stringBytes);
                             fs.Flush();
 
 
-                            Thread.Sleep(250);
+                            Thread.Sleep(25);
                         }
                         fs.Flush();
                         fs.Close();
@@ -351,7 +347,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true);
+                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true,combatEndUpdate:true);
                 CombatIdentifier.FinalizeOverlays(combatInfo);
                 LiveCombatFinished(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))

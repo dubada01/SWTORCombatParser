@@ -9,10 +9,10 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
         <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="10,0,00,0" VerticalAlignment="Center">
-            <TextBlock FontFamily="{StaticResource MainFont}"  Foreground="{StaticResource Gray11Brush}" Text="{Binding BossName}"></TextBlock>
+            <TextBlock FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Foreground="{StaticResource Gray11Brush}" Text="{Binding BossName}"></TextBlock>
         </Viewbox>
         <Border Grid.Row="1" BorderBrush="{StaticResource Gray11Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2" CornerRadius="4" Margin="2">
             <Grid HorizontalAlignment="Stretch">
@@ -21,7 +21,7 @@
                     <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
                 </Grid.ColumnDefinitions>
                 <Border Margin="0,0,0,0" Grid.Column="0" CornerRadius="2" Background="{StaticResource RedColorBrush}" ></Border>
-                <TextBlock Margin="5,0,0,0" Grid.Column="0" Grid.ColumnSpan="2" FontSize="18" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="{StaticResource Gray11Brush}" Text="{Binding BossCurrentHP ,StringFormat='{}{0:N0}'}"></TextBlock>
+                <TextBlock Margin="5,10,0,10" Grid.Column="0" Grid.ColumnSpan="2" FontSize="18" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="{StaticResource Gray11Brush}" Text="{Binding BossCurrentHP ,StringFormat='{}{0:N0}'}"></TextBlock>
                 <TextBlock Margin="0,0,10,0" Grid.Column="0" Grid.ColumnSpan="2" FontSize="18" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource Gray11Brush}" Text="{Binding HPPercentText}"></TextBlock>
             </Grid>
         </Border>

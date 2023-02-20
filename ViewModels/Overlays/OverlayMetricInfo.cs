@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using SWTORCombatParser.DataStructures;
+using System;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -30,6 +31,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 sizeScalar = value;
                 OnPropertyChanged("FontSize");
                 OnPropertyChanged("InfoFontSize");
+                OnPropertyChanged("RankFontSize");
                 OnPropertyChanged("BarHeight");
                 OnPropertyChanged("ValueWidth");
             }
@@ -37,6 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength ValueWidth => new GridLength(defaultValueWidth*SizeScalar, GridUnitType.Pixel);
         public double FontSize => defaultFontSize * SizeScalar;
         public double InfoFontSize => FontSize - 2;
+        public double RankFontSize => InfoFontSize - 5;
         public double BarHeight => defaultBarHeight * SizeScalar;
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
@@ -50,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool RankIsPersonalRecord { get; set; }
         public string LeaderboardRank
         {
-            get => leaderboardRank == 0 ? "" : leaderboardRank.ToString() + ". ";
+            get => leaderboardRank == 0 ? "" : leaderboardRank.ToString();
             set
             {
                 leaderboardRank = int.Parse(value);
@@ -72,7 +75,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 if (Type == OverlayType.HealReactionTimeRatio)
                     valueStringFormat = "0.###";
 
-                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue == 0 || TotalValue == "0" || TotalValue == "-0")
+                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue == 0 || TotalValue == "0" || TotalValue.Contains('-'))
                 {
                     SetBarToZero();
                     return;
@@ -80,8 +83,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 relativeLength = value;
                 if (SecondaryType != OverlayType.None)
                 {
-                    var primaryFraction = Value / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture);
-                    var secondaryFraction = SecondaryValue / double.Parse(TotalValue, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var primaryFraction = Value / double.Parse(TotalValue, NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture);
+                    var secondaryFraction = SecondaryValue / double.Parse(TotalValue, NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture);
                     BarWidth = new GridLength(relativeLength * primaryFraction, GridUnitType.Star);
                     SecondaryBarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
                     RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
@@ -113,10 +116,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => _value; set
             {
                 _value = value;
-                if (double.IsNaN(_value))
-                {
-
-                }
                 OnPropertyChanged();
             }
         }
@@ -128,7 +127,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public string TotalValue => (Value + (AddSecondayToValue ? SecondaryValue : SecondaryValue * -1)).ToString(valueStringFormat, CultureInfo.InvariantCulture);
+        public string TotalValue => Math.Max(0,Value + Math.Max(0,AddSecondayToValue ? SecondaryValue : SecondaryValue * -1)).ToString(valueStringFormat, CultureInfo.InvariantCulture);
         public void Reset()
         {
             Value = 0;

@@ -15,7 +15,9 @@ namespace SWTORCombatParser.Utilities.Converters
                 case OverlayType.None:
                     return "None";
                 case OverlayType.DPS:
-                    return "DPS";
+                    return "Effective DPS";
+                case OverlayType.NonEDPS:
+                    return "Raw DPS";
                 case OverlayType.BurstDPS:
                     return "Burst DPS";
                 case OverlayType.FocusDPS:

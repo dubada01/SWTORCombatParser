@@ -12,16 +12,22 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
     {
         public static void TryLoadBossTimers()
         {
-            var currentBossTimers = DefaultTimersManager.GetAllDefaults();
-            currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
             List<DefaultTimersData> bossTimerData = new List<DefaultTimersData>();
-            foreach (var file in Directory.EnumerateFiles(@".\DataStructures\Timers\Boss Timers\Raids","*",SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(@".\DataStructures\Timers\Boss Timers\Raids", "*", SearchOption.AllDirectories))
             {
                 var bossTimers = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(file));
                 if (bossTimers == null)
                     continue;
-                bossTimerData.AddRange(bossTimers.ToObject<List<DefaultTimersData>>());
+                var bossTimerDeserialized = bossTimers.ToObject<List<DefaultTimersData>>();
+                bossTimerData.AddRange(bossTimerDeserialized);
             }
+
+            var currentRev = bossTimerData.First().Timers.First().BuiltInMechanicRev;
+
+            DefaultTimersManager.ClearBuiltinMechanics(currentRev);
+            var currentBossTimers = DefaultTimersManager.GetAllDefaults();
+            currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
+
             
             foreach (var source in bossTimerData)
             {
@@ -30,7 +36,6 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                 source.IsBossSource = true;
                 foreach (var timer in source.Timers)
                 {
-                    timer.Id = Guid.NewGuid().ToString();
                     if(timer.TriggerType == TimerKeyType.EntityHP)
                     {
                         timer.Target = timer.SpecificBoss;
@@ -38,7 +43,7 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                         timer.Source = "Any";
                         timer.SourceIsLocal = false;
                     }
-                    timer.IsMechanic = true; 
+                    timer.IsMechanic = true;
                 }
                 DefaultTimersManager.AddSource(source);
             }

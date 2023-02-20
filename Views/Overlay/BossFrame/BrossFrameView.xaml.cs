@@ -128,8 +128,7 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DefaultBossFrameManager.SetActiveState(false);
-            CloseOverlay();
+            viewModel.BossFrameEnabled = false;
         }
     }
 }

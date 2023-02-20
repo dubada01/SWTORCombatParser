@@ -17,6 +17,7 @@ namespace SWTORCombatParser.Model.Overlays
 {
     public static class RaidFrameScreenGrab
     {
+        public static double CurrentCompressionFactor;
         public static Bitmap GetRaidFrameBitmap(System.Drawing.Point topLeft, int width, int height)
         {
             Rectangle rect = new Rectangle(topLeft.X, topLeft.Y, width, height);
@@ -27,12 +28,17 @@ namespace SWTORCombatParser.Model.Overlays
         }
         public static MemoryStream GetRaidFrameBitmapStream(System.Drawing.Point topLeft, int width, int height,int rowsCount)
         {
+            CurrentCompressionFactor = Math.Min((300d / height),1f);
             Rectangle rect = new Rectangle(topLeft.X, topLeft.Y, width, height);
-            Bitmap bmp = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppArgb);
-            Graphics g = Graphics.FromImage(bmp);
-            g.CopyFromScreen(rect.Left, rect.Top, 0, 0, bmp.Size, CopyPixelOperation.SourceCopy);
-            RemoveOverlayNames(bmp,rowsCount);
-            return CompressBitmapToJPGStream(bmp);
+            using (Bitmap bmp = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppArgb))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.CopyFromScreen(rect.Left, rect.Top, 0, 0, bmp.Size, CopyPixelOperation.SourceCopy);
+                    RemoveOverlayNames(bmp,rowsCount);
+                    return CompressByReducingPixelsToStream(bmp);
+                }
+            }
         }
         private static void RemoveOverlayNames(Bitmap bmp, int rowsCount)
         {
@@ -51,16 +57,30 @@ namespace SWTORCombatParser.Model.Overlays
                         continue;
                     for (var x = 0; x < bmp.Width; x++)
                     {
-
                         bmp.SetPixel(x, y, Color.Transparent);
                     }
                 }
             }));
 
         }
+
+        private static MemoryStream CompressByReducingPixelsToStream(Bitmap source)
+        {
+            // Calculate the new width and height
+            int newWidth = (int)(source.Width * CurrentCompressionFactor);
+            int newHeight = (int)(source.Height * CurrentCompressionFactor);
+
+            // Create the thumbnail image
+            Image thumbnail = source.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
+            var ms = new MemoryStream();
+            // Save the thumbnail image
+            thumbnail.Save(ms, ImageFormat.Bmp);
+            return ms;
+        }
+
         private static MemoryStream CompressBitmapToJPGStream(Bitmap source)
         {
-            using (var encoder = new EncoderParameter(Encoder.Quality, 25L))
+            using (var encoder = new EncoderParameter(Encoder.Quality, 75L))
             {
                 using (var param = new EncoderParameters(1))
                 {
@@ -83,7 +103,7 @@ namespace SWTORCombatParser.Model.Overlays
             value = max / 255d;
         }
 
-        public static Bitmap UpdateCellNamePixels(RaidFrameOverlayViewModel raidViewModel, Bitmap raidFrame)
+        public static void UpdateCellNamePixels(RaidFrameOverlayViewModel raidViewModel, Bitmap raidFrame)
         {
             var rows = raidViewModel.Rows;
             var columns = raidViewModel.Columns;
@@ -144,9 +164,6 @@ namespace SWTORCombatParser.Model.Overlays
                 if(fullRedHPPixelCount[(cell.Column, cell.Row)] > 100)
                     cell.NamePixelIndicies = namePixelIndicies[(cell.Column, cell.Row)];
             }
-
-            return CreateTestImage(raidViewModel.RaidHotCells.SelectMany(kvp => kvp.StaticPixelChanges).ToList(),
-                new Bitmap(raidFrame));
         }
 
         private static Bitmap CreateTestImage(List<int> nameIndicies,Bitmap testImage)

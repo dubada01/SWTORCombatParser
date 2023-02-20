@@ -28,11 +28,11 @@ namespace SWTORCombatParser.Views.Timers
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
             Loaded += OnLoaded;
-            makeTransparent(true);
         }
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             RemoveFromAppWindow();
+            makeTransparent(true);
         }
 
         private void RemoveFromAppWindow()
@@ -81,6 +81,10 @@ namespace SWTORCombatParser.Views.Timers
             Dispatcher.Invoke(() => {
                 Hide();
             });
+
+        }
+        public void SetIdText(string text)
+        {
 
         }
         public void SetPlayer(string playerName)
