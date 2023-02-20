@@ -3,7 +3,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "5de0d20f-d2e9-43e3-90be-c9fe3194b13a",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -38,7 +38,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "36ecd80f-799c-494e-895a-2c4a107e91d6",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -106,7 +106,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "77ca7f9c-f426-4372-b8ae-0113e4e764c2",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -139,7 +139,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "14c62365-28a2-4c07-9c44-10bd1329009b",
       "ShareId": null,
       "IsEnabled": false,
       "Source": "Local Player",
@@ -172,7 +172,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "f0f9e5d4-53f0-41bd-9f0d-420ecd8b3bcf",
       "ShareId": null,
       "IsEnabled": false,
       "Source": "Local Player",
@@ -205,7 +205,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "74bd4847-1c94-4fa5-83ad-80800eb45fd2",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -238,7 +238,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "9e0b6e1d-9d64-4ddf-b2a7-3804aa510ed7",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -271,7 +271,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "254e5493-70f9-45a3-94ec-f93b08144710",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -341,7 +341,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "b7150ebd-14d1-436e-b199-4e84a2d58e69",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -374,7 +374,7 @@
     {
       "TimerSource": "HOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "ea10a763-0395-439e-8ff3-598208574e81",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Players BUT Local",

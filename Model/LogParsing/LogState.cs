@@ -30,6 +30,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public bool HasAbsorbBeenCounted { get; set; }
         public string Name { get; set; }
         public string EffectName { get; set; }
+        public string EffectId { get; set; }
         public CombatModfierType Type { get; set; }
         public Entity Source { get; set; }
         public Entity Target { get; set; }
@@ -151,7 +152,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return new EntityInfo();
             var targets = PlayerTargetsInfo[player];
             var targetKeys = targets.Keys.ToList();
-            return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v=>v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : null;
+            return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v=>v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : new EntityInfo();
         }
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {

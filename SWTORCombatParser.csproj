@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.4.3</VersionPrefix>
+    <VersionPrefix>1.4.16</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -25,23 +25,64 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
+    <Compile Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
     <Compile Remove="Installer Project\**" />
     <Compile Remove="Orbs Package Builder\**" />
     <Compile Remove="SWTORCombatParser_Test\**" />
     <Compile Remove="UWP Images\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
+    <EmbeddedResource Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
     <EmbeddedResource Remove="Installer Project\**" />
     <EmbeddedResource Remove="Orbs Package Builder\**" />
     <EmbeddedResource Remove="SWTORCombatParser_Test\**" />
     <EmbeddedResource Remove="UWP Images\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
     <None Remove="Installer Project\**" />
     <None Remove="Orbs Package Builder\**" />
     <None Remove="SWTORCombatParser_Test\**" />
     <None Remove="UWP Images\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
+    <Page Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
     <Page Remove="Installer Project\**" />
     <Page Remove="Orbs Package Builder\**" />
     <Page Remove="SWTORCombatParser_Test\**" />
     <Page Remove="UWP Images\**" />
     <Page Update="Views\Timers\AlertInstanceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Timers\HPTimerInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
@@ -61,16 +102,71 @@
     <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
     <None Remove="DataStructures\HOT Timers\timers.json" />
     <None Remove="DataStructures\RoomOverlay\IPCPT.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Dxun\Dxun.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Eternity Vault\Eternity Vault.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Explosive Conflict\Explosive Conflict.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Karagga%27s Palace\Karagga%27s Palace.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\R4\R4.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Scum and Villainy\Scum and Villainy.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Terror From Beyond\Terror From Beyond.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Dread Palace\The Dread Palace.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Gods from the Machine\The Gods from the Machine.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json" />
     <None Remove="LoggingConfig.json" />
+    <None Remove="resources\audioIcon.png" />
+    <None Remove="resources\Audio\TimerAudio\Amy\1.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\10.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\2.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\3.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\4.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\5.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\6.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\7.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\8.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Amy\9.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\1.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\10.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\2.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\3.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\4.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\5.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\6.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\7.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\8.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Jim\9.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\1.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\10.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\2.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\3.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\4.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\5.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\6.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\7.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\8.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Nerevar\9.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\1.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\10.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\2.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\3.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\4.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\5.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\6.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\7.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\8.mp3" />
+    <None Remove="resources\Audio\TimerAudio\Yolo\9.mp3" />
     <None Remove="resources\BossMaps\ZornToth.png" />
+    <None Remove="resources\copyIcon.png" />
+    <None Remove="resources\crownIcon.png" />
     <None Remove="resources\DoubleArrowIcon.png" />
     <None Remove="resources\dpsIcon.png" />
+    <None Remove="resources\editIcon.png" />
     <None Remove="resources\ExpandDown.png" />
     <None Remove="resources\ExpandUp.png" />
     <None Remove="resources\firstPlaceLeaderboardIcon.png" />
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\Loading.gif" />
     <None Remove="resources\LocalPlayerIcon.png" />
+    <None Remove="resources\mutedIcon.png" />
     <None Remove="resources\openParselyIcon.png" />
     <None Remove="resources\question-mark.png" />
     <None Remove="resources\redX.png" />
@@ -134,6 +230,7 @@
     <None Remove="resources\RoomOverlays\PlayerLocation.png" />
     <None Remove="resources\RoomOverlays\SelectionAdornment.png" />
     <None Remove="resources\RoomOverlays\TargetedOpponentLocation.png" />
+    <None Remove="resources\shareIcon.png" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="resources\SwtorLogo_opaque.png" />
     <None Remove="resources\SWTORParsingIcon.ico" />
@@ -166,13 +263,145 @@
     <Content Include="LoggingConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\audioIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\1.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\10.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\3.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\4.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\5.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\6.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\7.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\8.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Amy\9.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\1.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\10.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\3.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\4.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\5.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\6.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\7.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\8.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Jim\9.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\1.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\10.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\3.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\4.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\5.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\6.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\7.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\8.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Nerevar\9.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\1.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\10.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\3.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\4.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\5.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\6.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\7.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\8.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\Yolo\9.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\BossMaps\ZornToth.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\copyIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\crownIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\DoubleArrowIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\dpsIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\editIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\ExpandDown.png">
@@ -191,6 +420,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\LocalPlayerIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\mutedIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\openParselyIcon.png">
@@ -376,6 +608,9 @@
     <Content Include="resources\RoomOverlays\SelectionAdornment.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\shareIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\SwtorLogo_opaque.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -409,9 +644,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Remove="MiscSettings.json" />
-    <Content Include="MiscSettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Remove="resources\RoomOverlays\EnemyLocation.png" />
     <Content Include="resources\RoomOverlays\EnemyLocation.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -441,18 +673,953 @@
     <Content Update="DataStructures\Timers\Boss Timers\Raids\EternityVault\BossTimers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\EV\BossTimers.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\EV\BossTimers.json">
+    <None Remove="resources\Audio\TimerAudio\Abduct.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Abduct.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Remove="DataStructures\Timers\Boss Timers\Raids\KP\BossTimers.json" />
-    <Content Include="DataStructures\Timers\Boss Timers\Raids\KP\BossTimers.json">
+    <None Remove="resources\Audio\TimerAudio\Acid Deluge.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Acid Deluge.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Acidblast.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Acidblast.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Acidic Jet.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Acidic Jet.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Ackbar - It's a trap!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Ackbar - It's a trap!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Ackbar - The shield is down!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Ackbar - The shield is down!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Adds.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Adds.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Adrenal.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Adrenal.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Air Strike.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Air Strike.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Alarm.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Alarm.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Alert.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Alert.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Amidala - I'm sorry.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Amidala - I'm sorry.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Amidala - My goodness you've grown.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Amidala - My goodness you've grown.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Anakin - Are you an angel.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Anakin - Are you an angel.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\ARIA.mp3" />
+    <Content Include="resources\Audio\TimerAudio\ARIA.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Attractors.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Attractors.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Awakening.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Awakening.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\BallAgro.mp3" />
+    <Content Include="resources\Audio\TimerAudio\BallAgro.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Balls.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Balls.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Barrage.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Barrage.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Barrier.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Barrier.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\BatteryExplode.mp3" />
+    <Content Include="resources\Audio\TimerAudio\BatteryExplode.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Battledroid - Blast them!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Battledroid - Blast them!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Battledroid - Roger.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Battledroid - Roger.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Beacon.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Beacon.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Beam.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Beam.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Bloodlust.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Bloodlust.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Bloodthirst.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Bloodthirst.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Bombs.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Bombs.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Boss agro.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Boss agro.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Bull.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Bull.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\BurningOil.mp3" />
+    <Content Include="resources\Audio\TimerAudio\BurningOil.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\BurnPhase.mp3" />
+    <Content Include="resources\Audio\TimerAudio\BurnPhase.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\C3P0 - Ahhhh go away!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\C3P0 - Ahhhh go away!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\C3P0 - I thought you were dead!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\C3P0 - I thought you were dead!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\C3P0 - We are doomed.mp3" />
+    <Content Include="resources\Audio\TimerAudio\C3P0 - We are doomed.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\CallTarget.mp3" />
+    <Content Include="resources\Audio\TimerAudio\CallTarget.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Candle.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Candle.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Candle.wav" />
+    <Content Include="resources\Audio\TimerAudio\Candle.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\CausticPlume.mp3" />
+    <Content Include="resources\Audio\TimerAudio\CausticPlume.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\ChargeClone.mp3" />
+    <Content Include="resources\Audio\TimerAudio\ChargeClone.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Chewie - Arrgh.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Chewie - Arrgh.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Choke.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Choke.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\ChokeClone.mp3" />
+    <Content Include="resources\Audio\TimerAudio\ChokeClone.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Cleanse.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Cleanse.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\ColorSwap.mp3" />
+    <Content Include="resources\Audio\TimerAudio\ColorSwap.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Contagion.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Contagion.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Corona.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Corona.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\CreepingGrowth.mp3" />
+    <Content Include="resources\Audio\TimerAudio\CreepingGrowth.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\CrushTheWeak.mp3" />
+    <Content Include="resources\Audio\TimerAudio\CrushTheWeak.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Cyclone.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Cyclone.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Darth Vader - Don't fail me again.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Darth Vader - Don't fail me again.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Darth Vader - Good work.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Darth Vader - Good work.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Darth Vader - I have you now.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Darth Vader - I have you now.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Darth Vader - It is your destiny.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Darth Vader - It is your destiny.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Darth Vader - Nooooooo!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Darth Vader - Nooooooo!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Darth Vader - What_!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Darth Vader - What_!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Death mark.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Death mark.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\DefensiveSystems.mp3" />
+    <Content Include="resources\Audio\TimerAudio\DefensiveSystems.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Degauss.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Degauss.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Destruction.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Destruction.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Detonator.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Detonator.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\DirectionalGrowth.mp3" />
+    <Content Include="resources\Audio\TimerAudio\DirectionalGrowth.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Discharge.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Discharge.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Disturbance.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Disturbance.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Divebomb.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Divebomb.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Doomed.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Doomed.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\DoubleWave.mp3" />
+    <Content Include="resources\Audio\TimerAudio\DoubleWave.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Dread Touch.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Dread Touch.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Drill.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Drill.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Eat.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Eat.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Eggsnipe.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Eggsnipe.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Endothermic.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Endothermic.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\EnergyWave.mp3" />
+    <Content Include="resources\Audio\TimerAudio\EnergyWave.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Explosion.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Explosion.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Explosive Probe.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Explosive Probe.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Extraction.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Extraction.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Fear.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Fear.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Fearful.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Fearful.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\FireBlast.mp3" />
+    <Content Include="resources\Audio\TimerAudio\FireBlast.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Firebug.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Firebug.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\FireWheel.mp3" />
+    <Content Include="resources\Audio\TimerAudio\FireWheel.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Fixate.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Fixate.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Flamethrower.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Flamethrower.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Flash Bang.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Flash Bang.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\FortifyGround.mp3" />
+    <Content Include="resources\Audio\TimerAudio\FortifyGround.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Fortress.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Fortress.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Frenzy.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Frenzy.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Gamorrean.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Gamorrean.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\GarrAgro.mp3" />
+    <Content Include="resources\Audio\TimerAudio\GarrAgro.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Grapple.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Grapple.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Grenade.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Grenade.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\GrenadeTarget.mp3" />
+    <Content Include="resources\Audio\TimerAudio\GrenadeTarget.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Groundfire.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Groundfire.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\GroundShatter.mp3" />
+    <Content Include="resources\Audio\TimerAudio\GroundShatter.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\GrowthSeed.mp3" />
+    <Content Include="resources\Audio\TimerAudio\GrowthSeed.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Han Solo - Great kid! Don't get cocky.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Han Solo - Great kid! Don't get cocky.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Han Solo - I got a bad feeling about this.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Han Solo - I got a bad feeling about this.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Hate Pulse.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Hate Pulse.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Heave.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Heave.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\HoricAgro.mp3" />
+    <Content Include="resources\Audio\TimerAudio\HoricAgro.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Hydrochloric.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Hydrochloric.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Ignite.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Ignite.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Incinerate.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Incinerate.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Incite.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Incite.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Inspiration.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Inspiration.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Inversion.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Inversion.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Invert.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Invert.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Jar Jar - Boom!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Jar Jar - Boom!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Jar Jar - Cawazy.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Jar Jar - Cawazy.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Jar Jar - Ex-squeeze-me!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Jar Jar - Ex-squeeze-me!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Jar Jar - Mesa back.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Jar Jar - Mesa back.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Jawa - Utini.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Jawa - Utini.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\JealousMale.mp3" />
+    <Content Include="resources\Audio\TimerAudio\JealousMale.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Jump.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Jump.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Kick.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Kick.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Knockback.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Knockback.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\KnockUp.mp3" />
+    <Content Include="resources\Audio\TimerAudio\KnockUp.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Lando - Alright old buddy.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Lando - Alright old buddy.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Larvas.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Larvas.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\LaserBlast.mp3" />
+    <Content Include="resources\Audio\TimerAudio\LaserBlast.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\LateralGrowth.mp3" />
+    <Content Include="resources\Audio\TimerAudio\LateralGrowth.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Leech.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Leech.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Leia - I don't like this.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Leia - I don't like this.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Leia - I love you.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Leia - I love you.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Leia - We did it!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Leia - We did it!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Lightning.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Lightning.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Lots of Missiles.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Lots of Missiles.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Luke - Do do that.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Luke - Do do that.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Luke - Just hang on!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Luke - Just hang on!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Luke - R2.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Luke - R2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Luke - Red Five standing by.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Luke - Red Five standing by.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Luke - Watch that crossfire boys!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Luke - Watch that crossfire boys!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Medpack.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Medpack.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Missile.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Missile.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\MoveOut.mp3" />
+    <Content Include="resources\Audio\TimerAudio\MoveOut.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Nanites.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Nanites.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Negative.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Negative.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\NoRockets.mp3" />
+    <Content Include="resources\Audio\TimerAudio\NoRockets.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Obi Wan - Come to your senses!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Obi Wan - Come to your senses!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Obi Wan - Good job!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Obi Wan - Good job!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Obi Wan - Hello there!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Obi Wan - Hello there!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Obi Wan - Luke!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Obi Wan - Luke!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Obi Wan - You were the chosen one!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Obi Wan - You were the chosen one!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Other - Danger danger!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Other - Danger danger!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Other - Salacious Crumb.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Other - Salacious Crumb.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Other - X-Wing fire 2.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Other - X-Wing fire 2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Overload.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Overload.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Overloaded.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Overloaded.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Penetrating.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Penetrating.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Phase1.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Phase1.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Phase2.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Phase2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Platform.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Platform.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Positive.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Positive.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Power cell.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Power cell.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\PowerScatter.mp3" />
+    <Content Include="resources\Audio\TimerAudio\PowerScatter.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Powershot.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Powershot.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Pull.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Pull.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\PylonDrop.mp3" />
+    <Content Include="resources\Audio\TimerAudio\PylonDrop.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\R2D2 - Alarmed Trill.mp3" />
+    <Content Include="resources\Audio\TimerAudio\R2D2 - Alarmed Trill.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\R2D2 - Happy Confirmation.mp3" />
+    <Content Include="resources\Audio\TimerAudio\R2D2 - Happy Confirmation.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\R2D2 - Hey you.wav" />
+    <Content Include="resources\Audio\TimerAudio\R2D2 - Hey you.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\R2D2 - Lonely Hello.mp3" />
+    <Content Include="resources\Audio\TimerAudio\R2D2 - Lonely Hello.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\R2D2 - Short Raspberry.mp3" />
+    <Content Include="resources\Audio\TimerAudio\R2D2 - Short Raspberry.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\R2D2 - Startled Whoop.mp3" />
+    <Content Include="resources\Audio\TimerAudio\R2D2 - Startled Whoop.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\R2D2 - Surprised.mp3" />
+    <Content Include="resources\Audio\TimerAudio\R2D2 - Surprised.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\R2D2 - WEEEOOOOWW!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\R2D2 - WEEEOOOOWW!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\RainofPain.mp3" />
+    <Content Include="resources\Audio\TimerAudio\RainofPain.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Rebounder.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Rebounder.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Rebounder off.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Rebounder off.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Recursive.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Recursive.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Redvenom.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Redvenom.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Reflected.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Reflected.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Resist.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Resist.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Reveal.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Reveal.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\RNGGrowth.mp3" />
+    <Content Include="resources\Audio\TimerAudio\RNGGrowth.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\RocketBurst.mp3" />
+    <Content Include="resources\Audio\TimerAudio\RocketBurst.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\RocketMortar.mp3" />
+    <Content Include="resources\Audio\TimerAudio\RocketMortar.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\RocketsON.mp3" />
+    <Content Include="resources\Audio\TimerAudio\RocketsON.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\RockThrow.mp3" />
+    <Content Include="resources\Audio\TimerAudio\RockThrow.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Root.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Root.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Rupture.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Rupture.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Salvo.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Salvo.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Scatter Extend.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Scatter Extend.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Scatter Shrink.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Scatter Shrink.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Scatterblast.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Scatterblast.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\SeedofEchoes.mp3" />
+    <Content Include="resources\Audio\TimerAudio\SeedofEchoes.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Shield.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Shield.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Shivve.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Shivve.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Shockwave.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Shockwave.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Shriek.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Shriek.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Slam.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Slam.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Slice.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Slice.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Slime.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Slime.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Smash.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Smash.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Sphere agro.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Sphere agro.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Spines.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Spines.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\SpitPool.mp3" />
+    <Content Include="resources\Audio\TimerAudio\SpitPool.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Spray.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Spray.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\StalkerProtocol.mp3" />
+    <Content Include="resources\Audio\TimerAudio\StalkerProtocol.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Stims.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Stims.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Stomp.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Stomp.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Storm Trooper - Follow me!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Storm Trooper - Follow me!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Storm Trooper - You stand guard.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Storm Trooper - You stand guard.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Suppresion.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Suppresion.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Sweep.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Sweep.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Swipe.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Swipe.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\SynergyProtocol.mp3" />
+    <Content Include="resources\Audio\TimerAudio\SynergyProtocol.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Targetlock.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Targetlock.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\TargetOrVoltinator.mp3" />
+    <Content Include="resources\Audio\TimerAudio\TargetOrVoltinator.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\TargetSwap.mp3" />
+    <Content Include="resources\Audio\TimerAudio\TargetSwap.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Teleport.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Teleport.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Tentacles.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Tentacles.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Terminate.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Terminate.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\TheEnd.mp3" />
+    <Content Include="resources\Audio\TimerAudio\TheEnd.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\ThreatDrop.mp3" />
+    <Content Include="resources\Audio\TimerAudio\ThreatDrop.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\TitaxStrike.mp3" />
+    <Content Include="resources\Audio\TimerAudio\TitaxStrike.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Transition.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Transition.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Trap.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Trap.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Turrets.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Turrets.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Ultraviolence.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Ultraviolence.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Updraft.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Updraft.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\VenomOrTarget.mp3" />
+    <Content Include="resources\Audio\TimerAudio\VenomOrTarget.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\VenomOrVoltinator.mp3" />
+    <Content Include="resources\Audio\TimerAudio\VenomOrVoltinator.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\VerticalGrowth.mp3" />
+    <Content Include="resources\Audio\TimerAudio\VerticalGrowth.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Void.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Void.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Voltinator.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Voltinator.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Vulnerable.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Vulnerable.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Watchdog.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Watchdog.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\WatchdogProtocol.mp3" />
+    <Content Include="resources\Audio\TimerAudio\WatchdogProtocol.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Watto - Absolutely.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Watto - Absolutely.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Watto - I'm a Toydarian.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Watto - I'm a Toydarian.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Yoda - Away put your weapon.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Yoda - Away put your weapon.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Yoda - Laught.wav" />
+    <Content Include="resources\Audio\TimerAudio\Yoda - Laught.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\Yoda - Patience!.mp3" />
+    <Content Include="resources\Audio\TimerAudio\Yoda - Patience!.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\TimerAudio\ZoneSalvo.mp3" />
+    <Content Include="resources\Audio\TimerAudio\ZoneSalvo.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Cloud.Vision.V1" Version="3.2.0" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -476,6 +1643,39 @@
 
   <ItemGroup>
     <Content Include="resources\SWTORParsingIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Dxun\Dxun.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Eternity Vault\Eternity Vault.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Explosive Conflict\Explosive Conflict.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Karagga's Palace\Karagga's Palace.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\R4\R4.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Scum and Villainy\Scum and Villainy.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Terror From Beyond\Terror From Beyond.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Dread Palace\The Dread Palace.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Gods from the Machine\The Gods from the Machine.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

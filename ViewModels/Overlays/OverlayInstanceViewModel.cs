@@ -217,7 +217,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 IsLeaderboardValue = true,
                 RelativeLength = 1,
                 SizeScalar = SizeScalar,
-                MedalIconPath = "../../resources/firstPlaceLeaderboardIcon.png"
+                MedalIconPath = "../../resources/crownIcon.png"
             };
             _metricBarsDict.TryAdd((characterName,true),metricbar);
             OrderMetricBars();
@@ -366,6 +366,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case OverlayType.DPS:
                     value = combat.ERegDPS[participant];
+                    break;
+                case OverlayType.NonEDPS:
+                    value = combat.DPS[participant];
                     break;
                 case OverlayType.EHPS:
                     value = combat.EHPS[participant];

@@ -1,7 +1,9 @@
-﻿using SWTORCombatParser.Model.Timers;
+﻿using System;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using SWTORCombatParser.DataStructures;
 
@@ -18,33 +20,39 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             isActive = dotTrackingEnabled;
             _bossInfo = bossInfo;
-            TimerController.TimerTiggered += OnNewTimer;
+            TimerController.TimerExpired += RemoveTimer;
+            TimerController.TimerTriggered += AddTimerVisual;
+            TimerController.ReorderRequested += ReorderTimers;
         }
         public void SetActive(bool state)
         {
             isActive = state;
         }
-        private void OnNewTimer(TimerInstanceViewModel obj)
-        {
-            if (!isActive)
-                return;
-            if (obj.TargetAddendem == _bossInfo.Entity.Name && !obj.SourceTimer.IsMechanic)
-            {
-                obj.TimerExpired += RemoveTimer;
-                App.Current.Dispatcher.Invoke(() =>
-                {
-                    ActiveDOTS.Add(obj);
-                });
-            }
-        }
-
-        private void RemoveTimer(TimerInstanceViewModel obj)
+        private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             App.Current.Dispatcher.Invoke(() => {
                 ActiveDOTS.Remove(obj);
             });
+            callback(obj);
         }
 
+        private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
+        {
+            if (!isActive)
+                return;
+            if (obj.TargetAddendem == _bossInfo.Entity.Name && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer)
+            {
+                App.Current.Dispatcher.Invoke(() => { ActiveDOTS.Add(obj); });
+            }
+            callback(obj);
+        }
+
+        private void ReorderTimers()
+        {
+            var currentTimers = ActiveDOTS.OrderBy(v => v.TimerValue);
+            ActiveDOTS = new ObservableCollection<TimerInstanceViewModel>(currentTimers);
+            OnPropertyChanged("ActiveDOTS");
+        }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

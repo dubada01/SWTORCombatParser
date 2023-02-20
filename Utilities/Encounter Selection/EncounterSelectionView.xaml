@@ -11,7 +11,6 @@
             <StackPanel Orientation="Horizontal">
                 <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableEncounters}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEncounter}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
                 <ComboBox  Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableBosses}" SelectedItem="{Binding SelectedBoss}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
-                <ComboBox  Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableDifficulties}" SelectedItem="{Binding SelectedDifficulty}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
                 <ComboBox Visibility="{Binding ShowPlayerCount, Converter={StaticResource BooleanToVisibiityConverter}}" Style="{StaticResource NewComboStyle}"  ItemsSource="{Binding AvailablePlayerCounts}" SelectedItem="{Binding SelectedPlayerCount}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
             </StackPanel>
         </Viewbox>

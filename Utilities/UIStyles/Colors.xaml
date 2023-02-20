@@ -81,6 +81,7 @@
     <SolidColorBrush x:Key="Gray10Brush" Color="{StaticResource Gray10}"/>
     <SolidColorBrush x:Key="Gray11Brush" Color="{StaticResource Gray11}"/>
     <SolidColorBrush x:Key="Gray12Brush" Color="{StaticResource Gray12}"/>
+    <SolidColorBrush x:Key="TransparentGrayBrush" Color="{StaticResource Gray10}" Opacity="0.25"/>
 
     <SolidColorBrush x:Key="ParticipantDPSBrush" Color="{StaticResource ParticipantDPSColor}"/>
     <SolidColorBrush x:Key="ParticipantHPSBrush" Color="{StaticResource ParticipantHPSColor}"/>

@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.Timers;
+﻿using System;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,41 +13,47 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
     {
         private EntityInfo _bossInfo;
         private bool isActive;
+        private object timerLock = new object();
         public ObservableCollection<TimerInstanceViewModel> UpcomingMechanics { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
         public MechanicsTimersModuleViewModel(EntityInfo bossInfo, bool mechTrackingEnabled)
         {
             isActive = mechTrackingEnabled;
             _bossInfo = bossInfo;
-            TimerController.TimerTiggered += OnNewTimer;
+            TimerController.TimerTriggered += OnNewTimer;
+            TimerController.TimerExpired += RemoveTimer;
         }
         public void SetActive(bool state)
         {
             isActive = state;
         }
-        private void OnNewTimer(TimerInstanceViewModel obj)
+        private void OnNewTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if(!isActive)
                 return;
-            if (obj.SourceTimer.IsMechanic)
+            lock (timerLock)
             {
-                obj.TimerExpired += RemoveTimer;
-                var unorderedUpcomingMechs = UpcomingMechanics.ToList();
-                unorderedUpcomingMechs.Add(obj);
-                var ordered = unorderedUpcomingMechs.OrderByDescending(t =>
-                    t.SourceTimer.DurationSec == 0 ? t.SourceTimer.HPPercentage : t.SourceTimer.DurationSec);
-                App.Current.Dispatcher.Invoke(() =>
+                if (obj.SourceTimer.IsMechanic && (obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield) && !obj.SourceTimer.IsSubTimer)
                 {
-                    UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);
-                    OnPropertyChanged("UpcomingMechanics");
-                });
+                    var unorderedUpcomingMechs = UpcomingMechanics.ToList();
+                    unorderedUpcomingMechs.Add(obj);
+                    var ordered = unorderedUpcomingMechs.OrderByDescending(t =>t.SourceTimer.HPPercentage);
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);
+                        OnPropertyChanged("UpcomingMechanics");
+                    });
+                }
+                callback(obj);
             }
         }
         
-        private void RemoveTimer(TimerInstanceViewModel obj)
+        private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            App.Current.Dispatcher.Invoke(() => {
-                UpcomingMechanics.Remove(obj);
-            });
+            lock (timerLock)
+            {
+                App.Current.Dispatcher.Invoke(() => { UpcomingMechanics.Remove(obj); });
+                callback(obj);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -7,15 +7,27 @@
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="150">
     <Grid Margin="0,0,0,0">
-        <Border HorizontalAlignment="Left" Width="30" Margin="0,2,0,2" BorderBrush="WhiteSmoke" BorderThickness="1" Background="{StaticResource Gray3Brush}" CornerRadius="2" Opacity="1">
-            <Grid HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{Binding BarWidth, Mode=OneWay}"/>
-                    <ColumnDefinition Width="{Binding RemainderWidth, Mode=OneWay}"/>
-                </Grid.ColumnDefinitions>
-                <Border  Margin="0,0,0,0" Grid.Column="0" CornerRadius="2" Background="{Binding TimerBackground}" ></Border>
-            </Grid>
-        </Border>
+        <Grid HorizontalAlignment="Stretch">
+            <Border HorizontalAlignment="Left" Width="30" Margin="0,2,0,2" BorderBrush="WhiteSmoke" BorderThickness="1" Background="{StaticResource Gray3Brush}" CornerRadius="2" Opacity="1">
+                <Grid HorizontalAlignment="Stretch">
+                    <Border x:Name="TimerBar" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" >
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="BarScale" ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
+                        </Border.RenderTransform>
+                        <Border.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="BarScale" Storyboard.TargetProperty="ScaleX" From="{Binding CurrentRatio}" To="0" Duration="{Binding TimerDuration}"></DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Border.Triggers>
+                    </Border>
+                </Grid>
+            </Border>
+
+        </Grid>
 
 
         <Viewbox Visibility="{Binding ShowCharges, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,1,0,0">

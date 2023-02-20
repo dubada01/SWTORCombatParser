@@ -3,7 +3,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "75a75cb5-724e-490e-acdd-9333c383aa3e",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -36,7 +36,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "d9885841-07d6-499a-8d87-cda0f35504c7",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -70,7 +70,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "759d770a-920a-407a-895f-0724867921b8",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -104,7 +104,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "e3d03e0a-b453-43ec-8917-4c327fa28b3d",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -138,7 +138,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "02622d7f-b84b-4848-be84-e406af067d2a",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -172,7 +172,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "b0206a28-27dc-4abd-b8f2-620d82ba2be8",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -206,7 +206,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "5f970faf-5610-4b97-a7dd-c992973ab2fe",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -239,7 +239,7 @@
   ,    {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "f5aa9f22-7218-4456-917f-8e4c4b023fbf",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -273,7 +273,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "29bb0da2-49fa-4453-8df2-0d17a58be12f",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -307,7 +307,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "d8baf55d-758e-4b20-b4ec-0ec65620082e",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -341,7 +341,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "f961fd95-d9f5-4b09-8c1d-8c6e4b587a37",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -375,7 +375,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "3b6d0ae8-b4f9-4013-bc22-36437c443cf7",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -409,7 +409,41 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "49ccc67e-f0fd-402c-9613-80d3dda4e959",
+      "ShareId": null,
+      "IsEnabled": true,
+      "Source": "Local Player",
+      "SourceIsLocal": true,
+      "Target": "Any",
+      "TargetIsLocal": false,
+      "HPPercentage": 0.0,
+      "HPPercentageDisplayBuffer": 5.0,
+      "Name": "Serrated Shot",
+      "TriggerType": 4,
+      "TrackOutsideOfCombat": true,
+      "ExperiationTimerId": null,
+      "CombatTimeElapsed": 0.0,
+      "Ability": "",
+      "Effect": "3394707791020290",
+      "IsPeriodic": false,
+      "Repeats": 0,
+      "CanBeRefreshed": true,
+      "AbilitiesThatRefresh": [
+        "3394707791020032"
+      ],
+      "IsAlert": false,
+      "AlertDuration": 0.0,
+      "DurationSec": 15.0,
+      "TimerColor": "#9050cc",
+      "SpecificBoss": "All",
+      "SpecificEncounter": "All",
+      "IsHot": false
+    }
+  ,
+    {
+      "TimerSource": "DOTS",
+      "CharacterDiscipline": null,
+      "Id": "0b0fc732-7b5d-4be5-8250-0eb062f220aa",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -443,7 +477,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "04cc55a9-23ae-4029-aa03-07addecac925",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -477,7 +511,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "79ee5ed2-1257-4103-8bf4-7a2290971f2e",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -511,7 +545,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "1170dadf-2abb-488e-9eba-352ada2b67ae",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -545,7 +579,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "aca638d7-beb1-4c9f-92d0-5d0af2e1d778",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -579,7 +613,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "211882f7-cf02-4da0-ab0b-1586ce693fd2",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -613,7 +647,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "dc538189-e41a-4cbc-8bac-5fa4afe4c649",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",
@@ -647,7 +681,7 @@
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
-      "Id": "",
+      "Id": "4bbd11e4-82f2-426f-8586-918d21e37bc7",
       "ShareId": null,
       "IsEnabled": true,
       "Source": "Local Player",

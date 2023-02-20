@@ -15,6 +15,7 @@ namespace SWTORCombatParser.Model.CombatParsing
     public static class CombatIdentifier
     {
         public static event Action<Combat> NewCombatAvailable = delegate { };
+        public static event Action<(string, string, string),DateTime> NewBossCombatDetected = delegate { };
         public static event Action NewCombatStarted = delegate { };
         private static object leaderboardLock = new object();
 
@@ -66,7 +67,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             NewCombatStarted();
         }
 
-        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false)
+        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false)
         {
             var state = CombatLogStateBuilder.CurrentState;
             var encounter = GetEncounterInfo(ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp);
@@ -89,6 +90,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                 newCombat.ParentEncounter = encounter;
                 newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs,encounter);
                 newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, encounter);
+                if(!string.IsNullOrEmpty(newCombat.EncounterBossDifficultyParts.Item1) && isRealtime && !combatEndUpdate)
+                    NewBossCombatDetected(newCombat.EncounterBossDifficultyParts,newCombat.StartTime);
             }
             if (newCombat.IsCombatWithBoss)
             {
@@ -132,12 +135,12 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             return CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStartTime);
         }
-        private static (string, string, string) GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        public static (string, string, string) GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
                 return ("", "", "");
 
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && !string.IsNullOrEmpty(l.Target.Name) && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
+            var validLogs = logs.Where(l => !(l.Effect.EffectType == EffectType.TargetChanged && l.Source.IsCharacter) && !string.IsNullOrEmpty(l.Target.Name)).ToList();
             if (currentEncounter.Name.Contains("Open World"))
             {
                 if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.LogId == 2857785339412480))

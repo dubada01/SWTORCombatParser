@@ -74,7 +74,7 @@
                             <ColumnDefinition Width="0.85*"/>
                             <ColumnDefinition Width="0.15*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" FontSize="14" FontFamily="{StaticResource MainFont}" Padding="5,5,5,5" Foreground="WhiteSmoke" Text="{Binding HeaderText}"></TextBlock>
+                        <TextBlock Grid.Column="0" FontSize="14" FontFamily="{StaticResource MainFont}" Padding="3,3,3,3" Foreground="WhiteSmoke" Text="{Binding HeaderText}"></TextBlock>
 
                         <Button Grid.Column="1" Height="16" Width="16" Style="{StaticResource RoundCornerButton}" Background="PaleVioletRed" Command="{Binding CloseTabCommand}" Visibility="{Binding IsHistoricalTab, Converter={StaticResource BooleanToVisibiityConverter}}">
                             <Viewbox  MaxHeight="15">
