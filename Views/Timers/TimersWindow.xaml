@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers"
              mc:Ignorable="d" 
-        Height="300" Width="250" AllowsTransparency="True" Background="{x:Null}"  WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave">
+        Height="300" Width="250" AllowsTransparency="True" Background="{x:Null}"  WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
     <Grid>
-        <Border x:Name="Background" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
+        <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
         <Grid>
@@ -42,5 +42,8 @@
             <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
         </Grid>
+        <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
+            <TextBlock Text="DISCIPLINE TIMERS" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
+        </Viewbox>
     </Grid>
 </Window>

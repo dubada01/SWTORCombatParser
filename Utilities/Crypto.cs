@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -28,7 +26,7 @@ namespace SWTORCombatParser.Utilities
                 throw new ArgumentNullException("sharedSecret");
 
             string outStr = null;                       // Encrypted string to return
-            RijndaelManaged aesAlg = null;              // RijndaelManaged object used to encrypt the data.
+            Aes aesAlg = null;              // RijndaelManaged object used to encrypt the data.
 
             try
             {
@@ -36,7 +34,7 @@ namespace SWTORCombatParser.Utilities
                 Rfc2898DeriveBytes key = new Rfc2898DeriveBytes(sharedSecret, _salt);
 
                 // Create a RijndaelManaged object
-                aesAlg = new RijndaelManaged();
+                aesAlg = Aes.Create("AesManaged");
                 aesAlg.Key = key.GetBytes(aesAlg.KeySize / 8);
 
                 // Create a decryptor to perform the stream transform.
@@ -85,7 +83,7 @@ namespace SWTORCombatParser.Utilities
 
             // Declare the RijndaelManaged object
             // used to decrypt the data.
-            RijndaelManaged aesAlg = null;
+            Aes aesAlg = null;
 
             // Declare the string used to hold
             // the decrypted text.
@@ -102,7 +100,7 @@ namespace SWTORCombatParser.Utilities
                 {
                     // Create a RijndaelManaged object
                     // with the specified key and IV.
-                    aesAlg = new RijndaelManaged();
+                    aesAlg = Aes.Create("AesManaged");
                     aesAlg.Key = key.GetBytes(aesAlg.KeySize / 8);
                     // Get the initialization vector from the encrypted stream
                     aesAlg.IV = ReadByteArray(msDecrypt);

@@ -1,42 +1,48 @@
-﻿using MathNet.Numerics.Statistics;
-using SWTORCombatParser.Model.LogParsing;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MathNet.Numerics.Statistics;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.LogParsing;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class CombatMetaDataParse
     {
+        private static readonly List<string> _interruptAbilityIds = new List<string> { "963120646324224","987747988799488", "875086701658112","997020823191552","3433285187272704", "812105301229568","807750204391424","2204391964672000","3029313448312832","3029339218116608","875060931854336" ,"2204499338854400"};
+        private static List<string> stunAbilityIds = new List<string> {"814214130171904","814802540691456","3908961405239296","1962284658196480","808244125630464","807754499358720","958439131971584","807178973741056","1679250608357376","1261925816074240" };
+
+        private static List<string> abilityIdsThatCanInterrupt => _interruptAbilityIds.Concat(stunAbilityIds).ToList();
         public static void PopulateMetaData(Combat combatToPopulate)
         {
             var combat = combatToPopulate;
             //Parallel.ForEach(combatToPopulate.AllEntities, entitiy =>
             foreach (var entity in combatToPopulate.AllEntities)
             {
-
-                var combatDurationMs = (combat.EndTime - combat.StartTime).TotalMilliseconds;
-
                 var logsInScope = combat.GetLogsInvolvingEntity(entity);
 
-                var outgoingLogs = logsInScope.Where(log => log.Source == entity).ToList();
-                var incomingLogs = logsInScope.Where(log => log.Target == entity).ToList();
+                var outgoingLogs = logsInScope.Where(log => log.Source == entity);
+                var incomingLogs = logsInScope.Where(log => log.Target == entity);
 
-                combat.OutgoingDamageLogs[entity] = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
-                combat.OutgoingHealingLogs[entity] = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
-                combat.AbilitiesActivated[entity] = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate").ToList();
-                combat.IncomingDamageLogs[entity] = incomingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Damage").ToList();
-                combat.IncomingHealingLogs[entity] = incomingLogs.Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectName == "Heal").ToList();
+                var parsedLogEntries = outgoingLogs as ParsedLogEntry[] ?? outgoingLogs.ToArray();
+                combat.OutgoingDamageLogs[entity] = parsedLogEntries
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
+                combat.OutgoingHealingLogs[entity] = parsedLogEntries
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._healEffectId).ToList();
+                combat.AbilitiesActivated[entity] = parsedLogEntries.Where(l =>
+                    l.Effect.EffectType == EffectType.Event && l.Effect.EffectId == _7_0LogParsing.AbilityActivateId).ToList();
+                var logEntries = incomingLogs as ParsedLogEntry[] ?? incomingLogs.ToArray();
+                combat.IncomingDamageLogs[entity] = logEntries
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
+                combat.IncomingHealingLogs[entity] = logEntries
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._healEffectId).ToList();
 
                 var bigDamageTimestamps = GetTimestampOfBigHits(combat.IncomingDamageLogs[entity]);
                 combat.BigDamageTimestamps[entity] = bigDamageTimestamps;
 
-                combat.IncomingDamageMitigatedLogs[entity] = combat.IncomingDamageLogs[entity].Where(l => l.Value.Modifier != null).ToList();
+                combat.IncomingDamageMitigatedLogs[entity] =
+                    combat.IncomingDamageLogs[entity].Where(l => l.Value.Modifier != null).ToList();
 
                 var totalHealing = combat.OutgoingHealingLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveHealing = combat.OutgoingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
@@ -44,7 +50,7 @@ namespace SWTORCombatParser
                 var totalDamage = combat.OutgoingDamageLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveDamage = combat.OutgoingDamageLogs[entity].Sum(l => l.Value.EffectiveDblValue);
                 var currentFocusTarget = combat.ParentEncounter?.BossNames;
-                if (currentFocusTarget != null && currentFocusTarget.Count > 0)
+                if (currentFocusTarget is { Count: > 0 })
                 {
                     var bosses = currentFocusTarget.SelectMany(boss =>
                     {
@@ -52,16 +58,19 @@ namespace SWTORCombatParser
                             return new List<string> { boss };
                         else
                         {
-                            var names = boss.Split("~?~", StringSplitOptions.None)[1];
+                            var names = boss.Split("~?~")[1];
                             return new List<string>(names.Split('|'));
                         }
                     }).ToList();
 
-                    totalDamage = combat.OutgoingDamageLogs[entity].Where(d => !bosses.Contains(d.Target.Name)).Sum(l => l.Value.DblValue);
-                    totalEffectiveDamage = combat.OutgoingDamageLogs[entity].Where(d => !bosses.Contains(d.Target.Name)).Sum(l => l.Value.EffectiveDblValue);
+                    totalDamage = combat.OutgoingDamageLogs[entity].Where(d => !bosses.Contains(d.Target.Name))
+                        .Sum(l => l.Value.DblValue);
+                    totalEffectiveDamage = combat.OutgoingDamageLogs[entity].Where(d => !bosses.Contains(d.Target.Name))
+                        .Sum(l => l.Value.EffectiveDblValue);
                     var focusDamageLogs = combat.OutgoingDamageLogs[entity].Where(d => bosses.Contains(d.Target.Name));
-                    var allFocusDamage = focusDamageLogs.Sum(l => l.Value.DblValue);
-                    var allEffectiveFocusDamage = focusDamageLogs.Sum(l => l.Value.EffectiveDblValue);
+                    var damageLogs = focusDamageLogs as ParsedLogEntry[] ?? focusDamageLogs.ToArray();
+                    var allFocusDamage = damageLogs.Sum(l => l.Value.DblValue);
+                    var allEffectiveFocusDamage = damageLogs.Sum(l => l.Value.EffectiveDblValue);
                     combat.TotalFocusDamage[entity] = allFocusDamage;
                     combat.TotalEffectiveFocusDamage[entity] = allEffectiveFocusDamage;
                 }
@@ -71,33 +80,49 @@ namespace SWTORCombatParser
                     combat.TotalEffectiveFocusDamage[entity] = 0;
                 }
 
-                var totalAbilitiesDone = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityActivate").Count();
+                var totalAbilitiesDone = parsedLogEntries.Count(l =>
+                    l.Effect.EffectType == EffectType.Event && l.Effect.EffectId == _7_0LogParsing.AbilityActivateId);
 
-                var interruptLogs = outgoingLogs.Where(l => l.Effect.EffectType == EffectType.Event && l.Effect.EffectName == "AbilityInterrupt");
+                var interruptLogs = parsedLogEntries.Select((v, i) => new { value = v, index = i }).Where(l =>
+                    l.value.Effect.EffectType == EffectType.Event && l.index != 0 &&
+                    l.value.Effect.EffectId == _7_0LogParsing.InterruptCombatId &&
+                    abilityIdsThatCanInterrupt.Contains(parsedLogEntries.ElementAt(l.index - 1).AbilityId));
 
                 var totalHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.DblValue);
-                var totalEffectiveHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
+                var totalEffectiveHealingReceived =
+                    combat.IncomingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
 
                 var totalDamageTaken = combat.IncomingDamageLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveDamageTaken = combat.IncomingDamageLogs[entity].Sum(l => l.Value.EffectiveDblValue);
 
-                var sheildingLogs = incomingLogs.Where(l => l.Value.Modifier != null && l.Value.Modifier.ValueType == DamageType.shield);
+                var sheildingLogs = logEntries.Where(l => l.Value.Modifier is { ValueType: DamageType.shield });
 
-                var totalSheildingDone = sheildingLogs.Count() == 0 ? 0 : sheildingLogs.Sum(l => l.Value.Modifier.DblValue);
+                var enumerable = sheildingLogs as ParsedLogEntry[] ?? sheildingLogs.ToArray();
+                var totalSheildingDone = enumerable.Any() ? 0 : enumerable.Sum(l => l.Value.Modifier.DblValue);
 
-                Dictionary<string, double> _parriedAttackSums = CalculateEstimatedAvoidedDamage(combat, entity);
+                Dictionary<string, double> parriedAttackSums = CalculateEstimatedAvoidedDamage(combat, entity);
 
                 combat.TotalInterrupts[entity] = interruptLogs.Count();
-                combat.TotalThreat[entity] = outgoingLogs.Sum(l => l.Threat);
-                combat.MaxDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0 ? 0 : combat.OutgoingDamageLogs[entity].Max(l => l.Value.DblValue);
-                combat.MaxEffectiveDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0 ? 0 : combat.OutgoingDamageLogs[entity].Max(l => l.Value.EffectiveDblValue);
-                combat.MaxHeal[entity] = combat.OutgoingHealingLogs[entity].Count == 0 ? 0 : combat.OutgoingHealingLogs[entity].Max(l => l.Value.DblValue);
-                combat.MaxEffectiveHeal[entity] = combat.OutgoingHealingLogs[entity].Count == 0 ? 0 : combat.OutgoingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
+                combat.TotalThreat[entity] = parsedLogEntries.Sum(l => l.Threat);
+                combat.MaxDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0
+                    ? 0
+                    : combat.OutgoingDamageLogs[entity].Max(l => l.Value.DblValue);
+                combat.MaxEffectiveDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0
+                    ? 0
+                    : combat.OutgoingDamageLogs[entity].Max(l => l.Value.EffectiveDblValue);
+                combat.MaxHeal[entity] = combat.OutgoingHealingLogs[entity].Count == 0
+                    ? 0
+                    : combat.OutgoingHealingLogs[entity].Max(l => l.Value.DblValue);
+                combat.MaxEffectiveHeal[entity] = combat.OutgoingHealingLogs[entity].Count == 0
+                    ? 0
+                    : combat.OutgoingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
                 combat.TotalFluffDamage[entity] = totalDamage;
                 combat.TotalEffectiveFluffDamage[entity] = totalEffectiveDamage;
                 combat.TotalTankSheilding[entity] = totalSheildingDone;
-                combat.TotalEstimatedAvoidedDamage[entity] = _parriedAttackSums.Sum(kvp => kvp.Value);
-                combat.TotalSheildAndAbsorb[entity] = combat.IncomingDamageMitigatedLogs[entity].Count == 0 ? 0 : combat.IncomingDamageMitigatedLogs[entity].Sum(l => l.Value.Modifier.EffectiveDblValue);
+                combat.TotalEstimatedAvoidedDamage[entity] = parriedAttackSums.Sum(kvp => kvp.Value);
+                combat.TotalSheildAndAbsorb[entity] = combat.IncomingDamageMitigatedLogs[entity].Count == 0
+                    ? 0
+                    : combat.IncomingDamageMitigatedLogs[entity].Sum(l => l.Value.Modifier.EffectiveDblValue);
                 combat.TotalAbilites[entity] = totalAbilitiesDone;
                 combat.TotalHealing[entity] = totalHealing;
                 combat.TotalEffectiveHealing[entity] = totalEffectiveHealing;
@@ -105,14 +130,25 @@ namespace SWTORCombatParser
                 combat.TotalEffectiveDamageTaken[entity] = totalEffectiveDamageTaken;
                 combat.TotalHealingReceived[entity] = totalHealingReceived;
                 combat.TotalEffectiveHealingReceived[entity] = totalEffectiveHealingReceived;
-                combat.MaxIncomingDamage[entity] = combat.IncomingDamageLogs[entity].Count == 0 ? 0 : combat.IncomingDamageLogs[entity].Max(l => l.Value.DblValue);
-                combat.MaxEffectiveIncomingDamage[entity] = combat.IncomingDamageLogs[entity].Count == 0 ? 0 : combat.IncomingDamageLogs[entity].Max(l => l.Value.EffectiveDblValue);
-                combat.MaxIncomingHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0 ? 0 : combat.IncomingHealingLogs[entity].Max(l => l.Value.DblValue);
-                combat.MaxIncomingEffectiveHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0 ? 0 : combat.IncomingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
+                combat.MaxIncomingDamage[entity] = combat.IncomingDamageLogs[entity].Count == 0
+                    ? 0
+                    : combat.IncomingDamageLogs[entity].Max(l => l.Value.DblValue);
+                combat.MaxEffectiveIncomingDamage[entity] = combat.IncomingDamageLogs[entity].Count == 0
+                    ? 0
+                    : combat.IncomingDamageLogs[entity].Max(l => l.Value.EffectiveDblValue);
+                combat.MaxIncomingHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0
+                    ? 0
+                    : combat.IncomingHealingLogs[entity].Max(l => l.Value.DblValue);
+                combat.MaxIncomingEffectiveHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0
+                    ? 0
+                    : combat.IncomingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
             }
-            combat.SetBurstValues();
-            var healers = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == DataStructures.Role.Healer);
-            var tanks = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == DataStructures.Role.Tank);
+
+            if((combat.DurationSeconds%50)==0 || !combat.HasBurstValues())
+                combat.SetBurstValues();
+
+            var healers = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == Role.Healer);
+            var tanks = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == Role.Tank);
 
             foreach (var healer in healers)
             {
@@ -148,11 +184,12 @@ namespace SWTORCombatParser
         }
         private static DateTime? GetNextBiggerTimestamp(DateTime comparison, List<DateTime> values)
         {
-            for(var i = 0; i < values.Count; i++)
+            foreach (var t in values)
             {
-                if (values[i] > comparison)
-                    return values[i];
+                if (t > comparison)
+                    return t;
             }
+
             return null;
         }
         private static List<DateTime> GetTimestampOfBigHits(List<ParsedLogEntry> incomingDamage)
@@ -189,7 +226,9 @@ namespace SWTORCombatParser
             var returnDict = new Dictionary<Entity, List<DateTime>>();
             foreach(var abilityActivation in abilityActivateLogs.Where(l=>l.Target.IsCharacter))
             {
-                var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(abilityActivation.Source, abilityActivation.TimeStamp);
+                var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(abilityActivation.Source, abilityActivation.TimeStamp).Entity;
+                if (target == null)
+                    continue;
                 if (!returnDict.ContainsKey(target))
                     returnDict[target] = new List<DateTime>();
                 returnDict[target].Add(abilityActivation.TimeStamp);
@@ -204,19 +243,21 @@ namespace SWTORCombatParser
                 l.Value.ValueType == DamageType.dodge ||
                 l.Value.ValueType == DamageType.resist
             );
-            Dictionary<string, double> _parriedAttackSums = new Dictionary<string, double>();
+            Dictionary<string, double> parriedAttackSums = new Dictionary<string, double>();
             var damageDone = combatToPopulate.GetIncomingDamageByAbility(participant);
-            foreach (var mitigatedAttack in totallyMitigatedAttacks.Select(l => l.Ability).Distinct())
+            var parsedLogEntries = totallyMitigatedAttacks as ParsedLogEntry[] ?? totallyMitigatedAttacks.ToArray();
+            foreach (var mitigatedAttack in parsedLogEntries.Select(l => l.Ability).Distinct())
             {
-                var numberOfParries = totallyMitigatedAttacks.Count(l => l.Ability == mitigatedAttack);
+                var numberOfParries = parsedLogEntries.Count(l => l.Ability == mitigatedAttack);
                 var damageFromUnparriedAttacks = damageDone[mitigatedAttack].Select(v => v.Value.EffectiveDblValue).Where(v => v > 0);
-                if (damageFromUnparriedAttacks.Count() == 0)
+                var fromUnparriedAttacks = damageFromUnparriedAttacks as double[] ?? damageFromUnparriedAttacks.ToArray();
+                if (!fromUnparriedAttacks.Any())
                     continue;
-                var averageDamageFromUnparriedAttack = damageFromUnparriedAttacks.Mean() * numberOfParries;
-                _parriedAttackSums[mitigatedAttack] = averageDamageFromUnparriedAttack;
+                var averageDamageFromUnparriedAttack = fromUnparriedAttacks.Mean() * numberOfParries;
+                parriedAttackSums[mitigatedAttack] = averageDamageFromUnparriedAttack;
             }
 
-            return _parriedAttackSums;
+            return parriedAttackSums;
         }
 
         public static Dictionary<string, double> GetAverage(Dictionary<string, List<ParsedLogEntry>> combatMetaData, bool checkEffective = false)
@@ -269,7 +310,7 @@ namespace SWTORCombatParser
             var returnDict = new Dictionary<string, double>();
             foreach (var kvp in combatMetaData)
             {
-                returnDict[kvp.Key] = kvp.Value.Count(v => v.Value.WasCrit) / kvp.Value.Count();
+                returnDict[kvp.Key] = kvp.Value.Count(v => v.Value.WasCrit) / (double)kvp.Value.Count();
             }
             return returnDict;
         }

@@ -2,6 +2,7 @@
 
   {
     "LogName": "Eternity Vault",
+    "LogId": "833571547775670",
     "Name": "Eternity Vault",
     "EncounterType": 1,
     "BossNames": [
@@ -14,7 +15,8 @@
   },
   {
     "LogName": "Karagga's Palace",
-    "Name": "Karagga’s Palace",
+    "LogId": "833571547775669",
+    "Name": "Karagga's Palace",
     "EncounterType": 1,
     "BossNames": [
       "Bonethrasher",
@@ -26,6 +28,7 @@
   },
   {
     "LogName": "Denova",
+    "LogId": "833571547775688",
     "Name": "Explosive Conflict",
     "EncounterType": 1,
     "BossNames": [
@@ -37,6 +40,7 @@
   },
   {
     "LogName": "Asation",
+    "LogId": "137438992720",
     "Name": "Terror From Beyond",
     "EncounterType": 1,
     "BossNames": [
@@ -49,6 +53,7 @@
   },
   {
     "LogName": "Darvannis",
+    "LogId": "137438993037",
     "Name": "Scum and Villainy",
     "EncounterType": 1,
     "BossNames": [
@@ -63,18 +68,20 @@
   },
   {
     "LogName": "The Dread Fortress",
+    "LogId": "137438993402",
     "Name": "The Dread Fortress",
     "EncounterType": 1,
     "BossNames": [
       "Nefra, Who Bars the Way",
       "Gate Commander Draxus",
-      "Grob’thok",
+      "Grob'thok, Who Feeds the Forge",
       "Corruptor Zero",
-      "Dread Master Brontes"
+      "Dread Master Brontes~?~Dread Master Brontes*|Left Hand of Brontes|Right Hand of Brontes"
     ]
   },
   {
     "LogName": "The Dread Palace",
+    "LogId": "137438993410",
     "Name": "The Dread Palace",
     "EncounterType": 1,
     "BossNames": [
@@ -87,18 +94,20 @@
   },
   {
     "LogName": "The Ravagers",
+    "LogId": "3367421863788544",
     "Name": "The Ravagers",
     "EncounterType": 1,
     "BossNames": [
       "Sparky",
       "Quartermaster Bulo",
       "Torque",
-      "Master & Blaster~?~Master|Blaster",
-      "Coratanni"
+      "Master & Blaster~?~B0-55 Master Droid|Blaster*",
+      "Coratanni~?~Coratanni|Ruugar"
     ]
   },
   {
     "LogName": "Temple of Sacrifice",
+    "LogId": "3367426158755840",
     "Name": "Temple of Sacrifice",
     "EncounterType": 1,
     "BossNames": [
@@ -106,11 +115,12 @@
       "Sword Squadron~?~Sword Squadron Unit 1|Sword Squadron Unit 2",
       "The Underlurker",
       "Revanite Commanders~?~Deron Cadoruso|Lord Kurse|Sano Thrica",
-      "Revan~?~HK-47|Machine Core|Machine Focus|Revan"
+      "Revan~?~HK-47|Machine Core*|Machine Focus|Revan"
     ]
   },
   {
     "LogName": "Toborro's Palace Courtyard",
+    "LogId": "",
     "Name": "Toborro's Palace",
     "EncounterType": 2,
     "BossNames": [
@@ -119,6 +129,7 @@
   },
   {
     "LogName": "Primary Observatory Four",
+    "LogId": "137438993300",
     "Name": "Xeno",
     "EncounterType": 2,
     "BossNames": [
@@ -127,6 +138,7 @@
   },
   {
     "LogName": "Lair of the Eyeless",
+    "LogId": "137438993438",
     "Name": "Eyeless",
     "EncounterType": 2,
     "BossNames": [
@@ -135,6 +147,7 @@
   },
   {
     "LogName": "Hive of the Mountain Queen",
+    "LogId": "945872057669593",
     "Name": "Queen's Hive",
     "EncounterType": 2,
     "BossNames": [
@@ -143,6 +156,7 @@
   },
   {
     "LogName": "Heart of Ruin",
+    "LogId": "3541801830973440",
     "Name": "Colossal Monolith",
     "EncounterType": 2,
     "BossNames": [
@@ -151,6 +165,7 @@
   },
   {
     "LogName": "Valley of the Machine Gods",
+    "LogId": "833571547775765",
     "Name": "The Gods from the Machine",
     "EncounterType": 1,
     "BossNames": [
@@ -163,6 +178,7 @@
   },
   {
     "LogName": "Dxun - The CI-004 Facility",
+    "LogId": "833571547775792",
     "Name": "Dxun",
     "EncounterType": 1,
     "BossNames": [
@@ -170,6 +186,18 @@
       "Trandosians~?~Hissyphus|Kronissus|Greus|Titax",
       "Huntmaster",
       "Apex Vanguard"
+    ]
+  },
+  {
+    "LogName": "R-4 Anomaly",
+    "LogId": "833571547775799",
+    "Name": "R4",
+    "EncounterType": 1,
+    "BossNames": [
+      "IP-CPT~?~IP-CPT|Overload Enforcer|Inferno Enforcer",
+      "Watchdog",
+      "Lord Kanoth",
+      "Lady Dominique~?~Lady Dominique|Watchdog"
     ]
   }
 ]

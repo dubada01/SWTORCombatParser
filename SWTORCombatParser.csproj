@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.0.31</VersionPrefix>
+    <VersionPrefix>1.4.3</VersionPrefix>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWindowsForms>True</UseWindowsForms>
     <ApplicationIcon>SWTORParsingIcon.ico</ApplicationIcon>
     <AssemblyName>Orbs</AssemblyName>
     <SignAssembly>false</SignAssembly>
@@ -15,11 +15,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
 	<PlatformTarget>AnyCPU</PlatformTarget>
+	<DebugType>full</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
+    <DebugType>full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,6 +41,11 @@
     <Page Remove="Orbs Package Builder\**" />
     <Page Remove="SWTORCombatParser_Test\**" />
     <Page Remove="UWP Images\**" />
+    <Page Update="Views\Timers\AlertInstanceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <XamlRuntime>Wpf</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
   <ItemGroup>
@@ -47,10 +54,14 @@
     <None Remove="BossMechanicSkimmerConfig.json" />
     <None Remove="connectionConfig.json" />
     <None Remove="DataStructures\AbilityInfo\absorbs.json" />
+    <None Remove="DataStructures\Boss Timers\BossTimers.json" />
+    <None Remove="DataStructures\Boss Timers\DevTimers.json" />
     <None Remove="DataStructures\ClassInfos\Classes.json" />
     <None Remove="DataStructures\EncounterInfo\FlashpointInfo.json" />
     <None Remove="DataStructures\EncounterInfo\RaidNames.json" />
     <None Remove="DataStructures\HOT Timers\timers.json" />
+    <None Remove="DataStructures\RoomOverlay\IPCPT.json" />
+    <None Remove="LoggingConfig.json" />
     <None Remove="resources\BossMaps\ZornToth.png" />
     <None Remove="resources\DoubleArrowIcon.png" />
     <None Remove="resources\dpsIcon.png" />
@@ -60,12 +71,74 @@
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\Loading.gif" />
     <None Remove="resources\LocalPlayerIcon.png" />
+    <None Remove="resources\openParselyIcon.png" />
     <None Remove="resources\question-mark.png" />
     <None Remove="resources\redX.png" />
+    <None Remove="resources\RoomOverlays\DamageMenaceOpponentLocation.png" />
+    <None Remove="resources\RoomOverlays\HealMenaceOpponentLocation.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Empty.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_1.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_10.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_11.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_11_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_12.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_13.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_13_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_2.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_3.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_4.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_4_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_5.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_6.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_6_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_7.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_8.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_8_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase1_9.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_1.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_10.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_10_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_11.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_12.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_2.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_2_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_3.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_3_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_4.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_5.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_5_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_6.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_7.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_7_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_8.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_9.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase3_9_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_1.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_10.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_11.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_12.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_12_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_2.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_2_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_3.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_4.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_5.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_5_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_6.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_7.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_7_plus.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_8.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_9.png" />
+    <None Remove="resources\RoomOverlays\IP-CPT\Phase5_9_plus.png" />
+    <None Remove="resources\RoomOverlays\OpponentLocation.png" />
+    <None Remove="resources\RoomOverlays\PlayerLocation.png" />
+    <None Remove="resources\RoomOverlays\SelectionAdornment.png" />
+    <None Remove="resources\RoomOverlays\TargetedOpponentLocation.png" />
     <None Remove="resources\SwtorLogo.png" />
     <None Remove="resources\SwtorLogo_opaque.png" />
     <None Remove="resources\SWTORParsingIcon.ico" />
     <None Remove="resources\tankIcon.png" />
+    <None Remove="resources\uploadToParselyIcon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -87,7 +160,10 @@
     <Content Include="DataStructures\EncounterInfo\RaidNames.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="DataStructures\HOT Timers\timers.json">
+    <Content Include="DataStructures\RoomOverlay\IPCPT.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="LoggingConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\BossMaps\ZornToth.png">
@@ -117,10 +193,187 @@
     <Content Include="resources\LocalPlayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\openParselyIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\question-mark.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\redX.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\DamageMenaceOpponentLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\HealMenaceOpponentLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Empty.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_10.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_11.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_11_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_12.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_13.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_13_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_4_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_6_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_8_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase1_9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_10.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_10_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_11.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_12.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_2_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_3_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_5_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_7_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase3_9_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_10.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_11.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_12.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_12_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_2_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_5_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_7_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\IP-CPT\Phase5_9_plus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\OpponentLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\PlayerLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\RoomOverlays\SelectionAdornment.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\SwtorLogo_opaque.png">
@@ -129,15 +382,84 @@
     <Content Include="resources\tankIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Remove="DataStructures\EncounterInfo\PVPAreaNames.json" />
+    <Content Include="DataStructures\EncounterInfo\PVPAreaNames.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\unlockedIcon.png" />
+    <Content Include="resources\unlockedIcon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\lockedIcon.png" />
+    <Content Include="resources\lockedIcon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\3210_Sound.wav" />
+    <Content Include="resources\Audio\3210_Sound.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\Audio\AlertSound.wav" />
+    <Content Include="resources\Audio\AlertSound.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\uploadToParselyIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="DataStructures\DOT Timers\timers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="MiscSettings.json" />
+    <Content Include="MiscSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\RoomOverlays\EnemyLocation.png" />
+    <Content Include="resources\RoomOverlays\EnemyLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\RoomOverlays\TeammateLocation.png" />
+    <Content Include="resources\RoomOverlays\TeammateLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\RoomOverlays\TargetedEnemyLocation.png" />
+    <Content Include="resources\RoomOverlays\TargetedEnemyLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="resources\RoomOverlays\UnknownPlayerLocation.png" />
+    <Content Include="resources\RoomOverlays\UnknownPlayerLocation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="tessdata\eng.traineddata" />
+    <None Remove="DataStructures\Timers\DOT Timers\timers.json" />
+    <Content Include="DataStructures\Timers\DOT Timers\timers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="DataStructures\Timers\HOT Timers\timers.json" />
+    <Content Include="DataStructures\Timers\HOT Timers\timers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="DataStructures\Timers\Boss Timers\BossTimers.json" />
+    <Content Update="DataStructures\Timers\Boss Timers\Raids\EternityVault\BossTimers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\EV\BossTimers.json" />
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\EV\BossTimers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\KP\BossTimers.json" />
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\KP\BossTimers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.2.0" />
-    <PackageReference Include="Google.Cloud.Vision.V1" Version="2.4.0" />
+    <PackageReference Include="Google.Cloud.Vision.V1" Version="3.2.0" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Npgsql" Version="5.0.10" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
+    <PackageReference Include="Prism.Core" Version="8.1.97" />
+    <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
     <PackageReference Include="ScottPlot" Version="4.1.25" />
     <PackageReference Include="ScottPlot.WPF" Version="4.1.25" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
@@ -159,6 +481,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Update="Views\Overlay\BossFrame\RaidDotInstance.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -171,9 +498,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="Views\Overlay\BossFrame\RaidDotInstance.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\Overlay\BossFrame\BossFrameSetup.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
     </Page>
     <Page Update="Views\Timers\TimerSharePopup.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>

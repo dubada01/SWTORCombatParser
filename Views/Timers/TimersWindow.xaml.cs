@@ -1,30 +1,29 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
+﻿using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace SWTORCombatParser.Views.Timers
 {
     /// <summary>
     /// Interaction logic for TimersWindow.xaml
     /// </summary>
-    public partial class TimersWindow : Window
+    public interface ITimerWindow
+    {
+        double Height { get; set; }
+        double Width { get; set; }
+        double Top { get; set; }
+        double Left { get; set; }
+        void Hide();
+        void Show();
+        void makeTransparent(bool shouldLock);
+        void SetPlayer(string player);
+    }
+    public partial class TimersWindow :  Window, ITimerWindow
     {
         private TimersWindowViewModel viewModel;
         private string _currentPlayerName;
@@ -39,9 +38,25 @@ namespace SWTORCombatParser.Views.Timers
             vm.OnLocking += makeTransparent;
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
+            Loaded += OnLoaded;
         }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            RemoveFromAppWindow();
+        }
+
+        private void RemoveFromAppWindow()
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
+        }
+
         public const int WS_EX_TRANSPARENT = 0x00000020;
         public const int GWL_EXSTYLE = (-20);
+        private const int WS_EX_APPWINDOW = 0x00040000;
+        private const int WS_EX_TOOLWINDOW = 0x00000080;
 
         [DllImport("user32.dll")]
         public static extern int GetWindowLong(IntPtr hwnd, int index);
@@ -55,14 +70,14 @@ namespace SWTORCombatParser.Views.Timers
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
-                    Background.Opacity = 0.1f;
+                    BackgroundArea.Opacity = 0.1f;
                     ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-                    SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
+                    SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TRANSPARENT) & ~WS_EX_APPWINDOW);
                 }
                 else
                 {
-                    Background.Opacity = 0.45f;
+                    BackgroundArea.Opacity = 0.45f;
                     ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
                     //Remove the WS_EX_TRANSPARENT flag from the extended window style
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);

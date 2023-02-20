@@ -15,6 +15,7 @@
                 <ResourceDictionary Source="Utilities/UIStyles/TextBoxStyle.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/CheckBoxStyle.xaml"/>
                 <ResourceDictionary Source="Utilities/UIStyles/DatePickerStyle.xaml"/>
+                <ResourceDictionary Source="Utilities/UIStyles/ScrollViewerStyles.xaml"/>
                 <ResourceDictionary>
                     <FontFamily x:Key="MainFont">Dotum</FontFamily>
                 </ResourceDictionary>
@@ -38,6 +39,14 @@
             <converters:BooleanToVisibilityHiddenConverter x:Key="BooleanToHiddenVisibilityConverter"/>
             <converters:BooleanToRaidBackgroundConverter x:Key="BooleanToRaidBackgroundConverter"/>
             <converters:BooleanToRaidBorderConverter x:Key="BooleanToRaidBorderConverter"/>
+            <converters:ValueToPixelGridLengthConverter x:Key="ValueToPixelGridLengthConverter"/>
+            <converters:OverlayTypeToShowTotalConverter x:Key="OverlayTypeToShowTotalConverter"/>
+            <converters:OverlayScalarToFontSize x:Key="OverlayScalarToFontSize"/>
+            <converters:OverlayTypeToReadableNameConverter x:Key="OverlayTypeToReadableNameConverter"/>
+            <converters:OpponentInRangeToColorConverter x:Key="OpponentInRangeToColorConverter"/>
+            <converters:BooleanToHpBorderConverter x:Key="BooleanToHpBorderConverter"/>
+            <converters:MenaceTypeToBrushConverter x:Key="MenaceTypeToBrushConverter"/>
+            <converters:LogLatencyToColorConverter x:Key="LogLatencyToColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

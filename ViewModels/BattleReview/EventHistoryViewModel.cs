@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
     public class EventHistoryViewModel:INotifyPropertyChanged
     {
-        private IDisposable _sliderUpdateSubscription;
         private Combat _currentlySelectedCombat;
         private DateTime _startTime;
         private List<Entity> _viewingEntities = new List<Entity>();
@@ -50,7 +47,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             if (_currentlySelectedCombat == null)
                 return;
             LogsToDisplay = new List<DisplayableLogEntry>(_currentlySelectedCombat.AllLogs.Where(l=> LogFilter(l.Source,l.Target,l.Effect)).Select(
-                l=>new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(),l.Source.Name,l.Target.Name,l.Ability,l.Effect.EffectName,l.Value.DisplayValue,l.Value.WasCrit,l.Value.ValueType.ToString(),l.Value.ModifierType,l.Value.ModifierDisplayValue)));
+                l=>new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),l.Source.Name,l.Target.Name,l.Ability,l.Effect.EffectName,l.Value.DisplayValue,l.Value.WasCrit,l.Value.ValueType != DamageType.none ? l.Value.ValueType.ToString():l.Effect.EffectType.ToString(),l.Value.ModifierType,l.Value.ModifierDisplayValue)));
             OnPropertyChanged("LogsToDisplay");
         }
         private bool LogFilter(Entity source, Entity target, Effect effect)

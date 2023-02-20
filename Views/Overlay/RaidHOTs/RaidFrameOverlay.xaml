@@ -5,33 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs" xmlns:local1="clr-namespace:SWTORCombatParser.Views.Timers"
         mc:Ignorable="d"
-        Title="RaidFrameOverlay" Height="450" Width="500" WindowStyle="None" Background="Transparent" Topmost="True" AllowsTransparency="True">
+        Title="RaidFrameOverlay" Height="450" Width="500" WindowStyle="None" Background="Transparent" Topmost="True" AllowsTransparency="True" ShowInTaskbar="False">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Button Style="{StaticResource RoundCornerButton}" Width="40" Height="40" Content="♲" Background="{StaticResource Gray5Brush}" Opacity="0.5" Foreground="WhiteSmoke" FontSize="25" HorizontalAlignment="Right" Command="{Binding RefreshLayoutCommand}"></Button>
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding RaidHotCells}">
+        <Border Grid.Row="1" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}"
+                PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" VerticalAlignment="Top" Background="{StaticResource Gray5Brush}" Height="20" Opacity="0.8" CornerRadius="3,3,3,3"></Border>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding RaidHotCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Height="{Binding DataContext.RowHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                             Width="{Binding DataContext.ColumnWidth, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                             IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                            Background="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToRaidBackgroundConverter}}" Opacity="0.75"
-                            BorderBrush="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToRaidBorderConverter}}" BorderThickness="2">
-                        <Grid HorizontalAlignment="Stretch">
+                            Background="Transparent" Opacity="1"
+                            BorderBrush="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToRaidBorderConverter}}"  BorderThickness="3">
+                        <Grid HorizontalAlignment="Stretch" IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" >
                             <Grid.RowDefinitions>
-                                <RowDefinition/>
+                                <RowDefinition Height="15"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}" 
-                                       IsHitTestVisible="False" Text="{Binding Name}" Background="Transparent" Foreground="WhiteSmoke"></TextBlock>
-                            <ItemsControl Grid.RowSpan="2" ItemsSource="{Binding RaidHotsOnPlayer}">
+                                       IsHitTestVisible="False" Text="{Binding Name}" Opacity="{Binding NameOpacity}" FontSize="12" Background="Transparent" FontWeight="Bold"  Foreground="WhiteSmoke"></TextBlock>
+                            <ItemsControl Visibility="{Binding UsingSubtleHOTView, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Grid.RowSpan="2" ItemsSource="{Binding RaidHotsOnPlayer}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>
-                                            <local:RaidHotInstance Height="15"/>
+                                            <local:RaidHotInstance Height="23"/>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -42,7 +43,6 @@
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
                         </Grid>
-                        
                     </Border>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -52,7 +52,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <Border Grid.Row="1" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" VerticalAlignment="Top" Background="{StaticResource Gray5Brush}" Height="20" Opacity="0.5" CornerRadius="3,3,3,3"></Border>
+
         <Thumb IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
     </Grid>

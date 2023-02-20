@@ -1,12 +1,11 @@
-﻿using SWTORCombatParser.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Model.Plotting
 {
     public class PlotMaker {
 
@@ -36,39 +35,37 @@ namespace SWTORCombatParser
         internal static double[] GetPlotXValsRates(double[] timeStamps)
         {
             var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last() - timeStamps.First())).ToList();
-            return timeStampsSpread.Select(d=>(double)d).ToArray();
+            return timeStampsSpread.Select(d => (double)d).ToArray();
         }
         internal static double[] GetPlotYValRates(double[] yValues ,double[] timeStamps,double averageWindowDuration = 10)
         {
             var movingAverageCalc = new MovingAverage(TimeSpan.FromSeconds(averageWindowDuration));
+            var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last() - timeStamps.First())).ToList();
+
             
-            var timeStampsSpread = Enumerable.Range((int)timeStamps.First(), (int)(timeStamps.Last()- timeStamps.First())).ToList();
-
-            var movingaverage = new double[timeStampsSpread.Count];
-
-            for(var i=0; i< timeStampsSpread.Count;i++)
+            Dictionary<int,double> perSecondSums = new Dictionary<int,double>();
+            for (var t = 0; t < timeStamps.Count(); t++)
             {
-                var denseTime = timeStampsSpread[i];
-                var timesAndIndex = timeStamps.Select((v, i) => new { v, i });
-                var timeAndIndiciesInScope = timesAndIndex.Where(x => x.v > denseTime && x.v <= denseTime + 1);
-                var indexes = timeAndIndiciesInScope.Select(x => x.i);
-
-
-                if (indexes.Any())
+                var second = (int)timeStamps[t];
+                if (!perSecondSums.ContainsKey(second))
                 {
-                    var valSum = 0d;
-                    foreach(var ind in indexes)
-                    {
-                        valSum += yValues[ind];
-                    }
-                    movingaverage[i]=(movingAverageCalc.ComputeAverage(valSum, denseTime));
+                    perSecondSums[second] = 0;
+                }
+                perSecondSums[second] += yValues[t];
+            }
+            var movingaverage = new double[timeStampsSpread.Count()];
+            for (int i = 0; i < timeStampsSpread.Count(); i++)
+            {
+                if (!perSecondSums.ContainsKey(timeStampsSpread[i]))
+                {
+                    movingaverage[i] = movingAverageCalc.ComputeAverage(0, timeStampsSpread[i]);
                 }
                 else
                 {
-                    movingaverage[i]=(movingAverageCalc.ComputeAverage(0, denseTime));
+                    movingaverage[i] = movingAverageCalc.ComputeAverage(perSecondSums[timeStampsSpread[i]], timeStampsSpread[i]);
                 }
-
             }
+
             
             return movingaverage;
         }
@@ -79,20 +76,20 @@ namespace SWTORCombatParser
             return zcores;
         }
 
-        internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data, bool isIncoming)
+        internal static List<(string,string)> GetAnnotationString(List<ParsedLogEntry> data, bool isIncoming, bool isShield = false)
         {
-            return data.Select(d => GetAnnotationForAbilitiy(d,isIncoming)).ToList();
+            return data.Select(d => GetAnnotationForAbilitiy(d,isIncoming,isShield)).ToList();
         }
-        private static (string,string) GetAnnotationForAbilitiy(ParsedLogEntry log, bool isIncoming)
+        private static (string,string) GetAnnotationForAbilitiy(ParsedLogEntry log, bool isIncoming, bool isShield)
         {
             var critMark = log.Value.WasCrit ? "*" : "";
             var stringToShow = log.Ability + ": "+ log.Value.DblValue + critMark;
-            if(log.Target.IsCharacter && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
+            if(log.Target.IsCharacter && log.Effect.EffectId == _7_0LogParsing._damageEffectId && log.Value.Modifier != null)
             {
                 stringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
             }
             var EffectivestringToShow = log.Ability + ": " + log.Value.EffectiveDblValue + critMark;
-            if (log.Target.IsCharacter && log.Effect.EffectName == "Damage" && log.Value.Modifier != null)
+            if (log.Target.IsCharacter && log.Effect.EffectId == _7_0LogParsing._damageEffectId && log.Value.Modifier != null)
             {
                 EffectivestringToShow += "\nMitigation: " + log.Value.Modifier.ValueType.ToString() + "-" + log.Value.Modifier.EffectiveDblValue;
             }
@@ -100,6 +97,11 @@ namespace SWTORCombatParser
             {
                 stringToShow += "\n(" + log.Source.Name+")";
                 EffectivestringToShow += "\n(" + log.Source.Name+")";
+            }
+            if (isShield)
+            {
+                stringToShow += "\n(" + log.Target.Name + ")";
+                EffectivestringToShow += "\n(" + log.Target.Name + ")";
             }
             return (stringToShow, EffectivestringToShow);
         }
@@ -116,24 +118,23 @@ namespace SWTORCombatParser
         private TimeSpan windowDuration;
         private double sampleAccumulator;
         public double Average { get; private set; }
-
         /// <summary>
         /// Computes a new windowed average each time a new sample arrives
         /// </summary>
         /// <param name="newSample"></param>
         public double ComputeAverage(double newSample, double timeStamp)
         {
-            sampleAccumulator += newSample;
-            samples.Enqueue((newSample,timeStamp));
+                sampleAccumulator += newSample;
+                samples.Enqueue((newSample, timeStamp));
 
-            while (TimeSpan.FromSeconds(samples.Last().Item2 - samples.First().Item2) > windowDuration)
-            {
-                sampleAccumulator -= samples.Dequeue().Item1;
-            }
+                while (TimeSpan.FromSeconds(samples.Last().Item2 - samples.First().Item2) > windowDuration)
+                {
+                    sampleAccumulator -= samples.Dequeue().Item1;
+                }
 
-            Average = sampleAccumulator / (samples.Count == 1?1:(samples.Last().Item2 - samples.First().Item2));
+                Average = sampleAccumulator / (samples.Count == 1 ? 1 : (samples.Last().Item2 - samples.First().Item2));
 
-            return Average;
+                return Average;
         }
     }
 }

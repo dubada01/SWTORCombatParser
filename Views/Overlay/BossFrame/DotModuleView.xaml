@@ -10,7 +10,7 @@
         <ItemsControl ItemsSource="{Binding ActiveDOTS}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <raidhots:RaidDotInstance Height="20"/>
+                    <local:RaidDotInstance Height="20"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl> 

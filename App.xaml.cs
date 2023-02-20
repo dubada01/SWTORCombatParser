@@ -1,14 +1,8 @@
 ﻿using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.Views;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace SWTORCombatParser
@@ -23,6 +17,7 @@ namespace SWTORCombatParser
             Process[] processCollection = Process.GetProcesses();
             if (processCollection.Count(pc => pc.ProcessName.ToLower() == "orbs") == 1)
             {
+                ConvertToAppData.ConvertFromProgramDataToAppData();
                 var mainWindowVM = new MainWindowViewModel();
                 var mainWindow = new MainWindow();
                 Application.Current.MainWindow = mainWindow;

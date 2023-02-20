@@ -1,34 +1,13 @@
-﻿using ScottPlot.Plottable;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Plotting;
-using SWTORCombatParser.resources;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels;
-using SWTORCombatParser.Views;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -47,6 +26,16 @@ namespace SWTORCombatParser
             Hiding();
         }
     }
+    public static class HeaderSelectionState
+    {
+        public static event Action NewHeaderSelected = delegate { };
+        public static string CurrentlySelectedTabHeader = "";
+        public static void UpdateSelectedHeader(string header)
+        {
+            CurrentlySelectedTabHeader = header;
+            NewHeaderSelected();
+        }
+    }
     public partial class MainWindow : Window
     {
         private bool _actuallyClosing = false;
@@ -60,7 +49,6 @@ namespace SWTORCombatParser
             Width = windowInfo.Width;
             Height = windowInfo.Height;
             AddNotificationIcon();
-            SWTORDetector.StartMonitoring();
         }
         private void AddNotificationIcon()
         {
@@ -107,7 +95,7 @@ namespace SWTORCombatParser
         }
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            if (!_actuallyClosing)
+            if (!_actuallyClosing && ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled"))
             {
                 e.Cancel = true;
                 if (ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring"))
@@ -120,13 +108,24 @@ namespace SWTORCombatParser
             }
             else
             { 
+                SwtorDetector.StopMonitoring();
                 MainWindowClosing.FireClosing();
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
         }
         private void Window_MouseLeave_1(object sender, System.Windows.Input.MouseEventArgs e)
         {
             OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new System.Windows.Point { X = Left, Y = Top }, Width = ActualWidth, Height = ActualHeight });
+        }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count == 0)
+                return;
+            var tabInstance = e.AddedItems[0] as TabInstance;
+            if (tabInstance == null)
+                return;
+            HeaderSelectionState.UpdateSelectedHeader(tabInstance.HeaderText);
         }
     }
 }

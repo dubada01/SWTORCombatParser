@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace SWTORCombatParser.DataStructures
+namespace SWTORCombatParser.DataStructures.ClassInfos
 {
     public class Ability
     {
@@ -23,6 +20,8 @@ namespace SWTORCombatParser.DataStructures
     {
         public string Name { get; set; }
         public string Discipline { get; set; }
+        public string DisciplineId { get; set; }
+        public bool IsRanged { get; set; }
         public Role Role { get; set; }
         public List<string> UniqueAbilities { get; set; }
         public List<Ability> SpecialThreatAbilities { get; set; }

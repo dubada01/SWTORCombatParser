@@ -26,9 +26,17 @@
                     Content="Ok" Width="50" Height="25" 
                     VerticalAlignment="Center"
                     ></Button>
-            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" Orientation="Horizontal" Grid.Row="1">
+            <Button x:Name="ExitButton" Grid.Row="1" Margin="0,0,10,0" Style="{StaticResource RoundCornerButton}"
+                    Content="Exit" Foreground="IndianRed" Width="50" Height="25" 
+                    VerticalAlignment="Center" HorizontalAlignment="Right"
+                    ></Button>
+            <StackPanel Margin="10,0,0,0" VerticalAlignment="Bottom" Orientation="Horizontal" Grid.Row="1">
                 <CheckBox x:Name="ShowAgainCheck" ></CheckBox>
                 <TextBlock Text="Don't show again" FontFamily="{StaticResource MainFont}"></TextBlock>
+            </StackPanel>
+            <StackPanel Margin="10,0,0,0" VerticalAlignment="Top" Orientation="Horizontal" Grid.Row="1">
+                <CheckBox x:Name="DisableCheck" ></CheckBox>
+                <TextBlock Text="Disable feature" FontFamily="{StaticResource MainFont}"></TextBlock>
             </StackPanel>
         </Grid>
     </Border>

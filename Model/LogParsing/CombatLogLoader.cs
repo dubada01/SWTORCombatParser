@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SWTORCombatParser.Utilities;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.Model.LogParsing
 {
     public class CombatLogFile
     {
@@ -97,15 +97,16 @@ namespace SWTORCombatParser
         }
         private static CombatLogFile LoadCombatLog(string path)
         {
+            Logging.LogInfo("Loading log - " + path);
             CombatLogFile fileData = new CombatLogFile();
             fileData.Name = Path.GetFileName(path);
             fileData.Path = path;
             fileData.Time = new FileInfo(path).LastWriteTime;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            var sr = new StreamReader(fs, Encoding.GetEncoding(1252));
-            
-                fileData.Data = sr;
+            var sr = new StreamReader(fs, Encoding.GetEncoding(1252),true);
+
+            fileData.Data = sr;
             
             return fileData;
         }

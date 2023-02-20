@@ -1,13 +1,13 @@
-﻿using ScottPlot.Plottable;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 using System.Linq;
-using System.Text;
+using System.Runtime.CompilerServices;
+using ScottPlot.Plottable;
+using SWTORCombatParser.ViewModels.Home_View_Models;
 
-namespace SWTORCombatParser.Plotting
+namespace SWTORCombatParser.DataStructures
 {
     public class CombatMetaDataSeries : INotifyPropertyChanged
     {

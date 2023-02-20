@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SWTORCombatParser.Utilities
+﻿namespace SWTORCombatParser.Utilities
 {
     public static class StringExtensions
     {

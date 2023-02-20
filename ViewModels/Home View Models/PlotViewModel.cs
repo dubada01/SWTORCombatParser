@@ -1,12 +1,4 @@
-﻿using ScottPlot;
-using ScottPlot.Plottable;
-using ScottPlot.Renderable;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels;
-using SWTORCombatParser.ViewModels.Home_View_Models;
-using SWTORCombatParser.Views.Home_Views;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -14,12 +6,19 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using ScottPlot;
+using ScottPlot.Plottable;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Plotting;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.CombatMetaData;
+using SWTORCombatParser.Views.Home_Views;
 
-namespace SWTORCombatParser.Plotting
+namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
     public enum PlotType
     {
@@ -36,7 +35,7 @@ namespace SWTORCombatParser.Plotting
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
         private List<CombatMetaDataSeries> _seriesToPlot = new List<CombatMetaDataSeries>();
         private List<Combat> _currentCombats = new List<Combat>();
-        private CombatMetaDataViewModel _combatMetaDataViewModel;
+        private CombatEfffectViewModel _combatMetaDataViewModel;
         private ParticipantSelectionViewModel _participantsViewModel;
         private object graphLock = new object();
         private Entity _selectedParticipant;
@@ -50,7 +49,7 @@ namespace SWTORCombatParser.Plotting
 
         public PlotViewModel()
         {
-            _combatMetaDataViewModel = new CombatMetaDataViewModel();
+            _combatMetaDataViewModel = new CombatEfffectViewModel();
             _combatMetaDataViewModel.OnEffectSelected += HighlightEffect;
             _combatMetaDataViewModel.OnEffectsCleared += ResetEffectVisuals;
             CombatMetaDataView = new CombatMetaDataView(_combatMetaDataViewModel);
@@ -58,6 +57,7 @@ namespace SWTORCombatParser.Plotting
             ParticipantSelectionContent = new ParticipantSelectionView();
             _participantsViewModel = new ParticipantSelectionViewModel();
             _participantsViewModel.ParticipantSelected += SelectParticipant;
+            _participantsViewModel.ViewEnemiesToggled += UpdateParticipantUI;
 
             ParticipantSelectionContent.DataContext = _participantsViewModel;
             GraphView = new WpfPlot();
@@ -97,6 +97,7 @@ namespace SWTORCombatParser.Plotting
         public ParticipantSelectionView ParticipantSelectionContent { get; set; }
         public GridLength ParticipantSelectionHeight { get; set; }
         public int MinSeletionHeight { get; set; }
+        public int MaxSeletionHeight { get; set; }
         public CombatMetaDataView CombatMetaDataView { get; set; }
         public WpfPlot GraphView { get; set; }
         public string AverageWindowDuration { get => averageWindowDuration; 
@@ -131,7 +132,7 @@ namespace SWTORCombatParser.Plotting
                         AddSeries(plotType, "Damage Incoming", Color.Peru, true);
                         break;
                     case PlotType.SheildedDamageTaken:
-                        AddSeries(plotType, "Sheilding", Color.WhiteSmoke);
+                        AddSeries(plotType, "Shielding", Color.WhiteSmoke);
                         break;
                     case PlotType.HealingOutput:
                         AddSeries(plotType, "Heal Output", Color.MediumAquamarine, true);
@@ -143,7 +144,6 @@ namespace SWTORCombatParser.Plotting
                         AddSeries(plotType, "Health Percentage", Color.LightGoldenrodYellow, false, false);
                         break;
                     default:
-                        Trace.WriteLine("Invalid Series");
                         break;
                 }
             }
@@ -166,27 +166,20 @@ namespace SWTORCombatParser.Plotting
             }
         }
 
-        internal void UpdateParticipants(List<Entity> obj)
+        internal void UpdateParticipants(Combat combat)
         {
-            ParticipantSelectionHeight = obj.Count > 4 ? new GridLength(0.25, GridUnitType.Star) : new GridLength(0.125, GridUnitType.Star);
-            MinSeletionHeight = obj.Count > 4 ? 120 : 60;
-            OnPropertyChanged("ParticipantSelectionHeight");
-            OnPropertyChanged("MinSeletionHeight");
-            _combatMetaDataViewModel.AvailableParticipants = obj;
-
-            if (!obj.Contains(_selectedParticipant))
+            if (!combat.AllEntities.Contains(_selectedParticipant))
                 _selectedParticipant = null;
-
-            _participantsViewModel.SetParticipants(obj);
-            if (_selectedParticipant == null)
-                _participantsViewModel.SelectLocalPlayer();
-            else
-                _participantsViewModel.SelectParticipant(_selectedParticipant);
+            
+            var setParticipants = _participantsViewModel.SetParticipants(combat);
+            UpdateParticipantUI(setParticipants.Count);
         }
 
         public void UpdateLivePlot(Combat updatedCombat)
         {
-            _participantsViewModel.UpdateParticipantsData(updatedCombat);
+            
+            var updatedParticipants = _participantsViewModel.UpdateParticipantsData(updatedCombat);
+            UpdateParticipantUI(updatedParticipants.Count);
             lock (graphLock)
             {
                 ResetEffectVisuals();
@@ -200,22 +193,34 @@ namespace SWTORCombatParser.Plotting
                 PlotCombat(updatedCombat, SelectedParticipant);
             }
         }
+        private void UpdateParticipantUI(int viewableEntities)
+        {
+            ParticipantSelectionHeight = viewableEntities > 8 ? new GridLength(0.2, GridUnitType.Star) : new GridLength(0.1, GridUnitType.Star);
+            MinSeletionHeight = viewableEntities > 8 ? 100 : 50;
+            MaxSeletionHeight = viewableEntities > 8 ? 150 : 75;
+
+            OnPropertyChanged("ParticipantSelectionHeight");
+            OnPropertyChanged("MinSeletionHeight");
+            OnPropertyChanged("MaxSeletionHeight");
+        }
         public void AddCombatPlot(Combat combatToPlot)
         {
             _participantsViewModel.UpdateParticipantsData(combatToPlot);
             lock (graphLock)
             {
+                Reset();
                 ResetEffectVisuals();
                 _currentCombats.Add(combatToPlot);
                 PlotCombat(combatToPlot, SelectedParticipant);
             }
         }
+
         public void RemoveCombatPlot(Combat combatToRemove)
         {
             lock (graphLock)
             {
                 ResetEffectVisuals();
-                if (!_currentCombats.Any(c => c.StartTime == combatToRemove.StartTime))
+                if (_currentCombats.All(c => c.StartTime != combatToRemove.StartTime))
                     return;
                 _currentCombats.Remove(_currentCombats.First(c => c.StartTime == combatToRemove.StartTime));
 
@@ -330,7 +335,7 @@ namespace SWTORCombatParser.Plotting
                     plotYvaRates = plotYvals;
                 }
 
-                List<(string, string)> abilityNames = PlotMaker.GetAnnotationString(applicableData, series.Type == PlotType.DamageTaken || series.Type == PlotType.HealingTaken);
+                List<(string, string)> abilityNames = PlotMaker.GetAnnotationString(applicableData, series.Type == PlotType.DamageTaken || series.Type == PlotType.HealingTaken, series.Type == PlotType.SheildedDamageTaken);
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
                 if (series.Type != PlotType.HPPercent)
@@ -368,27 +373,10 @@ namespace SWTORCombatParser.Plotting
             GraphView.Plot.AxisAuto();
             GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
             GraphView.Plot.SetAxisLimits(xMin: 0, xMax: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
-            _combatMetaDataViewModel.PopulateCombatMetaDatas(combatToPlot);
+            _combatMetaDataViewModel.PopulateEffectsFromCombat(combatToPlot);
             GraphView.Refresh();
         }
 
-        private void PlotPeaks(CombatMetaDataSeries series, double[] plotYvaRates, double[] rateTimeStamps, Combat combatToPlot, Entity selectedEntity)
-        {
-            List<(int, double)> peaksAndIndicies = PlotMaker.GetPeaksOfMean(plotYvaRates, _averageWindowDurationDouble);
-            var peaksXVals = new List<double>();
-            var peaks = new List<double>();
-            for (var i = 0; i < peaksAndIndicies.Count; i++)
-            {
-                var peak = peaksAndIndicies[i];
-                if (peak.Item2 == 0)
-                    continue;
-                peaksXVals.Add(rateTimeStamps[peak.Item1]);
-                peaks.Add(peak.Item2);
-            }
-            if (peaksXVals.Count == 0)
-                return;
-            GraphView.Plot.AddScatter(peaksXVals.ToArray(), peaks.ToArray(), lineStyle: LineStyle.None, markerShape: MarkerShape.asterisk, color: series.Color, markerSize: 5);
-        }
 
         private MarkerShape GetMarkerFromNumberOfComparisons(int numberOfComparison)
         {
@@ -406,6 +394,8 @@ namespace SWTORCombatParser.Plotting
         }
         private void UpdatePlotAxis(object sender, EventArgs e)
         {
+            if (CombatDetector.InCombat)
+                return;
             _combatMetaDataViewModel.UpdateBasedOnVisibleData(GraphView.Plot.GetAxisLimits());
         }
         private void UpdateSeriesAnnotation(ScatterPlot plot, Tooltip annotation, string name, List<(string, string)> annotationTexts, bool effective)
@@ -456,7 +446,7 @@ namespace SWTORCombatParser.Plotting
                 case PlotType.HealingTaken:
                     return combatToPlot.IncomingHealingLogs[selectedParticipant];
                 case PlotType.SheildedDamageTaken:
-                    return combatToPlot.SheildingProvidedLogs[selectedParticipant];
+                    return combatToPlot.ShieldingProvidedLogs[selectedParticipant];
                 case PlotType.HPPercent:
                     return combatToPlot.GetLogsInvolvingEntity(selectedParticipant);
 

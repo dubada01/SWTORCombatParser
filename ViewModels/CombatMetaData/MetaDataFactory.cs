@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows.Media;
+using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {

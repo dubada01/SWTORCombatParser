@@ -1,0 +1,178 @@
+﻿[
+  {
+    "Name": "The Civil War",
+    "LogId": "137438956902",
+    "EncounterType": 4,
+    "MapInfo": {
+      "MaxX": 158,
+      "MaxY": 168,
+      "MinX": -171,
+      "MinY": -163
+    }
+  },
+  {
+    "Name": "Yavin Ruins",
+    "LogId": "945872057669561",
+    "EncounterType": 4,
+    "MapInfo": {
+      "MaxX": 164,
+      "MaxY": 188,
+      "MinX": -191,
+      "MinY": -167
+    }
+  },
+  {
+    "Name": "Novare Coast",
+    "LogId": "137438992654",
+    "EncounterType": 4,
+    "MapInfo": {
+      "MaxX": 196,
+      "MaxY": 205,
+      "MinX": -195,
+      "MinY": -185
+    }
+  },
+  {
+    "Name": "Ancient Hypergate",
+    "LogId": "137438993104",
+    "EncounterType": 4,
+    "MapInfo": {
+      "MaxX": 246,
+      "MaxY": 229,
+      "MinX": -217,
+      "MinY": -234
+    }
+  },
+  {
+    "Name": "The Voidstar",
+    "LogId": "137438989517",
+    "EncounterType": 4,
+    "MapInfo": {
+      "MaxX": 336,
+      "MaxY": 46,
+      "MinX": -251,
+      "MinY": -541
+    }
+  },
+  {
+    "Name": "Odessen Proving Grounds",
+    "LogId": "833571547775744",
+    "EncounterType": 4,
+    "MapInfo": {
+      "MaxX": 125,
+      "MaxY": 122,
+      "MinX": -146,
+      "MinY": -148
+    }
+  },
+  {
+    "Name": "The Pit",
+    "LogId": "137438988866",
+    "EncounterType": 5,
+    "MapInfo": {
+      "MaxX": 144,
+      "MaxY": 144,
+      "MinX": -144,
+      "MinY": -144
+    }
+  },
+  {
+    "Name": "Quesh Huttball Pit",
+    "LogId": "137438953518",
+    "EncounterType": 5,
+    "MapInfo": {
+      "MaxX": 75,
+      "MaxY": 50,
+      "MinX": -73,
+      "MinY": -23
+    }
+  },
+  {
+    "Name": "Vandin",
+    "LogId": "833571547775746",
+    "EncounterType": 5,
+    "MapInfo": {
+      "MaxX": -68,
+      "MaxY": 193,
+      "MinX": -330,
+      "MinY": -68
+    }
+  },
+  {
+    "Name": "Corellia Square",
+    "LogId": "137438993370",
+    "EncounterType": 6,
+    "MapInfo": {
+      "MaxX": 93,
+      "MaxY": 94,
+      "MinX": -95,
+      "MinY": -94
+    }
+  },
+  {
+    "Name": "Makeb Mesa Arena",
+    "LogId": "137438993381",
+    "EncounterType": 6,
+    "MapInfo": {
+      "MaxX": 98,
+      "MaxY": 97,
+      "MinX": -98,
+      "MinY": -99
+    }
+  },
+  {
+    "Name": "Mandalorian Battle Ring",
+    "LogId": "945872057669563",
+    "EncounterType": 6,
+    "MapInfo": {
+      "MaxX": 71,
+      "MaxY": 71,
+      "MinX": -71,
+      "MinY": -71
+    }
+  },
+  {
+    "Name": "Orbital Station",
+    "LogId": "137438993376",
+    "EncounterType": 6,
+    "MapInfo": {
+      "MaxX": 68,
+      "MaxY": 68,
+      "MinX": -68,
+      "MinY": -68
+    }
+  },
+  {
+    "Name": "Rishi Cove",
+    "LogId": "833571547775745",
+    "EncounterType": 6,
+    "MapInfo": {
+      "MaxX": 80,
+      "MaxY": 84,
+      "MinX": -83,
+      "MinY": -80
+    }
+  },
+  {
+    "Name": "Tatooine Canyon",
+    "LogId": "137438993374",
+    "EncounterType": 6,
+    "MapInfo": {
+      "MaxX": 98,
+      "MaxY": 97,
+      "MinX": -98,
+      "MinY": -99
+    }
+  },
+  {
+    "Name": "Onderon Palatial Ruins",
+    "LogId": "945872057669629",
+    "EncounterType": 6,
+    "MapInfo": {
+      "MaxX": 82,
+      "MaxY": 82,
+      "MinX": -84,
+      "MinY": -84
+    }
+  }
+]

@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.RaidInfos;
-using SWTORCombatParser.Plotting;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using Newtonsoft.Json;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Plotting;
+using SWTORCombatParser.ViewModels.Home_View_Models;
 
-namespace SWTORCombatParser
+namespace SWTORCombatParser.DataStructures
 {
     public class Combat
     {
@@ -26,13 +26,15 @@ namespace SWTORCombatParser
         public int DurationSeconds => (int)Math.Round(DurationMS / 1000f);
 
         
-        public EncounterInfo ParentEncounter;
+        public EncounterInfo.EncounterInfo ParentEncounter;
         public string EncounterBossInfo => EncounterBossDifficultyParts == ("","","")?"": $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item2} {EncounterBossDifficultyParts.Item3}}}";
+        public string OldFlashpointBossInfo => EncounterBossDifficultyParts == ("", "", "") ? "" : $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item3}}}";
         public (string, string, string) EncounterBossDifficultyParts = ("","","");
 
-        public List<string> RequiredDeadTargetsForKill { get; set; }
+        public List<string> RequiredDeadTargetsForKill { get; set; } = new List<string>();
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
-        public bool WasBossKilled => RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => l.Target.Name == t && l.Effect.EffectName == "Death"));
+        public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
+        public bool WasBossKilled =>RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => (l.Target.LogId.ToString() == t && l.Effect.EffectId == _7_0LogParsing.DeathCombatId)));
         public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
         {
@@ -40,14 +42,14 @@ namespace SWTORCombatParser
         }
         public bool WasPlayerKilled(Entity player)
         {
-            return GetLogsInvolvingEntity(player).Any(l => l.Target == player && l.Effect.EffectName == "Death");
+            return GetLogsInvolvingEntity(player).Any(l => l.Target == player && l.Effect.EffectId == _7_0LogParsing.DeathCombatId);
         }
         public ConcurrentDictionary<Entity,List<ParsedLogEntry>> OutgoingDamageLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingDamageLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingDamageMitigatedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> OutgoingHealingLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingHealingLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
-        public ConcurrentDictionary<Entity, List<ParsedLogEntry>> SheildingProvidedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
+        public ConcurrentDictionary<Entity, List<ParsedLogEntry>> ShieldingProvidedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> AbilitiesActivated = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public List<Point> GetBurstValues(Entity entity, PlotType typeOfData)
         {
@@ -71,9 +73,9 @@ namespace SWTORCombatParser
                 return new List<Point>();
             var timeStamps = PlotMaker.GetPlotXVals(logs, StartTime);
             var values = logs.Select(l => l.Value.EffectiveDblValue);
-            var tenSecondAverage = PlotMaker.GetPlotYValRates(values.ToArray(), timeStamps);
+            var twentySecondAverage = PlotMaker.GetPlotYValRates(values.ToArray(), timeStamps,20d);
 
-            var peaks = PlotMaker.GetPeaksOfMean(tenSecondAverage, 20);
+            var peaks = PlotMaker.GetPeaksOfMean(twentySecondAverage, 20);
             var validPeaks = peaks.Where(p => p.Item1 > 10);
             return validPeaks.Select(p => new Point() { X = p.Item1, Y = p.Item2 }).ToList();
 
@@ -144,12 +146,18 @@ namespace SWTORCombatParser
             }
             return returnDict;
         }
+        public bool HasBurstValues()
+        {
+            return AllBurstDamages.Any();
+        }
         public void SetBurstValues()
         {
-            SetBurstDamage();
-            SetBurstDamageTaken();
-            SetBurstHealing();
-            SetBurstHealingTaken();
+            List<Task> tasks = new List<Task>();
+            tasks.Add(Task.Run(() => { SetBurstDamage(); }));
+            tasks.Add(Task.Run(() => { SetBurstDamageTaken(); }));
+            tasks.Add(Task.Run(() => { SetBurstHealing(); }));
+            tasks.Add(Task.Run(() => { SetBurstHealingTaken(); }));
+            tasks.ForEach(task => task.Wait());
         }
         public void SetBurstDamage()
         {
@@ -167,9 +175,10 @@ namespace SWTORCombatParser
         {
             AllBurstHealingReceived = CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingTaken));
         }
+        public ConcurrentDictionary<Entity, double> AverageDamageSavedDuringCooldown = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity,double> TotalAbilites = new ConcurrentDictionary<Entity, double>();
-        public ConcurrentDictionary<Entity, double> TotalThreat = new ConcurrentDictionary<Entity, double>();
-        public Dictionary<Entity, List<Point>> AllBurstDamages { get; set; }
+        public ConcurrentDictionary<Entity, long> TotalThreat = new ConcurrentDictionary<Entity, long>();
+        public Dictionary<Entity, List<Point>> AllBurstDamages { get; set; } = new Dictionary<Entity, List<Point>>();
         public Dictionary<Entity, double> MaxBurstDamage => AllBurstDamages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
         public Dictionary<Entity, double> TotalDamage => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value+TotalFocusDamage[kvp.Key]);
         public ConcurrentDictionary<Entity,double> TotalFluffDamage = new ConcurrentDictionary<Entity, double>();
@@ -178,7 +187,7 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity, double> TotalEffectiveFluffDamage = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> TotalEffectiveFocusDamage = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity,double> TotalCompanionDamage = new ConcurrentDictionary<Entity, double>();
-        public Dictionary<Entity, List<Point>> AllBurstHealings { get; set; }
+        public Dictionary<Entity, List<Point>> AllBurstHealings { get; set; } = new Dictionary<Entity, List<Point>>();
         public Dictionary<Entity, double> MaxBurstHeal => AllBurstHealings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
         public ConcurrentDictionary<Entity,double> TotalHealing = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity,double> TotalCompanionHealing = new ConcurrentDictionary<Entity, double>();
@@ -186,17 +195,16 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity,double> TotalEffectiveCompanionHealing = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity,double> TotalTankSheilding = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity,double> TotalProvidedSheilding = new ConcurrentDictionary<Entity, double>();
-        public Dictionary<Entity, List<Point>> AllBurstDamageTakens { get; set; }
+        public Dictionary<Entity, List<Point>> AllBurstDamageTakens { get; set; } = new Dictionary<Entity, List<Point>>();
         public Dictionary<Entity, double> MaxBurstDamageTaken => AllBurstDamageTakens.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
         public ConcurrentDictionary<Entity,double> TotalDamageTaken = new ConcurrentDictionary<Entity, double>();
 
-        public Dictionary<Entity, List<Point>> AllBurstHealingReceived { get; set; }
+        public Dictionary<Entity, List<Point>> AllBurstHealingReceived { get; set; } = new Dictionary<Entity, List<Point>>();
         public Dictionary<Entity, double> MaxBurstHealingReceived => AllBurstHealingReceived.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
         public Dictionary<Entity, double> CurrentHealthDeficit => TotalFluffDamage.ToDictionary(kvp=>kvp.Key,kvp=>Math.Max(0, TotalEffectiveDamageTaken[kvp.Key]-TotalEffectiveHealingReceived[kvp.Key]));
         public ConcurrentDictionary<Entity, double> TimeSpentBelowFullHealth = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, Dictionary<Entity, List<double>>> AllDamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
         public Dictionary<Entity, Dictionary<Entity, List<double>>> TankDamageRecoveryTimes = new Dictionary<Entity, Dictionary<Entity, List<double>>>();
-        public Dictionary<Entity, double> AverageHealingReceivedDelay = new Dictionary<Entity, double>();
         public Dictionary<Entity, Dictionary<Entity, double>> AverageDamageRecoveryTimePerTarget => GetDamageRecoveryTimesPerTarget();
         public Dictionary<Entity, Dictionary<Entity, double>> NumberOfFastResponseTimePerTarget => GetCountOfHighSpeedReactions();
         public Dictionary<Entity, Dictionary<Entity, double>> AverageTankDamageRecoveryTimePerTarget => GetTankDamageRecoveryTimesPerTarget();
@@ -253,25 +261,6 @@ namespace SWTORCombatParser
                     returnDict[player] = new Dictionary<Entity, double>();
                 }
             }
-            //var plot = new ScottPlot.Plot();
-            //foreach (var player in AllDamageRecoveryTimes.Where(v => v.Value.Any()))
-            //{
-            //    var allReactions = player.Value.SelectMany(v=>v.Value);
-            //    if (allReactions.Any())
-            //    {
-            //        var binSize = 0.25f;
-            //        (double[] counts, double[] binEdges) = ScottPlot.Statistics.Common.Histogram(allReactions.ToArray(), min: allReactions.Min() - 1, max: allReactions.Max() + 1, binSize);
-            //        double[] leftEdges = binEdges.Take(binEdges.Length - 1).ToArray();
-            //        var barPlot = plot.AddBar(counts, leftEdges);
-            //        barPlot.FillColor = System.Drawing.Color.FromArgb(100, barPlot.FillColor);
-            //        barPlot.Label = player.Key.Name;
-            //        barPlot.BarWidth = binSize;
-            //        barPlot.BorderColor = System.Drawing.ColorTranslator.FromHtml("#82add9");
-            //    }
-            //}
-            //plot.Legend();
-            //plot.SaveFig(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "HealReactionHistogram.png"));
-
             return returnDict;
         }
         public Dictionary<Entity, double> AverageDamageRecoveryTimeTotal => GetTotalDamageRecoveryTimes();
@@ -324,10 +313,11 @@ namespace SWTORCombatParser
         public ConcurrentDictionary<Entity, List<DateTime>> BigDamageTimestamps = new ConcurrentDictionary<Entity, List<DateTime>>();
         public ConcurrentDictionary<Entity, double> TotalSheildAndAbsorb = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> TotalEstimatedAvoidedDamage = new ConcurrentDictionary<Entity, double>();
+        public Dictionary<Entity,double> DamageSavedFromCDPerSecond => DurationSeconds == 0 ? AverageDamageSavedDuringCooldown.ToDictionary(kvp => kvp.Key, kvp => 0d) : AverageDamageSavedDuringCooldown.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> MitigationPercent => TotalDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value == 0?0:(EstimatedTotalMitigation[kvp.Key]/kvp.Value) * 100);
         public Dictionary<Entity, double> EstimatedTotalMitigation =>  TotalSheildAndAbsorb.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value + TotalEstimatedAvoidedDamage[kvp.Key]));
         public Dictionary<Entity, double> PercentageOfFightBelowFullHP => DurationSeconds == 0 ? TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => 0d) : TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value / DurationSeconds)*100);
-        public Dictionary<Entity,double> TPS => DurationSeconds == 0 ? TotalThreat.ToDictionary(kvp => kvp.Key,kvp=>0d) : TotalThreat.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
+        public Dictionary<Entity,long> TPS => DurationSeconds == 0 ? TotalThreat.ToDictionary(kvp => kvp.Key,kvp=>0L) : TotalThreat.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> DPS => DurationSeconds == 0 ? TotalDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> EDPS => DurationSeconds == 0 ? TotalEffectiveDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> RegDPS => DurationSeconds == 0 ? TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
@@ -335,7 +325,7 @@ namespace SWTORCombatParser
         public Dictionary<Entity, double> ERegDPS => DurationSeconds == 0 ? TotalEffectiveFluffDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> EFocusDPS => DurationSeconds == 0 ? TotalEffectiveFocusDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveFocusDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> CompDPS => DurationSeconds == 0 ? TotalCompanionDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalCompanionDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
-        public Dictionary<Entity,double> APM => DurationSeconds == 0 ? TotalAbilites.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalAbilites.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / (DurationSeconds/60));
+        public Dictionary<Entity,double> APM => DurationSeconds == 0 ? TotalAbilites.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalAbilites.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / (DurationSeconds/60d));
         public Dictionary<Entity,double> HPS => DurationSeconds == 0 ? TotalHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> EHPS => DurationSeconds == 0 ? TotalEffectiveHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity,double> CompEHPS => DurationSeconds == 0 ? TotalEffectiveCompanionHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveCompanionHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
