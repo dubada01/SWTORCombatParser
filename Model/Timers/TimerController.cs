@@ -52,7 +52,7 @@ public static class TimerController
         var secondaryTimers = timers.Where(t=>t.Clause1 != null).Select(t => t.Clause1);
         secondaryTimers = secondaryTimers.Concat(timers.Where(t=>t.Clause2 != null).Select(t => t.Clause2));
         var allTimers = timers.Concat(secondaryTimers);
-        _availableTimers = allTimers.Select(t => new TimerInstance(t)).ToList();
+        _availableTimers = allTimers.Select(t => new TimerInstance(t.Copy())).ToList();
         foreach (var timerInstance in _availableTimers)
         {
             if (timerInstance.SourceTimer.IsSubTimer)

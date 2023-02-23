@@ -61,7 +61,8 @@ namespace SWTORCombatParser.Model.Timers
             if (SourceTimer.ShouldModifyVariable)
             {
                 ModifyVariable(SourceTimer);
-                return;
+                if (!SourceTimer.UseVisualsAndModify)
+                    return;
             }
             if (endedNatrually && CheckEncounterAndBoss(this,_currentEncounter))
             {
@@ -169,7 +170,8 @@ namespace SWTORCombatParser.Model.Timers
             if (SourceTimer.ShouldModifyVariable && wasTriggered == TriggerType.Start)
             {
                 ModifyVariable(SourceTimer);
-                return;
+                if(!SourceTimer.UseVisualsAndModify)
+                    return;
             }
 
             var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
@@ -312,6 +314,8 @@ namespace SWTORCombatParser.Model.Timers
         {
             if (triggerType == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
                 return new TimerTargetInfo();
+            Entity playerTarget =
+                CombatLogStateBuilder.CurrentState.GetLocalPlayerTargetAtTime(log.TimeStamp).Entity;
             if (sourceTimer.TriggerType == TimerKeyType.AbsorbShield)
             {
                 return new TimerTargetInfo()
@@ -323,8 +327,7 @@ namespace SWTORCombatParser.Model.Timers
 
             if (sourceTimer.TriggerType == TimerKeyType.NewEntitySpawn && triggerType == TriggerType.Start)
             {
-                var newEntityInfo = TriggerDetection.GetTargetId(log, SourceTimer.Source,
-                    SourceTimer.SourceIsLocal, SourceTimer.SourceIsAnyButLocal);
+                var newEntityInfo = TriggerDetection.GetTargetId(log, SourceTimer.Source,playerTarget);
                 return new TimerTargetInfo()
                 {
                     Name = newEntityInfo.Name,
@@ -334,7 +337,7 @@ namespace SWTORCombatParser.Model.Timers
             if (sourceTimer.TriggerType == TimerKeyType.EntityHP && triggerType != TriggerType.None)
             {
                 var hpTargetInfo = TriggerDetection.GetTargetId(log, SourceTimer.Target,
-                    SourceTimer.TargetIsLocal, SourceTimer.TargetIsAnyButLocal);
+                    playerTarget);
                 return new TimerTargetInfo()
                 {
                     Name = hpTargetInfo.Name,

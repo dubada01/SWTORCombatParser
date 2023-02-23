@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.4.16</VersionPrefix>
+    <VersionPrefix>1.4.17</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -108,10 +108,13 @@
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Karagga%27s Palace\Karagga%27s Palace.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\R4\R4.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Scum and Villainy\Scum and Villainy.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Temple of Sacrifice\Temple of Sacrifice.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Terror From Beyond\Terror From Beyond.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Dread Fortress\The Dread Fortress.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\The Dread Palace\The Dread Palace.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\The Gods from the Machine\The Gods from the Machine.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Toborro%27s Palace\Toborro%27s Palace.json" />
     <None Remove="LoggingConfig.json" />
     <None Remove="resources\audioIcon.png" />
     <None Remove="resources\Audio\TimerAudio\Amy\1.mp3" />
@@ -166,8 +169,10 @@
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\Loading.gif" />
     <None Remove="resources\LocalPlayerIcon.png" />
+    <None Remove="resources\MinusIcon.png" />
     <None Remove="resources\mutedIcon.png" />
     <None Remove="resources\openParselyIcon.png" />
+    <None Remove="resources\PlusIcon.png" />
     <None Remove="resources\question-mark.png" />
     <None Remove="resources\redX.png" />
     <None Remove="resources\RoomOverlays\DamageMenaceOpponentLocation.png" />
@@ -258,6 +263,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\RoomOverlay\IPCPT.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Temple of Sacrifice\Temple of Sacrifice.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Dread Fortress\The Dread Fortress.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Toborro's Palace\Toborro's Palace.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="LoggingConfig.json">
@@ -422,10 +436,16 @@
     <Content Include="resources\LocalPlayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\MinusIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\mutedIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\openParselyIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\PlusIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\question-mark.png">

@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.Model.Timers;
 using System.Collections.Generic;
 using System.Windows.Media;
+using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -111,8 +112,7 @@ namespace SWTORCombatParser.DataStructures
         }
         public bool IsHot { get; set; }
         public bool IsBuiltInDot { get; set; }
-        public bool IsBuiltInMechanic { get; set; }
-        public int BuiltInMechanicRev { get; set; }
+        public int TimerRev { get; set; }
         public bool IsMechanic { get; set; }
         public Timer Clause1 { get; set; }
         public Timer Clause2 { get; set; }
@@ -125,6 +125,7 @@ namespace SWTORCombatParser.DataStructures
         public int ComparisonValMin { get; set; }
         public int ComparisonValMax { get; set; }
         public bool ShouldModifyVariable { get; set; }
+        public bool UseVisualsAndModify { get; set; }
         public Timer Copy()
         {
             return new Timer()
@@ -135,10 +136,10 @@ namespace SWTORCombatParser.DataStructures
                 ParentTimerId = ParentTimerId,
                 Name = Name,
                 IsSubTimer = IsSubTimer,
-                Source = Source,
+                Source = GetTimerSourceType(this),
                 SourceIsLocal = SourceIsLocal,
                 SourceIsAnyButLocal = SourceIsAnyButLocal,
-                Target = Target,
+                Target = GetTimerTargetType(this),
                 ShowTargetOnTimerUI = ShowTargetOnTimerUI,
                 AlertDuration = AlertDuration,
                 CombatTimeElapsed = CombatTimeElapsed,
@@ -185,9 +186,33 @@ namespace SWTORCombatParser.DataStructures
                 ModifyVariableAction= ModifyVariableAction,
                 ModifyVariableName= ModifyVariableName,
                 VariableModificationValue= VariableModificationValue,
-                ShouldModifyVariable = ShouldModifyVariable
-               
+                ShouldModifyVariable = ShouldModifyVariable,
+                UseVisualsAndModify = UseVisualsAndModify,
+                TimerRev = TimerRev,
             };
+            
+        }
+
+        private string GetTimerTargetType(Timer legacyTimer)
+        {
+            if (legacyTimer.TargetIsLocal)
+                return TimerTargetType.LocalPlayer.ToString();
+            if (legacyTimer.TargetIsAnyButLocal)
+                return TimerTargetType.NotLocalPlayer.ToString();
+            if (legacyTimer.Target == "Any")
+                return TimerTargetType.Any.ToString();
+            return legacyTimer.Target;
+        }
+
+        private string GetTimerSourceType(Timer legacyTimer)
+        {
+            if (legacyTimer.SourceIsLocal)
+                return TimerTargetType.LocalPlayer.ToString();
+            if (legacyTimer.SourceIsAnyButLocal)
+                return TimerTargetType.NotLocalPlayer.ToString();
+            if (legacyTimer.Source == "Any")
+                return TimerTargetType.Any.ToString();
+            return legacyTimer.Source;
         }
     }
 }

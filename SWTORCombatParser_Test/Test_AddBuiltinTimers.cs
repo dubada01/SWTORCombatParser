@@ -14,18 +14,19 @@ namespace SWTORCombatParser_Test
 {
     public class Test_AddBuiltinTimers
     {
+        private int _currentRev = 1;
         [Test]
         public void AddKetsumesTimers()
         {
             var allTimers = JsonConvert.DeserializeObject<List<DefaultTimersData>>(
-                File.ReadAllText(@"C:\Users\duban\AppData\Local\DubaTech\SWTORCombatParser\timers_info_v3.json"));
+                File.ReadAllText(Path.Combine(Environment.CurrentDirectory,@"keetsuneTimers.json")));
             var allIndividualTimers = allTimers.SelectMany(t => t.Timers);
             var enumerable = allIndividualTimers as Timer[] ?? allIndividualTimers.ToArray();
             enumerable.ForEach(t=>
             {
                 t.TimerSource = t.TimerSource.Count(t => t == '|') > 1 ? t.TimerSource.Split('|')[0] + "|" + t.TimerSource.Split('|')[1] : t.TimerSource;
                 t.Id = Guid.NewGuid().ToString();
-                t.BuiltInMechanicRev = 2;
+                t.TimerRev = _currentRev;
             });
             var timersWithAudio = enumerable.Where(t => !string.IsNullOrEmpty(t.CustomAudioPath));
             foreach (var timer in timersWithAudio)

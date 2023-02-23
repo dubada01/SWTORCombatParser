@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -26,9 +27,21 @@ namespace SWTORCombatParser.Views.Timers
             AbilityName.TextChanged += UpdateValueHelpText;
             _vm.OnNewTimer += CloseWindow;
             CancelButton.Click += Cancel;
-            
+            VariableCheck.Click += CheckForForceToVisualsTab;
         }
-        
+
+        private void CheckForForceToVisualsTab(object sender, RoutedEventArgs e)
+        {
+            if (!VariableCheck.IsChecked.Value)
+            {
+                EffectsTabControl.SelectedIndex = 0;
+            }
+            if(VariableCheck.IsChecked.Value && EffectsTabControl.SelectedIndex == 0)
+            {
+                EffectsTabControl.SelectedIndex = 1;
+            }
+        }
+
         private void UpdateNameHelpText(object sender, TextChangedEventArgs e)
         {
             //if (!string.IsNullOrEmpty(TimerName.Text))

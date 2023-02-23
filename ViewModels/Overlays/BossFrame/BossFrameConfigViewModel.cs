@@ -10,6 +10,8 @@ using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
+using System.Windows.Input;
+using Prism.Commands;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -64,6 +66,28 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 OnPropertyChanged();
             }
         }
+        public ICommand IncreaseCommand => new DelegateCommand(Increase);
+
+        private void Increase()
+        {
+            CurrentScale += 0.1;
+        }
+        public ICommand DecreaseCommand => new DelegateCommand(Decrease);
+
+        private void Decrease()
+        {
+            CurrentScale -= 0.1;
+        }
+        public double CurrentScale
+        {
+            get => currentScale; set
+            {
+                currentScale = Math.Round(value,1);
+                DefaultBossFrameManager.SetScale(currentScale);
+                UpdateBossFrameScale();
+                OnPropertyChanged();
+            }
+        }
         public bool ShowFrame => BossesDetected.Any() || OverlaysMoveable;
         public event Action<bool> OnLocking = delegate { };
         public ObservableCollection<BossFrameViewModel> BossesDetected { get; set; } = new ObservableCollection<BossFrameViewModel>();
@@ -77,11 +101,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         private DateTime _lastUpdateTime;
         private double _accurateDuration;
+        private double currentScale = 1;
+
         public BossFrameConfigViewModel()
         {
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
-            _timer.Tick += (e,r) => 
+            _timer.Tick += (e, r) =>
             {
                 _accurateDuration += (DateTime.Now - _lastUpdateTime).TotalSeconds;
                 CombatDuration = (int)_accurateDuration;
@@ -91,7 +117,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             CombatLogStreamer.CombatUpdated += OnNewLog;
             View = new BrossFrameView(this);
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
-
+            CurrentScale = currentDefaults.Scale == 0 ? 1 : currentDefaults.Scale;
             View.Left = currentDefaults.Position.X;
             View.Top = currentDefaults.Position.Y;
             View.Width = currentDefaults.WidtHHeight.X;
@@ -118,6 +144,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             OnPropertyChanged("OverlaysMoveable");
             OnPropertyChanged("ShowFrame");
         }
+        private void UpdateBossFrameScale()
+        {
+            foreach (var boss in BossesDetected)
+            {
+                boss.UpdateBossFrameScale(CurrentScale);
+            }
+        }
         private void UpdateBossFrameStates()
         {
             foreach (var boss in BossesDetected)
@@ -127,7 +160,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         public void OnNewLog(CombatStatusUpdate update)
         {
-            if(update.Type == UpdateType.Start)
+            if (update.Type == UpdateType.Start)
             {
                 StartTimer(update.CombatStartTime);
             }
@@ -144,30 +177,31 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 return;
             var currentEncounterBossTargets = encounterInfo.BossInfos.SelectMany(b => b.TargetIds).ToList();
 
-            foreach (var log in logs.Where(l=>l.Effect.EffectType != EffectType.TargetChanged))
+            foreach (var log in logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged))
             {
                 if ((currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) && log.SourceInfo.CurrentHP > 0) || (currentEncounterBossTargets.Contains(log.Target.LogId.ToString()) && log.TargetInfo.CurrentHP > 0))
                 {
                     EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) ? log.SourceInfo : log.TargetInfo;
-                    if (BossesDetected.All(b => b.CurrentBoss.Name != boss.Entity.Name))
+                    if (BossesDetected.All(b => b.CurrentBoss.LogId != boss.Entity.LogId))
                     {
+                        bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
                         App.Current.Dispatcher.Invoke(() =>
                         {
-                            BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled));
+                            BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled, isDuplicate, CurrentScale));
                             OnPropertyChanged("ShowFrame");
                         });
                     }
                     else
                     {
-                        var activeBoss = BossesDetected.First(b => b.CurrentBoss.Name == boss.Entity.Name);
-                        if (boss.CurrentHP == 0)
+                        var activeBoss = BossesDetected.First(b => b.CurrentBoss.LogId == boss.Entity.LogId);
+                        if (boss.CurrentHP == 0 || (log.Effect.EffectId == _7_0LogParsing.DeathCombatId && log.Target.LogId == activeBoss.CurrentBoss.LogId))
                         {
                             App.Current.Dispatcher.Invoke(() =>
                             {
                                 BossesDetected.Remove(activeBoss);
                                 OnPropertyChanged("ShowFrame");
                             });
-                            
+
                         }
                         else
                             activeBoss.LogWithBoss(boss);

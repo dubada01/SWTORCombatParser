@@ -146,6 +146,13 @@ namespace SWTORCombatParser.Model.LogParsing
             return orderedStartTimes.Last() == currentEncounterStartTime ? currentEncounterStartTime :
                 EncounterEnteredInfo.Keys.ToList()[orderedStartTimes.IndexOf(currentEncounterStartTime)+1];
         }
+
+        public EntityInfo GetLocalPlayerTargetAtTime(DateTime time)
+        {
+            if (LocalPlayer == null)
+                return new EntityInfo();
+            return GetPlayerTargetAtTime(LocalPlayer, time);
+        }
         public EntityInfo GetPlayerTargetAtTime(Entity player, DateTime time)
         {
             if (!PlayerTargetsInfo.ContainsKey(player))

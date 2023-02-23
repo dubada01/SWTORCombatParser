@@ -40,7 +40,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             if (!isActive)
                 return;
-            if (obj.TargetAddendem == _bossInfo.Entity.Name && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer)
+            if (obj.TargetId == _bossInfo.Entity.Id && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer)
             {
                 App.Current.Dispatcher.Invoke(() => { ActiveDOTS.Add(obj); });
             }

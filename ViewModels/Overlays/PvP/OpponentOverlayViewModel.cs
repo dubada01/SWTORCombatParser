@@ -31,6 +31,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private Combat _mostRecentCombat;
         private Dictionary<string, double> _currentHps = new Dictionary<string, double>();
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
+        private object _combatUpdateLock = new object();
         public OpponentOverlayViewModel()
         {
             _dTimer = new DispatcherTimer();
@@ -66,13 +67,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
             }
         }
+
         private void OnPvpCombatEnded()
         {
             if (!OverlayEnabled)
                 return;
+            lock (_combatUpdateLock)
+            {
+                _isTriggered = false;
+                _mostRecentCombat = null;
+            }
 
-            _isTriggered = false;
-            _mostRecentCombat = null;
             ResetUI();
             App.Current.Dispatcher.Invoke(() =>
             {
@@ -139,35 +144,39 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         private void NewCombatInfo(Combat currentCombat)
         {
-            _mostRecentCombat = currentCombat;
+            lock(_combatUpdateLock)
+                _mostRecentCombat = currentCombat;
         }
         private void NewLineStreamed(ParsedLogEntry newLine)
         {
-            if (_mostRecentCombat == null)
-                return;
-            _lastUpdate = newLine.TimeStamp;
-            
+            lock (_combatUpdateLock)
+            {
+                if (_mostRecentCombat == null)
+                    return;
+                _lastUpdate = newLine.TimeStamp;
 
-            if (newLine.Source == newLine.Target && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.IsCharacter)
-            {
-                _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
-                _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / newLine.SourceInfo.MaxHP;
-                RemoveOldPlayers();
-                return;
-            }
-            if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.Name != null && newLine.Source.IsCharacter)
-            {
-                _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
-                _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / newLine.SourceInfo.MaxHP;
-                RemoveOldPlayers();
-                return;
-            }
-            if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Target, newLine.TimeStamp) && newLine.Target.Name != null && newLine.Target.IsCharacter)
-            {
-                _lastUpdatedPlayer[newLine.Target.Name] = _lastUpdate;
-                _currentHps[newLine.Target.Name] = newLine.TargetInfo.CurrentHP / newLine.TargetInfo.MaxHP;
-                RemoveOldPlayers();
-                return;
+
+                if (newLine.Source == newLine.Target && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.IsCharacter)
+                {
+                    _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
+                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / newLine.SourceInfo.MaxHP;
+                    RemoveOldPlayers();
+                    return;
+                }
+                if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.Name != null && newLine.Source.IsCharacter)
+                {
+                    _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
+                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / newLine.SourceInfo.MaxHP;
+                    RemoveOldPlayers();
+                    return;
+                }
+                if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Target, newLine.TimeStamp) && newLine.Target.Name != null && newLine.Target.IsCharacter)
+                {
+                    _lastUpdatedPlayer[newLine.Target.Name] = _lastUpdate;
+                    _currentHps[newLine.Target.Name] = newLine.TargetInfo.CurrentHP / newLine.TargetInfo.MaxHP;
+                    RemoveOldPlayers();
+                    return;
+                }
             }
         }
         private void RemoveOldPlayers()
@@ -199,16 +208,19 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private MenaceTypes GetMenaceType(string key)
         {
-            if (_mostRecentCombat == null || !_mostRecentCombat.EDPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).Any())
+            lock (_combatUpdateLock)
+            {
+                if (_mostRecentCombat == null || !_mostRecentCombat.EDPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).Any())
+                    return MenaceTypes.None;
+                var maxDPS = _mostRecentCombat.EDPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
+                if (maxDPS.Key.Name == key)
+                    return MenaceTypes.Dps;
+                //Doesn't seem like the logs have information about healing done by opponents. Can't know who is the healing menace.
+                var maxEHPS = _mostRecentCombat.EHPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
+                if (maxEHPS.Key.Name == key)
+                    return MenaceTypes.None;
                 return MenaceTypes.None;
-            var maxDPS = _mostRecentCombat.EDPS.Where(kvp=>CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
-            if (maxDPS.Key.Name == key)
-                return MenaceTypes.Dps;
-            //Doesn't seem like the logs have information about healing done by opponents. Can't know who is the healing menace.
-            var maxEHPS = _mostRecentCombat.EHPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
-            if (maxEHPS.Key.Name == key)
-                return MenaceTypes.None;
-            return MenaceTypes.None;
+            }
         }
 
         private bool IsCurrentTarget(string key)

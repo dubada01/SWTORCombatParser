@@ -49,6 +49,7 @@
             <converters:LogLatencyToColorConverter x:Key="LogLatencyToColorConverter"/>
             <converters:AbsorbTimerBarVisibilityConverter x:Key="AbsorbTimerBarVisibilityConverter"/>
             <converters:TimerTriggerTypeToNameConverter x:Key="TimerTriggerTypeToNameConverter"/>
+            <converters:BooleanToMetricOptionBackgroundConverter x:Key="BooleanToMetricOptionBackgroundConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
