@@ -11,18 +11,23 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
-        <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="10,0,00,0" VerticalAlignment="Center">
+        <Viewbox MaxHeight="30" Height="{Binding Height}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">
             <TextBlock FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Foreground="{StaticResource Gray11Brush}" Text="{Binding BossName}"></TextBlock>
         </Viewbox>
-        <Border Grid.Row="1" BorderBrush="{StaticResource Gray11Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2" CornerRadius="4" Margin="2">
+        <Border Grid.Row="1" Height="{Binding Height}" BorderBrush="{StaticResource Gray11Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2" CornerRadius="4" Margin="2">
             <Grid HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
                     <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
                 </Grid.ColumnDefinitions>
                 <Border Margin="0,0,0,0" Grid.Column="0" CornerRadius="2" Background="{StaticResource RedColorBrush}" ></Border>
-                <TextBlock Margin="5,10,0,10" Grid.Column="0" Grid.ColumnSpan="2" FontSize="18" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="{StaticResource Gray11Brush}" Text="{Binding BossCurrentHP ,StringFormat='{}{0:N0}'}"></TextBlock>
-                <TextBlock Margin="0,0,10,0" Grid.Column="0" Grid.ColumnSpan="2" FontSize="18" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{StaticResource Gray11Brush}" Text="{Binding HPPercentText}"></TextBlock>
+                <Viewbox MaxHeight="25" Margin="5,5,0,5" Grid.Column="0" Grid.ColumnSpan="2"  HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock  FontSize="18" FontFamily="{StaticResource MainFont}" Foreground="{StaticResource Gray11Brush}" Text="{Binding BossCurrentHP ,StringFormat='{}{0:N0}'}"></TextBlock>
+                </Viewbox>
+                <Viewbox MaxHeight="25" Margin="0,0,10,0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock  FontSize="18" FontFamily="{StaticResource MainFont}"  Foreground="{StaticResource Gray11Brush}" Text="{Binding HPPercentText}"></TextBlock>
+                </Viewbox>
+                
             </Grid>
         </Border>
 

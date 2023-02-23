@@ -215,7 +215,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
                         var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
                         if (redPixelAverage > 0.05 &&
-                            _currentOverlayViewModel.RaidHotCells.Any(c => c.NameJustChanged))
+                            _currentOverlayViewModel.RaidHotCells.Any(c => c.NameJustChanged && !string.IsNullOrEmpty(c.Name)))
                         {
                             _currentOverlayViewModel.RaidHotCells.ForEach(c => c.NameJustChanged = false);
                             AutoDetection();
@@ -224,7 +224,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
                         else
                         { 
-                            if(redPixelAverage < 0.05)
+                            if(redPixelAverage < 0.05 && !CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(DateTime.Now).IsBossEncounter) //check to verify that you're not in a raid phase
                             {
                                 _currentOverlayViewModel.Reset();
                             }

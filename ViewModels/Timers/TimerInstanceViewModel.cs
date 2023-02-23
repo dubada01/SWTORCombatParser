@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+using SWTORCombatParser.Model.Timers;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
@@ -108,7 +109,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (swtorTimer.UseAudio)
             {
-                if (swtorTimer.IsBuiltInMechanic || swtorTimer.BuiltInMechanicRev > 0)
+                //builtin-timer-audio
+                if (!string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(Path.Combine(Environment.CurrentDirectory, "resources/Audio/TimerAudio/", swtorTimer.CustomAudioPath)))
                 {
                     _audioPath = Path.Combine(Environment.CurrentDirectory, "resources/Audio/TimerAudio/",swtorTimer.CustomAudioPath);
                 }

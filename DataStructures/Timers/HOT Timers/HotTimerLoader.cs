@@ -14,13 +14,15 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
             //DefaultTimersManager.ResetTimersForSource("HOTS");
             var timerToLoad = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@".\DataStructures\Timers\HOT Timers\timers.json"));
             var timers = (timerToLoad["Timers"] as JArray).ToObject<List<Timer>>();
+            List<Timer> copiedTimers = new List<Timer>();
             foreach(var timer in timers)
             {
                 timer.ResetOnEffectLoss = true;
                 timer.TrackOutsideOfCombat = true;
+                copiedTimers.Add(timer);
 
             }
-            DefaultTimersManager.AddTimersForSource(timers, "HOTS");
+            DefaultTimersManager.AddTimersForSource(copiedTimers, "HOTS");
         }
     }
 }

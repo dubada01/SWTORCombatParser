@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.BossFrame"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.BossFrame" xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
         mc:Ignorable="d"
         Title="BrossFrameView" AllowsTransparency="True" Background="{x:Null}" 
         WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" SizeToContent="Height" ShowInTaskbar="False">
@@ -16,7 +16,9 @@
                 <TextBlock Text="Duration: " Foreground="{StaticResource Gray10Brush}"></TextBlock>
                 <TextBlock Text="{Binding CombatDuration}" Foreground="{StaticResource Gray12Brush}"></TextBlock>
             </StackPanel>
-            
+        </Viewbox>
+        <Viewbox Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,50,0">
+            <overlay:ScaleControl Opacity="0.6"/>
         </Viewbox>
         <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
             <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"

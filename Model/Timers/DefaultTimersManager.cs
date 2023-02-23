@@ -123,7 +123,7 @@ namespace SWTORCombatParser.Model.Timers
         public static void ClearBuiltinMechanics(int currentrev)
         {
             var allTimers = GetAllDefaults();
-            allTimers.RemoveAll(s => s.Timers.Any(t => t.IsBuiltInMechanic) || s.Timers.Any(t=>t.BuiltInMechanicRev < currentrev && !(t.IsHot || t.IsBuiltInDot || t.BuiltInMechanicRev == 0)));
+            allTimers.RemoveAll(s => s.Timers.Any(t=>t.TimerRev < currentrev && !(t.IsHot || t.IsBuiltInDot || t.TimerRev == 0)));
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
         }
         public static void ResetTimersForSource(string source)

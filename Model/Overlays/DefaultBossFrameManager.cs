@@ -13,6 +13,7 @@ namespace SWTORCombatParser.Model.Overlays
         public bool Locked;
         public bool TrackDOTS;
         public bool PredictMechs;
+        public double Scale;
     }
     public class DefaultBossFrameManager
     {
@@ -33,6 +34,12 @@ namespace SWTORCombatParser.Model.Overlays
             var currentdefaults = GetDefaults();
             currentdefaults.Position = point1;
             currentdefaults.WidtHHeight = point2;
+            SaveDefaults(currentdefaults);
+        }
+        internal static void SetScale(double scale)
+        {
+            var currentdefaults = GetDefaults();
+            currentdefaults.Scale = scale;
             SaveDefaults(currentdefaults);
         }
         internal static void SetDotTracking(bool track)

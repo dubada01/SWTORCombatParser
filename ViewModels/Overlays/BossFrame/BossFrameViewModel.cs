@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using SWTORCombatParser.DataStructures;
+using System;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -10,7 +11,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private DotModuleViewModel dotModuleViewModel;
         private HPModuleViewModel _hpVM;
         private MechanicsTimersModuleViewModel _mechsVM;
-
+        private double _scale;
         public Entity CurrentBoss { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -18,13 +19,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public BossFrameViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, bool mechTrackingEnabled)
-        {        
+        public BossFrameViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, bool mechTrackingEnabled, bool isDuplicate, double scale)
+        {
+            _scale = scale;
             App.Current.Dispatcher.Invoke(() => {
                 CurrentBoss = bossInfo.Entity;
 
                 HPContent = new HPModule();
-                _hpVM = new HPModuleViewModel(bossInfo);
+                _hpVM = new HPModuleViewModel(bossInfo,isDuplicate, _scale);
                 HPContent.DataContext = _hpVM;
 
                 DOTSContent = new DotModuleView();
@@ -49,6 +51,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private void UpdateUI(EntityInfo bossInfo)
         {
             _hpVM.UpdateHP(bossInfo.CurrentHP);
+        }
+
+        internal void UpdateBossFrameScale(double currentScale)
+        {
+            _scale = currentScale;
+            _hpVM.UpdateScale(_scale);
         }
 
         public HPModule HPContent { get; set; }

@@ -14,6 +14,18 @@ using SWTORCombatParser.Views.Timers;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
+    public enum TimerTargetType
+    {
+        Any,
+        Players,
+        NotPlayers,
+        LocalPlayer,
+        NotLocalPlayer,
+        Boss,
+        NotBoss,
+        CurrentTarget,
+        Custom
+    }
     public class ModifyTimerViewModel : INotifyPropertyChanged
     {
         private TimerKeyType selectedTriggerType;
@@ -24,7 +36,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string selectedDifficulty;
         private string selectedBoss;
         private bool isEditing;
-        private List<string> defaultSourceTargets = new List<string> { "Any", "Players", "Local Player", "Any BUT Local", "Custom" };
         private List<string> addedCustomSources = new List<string>();
         private List<string> addedCustomTargets = new List<string>();
         private string customSource;
@@ -43,12 +54,6 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public event Action<Timer, bool> OnNewTimer = delegate { };
         public event Action<Timer> OnCancelEdit = delegate { };
-        public bool TargetIsLocal;
-        public bool SourceIsLocal;
-        public bool TargetIsAnyButLocal;
-        public bool SourceIsAnyButLocal;
-
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         public bool TimerNameInError;
@@ -81,6 +86,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private VariableModifications selectedAction = VariableModifications.Add;
         private int variableModificationValue;
         private string selectedModifyVariable;
+        private bool includeTimerVisuals = true;
 
         public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
         public bool IsMechanicTimer { get; set; }
@@ -90,25 +96,17 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => useAudio; set
             {
                 useAudio = value;
+                if (string.IsNullOrEmpty(SelectedAudioType))
+                    SelectedAudioType = "Built In";
                 OnPropertyChanged();
             }
         }
-        public bool HasCustomAudio { get; set; }
-        public List<string> AudioTypes { get; set; } = new List<string> { "Built In", "Custom" };
+        public List<string> AudioTypes { get; set; } = new List<string> { "Built In"};
         public string SelectedAudioType
         {
             get => selectedAudioType; set
             {
                 selectedAudioType = value;
-                if (selectedAudioType != "Built In")
-                {
-                    HasCustomAudio = true;
-                }
-                else
-                {
-                    HasCustomAudio = false;
-                }
-                OnPropertyChanged("HasCustomAudio");
                 OnPropertyChanged();
             }
         }
@@ -268,14 +266,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => selectedSource; set
             {
                 selectedSource = value;
-                if (SelectedSource == "Local Player")
-                    SourceIsLocal = true;
-                else
-                    SourceIsLocal = false;
-                if (SelectedSource == "Any BUT Local")
-                    SourceIsAnyButLocal = true;
-                else
-                    SourceIsAnyButLocal = false;
                 if (selectedSource == "Custom")
                 {
                     HasCustomSource = true;
@@ -328,14 +318,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => selectedTarget; set
             {
                 selectedTarget = value;
-                if (SelectedTarget == "Local Player")
-                    TargetIsLocal = true;
-                else
-                    TargetIsLocal = false;
-                if (SelectedTarget == "Any BUT Local")
-                    TargetIsAnyButLocal = true;
-                else
-                    TargetIsAnyButLocal = false;
                 if (selectedTarget == "Custom")
                 {
                     HasCustomTarget = true;
@@ -358,7 +340,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public bool ShowTargetOnTimerUI { get; set; }
 
-        public bool DisplayTargetToggle => HasTarget && !isModifyingVariables;
+        public bool DisplayTargetToggle => HasTarget;
 
         public ICommand SaveTargetCommand => new CommandHandler(SaveTarget);
 
@@ -425,6 +407,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => isModifyingVariables; set
             {
                 isModifyingVariables = value;
+                IncludeTimerVisuals = !IsModifyingVariables;
                 OnPropertyChanged("ShowColor");
                 OnPropertyChanged("ShowDurationOrAlert");
                 OnPropertyChanged("DisplayTargetToggle");
@@ -435,9 +418,9 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void AddCustomVariable(object obj)
         {
-            if (AvailableVariables.Any(v => v.ToLower() == AddedVariable.ToLower()))
+            if (string.IsNullOrEmpty(AddedVariable) || AvailableVariables.Any(v => v.ToLower() == AddedVariable.ToLower()))
                 return;
-            VariableManager.SetVariable(AddedVariable,0);
+            VariableManager.SetVariable(AddedVariable, 0);
             AvailableVariables = VariableManager.GetVariables();
             SelectedModifyVariable = AddedVariable;
             AddedVariable = "";
@@ -447,11 +430,13 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
 
         public string AddedVariable { get; set; }
-        public string SelectedModifyVariable { get => selectedModifyVariable; set 
-            { 
+        public string SelectedModifyVariable
+        {
+            get => selectedModifyVariable; set
+            {
                 selectedModifyVariable = value;
                 OnPropertyChanged();
-            } 
+            }
         }
         public List<VariableModifications> AvailableActions => Enum.GetValues<VariableModifications>().ToList();
         public VariableModifications SelectedAction
@@ -581,8 +566,13 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public bool ShowColor { get => showColor && !isModifyingVariables; set => showColor = value; }
-        public bool ShowDurationOrAlert { get => showDurationOrAlert && !isModifyingVariables; set => showDurationOrAlert = value; }
+        public bool IncludeTimerVisuals { get => includeTimerVisuals; set 
+            {
+                includeTimerVisuals = value; 
+                OnPropertyChanged();
+            } }
+        public bool ShowColor { get => showColor; set => showColor = value; }
+        public bool ShowDurationOrAlert { get => showDurationOrAlert; set => showDurationOrAlert = value; }
         public bool IsPeriodic
         {
             get => isPeriodic; set
@@ -602,6 +592,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public bool ShowRepeats => IsPeriodic && SelectedTriggerType != TimerKeyType.EntityHP;
         public int Repeats { get; set; }
         public bool IsHot { get; set; }
+        public SolidColorBrush ColorPreview => new SolidColorBrush(SelectedColor);
         public Color SelectedColor
         {
             get => selectedColor;
@@ -611,6 +602,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 currentColorHex = selectedColor.ToString();
                 OnPropertyChanged();
                 OnPropertyChanged("CurrentColorHex");
+                OnPropertyChanged("ColorPreview");
             }
         }
         public string CurrentColorHex
@@ -705,7 +697,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             var customAudio = Settings.GetListSetting<string>("custom_audio_paths");
             if (customAudio != null && customAudio.Count > 0)
             {
-                AudioTypes = customAudio.Distinct().ToList();
+                AudioTypes.AddRange(customAudio.Distinct().ToList());
+                AudioTypes = AudioTypes.Distinct().ToList();
             }
 
             AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
@@ -740,7 +733,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             HasTarget = false;
             HasCustomTarget = false;
             HasCustomSource = false;
-            HasCustomAudio = false;
             UseAudio = false;
             IsHot = false;
             Effect = "";
@@ -781,6 +773,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("MultiClauseTrigger");
             OnPropertyChanged("ShowDuration");
         }
+        private int editRev = 0;
         public void Edit(Timer timerToEdit)
         {
             _editedTimer = timerToEdit;
@@ -826,6 +819,19 @@ namespace SWTORCombatParser.ViewModels.Timers
             VariableModificationValue = timerToEdit.VariableModificationValue;
             SelectedAction = timerToEdit.ModifyVariableAction;
             IsModifyingVariables = timerToEdit.ShouldModifyVariable;
+            if(timerToEdit.TimerRev > 0)
+                editRev = timerToEdit.TimerRev;
+            if (IsModifyingVariables)
+            {
+                if (!timerToEdit.UseVisualsAndModify)
+                {
+                    IncludeTimerVisuals = false;
+                }
+                else
+                {
+                    IncludeTimerVisuals= true;
+                }
+            }
             if (_clause1 != null)
             {
                 _clause1.ParentTimerId = Id;
@@ -837,51 +843,39 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _clause2.ParentTimerId = Id;
                 _clause2.IsSubTimer = true;
             }
-            if (timerToEdit.CustomAudioPath != null && AudioTypes.Contains(timerToEdit.CustomAudioPath))
+            if (timerToEdit.CustomAudioPath != null)
             {
+                if (!AudioTypes.Contains(timerToEdit.CustomAudioPath))
+                {
+                    AudioTypes.Add(timerToEdit.CustomAudioPath);
+                }
                 SelectedAudioType = timerToEdit.CustomAudioPath;
             }
             else
             {
-                SelectedAudioType = "Built in";
+                SelectedAudioType = "Built In";
             }
             CustomAudioPlayTime = timerToEdit.AudioStartTime;
 
             var addedAbilities = timerToEdit.AbilitiesThatRefresh.Select(a => new RefreshOptionViewModel() { Name = a }).ToList();
             addedAbilities.ForEach(a => a.RemoveRequested += RemoveRefreshOption);
             AvailableRefreshOptions = new ObservableCollection<RefreshOptionViewModel>(addedAbilities);
-            if (timerToEdit.SourceIsLocal)
-                SelectedSource = "Local Player";
-            else
-            {
-                SelectedSource = timerToEdit.Source;
-            }
-            if (timerToEdit.TargetIsLocal)
-                SelectedTarget = "Local Player";
-            else
-            {
-                SelectedTarget = timerToEdit.Target;
-            }
-            if (timerToEdit.SourceIsAnyButLocal)
-                SelectedSource = "Any BUT Local";
-            else
-            {
-                SelectedSource = timerToEdit.Source;
-            }
-            if (timerToEdit.TargetIsAnyButLocal)
-                SelectedTarget = "Any BUT Local";
-            else
-            {
-                SelectedTarget = timerToEdit.Target;
-            }
             if (!AvailableTargets.Contains(timerToEdit.Target))
             {
                 AvailableTargets.Add(timerToEdit.Target);
                 SelectedTarget = timerToEdit.Target;
             }
+            else
+            {
+                SelectedTarget = timerToEdit.Target;
+            }
             if (!AvailableSources.Contains(timerToEdit.Source))
             {
                 AvailableSources.Add(timerToEdit.Source);
+                SelectedSource = timerToEdit.Source;
+            }
+            else
+            {
                 SelectedSource = timerToEdit.Source;
             }
             AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
@@ -942,11 +936,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 CombatTimeElapsed = CombatDuration,
                 IsEnabled = true,
                 Source = SelectedSource,
-                SourceIsLocal = SourceIsLocal,
-                SourceIsAnyButLocal = SourceIsAnyButLocal,
                 Target = SelectedTarget,
-                TargetIsLocal = TargetIsLocal,
-                TargetIsAnyButLocal = TargetIsAnyButLocal,
                 HPPercentage = HPPercentage,
                 HPPercentageUpper = HPPercentageUpper,
                 AbsorbValue = AbsorbValue,
@@ -972,7 +962,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 UseAudio = UseAudio,
                 Clause1 = _clause1,
                 Clause2 = _clause2,
-                CustomAudioPath = selectedAudioType != "Built in" ? selectedAudioType : null,
+                CustomAudioPath = selectedAudioType != "Built In" ? selectedAudioType : null,
                 AudioStartTime = CustomAudioPlayTime,
                 IsMechanic = SelectedBoss != "All",
                 AbilitiesThatRefresh = AvailableRefreshOptions.Select(r => r.Name).ToList(),
@@ -984,8 +974,9 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ModifyVariableAction = SelectedAction,
                 ModifyVariableName = SelectedModifyVariable,
                 VariableModificationValue = VariableModificationValue,
-                ShouldModifyVariable = IsModifyingVariables
-                
+                ShouldModifyVariable = IsModifyingVariables,
+                UseVisualsAndModify = IsModifyingVariables && IncludeTimerVisuals,
+                TimerRev = editRev
             };
 
             OnNewTimer(newTimer, isEditing);
@@ -1501,8 +1492,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void SetTargetsBasedOnEncouters()
         {
-            AvailableSources = new ObservableCollection<string>(defaultSourceTargets.Concat(addedCustomSources));
-            AvailableTargets = new ObservableCollection<string>(defaultSourceTargets.Concat(addedCustomTargets));
+            AvailableSources = new ObservableCollection<string>(Enum.GetNames<TimerTargetType>().Concat(addedCustomSources));
+            AvailableTargets = new ObservableCollection<string>(Enum.GetNames<TimerTargetType>().Concat(addedCustomTargets));
             if (SelectedEncounter != "All")
             {
                 List<string> targetsInFight;
