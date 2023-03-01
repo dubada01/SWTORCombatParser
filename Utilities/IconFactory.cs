@@ -1,6 +1,8 @@
 ﻿using SWTORCombatParser.DataStructures.ClassInfos;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,31 +12,18 @@ namespace SWTORCombatParser.Utilities
 {
     public static class IconFactory
     {
-        private static BitmapImage _tankIcon;
-        private static BitmapImage _healIcon;
-        private static BitmapImage _dpsIcon;
-        private static BitmapImage _unknownIcon;
+        private static Bitmap _unknownIcon;
 
         public static void Init()
         {
-            _tankIcon = new BitmapImage(new Uri(Environment.CurrentDirectory + "/resources/tankIcon.png"));
-            _healIcon = new BitmapImage(new Uri(Environment.CurrentDirectory + "/resources/healingIcon.png"));
-            _dpsIcon = new BitmapImage(new Uri(Environment.CurrentDirectory + "/resources/dpsIcon.png"));
-            _unknownIcon = new BitmapImage(new Uri(Environment.CurrentDirectory + "/resources/question-mark.png"));
+            _unknownIcon =  new Bitmap(Environment.CurrentDirectory + "/resources/question-mark.png");
         }
-        public static BitmapImage GetIcon(string role)
+
+        public static Bitmap GetIcon(string className)
         {
-            switch (role)
-            {
-                case "tank":
-                    return _tankIcon;
-                case "healer":
-                    return _healIcon;
-                case "dps":
-                    return _dpsIcon;
-                default:
-                    return _unknownIcon;
-            }
+            if (string.IsNullOrEmpty(className) || !File.Exists(Environment.CurrentDirectory + $"/resources/Class Icons/{className.ToLower()}.png"))
+                return _unknownIcon;
+            return new Bitmap(Environment.CurrentDirectory + $"/resources/Class Icons/{className.ToLower()}.png");
         }
     }
 }

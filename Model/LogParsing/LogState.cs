@@ -180,14 +180,14 @@ namespace SWTORCombatParser.Model.LogParsing
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
 
-        public List<CombatModifier> IsEffectOnPlayerAtTime(DateTime time, Entity player, string effect)
+        public List<CombatModifier> IsEffectOnEntityAtTime(DateTime time, string entity, string effect)
         {
             if (!Modifiers.ContainsKey(effect))
                 return new List<CombatModifier>();
             var instancesOfEffect = Modifiers[effect];
             var activeModifiersOnPlayer = instancesOfEffect.Where(m =>
-                m.Value.StartTime <= time && (m.Value.StopTime > time || m.Value.StopTime == DateTime.MinValue)&& m.Value.Target.IsCharacter &&
-                m.Value.Target == player).Select(kvp=>kvp.Value).ToList();
+                m.Value.StartTime <= time && (m.Value.StopTime > time || m.Value.StopTime == DateTime.MinValue) &&
+                m.Value.Target.Id.ToString() == entity || m.Value.Target.Name == entity).Select(kvp=>kvp.Value).ToList();
             return activeModifiersOnPlayer;
         }
         private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, IEnumerable<CombatModifier> inScopeModifiers)

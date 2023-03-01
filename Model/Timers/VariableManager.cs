@@ -43,7 +43,6 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static void AddToVariable(string variableName, int addition)
         {
-            Debug.WriteLine("Adding " + addition + " to " + variableName);
             CustomVariables[variableName] += addition;
         }
         public static List<string> GetVariables()

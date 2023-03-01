@@ -18,7 +18,7 @@
             </Viewbox>
             <Viewbox MaxHeight="40" Grid.Row="1" Grid.Column="0">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Text="Room Overlay Enabled"/>
+                    <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Text="Room Overlay"/>
                     <CheckBox HorizontalAlignment="Center" IsChecked="{Binding OverlayEnabled}"></CheckBox>
                 </StackPanel>
             </Viewbox>

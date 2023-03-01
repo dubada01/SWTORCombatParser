@@ -21,10 +21,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             _info = info;
             _entity = e;
             IsLocalPlayer = e.IsLocalPlayer;
-            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i) {  Value = GetValue(i) }));
-            StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, _entity.Name, GetIconPathFromClass(CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.Last().StartTime)), IsLocalPlayer));
+            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i,Colors.WhiteSmoke) {  Value = GetValue(i) }));
+            var playerClass =
+                CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.Last().StartTime);
+            StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None,GetIconColorFromClass(playerClass), _entity.Name, playerClass.Name,IsLocalPlayer));
             if(selectedColumns.Count < 10)
-                StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
+                StatsSlots.Add(new StatsSlotViewModel(OverlayType.None,Colors.WhiteSmoke) { Value = "" });
         }
         public bool IsLocalPlayer { get; set; }
         public void AssignBackground(int position)
@@ -104,14 +106,14 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             }
             return value;
         }
-        private string GetIconPathFromClass(SWTORClass classInfo)
+        private Color GetIconColorFromClass(SWTORClass classInfo)
         {
             return classInfo.Role switch
             {
-                Role.Healer => "healer",
-                Role.Tank => "tank",
-                Role.DPS => "dps",
-                _ => "unknown"
+                Role.Healer => Colors.ForestGreen,
+                Role.Tank => Colors.CornflowerBlue,
+                Role.DPS =>Colors.IndianRed,
+                _ => Colors.WhiteSmoke
             };
         }
         public List<StatsSlotViewModel> StatsSlots { get; set; } = new List<StatsSlotViewModel>();

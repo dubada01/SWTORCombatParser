@@ -45,6 +45,9 @@
                 <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Timers">
                     <ContentPresenter Grid.Column="1" Content="{Binding TimersView}"></ContentPresenter>
                 </TabItem>
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Challenges">
+                    <ContentPresenter Grid.Column="1" Content="{Binding ChallengesView}"></ContentPresenter>
+                </TabItem>
                 <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Setup">
                     <ContentPresenter Grid.Column="1" Content="{Binding OthersSetupView}"></ContentPresenter>
                 </TabItem>

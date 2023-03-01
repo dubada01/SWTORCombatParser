@@ -88,11 +88,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void UpdateState()
         {
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
-            if(active && !isEnabled && !OverlaysMoveable)
+            if(active && !isEnabled)
             {
                 Active = false;
             }
-            if(inBossRoom && isEnabled)
+            if((inBossRoom || OverlaysMoveable) && isEnabled)
             {
                 Active = true;
             }

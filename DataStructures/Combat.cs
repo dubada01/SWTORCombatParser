@@ -80,6 +80,52 @@ namespace SWTORCombatParser.DataStructures
             return validPeaks.Select(p => new Point() { X = p.Item1, Y = p.Item2 }).ToList();
 
         }
+        public double GetDamageFromEntityByAbilityForPlayer(string ability, string entity, Entity player)
+        {
+            var incomingDamageByEntity = GetIncomingDamageBySource(player);
+            var entityOfInterest = incomingDamageByEntity.Keys.FirstOrDefault(e=>e == entity);
+            if (entityOfInterest != null)
+            {
+                var logsForEntity = incomingDamageByEntity[entityOfInterest];
+                var logsWithAbility = logsForEntity.Where(l => l.Ability == ability || l.AbilityId == ability);
+                return logsWithAbility.Sum(v => v.Value.EffectiveDblValue);
+            }
+            return 0;
+        }
+        public double GetDamageToEntityByAbilityForPlayer(string ability, string entity, Entity player)
+        {
+            var outgoingDamageByEntity = GetOutgoingDamageByTarget(player);
+            var entityOfInterest = outgoingDamageByEntity.Keys.FirstOrDefault(e => e == entity);
+            if (entityOfInterest != null)
+            {
+                var logsForEntity = outgoingDamageByEntity[entityOfInterest];
+                var logsWithAbility = logsForEntity.Where(l => l.Ability == ability || l.AbilityId == ability);
+                return logsWithAbility.Sum(v => v.Value.EffectiveDblValue);
+            }
+            return 0;
+        }
+        public double GetDamageFromEntityByPlayer(string entity, Entity player)
+        {
+            var incomingDamageByEntity = GetIncomingDamageBySource(player);
+            var entityOfInterest = incomingDamageByEntity.Keys.FirstOrDefault(e => e == entity);
+            if (entityOfInterest != null)
+            {
+                var logsForEntity = incomingDamageByEntity[entityOfInterest];
+                return logsForEntity.Sum(v => v.Value.EffectiveDblValue);
+            }
+            return 0;
+        }
+        public double GetDamageToEntityByPlayer(string entity, Entity player)
+        {
+            var outgoingDamageByEntity = GetOutgoingDamageByTarget(player);
+            var entityOfInterest = outgoingDamageByEntity.Keys.FirstOrDefault(e => e == entity);
+            if (entityOfInterest != null)
+            {
+                var logsForEntity = outgoingDamageByEntity[entityOfInterest];
+                return logsForEntity.Sum(v => v.Value.EffectiveDblValue);
+            }
+            return 0;
+        }
         public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByTarget(Entity source)
         {
             return GetByTarget(OutgoingDamageLogs[source]);

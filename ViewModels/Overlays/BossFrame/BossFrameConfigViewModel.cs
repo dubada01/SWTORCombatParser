@@ -66,6 +66,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 OnPropertyChanged();
             }
         }
+        public bool RaidChallengesEnabled
+        {
+            get => raidChallengesEnabled; set
+            {
+                raidChallengesEnabled = value;
+                DefaultBossFrameManager.SetRaidChallenges(raidChallengesEnabled);
+                UpdateBossFrameStates();
+                OnPropertyChanged();
+            }
+        }
         public ICommand IncreaseCommand => new DelegateCommand(Increase);
 
         private void Increase()
@@ -82,7 +92,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             get => currentScale; set
             {
-                currentScale = Math.Round(value,1);
+                currentScale = Math.Round(value, 1);
                 DefaultBossFrameManager.SetScale(currentScale);
                 UpdateBossFrameScale();
                 OnPropertyChanged();
@@ -102,6 +112,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private DateTime _lastUpdateTime;
         private double _accurateDuration;
         private double currentScale = 1;
+        private bool raidChallengesEnabled;
 
         public BossFrameConfigViewModel()
         {
@@ -126,6 +137,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             BossFrameEnabled = currentDefaults.Acive;
             DotTrackingEnabled = currentDefaults.TrackDOTS;
             MechPredictionsEnabled = currentDefaults.PredictMechs;
+            RaidChallengesEnabled = currentDefaults.RaidChallenges;
 
             if (currentDefaults.Acive)
                 View.Show();

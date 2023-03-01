@@ -9,12 +9,13 @@ using MoreLinq;
 using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Timers;
+using System.Diagnostics.Metrics;
 
 namespace SWTORCombatParser_Test
 {
     public class Test_AddBuiltinTimers
     {
-        private int _currentRev = 1;
+        private int _currentRev = 4;
         [Test]
         public void AddKetsumesTimers()
         {
@@ -25,13 +26,13 @@ namespace SWTORCombatParser_Test
             enumerable.ForEach(t=>
             {
                 t.TimerSource = t.TimerSource.Count(t => t == '|') > 1 ? t.TimerSource.Split('|')[0] + "|" + t.TimerSource.Split('|')[1] : t.TimerSource;
-                t.Id = Guid.NewGuid().ToString();
                 t.TimerRev = _currentRev;
             });
             var timersWithAudio = enumerable.Where(t => !string.IsNullOrEmpty(t.CustomAudioPath));
             foreach (var timer in timersWithAudio)
             {
                 timer.CustomAudioPath = timer.CustomAudioPath.Split('\\').Last();
+                timer.UseAudio = false;
             }
 
             foreach (var encounter in allTimers)
@@ -50,6 +51,25 @@ namespace SWTORCombatParser_Test
                 Directory.CreateDirectory(Path.Combine(targetDirectory, encounter.Key));
                 File.WriteAllText(Path.Combine(targetDirectory,encounter.Key,encounter.Key)+".json",JsonConvert.SerializeObject(encounter.ToList()));
             }
+        }
+        [Test]
+        public void MakeKeetsuneTimersUser()
+        {
+            var allTimers = JsonConvert.DeserializeObject<List<DefaultTimersData>>(
+                File.ReadAllText(Path.Combine(Environment.CurrentDirectory, @"keetsuneTimers.json")));
+            var allIndividualTimers = allTimers.SelectMany(t => t.Timers);
+            var enumerable = allIndividualTimers as Timer[] ?? allIndividualTimers.ToArray();
+            enumerable.ForEach(t =>
+            {
+                t.TimerSource = t.TimerSource.Count(t => t == '|') > 1 ? t.TimerSource.Split('|')[0] + "|" + t.TimerSource.Split('|')[1] : t.TimerSource;
+                t.IsUserAddedTimer = true;
+            });
+
+            var targetDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                "Keetsune Modified");
+            Directory.CreateDirectory(targetDirectory);
+            File.WriteAllText(Path.Combine(targetDirectory,"timers_info_v3.json"), JsonConvert.SerializeObject(allTimers));
+
         }
     }
 }

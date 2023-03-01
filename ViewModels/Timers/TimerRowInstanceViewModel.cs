@@ -104,11 +104,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             else
             {
-                SourceTimer.UseAudio = previousAudioSetting;
+                SourceTimer.UseAudio = !string.IsNullOrEmpty(SourceTimer.CustomAudioPath);
             }
             
-            DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
-            TimerController.RefreshAvailableTimers();
             OnPropertyChanged("AudioImageSource");
         }
     }

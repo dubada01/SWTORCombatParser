@@ -559,9 +559,9 @@ public static class LogIdFactory
                             "Aivela and Esne", new Dictionary<string, List<long>>()
                             {
                                 { "Story 8", new List<long>() { 4088525397950464L,4088538282852352L,4101564918661120L} },
-                                { "Story 16", new List<long>() { 4114282316824576L,4088538282852352L,4101564918661120L} },
-                                { "Veteran 8", new List<long>() { 4114286611791872L,4088538282852352L,4101564918661120L } },
-                                { "Veteran 16", new List<long>() { 4114290906759168L,4088538282852352L,4101564918661120L } },
+                                { "Story 16", new List<long>() { 4088525397950464L, 4088538282852352L,4101564918661120L} },
+                                { "Veteran 8", new List<long>() { 4088525397950464L, 4088538282852352L,4101564918661120L } },
+                                { "Veteran 16", new List<long>() { 4088525397950464L, 4088538282852352L,4101564918661120L } },
                             }
                         },
                         {
