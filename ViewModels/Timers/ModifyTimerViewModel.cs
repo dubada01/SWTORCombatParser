@@ -738,6 +738,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             Effect = "";
             Ability = "";
             AlertText = "";
+            SelectedVariable = "";
+            SelectedModifyVariable = "";
             HPPercentage = 0;
             CombatDuration = 0;
             ShowEffectRefreshOption = false;
@@ -792,8 +794,17 @@ namespace SWTORCombatParser.ViewModels.Timers
             Ability = timerToEdit.Ability;
             IsHot = timerToEdit.IsHot;
             TrackOutsideOfCombat = timerToEdit.TrackOutsideOfCombat;
-            SelectedExternalTimerId = timerToEdit.ExperiationTimerId;
-            SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId) ? _missingTimerValue : (!string.IsNullOrEmpty(SelectedExternalTimerId) && AvailableTimersForCharacter.All(t => t.Id != SelectedExternalTimerId)) ? _missingTimerValue : AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
+            if (timerToEdit.TriggerType == TimerKeyType.TimerExpired)
+            {
+                SelectedExternalTimerId = timerToEdit.ExperiationTimerId;
+                SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId) ? _missingTimerValue : (!string.IsNullOrEmpty(SelectedExternalTimerId) && AvailableTimersForCharacter.All(t => t.Id != SelectedExternalTimerId)) ? _missingTimerValue : AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
+            }
+            if(timerToEdit.TriggerType == TimerKeyType.IsTimerTriggered)
+            {
+                SelectedExternalTimerId = timerToEdit.SeletedTimerIsActiveId;
+                SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId) ? _missingTimerValue : (!string.IsNullOrEmpty(SelectedExternalTimerId) && AvailableTimersForCharacter.All(t => t.Id != SelectedExternalTimerId)) ? _missingTimerValue : AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
+            }
+
             SelectedCancelTimerId = timerToEdit.SelectedCancelTimerId;
             SelectedCancelTimer = string.IsNullOrEmpty(SelectedCancelTimerId) ? _missingTimerValue : (!string.IsNullOrEmpty(SelectedCancelTimerId) && AvailableTimersForCharacter.All(t => t.Id != SelectedCancelTimerId)) ? _missingTimerValue : AvailableTimersForCharacter.First(t => t.Id == SelectedCancelTimerId).Name;
             DurationSec = timerToEdit.DurationSec;
@@ -942,15 +953,16 @@ namespace SWTORCombatParser.ViewModels.Timers
                 AbsorbValue = AbsorbValue,
                 TriggerType = SelectedTriggerType,
                 ExperiationTimerId = SelectedExternalTimerId,
+                SeletedTimerIsActiveId= SelectedExternalTimerId,
                 Ability = Ability,
                 Effect = Effect,
                 IsPeriodic = IsPeriodic,
                 Repeats = Repeats,
-                IsAlert = IsAlert || (DurationSec == 0 && SelectedTriggerType != TimerKeyType.EntityHP && SelectedTriggerType != TimerKeyType.AbsorbShield),
+                IsAlert = IsAlert || (DurationSec == 0 && SelectedTriggerType != TimerKeyType.EntityHP && SelectedTriggerType != TimerKeyType.AbsorbShield && IncludeTimerVisuals),
                 AlertText = AlertText,
                 DurationSec = DurationSec,
                 HideUntilSec = hideUntilSeconds,
-                TimerColor = SelectedColor,
+                TimerColor =  IncludeTimerVisuals ? SelectedColor : Colors.Transparent,
                 SpecificBoss = SelectedBoss,
                 SpecificEncounter = SelectedEncounter,
                 ActiveForStory = ActiveForStory,
@@ -976,7 +988,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                 VariableModificationValue = VariableModificationValue,
                 ShouldModifyVariable = IsModifyingVariables,
                 UseVisualsAndModify = IsModifyingVariables && IncludeTimerVisuals,
-                TimerRev = editRev
+                TimerRev = editRev,
+                IsUserAddedTimer = true,
             };
 
             OnNewTimer(newTimer, isEditing);
@@ -1476,6 +1489,12 @@ namespace SWTORCombatParser.ViewModels.Timers
                 case TimerKeyType.VariableCheck:
                     {
                         IsCheckingVariable = true;
+                        break;
+                    }
+                case TimerKeyType.IsTimerTriggered:
+                    {
+                        ShowExternalTriggerOption= true;
+                        OnPropertyChanged("ShowExternalTriggerOption");
                         break;
                     }
             }

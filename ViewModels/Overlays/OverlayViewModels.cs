@@ -24,6 +24,9 @@ using SWTORCombatParser.Views.Overlay.BossFrame;
 using SWTORCombatParser.Views.Overlay.PvP;
 using SWTORCombatParser.Views.Overlay.RaidHOTs;
 using SWTORCombatParser.ViewModels.Overlays.PvP;
+using SWTORCombatParser.Views.Challenges;
+using SWTORCombatParser.ViewModels.Challenges;
+using SWTORCombatParser.Model.Challenge;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -36,6 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool overlaysLocked = true;
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
+        private ChallengeSetupViewModel _challengesViewModel;
         private OthersOverlaySetupViewModel _otherOverlayViewModel;
         private double maxScalar = 1.5d;
         private double minScalar = 0.5d;
@@ -45,6 +49,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public event Action OverlayLockStateChanged = delegate{};
 
         public TimersCreationView TimersView { get; set; }
+        public ChallengeSetupView ChallengesView { get; set; }
         public OtherOverlaySetupView OthersSetupView { get; set; }
 
         public ObservableCollection<OverlayOptionViewModel> AvailableDamageOverlays { get; set; } = new ObservableCollection<OverlayOptionViewModel>();
@@ -105,6 +110,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             SelectedLeaderboardType = LeaderboardSettings.ReadLeaderboardSettings();
             DefaultCharacterOverlays.Init();
             DefaultGlobalOverlays.Init();
+            DefaultChallengeManager.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
@@ -120,6 +126,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
             TimersView.DataContext = _timersViewModel;
+
+            ChallengesView = new ChallengeSetupView();
+            _challengesViewModel = new ChallengeSetupViewModel();
+            ChallengesView.DataContext = _challengesViewModel;
 
             _otherOverlayViewModel = new OthersOverlaySetupViewModel();
             OthersSetupView = new OtherOverlaySetupView();
@@ -218,6 +228,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void RemoveOverlay(OverlayInstanceViewModel obj)
         {
+            DefaultCharacterOverlays.SetActiveStateCharacter(obj.Type.ToString(), false, _currentCharacterDiscipline);
             _currentOverlays.Remove(obj);
             SetSelected(false, obj.Type);
         }
@@ -243,6 +254,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 overlaysLocked = value;
                 _timersViewModel.UpdateLock(value);
+                _challengesViewModel.UpdateLock(value);
                 if (overlaysLocked)
                 {
                     _otherOverlayViewModel.UpdateLock(overlaysLocked);

@@ -8,7 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Height="35" Width="150">
         <Rectangle Fill="{Binding BackgroundColor}"/>
-        <Image Visibility="{Binding DisplayIcon, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Left" Margin="5,0,0,0" Width="25" Source="{Binding RoleIcon}"></Image>
+        <Image Visibility="{Binding DisplayIcon, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Left" Margin="5,1,0,0" Source="{Binding RoleIcon}"></Image>
         <Viewbox MaxHeight="30">
             <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,2,8,2" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding ForegroundColor}" Text="{Binding Value}"></TextBlock>
         </Viewbox>

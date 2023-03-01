@@ -238,12 +238,16 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             allMuted= !allMuted;
             OnPropertyChanged("AudioImageSource");
+            if (TimerRows.Count == 0)
+                return;
             Task.Run(() => {
-                foreach (var timer in TimerRows)
+                Parallel.ForEach(TimerRows, timer =>
                 {
                     timer.SetAudio(allMuted);
-                }
+                });
+                DefaultTimersManager.SetTimersAudioForSource(TimerRows.Select(t=>t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
             });
+            TimerController.RefreshAvailableTimers();
 
         }
 

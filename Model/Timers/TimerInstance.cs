@@ -35,28 +35,32 @@ namespace SWTORCombatParser.Model.Timers
         public Timer SourceTimer;
         private readonly Dictionary<Guid, TimerInstanceViewModel> _activeTimerInstancesForTimer = new Dictionary<Guid, TimerInstanceViewModel>();
         private (string, string, string) _currentBossInfo;
+        private Entity _currentTarget;
+        private List<TimerInstanceViewModel> _activeTimers;
+        private DateTime _startTime;
         private EncounterInfo _currentEncounter;
         private TimerInstance parentTimer;
+        private object _timerChangeLock = new object();
 
         public bool TrackOutsideOfCombat { get; set; }
         public bool IsEnabled { get; set; }
         public string ExperiationTimerId { get; set; }
-        public TimerInstance ExpirationTimer
+        public void TryTriggerParent()
         {
-            get => expirationTimer; set
+            if (!SourceTimer.IsSubTimer)
+                CreateTimerNoTarget(DateTime.Now);
+            else
             {
-                expirationTimer = value;
-                _expirationSub?.Dispose();
-                _expirationSub = Observable
-                    .FromEvent<Action<TimerInstanceViewModel, bool>, Tuple<TimerInstanceViewModel, bool>>(
-                        onNextHandler => (p1, p2) => onNextHandler(Tuple.Create(p1, p2)),
-                        manager => expirationTimer.TimerOfTypeExpired += manager,
-                        manager => expirationTimer.TimerOfTypeExpired -= manager
-                    ).Subscribe(args => ExpirationTimerEnded(args.Item1, args.Item2));
+                bool fromClause1 = ParentTimer.SourceTimer.Clause1.Id == SourceTimer.Id;
+                bool fromClause2 = ParentTimer.SourceTimer.Clause2.Id== SourceTimer.Id;
+                var triggerState = TriggerDetection.CheckForTriggerNoLog(ParentTimer.SourceTimer, _startTime, _activeTimers, _alreadyDetectedEntities, _currentTarget, fromClause1, fromClause2);
+                if (triggerState == TriggerType.Start)
+                {
+                    ParentTimer.TryTriggerParent();
+                }
             }
         }
-
-        private void ExpirationTimerEnded(TimerInstanceViewModel vm, bool endedNatrually)
+        public void ExpirationTimerEnded(TimerInstanceViewModel vm, bool endedNatrually)
         {
             if (SourceTimer.ShouldModifyVariable)
             {
@@ -66,7 +70,7 @@ namespace SWTORCombatParser.Model.Timers
             }
             if (endedNatrually && CheckEncounterAndBoss(this,_currentEncounter))
             {
-                CreateTimerNoTarget(DateTime.Now);
+                TryTriggerParent();
             }
         }
         public string CancellationTimerId { get; set; }
@@ -121,10 +125,13 @@ namespace SWTORCombatParser.Model.Timers
 
         public void Cancel()
         {
-            if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
-                _singleUseTriggerUsed = true;
-            var currentActiveTimers = _activeTimerInstancesForTimer.Values.ToList();
-            currentActiveTimers.ForEach(t => t.Complete(false));
+            lock (_timerChangeLock)
+            {
+                if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
+                    _singleUseTriggerUsed = true;
+                var currentActiveTimers = _activeTimerInstancesForTimer.Values.ToList();
+                currentActiveTimers.ForEach(t => t.Complete(false));
+            }
         }
 
         public void UnCancel()
@@ -133,154 +140,164 @@ namespace SWTORCombatParser.Model.Timers
         }
         private void CompleteTimer(TimerInstanceViewModel timer, bool endedNatrually)
         {
-            TimerOfTypeExpired(timer, endedNatrually);
-            _activeTimerInstancesForTimer.Remove(timer.TimerId);
-            timer.Dispose();
+            lock (_timerChangeLock)
+            {
+                TimerOfTypeExpired(timer, endedNatrually);
+                _activeTimerInstancesForTimer.Remove(timer.TimerId);
+                timer.Dispose();
+            }
         }
 
-        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string,string,string) bossData)
+        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string,string,string) bossData, Entity currentTarget)
         {
-            _currentEncounter = currentEncounter;
-            if(bossData.Item1 != "")
-                UpdateBossInfo(bossData,log.TimeStamp);
-            if (SourceTimer.Name.Contains("Other's") &&
-                currentDiscipline is not ("Bodyguard" or "Combat Medic"))
-                return;
-            if ((SourceTimer.IsMechanic && !CheckEncounterAndBoss(this, _currentEncounter)) || SourceTimer.TriggerType == TimerKeyType.CombatStart)
-                return;
-            if (!IsEnabled || _singleUseTriggerUsed)
-                return;
-
-            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
+            lock (_timerChangeLock)
             {
-                var damage = _absorbShieldManager?.CheckForDamage(log);
-                if (damage.HasValue)
-                {
-                    if(_activeTimerInstancesForTimer.Any())
-                        _activeTimerInstancesForTimer.FirstOrDefault().Value.DamageDoneToAbsorb += damage.Value;
-                }
-            }
-                
-            
-            var wasTriggered = TriggerDetection.CheckForTrigger(log, SourceTimer, startTime, activeTimers,_alreadyDetectedEntities);
-
-            if (wasTriggered == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
-                return;
-
-            if (SourceTimer.ShouldModifyVariable && wasTriggered == TriggerType.Start)
-            {
-                ModifyVariable(SourceTimer);
-                if(!SourceTimer.UseVisualsAndModify)
+                _currentTarget = currentTarget;
+                _activeTimers = activeTimers;
+                _startTime = startTime;
+                _currentEncounter = currentEncounter;
+                if (bossData.Item1 != "")
+                    UpdateBossInfo(bossData, log.TimeStamp);
+                if (SourceTimer.Name.Contains("Other's") &&
+                    currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                     return;
-            }
+                if ((SourceTimer.IsMechanic && !CheckEncounterAndBoss(this, _currentEncounter)) || SourceTimer.TriggerType == TimerKeyType.CombatStart)
+                    return;
+                if (!IsEnabled || _singleUseTriggerUsed)
+                    return;
 
-            var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
-            
-            if(wasTriggered == TriggerType.Start && SourceTimer.TriggerType == TimerKeyType.NewEntitySpawn)
-                _alreadyDetectedEntities.Add(targetInfo.Id);
-            
-            if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
-            {
-                var timerToRestart = _activeTimerInstancesForTimer
-                    .FirstOrDefault(t => t.Value.TargetId == targetInfo.Id)
-                    .Value;
-                if (timerToRestart != null)
+                if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
                 {
-                    if (log.TimeStamp - timerToRestart.StartTime < TimeSpan.FromSeconds(1))
-                        return;
-                    timerToRestart.Reset(log.TimeStamp);
-                    ReorderRequested();
-                }
-            }
-
-            if (SourceTimer.TriggerType == TimerKeyType.EntityHP && wasTriggered == TriggerType.Start)
-            {
-                var currentHP = TriggerDetection.GetCurrentTargetHPPercent(log, targetInfo.Id);
-                var hpTimer = _activeTimerInstancesForTimer.FirstOrDefault(t =>
-                        t.Value.SourceTimer.TriggerType == TimerKeyType.EntityHP &&
-                        t.Value.TargetId == targetInfo.Id)
-                    .Value;
-                if (hpTimer != null)
-                {
-                    hpTimer.CurrentMonitoredHP = currentHP;
-                }
-
-                if (_activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
-                {
-                    CreateHPTimerInstance(currentHP, targetInfo.Name, targetInfo.Id);
-                }
-            }
-
-            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.Start)
-            {
-                _absorbShieldManager = new AbsorbShieldManager(log.Source);
-                CreateAbsorbTimerInstance(SourceTimer.AbsorbValue, SourceTimer.Ability, log.Source.Id);
-            }
-            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.End)
-            {
-                if (_activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id))
-                {
-                    var absorbTimer = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id);
-                    absorbTimer.Value.Complete(true);
-                }
-                _absorbShieldManager = null;
-            }
-            if (wasTriggered == TriggerType.Start &&
-                _activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
-            {
-                if (SourceTimer.TriggerType == TimerKeyType.FightDuration)
-                {
-                    _singleUseTriggerUsed = true;
-                }
-
-                if (SourceTimer.TriggerType != TimerKeyType.FightDuration)
-                {
-                    if (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or)
+                    var damage = _absorbShieldManager?.CheckForDamage(log);
+                    if (damage.HasValue)
                     {
-                        if(!_activeTimerInstancesForTimer.Any())
+                        if (_activeTimerInstancesForTimer.Any())
+                            _activeTimerInstancesForTimer.FirstOrDefault().Value.DamageDoneToAbsorb += damage.Value;
+                    }
+                }
+
+
+                var wasTriggered = TriggerDetection.CheckForTrigger(log, SourceTimer, startTime, activeTimers, _currentTarget, _alreadyDetectedEntities);
+
+                if (wasTriggered == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
+                    return;
+
+                if (SourceTimer.ShouldModifyVariable && wasTriggered == TriggerType.Start)
+                {
+                    ModifyVariable(SourceTimer);
+                    if (!SourceTimer.UseVisualsAndModify)
+                        return;
+                }
+
+                var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
+
+                if (wasTriggered == TriggerType.Start && SourceTimer.TriggerType == TimerKeyType.NewEntitySpawn)
+                    _alreadyDetectedEntities.Add(targetInfo.Id);
+
+                if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
+                {
+                    var timerToRestart = _activeTimerInstancesForTimer
+                        .FirstOrDefault(t => t.Value.TargetId == targetInfo.Id)
+                        .Value;
+                    if (timerToRestart != null)
+                    {
+                        if (log.TimeStamp - timerToRestart.StartTime < TimeSpan.FromSeconds(1))
+                            return;
+                        timerToRestart.Reset(log.TimeStamp);
+                        ReorderRequested();
+                    }
+                }
+
+                if (SourceTimer.TriggerType == TimerKeyType.EntityHP && wasTriggered == TriggerType.Start)
+                {
+                    var currentHP = TriggerDetection.GetCurrentTargetHPPercent(log, targetInfo.Id);
+                    var hpTimer = _activeTimerInstancesForTimer.FirstOrDefault(t =>
+                            t.Value.SourceTimer.TriggerType == TimerKeyType.EntityHP &&
+                            t.Value.TargetId == targetInfo.Id)
+                        .Value;
+                    if (hpTimer != null)
+                    {
+                        hpTimer.CurrentMonitoredHP = currentHP;
+                    }
+
+                    if (_activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
+                    {
+                        CreateHPTimerInstance(currentHP, targetInfo.Name, targetInfo.Id);
+                    }
+                }
+
+                if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.Start)
+                {
+                    _absorbShieldManager = new AbsorbShieldManager(log.Source);
+                    CreateAbsorbTimerInstance(SourceTimer.AbsorbValue, SourceTimer.Ability, log.Source.Id);
+                }
+                if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.End)
+                {
+                    if (_activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id))
+                    {
+                        var absorbTimer = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id);
+                        absorbTimer.Value.Complete(true);
+                    }
+                    _absorbShieldManager = null;
+                }
+                if (wasTriggered == TriggerType.Start &&
+                    _activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
+                {
+                    if (SourceTimer.TriggerType == TimerKeyType.FightDuration)
+                    {
+                        _singleUseTriggerUsed = true;
+                    }
+
+                    if (SourceTimer.TriggerType != TimerKeyType.FightDuration)
+                    {
+                        if (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or)
+                        {
+                            if (!_activeTimerInstancesForTimer.Any())
+                                CreateTimerInstance(log, targetInfo.Name, targetInfo.Id);
+                        }
+                        else
                             CreateTimerInstance(log, targetInfo.Name, targetInfo.Id);
                     }
-                    else
-                        CreateTimerInstance(log, targetInfo.Name, targetInfo.Id);
-                }
-            }
-
-            if (wasTriggered == TriggerType.Start &&
-                _activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id) &&
-                (SourceTimer.TriggerType == TimerKeyType.AbilityUsed || SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or))
-            {
-                var timerToRefresh = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id).Value;
-                timerToRefresh.Reset(log.TimeStamp);
-                ReorderRequested();
-            }
-
-            if (wasTriggered == TriggerType.End)
-            {
-                var endedTimer = _activeTimerInstancesForTimer.FirstOrDefault(t => t.Value.TargetId == targetInfo.Id).Value;
-
-                if (endedTimer == null)
-                {
-                    return;
                 }
 
-                if (log.TimeStamp - endedTimer.StartTime < TimeSpan.FromSeconds(1))
+                if (wasTriggered == TriggerType.Start &&
+                    _activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id) &&
+                    (SourceTimer.TriggerType == TimerKeyType.AbilityUsed || SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or || SourceTimer.TriggerType == TimerKeyType.EffectGained))
                 {
-                    return;
-                }
-                endedTimer.Complete(true);
-            }
-
-            if (log.Effect.EffectType == EffectType.ModifyCharges || (log.Effect.EffectType == EffectType.Apply &&
-                log.Effect.EffectId != _7_0LogParsing._damageEffectId && log.Effect.EffectId != _7_0LogParsing._healEffectId && (int)log.Value.DblValue != 0))
-            {
-                UpdateCharges(log, targetInfo);
-            }
-            if(wasTriggered == TriggerType.Start)
-                Task.Run(() =>
-                {
-                    Thread.Sleep(250);
+                    var timerToRefresh = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id).Value;
+                    timerToRefresh.Reset(log.TimeStamp);
                     ReorderRequested();
-                });
+                }
+
+                if (wasTriggered == TriggerType.End)
+                {
+                    var endedTimer = _activeTimerInstancesForTimer.FirstOrDefault(t => t.Value.TargetId == targetInfo.Id).Value;
+
+                    if (endedTimer == null)
+                    {
+                        return;
+                    }
+
+                    if (log.TimeStamp - endedTimer.StartTime < TimeSpan.FromSeconds(1))
+                    {
+                        return;
+                    }
+                    endedTimer.Complete(true);
+                }
+
+                if (log.Effect.EffectType == EffectType.ModifyCharges || (log.Effect.EffectType == EffectType.Apply &&
+                    log.Effect.EffectId != _7_0LogParsing._damageEffectId && log.Effect.EffectId != _7_0LogParsing._healEffectId && (int)log.Value.DblValue != 0))
+                {
+                    UpdateCharges(log, targetInfo);
+                }
+                if (wasTriggered == TriggerType.Start)
+                    Task.Run(() =>
+                    {
+                        Thread.Sleep(250);
+                        ReorderRequested();
+                    });
+            }
+            
         }
 
         private void ModifyVariable(Timer sourceTimer)

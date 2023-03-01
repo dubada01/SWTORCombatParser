@@ -13,6 +13,7 @@ namespace SWTORCombatParser.Model.Overlays
         public bool Locked;
         public bool TrackDOTS;
         public bool PredictMechs;
+        public bool RaidChallenges;
         public double Scale;
     }
     public class DefaultBossFrameManager
@@ -51,7 +52,17 @@ namespace SWTORCombatParser.Model.Overlays
         internal static void SetPredictMechs(bool track)
         {
             var currentdefaults = GetDefaults();
+            if (currentdefaults.PredictMechs == track)
+                return;
             currentdefaults.PredictMechs = track;
+            SaveDefaults(currentdefaults);
+        }
+        internal static void SetRaidChallenges(bool track)
+        {
+            var currentdefaults = GetDefaults();
+            if (currentdefaults.RaidChallenges == track)
+                return;
+            currentdefaults.RaidChallenges = track;
             SaveDefaults(currentdefaults);
         }
         internal static void SetActiveState(bool v)
@@ -71,6 +82,8 @@ namespace SWTORCombatParser.Model.Overlays
             if (!File.Exists(infoPath))
                 Init();
             var text = File.ReadAllText(infoPath);
+            if (text == "")
+                return new BossFrameDefaults();
             return JsonConvert.DeserializeObject<BossFrameDefaults>(text);
         }
         public static void SaveDefaults(BossFrameDefaults toSave)

@@ -12,26 +12,35 @@
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
-                <RowDefinition/>
             </Grid.RowDefinitions>
-            <Viewbox MaxHeight="35">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Viewbox MaxHeight="35" Grid.ColumnSpan="2">
                 <TextBlock Foreground="{StaticResource ParticipantHPSBrush}" FontFamily="{StaticResource MainFont}" Text="Boss Frame"/>
             </Viewbox>
             <Viewbox MaxHeight="40" Grid.Row="1" Grid.Column="0">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Foreground="WhiteSmoke" Text="Boss Frame Enabled"/>
+                    <TextBlock Foreground="WhiteSmoke" Text="Boss Frame"/>
                     <CheckBox HorizontalAlignment="Center" IsChecked="{Binding BossFrameEnabled}"></CheckBox>
                 </StackPanel>
             </Viewbox>
-            <Viewbox MaxHeight="40" Grid.Row="2" Grid.Column="1">
+            <Viewbox MaxHeight="40" Grid.Row="2" Grid.Column="0">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Foreground="WhiteSmoke" Text="DOT Tracking Enabled"/>
+                    <TextBlock Foreground="WhiteSmoke" Text="DOT Tracking"/>
                     <CheckBox HorizontalAlignment="Center" IsChecked="{Binding DotTrackingEnabled}"></CheckBox>
                 </StackPanel>
             </Viewbox>
-            <Viewbox MaxHeight="40" Grid.Row="3" Grid.Column="2">
+            <Viewbox MaxHeight="40" Grid.Row="1" Grid.Column="2">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Foreground="WhiteSmoke" Text="Mechanic Predictions Enabled"/>
+                    <TextBlock Foreground="WhiteSmoke" Text="Raid Challenges"/>
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding RaidChallengesEnabled}"></CheckBox>
+                </StackPanel>
+            </Viewbox>
+            <Viewbox MaxHeight="40" Grid.Row="2" Grid.Column="2">
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Foreground="WhiteSmoke" Text="Mechanic Predictions"/>
                     <CheckBox HorizontalAlignment="Center" IsChecked="{Binding MechPredictionsEnabled}"></CheckBox>
                 </StackPanel>
             </Viewbox>

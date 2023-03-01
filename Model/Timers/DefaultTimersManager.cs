@@ -123,7 +123,7 @@ namespace SWTORCombatParser.Model.Timers
         public static void ClearBuiltinMechanics(int currentrev)
         {
             var allTimers = GetAllDefaults();
-            allTimers.RemoveAll(s => s.Timers.Any(t=>t.TimerRev < currentrev && !(t.IsHot || t.IsBuiltInDot || t.TimerRev == 0)));
+            allTimers.RemoveAll(s => s.Timers.Any(t=>t.TimerRev < currentrev && !t.IsUserAddedTimer));
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
         }
         public static void ResetTimersForSource(string source)
@@ -167,6 +167,17 @@ namespace SWTORCombatParser.Model.Timers
             var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
             timerToModify.UseAudio = state;
             SaveResults(timerToModify.TimerSource, currentDefaults);
+        }
+        public static void SetTimersAudioForSource(List<Timer> timers, string source)
+        {
+            var currentDefaults = GetDefaults(source);
+            foreach(var timer in currentDefaults.Timers)
+            {
+                timer.UseAudio = timers.First(t=>t.Id == timer.Id).UseAudio;
+            }
+            //var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+            //timerToModify.UseAudio = state;
+            SaveResults(source, currentDefaults);
         }
         public static DefaultTimersData GetDefaults(string timerSource)
         {

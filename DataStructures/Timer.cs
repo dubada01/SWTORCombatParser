@@ -68,6 +68,7 @@ namespace SWTORCombatParser.DataStructures
         public string Name { get; set; }
         public TimerKeyType TriggerType { get; set; }
         public string SelectedCancelTimerId { get; set; }
+        public string SeletedTimerIsActiveId { get; set; }
         public bool TrackOutsideOfCombat { get; set; }
         public string ExperiationTimerId { get; set; }
         public double CombatTimeElapsed { get; set; }
@@ -113,6 +114,7 @@ namespace SWTORCombatParser.DataStructures
         public bool IsHot { get; set; }
         public bool IsBuiltInDot { get; set; }
         public int TimerRev { get; set; }
+        public bool IsUserAddedTimer { get; set; }
         public bool IsMechanic { get; set; }
         public Timer Clause1 { get; set; }
         public Timer Clause2 { get; set; }
@@ -162,7 +164,7 @@ namespace SWTORCombatParser.DataStructures
                 SpecificBoss = SpecificBoss,
                 SpecificEncounter = SpecificEncounter,
                 SpecificDifficulty = SpecificDifficulty,
-                ExperiationTimerId = ExperiationTimerId,
+                ExperiationTimerId = TriggerType == TimerKeyType.TimerExpired ? ExperiationTimerId : null,
                 IsEnabled = IsEnabled,
                 TrackOutsideOfCombat = TrackOutsideOfCombat,
                 CanBeRefreshed = CanBeRefreshed,
@@ -173,8 +175,8 @@ namespace SWTORCombatParser.DataStructures
                 UseAudio = UseAudio,
                 CustomAudioPath = CustomAudioPath,
                 AudioStartTime = AudioStartTime,
-                Clause1 = Clause1,
-                Clause2 = Clause2,
+                Clause1 = Clause1 != null ? Clause1.Copy():Clause1,
+                Clause2 = Clause2 != null ? Clause2.Copy():Clause2,
                 ActiveForStory= ActiveForStory,
                 ActiveForVeteran= ActiveForVeteran,
                 ActiveForMaster= ActiveForMaster,
@@ -189,6 +191,7 @@ namespace SWTORCombatParser.DataStructures
                 ShouldModifyVariable = ShouldModifyVariable,
                 UseVisualsAndModify = UseVisualsAndModify,
                 TimerRev = TimerRev,
+                SeletedTimerIsActiveId = TriggerType == TimerKeyType.IsTimerTriggered ? SeletedTimerIsActiveId : null ,
             };
             
         }

@@ -22,7 +22,7 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                 bossTimerData.AddRange(bossTimerDeserialized);
             }
 
-            var currentRev = bossTimerData.Any() ?  bossTimerData.First().Timers.First().TimerRev : 0;
+            var currentRev = bossTimerData.Any() ? bossTimerData.First().Timers.First().TimerRev : 0;
 
             DefaultTimersManager.ClearBuiltinMechanics(currentRev);
             var currentBossTimers = DefaultTimersManager.GetAllDefaults();

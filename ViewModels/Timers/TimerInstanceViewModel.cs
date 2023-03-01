@@ -1,15 +1,12 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Threading;
-using SWTORCombatParser.Model.Timers;
 using Timer = SWTORCombatParser.DataStructures.Timer;
+using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -125,10 +122,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 Application.Current.Dispatcher.Invoke(() => { 
                     _mediaPlayer = new MediaPlayer();
                     _mediaPlayer.Open(new Uri(_audioPath, UriKind.RelativeOrAbsolute));
-                    if(swtorTimer.AudioStartTime == 0)
-                        _mediaPlayer.MediaOpened += SetDuration;
+                    if (swtorTimer.AudioStartTime == 0)
+                        _playAtTime = 2;
                     else
-                        _playAtTime= swtorTimer.AudioStartTime;
+                        _playAtTime = swtorTimer.AudioStartTime;
                 });
 
             }
@@ -148,12 +145,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
 
-        private void SetDuration(object sender, EventArgs e)
-        {
-            Application.Current.Dispatcher.Invoke(() => {
-                _playAtTime = _mediaPlayer.NaturalDuration.TimeSpan.TotalSeconds;
-            });
-        }
 
         public void Reset(DateTime timeStampOfReset)
         {
@@ -205,6 +196,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     App.Current.Dispatcher.Invoke(() =>
                     {
+                        _mediaPlayer.Stop();
                         _mediaPlayer.Play();
                     });
                 }
@@ -266,8 +258,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             _lastUpdateTime = DateTime.Now;
             TimerValue -= deltaTime;
             OnPropertyChanged("TimerValue");
-            if (SourceTimer.UseAudio && TimerValue <= _playAtTime
-                && timerValue > (_playAtTime - 0.2))
+            if (SourceTimer.UseAudio && TimerValue <= _playAtTime)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
