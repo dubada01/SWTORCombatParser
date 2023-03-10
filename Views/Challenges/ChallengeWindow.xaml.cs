@@ -82,7 +82,7 @@ namespace SWTORCombatParser.Views.Challenges
         private void CloseOverlay()
         {
             Dispatcher.Invoke(() => {
-                Close();
+                _viewModel.OverlayClosing();
             });
 
         }

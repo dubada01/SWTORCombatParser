@@ -115,7 +115,7 @@ public static class TimerController
                 }
                 else
                 {
-                    Logging.LogError("Parent timer not found for: "+JsonConvert.SerializeObject(timerInstance));
+                    Logging.LogInfo("Parent timer not found for: "+JsonConvert.SerializeObject(timerInstance));
                 }
             }
             if (!string.IsNullOrEmpty(timerInstance.ExperiationTimerId))
@@ -128,7 +128,7 @@ public static class TimerController
                 }
                 else
                 {
-                    Logging.LogError("Expiration timer not found for: "+JsonConvert.SerializeObject(timerInstance));
+                    Logging.LogInfo("Expiration timer not found for: "+JsonConvert.SerializeObject(timerInstance));
                 }
             }
             if (!string.IsNullOrEmpty(timerInstance.CancellationTimerId)) 
@@ -140,7 +140,7 @@ public static class TimerController
                 }
                 else
                 {
-                    Logging.LogError("Cancel timer not found for: "+JsonConvert.SerializeObject(timerInstance));
+                    Logging.LogInfo("Cancel timer not found for: "+JsonConvert.SerializeObject(timerInstance));
                 }
             }
         }

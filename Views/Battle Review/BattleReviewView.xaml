@@ -46,6 +46,12 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </Grid>
+                <Viewbox Grid.Row="1" MaxHeight="50">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock FontSize="20" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" TextAlignment="Center" Text="Log Filter: "></TextBlock>
+                        <TextBox Width="150" Style="{StaticResource RoundedTextBox}" Text="{Binding LogFilter, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    </StackPanel>
+                </Viewbox>
                 <Viewbox  Grid.Row="2" VerticalAlignment="Bottom" MaxHeight="20" Margin="5,0,5,5">
                     <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" TextAlignment="Center" Text="Data Type To Display: "></TextBlock>
                 </Viewbox>

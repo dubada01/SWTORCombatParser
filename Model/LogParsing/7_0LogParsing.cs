@@ -341,7 +341,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 var playerId = long.Parse(name.Split('#')[1], CultureInfo.InvariantCulture);
 
 
-                var characterEntity = new Entity() { IsCharacter = true, Name = characterName, Id = playerId };
+                var characterEntity = new Entity() { IsCharacter = true, Name = characterName, Id = playerId, LogId = playerId };
                 var charEntity = _currentEntities.GetOrAdd(playerId, characterEntity);
                 entityToReturn.Entity = charEntity;
 
@@ -361,7 +361,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 var compName = companionNameComponents[0].Trim();
                 var compId = long.Parse(companionNameComponents[1].Replace("}",""));
 
-                var companion = new Entity() { IsCharacter = true,IsCompanion = true,Name = compName, Id = compId };
+                var companion = new Entity() { IsCharacter = true,IsCompanion = true,Name = compName, Id = compId, LogId = compId };
                 var compEntity = _currentEntities.GetOrAdd(compId, companion);
                 entityToReturn.Entity = compEntity;
 
@@ -371,7 +371,7 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 var unknownValParts = name.Split('{');
                 var unknownEntityId = long.Parse(unknownValParts[1].Replace("}", ""));
-                var unknownEntity = new Entity() { IsCharacter = false, Name = "Unknown", Id = unknownEntityId };
+                var unknownEntity = new Entity() { IsCharacter = false, Name = "Unknown", Id = unknownEntityId, LogId = unknownEntityId };
                 var addedUknownEntity = _currentEntities.GetOrAdd(unknownEntityId, unknownEntity);
                 entityToReturn.Entity = addedUknownEntity;
                 return;

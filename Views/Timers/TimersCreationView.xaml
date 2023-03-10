@@ -99,11 +99,15 @@
                     <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Color" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Sec" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Active" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Column="8">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Active" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                        <CheckBox Margin="5,0,0,0" VerticalAlignment="Center" IsChecked="{Binding AllActive}"/>
+                    </StackPanel>
+                    
                     <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <Button ToolTip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
+                    <Button IsEnabled="{Binding CanChangeAudio}" ToolTip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
                         <Image Height="20" Source="{Binding AudioImageSource}"/>
                     </Button>
                 </Grid>

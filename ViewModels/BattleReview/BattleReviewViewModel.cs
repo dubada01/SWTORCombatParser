@@ -52,14 +52,23 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         private Combat _currentlySelectedCombats;
         private EventHistoryViewModel _eventViewModel;
         private DisplayType selectedDisplayType;
+        private string logFilter;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        public Thickness SliderMargin { get; set; }
-        public MapView MapViewContent { get; set; }
+        public string LogFilter
+        {
+            get => logFilter; set
+            {
+                if (value == logFilter)
+                    return;
+                logFilter = value;
+                _eventViewModel.SetFilter(logFilter);
+            }
+        }
         public EventHistoryView EventViewContent { get; set; }
         public List<AvailableEntity> AvailableEntities { get; set; } = new List<AvailableEntity>();
         public List<DisplayType> AvailableDisplayTypes { get; set; } = Enum.GetValues(typeof(DisplayType)).Cast<DisplayType>().ToList();
@@ -81,7 +90,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         public void CombatSelected(Combat combat)
         {
             _currentlySelectedCombats = combat;
-            
+
             var entities = combat.AllEntities.Select(e => new AvailableEntity { Entity = e, Selected = false }).ToList();
             entities.ForEach(l => l.EntitiySelectionUpdated += UpdateSelectedEntities);
             ResetEntities(entities);
@@ -97,21 +106,21 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         }
         private void ResetEntities(List<AvailableEntity> newEntities)
         {
-            var entitiesToRemove = AvailableEntities.Except(newEntities,new EntityComparison()).ToList();
+            var entitiesToRemove = AvailableEntities.Except(newEntities, new EntityComparison()).ToList();
             foreach (var entity in entitiesToRemove)
             {
                 entity.EntitiySelectionUpdated -= UpdateSelectedEntities;
                 AvailableEntities.Remove(entity);
             }
             var addedEntities = newEntities.Except(AvailableEntities, new EntityComparison());
-            foreach(var entitiy in addedEntities)
+            foreach (var entitiy in addedEntities)
             {
                 AvailableEntities.Add(entitiy);
             }
             AvailableEntities = AvailableEntities.OrderBy(e => e.Entity.Name).ToList();
             if (!AvailableEntities.Any(e => e.Entity.Name == "All"))
             {
-                var allEntity = new AvailableEntity { Entity = new Entity { Name = "All" }};
+                var allEntity = new AvailableEntity { Entity = new Entity { Name = "All" } };
                 allEntity.EntitiySelectionUpdated += UpdateSelectedEntities;
                 AvailableEntities.Insert(0, allEntity);
                 allEntity.Selected = true;
@@ -119,15 +128,15 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         }
         private void UpdateSelectedEntities(Entity entity, bool selection)
         {
-            if(entity.Name == "All" && selection)
+            if (entity.Name == "All" && selection)
             {
                 AvailableEntities.Where(e => e.Entity.Name != "All").ToList().ForEach(e => e.Selected = false);
             }
-            if(entity.Name != "All" && selection)
+            if (entity.Name != "All" && selection)
             {
                 AvailableEntities.First(e => e.Entity.Name == "All").Selected = false;
             }
-            _eventViewModel.SetViewableEntities(AvailableEntities.Where(e=>e.Selected).Select(e=>e.Entity).ToList());
+            _eventViewModel.SetViewableEntities(AvailableEntities.Where(e => e.Selected).Select(e => e.Entity).ToList());
             UpdateVisuals();
         }
         private void UpdateVisuals()

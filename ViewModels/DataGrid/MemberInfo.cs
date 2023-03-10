@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
 using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
@@ -113,7 +114,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 Role.Healer => Colors.ForestGreen,
                 Role.Tank => Colors.CornflowerBlue,
                 Role.DPS =>Colors.IndianRed,
-                _ => Colors.WhiteSmoke
+                _ => (Color)ResourceFinder.GetColorFromResourceName("Gray4")
             };
         }
         public List<StatsSlotViewModel> StatsSlots { get; set; } = new List<StatsSlotViewModel>();

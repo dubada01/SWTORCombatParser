@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
         mc:Ignorable="d"
-        Height="150" Width="250" AllowsTransparency="True" Background="{x:Null}" WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+        Height="150" Width="250" AllowsTransparency="True" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
 
     <Grid>
         <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
@@ -13,7 +13,7 @@
         </Border>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="0.85*"/>
                 <RowDefinition Height="{Binding SizeScalar, Converter={StaticResource ValueToPixelGridLengthConverter}}"/>
                 <RowDefinition Height="{Binding LeaderboardRowHeight}"/>
@@ -61,7 +61,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            <Grid MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+            <Grid Height="30" Visibility="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>

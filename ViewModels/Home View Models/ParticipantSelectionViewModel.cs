@@ -105,7 +105,9 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             viewModel.PlayerName = e.Name;
             viewModel.IsLocalPlayer = e.IsLocalPlayer;
             viewModel.RoleImageSource = "../../resources/question-mark.png";
-            viewModel.IsSelected = ParticipantSelectionHandler.CurrentlySelectedParticpant == viewModel.Entity;
+            viewModel.IsSelected = ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == 0 ?  
+                ParticipantSelectionHandler.CurrentlySelectedParticpant?.Id == viewModel.Entity?.Id : 
+                ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == viewModel.Entity?.LogId;
             return viewModel;
         }
         public List<Entity> UpdateParticipantsData(Combat info)

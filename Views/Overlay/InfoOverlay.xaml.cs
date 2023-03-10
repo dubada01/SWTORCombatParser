@@ -105,12 +105,6 @@ namespace SWTORCombatParser.Views.Overlay
             if(yadjust > 0)
                 SetValue(HeightProperty, yadjust);
         }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            viewModel.OverlayClosing();
-        }
-
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
             DefaultCharacterOverlays.SetCharacterDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
@@ -140,7 +134,7 @@ namespace SWTORCombatParser.Views.Overlay
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            DefaultCharacterOverlays.SetActiveStateCharacter(viewModel.Type.ToString(), false, _currentPlayerName);
+            viewModel.OverlayClosing();
             CloseOverlay();
         }
     }

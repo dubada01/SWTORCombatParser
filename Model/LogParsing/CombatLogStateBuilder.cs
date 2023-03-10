@@ -154,10 +154,9 @@ namespace SWTORCombatParser.Model.LogParsing
                     {
                         CurrentState.Modifiers[effectName] = new ConcurrentDictionary<Guid, CombatModifier>();
                     }
-                    ConcurrentDictionary<Guid, CombatModifier> mods = new ConcurrentDictionary<Guid, CombatModifier>();
-                    CurrentState.Modifiers.TryGetValue(effectName, out mods);
-                    var filteredMods = mods.Where(m=> m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete);
-                    var incompleteEffect = filteredMods.FirstOrDefault();
+
+                    CurrentState.Modifiers.TryGetValue(effectName, out var mods);
+                    var incompleteEffect = mods.FirstOrDefault(m=> m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete);
                     if (incompleteEffect.Value != null)
                     {
                         incompleteEffect.Value.StopTime = parsedLine.TimeStamp;
@@ -173,9 +172,10 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
                     if (!CurrentState.Modifiers.ContainsKey(effectName))
                         return;
-                    var filteredMods = CurrentState.Modifiers[effectName].Where(m => m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete).ToList();
+                    var effectToEnd = CurrentState.Modifiers[effectName].FirstOrDefault(m =>
+                        m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source &&
+                        !m.Value.Complete);
 
-                    var effectToEnd = filteredMods.FirstOrDefault();
                     if (effectToEnd.Value != null)
                     {
                         effectToEnd.Value.StopTime = parsedLine.TimeStamp;
