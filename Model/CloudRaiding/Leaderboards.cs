@@ -27,6 +27,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static Dictionary<LeaderboardEntryType, (string, double)> TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
         public static Dictionary<LeaderboardEntryType, List<LeaderboardEntry>> CurrentFightLeaderboard = new Dictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
         public static Combat CurrentCombat;
+        private static List<string> healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
+        private static List<string> tankDisciplines = new List<string> { "Shield Tech", "Immortal", "Darkness", "Defense", "Shield Specialist", "Kinetic Combat" };
         public static void UpdateLeaderboardType(LeaderboardType type)
         {
             LeaderboardSettings.SaveLeaderboardSettings(type);
@@ -158,10 +160,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
         private static bool MatchesRole(LeaderboardEntryType enumVal, string argClass)
         {
-            var healingDisciplines = new List<string>{ "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
-            var tankDisciplines = new List<string>{ "Shield Tech", "Immortal", "Darkness", "Defense", "Shield Specialist", "Kinetic Combat" };
-            var role = healingDisciplines.Contains(argClass.Split('/').Last()) ? "Healer" :
-                tankDisciplines.Contains(argClass.Split('/').Last()) ? "Tank" : "DPS";
+            var discipline = argClass.Split('/').Last();
+            var role = healingDisciplines.Contains(discipline) ? "Healer" :
+                tankDisciplines.Contains(discipline) ? "Tank" : "DPS";
             if (enumVal == LeaderboardEntryType.Damage || enumVal == LeaderboardEntryType.FocusDPS)
             {
                 return role == "DPS";

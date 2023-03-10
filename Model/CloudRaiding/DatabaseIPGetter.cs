@@ -21,7 +21,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static string GetCurrentRemoteServerIP()
         {
-            if ((DateTime.Now - _mostRecentIpTime).TotalMinutes < 1 && !string.IsNullOrEmpty(_currentIP))
+            if ((DateTime.Now - _mostRecentIpTime).TotalHours < 12 && !string.IsNullOrEmpty(_currentIP))
                 return _currentIP;
             string url = "http://ec2-35-85-227-238.us-west-2.compute.amazonaws.com:5000/getIP";
             using (HttpClient client = new HttpClient())

@@ -43,7 +43,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                         if (absorb.HasAbsorbBeenCounted)
                             continue;
                         var ammount = GetAbsorbAmmount(log, activeAbsorbs, i);
-                        if (ammount == 0)
+                        if (ammount <= 0)
                             continue;
                         var source = absorb.Source;
                         if (!_totalSheildingProvided.ContainsKey(source))

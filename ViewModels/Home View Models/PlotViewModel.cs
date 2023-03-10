@@ -74,7 +74,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
             GraphView.Refresh();
         }
-        private Entity SelectedParticipant => _selectedParticipant == null || !_currentCombats.First().CharacterParticipants.Contains(_selectedParticipant) ? _currentCombats.First().CharacterParticipants.First() : _selectedParticipant;
+        private Entity SelectedParticipant => _selectedParticipant == null || !_currentCombats.First().AllEntities.Any(c=>c.Id == _selectedParticipant.Id) ? _currentCombats.First().CharacterParticipants.First() : _selectedParticipant;
         private void SelectParticipant(Entity obj)
         {
             if (_selectedParticipant == obj)
@@ -168,8 +168,15 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
         internal void UpdateParticipants(Combat combat)
         {
-            if (!combat.AllEntities.Contains(_selectedParticipant))
-                _selectedParticipant = null;
+            if (_selectedParticipant != null && !combat.AllEntities.Any(e => e.Id == _selectedParticipant.Id))
+            {
+                if(combat.AllEntities.Any(e => e.LogId == _selectedParticipant.LogId))
+                {
+                    _selectedParticipant = combat.AllEntities.First(e => e.LogId == _selectedParticipant.LogId);
+                }
+                else
+                    _selectedParticipant = null;
+            }
             
             var setParticipants = _participantsViewModel.SetParticipants(combat);
             UpdateParticipantUI(setParticipants.Count);

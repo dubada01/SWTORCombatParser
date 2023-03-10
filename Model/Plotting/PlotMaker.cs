@@ -11,7 +11,7 @@ namespace SWTORCombatParser.Model.Plotting
 
         public static double[] GetHPPercentages(List<ParsedLogEntry> logs,Entity sourcePlayer)
         {
-            return logs.Where(l=>l.Target == sourcePlayer && l.Effect.EffectType != EffectType.AbsorbShield).Select(l => l.TargetInfo.CurrentHP ).ToArray();
+            return logs.Where(l=>l.Target == sourcePlayer && l.Effect.EffectType != EffectType.AbsorbShield).Select(l => (l.TargetInfo.CurrentHP / l.TargetInfo.MaxHP) ).ToArray();
         }
         internal static double[] GetPlotHPXVals(List<ParsedLogEntry> totalLogsDuringCombat, DateTime startPoint, Entity sourcePlayer)
         {

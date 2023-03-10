@@ -21,10 +21,13 @@ namespace SWTORCombatParser.Model.Timers
     }
     public static class DefaultTimersManager
     {
+        private static string _currentDefaults = "";
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
 
         private static string infoPath = Path.Combine(appDataPath, "timers_info_v3.json");
         private static string activePath = Path.Combine(appDataPath, "timers_active_v2.json");
+        private static List<DefaultTimersData> _defaults;
+
         public static void UpdateTimersActive(bool timersActive, string timerSource)
         {
             var currentActives = GetAllTimersActiveInfo();
@@ -123,7 +126,7 @@ namespace SWTORCombatParser.Model.Timers
         public static void ClearBuiltinMechanics(int currentrev)
         {
             var allTimers = GetAllDefaults();
-            allTimers.RemoveAll(s => s.Timers.Any(t=>t.TimerRev < currentrev && !t.IsUserAddedTimer));
+            allTimers.RemoveAll(s => s.Timers.Any(t=>(t.TimerRev < currentrev || t.TimerRev==0) && !t.IsUserAddedTimer));
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
         }
         public static void ResetTimersForSource(string source)
@@ -179,6 +182,15 @@ namespace SWTORCombatParser.Model.Timers
             //timerToModify.UseAudio = state;
             SaveResults(source, currentDefaults);
         }
+        public static void SetTimersEnabledForSource(List<Timer> timers, string source)
+        {
+            var currentDefaults = GetDefaults(source);
+            foreach (var timer in currentDefaults.Timers)
+            {
+                timer.IsEnabled = timers.First(t => t.Id == timer.Id).IsEnabled;
+            }
+            SaveResults(source, currentDefaults);
+        }
         public static DefaultTimersData GetDefaults(string timerSource)
         {
             var stringInfo = File.ReadAllText(infoPath);
@@ -208,6 +220,14 @@ namespace SWTORCombatParser.Model.Timers
         public static List<DefaultTimersData> GetAllDefaults()
         {
             var stringInfo = File.ReadAllText(infoPath);
+            if(_currentDefaults == stringInfo)
+            {
+                return _defaults;
+            }
+            else
+            {
+                _currentDefaults= stringInfo;
+            }
             if (string.IsNullOrEmpty(stringInfo))
             {
                 return new List<DefaultTimersData>();
@@ -218,6 +238,7 @@ namespace SWTORCombatParser.Model.Timers
                 var classes = ClassLoader.LoadAllClasses();
                 var validSources = classes.Select(c => c.Discipline);
                 var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS"|| c.TimerSource == "DOTS" || c.IsBossSource).ToList();
+                _defaults = validDefaults;
                 return validDefaults;
             }
             catch(JsonSerializationException)

@@ -191,10 +191,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
             foreach (var log in logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged))
             {
-                if ((currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) && log.SourceInfo.CurrentHP > 0) || (currentEncounterBossTargets.Contains(log.Target.LogId.ToString()) && log.TargetInfo.CurrentHP > 0))
+                if (currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) || currentEncounterBossTargets.Contains(log.Target.LogId.ToString()))
                 {
                     EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) ? log.SourceInfo : log.TargetInfo;
-                    if (BossesDetected.All(b => b.CurrentBoss.LogId != boss.Entity.LogId))
+                    
+                    if (BossesDetected.All(b => b.CurrentBoss.LogId != boss.Entity.LogId) && boss.CurrentHP > 0)
                     {
                         bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
                         App.Current.Dispatcher.Invoke(() =>
@@ -205,7 +206,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     }
                     else
                     {
-                        var activeBoss = BossesDetected.First(b => b.CurrentBoss.LogId == boss.Entity.LogId);
+                        var activeBoss = BossesDetected.FirstOrDefault(b => b.CurrentBoss.LogId == boss.Entity.LogId);
+                        if(activeBoss == null)
+                            continue;
                         if (boss.CurrentHP == 0 || (log.Effect.EffectId == _7_0LogParsing.DeathCombatId && log.Target.LogId == activeBoss.CurrentBoss.LogId))
                         {
                             App.Current.Dispatcher.Invoke(() =>

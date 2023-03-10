@@ -94,12 +94,10 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged(propertyName);
             return true;
         }
-        private bool previousAudioSetting;
         internal void SetAudio(bool muted)
         {
             if (muted)
             { 
-                previousAudioSetting = SourceTimer.UseAudio;
                 SourceTimer.UseAudio = !muted;
             }
             else
@@ -108,6 +106,13 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             
             OnPropertyChanged("AudioImageSource");
+        }
+
+        internal void SetActive(bool allActive)
+        {
+            SourceTimer.IsEnabled = allActive;
+            _isEnabled = allActive;
+            OnPropertyChanged("IsEnabled");
         }
     }
 }

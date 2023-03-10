@@ -54,7 +54,7 @@ namespace SWTORCombatParser.Model.Challenge
         {
             foreach(var challenge in _allChallenges)
             {
-                if(IsLogForChallenge(obj,challenge) && _currentBossInfo.Item1 == challenge.Source.Split('|')[1] && _currentEncounter.Name == challenge.Source.Split('|')[0])
+                if(IsLogForChallenge(obj,challenge) && (_currentBossInfo.Item1 == challenge.Source.Split('|')[1]))
                 {
                     if (!_activeChallenges.Any(c => c.Id == challenge.Id))
                     { 
@@ -100,6 +100,7 @@ namespace SWTORCombatParser.Model.Challenge
         }
         private void CombatSelected(Combat obj)
         {
+            _currentBossInfo = obj.EncounterBossDifficultyParts;
             ResetChallenges();
             foreach(var log in obj.AllLogs)
             {
