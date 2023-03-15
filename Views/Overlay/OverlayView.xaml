@@ -67,6 +67,12 @@
                         </Viewbox>
                     </StackPanel>
                 </Viewbox>
+                <Viewbox Margin="0,2,50,2" MaxHeight="50" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Bar Scalar: "/>
+                        <TextBox HorizontalAlignment="Center" Height="45" Width="100" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBox}"></TextBox>
+                    </StackPanel>
+                </Viewbox>
             </Grid>
         </Grid>
        

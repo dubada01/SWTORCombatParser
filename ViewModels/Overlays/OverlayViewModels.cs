@@ -44,9 +44,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double maxScalar = 1.5d;
         private double minScalar = 0.5d;
         private double sizeScalar = 1d;
-        private string sizeScalarString ="1";
+        private string sizeScalarString = "1";
         private bool historicalParseFinished = false;
-        public event Action OverlayLockStateChanged = delegate{};
+        private string sizeScalarString1;
+
+        public event Action OverlayLockStateChanged = delegate { };
 
         public TimersCreationView TimersView { get; set; }
         public ChallengeSetupView ChallengesView { get; set; }
@@ -76,6 +78,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 {
                     SizeScalar = stringVal;
                 }
+                OnPropertyChanged();
             }
         }
         public double SizeScalar
@@ -85,19 +88,28 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 sizeScalar = value;
                 if (sizeScalar > maxScalar)
-                { 
+                {
                     SizeScalarString = maxScalar.ToString();
                     return;
                 }
                 if (sizeScalar < minScalar)
-                { 
+                {
                     SizeScalarString = minScalar.ToString();
                     return;
                 }
                 _currentOverlays.ForEach(overlay => overlay.SizeScalar = sizeScalar);
-                Settings.WriteSetting<double>("overlay_bar_scale",sizeScalar);
+
+                SetOverlaysScale();
+
+                Settings.WriteSetting<double>("overlay_bar_scale", sizeScalar);
                 OnPropertyChanged();
             }
+        }
+        private void SetOverlaysScale()
+        {
+            _otherOverlayViewModel.SetScalar(sizeScalar);
+            _timersViewModel.SetScalar(sizeScalar);
+            _challengesViewModel.SetScalar(sizeScalar);
         }
         public OverlayViewModel()
         {
@@ -105,6 +117,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatLogStreamer.HistoricalLogsFinished += FinishHistoricalParse;
             CombatLogStreamer.HistoricalLogsStarted += HistoricalLogsStarted;
             sizeScalar = Settings.ReadSettingOfType<double>("overlay_bar_scale");
+            
             sizeScalarString = sizeScalar.ToString();
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             SelectedLeaderboardType = LeaderboardSettings.ReadLeaderboardSettings();
@@ -134,6 +147,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _otherOverlayViewModel = new OthersOverlaySetupViewModel();
             OthersSetupView = new OtherOverlaySetupView();
             OthersSetupView.DataContext = _otherOverlayViewModel;
+
+            SetOverlaysScale();
         }
 
         private void UpdateOverlaysForDiscipline(Entity character, SWTORClass arg2)
@@ -189,7 +204,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             historicalParseFinished = false;
         }
 
-        public ICommand GenerateOverlay => new CommandHandler(v=>CreateOverlay((OverlayOptionViewModel)v,true));
+        public ICommand GenerateOverlay => new CommandHandler(v => CreateOverlay((OverlayOptionViewModel)v, true));
 
         private void CreateOverlay(OverlayOptionViewModel type, bool canDelete)
         {
@@ -219,6 +234,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 overlay.Left = _overlayDefaults[stringType].Position.X;
                 overlay.Width = _overlayDefaults[stringType].WidtHHeight.X;
                 overlay.Height = _overlayDefaults[stringType].WidtHHeight.Y;
+                overlay.SetWindowState(_overlayDefaults[stringType].UseAsWindow);
             }
             overlay.Show();
             viewModel.Refresh(CombatIdentifier.CurrentCombat);
@@ -263,7 +279,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 {
                     _otherOverlayViewModel.UpdateLock(overlaysLocked);
                 }
-                    
+
                 ToggleOverlayLock();
                 OverlayLockStateChanged();
                 OnPropertyChanged();
@@ -271,9 +287,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void SetSelected(bool selected, OverlayType overlay)
         {
-            foreach(var overlayOption in AvailableDamageOverlays)
+            foreach (var overlayOption in AvailableDamageOverlays)
             {
-                if(overlayOption.Type == overlay)
+                if (overlayOption.Type == overlay)
                     overlayOption.IsSelected = selected;
             }
             foreach (var overlayOption in AvailableHealOverlays)

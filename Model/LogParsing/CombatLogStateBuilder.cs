@@ -64,6 +64,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     raidOfInterest.NumberOfPlayer = string.IsNullOrEmpty(indendedNumberOfPlayers) ? "4" : indendedNumberOfPlayers;
                 }
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = raidOfInterest;
+                CurrentState.CacheEncounterEnterList();
                 if (liveLog)
                 {
                     AreaEntered(raidOfInterest);
@@ -81,6 +82,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
                 var openWorldEncounter = new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World" };
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
+                CurrentState.CacheEncounterEnterList();
                 if (liveLog)
                 {
                     AreaEntered(openWorldEncounter);
@@ -147,22 +149,57 @@ namespace SWTORCombatParser.Model.LogParsing
                     return;
                 if (parsedLine.Effect.EffectType == EffectType.AbsorbShield)
                     return;
-                var effectName = parsedLine.Ability + AddSecondHalf(parsedLine.Ability, parsedLine.Effect.EffectName);
-                if (parsedLine.Effect.EffectType == EffectType.Apply &&  parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
+                var effectId = parsedLine.Effect.EffectId;
+                if (parsedLine.Effect.EffectType == EffectType.Apply && parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {
-                    if (!CurrentState.Modifiers.ContainsKey(effectName))
+                    if (!CurrentState.Modifiers.ContainsKey(effectId))
                     {
-                        CurrentState.Modifiers[effectName] = new ConcurrentDictionary<Guid, CombatModifier>();
+                        CurrentState.Modifiers[effectId] = new ConcurrentDictionary<Guid, CombatModifier>();
                     }
 
-                    CurrentState.Modifiers.TryGetValue(effectName, out var mods);
-                    var incompleteEffect = mods.FirstOrDefault(m=> m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete);
+                    CurrentState.Modifiers.TryGetValue(effectId, out var mods);
+                    var incompleteEffect = mods.FirstOrDefault(m => m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete);
                     if (incompleteEffect.Value != null)
                     {
                         incompleteEffect.Value.StopTime = parsedLine.TimeStamp;
                         incompleteEffect.Value.Complete = true;
                     }
-                    mods.TryAdd(Guid.NewGuid(),new CombatModifier() { Name = effectName, EffectName = parsedLine.Effect.EffectName, EffectId = parsedLine.Effect.EffectId, Source = parsedLine.Source, Target = parsedLine.Target, StartTime = parsedLine.TimeStamp, Type = CombatModfierType.Other });
+                    int charges = 0;
+                    string koltoShellsId = "985226842996736";
+                    string traumaProbeId = "999516199190528";
+                    List<string> longRunningHotIds = new List<string>() { koltoShellsId, traumaProbeId };
+                    charges = longRunningHotIds.Contains(effectId) ? 7 : (int)parsedLine.Value.DblValue == 0 ? 1 : (int)parsedLine.Value.DblValue;
+                    mods.TryAdd(Guid.NewGuid(), new CombatModifier()
+                    {
+                        Name = parsedLine.ModifierEffectName,
+                        EffectName = parsedLine.Effect.EffectName,
+                        EffectId = parsedLine.Effect.EffectId,
+                        Source = parsedLine.Source,
+                        Target = parsedLine.Target,
+                        StartTime = parsedLine.TimeStamp,
+                        Type = CombatModfierType.Other,
+                        ChargesAtTime = new Dictionary<DateTime, int>()
+                        {
+                            { parsedLine.TimeStamp, charges}
+                        }
+                    });
+                }
+                if (parsedLine.Effect.EffectType == EffectType.ModifyCharges)
+                {
+                    if (string.IsNullOrEmpty(parsedLine.Source.Name))
+                    {
+                        return;
+                    }
+                    if (!CurrentState.Modifiers.ContainsKey(effectId))
+                        return;
+                    var effectToUpdate = CurrentState.Modifiers[effectId].FirstOrDefault(m =>
+                        m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source &&
+                        !m.Value.Complete);
+
+                    if (effectToUpdate.Value != null)
+                    {
+                        effectToUpdate.Value.ChargesAtTime[parsedLine.TimeStamp] = (int)parsedLine.Value.DblValue;
+                    }
                 }
                 if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {
@@ -170,9 +207,9 @@ namespace SWTORCombatParser.Model.LogParsing
                     {
                         return;
                     }
-                    if (!CurrentState.Modifiers.ContainsKey(effectName))
+                    if (!CurrentState.Modifiers.ContainsKey(effectId))
                         return;
-                    var effectToEnd = CurrentState.Modifiers[effectName].FirstOrDefault(m =>
+                    var effectToEnd = CurrentState.Modifiers[effectId].FirstOrDefault(m =>
                         m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source &&
                         !m.Value.Complete);
 
@@ -184,14 +221,5 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
             }
         }
-        private static string AddSecondHalf(string firstHalf, string effectName)
-        {
-            if (firstHalf == effectName)
-                return "";
-            else
-                return ": " + effectName;
-        }
-
-
     }
 }

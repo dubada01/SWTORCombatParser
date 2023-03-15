@@ -85,28 +85,40 @@
                     <DataGridTemplateColumn  Width="0.06*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Source}" HorizontalAlignment="Left"/>
+                                <Grid>
+                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Source" ToolTip="Click To Copy ID"/>
+                                    <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Source}"  HorizontalAlignment="Left"/>
+                                </Grid>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn  Width="0.06*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Target}" HorizontalAlignment="Left"/>
+                                <Grid>
+                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Target" ToolTip="Click To Copy ID"/>
+                                    <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Target}" HorizontalAlignment="Left"/>
+                            </Grid>
+                                </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.05*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Ability" ToolTip="Click To Copy ID"/>
+                                    <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
+                                </Grid>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Width="0.05*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Width="0.05*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
+                                <Grid>
+                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Effect" ToolTip="Click To Copy ID"/>
+                                    <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
+                                </Grid>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

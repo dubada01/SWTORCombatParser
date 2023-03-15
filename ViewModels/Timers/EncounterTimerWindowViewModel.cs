@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -84,7 +85,17 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
             });
         }
-
+        public void SetScale(double scale)
+        {
+            _currentScale = scale;
+            App.Current.Dispatcher?.Invoke(() =>
+            {
+                foreach (var timer in SwtorTimers)
+                {
+                    timer.Scale = scale;
+                }
+            });
+        }
         private void UpdateState()
         {
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
@@ -150,6 +161,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             });
         }
         private object _timerChangeLock = new object();
+        private double _currentScale;
+
         private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert ||
@@ -160,6 +173,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             lock (_timerChangeLock)
             {
+                obj.Scale = _currentScale;
                 _visibleTimers.Add(obj);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
                 OnPropertyChanged("SwtorTimers");

@@ -27,7 +27,7 @@ namespace SWTORCombatParser.Model.Timers
                 case TimerKeyType.FightDuration:
                     return CheckForFightDuration(timeStamp, SourceTimer.CombatTimeElapsed, startTime);
                 case TimerKeyType.HasEffect:
-                    return CheckForHasEffect(timeStamp, SourceTimer.Target, SourceTimer.Effect, currentTarget);
+                    return CheckForHasEffect(timeStamp, SourceTimer.Target, SourceTimer.Effect);
                 case TimerKeyType.VariableCheck:
                     return CheckForVariable(SourceTimer);
                 case TimerKeyType.IsTimerTriggered:
@@ -66,7 +66,7 @@ namespace SWTORCombatParser.Model.Timers
                 case TimerKeyType.DamageTaken:
                     return CheckForDamageTaken(log, SourceTimer.Source,SourceTimer.Target, SourceTimer.Ability,currentTarget);
                 case TimerKeyType.HasEffect:
-                    return CheckForHasEffect(timeStamp, SourceTimer.Target,  SourceTimer.Effect,currentTarget);
+                    return CheckForHasEffect(timeStamp, SourceTimer.Target,  SourceTimer.Effect);
                 case TimerKeyType.IsFacing:
                     return CheckForFacing(log, SourceTimer.Source, 
                         SourceTimer.Target, currentTarget);
@@ -262,13 +262,13 @@ namespace SWTORCombatParser.Model.Timers
             return TriggerType.None;
         }
 
-        public static TriggerType CheckForHasEffect(DateTime timeStamp,string target, string sourceTimerEffect, Entity currentTarget)
+        public static TriggerType CheckForHasEffect(DateTime timeStamp,string target, string effectId)
         {
 
             var effectsActiveOnTarget =
-                CombatLogStateBuilder.CurrentState.IsEffectOnEntityAtTime(timeStamp, target,
-                    sourceTimerEffect);
-            if (effectsActiveOnTarget != null && effectsActiveOnTarget.Count > 0 && effectsActiveOnTarget.Any(e => e.EffectName == sourceTimerEffect || e.EffectId == sourceTimerEffect))
+                CombatLogStateBuilder.CurrentState.GetInstancesOfEffectOnEntityAtTime(timeStamp, target,
+                    effectId);
+            if (effectsActiveOnTarget != null && effectsActiveOnTarget.Count > 0 && effectsActiveOnTarget.Any(e => e.EffectName == effectId || e.EffectId == effectId))
                 return TriggerType.Start;
             return TriggerType.End;
 

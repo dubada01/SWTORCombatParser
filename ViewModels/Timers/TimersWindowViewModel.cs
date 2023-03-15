@@ -15,6 +15,7 @@ using System.Windows.Documents;
 using System.Windows.Threading;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -30,6 +31,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         void UpdateLock(bool locked);
         void SetSource(string source);
         void Closing();
+        void SetScale(double sizeScalar);
+
         bool Active { get; set; }
     }
     public class TimersWindowViewModel : INotifyPropertyChanged, ITimerWindowViewModel
@@ -85,7 +88,17 @@ namespace SWTORCombatParser.ViewModels.Timers
             _timerWindow = new TimersWindow(this);
             _timerWindow.SetIdText("DISCIPLINE TIMERS");
         }
-
+        public void SetScale(double scale)
+        {
+            _currentScale = scale;
+            App.Current.Dispatcher?.Invoke(() =>
+            {
+                foreach (var timer in SwtorTimers)
+                {
+                    timer.Scale = scale;
+                }
+            });
+        }
 
         public void ShowTimers(bool isLocked)
         {
@@ -138,6 +151,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             });
         }
         private object _timerChangeLock = new object();
+        private double _currentScale;
+
         private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert)
@@ -147,6 +162,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             lock (_timerChangeLock)
             {
+                obj.Scale = _currentScale;
                 _visibleTimers.Add(obj);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
                 callback(obj);

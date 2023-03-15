@@ -14,6 +14,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class PostgresConnection
     {
         public static event Action LeaderboardUpdated = delegate { };
+        public static void FireUpdatedEvent()
+        {
+            LeaderboardUpdated();
+        }
         public static async Task<bool> TryAddLeaderboardEntry(LeaderboardEntry newEntry)
         {
             if (newEntry.Value == 0)
@@ -40,7 +44,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
             Logging.LogInfo($"Adding the new entry to the DB");
             AddLeaderboardEntry(newEntry);
             CleanDatabaseOfDuplicates(newEntry.Boss, newEntry.Encounter, newEntry.Character, newEntry.Class, newEntry.Type, newEntry.TimeStamp);
-            LeaderboardUpdated();
             return true;
         }
         public static async void CleanDatabaseOfDuplicates(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType, DateTime timeStamp)

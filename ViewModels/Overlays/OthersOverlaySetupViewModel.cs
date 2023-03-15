@@ -78,5 +78,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             _raidHotsConfigViewModel.HideRaidHots();
         }
+
+        internal void SetScalar(double sizeScalar)
+        {
+            _bossFrameViewModel.CurrentScale = sizeScalar;
+        }
     }
 }

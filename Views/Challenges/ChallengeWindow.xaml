@@ -5,14 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Challenges"
              mc:Ignorable="d" 
-             Height="150" Width="250" AllowsTransparency="True" Background="{x:Null}" WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+             Height="150" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
     <Grid>
         <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="0.85*"/>
             </Grid.RowDefinitions>
             <ItemsControl Grid.Row="1" ItemsSource="{Binding ActiveChallengeInstances}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
@@ -27,16 +27,16 @@
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
-            <Grid MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+            <Grid MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" Visibility="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox HorizontalAlignment="Center" MaxHeight="50" Margin="0,1,0,0">
+                <Viewbox HorizontalAlignment="Center" MaxHeight="30" Margin="0,1,0,0">
                     <TextBlock Foreground="Beige" FontFamily="{StaticResource MainFont}"  Text="Challenges"></TextBlock>
                 </Viewbox>
                 <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0">
-                    <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
+                    <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161"  FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
                 </Viewbox>
             </Grid>

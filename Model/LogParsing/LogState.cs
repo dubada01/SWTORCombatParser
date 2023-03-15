@@ -32,6 +32,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public string EffectName { get; set; }
         public string EffectId { get; set; }
         public CombatModfierType Type { get; set; }
+        public Dictionary<DateTime,int> ChargesAtTime { get; set; } = new Dictionary<DateTime,int>();
         public Entity Source { get; set; }
         public Entity Target { get; set; }
         public DateTime StartTime { get; set; }
@@ -41,6 +42,8 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public class LogState
     {
+        private List<DateTime> _orderedEncounterChangeTimes = new List<DateTime>();
+
         public ConcurrentDictionary<Entity,Dictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>>();
         public ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>> PlayerTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>>();
         public Dictionary<Entity, Dictionary<DateTime, bool>> PlayerDeathChangeInfo = new Dictionary<Entity, Dictionary<DateTime, bool>>();
@@ -84,25 +87,23 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public EncounterInfo GetEncounterActiveAtTime(DateTime time)
         {
-            var encounterChangeTimes = EncounterEnteredInfo.Keys.OrderBy(t => t).ToList();
-            if (encounterChangeTimes.Count == 0 || time < encounterChangeTimes.First())
+            if (!_orderedEncounterChangeTimes.Any() || time < _orderedEncounterChangeTimes[0])
                 return new EncounterInfo() { Name = "Unknown Encounter" };
             return EncounterEnteredInfo[GetEncounterStartTime(time)];
         }
 
         private DateTime GetEncounterStartTime(DateTime time)
         {
-            var encounterChangeTimes = EncounterEnteredInfo.Keys.OrderBy(t => t).ToList();
-            if (encounterChangeTimes.Count == 0 || time < encounterChangeTimes.First())
+            if (!_orderedEncounterChangeTimes.Any() || time < _orderedEncounterChangeTimes.First())
                 return time;
-            if (time > encounterChangeTimes.Last())
-                return encounterChangeTimes.Last();
-            for(var i = 0; i < encounterChangeTimes.Count; i++)
+            if (time > _orderedEncounterChangeTimes.Last())
+                return _orderedEncounterChangeTimes.Last();
+            for(var i = 0; i < _orderedEncounterChangeTimes.Count; i++)
             {
-                if (encounterChangeTimes[i] == time)
-                    return encounterChangeTimes[i];
-                if (encounterChangeTimes[i] > time)
-                    return encounterChangeTimes[i - 1];
+                if (_orderedEncounterChangeTimes[i] == time)
+                    return _orderedEncounterChangeTimes[i];
+                if (_orderedEncounterChangeTimes[i] > time)
+                    return _orderedEncounterChangeTimes[i - 1];
             }
 
             return time;
@@ -138,13 +139,30 @@ namespace SWTORCombatParser.Model.LogParsing
             var classAtTime = classOfSource[mostRecentClassChangeTime];
             return classAtTime;
         }
+        public SWTORClass GetCharacterClassAtTime(string entityString, DateTime time)
+        {
+            var entity = PlayerClassChangeInfo.Keys.FirstOrDefault(e => e.Name.ToLower() == entityString || e.LogId.ToString() == entityString);
+            if (entity == null || !PlayerClassChangeInfo.ContainsKey(entity))
+                return new SWTORClass();
+            var classOfSource = PlayerClassChangeInfo[entity];
+            if (classOfSource == null)
+                return new SWTORClass();
+
+            var mostRecentClassChangeTime = classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds));
+            var currentEncounter = GetEncounterActiveAtTime(time);
+            var encounterTime = GetEncounterStartTime(time);
+            var nextEncounterTime = GetNextEncounterStartTime(encounterTime);
+            if (currentEncounter.IsPvpEncounter && mostRecentClassChangeTime < encounterTime || (nextEncounterTime < mostRecentClassChangeTime && nextEncounterTime != encounterTime))
+                return new SWTORClass();
+
+            var classAtTime = classOfSource[mostRecentClassChangeTime];
+            return classAtTime;
+        }
 
         private DateTime GetNextEncounterStartTime(DateTime currentEncounterStartTime)
         {
-            var unorderedStartTimes = EncounterEnteredInfo.Keys;
-            var orderedStartTimes = unorderedStartTimes.OrderBy(v => v).ToList();
-            return orderedStartTimes.Last() == currentEncounterStartTime ? currentEncounterStartTime :
-                EncounterEnteredInfo.Keys.ToList()[orderedStartTimes.IndexOf(currentEncounterStartTime)+1];
+            return _orderedEncounterChangeTimes.Last() == currentEncounterStartTime ? currentEncounterStartTime :
+                _orderedEncounterChangeTimes[_orderedEncounterChangeTimes.IndexOf(currentEncounterStartTime)+1];
         }
 
         public EntityInfo GetLocalPlayerTargetAtTime(DateTime time)
@@ -179,8 +197,28 @@ namespace SWTORCombatParser.Model.LogParsing
             var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner && m.Value.Target == owner).Select(kvp=>kvp.Value);
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
-
-        public List<CombatModifier> IsEffectOnEntityAtTime(DateTime time, string entity, string effect)
+        public List<CombatModifier> GetCurrentlyActiveRaidHOTS(DateTime time)
+        {
+            string koltoShellsId = "985226842996736";
+            string traumaProbeId = "999516199190528";
+            List<string> longRunningHotIds = new List<string>() { koltoShellsId, traumaProbeId };
+            List<CombatModifier> activeHots = new List<CombatModifier>();
+            foreach(var hotId in longRunningHotIds)
+            {
+                activeHots.AddRange(GetInstancesOfEffectAtTime(time, hotId));
+            }
+            return activeHots;
+        }
+        public List<CombatModifier> GetInstancesOfEffectAtTime(DateTime time, string effect)
+        {
+            if (!Modifiers.ContainsKey(effect))
+                return new List<CombatModifier>();
+            var instancesOfEffect = Modifiers[effect];
+            var activeModifiersOnPlayer = instancesOfEffect.Where(m =>
+                m.Value.StartTime <= time && (m.Value.StopTime > time || m.Value.StopTime == DateTime.MinValue)).Select(kvp => kvp.Value).ToList();
+            return activeModifiersOnPlayer;
+        }
+        public List<CombatModifier> GetInstancesOfEffectOnEntityAtTime(DateTime time, string entity, string effect)
         {
             if (!Modifiers.ContainsKey(effect))
                 return new List<CombatModifier>();
@@ -222,6 +260,9 @@ namespace SWTORCombatParser.Model.LogParsing
             return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
         }
 
-
+        internal void CacheEncounterEnterList()
+        {
+            _orderedEncounterChangeTimes = EncounterEnteredInfo.Keys.OrderBy(t => t).ToList();
+        }
     }
 }

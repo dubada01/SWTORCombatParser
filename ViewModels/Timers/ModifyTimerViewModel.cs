@@ -1414,7 +1414,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                         ShowEffectOption = true;
                         CanChangeCombatTracking = true;
                         TargetText = "When Has Effect";
-                        TriggerValueHelpText = "Name or Id";
+                        TriggerValueHelpText = "Effect Id";
                         OnPropertyChanged("ShowEffectOption");
                         OnPropertyChanged("TriggerValueHelpText");
                         OnPropertyChanged("HasTarget");

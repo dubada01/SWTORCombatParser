@@ -27,8 +27,17 @@ namespace SWTORCombatParser.Views.Overlay
             vm.OnLocking += makeTransparent;
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
-            
+            IsWindowCheck.Checked += UpdateWindowStatus;
+            IsWindowCheck.Unchecked += UpdateWindowStatus;
+            Owner = App.Current.MainWindow;
             Loaded += OnLoaded;
+        }
+
+        private void UpdateWindowStatus(object sender, RoutedEventArgs e)
+        {
+            var status = IsWindowCheck.IsChecked.Value;
+            ShowInTaskbar = status;
+            DefaultCharacterOverlays.SetCharacterWindowState(viewModel.Type.ToString(), status, _currentPlayerName);
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -78,6 +87,11 @@ namespace SWTORCombatParser.Views.Overlay
         public void SetPlayer(string playerName)
         {
             _currentPlayerName = playerName;
+        }
+        public void SetWindowState(bool windowState)
+        {
+            IsWindowCheck.IsChecked = windowState;
+            ShowInTaskbar = windowState;    
         }
         private void CloseOverlay()
         {

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
+using System.Windows.Input;
+using Prism.Commands;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 
@@ -8,8 +11,17 @@ namespace SWTORCombatParser.DataStructures
 {
     public class DisplayableLogEntry
     {
-        public DisplayableLogEntry(string sec, string source, string target, string ability, string effectName, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue)
+        private string _sourceId;
+        private string _targetId;
+        private string _abilityId;
+        private string _effectId;
+        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName,string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue)
         {
+            _sourceId= sourceId;
+            _targetId = targetId;
+            _abilityId=abilityId;
+            _effectId=effectId;
+
             SecondsSinceCombatStart = sec;
             Source = source;
             Target = target;
@@ -31,6 +43,27 @@ namespace SWTORCombatParser.DataStructures
         public string ValueType { get; }
         public string ModifierType { get; }
         public string ModifierValue { get; }
+        public ICommand CellClickedCommand => new DelegateCommand<string>(CellClicked);
+
+        private void CellClicked(string obj)
+        {
+            switch (obj)
+            {
+                case "Source":
+                    Clipboard.SetText(_sourceId);
+                    break;
+                case "Target":
+                    Clipboard.SetText(_targetId);
+                    break;
+                case "Ability":
+                    Clipboard.SetText(_abilityId);
+                    break;
+                case "Effect":
+                    Clipboard.SetText(_effectId);
+                    break;
+
+            }
+        }
     }
     public class ParsedLogEntry
     {
@@ -51,8 +84,17 @@ namespace SWTORCombatParser.DataStructures
         public string Ability { get; set; }
         public string AbilityId { get; set; }
         public Effect Effect { get; set; }
+        public string ModifierEffectName => Ability + AddSecondHalf(Ability, Effect.EffectName);
         public Value Value { get; set; }
         public long Threat { get; set; }
+
+        private static string AddSecondHalf(string firstHalf, string effectName)
+        {
+            if (firstHalf == effectName)
+                return "";
+            else
+                return ": " + effectName;
+        }
     }
     public class PositionData
     {

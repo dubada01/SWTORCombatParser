@@ -58,7 +58,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         public double RelativeLength
         {
-            get => relativeLength;
+            get => double.IsNaN(relativeLength) ? 0 : relativeLength;
             set
             {
                 if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value == 0 || TotalValue == "0" || TotalValue.Contains('-'))

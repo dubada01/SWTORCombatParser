@@ -188,10 +188,10 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     splitOutdata = combat.GetByAbility(logsInScope).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value);
                     break;
                 case SortingOption.BySource:
-                    splitOutdata = combat.GetBySource(logsInScope).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    splitOutdata = combat.GetBySource(logsInScope).ToDictionary(kvp => kvp.Key.Name, kvp => kvp.Value);
                     break;
                 case SortingOption.ByTarget:
-                    splitOutdata = combat.GetByTarget(logsInScope).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    splitOutdata = combat.GetByTarget(logsInScope).ToDictionary(kvp => kvp.Key.Name, kvp => kvp.Value);
                     break;
             }
             return splitOutdata;

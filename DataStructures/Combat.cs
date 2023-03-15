@@ -80,10 +80,19 @@ namespace SWTORCombatParser.DataStructures
             return validPeaks.Select(p => new Point() { X = p.Item1, Y = p.Item2 }).ToList();
 
         }
+        public double GetCurrentEffectStacks(string effect, Entity player)
+        {
+            var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, player);
+            if(allEffects.Count == 0) return 0;
+            var specificEffect = allEffects.FirstOrDefault(e=>e.EffectId == effect || e.Name== effect);
+            if (specificEffect == null)
+                return 0;
+            return specificEffect.ChargesAtTime.MaxBy(v=>v.Key).Value;
+        }
         public double GetDamageFromEntityByAbilityForPlayer(string ability, string entity, Entity player)
         {
             var incomingDamageByEntity = GetIncomingDamageBySource(player);
-            var entityOfInterest = incomingDamageByEntity.Keys.FirstOrDefault(e=>e == entity);
+            var entityOfInterest = incomingDamageByEntity.Keys.FirstOrDefault(e=>e.Name == entity || e.LogId.ToString() == entity);
             if (entityOfInterest != null)
             {
                 var logsForEntity = incomingDamageByEntity[entityOfInterest];
@@ -95,7 +104,7 @@ namespace SWTORCombatParser.DataStructures
         public double GetDamageToEntityByAbilityForPlayer(string ability, string entity, Entity player)
         {
             var outgoingDamageByEntity = GetOutgoingDamageByTarget(player);
-            var entityOfInterest = outgoingDamageByEntity.Keys.FirstOrDefault(e => e == entity);
+            var entityOfInterest = outgoingDamageByEntity.Keys.FirstOrDefault(e => e.Name == entity || e.LogId.ToString() == entity);
             if (entityOfInterest != null)
             {
                 var logsForEntity = outgoingDamageByEntity[entityOfInterest];
@@ -107,7 +116,7 @@ namespace SWTORCombatParser.DataStructures
         public double GetDamageFromEntityByPlayer(string entity, Entity player)
         {
             var incomingDamageByEntity = GetIncomingDamageBySource(player);
-            var entityOfInterest = incomingDamageByEntity.Keys.FirstOrDefault(e => e == entity);
+            var entityOfInterest = incomingDamageByEntity.Keys.FirstOrDefault(e => e.Name == entity || e.LogId.ToString() == entity);
             if (entityOfInterest != null)
             {
                 var logsForEntity = incomingDamageByEntity[entityOfInterest];
@@ -118,7 +127,7 @@ namespace SWTORCombatParser.DataStructures
         public double GetDamageToEntityByPlayer(string entity, Entity player)
         {
             var outgoingDamageByEntity = GetOutgoingDamageByTarget(player);
-            var entityOfInterest = outgoingDamageByEntity.Keys.FirstOrDefault(e => e == entity);
+            var entityOfInterest = outgoingDamageByEntity.Keys.FirstOrDefault(e => e.Name == entity || e.LogId.ToString() == entity);
             if (entityOfInterest != null)
             {
                 var logsForEntity = outgoingDamageByEntity[entityOfInterest];
@@ -126,11 +135,11 @@ namespace SWTORCombatParser.DataStructures
             }
             return 0;
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingDamageByTarget(Entity source)
+        public Dictionary<Entity, List<ParsedLogEntry>> GetOutgoingDamageByTarget(Entity source)
         {
             return GetByTarget(OutgoingDamageLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetIncomingDamageBySource(Entity source)
+        public Dictionary<Entity, List<ParsedLogEntry>> GetIncomingDamageBySource(Entity source)
         {
             return GetBySource(IncomingDamageLogs[source]);
         }
@@ -142,7 +151,7 @@ namespace SWTORCombatParser.DataStructures
         {
             return GetByAbility(IncomingDamageLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetIncomingHealingBySource(Entity source)
+        public Dictionary<Entity, List<ParsedLogEntry>> GetIncomingHealingBySource(Entity source)
         {
             return GetBySource(IncomingHealingLogs[source]);
         }
@@ -150,7 +159,7 @@ namespace SWTORCombatParser.DataStructures
         {
             return GetByAbility(IncomingHealingLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetOutgoingHealingByTarget(Entity source)
+        public Dictionary<Entity, List<ParsedLogEntry>> GetOutgoingHealingByTarget(Entity source)
         {
             return GetByTarget(OutgoingHealingLogs[source]);
         }
@@ -158,27 +167,27 @@ namespace SWTORCombatParser.DataStructures
         {
             return GetByAbility(OutgoingHealingLogs[source]);
         }
-        public Dictionary<string,List<ParsedLogEntry>> GetShieldingBySource(Entity source)
+        public Dictionary<Entity,List<ParsedLogEntry>> GetShieldingBySource(Entity source)
         {
             return GetBySource(IncomingDamageMitigatedLogs[source]);
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetByTarget(List<ParsedLogEntry> logsToCheck)
+        public Dictionary<Entity, List<ParsedLogEntry>> GetByTarget(List<ParsedLogEntry> logsToCheck)
         {
-            var returnDict = new Dictionary<string, List<ParsedLogEntry>>();
-            var distinctTargets = logsToCheck.Select(l => l.Target.Name).Where(v => v != null).Distinct();
+            var returnDict = new Dictionary<Entity, List<ParsedLogEntry>>();
+            var distinctTargets = logsToCheck.Select(l => l.Target).Where(v => v.Name != null).DistinctBy(e => e.LogId);
             foreach (var target in distinctTargets)
             {
-                returnDict[target] = logsToCheck.Where(l => l.Target.Name == target).ToList();
+                returnDict[target] = logsToCheck.Where(l => l.Target.LogId == target.LogId).ToList();
             }
             return returnDict;
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetBySource(List<ParsedLogEntry> logsToCheck)
+        public Dictionary<Entity, List<ParsedLogEntry>> GetBySource(List<ParsedLogEntry> logsToCheck)
         {
-            var returnDict = new Dictionary<string, List<ParsedLogEntry>>();
-            var distinctSources = logsToCheck.Select(l => l.Source.Name).Where(v=>v!=null).Distinct();
+            var returnDict = new Dictionary<Entity, List<ParsedLogEntry>>();
+            var distinctSources = logsToCheck.Select(l => l.Source).Where(v=>v.Name!=null).DistinctBy(e=>e.LogId);
             foreach (var source in distinctSources)
             {
-                returnDict[source] = logsToCheck.Where(l => l.Source.Name == source).ToList();
+                returnDict[source] = logsToCheck.Where(l => l.Source.LogId == source.LogId).ToList();
             }
             return returnDict;
         }

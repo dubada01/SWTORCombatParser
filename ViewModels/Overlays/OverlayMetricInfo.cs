@@ -67,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         public double RelativeLength
         {
-            get => relativeLength;
+            get => double.IsNaN(relativeLength) ? 0 : relativeLength;
             set
             {
                 if (Type == OverlayType.HealReactionTime)
@@ -75,7 +75,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 if (Type == OverlayType.HealReactionTimeRatio)
                     valueStringFormat = "0.###";
 
-                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue == 0 || TotalValue == "0" || TotalValue.Contains('-'))
+                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value + SecondaryValue <= 0 || TotalValue == "0" || TotalValue.Contains('-'))
                 {
                     SetBarToZero();
                     return;

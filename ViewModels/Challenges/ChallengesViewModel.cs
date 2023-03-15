@@ -203,5 +203,10 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+        internal void SetScalar(double sizeScalar)
+        {
+            _challengeWindowViewModel.SetScale(sizeScalar);
+        }
     }
 }

@@ -1,4 +1,8 @@
 ﻿//using MoreLinq;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
@@ -15,6 +19,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
@@ -27,6 +32,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private bool active;
         private RaidFrameOverlay _view;
         private bool _usingDecreasedAccuracy;
+        private List<long> _validBossIds = new List<long>();
         public bool Editable
         {
             get => editable;
@@ -60,7 +66,51 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             _view = view;
             TimerController.TimerTriggered += CheckForRaidHOT;
+            TimerController.TimerTriggered += CheckForDefensive;
+
+            CombatLogStreamer.NewLineStreamed += CheckForTargetChanged;
+            CombatLogStreamer.HistoricalLogsFinished += SetCurrentEncounter;
+            CombatLogStateBuilder.AreaEntered += NewEncounterEntered;
         }
+
+        private void SetCurrentEncounter(DateTime arg1, bool arg2)
+        {
+            NewEncounterEntered(CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(arg1));
+        }
+
+        private void NewEncounterEntered(EncounterInfo obj)
+        {
+            _validBossIds = obj.BossIds.Any() ? obj.BossIds.SelectMany(kvp => kvp.Value.SelectMany(kvp => kvp.Value)).ToList() : new List<long>();
+        }
+        private void CheckForTargetChanged(ParsedLogEntry obj)
+        {
+            if (obj.Effect.EffectType == EffectType.TargetChanged)
+            {
+                foreach (var bossId in _validBossIds)
+                {
+                    if (obj.Source.LogId == bossId)
+                    {
+
+
+                        ResetCellPreviouslyTargeted();
+
+
+
+                        if (obj.Effect.EffectId == _7_0LogParsing.TargetSetId)
+                        {
+
+                            var cellToUpdate = GetCellThatMatchesName(obj.Target.Name);
+                            if (cellToUpdate == null)
+                                return;
+                            cellToUpdate.IsTargeted = true;
+                            cellToUpdate.TargetedBy = bossId;
+                        }
+
+                    }
+                }
+            }
+        }
+
         private void CheckForRaidHOT(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null ||
@@ -69,17 +119,40 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 callback(obj);
                 return;
             }
-            
+
             var playerName = obj.TargetAddendem.ToLower();
             var cellToUpdate = GetCellThatMatchesName(playerName);
-            if (cellToUpdate == null)
+            if (cellToUpdate == null || cellToUpdate.AlreadyHasTimer(obj.TimerName))
                 return;
-            cellToUpdate.AddTimer(obj);
+            cellToUpdate.AddHOT(obj);
+            callback(obj);
+        }
+        private void CheckForDefensive(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
+        {
+            if (!obj.SourceTimer.IsBuiltInDefensive || !CurrentNames.Any() || obj.TargetAddendem == null ||
+                obj.SourceTimer.IsSubTimer)
+            {
+                callback(obj);
+                return;
+            }
+
+            var playerName = obj.TargetAddendem.ToLower();
+            var cellToUpdate = GetCellThatMatchesName(playerName);
+            if (cellToUpdate == null || cellToUpdate.AlreadyHasTimer(obj.TimerName))
+                return;
+            var currentRole = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(playerName,DateTime.Now).Role;
+            if (currentRole != DataStructures.ClassInfos.Role.Tank)
+            {
+                callback(obj);
+                return;
+            }
+
+            cellToUpdate.AddDCD(obj);
             callback(obj);
         }
         public void Reset()
         {
-            foreach(var cell in RaidHotCells)
+            foreach (var cell in RaidHotCells)
             {
                 cell.Reset();
             }
@@ -93,13 +166,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 return null;
             return RaidHotCells.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), bestMatch));
         }
-
+        private void ResetCellPreviouslyTargeted()
+        {
+            RaidHotCells.ForEach(c =>
+            {
+                c.TargetedBy = 0;
+                c.IsTargeted = false;
+            });
+        }
         private string GetNameWithoutSpecials(string name)
         {
             return new string(name.Normalize(NormalizationForm.FormD)
                 .ToCharArray()
                 .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                .ToArray()).Replace("\'","").Replace("-","");
+                .ToArray()).Replace("\'", "").Replace("-", "");
         }
         public void UpdateNames(List<PlacedName> orderedNames)
         {
@@ -133,13 +213,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
         }
         private object _cellUpdateLock = new object();
+        private HorizontalAlignment dCDHorAlignment;
 
         private void UpdateCells()
         {
-            lock (_cellUpdateLock)
+            Task.Run(() =>
             {
-                Task.Run(() =>
+                lock (_cellUpdateLock)
                 {
+
 
                     if (!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns))
                     {
@@ -198,29 +280,44 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                                 var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
                                 if (detectedAtCell == null)
                                 {
-                                    currentCell.Reset(); 
+                                    currentCell.Reset();
                                 }
                             }
                         }
-                        var playersWithHots = TimerController.GetActiveTimers().Where(t=>t.SourceTimer.IsHot).Select(t=>t.TargetAddendem);
-                        foreach (var player in playersWithHots)
+
+                        var activeHots = CombatLogStateBuilder.CurrentState.GetCurrentlyActiveRaidHOTS(DateTime.Now);
+                        var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.SourceTimer.IsHot && t.TargetAddendem != null).Select(t => t.TargetAddendem);
+                        var playersWihtActiveHot = activeHots.Select(h => h.Target.Name).Distinct().ToList();
+                        foreach (var player in playersWithHotTimer)
                         {
                             var playerCell = GetCellThatMatchesName(player);
                             if (playerCell != null && !playerCell.HasHOT)
                             {
                                 var timer = TimerController.GetActiveTimers().First(t => t.TargetAddendem == player);
                                 if (timer.TimerValue > 0)
-                                    playerCell.AddTimer(timer);
+                                    playerCell.AddHOT(timer);
                                 else
                                     timer.Complete(false);
                             }
                         }
+                        foreach (var player in playersWihtActiveHot)
+                        {
+                            var playerCell = GetCellThatMatchesName(player);
+                            var hotInQuestion = activeHots.First(h => h.Target.Name == player);
+                            if (playerCell != null && !playerCell.HasHOT && !playersWithHotTimer.Any(p => p == player) && hotInQuestion.Source == CombatLogStateBuilder.CurrentState.LocalPlayer)
+                            {
+                                TimerController.TryTriggerTimer(hotInQuestion);
+                            }
+                        }
+
+
+
                         RaidHotCells = currentCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
 
                         OnPropertyChanged("RaidHotCells");
                     }
-                });
-            }
+                }
+            });
         }
 
         private RaidHotCell MoveCells(RaidHotCell currentCell, List<RaidHotCell> currentCells)
@@ -238,7 +335,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 //move the cell with the name and data to the new location that has been cleared and moved to make room for it
                 currentCell.Column = movedName.Column;
                 currentCell.Row = movedName.Row;
-                
+
                 return source;
             }
 
@@ -253,7 +350,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 for (var c = 0; c < Columns; c++)
                 {
 
-                    RaidHotCells.Add(new RaidHotCell { Column = c, Row = r, Name = "" });
+                    RaidHotCells.Add(new RaidHotCell(Columns) { Column = c, Row = r, Name = "" });
 
                 }
             }

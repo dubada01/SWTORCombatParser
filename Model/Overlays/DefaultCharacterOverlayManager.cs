@@ -39,6 +39,7 @@ namespace SWTORCombatParser.Model.Overlays
         public Point WidtHHeight;
         public bool Acive;
         public bool Locked;
+        public bool UseAsWindow;
     }
     public static class DefaultCharacterOverlays
     {
@@ -57,7 +58,13 @@ namespace SWTORCombatParser.Model.Overlays
         public static void SetCharacterDefaults(string type, Point position, Point widtHHeight, string characterName)
         {
             var currentDefaults = GetCharacterDefaults(characterName);
-            currentDefaults[type] = new OverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
+            currentDefaults[type] = new OverlayInfo() { UseAsWindow = currentDefaults[type].UseAsWindow, Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
+            SaveCharacterDefaults(characterName, currentDefaults);
+        }
+        public static void SetCharacterWindowState(string type, bool useAsWindow, string characterName)
+        {
+            var currentDefaults = GetCharacterDefaults(characterName);
+            currentDefaults[type] = new OverlayInfo() { UseAsWindow = useAsWindow, Position = currentDefaults[type].Position, WidtHHeight = currentDefaults[type].WidtHHeight, Acive = currentDefaults[type].Acive };
             SaveCharacterDefaults(characterName, currentDefaults);
         }
         public static void SetLockedStateCharacter(bool state, string characterName)
@@ -65,7 +72,7 @@ namespace SWTORCombatParser.Model.Overlays
             var currentDefaults = GetCharacterDefaults(characterName);
             foreach(var overlay in currentDefaults.Keys)
             {
-                currentDefaults[overlay] = new OverlayInfo() { Position = currentDefaults[overlay].Position, WidtHHeight = currentDefaults[overlay].WidtHHeight, Locked=state,  Acive = currentDefaults[overlay].Acive };
+                currentDefaults[overlay] = new OverlayInfo() { UseAsWindow = currentDefaults[overlay].UseAsWindow, Position = currentDefaults[overlay].Position, WidtHHeight = currentDefaults[overlay].WidtHHeight, Locked=state,  Acive = currentDefaults[overlay].Acive };
             }
             SaveCharacterDefaults(characterName, currentDefaults);
         }
@@ -77,7 +84,7 @@ namespace SWTORCombatParser.Model.Overlays
                 currentDefaults[type] = new OverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive=state };
             }
             var defaultModified = currentDefaults[type];
-            currentDefaults[type] = new OverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state, Locked = defaultModified.Locked };
+            currentDefaults[type] = new OverlayInfo() { UseAsWindow = defaultModified.UseAsWindow, Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state, Locked = defaultModified.Locked };
             SaveCharacterDefaults(characterName, currentDefaults);
         }
         public static Dictionary<string,OverlayInfo> GetCharacterDefaults(string characterName)

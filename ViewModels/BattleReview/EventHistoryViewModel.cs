@@ -53,7 +53,20 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             if (_currentlySelectedCombat == null)
                 return;
             LogsToDisplay = new List<DisplayableLogEntry>(_currentlySelectedCombat.AllLogs.Where(LogFilter).Select(
-                l=>new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),l.Source.Name,l.Target.Name,l.Ability,l.Effect.EffectName,l.Value.DisplayValue,l.Value.WasCrit,l.Value.ValueType != DamageType.none ? l.Value.ValueType.ToString():l.Effect.EffectType.ToString(),l.Value.ModifierType,l.Value.ModifierDisplayValue)));
+                l=>new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
+                l.Source.Name,
+                l.Source.LogId.ToString(),
+                l.Target.Name,
+                l.Target.LogId.ToString(),
+                l.Ability,
+                l.AbilityId,
+                l.Effect.EffectName,
+                l.Effect.EffectId,
+                l.Value.DisplayValue,
+                l.Value.WasCrit,
+                l.Value.ValueType != DamageType.none ? l.Value.ValueType.ToString():l.Effect.EffectType.ToString(),
+                l.Value.ModifierType,
+                l.Value.ModifierDisplayValue)));
             OnPropertyChanged("LogsToDisplay");
         }
         private bool LogFilter(ParsedLogEntry log)

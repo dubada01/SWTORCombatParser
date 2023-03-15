@@ -15,7 +15,6 @@ namespace SWTORCombatParser.Model.CombatParsing
     public static class CombatIdentifier
     {
         public static event Action<Combat> NewCombatAvailable = delegate { };
-        public static event Action<(string, string, string),DateTime> NewBossCombatDetected = delegate { };
         public static event Action NewCombatStarted = delegate { };
         private static object leaderboardLock = new object();
 
@@ -90,8 +89,6 @@ namespace SWTORCombatParser.Model.CombatParsing
                 newCombat.ParentEncounter = encounter;
                 newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs,encounter);
                 newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, encounter);
-                if(!string.IsNullOrEmpty(newCombat.EncounterBossDifficultyParts.Item1) && isRealtime && !combatEndUpdate)
-                    NewBossCombatDetected(newCombat.EncounterBossDifficultyParts,newCombat.StartTime);
             }
             if (newCombat.IsCombatWithBoss)
             {

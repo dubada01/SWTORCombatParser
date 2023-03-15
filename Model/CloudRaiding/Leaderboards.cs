@@ -226,6 +226,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async void TryAddLeaderboardEntry(Combat combat)
         {
             var state = CombatLogStateBuilder.CurrentState;
+            bool updatedAny = false;
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
                 foreach (var player in combat.CharacterParticipants)
@@ -255,10 +256,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     };
                     if (CheckForValidParseUpload(combat)||CheckForValidCombatUpload(combat,player))
                     {
-                        await PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                        updatedAny = await PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
                     }
                 }
             }
+            if (updatedAny)
+                PostgresConnection.FireUpdatedEvent();
             CombatIdentifier.FinalizeOverlay(combat);
         }
         private static bool CheckForValidCombatUpload(Combat combat, Entity player)

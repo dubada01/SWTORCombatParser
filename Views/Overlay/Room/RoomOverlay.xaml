@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
         mc:Ignorable="d"
         Title="RoomOverlay" Height="450" Width="800" AllowsTransparency="True" Background="{x:Null}" 
-        WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+        WindowStyle="None" Topmost="True" ResizeMode="NoResize" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
     <Grid x:Name="MainArea" Visibility="{Binding IsActive, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip="Room Overlay">
 
         
