@@ -17,9 +17,52 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private double nameOpacity = 1;
         private List<int> namePixelLocation = new List<int>();
         private double ratioChangeThreshold = 150;
+        private List<List<int>> _namePixelsIndeciesHistory = new List<List<int>>();
+        private int column;
+        private bool isTargeted;
+        private HorizontalAlignment dCDHorAlignment;
 
         public int Row { get; set; }
-        public int Column { get; set; }
+        public HorizontalAlignment DCDHorAlignment
+        {
+            get => dCDHorAlignment; set
+            {
+                dCDHorAlignment = value;
+                OnPropertyChanged();
+            }
+        }
+        public int Column
+        {
+            get => column; set
+            {
+                column = value;
+                if (column == 0)
+                {
+                    HotsColumn = 1;
+                    DcdsColumn = 0;
+                    LeftColumnWidth = new GridLength(.25, GridUnitType.Star);
+                    RightColumnWidth = new GridLength(.75, GridUnitType.Star);
+                    DCDHorAlignment = HorizontalAlignment.Right;
+                    return;
+                }
+                if (column == Columns - 1)
+                {
+                    HotsColumn = 0;
+                    DcdsColumn = 1;
+                    LeftColumnWidth = new GridLength(.75, GridUnitType.Star);
+                    RightColumnWidth = new GridLength(.25, GridUnitType.Star);
+                    DCDHorAlignment = HorizontalAlignment.Left;
+                    return;
+                }
+                HotsColumn = 0;
+                LeftColumnWidth = new GridLength(1, GridUnitType.Star);
+                RightColumnWidth = new GridLength(0);
+            }
+        }
+        public GridLength LeftColumnWidth { get; set; }
+        public GridLength RightColumnWidth { get; set; }
+        public int HotsColumn { get; set; }
+        public int DcdsColumn { get; set; }
         public double NameOpacity
         {
             get => nameOpacity; set
@@ -34,7 +77,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             Application.Current.Dispatcher.Invoke(() =>
             {
                 RaidHotsOnPlayer.Clear();
+                DCDSOnPlayer.Clear();
             });
+            IsTargeted= false;
+            TargetedBy = 0;
             NameJustChanged = true;
             StaticPixelChanges.Clear();
             StaticNamePixelIndicies.Clear();
@@ -44,13 +90,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public int PixelIndexDiffCount { get; set; }
         public List<int> StaticNamePixelIndicies { get; set; } = new List<int>();
         public List<int> StaticPixelChanges { get; set; } = new List<int>();
-        public List<List<int>> NamePixelIndiciesHistory = new List<List<int>>();
+
+
         public List<int> NamePixelIndicies
         {
             get => namePixelLocation; set
             {
-                NameJustChanged = NamePixelIndiciesHistory.Count == 0 && value.Count() > 200;
-                if (NamePixelIndiciesHistory.Count() == 5)
+                NameJustChanged = _namePixelsIndeciesHistory.Count == 0 && value.Count() > 200;
+                if (_namePixelsIndeciesHistory.Count() == 5)
                 {
                     var newStaticPixels = GetCommonPixelIncicies();
                     if (StaticNamePixelIndicies.Count == 0)
@@ -59,9 +106,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     PixelIndexDiffCount = StaticPixelChanges.Count;
                     NameJustChanged = PixelIndexDiffCount > ratioChangeThreshold;
                     StaticNamePixelIndicies = newStaticPixels;
-                    NamePixelIndiciesHistory.RemoveAt(0);
+                    _namePixelsIndeciesHistory.RemoveAt(0);
                 }
-                NamePixelIndiciesHistory.Add(value);
+                _namePixelsIndeciesHistory.Add(value);
 
                 namePixelLocation = value;
             }
@@ -69,7 +116,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         private List<int> GetCommonPixelIncicies()
         {
-            return NamePixelIndiciesHistory.Skip(1).Aggregate(new HashSet<int>(NamePixelIndiciesHistory.First()),
+            return _namePixelsIndeciesHistory.Skip(1).Aggregate(new HashSet<int>(_namePixelsIndeciesHistory.First()),
                 (h, e) =>
                 {
                     h.IntersectWith(e);
@@ -78,11 +125,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private List<int> GetDifferencesInList(List<int> list1, List<int> list2)
         {
-            var added =  list1.Except(list2);
+            var added = list1.Except(list2);
             var removed = list2.Except(list1);
             return added.Concat(removed).ToList();
         }
-        
+        public long TargetedBy { get; set; }
+        public bool IsTargeted
+        {
+            get => isTargeted; set
+            {
+                isTargeted = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Name
         {
             get => name; set
@@ -101,35 +157,55 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 OnPropertyChanged();
             }
         }
-        public RaidHotCell()
+        public RaidHotCell(int columnCount)
         {
-
+            Columns= columnCount;
         }
         public ObservableCollection<TimerInstanceViewModel> RaidHotsOnPlayer { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public ObservableCollection<TimerInstanceViewModel> DCDSOnPlayer { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
+        public int Columns { get; internal set; }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        public bool AlreadyHasTimer(string timerName) => Application.Current.Dispatcher.Invoke(() =>
+                                                                  {
+                                                                      return RaidHotsOnPlayer.Any(t => t.TimerName == timerName);
+                                                                  });
         private void RemoveFromList(TimerInstanceViewModel obj, bool endedNatrually)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 RaidHotsOnPlayer.Remove(obj);
+                DCDSOnPlayer.Remove(obj);
             });
         }
         private void RefreshList()
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                var current = RaidHotsOnPlayer.OrderBy(t => t.TimerValue);
-                RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(current);
+                var currentHots = RaidHotsOnPlayer.OrderBy(t => t.TimerValue);
+                RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentHots);
+                var currentDcds = DCDSOnPlayer.OrderBy(t => t.TimerValue);
+                DCDSOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentDcds);
                 OnPropertyChanged("RaidHotsOnPlayer");
+                OnPropertyChanged("DCDSOnPlayer");
             });
         }
-        internal void AddTimer(TimerInstanceViewModel obj)
+        internal void AddHOT(TimerInstanceViewModel obj)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 RaidHotsOnPlayer.Add(obj);
+            });
+
+            obj.TimerExpired += RemoveFromList;
+            obj.TimerRefreshed += RefreshList;
+        }
+        internal void AddDCD(TimerInstanceViewModel obj)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DCDSOnPlayer.Add(obj);
             });
 
             obj.TimerExpired += RemoveFromList;

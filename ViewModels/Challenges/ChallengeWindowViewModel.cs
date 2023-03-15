@@ -33,12 +33,15 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
         public ObservableCollection<ChallengeInstanceViewModel> ActiveChallengeInstances { get; set; } = new ObservableCollection<ChallengeInstanceViewModel>();
-        public bool OverlaysMoveable { get => overlaysMoveable; set 
-            { 
+        public bool OverlaysMoveable
+        {
+            get => overlaysMoveable; set
+            {
                 overlaysMoveable = value;
                 OnPropertyChanged();
-            } 
+            }
         }
+
         public void RefreshChallenges()
         {
             _challengeUpdater.RefreshChallenges();
@@ -159,6 +162,17 @@ namespace SWTORCombatParser.ViewModels.Challenges
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        internal void SetScale(double sizeScalar)
+        {
+            _challengeUpdater.UpdateScale(sizeScalar);
+            App.Current.Dispatcher.Invoke(() => { 
+                foreach(var challenge in ActiveChallengeInstances)
+                {
+                    challenge.Scale = sizeScalar;
+                }
+            });
         }
     }
 }

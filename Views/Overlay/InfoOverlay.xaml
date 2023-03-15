@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
         mc:Ignorable="d"
-        Height="150" Width="250" AllowsTransparency="True" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+        Height="150" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Title="Metric Overlay" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave">
 
     <Grid>
         <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
@@ -80,7 +80,9 @@
                     <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
                 </Viewbox>
-
+                <Viewbox Grid.Column="0" MaxHeight="10" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,2,0">
+                    <CheckBox x:Name="IsWindowCheck" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" ToolTip="Show as a Window"/>
+                </Viewbox>
             </Grid>
             <Grid Grid.Row="2" Visibility="{Binding CreatedType, Converter={StaticResource OverlayTypeToShowTotalConverter}}">
                 <Grid.ColumnDefinitions>

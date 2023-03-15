@@ -29,8 +29,10 @@ namespace SWTORCombatParser.Model.LogParsing
         public static string TargetSetId = "836045448953668";
         public static string TargetClearedId = "836045448953669";
         public static string AbilityActivateId = "836045448945479";
-        
-        
+        public static string InConversationEffectId = "806968520343876";
+
+
+
         public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, List<string> parsedLineInfo, bool realTime)
         {
             _dateTime = logDate;

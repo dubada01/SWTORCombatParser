@@ -299,4 +299,10 @@ public static class TimerController
             timer.Cancel();
         }
     }
+
+    internal static void TryTriggerTimer(CombatModifier combatModifier)
+    {
+        var timer = _filteredTimers.First(t => t.SourceTimer.Effect == combatModifier.EffectId);
+        timer.CreateTimerInstance(combatModifier.StartTime, combatModifier.Target.Name, combatModifier.Target.Id,combatModifier.ChargesAtTime.MaxBy(t=>t.Key).Value);
+    }
 }

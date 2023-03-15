@@ -3,8 +3,10 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,8 +22,9 @@ namespace SWTORCombatParser.Model.Challenge
         private List<DataStructures.Challenge> _activeChallenges = new List<DataStructures.Challenge>();
         private List<DataStructures.Challenge> _allChallenges = new List<DataStructures.Challenge>();
         private Combat _currentCombat;
-        private (string, string, string) _currentBossInfo;
+        private string _currentBossName;
         private EncounterInfo _currentEncounter;
+        private double _currentScale = 1;
 
         public ChallengeUpdater()
         {
@@ -30,20 +33,22 @@ namespace SWTORCombatParser.Model.Challenge
             CombatSelectionMonitor.NewCombatSelected += CombatSelected;
             CombatLogStreamer.NewLineStreamed += CheckForActiveChallenge;
 
-            CombatIdentifier.NewBossCombatDetected += SetBossInfo;
+            EncounterTimerTrigger.EncounterDetected += SetBossInfo;
             CombatLogStateBuilder.AreaEntered += EncounterChanged;
-
             RefreshChallenges();
         }
-
+        public void UpdateScale(double scale)
+        {
+            _currentScale = scale;
+        }
         private void EncounterChanged(EncounterInfo obj)
         {
             _currentEncounter = obj;
         }
 
-        private void SetBossInfo((string, string, string) arg1, DateTime arg2)
+        private void SetBossInfo(string encounterName, string bossName, string difficulty)
         {
-            _currentBossInfo = arg1;
+            _currentBossName = bossName;
         }
 
         public void RefreshChallenges()
@@ -54,13 +59,13 @@ namespace SWTORCombatParser.Model.Challenge
         {
             foreach(var challenge in _allChallenges)
             {
-                if(IsLogForChallenge(obj,challenge) && (_currentBossInfo.Item1 == challenge.Source.Split('|')[1]))
+                if(IsLogForChallenge(obj,challenge) && (_currentBossName == challenge.Source.Split('|')[1]))
                 {
                     if (!_activeChallenges.Any(c => c.Id == challenge.Id))
                     { 
                         _activeChallenges.Add(challenge);
                         App.Current.Dispatcher.Invoke(() => {
-                            _challenges.Add(new ChallengeInstanceViewModel(challenge));
+                            _challenges.Add(new ChallengeInstanceViewModel(challenge) { Scale = _currentScale});
                         });
                         
                     }
@@ -87,7 +92,10 @@ namespace SWTORCombatParser.Model.Challenge
                     {
                         return log.AbilityId == _7_0LogParsing.InterruptCombatId;
                     }
-
+                case ChallengeType.EffectStacks:
+                    {
+                        return log.Effect.EffectName == challenge.Value || log.Effect.EffectId == challenge.Value;
+                    }
                 default:
                     {
                         return false;
@@ -100,7 +108,7 @@ namespace SWTORCombatParser.Model.Challenge
         }
         private void CombatSelected(Combat obj)
         {
-            _currentBossInfo = obj.EncounterBossDifficultyParts;
+            _currentBossName = obj.EncounterBossDifficultyParts.Item1;
             ResetChallenges();
             foreach(var log in obj.AllLogs)
             {

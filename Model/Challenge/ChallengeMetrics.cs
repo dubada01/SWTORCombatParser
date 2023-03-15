@@ -33,7 +33,7 @@ namespace SWTORCombatParser.Model.Challenge
                     value = combat.GetLogsInvolvingEntity(participant).Where(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && l.Ability == activeChallenge.Value).Count();
                     break;
                 case ChallengeType.EffectStacks:
-                    value = 0; //GET THIS WORKING
+                    value = combat.GetCurrentEffectStacks(activeChallenge.Value,participant);
                     break;
                 case ChallengeType.MetricDuringPhase:
                     value = 0; //TO BE IMPLEMENTED AFTER PHASES

@@ -1,24 +1,24 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.RaidHOTs.RaidHotInstance"
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.RaidHOTs.RaidDCDInstance"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs"
              mc:Ignorable="d" 
-             d:DesignHeight="50" d:DesignWidth="150">
+             d:DesignHeight="150" d:DesignWidth="50">
     <Grid Margin="0,0,0,0">
-        <Grid HorizontalAlignment="Stretch">
-            <Border HorizontalAlignment="Stretch" Margin="0,2,0,2" BorderBrush="WhiteSmoke" BorderThickness="1" Background="{StaticResource Gray3Brush}" CornerRadius="2" Opacity="1">
-                <Grid HorizontalAlignment="Stretch">
-                    <Border x:Name="TimerBar" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" >
+        <Grid VerticalAlignment="Stretch">
+            <Border VerticalAlignment="Stretch" Margin="1,5,1,10" Opacity="{Binding OverlayOpacity}" BorderBrush="WhiteSmoke" BorderThickness=".75" Background="{StaticResource Gray4Brush}" CornerRadius="2">
+                <Grid VerticalAlignment="Stretch">
+                    <Border x:Name="TimerBar" FlowDirection="LeftToRight" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0,0,0,.5" BorderBrush="{StaticResource Gray9Brush}" Margin="0,0,0,0" Grid.Column="0" CornerRadius="2" Background="{Binding TimerBackground}" >
                         <Border.RenderTransform>
-                            <ScaleTransform x:Name="BarScale" ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
+                            <ScaleTransform x:Name="BarScale" ScaleY="{Binding CurrentRatio}" ScaleX="1"></ScaleTransform>
                         </Border.RenderTransform>
                         <Border.Triggers>
                             <EventTrigger RoutedEvent="Loaded">
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="BarScale" Storyboard.TargetProperty="ScaleX" From="{Binding CurrentRatio}" To="0" Duration="{Binding TimerDuration}"></DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetName="BarScale" Storyboard.TargetProperty="ScaleY" From="{Binding CurrentRatio}" To="0" Duration="{Binding TimerDuration}"></DoubleAnimation>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </EventTrigger>
@@ -30,7 +30,7 @@
         </Grid>
 
 
-        <Viewbox Visibility="{Binding ShowCharges, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,1,0,0">
+        <Viewbox Visibility="{Binding ShowCharges, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="25" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="1,1,1,1">
             <TextBlock x:Name="ChargesText" FontFamily="{StaticResource MainFont}" 
                        TextWrapping="NoWrap" FontWeight="DemiBold" Foreground="WhiteSmoke" Text="{Binding Charges}" ></TextBlock>
         </Viewbox>

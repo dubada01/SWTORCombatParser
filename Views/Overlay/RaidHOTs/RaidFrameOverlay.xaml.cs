@@ -1,4 +1,6 @@
-﻿using SWTORCombatParser.Model.Overlays;
+﻿using Newtonsoft.Json;
+using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
 using System.Runtime.InteropServices;
@@ -54,9 +56,18 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 
         public void DragWindow(object sender, MouseButtonEventArgs args)
         {
-            DragMove();
-            var viewModel = DataContext as RaidFrameOverlayViewModel;
-            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(),Height,Width, GetTopLeft());
+            try
+            {
+                DragMove();
+                var viewModel = DataContext as RaidFrameOverlayViewModel;
+                viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
+                args.Handled = true;
+            }
+            catch(Exception e)
+            {
+                Logging.LogError("Failed to drag window: "+JsonConvert.SerializeObject(e));
+            }
+
         }
         private void Border_MouseEnter(object sender, MouseEventArgs e)
         {

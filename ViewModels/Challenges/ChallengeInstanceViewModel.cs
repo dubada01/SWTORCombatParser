@@ -20,7 +20,20 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private string metricTotal;
         private Challenge _sourceChallenge;
         private SolidColorBrush challengeColor;
+        private double scale = 1;
 
+        public double Scale
+        {
+            get => scale; set
+            {
+                scale = value;
+                foreach (var bar in MetricBars)
+                {
+                    bar.SizeScalar = scale;
+                }
+                OnPropertyChanged();
+            }
+        }
         public Guid SourceChallengeId => _sourceChallenge != null ? _sourceChallenge.Id : Guid.Empty;
         public event PropertyChangedEventHandler PropertyChanged;
         public ChallengeType Type { get; set; }
@@ -75,7 +88,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 }
                 else
                 {
-                    metricToUpdate = new ChallengeOverlayMetricInfo(challengeColor) { Player = participant, Type = Type, SizeScalar = 1 };
+                    metricToUpdate = new ChallengeOverlayMetricInfo(challengeColor) { Player = participant, Type = Type, SizeScalar = Scale };
                     _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
 

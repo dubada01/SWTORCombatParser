@@ -113,6 +113,7 @@ namespace SWTORCombatParser.DataStructures
         }
         public bool IsHot { get; set; }
         public bool IsBuiltInDot { get; set; }
+        public bool IsBuiltInDefensive { get; set; }
         public int TimerRev { get; set; }
         public bool IsUserAddedTimer { get; set; }
         public bool IsMechanic { get; set; }
@@ -128,6 +129,7 @@ namespace SWTORCombatParser.DataStructures
         public int ComparisonValMax { get; set; }
         public bool ShouldModifyVariable { get; set; }
         public bool UseVisualsAndModify { get; set; }
+        public bool IsCooldownTimer { get; set; }
         public Timer Copy()
         {
             return new Timer()
@@ -170,6 +172,7 @@ namespace SWTORCombatParser.DataStructures
                 CanBeRefreshed = CanBeRefreshed,
                 AbilitiesThatRefresh = AbilitiesThatRefresh,
                 IsHot = IsHot,
+                IsBuiltInDefensive= IsBuiltInDefensive,
                 IsMechanic = IsMechanic,
                 HideUntilSec = HideUntilSec,
                 UseAudio = UseAudio,
@@ -191,6 +194,7 @@ namespace SWTORCombatParser.DataStructures
                 ShouldModifyVariable = ShouldModifyVariable,
                 UseVisualsAndModify = UseVisualsAndModify,
                 TimerRev = TimerRev,
+                IsCooldownTimer = IsCooldownTimer,
                 SeletedTimerIsActiveId = TriggerType == TimerKeyType.IsTimerTriggered ? SeletedTimerIsActiveId : null ,
             };
             
