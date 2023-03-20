@@ -84,8 +84,8 @@ namespace SWTORCombatParser.Model.Overlays
             foreach (var validEntry in correctedEntries)
             {
                 var topLeft = validEntry.Value[0];
-                var row = Math.Min(numberOfRows-1,(int)Math.Round(topLeft[1] / rowHeights));
-                var column =Math.Min(numberOfColumns-1,(int)Math.Round((topLeft[0] / columnWidth)));
+                var row = Math.Min(numberOfRows-1,(int)(topLeft[1] / rowHeights));
+                var column =Math.Min(numberOfColumns-1,(int)(topLeft[0] / columnWidth));
                 var nameAtLocation = placedNames.FirstOrDefault(n => n.Row == row && n.Column == column);
                 if (nameAtLocation == null)
                 {
@@ -103,7 +103,7 @@ namespace SWTORCombatParser.Model.Overlays
 
         private static double ConvertCoordWithCompressionFactor(double value)
         {
-            return value * (1 + (1 - RaidFrameScreenGrab.CurrentCompressionFactor));
+            return value/RaidFrameScreenGrab.CurrentCompressionFactor;
         }
        
         private static byte[] ImageToByte2(Image img)

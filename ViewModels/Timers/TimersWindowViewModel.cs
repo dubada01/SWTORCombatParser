@@ -60,6 +60,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => active;
             set
             {
+                if (active != value)
+                    DefaultTimersManager.UpdateTimersActive(active, _timerSource);
                 active = value;
                 if (!active)
                 {
@@ -73,7 +75,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                         {
                             _timerWindow.Show();
                         });
-                        
                     } 
                 }
 
@@ -155,7 +156,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert)
+            if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert || obj.SourceTimer.IsBuiltInDefensive)
             {
                 callback(obj);
                 return;

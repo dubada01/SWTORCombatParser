@@ -48,7 +48,15 @@ namespace SWTORCombatParser.Model.Timers
         public void TryTriggerParent()
         {
             if (!SourceTimer.IsSubTimer)
+            {
+                if (SourceTimer.ShouldModifyVariable)
+                {
+                    ModifyVariable(SourceTimer);
+                    if (!SourceTimer.UseVisualsAndModify)
+                        return;
+                }
                 CreateTimerNoTarget(DateTime.Now);
+            }
             else
             {
                 bool fromClause1 = ParentTimer.SourceTimer.Clause1.Id == SourceTimer.Id;

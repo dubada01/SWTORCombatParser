@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.5.3</VersionPrefix>
+    <VersionPrefix>1.6.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -237,6 +237,7 @@
     <None Remove="resources\RoomOverlays\SelectionAdornment.png" />
     <None Remove="resources\RoomOverlays\TargetedOpponentLocation.png" />
     <None Remove="resources\shareIcon.png" />
+    <None Remove="resources\skull_Icon.png" />
     <None Remove="resources\sounds\Abduct.mp3" />
     <None Remove="resources\sounds\Acid Deluge.mp3" />
     <None Remove="resources\sounds\Acidblast.mp3" />
@@ -909,6 +910,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\shareIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\skull_Icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\sounds\Abduct.mp3">
@@ -3274,13 +3278,14 @@
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
+    <PackageReference Include="MouseKeyHook" Version="5.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Npgsql" Version="5.0.10" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
     <PackageReference Include="Prism.Core" Version="8.1.97" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
-    <PackageReference Include="ScottPlot" Version="4.1.25" />
-    <PackageReference Include="ScottPlot.WPF" Version="4.1.25" />
+    <PackageReference Include="ScottPlot" Version="4.1.61" />
+    <PackageReference Include="ScottPlot.WPF" Version="4.1.61" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
     <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />

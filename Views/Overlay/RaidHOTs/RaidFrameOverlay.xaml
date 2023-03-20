@@ -66,7 +66,7 @@
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
-                            <Border Grid.RowSpan="2" Margin="0,0,0,12" Grid.Column="{Binding HotsColumn}" HorizontalAlignment="Stretch" IsHitTestVisible="False" BorderBrush="PaleGoldenrod" Background="Transparent" BorderThickness="1.5" Padding="1" CornerRadius="3" Visibility="{Binding IsTargeted, Converter={StaticResource BooleanToVisibiityConverter}}">
+                            <Border Grid.RowSpan="2" Margin="0,0,0,12" Grid.Column="{Binding HotsColumn}" HorizontalAlignment="Stretch" IsHitTestVisible="False" BorderBrush="LightPink" Background="Transparent" BorderThickness="1.5" Padding="1" CornerRadius="2" Visibility="{Binding IsTargeted, Converter={StaticResource BooleanToVisibiityConverter}}">
                             </Border>
                         </Grid>
 

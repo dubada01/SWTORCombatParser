@@ -90,6 +90,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                         Effect = new Effect()
                         {
                             EffectType = EffectType.AbsorbShield,
+                            EffectId = _7_0LogParsing._healEffectId,
                             EffectName = "Processed Absorb"
                         },
                         SourceInfo = new EntityInfo { Entity = source },

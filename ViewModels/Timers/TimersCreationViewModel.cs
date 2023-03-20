@@ -233,12 +233,12 @@ namespace SWTORCombatParser.ViewModels.Timers
                 DotTimerLoader.TryLoadDots();
                 DefensiveTimerLoader.TryLoadDefensives();
                 TimerController.RefreshAvailableTimers();
+                RefreshAvaialbleTriggerOwners();
                 if (DisciplineTimersList.Count > 0)
                 {
                     SelectedTimerSource = DisciplineTimersList[0];
                     OnPropertyChanged("SelectedTimerSource");
                 }
-                RefreshAvaialbleTriggerOwners();
             });
 
             CombatLogStreamer.CombatUpdated += status =>

@@ -1,4 +1,5 @@
 ﻿//using MoreLinq;
+using Microsoft.VisualBasic.Logging;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
@@ -26,11 +27,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
     public class RaidFrameOverlayViewModel : INotifyPropertyChanged
     {
+        private Entity _mostRecentTargetedPlayer;
+        private DateTime _mostRecentTargetTime;
+        private Point _mostRecentlyClickedCell;
+        private DateTime _mostRecentClickTime;
+        private bool _isMouseInFrame;
         private int rows;
         private int columns;
         private bool editable;
         private bool active;
         private RaidFrameOverlay _view;
+        private bool _conversationActive;
         private bool _usingDecreasedAccuracy;
         private List<long> _validBossIds = new List<long>();
         public bool Editable
@@ -65,12 +72,25 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public RaidFrameOverlayViewModel(RaidFrameOverlay view)
         {
             _view = view;
+            _view.AreaClicked += CellClicked;
+            _view.MouseInArea += MouseInArea;
             TimerController.TimerTriggered += CheckForRaidHOT;
             TimerController.TimerTriggered += CheckForDefensive;
-
+            CombatIdentifier.NewCombatStarted += OnStartCombat;
             CombatLogStreamer.NewLineStreamed += CheckForTargetChanged;
             CombatLogStreamer.HistoricalLogsFinished += SetCurrentEncounter;
             CombatLogStateBuilder.AreaEntered += NewEncounterEntered;
+        }
+
+
+
+        private void OnStartCombat()
+        {
+            if (_conversationActive)
+            {
+                _view.Show();
+                _conversationActive = false;
+            }
         }
 
         private void SetCurrentEncounter(DateTime arg1, bool arg2)
@@ -82,6 +102,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             _validBossIds = obj.BossIds.Any() ? obj.BossIds.SelectMany(kvp => kvp.Value.SelectMany(kvp => kvp.Value)).ToList() : new List<long>();
         }
+        private void MouseInArea(bool obj)
+        {
+            _isMouseInFrame = obj;
+        }
+        public void CellClicked(double xFract, double yFract)
+        {
+            var cellX = (int)(xFract * columns);
+            var cellY = (int)(yFract * rows);
+            _mostRecentlyClickedCell = new Point(cellX, cellY);
+            _mostRecentClickTime = DateTime.Now;
+        }
         private void CheckForTargetChanged(ParsedLogEntry obj)
         {
             if (obj.Effect.EffectType == EffectType.TargetChanged)
@@ -90,12 +121,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 {
                     if (obj.Source.LogId == bossId)
                     {
-
-
                         ResetCellPreviouslyTargeted();
-
-
-
                         if (obj.Effect.EffectId == _7_0LogParsing.TargetSetId)
                         {
 
@@ -109,8 +135,49 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     }
                 }
             }
+            CheckForConversation(obj);
+            CorrectCellWhenTargeted(obj);
+        }
+        private void CorrectCellWhenTargeted(ParsedLogEntry obj)
+        {
+            if (!obj.Source.IsLocalPlayer || obj.Effect.EffectType != EffectType.TargetChanged || !obj.Target.IsCharacter || !_isMouseInFrame) return;
+            var cellClicked = CurrentNames.FirstOrDefault(n => n.Row == _mostRecentlyClickedCell.Y && n.Column == _mostRecentlyClickedCell.X);
+            if (cellClicked != null)
+            {
+                if (AreNamesCloseEnough(cellClicked.Name.ToLower(), GetNameWithoutSpecials(obj.Target.Name).ToLower(),4))
+                {
+                    return;
+                }
+                cellClicked.Name = obj.Target.Name;
+            }
+            else
+            {
+                CurrentNames.Add(new PlacedName { Column = (int)_mostRecentlyClickedCell.X, Row = (int)_mostRecentlyClickedCell.Y, Name = obj.Target.Name });
+            }
+            UpdateCells();
         }
 
+        private void CheckForConversation(ParsedLogEntry obj)
+        {
+            if (!obj.Source.IsLocalPlayer)
+                return;
+            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Apply && Active)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _conversationActive = true;
+                    _view.Hide();
+                });
+            }
+            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Remove && Active)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _conversationActive = false;
+                    _view.Show();
+                });
+            }
+        }
         private void CheckForRaidHOT(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null ||
@@ -162,10 +229,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             var normalName = GetNameWithoutSpecials(playerName);
 
             var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, normalName));
-            if (LevenshteinDistance.Compute(bestMatch, normalName) > 4 && !_usingDecreasedAccuracy)
+            if (!AreNamesCloseEnough(normalName, bestMatch,4))
                 return null;
             return RaidHotCells.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), bestMatch));
         }
+
+        private bool AreNamesCloseEnough(string normalName, string bestMatch,int threshold)
+        {
+            return LevenshteinDistance.Compute(bestMatch, normalName) < threshold || _usingDecreasedAccuracy;
+        }
+
         private void ResetCellPreviouslyTargeted()
         {
             RaidHotCells.ForEach(c =>
@@ -181,6 +254,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                 .ToArray()).Replace("\'", "").Replace("-", "");
         }
+
+
         public void UpdateNames(List<PlacedName> orderedNames)
         {
             CurrentNames = orderedNames;
@@ -217,107 +292,106 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         private void UpdateCells()
         {
-            Task.Run(() =>
+            lock (_cellUpdateLock)
             {
-                lock (_cellUpdateLock)
+                Task.Run(() =>
+            {
+
+
+
+                if (!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns))
                 {
-
-
-                    if (!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns))
-                    {
-                        InitRaidCells();
-                        RaidHotCells = RaidHotCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-                        OnPropertyChanged("RaidHotCells");
-                    }
-                    else
-                    {
-                        var currentCells = RaidHotCells.ToList();
-                        for (var x = 0; x < Columns; x++)
-                        {
-                            for (var y = 0; y < Rows; y++)
-                            {
-                                var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
-                                var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
-
-                                if (detectedAtCell == null) // there is no text detected here
-                                {
-                                    if (string.IsNullOrEmpty(currentCell
-                                            .Name)) //both cells are still empty can safely move on
-                                        continue;
-                                    // the detected cell is empty, but there was a name here previously. Check to see if the name moved somewhere else.
-                                    MoveCells(currentCell, currentCells);
-                                }
-                                else // there is text detected here
-                                {
-                                    var nameMatches =
-                                        LevenshteinDistance.Compute(detectedAtCell.Name.ToLower(),
-                                            currentCell.Name.ToLower()) <= 2;
-                                    if (nameMatches) // both cells still have the same name, safely move on
-                                        continue;
-
-                                    //name doesn't match. Check for move
-                                    var cellWithName = currentCells.MinBy(s =>
-                                        LevenshteinDistance.Compute(s.Name.ToLower(), detectedAtCell.Name.ToLower()));
-                                    if (LevenshteinDistance.Compute(cellWithName.Name.ToLower(),
-                                            detectedAtCell.Name.ToLower()) <=
-                                        2)
-                                    {
-                                        MoveCells(currentCell, currentCells);
-                                        MoveCells(cellWithName, currentCells);
-                                    }
-                                    else
-                                        currentCell.Name = detectedAtCell.Name.ToUpper();
-                                }
-                            }
-
-                        }
-
-                        for (var x = 0; x < Columns; x++)
-                        {
-                            for (var y = 0; y < Rows; y++)
-                            {
-                                var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
-                                var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
-                                if (detectedAtCell == null)
-                                {
-                                    currentCell.Reset();
-                                }
-                            }
-                        }
-
-                        var activeHots = CombatLogStateBuilder.CurrentState.GetCurrentlyActiveRaidHOTS(DateTime.Now);
-                        var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.SourceTimer.IsHot && t.TargetAddendem != null).Select(t => t.TargetAddendem);
-                        var playersWihtActiveHot = activeHots.Select(h => h.Target.Name).Distinct().ToList();
-                        foreach (var player in playersWithHotTimer)
-                        {
-                            var playerCell = GetCellThatMatchesName(player);
-                            if (playerCell != null && !playerCell.HasHOT)
-                            {
-                                var timer = TimerController.GetActiveTimers().First(t => t.TargetAddendem == player);
-                                if (timer.TimerValue > 0)
-                                    playerCell.AddHOT(timer);
-                                else
-                                    timer.Complete(false);
-                            }
-                        }
-                        foreach (var player in playersWihtActiveHot)
-                        {
-                            var playerCell = GetCellThatMatchesName(player);
-                            var hotInQuestion = activeHots.First(h => h.Target.Name == player);
-                            if (playerCell != null && !playerCell.HasHOT && !playersWithHotTimer.Any(p => p == player) && hotInQuestion.Source == CombatLogStateBuilder.CurrentState.LocalPlayer)
-                            {
-                                TimerController.TryTriggerTimer(hotInQuestion);
-                            }
-                        }
-
-
-
-                        RaidHotCells = currentCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-
-                        OnPropertyChanged("RaidHotCells");
-                    }
+                    InitRaidCells();
+                    RaidHotCells = RaidHotCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
+                    OnPropertyChanged("RaidHotCells");
                 }
+                else
+                {
+                    var currentCells = RaidHotCells.ToList();
+                    for (var x = 0; x < Columns; x++)
+                    {
+                        for (var y = 0; y < Rows; y++)
+                        {
+                            var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
+                            var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
+
+                            if (detectedAtCell == null) // there is no text detected here
+                            {
+                                if (string.IsNullOrEmpty(currentCell
+                                        .Name)) //both cells are still empty can safely move on
+                                    continue;
+                                // the detected cell is empty, but there was a name here previously. Check to see if the name moved somewhere else.
+                                MoveCells(currentCell, currentCells);
+                            }
+                            else // there is text detected here
+                            {
+                                if (AreNamesCloseEnough(detectedAtCell.Name.ToLower(), currentCell.Name.ToLower(), 2)) // both cells still have the same name, safely move on
+                                    continue;
+
+                                //name doesn't match. Check for move
+                                var cellWithName = currentCells.MinBy(s =>
+                                    LevenshteinDistance.Compute(s.Name.ToLower(), detectedAtCell.Name.ToLower()));
+                                if (LevenshteinDistance.Compute(cellWithName.Name.ToLower(),
+                                        detectedAtCell.Name.ToLower()) <=
+                                    2)
+                                {
+                                    MoveCells(currentCell, currentCells);
+                                    MoveCells(cellWithName, currentCells);
+                                }
+                                else
+                                    currentCell.Name = detectedAtCell.Name.ToUpper();
+                            }
+                        }
+
+                    }
+
+                    for (var x = 0; x < Columns; x++)
+                    {
+                        for (var y = 0; y < Rows; y++)
+                        {
+                            var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
+                            var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
+                            if (detectedAtCell == null)
+                            {
+                                currentCell.Reset();
+                            }
+                        }
+                    }
+
+                    var activeHots = CombatLogStateBuilder.CurrentState.GetCurrentlyActiveRaidHOTS(DateTime.Now);
+                    var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.SourceTimer.IsHot && t.TargetAddendem != null).Select(t => t.TargetAddendem);
+                    var playersWihtActiveHot = activeHots.Select(h => h.Target.Name).Distinct().ToList();
+                    foreach (var player in playersWithHotTimer)
+                    {
+                        var playerCell = GetCellThatMatchesName(player);
+                        if (playerCell != null && !playerCell.HasHOT)
+                        {
+                            var timer = TimerController.GetActiveTimers().First(t => t.TargetAddendem == player);
+                            if (timer.TimerValue > 0)
+                                playerCell.AddHOT(timer);
+                            else
+                                timer.Complete(false);
+                        }
+                    }
+                    foreach (var player in playersWihtActiveHot)
+                    {
+                        var playerCell = GetCellThatMatchesName(player);
+                        var hotInQuestion = activeHots.First(h => h.Target.Name == player);
+                        if (playerCell != null && !playerCell.HasHOT && !playersWithHotTimer.Any(p => p == player) && hotInQuestion.Source == CombatLogStateBuilder.CurrentState.LocalPlayer)
+                        {
+                            TimerController.TryTriggerTimer(hotInQuestion);
+                        }
+                    }
+
+
+
+                    RaidHotCells = currentCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
+
+                    OnPropertyChanged("RaidHotCells");
+                }
+
             });
+            }
         }
 
         private RaidHotCell MoveCells(RaidHotCell currentCell, List<RaidHotCell> currentCells)

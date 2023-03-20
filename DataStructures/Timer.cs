@@ -24,7 +24,8 @@ namespace SWTORCombatParser.DataStructures
         NewEntitySpawn,
         AbsorbShield,
         EntityDeath,
-        VariableCheck
+        VariableCheck,
+        EffectCharges
     }
     public class Timer
     {

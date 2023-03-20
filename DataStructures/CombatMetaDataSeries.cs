@@ -18,11 +18,13 @@ namespace SWTORCombatParser.DataStructures
         public Dictionary<DateTime, Tooltip> EffectiveTooltip { get; internal set; }= new Dictionary<DateTime, Tooltip>();
         public Dictionary<DateTime, ScatterPlot> Points { get; set; } = new Dictionary<DateTime, ScatterPlot>();
         public Dictionary<DateTime, ScatterPlot> Line { get; set; } = new Dictionary<DateTime, ScatterPlot>();
+        public Dictionary<string, ScatterPlot> LineByCharacter { get; set; } = new Dictionary<string, ScatterPlot>();
+        public Dictionary<string, ScatterPlot> PointsByCharacter { get; set; } = new Dictionary<string, ScatterPlot>();
         public Dictionary<DateTime, ScatterPlot> EffectivePoints { get; set; } = new Dictionary<DateTime, ScatterPlot>();
         public Dictionary<DateTime, ScatterPlot> EffectiveLine { get; set; } = new Dictionary<DateTime, ScatterPlot>();
+
         public PlotType Type { get; internal set; }
         public Dictionary<DateTime, List<(string,string)>> Abilities { get; internal set; } = new Dictionary<DateTime, List<(string, string)>>();
-        
 
         public string Name;
 
@@ -31,7 +33,18 @@ namespace SWTORCombatParser.DataStructures
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
+        public void Reset()
+        {
+            EffectiveLine.Clear();
+            Tooltip.Clear();
+            EffectiveTooltip.Clear();
+            EffectivePoints.Clear();
+            Points.Clear();
+            PointsByCharacter.Clear();
+            Line.Clear();
+            LineByCharacter.Clear();
+            Abilities.Clear();
+        }
         internal void LegenedToggled(bool arg1, bool arg2)
         {
             if (Points == null)

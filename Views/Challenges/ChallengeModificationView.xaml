@@ -70,7 +70,12 @@
                         <CheckBox VerticalAlignment="Center" Margin="0,0,0,3" IsChecked="{Binding UseRawValue}"></CheckBox>
                     </StackPanel>
                 </Viewbox>
-
+                <Viewbox Visibility="{Binding CanHaveMax, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="18" Grid.Row="3" Margin="30,0,25,0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" Width="120" FontSize="18" Text="Use max value: " FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <CheckBox VerticalAlignment="Center" Margin="0,0,0,3" IsChecked="{Binding UseMaxValue}"></CheckBox>
+                    </StackPanel>
+                </Viewbox>
                 <Viewbox Grid.Row="5" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,9,0,5">
                     <Button x:Name="CancelButton"  Style="{StaticResource RoundCornerButton}" Width="100" Height="40" Content="Cancel" FontFamily="{StaticResource MainFont}" FontSize="18" ></Button>
                 </Viewbox>

@@ -43,13 +43,19 @@ namespace SWTORCombatParser.Utilities.Converters
                 case OverlayType.DamageAvoided:
                     return "Damage Avoided";
                 case OverlayType.ProvidedAbsorb:
-                    return "Provided Abosrb";
+                    return "Provided Absorb";
                 case OverlayType.APM:
                     return "APM";
                 case OverlayType.InterruptCount:
                     return "Interrupt Count";
                 case OverlayType.ThreatPerSecond:
                     return "Threat per second";
+                case OverlayType.RawDamage:
+                    return "Raw Damage";
+                case OverlayType.RawHealing:
+                    return "Raw Healing";
+                case OverlayType.EffectiveHealing:
+                    return "Effective Healing";
                 default:
                     return oType.ToString();
             }

@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 using SWTORCombatParser.DataStructures;
 using System;
+using System.Collections.Generic;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -15,9 +16,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double _value;
         private double _secondaryValue;
         private int leaderboardRank;
-        private static double defaultBarHeight = 35;
-        private static double defaultFontSize = 18;
-        private static double defaultValueWidth = 70;
+        private double defaultBarHeight = 35;
+        private double defaultFontSize = 18;
+        private double defaultValueWidth = 70;
 
         private string valueStringFormat = "#,##0";
         private double sizeScalar=1;
@@ -60,7 +61,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public SolidColorBrush RankColor => RankIsPersonalRecord ? Brushes.Beige : Brushes.Gray;
+        public TextDecorationCollection RankDecoration => RankIsPersonalRecord ? new TextDecorationCollection(new List<TextDecoration> { new TextDecoration { Location = TextDecorationLocation.Underline } }) : new TextDecorationCollection();
         public string PlayerName => Player.Name;
         public bool IsLeaderboardValue { get; set; } = false;
 
@@ -116,6 +117,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => _value; set
             {
                 _value = value;
+                defaultValueWidth = 70;
+                if (_value > 100000)
+                    defaultValueWidth = 80;
+                if (value > 1000000)
+                    defaultValueWidth = 90;
+                if (value > 10000000)
+                    defaultValueWidth = 100;
                 OnPropertyChanged();
             }
         }

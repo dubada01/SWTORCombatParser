@@ -8,8 +8,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
     public class ParticipantViewModel : INotifyPropertyChanged
     {
         private bool isSelected;
+        private bool diedNatrually;
+        private string hPPercentText;
+        private double hPPercent;
 
-        public event Action<ParticipantViewModel> SelectionChanged = delegate { };
+        public event Action<ParticipantViewModel, bool> SelectionChanged = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
@@ -18,17 +21,17 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public void ToggleSelection()
         {
             IsSelected = !IsSelected;
-            if (IsSelected)
-                SelectionChanged(this);
+            SelectionChanged(this, IsSelected);
         }
         public Entity Entity { get; set; }
-        public bool IsSelected { 
-            get => isSelected; 
-            set 
-            { 
+        public bool IsSelected
+        {
+            get => isSelected;
+            set
+            {
                 isSelected = value;
                 OnPropertyChanged();
-            } 
+            }
         }
         public string PlayerName { get; set; }
         public bool IsLocalPlayer { get; set; }
@@ -37,6 +40,32 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public string DPS { get; set; } = "0";
         public string HPS { get; set; } = "0";
         public string DTPS { get; set; } = "0";
+        public double HPPercent
+        {
+            get => hPPercent; set
+            {
+                hPPercent = value;
+                OnPropertyChanged();
+
+                HPPercentText = Math.Round(HPPercent * 100, 2) + "%";
+            }
+        }
+        public string HPPercentText
+        {
+            get => hPPercentText; set
+            {
+                hPPercentText = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool DiedNatrually
+        {
+            get => diedNatrually; set
+            {
+                diedNatrually = value;
+                OnPropertyChanged();
+            }
+        }
         public void SetValues(double dps, double hps, double dtps, string roleImage)
         {
 
