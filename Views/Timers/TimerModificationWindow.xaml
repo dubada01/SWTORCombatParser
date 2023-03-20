@@ -130,7 +130,7 @@
                         </StackPanel>
                     </Grid>
                 </Viewbox>
-                <Viewbox Grid.Row="3" Margin="0,0,10,0" Visibility="{Binding IsCheckingVariable, Converter={StaticResource BooleanToVisibiityConverter}}">
+                <Viewbox Grid.Row="4" Margin="0,0,10,0" Visibility="{Binding ShowValueComparisons, Converter={StaticResource BooleanToVisibiityConverter}}">
                     <Grid >
                         <Grid.RowDefinitions>
                             <RowDefinition/>

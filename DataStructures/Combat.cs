@@ -84,10 +84,19 @@ namespace SWTORCombatParser.DataStructures
         {
             var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, player);
             if(allEffects.Count == 0) return 0;
-            var specificEffect = allEffects.FirstOrDefault(e=>e.EffectId == effect || e.Name== effect);
-            if (specificEffect == null)
+            var specificEffect = allEffects.Where(e=>e.EffectId == effect || e.Name== effect);
+            if (!specificEffect.Any())
                 return 0;
-            return specificEffect.ChargesAtTime.MaxBy(v=>v.Key).Value;
+            return specificEffect.SelectMany(e=>e.ChargesAtTime).MaxBy(v=>v.Key).Value;
+        }
+        public double GetMaxEffectStacks(string effect, Entity player)
+        {
+            var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, player);
+            if (allEffects.Count == 0) return 0;
+            var specificEffect = allEffects.Where(e => e.EffectId == effect || e.Name == effect);
+            if (!specificEffect.Any())
+                return 0;
+            return specificEffect.SelectMany(e => e.ChargesAtTime).MaxBy(v => v.Value).Value;
         }
         public double GetDamageFromEntityByAbilityForPlayer(string ability, string entity, Entity player)
         {

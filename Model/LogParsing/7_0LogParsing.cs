@@ -31,7 +31,14 @@ namespace SWTORCombatParser.Model.LogParsing
         public static string AbilityActivateId = "836045448945479";
         public static string InConversationEffectId = "806968520343876";
 
+        private static Regex valueRegex;
+        public static Regex threatRegex;
 
+        public static void SetupRegex()
+        {
+            valueRegex = new Regex(@"\(.*?\)", RegexOptions.Compiled);
+            threatRegex = new Regex(@"\<.*?\>", RegexOptions.Compiled);
+        }
 
         public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, List<string> parsedLineInfo, bool realTime)
         {
@@ -40,8 +47,8 @@ namespace SWTORCombatParser.Model.LogParsing
             var logEntryInfos = parsedLineInfo;
 
             var secondPart = logEntry.Split(']').Last();
-            var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
-            var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
+            var value = valueRegex.Match(secondPart);
+            var threat = threatRegex.Matches(secondPart);
 
             //if(!logEntry.Contains('\n'))
             //    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };

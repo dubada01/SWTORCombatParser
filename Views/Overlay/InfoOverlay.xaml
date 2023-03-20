@@ -49,7 +49,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0" Visibility="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" Margin="2,5,5,3" Source="{Binding MedalIconPath}"></Image>
-                                    <TextBlock Margin="0,5,3,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="{Binding RankFontSize}" Foreground="{Binding RankColor}" Text="{Binding LeaderboardRank}" >
+                                    <TextBlock Margin="0,5,3,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="{Binding RankFontSize}" Foreground="Beige" TextDecorations="{Binding RankDecoration}" Text="{Binding LeaderboardRank}" >
                                     </TextBlock>
                                     <TextBlock Margin="0,3,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding PlayerName}" ></TextBlock>
                                 </Grid>

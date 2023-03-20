@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Prism.Commands;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
@@ -15,7 +16,7 @@ namespace SWTORCombatParser.DataStructures
         private string _targetId;
         private string _abilityId;
         private string _effectId;
-        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName,string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue)
+        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName,string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue,double maxValue,double logValue)
         {
             _sourceId= sourceId;
             _targetId = targetId;
@@ -27,12 +28,36 @@ namespace SWTORCombatParser.DataStructures
             Target = target;
             Ability = ability;
             EffectName = effectName;
+            EffectBackground = Brushes.Transparent;
+            ValueBackground = Brushes.Transparent;
+            if (effectId == _7_0LogParsing.DeathCombatId)
+            {
+                EffectBackground = Brushes.IndianRed;
+            }
+            if (effectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(source))
+            {
+                EffectBackground = Brushes.Crimson;
+            }
+            if (effectId == _7_0LogParsing.RevivedCombatId)
+            {
+                EffectBackground = Brushes.CornflowerBlue;
+            }
+            if(effectId == _7_0LogParsing._damageEffectId)
+            {
+                EffectBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#613b3b"));
+            }
+            if(double.TryParse(value, out var r))
+            {
+                ValueBackground = new SolidColorBrush(GetColorForValue(logValue / maxValue));
+            }
             Value = value;
             WasValueCrit = wasValueCrit;
             ValueType = type;
             ModifierType = modifiertype;
             ModifierValue = modifierValue;
         }
+        public SolidColorBrush EffectBackground { get; set; }
+        public SolidColorBrush ValueBackground { get; set; }
         public string SecondsSinceCombatStart { get; }
         public string Source { get; }
         public string Target { get; }
@@ -63,6 +88,22 @@ namespace SWTORCombatParser.DataStructures
                     break;
 
             }
+        }
+        private Color GetColorForValue(double fraction)
+        {
+            Color startColor = Colors.Transparent;
+            Color endColor = Colors.Red;
+
+
+            // Calculate the color based on the linear interpolation formula
+            byte a = (byte)(startColor.A + (endColor.A - startColor.A) * fraction);
+            byte r = (byte)(startColor.R + (endColor.R - startColor.R) * fraction);
+            byte g = (byte)(startColor.G + (endColor.G - startColor.G) * fraction);
+            byte b = (byte)(startColor.B + (endColor.B - startColor.B) * fraction);
+
+            // Create a new color object
+            Color selectedColor = Color.FromArgb(a,r, g, b);
+            return selectedColor;
         }
     }
     public class ParsedLogEntry

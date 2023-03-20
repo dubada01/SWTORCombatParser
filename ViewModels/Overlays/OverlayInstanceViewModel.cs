@@ -13,6 +13,7 @@ using System.Windows;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -57,6 +58,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
+        public event Action OnHiding  = delegate { };
+        public event Action OnShowing = delegate { };
         public event Action<string> OnCharacterDetected = delegate { };
         public void OverlayClosing()
         {
@@ -107,7 +110,26 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged += UpdateLeaderboardType;
+            CombatLogStreamer.NewLineStreamed += CheckForConversation;
             UpdateLeaderboardType(LeaderboardSettings.ReadLeaderboardSettings());
+        }
+
+        private bool _conversationActive;
+        private void CheckForConversation(ParsedLogEntry obj)
+        {
+            if (!obj.Source.IsLocalPlayer)
+                return;
+            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Apply)
+            {
+                _conversationActive = true;
+                OnHiding();
+            }
+
+            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Remove)
+            {
+                _conversationActive = false;
+                OnShowing();
+            }
         }
 
         private void UpdateLeaderboardType(LeaderboardType obj)
@@ -180,6 +202,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         public void Reset()
         {
+            if (_conversationActive)
+            {
+                OnShowing();
+                _conversationActive = false;
+            }
             Leaderboards.Reset();
             ResetMetrics();
         }
@@ -347,83 +374,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat combat, Entity participant)
         {
-            double value = GetValueForMetric(type, combat, participant);
+            double value = MetricGetter.GetValueForMetric(type, combat, participant);
             metric.SecondaryType = type;
             metric.SecondaryValue = value;
         }
         private void UpdateMetric(OverlayType type, OverlayMetricInfo metricToUpdate, Combat obj, Entity participant)
         {
-            var value = GetValueForMetric(type, obj, participant);
+            var value = MetricGetter.GetValueForMetric(type, obj, participant);
             metricToUpdate.Value = value;
         }
-        private static double GetValueForMetric(OverlayType type, Combat combat, Entity participant)
-        {
-            double value = 0;
-            switch (type)
-            {
-                case OverlayType.APM:
-                    value = combat.APM[participant];
-                    break;
-                case OverlayType.DPS:
-                    value = combat.ERegDPS[participant];
-                    break;
-                case OverlayType.NonEDPS:
-                    value = combat.DPS[participant];
-                    break;
-                case OverlayType.EHPS:
-                    value = combat.EHPS[participant];
-                    break;
-                case OverlayType.ProvidedAbsorb:
-                    value = combat.PSPS[participant];
-                    break;
-                case OverlayType.FocusDPS:
-                    value = combat.EFocusDPS[participant];
-                    break;
-                case OverlayType.ThreatPerSecond:
-                    value = combat.TPS[participant];
-                    break;
-                case OverlayType.Threat:
-                    value = combat.TotalThreat[participant];
-                    break;
-                case OverlayType.DamageTaken:
-                    value = combat.DTPS[participant];
-                    break;
-                case OverlayType.Mitigation:
-                    value = combat.MPS[participant];
-                    break;
-                case OverlayType.DamageSavedDuringCD:
-                    value = combat.DamageSavedFromCDPerSecond[participant];
-                    break;
-                case OverlayType.DamageAvoided:
-                    value = combat.DAPS[participant];
-                    break;
-                case OverlayType.ShieldAbsorb:
-                    value = combat.SAPS[participant];
-                    break;
-                case OverlayType.BurstDPS:
-                    value = combat.MaxBurstDamage[participant];
-                    break;
-                case OverlayType.BurstEHPS:
-                    value = combat.MaxBurstHeal[participant];
-                    break;
-                case OverlayType.BurstDamageTaken:
-                    value = combat.MaxBurstDamageTaken[participant];
-                    break;
-                case OverlayType.HealReactionTime:
-                    value = combat.NumberOfHighSpeedReactions[participant];
-                    break;
-                case OverlayType.HealReactionTimeRatio:
-                    value = combat.NumberOfHighSpeedReactions[participant] / combat.AbilitiesActivated[participant].Count;
-                    break;
-                case OverlayType.TankHealReactionTime:
-                    value = combat.AverageTankDamageRecoveryTimeTotal[participant];
-                    break;
-                case OverlayType.InterruptCount:
-                    value = combat.TotalInterrupts[participant];
-                    break;
-            }
-            return value;
-        }
+
 
 
 

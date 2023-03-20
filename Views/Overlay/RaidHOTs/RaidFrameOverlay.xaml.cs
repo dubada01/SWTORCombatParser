@@ -1,9 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using Gma.System.MouseKeyHook;
+using Newtonsoft.Json;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -19,10 +24,28 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private const int GWL_EXSTYLE = (-20);
         private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
         private string _currentPlayerName = "no character";
+        private IKeyboardMouseEvents _globalHook;
+
+        public event Action<double, double> AreaClicked = delegate { };
+        public event Action<bool> MouseInArea = delegate { };
         public RaidFrameOverlay()
         {
             InitializeComponent();
+            
             Loaded += Hello;
+            
+        }
+
+        private void GlobalMouseDown(object sender, MouseEventExtArgs e)
+        {
+            if (e.X < GetTopLeft().X || e.X > (GetTopLeft().X + GetWidth()) || e.Y < GetTopLeft().Y || e.Y > (GetTopLeft().Y + GetHeight()))
+                return;
+            var relativeX =e.X - GetTopLeft().X;
+            var relativeY =e.Y - GetTopLeft().Y;
+            var xFract = relativeX / (double)GetWidth();
+            var yFract = relativeY / (double)GetHeight();
+            Debug.WriteLine("Clicked Cell!");
+            AreaClicked(xFract, yFract);
         }
 
         private void RemoveFromAppWindow()
@@ -51,9 +74,31 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
             viewModel.ToggleLocked += makeTransparent;
             viewModel.PlayerChanged += SetPlayer;
+            
             RemoveFromAppWindow();
+            PollForCursorPos();
         }
 
+        private bool _isSubscribed;
+        private void SubscribeToClicks()
+        {
+            if(_isSubscribed)
+                return;
+            _isSubscribed = true;
+            _globalHook = Hook.GlobalEvents();
+            _globalHook.MouseDownExt += GlobalMouseDown;
+            MouseInArea(true);
+        }
+
+        private void UnsubscribeFromClicks()
+        {
+            if (!_isSubscribed)
+                return;
+            _isSubscribed = false;
+            _globalHook.MouseDownExt -= GlobalMouseDown;
+            _globalHook.Dispose();
+            MouseInArea(false);
+        }
         public void DragWindow(object sender, MouseButtonEventArgs args)
         {
             try
@@ -65,9 +110,53 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             }
             catch(Exception e)
             {
-                Logging.LogError("Failed to drag window: "+JsonConvert.SerializeObject(e));
+                Logging.LogInfo("Failed to drag window: "+JsonConvert.SerializeObject(e));
             }
 
+        }
+
+        private void PollForCursorPos()
+        {
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    POINT cursorPos = new POINT();
+                    if (GetCursorPos(out cursorPos))
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            var topLeft = GetTopLeft();
+                            var width = GetWidth();
+                            var height = GetHeight();
+                            if (cursorPos.X > topLeft.X && cursorPos.X < topLeft.X + width && cursorPos.Y > topLeft.Y &&
+                                cursorPos.Y < topLeft.Y + height)
+                            {
+                                SubscribeToClicks();
+                            }
+                            else
+                            {
+                                UnsubscribeFromClicks();
+                            }
+                        });
+                    }
+                    Thread.Sleep(200);
+                }
+            });
+        }
+        [DllImport("user32.dll")]
+        static extern bool GetCursorPos(out POINT lpPoint);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+
+            public static implicit operator System.Drawing.Point(POINT point)
+            {
+                return new System.Drawing.Point(point.X, point.Y);
+            }
         }
         private void Border_MouseEnter(object sender, MouseEventArgs e)
         {

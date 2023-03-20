@@ -235,12 +235,15 @@ namespace SWTORCombatParser.Model.LogParsing
                 CombatModifier correctedModifier = new CombatModifier();
                 if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
                 {
+                    correctedModifier.EffectId= m.EffectId;
+                    correctedModifier.EffectName = m.EffectName;
                     correctedModifier.Source = m.Source;
                     correctedModifier.Target = m.Target;
                     correctedModifier.Type = m.Type;
                     correctedModifier.Name = m.Name;
                     correctedModifier.StartTime = m.StartTime;
                     correctedModifier.StopTime = m.StopTime;
+                    correctedModifier.ChargesAtTime= m.ChargesAtTime;
                     if (m.StopTime == DateTime.MinValue)
                     {
                         correctedModifier.StopTime = endTime;

@@ -17,13 +17,13 @@ namespace SWTORCombatParser.ViewModels.DataGrid
     public class DataGridViewModel : INotifyPropertyChanged
     {
         private List<OverlayType> _columnOrder = new List<OverlayType> {
-            OverlayType.DPS,OverlayType.NonEDPS,OverlayType.FocusDPS,OverlayType.BurstDPS,
-            OverlayType.EHPS,OverlayType.HPS, OverlayType.BurstEHPS, OverlayType.HealReactionTime,
+            OverlayType.DPS,OverlayType.Damage,OverlayType.NonEDPS,OverlayType.RawDamage,OverlayType.FocusDPS,OverlayType.BurstDPS,
+            OverlayType.EHPS,OverlayType.EffectiveHealing,OverlayType.HPS,OverlayType.RawHealing, OverlayType.BurstEHPS, OverlayType.HealReactionTime,
             OverlayType.DamageTaken, OverlayType.BurstDamageTaken, OverlayType.Mitigation, OverlayType.ShieldAbsorb, OverlayType.ProvidedAbsorb, OverlayType.DamageAvoided, OverlayType.ThreatPerSecond,OverlayType.DamageSavedDuringCD,
             OverlayType.InterruptCount, OverlayType.APM};
         private List<Combat> _allSelectedCombats = new List<Combat>();
         private List<OverlayType> _selectedColumnTypes = _defaultColumns;
-        private static List<OverlayType> _defaultColumns = new List<OverlayType>() { OverlayType.DPS, OverlayType.BurstDPS, OverlayType.EHPS, OverlayType.BurstEHPS, OverlayType.DamageTaken, OverlayType.BurstDamageTaken, OverlayType.APM };
+        private static List<OverlayType> _defaultColumns = new List<OverlayType>() { OverlayType.DPS, OverlayType.Damage, OverlayType.EHPS, OverlayType.EffectiveHealing, OverlayType.DamageTaken, OverlayType.APM };
         private ObservableCollection<MemberInfoViewModel> partyMembers = new ObservableCollection<MemberInfoViewModel>();
         private ObservableCollection<DataGridHeaderViewModel> headerNames;
         private OverlayType _sortMetric;
@@ -131,11 +131,11 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             var sortedMembers = new List<MemberInfoViewModel>();
             if (_sortDirection == SortingDirection.Ascending)
             {
-                sortedMembers = newPlayers.OrderBy(v => GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
+                sortedMembers = newPlayers.OrderBy(v => MetricGetter.GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
             }
             if (_sortDirection == SortingDirection.Descending)
             {
-                sortedMembers = newPlayers.OrderByDescending(v => GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
+                sortedMembers = newPlayers.OrderByDescending(v => MetricGetter.GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
             }
             if(_sortDirection == SortingDirection.None)
             {
@@ -182,71 +182,6 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             return (string)new OverlayTypeToReadableNameConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
         }
-        private static double GetValueForMetric(OverlayType type, List<Combat> combats, Entity participant)
-        {
-            double value = 0;
-            switch (type)
-            {
-                case OverlayType.APM:
-                    value = combats.SelectMany(c => c.APM).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.DPS:
-                    value = combats.SelectMany(c => c.EDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.NonEDPS:
-                    value = combats.SelectMany(c => c.DPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.EHPS:
-                    value = combats.SelectMany(c => c.EHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    value += combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.ProvidedAbsorb:
-                    value = combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.FocusDPS:
-                    value = combats.SelectMany(c => c.EFocusDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.ThreatPerSecond:
-                    value = combats.SelectMany(c => c.TPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.Threat:
-                    value = combats.SelectMany(c => c.TotalThreat).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.DamageTaken:
-                    value = combats.SelectMany(c => c.EDTPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.Mitigation:
-                    value = combats.SelectMany(c => c.MPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.DamageSavedDuringCD:
-                    value = combats.SelectMany(c => c.DamageSavedFromCDPerSecond).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.DamageAvoided:
-                    value = combats.SelectMany(c => c.DAPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.ShieldAbsorb:
-                    value = combats.SelectMany(c => c.SAPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.BurstDPS:
-                    value = combats.SelectMany(c => c.MaxBurstDamage).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.BurstEHPS:
-                    value = combats.SelectMany(c => c.MaxBurstHeal).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.BurstDamageTaken:
-                    value = combats.SelectMany(c => c.MaxBurstDamageTaken).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.HealReactionTime:
-                    value = combats.SelectMany(c => c.NumberOfHighSpeedReactions).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.TankHealReactionTime:
-                    value = combats.SelectMany(c => c.AverageTankDamageRecoveryTimeTotal).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-                case OverlayType.InterruptCount:
-                    value = combats.SelectMany(c => c.TotalInterrupts).Where(v => v.Key == participant).Select(v => v.Value).Average();
-                    break;
-            }
-            return value;
-        }
+       
     }
 }

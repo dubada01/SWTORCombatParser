@@ -15,18 +15,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="0.85*"/>
             </Grid.RowDefinitions>
-            <ItemsControl Grid.Row="1" ItemsSource="{Binding ActiveChallengeInstances}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <local:ChallengeWindowInstance/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="{Binding Path=DataContext.ActiveChallengeInstances.Count}" Rows="1"></UniformGrid>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+            <local:ChallengeControl MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"/>
             <Grid MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" Visibility="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

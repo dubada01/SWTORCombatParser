@@ -81,6 +81,31 @@ namespace SWTORCombatParser.Model.Timers
                     return CheckForVariable(SourceTimer);
                 case TimerKeyType.IsTimerTriggered:
                     return activeTimers.Any(t => t.SourceTimer.Id == SourceTimer.SeletedTimerIsActiveId) ? TriggerType.Start : TriggerType.End;
+                case TimerKeyType.EffectCharges:
+                    return CheckForCharges(log,SourceTimer, timeStamp, currentTarget);
+            }
+            return TriggerType.None;
+        }
+
+        private static TriggerType CheckForCharges(ParsedLogEntry log,Timer sourceTimer, DateTime timeStamp, Entity currentTarget)
+        {
+            if (EntityIsValid(log.Target, sourceTimer.Target, currentTarget) && EntityIsValid(log.Source, sourceTimer.Source, currentTarget))
+            {
+                if(log.Effect.EffectType == EffectType.ModifyCharges)
+                {
+                    switch (sourceTimer.ComparisonAction)
+                    {
+                        case VariableComparisons.Equals:
+                            return log.Value.DblValue == sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
+                        case VariableComparisons.Less:
+                            return log.Value.DblValue < sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
+                        case VariableComparisons.Greater:
+                            return log.Value.DblValue > sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
+                        case VariableComparisons.Between:
+                            return log.Value.DblValue > sourceTimer.ComparisonValMin && log.Value.DblValue < sourceTimer.ComparisonValMax ? TriggerType.Start : TriggerType.None;
+                    }
+                    return TriggerType.None;
+                }
             }
             return TriggerType.None;
         }

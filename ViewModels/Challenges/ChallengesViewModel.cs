@@ -29,7 +29,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 {
     public class ChallengeSetupViewModel : INotifyPropertyChanged
     {
-        private ChallengeWindowViewModel _challengeWindowViewModel;
+        public static ChallengeWindowViewModel _challengeWindowViewModel;
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private bool _isLocked;
         private Challenge _challengeEdited;

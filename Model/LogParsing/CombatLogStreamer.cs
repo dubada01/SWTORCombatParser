@@ -46,6 +46,7 @@ namespace SWTORCombatParser.Model.LogParsing
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             _fileEncoding = Encoding.GetEncoding(1252);
             CombatDetector.AlertExitCombatTimedOut += OnExitCombatTimedOut;
+            _7_0LogParsing.SetupRegex();
         }
         public string CurrentLog => _logToMonitor;
         public void MonitorLog(string logToMonitor)

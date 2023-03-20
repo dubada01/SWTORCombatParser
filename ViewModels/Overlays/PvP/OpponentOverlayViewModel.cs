@@ -202,6 +202,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool IsCurrentInfo(string opponentKey)
         {
+            if (!_lastUpdatedPlayer.ContainsKey(opponentKey))
+                return false;
             var lastInfoTime = _lastUpdatedPlayer[opponentKey];
             return (DateTime.Now - lastInfoTime).TotalSeconds < 5;
         }

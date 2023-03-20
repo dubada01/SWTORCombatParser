@@ -21,16 +21,20 @@ namespace SWTORCombatParser.Utilities.Converters
                 case OverlayType.BurstDPS:
                     return Brushes.Tomato;
                 case OverlayType.DPS:
+                case OverlayType.Damage:
                     return Brushes.IndianRed;
                 case OverlayType.NonEDPS:
+                case OverlayType.RawDamage:
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#d44c73"));
                 case OverlayType.FocusDPS:
                     return Brushes.OrangeRed;
                 case OverlayType.BurstEHPS:
                     return Brushes.LimeGreen;
                 case OverlayType.EHPS:
+                case OverlayType.EffectiveHealing:
                     return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("EHPSColor"));
                 case OverlayType.HPS:
+                case OverlayType.RawHealing:
                     return Brushes.Green;
                 case OverlayType.ProvidedAbsorb:
                     return Brushes.CadetBlue;
