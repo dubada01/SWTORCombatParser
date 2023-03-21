@@ -303,12 +303,6 @@ namespace SWTORCombatParser.Model.Timers
                 {
                     UpdateCharges(log, targetInfo);
                 }
-                if (wasTriggered == TriggerType.Start)
-                    Task.Run(() =>
-                    {
-                        Thread.Sleep(250);
-                        ReorderRequested();
-                    });
             }
             
         }

@@ -1,6 +1,7 @@
 ﻿using Gma.System.MouseKeyHook;
 using Newtonsoft.Json;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
@@ -25,6 +26,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
         private string _currentPlayerName = "no character";
         private IKeyboardMouseEvents _globalHook;
+        private bool _inCombat;
 
         public event Action<double, double> AreaClicked = delegate { };
         public event Action<bool> MouseInArea = delegate { };
@@ -33,7 +35,20 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             InitializeComponent();
             
             Loaded += Hello;
-            
+            CombatLogStreamer.CombatUpdated += CheckForCombat;
+        }
+
+        private void CheckForCombat(CombatStatusUpdate obj)
+        {
+            if(obj.Type == UpdateType.Start)
+            {
+                _inCombat= true;
+                UnsubscribeFromClicks();
+            }
+            if(obj.Type == UpdateType.Stop)
+            {
+                _inCombat= false;
+            }
         }
 
         private void GlobalMouseDown(object sender, MouseEventExtArgs e)
@@ -44,7 +59,6 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             var relativeY =e.Y - GetTopLeft().Y;
             var xFract = relativeX / (double)GetWidth();
             var yFract = relativeY / (double)GetHeight();
-            Debug.WriteLine("Clicked Cell!");
             AreaClicked(xFract, yFract);
         }
 
@@ -122,7 +136,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 while (true)
                 {
                     POINT cursorPos = new POINT();
-                    if (GetCursorPos(out cursorPos))
+                    if (GetCursorPos(out cursorPos) && !_inCombat)
                     {
                         Application.Current.Dispatcher.Invoke(() =>
                         {

@@ -155,7 +155,7 @@ public static class TimerController
                 handler => t.NewTimerInstance -= handler).Subscribe(AddTimerVisual)).ToList();
         _reorderSubs = _availableTimers.Select(t =>
             Observable.FromEvent(handler => t.ReorderRequested += handler,
-                handler => t.ReorderRequested -= handler).Subscribe(_=>ReorderRequest())).ToList();
+                handler => t.ReorderRequested -= handler).Throttle(TimeSpan.FromMilliseconds(250)).Subscribe(_=>ReorderRequest())).ToList();
         FilterTimers();
     }
 
