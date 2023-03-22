@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Model.CombatParsing;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -72,6 +73,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
+            CombatLogStreamer.CombatUpdated += CheckForEnd;
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
             _timerWindow = new TimersWindow(this);
             _timerWindow.SetIdText("BOSS TIMERS");
@@ -85,6 +87,23 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
             });
         }
+
+        private void CheckForEnd(CombatStatusUpdate obj)
+        {
+            if(obj.Type == UpdateType.Stop)
+            {
+                lock (_timerChangeLock)
+                {
+                    foreach (var timer in SwtorTimers)
+                    {
+                        timer.Dispose();
+                    }
+                    SwtorTimers = new List<TimerInstanceViewModel>();
+                    OnPropertyChanged("SwtorTimers");
+                }
+            }
+        }
+
         public void SetScale(double scale)
         {
             _currentScale = scale;

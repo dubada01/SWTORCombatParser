@@ -13,11 +13,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
     {
         private EntityInfo _bossInfo;
         private bool isActive;
+        private double _currentScale;
 
         public ObservableCollection<TimerInstanceViewModel> ActiveDOTS { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
 
-        public DotModuleViewModel(EntityInfo bossInfo, bool dotTrackingEnabled)
+        public DotModuleViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, double scale)
         {
+            _currentScale = scale;
             isActive = dotTrackingEnabled;
             _bossInfo = bossInfo;
             TimerController.TimerExpired += RemoveTimer;
@@ -27,6 +29,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public void SetActive(bool state)
         {
             isActive = state;
+        }
+        public void SetScale(double scale)
+        {
+            _currentScale = scale;
+            App.Current.Dispatcher?.Invoke(() =>
+            {
+                foreach (var timer in ActiveDOTS)
+                {
+                    timer.Scale = scale;
+                }
+            });
         }
         private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
@@ -42,7 +55,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 return;
             if (obj.TargetId == _bossInfo.Entity.Id && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer)
             {
-                App.Current.Dispatcher.Invoke(() => { ActiveDOTS.Add(obj); });
+                App.Current.Dispatcher.Invoke(() => {
+                    obj.Scale = _currentScale;
+                    ActiveDOTS.Add(obj); 
+                });
             }
             callback(obj);
         }

@@ -67,10 +67,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             var legend = GraphView.Plot.Legend(location: Alignment.UpperRight);
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
             legend.FontColor = Color.WhiteSmoke;
-            legend.FontSize = 15;
+            legend.FontSize = 12;
             ConfigureSeries(Enum.GetValues(typeof(PlotType)).Cast<PlotType>().ToList());
             LegendItems = GetLegends();
-            GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 120, 120, 120));
+            GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 10, 10, 10),
+                figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 120, 120, 120), tick: Color.LightGray, axisLabel: Color.WhiteSmoke, titleLabel: Color.WhiteSmoke);
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
             GraphView.Refresh();
         }
@@ -352,7 +353,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 }
                 if (plotXValRates.Length > 1)
                 {
-                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, label: seriesName + "/s", color: series.Color, lineWidth: 2);
+                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, color: series.Color, lineWidth: 2);
                     if (series.Type == PlotType.HPPercent)
                         series.Line[combatToPlot.StartTime].YAxisIndex = 1;
                 }
@@ -364,7 +365,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                     series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     if (plotXValRates.Length > 1)
                     {
-                        series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, rawYValRates, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, label: "Raw" + seriesName + "/s", color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
+                        series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, rawYValRates, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
                         series.EffectiveLine[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     }
 

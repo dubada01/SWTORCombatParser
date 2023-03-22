@@ -558,6 +558,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             _encounterTimersWindow.SetScale(sizeScalar);
             _disciplineTimersWindow.SetScale(sizeScalar);
+           
         }
     }
 }
