@@ -46,16 +46,17 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 new Bitmap(Path.Combine(Environment.CurrentDirectory, "resources/skull_Icon.png"));
             GraphView = new WpfPlot();
             GraphView.Plot.XLabel("Combat Duration (s)");
+            GraphView.Plot.Title("Damage Taken");
             GraphView.Plot.YLabel("Value");
             GraphView.Plot.YAxis2.Label("Health");
             GraphView.Plot.YAxis2.Ticks(true);
             var legend = GraphView.Plot.Legend(location: Alignment.UpperRight);
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
             legend.FontColor = Color.WhiteSmoke;
-            legend.FontSize = 15;
+            legend.FontSize = 10;
             InitCrosshair(0);
             GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 10, 10, 10),
-                figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 120, 120, 120));
+                figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 120, 120, 120), tick:Color.LightGray, axisLabel:Color.WhiteSmoke, titleLabel: Color.WhiteSmoke);
             GraphView.Refresh();
         }
 

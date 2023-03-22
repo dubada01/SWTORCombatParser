@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.BossFrame" xmlns:raidhots="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid Height="{Binding BarHeight}">
         <ItemsControl ItemsSource="{Binding ActiveDOTS}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
