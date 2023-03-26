@@ -35,6 +35,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string selectedEncounter;
         private string selectedDifficulty;
         private string selectedBoss;
+
+        private bool _isBuiltInDCD;
+        private bool _isBuiltInHOT;
+        private bool _isBuiltInDOT;
+        private bool _isBuiltInMechanic;
+
         private bool isEditing;
         private List<string> addedCustomSources = new List<string>();
         private List<string> addedCustomTargets = new List<string>();
@@ -793,6 +799,11 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public void Edit(Timer timerToEdit)
         {
+            _isBuiltInDCD = timerToEdit.IsBuiltInDefensive;
+            _isBuiltInDOT = timerToEdit.IsBuiltInDot;
+            IsHot = timerToEdit.IsHot;
+            _isBuiltInMechanic = timerToEdit.IsMechanic && !timerToEdit.IsUserAddedTimer;
+
             _editedTimer = timerToEdit;
             isEditing = true;
             Id = string.IsNullOrEmpty(timerToEdit.Id) ? Guid.NewGuid().ToString() : timerToEdit.Id;
@@ -807,7 +818,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             Effect = timerToEdit.Effect;
             ResetOnEffectLoss = timerToEdit.ResetOnEffectLoss;
             Ability = timerToEdit.Ability;
-            IsHot = timerToEdit.IsHot;
+            
             TrackOutsideOfCombat = timerToEdit.TrackOutsideOfCombat;
             if (timerToEdit.TriggerType == TimerKeyType.TimerExpired)
             {
@@ -984,7 +995,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ActiveForVeteran = ActiveForVeteran,
                 ActiveForMaster = ActiveForMaster,
                 CanBeRefreshed = CanBeRefreshed,
-                IsHot = IsHot,
                 ShowTargetOnTimerUI = ShowTargetOnTimerUI,
                 UseAudio = UseAudio,
                 Clause1 = _clause1,
@@ -1004,7 +1014,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ShouldModifyVariable = IsModifyingVariables,
                 UseVisualsAndModify = IsModifyingVariables && IncludeTimerVisuals,
                 TimerRev = editRev,
-                IsUserAddedTimer = true,
+                IsUserAddedTimer = _isBuiltInMechanic || _isBuiltInDCD || _isBuiltInDOT || _isBuiltInHOT ? false : true,
+                IsBuiltInDot = _isBuiltInDOT,
+                IsHot = IsHot,
+                IsBuiltInDefensive = _isBuiltInDCD,
             };
 
             OnNewTimer(newTimer, isEditing);

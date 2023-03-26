@@ -185,7 +185,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert ||
-                obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
+                obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield || obj.TimerValue <= 0)
             {
                 callback(obj);
                 return;
@@ -216,6 +216,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             lock (_timerChangeLock)
             {
+                _visibleTimers.RemoveAll(t => t.TimerValue <= 0);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
                 OnPropertyChanged("SwtorTimers");
             }

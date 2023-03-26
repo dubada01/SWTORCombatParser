@@ -74,6 +74,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             HistoricalLogsStarted();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
+            CombatLogParser.SetParseDate();
             var currentLogs = CombatLogParser.ParseAllLines(file,true);
             Logging.LogInfo("Found " + currentLogs.Count + " log entries in "+_logToMonitor);
             int[] characters = new int[currentLogs.Count];
@@ -251,7 +252,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private ProcessedLineResult ProcessNewLine(string line,long lineIndex,string logName)
         {
-            var parsedLine = CombatLogParser.ParseLine(line,lineIndex);
+            var parsedLine = CombatLogParser.ParseLine(line,lineIndex, (!_currentFrameData.Any()) ? DateTime.MinValue : _currentFrameData.Last().TimeStamp);
             var timeOffset = Math.Abs((parsedLine.TimeStamp - DateTime.Now).TotalMilliseconds);
             NewLogTimeOffsetMs(timeOffset);
             if (parsedLine.Error == ErrorType.IncompleteLine)

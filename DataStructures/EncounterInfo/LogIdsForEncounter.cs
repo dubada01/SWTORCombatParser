@@ -326,19 +326,19 @@ public static class LogIdFactory
                         {
                             "Dread Master Bestia", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 3313331045662720L,3273941900591104L } },
-                                { "Story 16", new List<long>() { 3313335340630016L,3273941900591104L } },
-                                { "Veteran 8", new List<long>() { 3313339635597312L,3273941900591104L } },
-                                { "Veteran 16", new List<long>() { 3313343930564608L,3273941900591104L } },
+                                { "Story 8", new List<long>() { 3273941900591104L } },
+                                { "Story 16", new List<long>() { 3273941900591104L } },
+                                { "Veteran 8", new List<long>() { 3273941900591104L } },
+                                { "Veteran 16", new List<long>() { 3273941900591104L } },
                             }
                         },
                         {
                             "Dread Master Tyrans", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 3312841419390976L,3273954785492992L} },
-                                { "Story 16", new List<long>() { 3312850009325568L,3273954785492992L} },
-                                { "Veteran 8", new List<long>() { 3312845714358272L,3273954785492992L } },
-                                { "Veteran 16", new List<long>() { 3312854304292864L,3273954785492992L } },
+                                { "Story 8", new List<long>() { 3273954785492992L} },
+                                { "Story 16", new List<long>() { 3273954785492992L} },
+                                { "Veteran 8", new List<long>() { 3273954785492992L } },
+                                { "Veteran 16", new List<long>() { 3273954785492992L } },
                             }
                         },
                         {
@@ -363,10 +363,10 @@ public static class LogIdFactory
                         {
                             "Dread Council", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() {3273984850264064L,3273997735165952L, 3273989145231360L,3273993440198656L,3274019210002432L,3303830578003968L,3355541984247808L } },
-                                { "Story 16", new List<long>() {3273984850264064L,3273997735165952L, 3273989145231360L,3273993440198656L,3274019210002432L,3303830578003968L,3355541984247808L} },
-                                { "Veteran 8", new List<long>() {3273984850264064L,3273997735165952L, 3273989145231360L,3273993440198656L,3274019210002432L,3303830578003968L,3355541984247808L } },
-                                { "Veteran 16", new List<long>() {3273984850264064L,3273997735165952L, 3273989145231360L,3273993440198656L,3274019210002432L,3303830578003968L,3355541984247808L} },
+                                { "Story 8", new List<long>() {3273984850264064L,3273997735165952L, 3273989145231360L,3273993440198656L,3274019210002432L,3303830578003968L } },
+                                { "Story 16", new List<long>() {3273984850264064L,3273997735165952L, 3273989145231360L,3273993440198656L,3274019210002432L,3303830578003968L} },
+                                { "Veteran 8", new List<long>() {3273984850264064L,3273997735165952L, 3273989145231360L,3273993440198656L,3274019210002432L,3303830578003968L} },
+                                { "Veteran 16", new List<long>() {3273984850264064L,3273997735165952L, 3273989145231360L,3273993440198656L,3274019210002432L,3303830578003968L} },
                             }
                         }
                     };
@@ -420,6 +420,55 @@ public static class LogIdFactory
                                 { "Veteran 16", new List<long>() { 3468740142301184L ,3371437658210304L, 3371441953177600L} },
                             }
                         }
+                    }; 
+                    encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Sparky", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3367555007774720L } },
+                                { "Story 16", new List<long>() { 3458114393210880L } },
+                                { "Veteran 8", new List<long>() { 3458110098243584L } },
+                                { "Veteran 16", new List<long>() { 3458122983145472L } },
+                            }
+                        },
+                        {
+                            "Quartermaster Bulo", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3371446248144896L} },
+                                { "Story 16", new List<long>() { 3468701487595520L} },
+                                { "Veteran 8", new List<long>() { 3468705782562816L } },
+                                { "Veteran 16", new List<long>() { 3468697192628224L } },
+                            }
+                        },
+                        {
+                            "Torque", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3397005598523392L } },
+                                { "Story 16", new List<long>() { 3468714372497408L } },
+                                { "Veteran 8", new List<long>() { 3468710077530112L } },
+                                { "Veteran 16", new List<long>() { 3468718667464704L } },
+                            }
+                        },
+                        {
+                            "Master & Blaster", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3391095723524096L} },
+                                { "Story 16", new List<long>() { 3462181727240192L} },
+                                { "Veteran 8", new List<long>() { 3458148752949248L} },
+                                { "Veteran 16", new List<long>() { 3462186022207488L} },
+                            }
+                        }
+                        ,
+                        {
+                            "Coratanni", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3443983950807040 } },
+                                { "Story 16", new List<long>() { 3468731552366592 } },
+                                { "Veteran 8", new List<long>() { 3468735847333888 } },
+                                { "Veteran 16", new List<long>() { 3468740142301184 } },
+                            }
+                        }
                     };
                     break;
                 case "Temple of Sacrifice":
@@ -465,10 +514,59 @@ public static class LogIdFactory
                         {
                             "Revan", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 3443983950807040L,3431605855059968L, 3444310368321536L,3447583133401088L,3440805675008000L } },
-                                { "Story 16", new List<long>() { 3468735847333888L,3431605855059968L, 3444310368321536L,3447583133401088L,3440805675008000L } },
-                                { "Veteran 8", new List<long>() { 3468731552366592L,3431605855059968L, 3444310368321536L,3447583133401088L,3440805675008000L } },
-                                { "Veteran 16", new List<long>() { 3468740142301184L ,3431605855059968L, 3444310368321536L,3447583133401088L,3440805675008000L} },
+                                { "Story 8", new List<long>() { 3431605855059968L, 3444310368321536L,3447583133401088L,3440805675008000L } },
+                                { "Story 16", new List<long>() { 3431605855059968L, 3444310368321536L,3447583133401088L,3440805675008000L } },
+                                { "Veteran 8", new List<long>() { 3431605855059968L, 3444310368321536L,3447583133401088L,3440805675008000L } },
+                                { "Veteran 16", new List<long>() { 3431605855059968L, 3444310368321536L,3447583133401088L,3440805675008000L} },
+                            }
+                        }
+                    };
+                    encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Malaphar the Savage", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3431245077807104L } },
+                                { "Story 16", new List<long>() { 3469281308180480L } },
+                                { "Veteran 8", new List<long>() { 3469277013213184L } },
+                                { "Veteran 16", new List<long>() { 3469285603147776L } },
+                            }
+                        },
+                        {
+                            "Sword Squadron", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3447784996864000L,3447789291831296L} },
+                                { "Story 16", new List<long>() { 3468770207072256L,3447789291831296L} },
+                                { "Veteran 8", new List<long>() { 3468765912104960L,3447789291831296L } },
+                                { "Veteran 16", new List<long>() { 3468774502039552L,3447789291831296L } },
+                            }
+                        },
+                        {
+                            "The Underlurker", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3411402328899584L } },
+                                { "Story 16", new List<long>() { 3462267626586112L } },
+                                { "Veteran 8", new List<long>() { 3462263331618816L } },
+                                { "Veteran 16", new List<long>() { 3462271921553408L } },
+                            }
+                        },
+                        {
+                            "Revanite Commanders", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3482806160195584L,3456890327531520L, 3456894622498816L, 3456898917466112L} },
+                                { "Story 16", new List<long>() { 3483029498494976L,3456890327531520L, 3456894622498816L, 3456898917466112L } },
+                                { "Veteran 8", new List<long>() { 3483025203527680L,3456890327531520L, 3456894622498816L, 3456898917466112L } },
+                                { "Veteran 16", new List<long>() { 3483033793462272L,3456890327531520L, 3456894622498816L, 3456898917466112L } },
+                            }
+                        }
+                        ,
+                        {
+                            "Revan", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() {3444310368321536L,3447583133401088L,3440805675008000L } },
+                                { "Story 16", new List<long>() { 3444310368321536L,3447583133401088L,3440805675008000L } },
+                                { "Veteran 8", new List<long>() { 3444310368321536L,3447583133401088L,3440805675008000L } },
+                                { "Veteran 16", new List<long>() { 3444310368321536L,3447583133401088L,3440805675008000L} },
                             }
                         }
                     };

@@ -114,7 +114,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public double Value
         {
-            get => _value; set
+            get => double.IsNaN(_value) ? 0 : _value; set
             {
                 _value = value;
                 defaultValueWidth = 70;
@@ -129,7 +129,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public double SecondaryValue
         {
-            get => _secondaryValue; set
+            get => double.IsNaN(_secondaryValue) ? 0:_secondaryValue; set
             {
                 _secondaryValue = value;
                 OnPropertyChanged();

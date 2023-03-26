@@ -213,7 +213,7 @@ public static class TimerController
     private static object _currentTimersModLock = new object();
     private static void TimerAddedCallback(TimerInstanceViewModel addedTimer)
     {
-        lock (_currentTimersModLock)
+        lock (_timerLock)
         {
             if (_currentlyActiveTimers.Any(t => t.SourceTimer.Id == addedTimer.SourceTimer.Id))
                 return;
