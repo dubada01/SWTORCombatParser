@@ -96,6 +96,9 @@ public static class MetricGetter
                 value = combats.SelectMany(c => c.TotalInterrupts).Where(v => v.Key == participant).Select(v => v.Value)
                     .Average();
                 break;
+            case OverlayType.CritPercent:
+                value = combats.SelectMany(c => c.CritPercent).Where(c => c.Key == participant).Select(v => v.Value).Average()*100;
+                break;
         }
 
         return value;

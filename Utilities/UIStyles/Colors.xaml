@@ -17,6 +17,7 @@
     <Color x:Key="ControlDarkColor">#FF211AA9</Color>
     <Color x:Key="Gray1">#111</Color>
     <Color x:Key="Gray2">#222</Color>
+    <Color x:Key="Gray2_75">#aa222222</Color>
     <Color x:Key="Gray3">#333</Color>
     <Color x:Key="Gray4">#444</Color>
     <Color x:Key="Gray5">#555</Color>
@@ -71,6 +72,7 @@
 
     <SolidColorBrush x:Key="Gray1Brush" Color="{StaticResource Gray1}"/>
     <SolidColorBrush x:Key="Gray2Brush" Color="{StaticResource Gray2}"/>
+    <SolidColorBrush x:Key="Gray2_75Brush" Color="{StaticResource Gray2_75}"/>
     <SolidColorBrush x:Key="Gray3Brush" Color="{StaticResource Gray3}"/>
     <SolidColorBrush x:Key="Gray4Brush" Color="{StaticResource Gray4}"/>
     <SolidColorBrush x:Key="Gray5Brush" Color="{StaticResource Gray5}"/>

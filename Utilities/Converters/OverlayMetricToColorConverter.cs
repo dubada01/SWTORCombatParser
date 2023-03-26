@@ -62,6 +62,8 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.Brown;
                 case OverlayType.TankHealReactionTime:
                     return Brushes.RosyBrown;
+                case OverlayType.CritPercent:
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#13ad7d"));
                 default:
                     return Brushes.Gray;
             }

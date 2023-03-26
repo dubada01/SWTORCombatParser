@@ -66,8 +66,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             _currentOverlay.Height = defaults.WidtHHeight.Y;
             _currentOverlay.Top = defaults.Position.Y;
             _currentOverlay.Left = defaults.Position.X;
-            RaidFrameRows = defaults.Rows.ToString();
-            RaidFrameColumns = defaults.Columns.ToString();
+            Task.Run(() => {
+                RaidFrameRows = defaults.Rows.ToString();
+                Thread.Sleep(100);
+                RaidFrameColumns = defaults.Columns.ToString();
+            });
+
 
         }
 
@@ -224,9 +228,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
                         else
                         {
-                            if (redPixelAverage < 0.10 && !CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(DateTime.Now).IsBossEncounter) //check to verify that you're not in a raid phase
+                            if (redPixelAverage < 0.05 && !CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(DateTime.Now).IsBossEncounter) //check to verify that you're not in a raid phase
                             {
-                                _currentOverlayViewModel.Reset();
+                                //_currentOverlayViewModel.Reset();
                             }
                             Thread.Sleep(1000);
                         }

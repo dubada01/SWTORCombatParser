@@ -213,11 +213,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 DisplayTimerValue = true;
                 var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds * -1;
 
-#if DEBUG
-                if(_stubTimer)
-                    offset = 0;
-#endif
-
                 TimerValue = MaxTimerValue + offset;
                 _lastUpdateTime = DateTime.Now;
                 OnPropertyChanged("CurrentRatio");

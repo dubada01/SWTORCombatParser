@@ -48,7 +48,12 @@ public static class Settings
             settingList[settingName] = false;
         return settingList[settingName].Value<T>();
     }
-
+    public static bool HasSetting(string settingName)
+    {
+        Init();
+        var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
+        return settingList.ContainsKey(settingName);
+    }
     public static void WriteSetting<T>(string settingName, T value)
     {
         Init();

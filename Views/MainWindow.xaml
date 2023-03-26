@@ -14,7 +14,8 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height=".95*"/>
-            <RowDefinition Height=".05*"/>
+            <RowDefinition Height="1.5"/>
+            <RowDefinition Height=".045*"/>
         </Grid.RowDefinitions>
         <TabControl SelectedIndex="{Binding SelectedTabIndex}" SelectionChanged="TabControl_SelectionChanged"  ItemsSource="{Binding ContentTabs}" BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="{StaticResource Gray5Brush}" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
             <TabControl.Resources>
@@ -99,13 +100,24 @@
         </TabControl>
 
         <ContentPresenter  Margin="5,5,5,5" Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
-        <StackPanel HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Orientation="Horizontal">
+        <Rectangle Grid.Row="1" Fill="DimGray" Margin="15,0,15,0"></Rectangle>
+        <StackPanel HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Orientation="Horizontal">
             <TextBlock VerticalAlignment="Center" Foreground="{StaticResource Gray10Brush}" Text="Parsely" Margin="0,0,5,0"></TextBlock>
-            <Button VerticalAlignment="Center" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Width="30" Padding="2" Background="{Binding UploadButtonBackground}" Command="{Binding UploadToParselyCommand}">
-                <Image Source="/resources/uploadToParselyIcon.png" Height="15"></Image>
+            <Button VerticalAlignment="Center" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Width="30" Padding="1" Command="{Binding OpenParselyConfigCommand}">
+                <Viewbox MaxHeight="20">
+                    <Image Source="/resources/cogIcon.png"></Image>
+                </Viewbox>
+
             </Button>
-            <Button Visibility="{Binding CanOpenParsely, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Width="30" Padding="2" Background="WhiteSmoke" Command="{Binding OpenParselyCommand}">
-                <Image Source="/resources/openParselyIcon.png" Height="15"></Image>
+            <Button VerticalAlignment="Center" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Width="30" Padding="1" Background="{Binding UploadButtonBackground}" Command="{Binding UploadToParselyCommand}">
+                <Viewbox MaxHeight="20">
+                    <Image Source="/resources/uploadToParselyIcon.png" Height="15"></Image>
+                </Viewbox>
+            </Button>
+            <Button Visibility="{Binding CanOpenParsely, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Width="30" Padding="1" Background="WhiteSmoke" Command="{Binding OpenParselyCommand}">
+                <Viewbox MaxHeight="20">
+                    <Image Source="/resources/openParselyIcon.png" Height="15"></Image>
+                </Viewbox>
             </Button>
         </StackPanel>
     </Grid>

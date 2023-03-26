@@ -37,6 +37,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Security.Policy;
 using SWTORCombatParser.ViewModels.Death_Review;
+using Prism.Commands;
 
 namespace SWTORCombatParser.ViewModels
 {
@@ -169,6 +170,13 @@ namespace SWTORCombatParser.ViewModels
         private void OpenParsely(object obj)
         {
             Process.Start(new ProcessStartInfo(parselyLink) { UseShellExecute = true });
+        }
+        public ICommand OpenParselyConfigCommand => new DelegateCommand(OpenParselyConfig);
+
+        private void OpenParselyConfig()
+        {
+            var parselySettingsWindow = new ParselySettings();
+            parselySettingsWindow.ShowDialog();
         }
 
         public ICommand UploadToParselyCommand => new CommandHandler(UploadToParsely);

@@ -1,23 +1,32 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays;
+using SWTORCombatParser.ViewModels.Overlays.Personal;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
-namespace SWTORCombatParser.Views.Overlay
+namespace SWTORCombatParser.Views.Overlay.Personal
 {
     /// <summary>
-    /// Interaction logic for InfoOverlay.xaml
+    /// Interaction logic for PersonalOverlayWindow.xaml
     /// </summary>
-    public partial class InfoOverlay : Window
+    public partial class PersonalOverlayWindow : Window
     {
-        private OverlayInstanceViewModel viewModel;
-        private string _currentPlayerName;
+        private PersonalOverlayViewModel viewModel;
         private bool _closed;
-        public InfoOverlay(OverlayInstanceViewModel vm)
+        public PersonalOverlayWindow(PersonalOverlayViewModel vm)
         {
             viewModel = vm;
             DataContext = vm;
@@ -28,8 +37,8 @@ namespace SWTORCombatParser.Views.Overlay
             vm.OnLocking += makeTransparent;
             vm.OnHiding += HideOverlay;
             vm.OnShowing += ShowOverlay;
-            vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
+
             Loaded += OnLoaded;
         }
 
@@ -37,7 +46,7 @@ namespace SWTORCombatParser.Views.Overlay
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if(!_closed)
+                if (!_closed)
                     Show();
             });
 
@@ -61,6 +70,7 @@ namespace SWTORCombatParser.Views.Overlay
             IntPtr hwnd = new WindowInteropHelper(this).Handle;
             int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
             SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
+            makeTransparent(true);
         }
         public const int WS_EX_TRANSPARENT = 0x00000020;
         public const int GWL_EXSTYLE = (-20);
@@ -79,14 +89,12 @@ namespace SWTORCombatParser.Views.Overlay
                 if (shouldLock)
                 {
                     BackgroundArea.Opacity = 0.1f;
-                    ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                     SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
                 }
                 else
                 {
                     BackgroundArea.Opacity = 0.45f;
-                    ScrollView.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
                     //Remove the WS_EX_TRANSPARENT flag from the extended window style
                     int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                     SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);
@@ -95,10 +103,6 @@ namespace SWTORCombatParser.Views.Overlay
             });
 
         }
-        public void SetPlayer(string playerName)
-        {
-            _currentPlayerName = playerName;
-        }
         private void CloseOverlay()
         {
             Dispatcher.Invoke(() =>
@@ -106,7 +110,7 @@ namespace SWTORCombatParser.Views.Overlay
                 _closed = true;
                 Close();
             });
-   
+
         }
 
         public void DragWindow(object sender, MouseButtonEventArgs args)
@@ -115,21 +119,21 @@ namespace SWTORCombatParser.Views.Overlay
         }
         public void UpdateDefaults(object sender, MouseButtonEventArgs args)
         {
-            DefaultCharacterOverlays.SetCharacterDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            DefaultGlobalOverlays.SetDefault("Personal", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
         }
 
         private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             var yadjust = Height + e.VerticalChange;
             var xadjust = Width + e.HorizontalChange;
-            if(xadjust > 0)
+            if (xadjust > 0)
                 SetValue(WidthProperty, xadjust);
-            if(yadjust > 0)
+            if (yadjust > 0)
                 SetValue(HeightProperty, yadjust);
         }
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
-            DefaultCharacterOverlays.SetCharacterDefaults(viewModel.Type.ToString(), new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
+            DefaultGlobalOverlays.SetDefault("Personal", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 

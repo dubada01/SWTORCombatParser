@@ -19,7 +19,6 @@ namespace SWTORCombatParser.Views.Timers
             InitializeComponent();
             _vm = vm;
             DataContext = vm;
-            Owner = App.Current.MainWindow;
             Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth/2) - (750/2d);
             Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight/2) - (450/2d);
             TimerName.TextChanged += UpdateNameHelpText;

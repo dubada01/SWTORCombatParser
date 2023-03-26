@@ -58,6 +58,8 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width=".75*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Viewbox HorizontalAlignment="Left" MaxHeight="25" Margin="15,2,10,2">
                     <StackPanel  Orientation="Horizontal">
@@ -67,7 +69,19 @@
                         </Viewbox>
                     </StackPanel>
                 </Viewbox>
-                <Viewbox Margin="0,2,50,2" MaxHeight="50" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1">
+                <Viewbox HorizontalAlignment="Right" MaxHeight="25" Grid.Column="1" Margin="5,2,5,2">
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Personal Overlay: "/>
+                        <Viewbox MaxHeight="20">
+                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding UsePersonalOverlay}"></CheckBox>
+                        </Viewbox>
+                    </StackPanel>
+                </Viewbox>
+                <Viewbox Grid.Column="2" MaxHeight="35" HorizontalAlignment="Left" Margin="0,0,10,0">
+                    <ComboBox Width="100" Visibility="{Binding UsePersonalOverlay, Converter={StaticResource BooleanToVisibiityConverter}}" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding SelectedType}"></ComboBox>
+                </Viewbox>
+
+                <Viewbox Margin="0,2,50,2" MaxHeight="50" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="1">
                     <StackPanel Orientation="Vertical">
                         <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Bar Scalar: "/>
                         <TextBox HorizontalAlignment="Center" Height="45" Width="100" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBox}"></TextBox>

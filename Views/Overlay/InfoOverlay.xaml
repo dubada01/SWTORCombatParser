@@ -80,9 +80,6 @@
                     <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
                 </Viewbox>
-                <Viewbox Grid.Column="0" MaxHeight="10" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,2,0">
-                    <CheckBox x:Name="IsWindowCheck" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" ToolTip="Show as a Window"/>
-                </Viewbox>
             </Grid>
             <Grid Grid.Row="2" Visibility="{Binding CreatedType, Converter={StaticResource OverlayTypeToShowTotalConverter}}">
                 <Grid.ColumnDefinitions>
