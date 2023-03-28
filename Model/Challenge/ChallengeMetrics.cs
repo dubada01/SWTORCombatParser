@@ -30,7 +30,7 @@ namespace SWTORCombatParser.Model.Challenge
                     value = combat.TotalInterrupts[participant];
                     break;
                 case ChallengeType.AbilityCount:
-                    value = combat.GetLogsInvolvingEntity(participant).Where(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && l.Ability == activeChallenge.Value).Count();
+                    value = combat.GetLogsInvolvingEntity(participant).Where(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (l.Ability == activeChallenge.Value || l.AbilityId == activeChallenge.Value)).Count();
                     break;
                 case ChallengeType.EffectStacks:
                     value = activeChallenge.UseMaxValue ? combat.GetMaxEffectStacks(activeChallenge.Value,participant) : combat.GetCurrentEffectStacks(activeChallenge.Value,participant);

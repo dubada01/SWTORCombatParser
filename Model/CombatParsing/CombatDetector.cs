@@ -166,7 +166,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && line.Target.IsCharacter && InCombat)
             {
                 var characterClassUpdates = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo;
-                var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k > _inCombatStartTime && k <=line.TimeStamp)).Select(kvp => kvp.Key).ToList();
+                var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k >= _inCombatStartTime && k <=line.TimeStamp)).Select(kvp => kvp.Key).ToList();
                 var logTime = line.TimeStamp;
                 var allDead = charactersWhoChangedAfterCombatStart.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
                 if (allDead && charactersWhoChangedAfterCombatStart.Count > 0)

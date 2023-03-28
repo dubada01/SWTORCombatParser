@@ -115,6 +115,7 @@ namespace SWTORCombatParser.DataStructures
         public bool IsHot { get; set; }
         public bool IsBuiltInDot { get; set; }
         public bool IsBuiltInDefensive { get; set; }
+        public bool IsBuiltInOffensive { get; set; }
         public int TimerRev { get; set; }
         public bool IsUserAddedTimer { get; set; }
         public bool IsMechanic { get; set; }
@@ -174,6 +175,7 @@ namespace SWTORCombatParser.DataStructures
                 AbilitiesThatRefresh = AbilitiesThatRefresh,
                 IsHot = IsHot,
                 IsBuiltInDefensive= IsBuiltInDefensive,
+                IsBuiltInOffensive = IsBuiltInOffensive,
                 IsMechanic = IsMechanic,
                 HideUntilSec = HideUntilSec,
                 UseAudio = UseAudio,

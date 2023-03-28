@@ -9,6 +9,8 @@ public static class MetricGetter
     public static double GetValueForMetric(OverlayType type, List<Combat> combats, Entity participant)
     {
         double value = 0;
+        if (!combats.Any(c => c.CharacterParticipants.Contains(participant)))
+            return value;
         switch (type)
         {
             case OverlayType.APM:

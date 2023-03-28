@@ -12,6 +12,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System.Windows.Input;
 using Prism.Commands;
+using Microsoft.VisualBasic.Logging;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -23,6 +24,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private bool mechPredictionsEnabled;
         private int combatDuration;
         private DispatcherTimer _timer;
+        private bool _inCombat;
 
         public BrossFrameView View { get; set; }
         public bool OverlaysMoveable
@@ -126,6 +128,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             };
 
             CombatLogStreamer.CombatUpdated += OnNewLog;
+            CombatLogStreamer.NewLineStreamed += HandleNewLog;
             View = new BrossFrameView(this);
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
             CurrentScale = currentDefaults.Scale == 0 ? 1 : currentDefaults.Scale;
@@ -142,6 +145,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             if (currentDefaults.Acive)
                 View.Show();
         }
+
+
+
         public void LockOverlays()
         {
             OnLocking(true);
@@ -175,56 +181,57 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             if (update.Type == UpdateType.Start)
             {
                 StartTimer(update.CombatStartTime);
+                _inCombat = true;
             }
             if (update.Type == UpdateType.Stop)
             {
+                _inCombat = false;
                 HideFrames();
                 StopTimer();
             }
-            if (update.Logs == null || update.Type == UpdateType.Stop || update.Logs.Count == 0)
+        }
+        private void HandleNewLog(ParsedLogEntry log)
+        {
+            if(log.Effect.EffectType == EffectType.TargetChanged || !_inCombat)
+            {
                 return;
-            var logs = update.Logs;
-            var encounterInfo = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(update.Logs.Last().TimeStamp);
+            }
+            var encounterInfo = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
             if (encounterInfo.BossNames.Count == 0)
                 return;
             var currentEncounterBossTargets = encounterInfo.BossInfos.SelectMany(b => b.TargetIds).ToList();
-
-            foreach (var log in logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged))
+            if (currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) || currentEncounterBossTargets.Contains(log.Target.LogId.ToString()))
             {
-                if (currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) || currentEncounterBossTargets.Contains(log.Target.LogId.ToString()))
+                EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) ? log.SourceInfo : log.TargetInfo;
+
+                if (BossesDetected.All(b => b.CurrentBoss.LogId != boss.Entity.LogId) && boss.CurrentHP > 0)
                 {
-                    EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) ? log.SourceInfo : log.TargetInfo;
-                    
-                    if (BossesDetected.All(b => b.CurrentBoss.LogId != boss.Entity.LogId) && boss.CurrentHP > 0)
+                    bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
+                    App.Current.Dispatcher.Invoke(() =>
                     {
-                        bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
+                        BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled, isDuplicate, CurrentScale));
+                        OnPropertyChanged("ShowFrame");
+                    });
+                }
+                else
+                {
+                    var activeBoss = BossesDetected.FirstOrDefault(b => b.CurrentBoss.LogId == boss.Entity.LogId);
+                    if (activeBoss == null)
+                        return;
+                    if (boss.CurrentHP == 0 || (log.Effect.EffectId == _7_0LogParsing.DeathCombatId && log.Target.LogId == activeBoss.CurrentBoss.LogId))
+                    {
                         App.Current.Dispatcher.Invoke(() =>
                         {
-                            BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled, isDuplicate, CurrentScale));
+                            BossesDetected.Remove(activeBoss);
                             OnPropertyChanged("ShowFrame");
                         });
+
                     }
                     else
-                    {
-                        var activeBoss = BossesDetected.FirstOrDefault(b => b.CurrentBoss.LogId == boss.Entity.LogId);
-                        if(activeBoss == null)
-                            continue;
-                        if (boss.CurrentHP == 0 || (log.Effect.EffectId == _7_0LogParsing.DeathCombatId && log.Target.LogId == activeBoss.CurrentBoss.LogId))
-                        {
-                            App.Current.Dispatcher.Invoke(() =>
-                            {
-                                BossesDetected.Remove(activeBoss);
-                                OnPropertyChanged("ShowFrame");
-                            });
-
-                        }
-                        else
-                            activeBoss.LogWithBoss(boss);
-                    }
+                        activeBoss.LogWithBoss(boss);
                 }
             }
         }
-
         private void StopTimer()
         {
             _timer.Stop();

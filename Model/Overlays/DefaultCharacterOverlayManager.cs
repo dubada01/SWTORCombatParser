@@ -36,7 +36,8 @@ namespace SWTORCombatParser.Model.Overlays
         RawDamage,
         EffectiveHealing,
         RawHealing,
-        CritPercent
+        CritPercent,
+        CustomVariable
     }
     public class OverlayInfo
     {

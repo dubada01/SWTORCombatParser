@@ -36,9 +36,8 @@ namespace SWTORCombatParser.Model.LogParsing
         private bool _monitorLog;
         private long numberOfProcessedBytes = 0;
         private DateTime _lastUpdateTime;
-        private List<ParsedLogEntry> _currentFrameData = new List<ParsedLogEntry>();
+        private List<ParsedLogEntry> _currentCombatLogs = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _waitingForExitCombatTimeout = new List<ParsedLogEntry>();
-        private List<ParsedLogEntry> _currentCombatData = new List<ParsedLogEntry>();
         private DateTime _currentCombatStartTime;
         private Encoding _fileEncoding;
         public CombatLogStreamer()
@@ -91,7 +90,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             _monitorLog = false;
             EndCombat();
-            _currentFrameData.Clear();
+            _currentCombatLogs.Clear();
         }
         private void ResetMonitoring()
         {
@@ -118,8 +117,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
 
         private void ParseLogFile()
-        {
-            _currentFrameData = new List<ParsedLogEntry>();        
+        {    
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, _fileEncoding))
             {
@@ -141,8 +139,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 if (!_isInCombat)
                     return;
-                CombatTimestampRectifier.RectifyTimeStamps(_currentFrameData);
-                var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentFrameData, CombatStartTime = _currentCombatStartTime };
+                var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentCombatLogs, CombatStartTime = _currentCombatStartTime };
                 CombatUpdated(updateMessage);
                 
             }
@@ -216,7 +213,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
         {
             var usableLogs = logs.Where(l => l.Error != ErrorType.IncompleteLine).ToList();
-            _currentCombatData.Clear();
+            _currentCombatLogs.Clear();
             var localPlayerIdentified = false;
             foreach (var t in usableLogs)
             {
@@ -228,11 +225,11 @@ namespace SWTORCombatParser.Model.LogParsing
                 CheckForCombatState(t, false);
                 if (_isInCombat)
                 {
-                    _currentCombatData.Add(t);
+                    _currentCombatLogs.Add(t);
                 }
             }
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
-            HistoricalLogsFinished(_currentCombatData.Count == 0? DateTime.Now : _currentCombatData.Max(l=>l.TimeStamp),localPlayerIdentified);
+            HistoricalLogsFinished(_currentCombatLogs.Count == 0? DateTime.Now : _currentCombatLogs.Max(l=>l.TimeStamp),localPlayerIdentified);
         }
         private bool CheckIfStale()
         {
@@ -249,10 +246,11 @@ namespace SWTORCombatParser.Model.LogParsing
             _lastUpdateTime = fileInfo.LastWriteTime;
             return true;
         }
-
+        private DateTime _mostRecentLogTime;
         private ProcessedLineResult ProcessNewLine(string line,long lineIndex,string logName)
         {
-            var parsedLine = CombatLogParser.ParseLine(line,lineIndex, (!_currentFrameData.Any()) ? DateTime.MinValue : _currentFrameData.Last().TimeStamp);
+            var parsedLine = CombatLogParser.ParseLine(line,lineIndex, _mostRecentLogTime);
+            _mostRecentLogTime = parsedLine.TimeStamp;
             var timeOffset = Math.Abs((parsedLine.TimeStamp - DateTime.Now).TotalMilliseconds);
             NewLogTimeOffsetMs(timeOffset);
             if (parsedLine.Error == ErrorType.IncompleteLine)
@@ -267,12 +265,11 @@ namespace SWTORCombatParser.Model.LogParsing
             NewLineStreamed(parsedLine);
             if (_isInCombat && !_isWaitingForExitCombatTimout)
             {
-                _currentFrameData.Add(parsedLine);
-                _currentCombatData.Add(parsedLine);
+                _currentCombatLogs.Add(parsedLine);
             }
             if(_isInCombat && _isWaitingForExitCombatTimout)
             {
-                _currentFrameData.Add(parsedLine);
+                _currentCombatLogs.Add(parsedLine);
                 _waitingForExitCombatTimeout.Add(parsedLine);
             }
             return ProcessedLineResult.Success;
@@ -307,12 +304,10 @@ namespace SWTORCombatParser.Model.LogParsing
         private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat)
         {
             Logging.LogInfo("Parsing... Starting combat");
-            _currentFrameData.Clear();
-            _currentCombatData.Clear();
+            _currentCombatLogs.Clear();
             _isInCombat = true;
             _currentCombatStartTime = parsedLine.TimeStamp;
-            _currentCombatData.Add(parsedLine);
-            _currentFrameData.Add(parsedLine);
+            _currentCombatLogs.Add(parsedLine);
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(parsedLine.TimeStamp).Name };
             if (shouldUpdateOnNewCombat)
                 CombatUpdated(updateMessage);
@@ -325,19 +320,18 @@ namespace SWTORCombatParser.Model.LogParsing
                 return;
             if(_waitingForExitCombatTimeout.Count > 0)
             {
-                _currentCombatData.AddRange(_waitingForExitCombatTimeout);
+                _currentCombatLogs.AddRange(_waitingForExitCombatTimeout);
             }
             if (parsedLine != null)
             {
-                _currentCombatData.Add(parsedLine);
-                _currentFrameData.Add(parsedLine);
+                _currentCombatLogs.Add(parsedLine);
             }
 
             _isInCombat = false;
 
             if (string.IsNullOrEmpty(_logToMonitor))
                 return;
-            var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatData, CombatStartTime = _currentCombatStartTime };
+            var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatLogs, CombatStartTime = _currentCombatStartTime };
             Logging.LogInfo("Sending combat state change notification: " + updateMessage.Type + " at " + updateMessage.CombatStartTime + " with location " + updateMessage.CombatLocation);
             CombatUpdated(updateMessage);
         }

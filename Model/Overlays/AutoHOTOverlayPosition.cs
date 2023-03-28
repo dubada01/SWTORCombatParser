@@ -23,6 +23,7 @@ namespace SWTORCombatParser.Model.Overlays
     }
     public static class AutoHOTOverlayPosition
     {
+        private static string aws_url = "http://ec2-35-85-227-238.us-west-2.compute.amazonaws.com";
         private static string ocr_url = "/ocr";
         private static string ocr_port = "8651";
         public static async Task<List<PlacedName>> GetCurrentPlayerLayoutLOCAL(Point topLeftOfFrame, MemoryStream raidFrameStream,
@@ -69,7 +70,49 @@ namespace SWTORCombatParser.Model.Overlays
             }
 
         }
+        public static async Task<List<PlacedName>> GetCurrentPlayerLayoutAWS(Point topLeftOfFrame, MemoryStream raidFrameStream,
+    int numberOfRows, int numberOfColumns, int height, int width)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    using (var content = new MultipartFormDataContent())
+                    {
+                        using (raidFrameStream)
+                        {
+                            var test = new ByteArrayContent(raidFrameStream.ToArray());
+                            content.Add(test, "file", "orbs_overlay.png");
+                            var fullUrl = $"{aws_url}:{ocr_port}{ocr_url}";
+                            using (var message = await client.PostAsync(fullUrl, content))
+                            {
+                                var textResponse = await message.Content.ReadAsStringAsync();
+                                if (!message.IsSuccessStatusCode)
+                                {
+                                    Logging.LogError("Failed to pull names for raid frame overlay: " + textResponse);
+                                    return new List<PlacedName>();
+                                }
+                                var jsonObject = JsonConvert.DeserializeObject<JObject>(textResponse);
+                                if (jsonObject["status"].ToString() != "ok")
+                                {
+                                    Logging.LogError("Failed to pull names for raid frame overlay: " + textResponse);
+                                    return new List<PlacedName>();
+                                }
 
+                                return GetNamesFromResponse(JsonConvert.DeserializeObject<Dictionary<string, List<List<double>>>>(jsonObject["response"].ToString()), height, width, topLeftOfFrame, numberOfRows, numberOfColumns);
+                            }
+                        }
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError("Failed to pull names for raid frame overlay: " + e.Message);
+                return new List<PlacedName>();
+            }
+
+        }
         private static List<PlacedName> GetNamesFromResponse(Dictionary<string, List<List<double>>> ocrResponse,int height, int width,Point topLeftOfFrame,int numberOfRows, int numberOfColumns)
         {
             var validEntries = ocrResponse.Where(kvp=>kvp.Key.All(c=>char.IsLetter(c)|| c == '-' || c =='\'') && kvp.Key.Length > 2).OrderBy(kv=>kv.Value[0][0]);

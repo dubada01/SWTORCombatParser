@@ -21,13 +21,23 @@
                   Width="15" Height="15" Padding="0" Command="{Binding RemoveCellCommand}"/>
             </Viewbox>
             <Viewbox Margin="10,5,10,5" MaxHeight="35">
-                <ComboBox Visibility="{Binding ShowDropDown, Converter={StaticResource BooleanToVisibiityConverter}}" 
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox Visibility="{Binding ShowDropDown, Converter={StaticResource BooleanToVisibiityConverter}}" 
                           Style="{StaticResource NewComboStyle}" 
                           ItemsSource="{Binding AvailableMetrics,Converter={StaticResource OverlayTypeToReadableNameConverter}}" 
                           SelectedItem="{Binding SelectedMetric,Converter={StaticResource OverlayTypeToReadableNameConverter}}"></ComboBox>
+                    <ComboBox Margin="5,0,0,0" Visibility="{Binding SelectingCustomVariables, Converter={StaticResource BooleanToVisibiityConverter}}" 
+                          Style="{StaticResource NewComboStyle}" 
+                          ItemsSource="{Binding AvailableVariables}" 
+                          SelectedItem="{Binding SelectedVariable}"></ComboBox>
+                </StackPanel>
+
             </Viewbox>
             <Viewbox Margin="5,0,5,0" MaxHeight="35" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                <TextBlock Visibility="{Binding ShowText, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" Text="{Binding SelectedMetric,Converter={StaticResource OverlayTypeToReadableNameConverter}}"></TextBlock>
+                <Grid>
+                    <TextBlock Visibility="{Binding ShowText, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" Text="{Binding SelectedMetric,Converter={StaticResource OverlayTypeToReadableNameConverter}}"></TextBlock>
+                    <TextBlock Visibility="{Binding ShowVariable, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" Text="{Binding SelectedVariable}"></TextBlock>
+                </Grid>
             </Viewbox>
 
             <Viewbox Visibility="{Binding ShowAny, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="15,0,15,0" MaxHeight="40" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">

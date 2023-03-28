@@ -15,7 +15,7 @@ namespace SWTORCombatParser_Test
 {
     public class Test_AddBuiltinTimers
     {
-        private int _currentRev = 5;
+        private int _currentRev = 6;
         [Test]
         public void AddKetsumesTimers()
         {
@@ -27,6 +27,7 @@ namespace SWTORCombatParser_Test
             {
                 t.TimerSource = t.TimerSource.Count(t => t == '|') > 1 ? t.TimerSource.Split('|')[0] + "|" + t.TimerSource.Split('|')[1] : t.TimerSource;
                 t.TimerRev = _currentRev;
+                t.IsUserAddedTimer = false;
             });
             var timersWithAudio = enumerable.Where(t => !string.IsNullOrEmpty(t.CustomAudioPath));
             foreach (var timer in timersWithAudio)
@@ -39,7 +40,7 @@ namespace SWTORCombatParser_Test
             {
                 encounter.Timers.RemoveAll(timer =>
                     timer.Name == "Missle Salvo" || timer.Name == "Red Circles" || timer.Name == "Knock-back" ||
-                    timer.Name == "Platform Drop");
+                    timer.Name == "Platform Drop" || (timer.TimerSource.Contains("IP-CPT")&&timer.Name.Contains("Beam") || timer.Name.Contains("Floor")));
             }
             
             var encounters = allTimers.Where(v=>v.IsBossSource).GroupBy(v => v.TimerSource.Split('|').First());

@@ -48,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                 PersonalOverlayInstances.Clear();
                 _currentOwner = defaultName;
                 var dpsSettings = DefaultPersonalOverlaysManager.GetSettingsForOwner(defaultName);
-                var intitialCells = dpsSettings.Metrics.Select(m => new PersonalOverlayInstanceViewModel(OverlaysMoveable, _currentScale, m));
+                var intitialCells = dpsSettings.CellInfos.Select(m => new PersonalOverlayInstanceViewModel(OverlaysMoveable, _currentScale, m));
                 foreach (var cell in intitialCells)
                 {
                     cell.CellRemoved += RemoveCell;
@@ -84,7 +84,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         }
         private void UpdateDefaults()
         {
-            DefaultPersonalOverlaysManager.SetSettingsForOwner(_currentOwner, new PersonalOverlaySettings { Metrics = PersonalOverlayInstances.Where(c=>c.SelectedMetric != OverlayType.None).Select(i => i.SelectedMetric).ToList() });
+            DefaultPersonalOverlaysManager.SetSettingsForOwner(_currentOwner, new PersonalOverlaySettings { CellInfos = PersonalOverlayInstances.Where(c=>c.SelectedMetric != OverlayType.None).Select(i => i.CurrentCellInfo).ToList() });
         }
         public ObservableCollection<PersonalOverlayInstanceViewModel> PersonalOverlayInstances { get; set; } = new ObservableCollection<PersonalOverlayInstanceViewModel>();
         public void UpdateScale(double scale)

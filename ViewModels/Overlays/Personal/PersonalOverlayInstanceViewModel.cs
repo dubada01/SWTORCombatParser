@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Model.Timers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +25,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         private double height;
         private double defaultHeight = 30;
         private double currentScale;
+        private string selectedVariable;
 
         public List<OverlayType> AvailableMetrics { get; set; } = Enum.GetValues<OverlayType>().ToList();
         public event Action<PersonalOverlayInstanceViewModel> CellRemoved = delegate { };
@@ -47,7 +49,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                     shouldUpdate = true;
                 }
                 selectedMetric = value;
-
+                if(SelectedMetric != OverlayType.CustomVariable)
+                {
+                    SelectedVariable = "";
+                }
                 if (hasDefaultValue)
                 {
                     CellChangedFromNone();
@@ -56,6 +61,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                 if (shouldUpdate)
                     CellUpdated();
                 UpdateMetricNumber();
+                OnPropertyChanged("SelectingCustomVariables");
                 OnPropertyChanged("ShowDropDown");
                 OnPropertyChanged("ShowText");
                 OnPropertyChanged("ShowAny");
@@ -66,35 +72,77 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         public bool ShowX => !hasDefaultValue && OverlayUnlocked;
         public bool ShowAny => SelectedMetric == OverlayType.None ? false : true;
         public bool ShowDropDown => OverlayUnlocked;
-        public bool ShowText => ShowAny && !OverlayUnlocked;
+        public bool ShowText => ShowAny && !OverlayUnlocked && !ShowVariable;
+        public bool ShowVariable => SelectedMetric == OverlayType.CustomVariable && ShowAny && !OverlayUnlocked;
+        public bool SelectingCustomVariables => SelectedMetric == OverlayType.CustomVariable && OverlayUnlocked;
+        public List<string> AvailableVariables => VariableManager.GetVariables();
+        public string SelectedVariable
+        {
+            get => selectedVariable; set
+            {
+                bool shouldUpdate = false;
+                if (selectedVariable != value)
+                {
+                    shouldUpdate = true;
+                }
+                selectedVariable = value;
+                if (shouldUpdate)
+                    CellUpdated();
+                OnPropertyChanged();
+            }
+        }
         public bool OverlayUnlocked
         {
             get => overlayUnlocked; set
             {
                 overlayUnlocked = value;
+                OnPropertyChanged("SelectingCustomVariables");
                 OnPropertyChanged("ShowDropDown");
                 OnPropertyChanged("ShowText");
+                OnPropertyChanged("ShowVariable");
                 OnPropertyChanged("ShowX");
                 OnPropertyChanged();
             }
         }
+        public CellInfo CurrentCellInfo => new CellInfo { CellType = selectedMetric, CustomVariable= selectedVariable };
         public string MetricValue => metricValue.ToString("N0");
 
-        public PersonalOverlayInstanceViewModel(bool currentlyUnlocked,double scalar, OverlayType overlay = OverlayType.None)
+        public PersonalOverlayInstanceViewModel(bool currentlyUnlocked, double scalar, CellInfo overlay = null)
         {
-            currentScale= scalar;
+            currentScale = scalar;
             OverlayUnlocked = currentlyUnlocked;
-            if (overlay != OverlayType.None)
+            if (overlay != null)
             {
-                selectedMetric = overlay;
+                selectedMetric = overlay.CellType;
+                selectedVariable = overlay.CustomVariable;
                 hasDefaultValue = false;
             }
+            CombatLogStreamer.NewLineStreamed += TryUpdateVariable;
+            CombatLogStreamer.CombatUpdated += CheckCombatState;
             CombatIdentifier.NewCombatAvailable += HandleNewCombatInfo;
             HandleNewCombatInfo(CombatIdentifier.CurrentCombat);
         }
+
+        private void CheckCombatState(CombatStatusUpdate obj)
+        {
+            if(obj.Type == UpdateType.Start)
+            {
+                metricValue = 0;
+                OnPropertyChanged("MetricValue");
+            }
+        }
+
+        private void TryUpdateVariable(ParsedLogEntry obj)
+        {
+            if (!string.IsNullOrEmpty(SelectedVariable))
+            {
+                UpdateMetricVariable();
+            }
+        }
+
         public void UpdateScale(double scalar)
         {
-            currentScale= scalar;
+            currentScale = scalar;
             OnPropertyChanged("Height");
         }
         private void HandleNewCombatInfo(Combat newCombat)
@@ -102,7 +150,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             if (newCombat == null || newCombat.StartTime == DateTime.MinValue)
                 return;
             _currentcombat = newCombat;
-            UpdateMetricNumber();
+            if (string.IsNullOrEmpty(SelectedVariable))
+            {
+                UpdateMetricNumber();
+            }               
+        }
+
+        private void UpdateMetricVariable()
+        {
+            metricValue = VariableManager.GetValue(SelectedVariable);
+            OnPropertyChanged("MetricValue");
         }
 
         private void UpdateMetricNumber()

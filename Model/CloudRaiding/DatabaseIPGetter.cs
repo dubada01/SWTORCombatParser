@@ -23,7 +23,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             if ((DateTime.Now - _mostRecentIpTime).TotalHours < 12 && !string.IsNullOrEmpty(_currentIP))
                 return _currentIP;
-            string url = "http://ec2-35-85-227-238.us-west-2.compute.amazonaws.com:5000/getIP";
+            string url = "https://orb-my-ip.s3.us-west-2.amazonaws.com/ipValue.txt";
             using (HttpClient client = new HttpClient())
             {
                 var currentIp = client.GetStringAsync(url).Result;

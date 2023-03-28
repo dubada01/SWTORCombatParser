@@ -30,6 +30,7 @@ namespace SWTORCombatParser.Model.Timers
         private TimerInstance cancelTimer;
         private IDisposable _expirationSub;
         public event Action<TimerInstanceViewModel> NewTimerInstance = delegate { };
+        public event Action Triggered = delegate { };
         public event Action ReorderRequested = delegate {  };
         public event Action<TimerInstanceViewModel, bool> TimerOfTypeExpired = delegate { };
         public Timer SourceTimer;
@@ -87,7 +88,7 @@ namespace SWTORCombatParser.Model.Timers
             get => cancelTimer; set
             {
                 cancelTimer = value;
-                cancelTimer.NewTimerInstance += _ =>
+                cancelTimer.Triggered +=() =>
                 {
                     Cancel();
                 };
@@ -99,7 +100,7 @@ namespace SWTORCombatParser.Model.Timers
             get => parentTimer; set
             {
                 parentTimer = value;
-                parentTimer.NewTimerInstance += _ =>
+                parentTimer.Triggered += () =>
                 {
                     Cancel();
                 };
@@ -190,14 +191,19 @@ namespace SWTORCombatParser.Model.Timers
                 if (wasTriggered == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
                     return;
 
-                if (SourceTimer.ShouldModifyVariable && (wasTriggered == TriggerType.Start || wasTriggered == TriggerType.Refresh))
+
+
+                var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
+
+                if (SourceTimer.ShouldModifyVariable && (wasTriggered == TriggerType.Start || (wasTriggered == TriggerType.Refresh && _activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id))))
                 {
                     ModifyVariable(SourceTimer);
                     if (!SourceTimer.UseVisualsAndModify)
+                    {
+                        Triggered();
                         return;
+                    }
                 }
-
-                var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
 
                 if (wasTriggered == TriggerType.Start && SourceTimer.TriggerType == TimerKeyType.NewEntitySpawn)
                     _alreadyDetectedEntities.Add(targetInfo.Id);
@@ -433,6 +439,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TimerExpired += CompleteTimer;
             _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             timerVM.TriggerTimeTimer(startTime);
+            Triggered();
             NewTimerInstance(timerVM);
         }
         public void CreateTimerInstance(DateTime startTime, string targetAdendum, long targetId,int charges = 0)
@@ -447,6 +454,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TriggerTimeTimer(startTime);
             if(charges != 0)
                 timerVM.Charges = charges;
+            Triggered();
             NewTimerInstance(timerVM);
         }
         private void CreateHPTimerInstance(double currentHP, string targetAdendum, long targetId)
@@ -458,6 +466,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TargetId = targetId;
             _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             timerVM.TriggerHPTimer(currentHP);
+            Triggered();
             NewTimerInstance(timerVM);
         }
 
@@ -470,6 +479,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TargetId = targetId;
             _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             timerVM.TriggerAbsorbTimer(maxAbsorb);
+            Triggered();
             NewTimerInstance(timerVM);
         }
     }
