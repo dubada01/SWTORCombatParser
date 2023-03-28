@@ -83,7 +83,7 @@ namespace SWTORCombatParser.ViewModels
             EncounterLoader.LoadAllEncounters();
             //SwtorDetector.StartMonitoring();
             TimerController.Init();
-            VariableManager.Init();
+            VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
             MainWindowClosing.Hiding += () =>
             {

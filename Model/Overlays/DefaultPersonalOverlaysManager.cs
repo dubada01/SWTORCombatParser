@@ -3,15 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace SWTORCombatParser.Model.Overlays
 {
+    public class CellInfo
+    {
+        public OverlayType CellType { get; set; }
+        public string CustomVariable { get; set; }
+    }
     public class PersonalOverlaySettings
     {
-        public List<OverlayType> Metrics { get; set; } = new List<OverlayType>();
+        public List<CellInfo> CellInfos { get; set; } = new List<CellInfo>();
     }
     public static class DefaultPersonalOverlaysManager
     {
@@ -27,9 +29,9 @@ namespace SWTORCombatParser.Model.Overlays
             {
                 var defaults = new Dictionary<string, PersonalOverlaySettings>()
                 {
-                    {"Damage", new PersonalOverlaySettings(){ Metrics = new List<OverlayType>{OverlayType.DPS,OverlayType.Damage,OverlayType.APM,OverlayType.CritPercent } } },
-                    {"Heals", new PersonalOverlaySettings(){ Metrics = new List<OverlayType>{OverlayType.EHPS,OverlayType.EffectiveHealing,OverlayType.APM,OverlayType.BurstEHPS } } },
-                    {"Tank", new PersonalOverlaySettings(){ Metrics = new List<OverlayType>{OverlayType.DPS,OverlayType.Mitigation,OverlayType.APM,OverlayType.DamageSavedDuringCD } } },
+                    {"Damage", new PersonalOverlaySettings(){ CellInfos = new List<OverlayType>{OverlayType.DPS,OverlayType.Damage,OverlayType.APM,OverlayType.CritPercent }.Select(m=>new CellInfo{CellType = m }).ToList()} },
+                    {"Heals", new PersonalOverlaySettings(){ CellInfos = new List<OverlayType>{OverlayType.EHPS,OverlayType.EffectiveHealing,OverlayType.APM,OverlayType.BurstEHPS }.Select(m=>new CellInfo{CellType = m }).ToList() } },
+                    {"Tank", new PersonalOverlaySettings(){ CellInfos = new List<OverlayType>{OverlayType.DPS,OverlayType.Mitigation,OverlayType.APM,OverlayType.DamageSavedDuringCD }.Select(m=>new CellInfo{CellType = m }).ToList() } },
                 };
                 File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
             }

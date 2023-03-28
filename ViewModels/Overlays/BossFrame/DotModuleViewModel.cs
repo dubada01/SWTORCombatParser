@@ -53,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             if (!isActive)
                 return;
-            if (obj.TargetId == _bossInfo.Entity.Id && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer)
+            if (obj.TargetId == _bossInfo.Entity.Id && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer && obj.TimerValue > 0)
             {
                 App.Current.Dispatcher.Invoke(() => {
                     obj.Scale = _currentScale;

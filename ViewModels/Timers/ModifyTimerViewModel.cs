@@ -37,6 +37,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string selectedBoss;
 
         private bool _isBuiltInDCD;
+        private bool _isBuiltInOCD;
         private bool _isBuiltInHOT;
         private bool _isBuiltInDOT;
         private bool _isBuiltInMechanic;
@@ -800,6 +801,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void Edit(Timer timerToEdit)
         {
             _isBuiltInDCD = timerToEdit.IsBuiltInDefensive;
+            _isBuiltInOCD = timerToEdit.IsBuiltInOffensive;
             _isBuiltInDOT = timerToEdit.IsBuiltInDot;
             IsHot = timerToEdit.IsHot;
             _isBuiltInMechanic = timerToEdit.IsMechanic && !timerToEdit.IsUserAddedTimer;
@@ -1014,10 +1016,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ShouldModifyVariable = IsModifyingVariables,
                 UseVisualsAndModify = IsModifyingVariables && IncludeTimerVisuals,
                 TimerRev = editRev,
-                IsUserAddedTimer = _isBuiltInMechanic || _isBuiltInDCD || _isBuiltInDOT || _isBuiltInHOT ? false : true,
+                IsUserAddedTimer = _isBuiltInMechanic || _isBuiltInDCD || _isBuiltInDOT || _isBuiltInHOT || _isBuiltInOCD ? false : true,
                 IsBuiltInDot = _isBuiltInDOT,
                 IsHot = IsHot,
                 IsBuiltInDefensive = _isBuiltInDCD,
+                IsBuiltInOffensive= _isBuiltInOCD,
             };
 
             OnNewTimer(newTimer, isEditing);

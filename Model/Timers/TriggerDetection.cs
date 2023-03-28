@@ -327,6 +327,7 @@ namespace SWTORCombatParser.Model.Timers
         {          
             var clause1State = log != null ? CheckForTrigger(log, sourceTimer.Clause1, startTime, activeTimers, currentTarget,alreadyDetectedEntities) == TriggerType.Start : CheckForTriggerNoLog(sourceTimer.Clause1, startTime, activeTimers, alreadyDetectedEntities, currentTarget, fromClause1, fromClause2) == TriggerType.Start;
             var clause2State = log != null ? CheckForTrigger(log, sourceTimer.Clause2, startTime, activeTimers, currentTarget,alreadyDetectedEntities) == TriggerType.Start : CheckForTriggerNoLog(sourceTimer.Clause2, startTime, activeTimers, alreadyDetectedEntities, currentTarget, fromClause1, fromClause2) == TriggerType.Start;
+
             if (sourceTimerTriggerType == TimerKeyType.And)
             {
                 return (clause1State || fromClause1) && (clause2State || fromClause2) ? TriggerType.Start : TriggerType.None;

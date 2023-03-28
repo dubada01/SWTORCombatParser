@@ -281,14 +281,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             var normalName = GetNameWithoutSpecials(playerName);
 
             var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, normalName));
-            if (!AreNamesCloseEnough(normalName, bestMatch,4))
+            if (!AreNamesCloseEnough(normalName, bestMatch,4) && !_usingDecreasedAccuracy)
                 return null;
             return RaidHotCells.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), bestMatch));
         }
 
         private bool AreNamesCloseEnough(string normalName, string bestMatch,int threshold)
         {
-            return LevenshteinDistance.Compute(bestMatch, normalName) < threshold || _usingDecreasedAccuracy;
+            return LevenshteinDistance.Compute(bestMatch, normalName) < threshold;
         }
 
         private void ResetCellPreviouslyTargeted()

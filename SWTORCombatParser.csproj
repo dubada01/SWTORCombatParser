@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.7.0</VersionPrefix>
+    <VersionPrefix>1.7.1</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -116,6 +116,7 @@
     <None Remove="DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Toborro%27s Palace\Toborro%27s Palace.json" />
     <None Remove="DataStructures\Timers\Defensive Timers\timers.json" />
+    <None Remove="DataStructures\Timers\Offensive Timers\timers.json" />
     <None Remove="LoggingConfig.json" />
     <None Remove="resources\audioIcon.png" />
     <None Remove="resources\Audio\TimerAudio\Amy\1.mp3" />
@@ -554,6 +555,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\Timers\Defensive Timers\timers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Offensive Timers\timers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="LoggingConfig.json">

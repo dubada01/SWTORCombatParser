@@ -50,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 if (obj.SourceTimer.IsMechanic && (obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield) && !obj.SourceTimer.IsSubTimer && _bossInfo.Entity.Id == obj.TargetId)
                 {
                     var unorderedUpcomingMechs = UpcomingMechanics.ToList();
-                    obj.Scale = _currentScale;
+                    obj.Scale = _currentScale*1.25d;
                     unorderedUpcomingMechs.Add(obj);
                     var ordered = unorderedUpcomingMechs.OrderByDescending(t =>t.SourceTimer.HPPercentage);
                     App.Current.Dispatcher.Invoke(() =>

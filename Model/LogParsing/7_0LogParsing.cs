@@ -79,7 +79,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var time = DateTime.Parse(entryInfo[0]);
 
             if (time.Hour < previousLogTime.Hour)
-                _dateTime.AddDays(1);
+                _dateTime = _dateTime.AddDays(1);
 
             var date = new DateTime(_dateTime.Year, _dateTime.Month, _dateTime.Day);
             var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
