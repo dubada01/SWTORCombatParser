@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using SWTORCombatParser.DataStructures;
 
@@ -47,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 hPPercent = value;
                 OnPropertyChanged();
 
-                HPPercentText = Math.Round(HPPercent * 100, 2) + "%";
+                HPPercentText = Math.Round(HPPercent * 100, 2).ToString(CultureInfo.InvariantCulture) + "%";
             }
         }
         public string HPPercentText
@@ -69,11 +70,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public void SetValues(double dps, double hps, double dtps, string roleImage)
         {
 
-            DPS = dps == 0 ? "0" : dps.ToString("#,##");
+            DPS = dps == 0 ? "0" : dps.ToString("#,##",CultureInfo.InvariantCulture);
             OnPropertyChanged("DPS");
-            HPS = hps == 0 ? "0" : hps.ToString("#,##");
+            HPS = hps == 0 ? "0" : hps.ToString("#,##", CultureInfo.InvariantCulture);
             OnPropertyChanged("HPS");
-            DTPS = dtps == 0 ? "0" : dtps.ToString("#,##");
+            DTPS = dtps == 0 ? "0" : dtps.ToString("#,##", CultureInfo.InvariantCulture);
             OnPropertyChanged("DTPS");
             RoleImageSource = roleImage;
             OnPropertyChanged("RoleImageSource");

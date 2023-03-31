@@ -43,33 +43,35 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         private void OnNewTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            if(!isActive)
+            if (!isActive)
                 return;
-            lock (timerLock)
+
+            if (obj.SourceTimer.IsMechanic && (obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield) && !obj.SourceTimer.IsSubTimer && _bossInfo.Entity.Id == obj.TargetId)
             {
-                if (obj.SourceTimer.IsMechanic && (obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield) && !obj.SourceTimer.IsSubTimer && _bossInfo.Entity.Id == obj.TargetId)
+                App.Current.Dispatcher.Invoke(() =>
                 {
                     var unorderedUpcomingMechs = UpcomingMechanics.ToList();
-                    obj.Scale = _currentScale*1.25d;
+                    obj.Scale = _currentScale * 1.25d;
                     unorderedUpcomingMechs.Add(obj);
-                    var ordered = unorderedUpcomingMechs.OrderByDescending(t =>t.SourceTimer.HPPercentage);
-                    App.Current.Dispatcher.Invoke(() =>
-                    {
-                        UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);
-                        OnPropertyChanged("UpcomingMechanics");
-                    });
-                }
-                callback(obj);
+                    var ordered = unorderedUpcomingMechs.OrderByDescending(t => t.SourceTimer.HPPercentage);
+
+                    UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);
+                    OnPropertyChanged("UpcomingMechanics");
+                });
             }
+            callback(obj);
+
         }
-        
+
         private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            lock (timerLock)
+
+            App.Current.Dispatcher.Invoke(() =>
             {
-                App.Current.Dispatcher.Invoke(() => { UpcomingMechanics.Remove(obj); });
-                callback(obj);
-            }
+                UpcomingMechanics.Remove(obj);
+            });
+            callback(obj);
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

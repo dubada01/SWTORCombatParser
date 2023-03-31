@@ -34,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private object combatAddLock = new object();
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private bool _stubLogs;
-        private readonly int _linesPerWriteMin = 550;
+        private readonly int _linesPerWriteMin = 1500;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };

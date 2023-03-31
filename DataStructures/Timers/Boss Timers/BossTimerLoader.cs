@@ -38,11 +38,9 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                 {
                     if(timer.TriggerType == TimerKeyType.EntityHP)
                     {
-                        timer.Target = timer.SpecificBoss;
                         timer.TargetIsLocal = timer.SourceIsLocal;
                         timer.Source = "Any";
                         timer.SourceIsLocal = false;
-                        
                     }
                     timer.IsMechanic = true;
                 }

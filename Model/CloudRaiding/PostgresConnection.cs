@@ -20,7 +20,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task<bool> TryAddLeaderboardEntry(LeaderboardEntry newEntry)
         {
-            if (newEntry.Value == 0)
+            if (newEntry.Value == 0 || Settings.ReadSettingOfType<bool>("offline_mode"))
                 return false;
             Logging.LogInfo("Trying to add valid entry to DB: "+JsonConvert.SerializeObject(newEntry));
             var currentMatchingEntries = await GetEntriesForBossAndCharacterWithClass(newEntry.Boss, newEntry.Character, newEntry.Class, newEntry.Encounter, newEntry.Type);
@@ -42,11 +42,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
             Logging.LogInfo($"Adding the new entry to the DB");
-            AddLeaderboardEntry(newEntry);
-            CleanDatabaseOfDuplicates(newEntry.Boss, newEntry.Encounter, newEntry.Character, newEntry.Class, newEntry.Type, newEntry.TimeStamp);
+            await AddLeaderboardEntry(newEntry);
+            await CleanDatabaseOfDuplicates(newEntry.Boss, newEntry.Encounter, newEntry.Character, newEntry.Class, newEntry.Type, newEntry.TimeStamp);
             return true;
         }
-        public static async void CleanDatabaseOfDuplicates(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType, DateTime timeStamp)
+        private static async Task CleanDatabaseOfDuplicates(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType, DateTime timeStamp)
         {
             Logging.LogInfo($"Clearing duplicate entries from other clients");
             var entries = await GetEntriesForBossAndCharacterWithClassFromTime(bossName, characterName, className, encounter, entryType, timeStamp.AddSeconds(-3));
@@ -64,6 +64,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task<int> RemoveLeaderBoardEntry(LeaderboardEntry entry)
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return 0;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
@@ -91,8 +93,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return 0;
             }
         }
-        public static async void AddLeaderboardEntry(LeaderboardEntry newEntry)
+        public static async Task AddLeaderboardEntry(LeaderboardEntry newEntry)
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
@@ -158,6 +162,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossAndCharacterWithClass(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return entriesFound;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
@@ -195,6 +201,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossAndCharacterWithClassFromTime(string bossName, string characterName, string className, string encounter, LeaderboardEntryType entryType, DateTime from)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return entriesFound;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
@@ -240,6 +248,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static List<LeaderboardEntry> GetEntriesForBossWithClassNonAsync(string bossName, string encounter, string className, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return entriesFound;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
@@ -275,6 +285,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossWithClass(string bossName, string encounter, string className, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return entriesFound;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
@@ -310,6 +322,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async Task<List<string>> GetEncountersWithEntries()
         {
             List<string> entriesFound = new List<string>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return entriesFound;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
@@ -337,6 +351,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async Task<List<string>> GetBossesFromEncounterWithEntries(string encounter)
         {
             List<string> bossesFound = new List<string>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return bossesFound;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())
@@ -370,6 +386,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossOfType(string bossName, string encounter, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return entriesFound;
             try
             {
                 using (NpgsqlConnection connection = ConnectToDB())

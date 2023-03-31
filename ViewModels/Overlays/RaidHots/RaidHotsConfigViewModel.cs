@@ -184,6 +184,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(_currentOverlayViewModel.TopLeft,
                     _currentOverlayViewModel.Width, _currentOverlayViewModel.Height, _currentOverlayViewModel.Rows);
+                new Bitmap(raidFrameBitmap).Save("test.png");
                 var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.TopLeft,
                     raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentOverlayViewModel.Height,_currentOverlayViewModel.Width).Result;
                 raidFrameBitmap.Dispose();

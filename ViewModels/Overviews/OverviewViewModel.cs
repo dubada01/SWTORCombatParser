@@ -79,12 +79,19 @@ namespace SWTORCombatParser.ViewModels.Overviews
             else
             {
                 AvailableParticipants = new List<Entity>(CurrentlySelectedCombats.SelectMany(c => c.AllEntities).Distinct());
-                if(SelectedEntity != null && AvailableParticipants.Any(p=>p.LogId == SelectedEntity.LogId))
+                if (!AvailableParticipants.Any(p => p.IsLocalPlayer))
                 {
-                    SelectedEntity = AvailableParticipants.First(p=>p.LogId == SelectedEntity.LogId);
+                    SelectedEntity = AvailableParticipants.FirstOrDefault();
                 }
                 else
-                    SelectedEntity = AvailableParticipants.First(p=>p.IsLocalPlayer);
+                {
+                    if (SelectedEntity != null && AvailableParticipants.Any(p => p.LogId == SelectedEntity.LogId))
+                    {
+                        SelectedEntity = AvailableParticipants.First(p => p.LogId == SelectedEntity.LogId);
+                    }
+                    else
+                        SelectedEntity = AvailableParticipants.First(p => p.IsLocalPlayer);
+                }
                 OnPropertyChanged("AvailableParticipants");
             }
 

@@ -192,10 +192,7 @@ public static class TimerController
     }
     public static List<TimerInstanceViewModel> GetActiveTimers()
     {
-        lock (_currentTimersModLock)
-        {
-            return _currentlyActiveTimers;
-        }
+        return _currentlyActiveTimers;
     }
 
     private static void ReorderRequest()
@@ -264,7 +261,7 @@ public static class TimerController
             {
                 if (!timer.TrackOutsideOfCombat && !CombatDetector.InCombat)
                     continue;
-                timer.CheckForTrigger(log, _startTime, _currentDiscipline, _currentlyActiveTimers.ToList(), encounter, bossData, currentTarget);
+                timer.CheckForTrigger(log, _startTime, _currentDiscipline, _currentlyActiveTimers, encounter, bossData, currentTarget);
             }
         }
     }

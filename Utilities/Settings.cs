@@ -46,6 +46,8 @@ public static class Settings
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName) && settingName == "stub_logs")
             settingList[settingName] = false;
+        if(!settingList.ContainsKey(settingName) && settingName == "offline_mode")
+            settingList[settingName] = false;
         return settingList[settingName].Value<T>();
     }
     public static bool HasSetting(string settingName)

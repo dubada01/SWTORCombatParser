@@ -161,6 +161,10 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private DateTime GetNextEncounterStartTime(DateTime currentEncounterStartTime)
         {
+            if(!_orderedEncounterChangeTimes.Any() || !_orderedEncounterChangeTimes.Contains(currentEncounterStartTime))
+            {
+                return currentEncounterStartTime;
+            }
             return _orderedEncounterChangeTimes.Last() == currentEncounterStartTime ? currentEncounterStartTime :
                 _orderedEncounterChangeTimes[_orderedEncounterChangeTimes.IndexOf(currentEncounterStartTime)+1];
         }
