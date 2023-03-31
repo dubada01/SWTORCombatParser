@@ -45,6 +45,8 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             _skullImage =
                 new Bitmap(Path.Combine(Environment.CurrentDirectory, "resources/skull_Icon.png"));
             GraphView = new WpfPlot();
+            GraphView.Configuration.Pan = false;
+            GraphView.Configuration.Zoom = false;
             GraphView.Plot.XLabel("Combat Duration (s)");
             GraphView.Plot.Title("Damage Taken");
             GraphView.Plot.YLabel("Value");

@@ -15,7 +15,7 @@ namespace SWTORCombatParser_Test
 {
     public class Test_AddBuiltinTimers
     {
-        private int _currentRev = 6;
+        private int _currentRev = 7;
         [Test]
         public void AddKetsumesTimers()
         {

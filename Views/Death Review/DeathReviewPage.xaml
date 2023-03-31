@@ -9,17 +9,22 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="85"/>
-            <RowDefinition Height="0.66*"/>
-            <RowDefinition Height="0.33*"/>
+            <RowDefinition Height="{Binding ElementName=HideTab, Path=IsSelected, Converter={StaticResource HideToHeightConverter}}"/>
+            <RowDefinition Height="0.5*"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.5*"/>
-            <ColumnDefinition Width="0.5*" MinWidth="500"/>
-        </Grid.ColumnDefinitions>
 
+        <TabControl Background="{StaticResource Gray4Brush}" Grid.Row="1">
+            <TabItem Header="Damage Plot" FontSize="13" FontWeight="DemiBold" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}">
+                <ContentPresenter Content="{Binding DeathPlotView}"/>
+            </TabItem>
+            <TabItem Header="Raid Challenges" FontSize="13" FontWeight="DemiBold" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}">
+                <ContentPresenter Content="{Binding DeathChallengeView}"/>
+            </TabItem>
+            <TabItem x:Name="HideTab" FontSize="13" Header="Hide" FontWeight="DemiBold" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}">
+            </TabItem>
+        </TabControl>
         <ContentPresenter Content="{Binding DeathPlayerListView}" Grid.ColumnSpan="2"/>
-        <ContentPresenter Content="{Binding DeathPlotView}" Grid.Row="1"/>
-        <ContentPresenter Content="{Binding DeathLogsView}"  Grid.Row="1" Grid.Column="1" Grid.RowSpan="2"/>
-        <ContentPresenter Content="{Binding DeathChallengeView}" Grid.Row="2"/>
+
+        <ContentPresenter Content="{Binding DeathLogsView}"  Grid.Row="2" Grid.Column="1"/>
     </Grid>
 </UserControl>

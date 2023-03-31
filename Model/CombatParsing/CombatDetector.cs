@@ -46,6 +46,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             _bossesSeenThisCombat = new List<string>();
             InCombat = false;
             _checkLogsForTimtout = false;
+            _justRevived = false;
             _timeoutTimer.Stop();
         }
         public static CombatState CheckForCombatState(ParsedLogEntry line, bool isRealTime = false)
@@ -202,6 +203,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private static void ExitCombatTimedOut(object sender, ElapsedEventArgs args)
         {
             _checkLogsForTimtout = false;
+            _justRevived= false;
             _timeoutTimer.Stop();
             InCombat = false;
             AlertExitCombatTimedOut(CombatState.ExitCombatDelayTimedOut);
@@ -210,6 +212,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private static CombatState EndCombat()
         {
             _checkLogsForTimtout = false;
+            _justRevived = false;
             _timeoutTimer.Stop();
             InCombat = false;
             return CombatState.ExitedCombat;

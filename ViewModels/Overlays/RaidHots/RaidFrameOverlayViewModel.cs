@@ -404,9 +404,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                         }
                     }
 
-                    var activeHots = CombatLogStateBuilder.CurrentState.GetCurrentlyActiveRaidHOTS(DateTime.Now);
+
                     var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.SourceTimer.IsHot && t.TargetAddendem != null).Select(t => t.TargetAddendem);
-                    var playersWihtActiveHot = activeHots.Select(h => h.Target.Name).Distinct().ToList();
                     foreach (var player in playersWithHotTimer)
                     {
                         var playerCell = GetCellThatMatchesName(player);
@@ -419,6 +418,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                                 timer.Complete(false);
                         }
                     }
+
+                    var activeHots = CombatLogStateBuilder.CurrentState.GetCurrentlyActiveRaidHOTS(DateTime.Now);
+                    var playersWihtActiveHot = activeHots.Select(h => h.Target.Name).Distinct().ToList();
                     foreach (var player in playersWihtActiveHot)
                     {
                         var playerCell = GetCellThatMatchesName(player);

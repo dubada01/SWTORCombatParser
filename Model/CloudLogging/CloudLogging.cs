@@ -6,12 +6,13 @@ using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.CloudLogging
 {
     public static class CloudLogging
     {
-        public static async void UploadLogAsync(string logMessage, string logCategory)
+        public static async Task UploadLogAsync(string logMessage, string logCategory)
         {
             try
             {

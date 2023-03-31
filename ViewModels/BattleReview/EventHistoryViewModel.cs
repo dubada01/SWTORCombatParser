@@ -163,10 +163,10 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 
             if (LogsToDisplay.Count == 0)
                 return new List<EntityInfo>();
-            var logToSeekTo = LogsToDisplay.MinBy(v => Math.Abs(double.Parse(v.SecondsSinceCombatStart) - obj));
+            var logToSeekTo = LogsToDisplay.MinBy(v => Math.Abs(double.Parse(v.SecondsSinceCombatStart, CultureInfo.InvariantCulture) - obj));
             SelectedIndex = LogsToDisplay.IndexOf(logToSeekTo);
 
-            List<EntityInfo> returnList = GetInfosNearLog(double.Parse(logToSeekTo.SecondsSinceCombatStart));
+            List<EntityInfo> returnList = GetInfosNearLog(double.Parse(logToSeekTo.SecondsSinceCombatStart,CultureInfo.InvariantCulture));
             return returnList;
         }
 
