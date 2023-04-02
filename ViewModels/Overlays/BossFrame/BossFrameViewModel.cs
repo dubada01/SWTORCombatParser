@@ -30,11 +30,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 HPContent.DataContext = _hpVM;
 
                 DOTSContent = new DotModuleView();
-                dotModuleViewModel = new DotModuleViewModel(bossInfo,dotTrackingEnabled);
+                dotModuleViewModel = new DotModuleViewModel(bossInfo,dotTrackingEnabled, _scale);
                 DOTSContent.DataContext = dotModuleViewModel;
 
                 MechanicsModule = new MechanicsTimersModule();
-                _mechsVM = new MechanicsTimersModuleViewModel(bossInfo,mechTrackingEnabled);
+                _mechsVM = new MechanicsTimersModuleViewModel(bossInfo,mechTrackingEnabled, _scale);
                 MechanicsModule.DataContext = _mechsVM;
             });
         }
@@ -57,6 +57,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             _scale = currentScale;
             _hpVM.UpdateScale(_scale);
+            _mechsVM.SetScale(_scale);
+            dotModuleViewModel.SetScale(_scale);
         }
 
         public HPModule HPContent { get; set; }

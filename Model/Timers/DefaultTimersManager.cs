@@ -110,7 +110,10 @@ namespace SWTORCombatParser.Model.Timers
         public static void ClearBuiltinMechanics(int currentrev)
         {
             var allTimers = GetAllDefaults();
-            allTimers.RemoveAll(s => s.Timers.Any(t=>(t.TimerRev < currentrev || t.TimerRev==0) && !t.IsUserAddedTimer && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive));
+            foreach(var source in allTimers)
+            {
+                source.Timers.RemoveAll(t => t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot);
+            }
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
         }
         public static void ResetTimersForSource(string source)
@@ -221,7 +224,13 @@ namespace SWTORCombatParser.Model.Timers
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
                 var classes = ClassLoader.LoadAllClasses();
                 var validSources = classes.Select(c => c.Discipline);
-                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS"|| c.TimerSource == "DOTS" || c.TimerSource == "DCD" || c.IsBossSource).ToList();
+                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || 
+                c.TimerSource == "Shared" ||
+                c.TimerSource == "HOTS"|| 
+                c.TimerSource == "DOTS" || 
+                c.TimerSource == "DCD" || 
+                c.TimerSource == "OCD" ||
+                c.IsBossSource).ToList();
                 _defaults = validDefaults;
                 return validDefaults;
             }
@@ -240,7 +249,13 @@ namespace SWTORCombatParser.Model.Timers
             currentDefaults.Add(data);
             var classes = ClassLoader.LoadAllClasses();
             var validSources = classes.Select(c => c.Discipline);
-            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource == "DOTS" || c.TimerSource == "DCD" || c.IsBossSource);
+            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) ||
+            c.TimerSource == "Shared" ||
+            c.TimerSource == "HOTS" ||
+            c.TimerSource == "DOTS" || 
+            c.TimerSource == "DCD" ||
+            c.TimerSource == "OCD" ||
+            c.IsBossSource);
 
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
@@ -259,7 +274,13 @@ namespace SWTORCombatParser.Model.Timers
             currentDefaults.Add(defaults);
             var classes = ClassLoader.LoadAllClasses();
             var validSources = classes.Select(c => c.Discipline);
-            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" || c.TimerSource == "HOTS" || c.TimerSource == "DOTS" || c.TimerSource == "DCD" || c.IsBossSource);
+            var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) ||
+            c.TimerSource == "Shared" ||
+            c.TimerSource == "HOTS" ||
+            c.TimerSource == "DOTS" || 
+            c.TimerSource == "DCD" || 
+            c.TimerSource == "OCD" ||
+            c.IsBossSource);
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
     }

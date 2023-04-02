@@ -9,6 +9,7 @@ using Timer = SWTORCombatParser.DataStructures.Timer;
 using System.Windows.Media;
 using System.Threading;
 using System.Media;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -31,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private double scale = 1;
         private double barHeight;
         private double defaultBarHeight = 30;
-        
+        private bool _stubTimer;
 
         public event Action<TimerInstanceViewModel, bool> TimerExpired = delegate { };
         public event Action TimerRefreshed = delegate { };
@@ -122,7 +123,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public TimerInstanceViewModel(Timer swtorTimer)
         {
-            if(swtorTimer.IsCooldownTimer)
+            _stubTimer = Settings.ReadSettingOfType<bool>("stub_logs");
+            if (swtorTimer.IsCooldownTimer)
             {
                 OverlayOpacity = 0.33;
             }

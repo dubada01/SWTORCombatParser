@@ -84,10 +84,19 @@ namespace SWTORCombatParser.DataStructures
         {
             var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, player);
             if(allEffects.Count == 0) return 0;
-            var specificEffect = allEffects.FirstOrDefault(e=>e.EffectId == effect || e.Name== effect);
-            if (specificEffect == null)
+            var specificEffect = allEffects.Where(e=>e.EffectId == effect || e.Name== effect);
+            if (!specificEffect.Any())
                 return 0;
-            return specificEffect.ChargesAtTime.MaxBy(v=>v.Key).Value;
+            return specificEffect.SelectMany(e=>e.ChargesAtTime).MaxBy(v=>v.Key).Value;
+        }
+        public double GetMaxEffectStacks(string effect, Entity player)
+        {
+            var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, player);
+            if (allEffects.Count == 0) return 0;
+            var specificEffect = allEffects.Where(e => e.EffectId == effect || e.Name == effect);
+            if (!specificEffect.Any())
+                return 0;
+            return specificEffect.SelectMany(e => e.ChargesAtTime).MaxBy(v => v.Value).Value;
         }
         public double GetDamageFromEntityByAbilityForPlayer(string ability, string entity, Entity player)
         {
@@ -368,6 +377,7 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, List<DateTime>> BigDamageTimestamps = new ConcurrentDictionary<Entity, List<DateTime>>();
         public ConcurrentDictionary<Entity, double> TotalSheildAndAbsorb = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> TotalEstimatedAvoidedDamage = new ConcurrentDictionary<Entity, double>();
+        public Dictionary<Entity, double> CritPercent => OutgoingDamageLogs.ToDictionary(kvp => kvp.Key, kvp => (OutgoingHealingLogs[kvp.Key].Count(d => d.Value.WasCrit) + kvp.Value.Count(d=>d.Value.WasCrit))/ (double)(kvp.Value.Count()+ OutgoingHealingLogs[kvp.Key].Count()));
         public Dictionary<Entity,double> DamageSavedFromCDPerSecond => DurationSeconds == 0 ? AverageDamageSavedDuringCooldown.ToDictionary(kvp => kvp.Key, kvp => 0d) : AverageDamageSavedDuringCooldown.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> MitigationPercent => TotalDamageTaken.ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value == 0?0:(EstimatedTotalMitigation[kvp.Key]/kvp.Value) * 100);
         public Dictionary<Entity, double> EstimatedTotalMitigation =>  TotalSheildAndAbsorb.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value + TotalEstimatedAvoidedDamage[kvp.Key]));

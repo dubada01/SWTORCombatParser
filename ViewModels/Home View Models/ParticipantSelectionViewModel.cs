@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using SWTORCombatParser.DataStructures.ClassInfos;
+using System.IO;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
@@ -44,7 +45,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             var uiElement = AvailableParticipants.FirstOrDefault(p => p.Entity.IsLocalPlayer);
             if (uiElement == null)
                 return;
-            SelectParticipant(uiElement);
+            SelectParticipant(uiElement,true);
         }
         public List<Entity> SetParticipants(Combat combat)
         {
@@ -80,9 +81,10 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             OnPropertyChanged("Columns");
         }
 
-        private void SelectParticipant(ParticipantViewModel obj)
+        private void SelectParticipant(ParticipantViewModel obj, bool isSelected)
         {
-            SetSelection(obj.Entity);
+            if(isSelected)
+                SetSelection(obj.Entity);
         }
         private void SetSelection(Entity obj)
         {
@@ -104,7 +106,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             viewModel.Entity = e;
             viewModel.PlayerName = e.Name;
             viewModel.IsLocalPlayer = e.IsLocalPlayer;
-            viewModel.RoleImageSource = "../../resources/question-mark.png";
+            viewModel.RoleImageSource = Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
             viewModel.IsSelected = ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == 0 ?  
                 ParticipantSelectionHandler.CurrentlySelectedParticpant?.Id == viewModel.Entity?.Id : 
                 ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == viewModel.Entity?.LogId;
@@ -118,9 +120,9 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 ParticipantViewModel participantViewModel = GenerateInstance(participant);
                 participantViewModel.SelectionChanged += SelectParticipant;
-                var imagePath = "../../resources/question-mark.png";
+                var imagePath = Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
                 if (participant.IsCompanion)
-                    imagePath = "../../resources/LocalPlayerIcon.png";
+                    imagePath = Path.Combine(Environment.CurrentDirectory, "resources/LocalPlayerIcon.png");
                 if (info.CharacterClases.ContainsKey(participant))
                 {
                     var swtorClass = info.CharacterClases[participant];
@@ -139,17 +141,17 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         private string GetRoleImage(SWTORClass sWTORClass)
         {
             if (sWTORClass == null)
-                return "../../resources/question-mark.png";
+                return Path.Combine(Environment.CurrentDirectory,"resources/question-mark.png");
             switch (sWTORClass.Role)
             {
                 case Role.DPS:
-                    return "../../resources/dpsIcon.png";
+                    return Path.Combine(Environment.CurrentDirectory, "resources/dpsIcon.png");
                 case Role.Healer:
-                    return "../../resources/healingIcon.png";
+                    return Path.Combine(Environment.CurrentDirectory, "resources/healingIcon.png");
                 case Role.Tank:
-                    return "../../resources/tankIcon.png";
+                    return Path.Combine(Environment.CurrentDirectory, "resources/tankIcon.png");
                 default:
-                    return "../../resources/question-mark.png";
+                    return Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
             }
         }
 

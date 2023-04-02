@@ -7,18 +7,85 @@
         mc:Ignorable="d"
         Title="RaidFrameOverlay" Height="450" Width="500" WindowStyle="None" Background="Transparent" Topmost="True" AllowsTransparency="True" ShowInTaskbar="False" ResizeMode="NoResize">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Border Grid.Row="1" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="50"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}"
                 PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" VerticalAlignment="Top" Background="{StaticResource Gray5Brush}" Height="20" Opacity="0.8" CornerRadius="3,3,3,3"></Border>
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding RaidHotCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+        <Border Grid.Column="0" Grid.ColumnSpan="3" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="False" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}"
+                PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" Background="Transparent" Opacity="0.8" BorderThickness="2" BorderBrush="DimGray" CornerRadius="3,3,3,3"></Border>
+        <ItemsControl Grid.Column="0" ItemsSource="{Binding LeftColumnCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Height="{Binding DataContext.RowHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                            Width="{Binding DataContext.ColumnWidth, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                            IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                    <Grid HorizontalAlignment="Stretch" IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="15"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Rectangle Opacity="0.5" Grid.Row="0" Fill="{StaticResource Gray3Brush}" Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}"  ></Rectangle>
+                        <TextBlock Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" HorizontalAlignment="Center" Opacity="0.25" Text="DCDS" FontFamily="{StaticResource MainFont}" Grid.Column="{Binding DcdsColumn}"></TextBlock>
+                        <ItemsControl Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding DCDSOnPlayer}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <local:RaidDCDInstance Width="10" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="1"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        <ItemsControl Grid.Column="2" ItemsSource="{Binding RightColumnCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch" IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="15"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Rectangle Opacity="0.5" Grid.Row="0" Fill="{StaticResource Gray3Brush}" Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}"  ></Rectangle>
+                        <TextBlock Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" HorizontalAlignment="Center" Opacity="0.25" Text="DCDS" FontFamily="{StaticResource MainFont}" Grid.Column="{Binding DcdsColumn}"></TextBlock>
+                        <ItemsControl Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding DCDSOnPlayer}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <local:RaidDCDInstance Width="10"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="1"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        <ItemsControl x:Name="RaidGrid" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding RaidHotCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                             Background="Transparent" Opacity="1"
                             BorderBrush="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToRaidBorderConverter}}"  BorderThickness="3">
 
@@ -27,13 +94,7 @@
                                 <RowDefinition Height="15"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="{Binding LeftColumnWidth}"/>
-                                <ColumnDefinition Width="{Binding RightColumnWidth}"/>
-                            </Grid.ColumnDefinitions>
 
-                            <Rectangle Opacity="0.5" Grid.Column="{Binding DcdsColumn}" Grid.Row="0" Fill="{StaticResource Gray3Brush}" Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}"  ></Rectangle>
-                            <TextBlock Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" HorizontalAlignment="Center" Opacity="0.25" Text="DCDS" FontFamily="{StaticResource MainFont}" Grid.Column="{Binding DcdsColumn}"></TextBlock>
                             <Rectangle Opacity="0.5" Grid.Column="{Binding HotsColumn}" Grid.Row="0" Fill="{StaticResource Gray5Brush}" Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}"  ></Rectangle>
                             <TextBlock Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" HorizontalAlignment="Center" Opacity="0.25" Text="HOTS" FontFamily="{StaticResource MainFont}" Grid.Column="{Binding HotsColumn}"></TextBlock>
                             <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Visibility="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BooleanToVisibiityConverter}}" 
@@ -52,21 +113,7 @@
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                             </ItemsControl>
-                            <ItemsControl Grid.Row="1" HorizontalAlignment="{Binding DCDHorAlignment}" Grid.RowSpan="2" Grid.Column="{Binding DcdsColumn}" ItemsSource="{Binding DCDSOnPlayer}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid>
-                                            <local:RaidDCDInstance Width="10"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                            <Border Grid.RowSpan="2" Margin="0,0,0,12" Grid.Column="{Binding HotsColumn}" HorizontalAlignment="Stretch" IsHitTestVisible="False" BorderBrush="PaleGoldenrod" Background="Transparent" BorderThickness="1.5" Padding="1" CornerRadius="3" Visibility="{Binding IsTargeted, Converter={StaticResource BooleanToVisibiityConverter}}">
+                            <Border Grid.RowSpan="2" Margin="0,0,0,12" Grid.Column="{Binding HotsColumn}" HorizontalAlignment="Stretch" IsHitTestVisible="False" BorderBrush="LightPink" Background="Transparent" BorderThickness="1.5" Padding="1" CornerRadius="2" Visibility="{Binding IsTargeted, Converter={StaticResource BooleanToVisibiityConverter}}">
                             </Border>
                         </Grid>
 
@@ -80,7 +127,7 @@
             </ItemsControl.ItemsPanel>
         </ItemsControl>
 
-        <Thumb IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
+        <Thumb Grid.Column="3" IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
     </Grid>
 

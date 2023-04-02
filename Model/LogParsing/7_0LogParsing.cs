@@ -17,6 +17,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static ConcurrentDictionary<long,Entity> _currentEntities = new ConcurrentDictionary<long, Entity>();
 
         private static DateTime _dateTime;
+
         public static string _damageEffectId = "836045448945501";
         public static string _healEffectId = "836045448945500";
         public static string _fallDamageEffectId = "836045448945484";
@@ -31,17 +32,25 @@ namespace SWTORCombatParser.Model.LogParsing
         public static string AbilityActivateId = "836045448945479";
         public static string InConversationEffectId = "806968520343876";
 
+        private static Regex valueRegex;
+        public static Regex threatRegex;
 
-
-        public static ParsedLogEntry ParseLog(string logEntry, long lineIndex, DateTime logDate, List<string> parsedLineInfo, bool realTime)
+        public static void SetupRegex()
         {
-            _dateTime = logDate;
-
+            valueRegex = new Regex(@"\(.*?\)", RegexOptions.Compiled);
+            threatRegex = new Regex(@"\<.*?\>", RegexOptions.Compiled);
+        }
+        public static void SetStartDate()
+        {
+            _dateTime = DateTime.Now;
+        }
+        public static ParsedLogEntry ParseLog(string logEntry,DateTime previousLogTime, long lineIndex, List<string> parsedLineInfo, bool realTime)
+        {           
             var logEntryInfos = parsedLineInfo;
 
             var secondPart = logEntry.Split(']').Last();
-            var value = Regex.Match(secondPart, @"\(.*?\)", RegexOptions.Compiled);
-            var threat = Regex.Matches(secondPart, @"\<.*?\>", RegexOptions.Compiled);
+            var value = valueRegex.Match(secondPart);
+            var threat = threatRegex.Matches(secondPart);
 
             //if(!logEntry.Contains('\n'))
             //    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
@@ -49,7 +58,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
             //try
            // {
-                var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First());
+                var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First(), previousLogTime);
                 parsedLine.LogText = logEntry;
                 parsedLine.LogLineNumber = lineIndex;
                 if (realTime)
@@ -63,11 +72,15 @@ namespace SWTORCombatParser.Model.LogParsing
           //  }
 
         }
-        private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat)
+        private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat, DateTime previousLogTime)
         {
             var newEntry = new ParsedLogEntry();
 
             var time = DateTime.Parse(entryInfo[0]);
+
+            if (time.Hour < previousLogTime.Hour)
+                _dateTime = _dateTime.AddDays(1);
+
             var date = new DateTime(_dateTime.Year, _dateTime.Month, _dateTime.Day);
             var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
             newEntry.TimeStamp = newDate;

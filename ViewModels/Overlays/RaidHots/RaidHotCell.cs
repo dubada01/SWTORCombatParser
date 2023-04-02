@@ -184,9 +184,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             Application.Current.Dispatcher.Invoke(() =>
             {
                 var currentHots = RaidHotsOnPlayer.OrderBy(t => t.TimerValue);
-                RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentHots);
+                RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentHots.Where(h=>h.TimerValue > 0));
                 var currentDcds = DCDSOnPlayer.OrderBy(t => t.TimerValue);
-                DCDSOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentDcds);
+                DCDSOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentDcds.Where(h => h.TimerValue > 0));
                 OnPropertyChanged("RaidHotsOnPlayer");
                 OnPropertyChanged("DCDSOnPlayer");
             });

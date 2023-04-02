@@ -13,17 +13,17 @@ namespace SWTORCombatParser.Model.LogParsing
 
     public static class CombatLogParser
     {
-        private static DateTime _logDate;
-
-        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex, bool realTime = true)
+        public static void SetParseDate()
+        {
+            _7_0LogParsing.SetStartDate();
+        }
+        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex, DateTime previousLogTime, bool realTime = true)
         {
             //try
            // {
-                if (_logDate == DateTime.MinValue || realTime)
-                    _logDate = DateTime.Now;
                 var listEntries = GetInfoComponents(logEntry);
 
-                return _7_0LogParsing.ParseLog(logEntry, lineIndex, _logDate, listEntries, realTime);
+                return _7_0LogParsing.ParseLog(logEntry, previousLogTime, lineIndex, listEntries, realTime);
 
            // }
            // catch (Exception e)
@@ -91,7 +91,6 @@ namespace SWTORCombatParser.Model.LogParsing
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog, bool includeIncomplete = false)
         {
             CombatLogStateBuilder.ClearState();
-            _logDate = combatLog.Time;
 
             var logLines = new List<string>();
             var worked = GetAllLines(combatLog.Data, logLines);
@@ -104,7 +103,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 
                 if (logLines[i] == "")
                     return;
-                var parsedLine = ParseLine(logLines[i], i, false);
+                var parsedLine = ParseLine(logLines[i], i, DateTime.MinValue, false);
 
                 if (parsedLine.Error == ErrorType.IncompleteLine)
                 {

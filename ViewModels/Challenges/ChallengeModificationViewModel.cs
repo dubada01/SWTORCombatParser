@@ -41,18 +41,29 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private string selectedSource1;
         private bool useRawValues;
         private bool canBeRate;
+        private bool useMaxValue;
+        private bool canHaveMax;
 
         public event Action<Challenge, bool> OnNewChallenge = delegate { };
         public event Action<Challenge> OnCancelEdit = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public bool CanBeRate { get => canBeRate; set 
+        public bool CanBeRate
+        {
+            get => canBeRate; set
             {
                 canBeRate = value;
                 OnPropertyChanged();
             }
         }
-
+        public bool CanHaveMax
+        {
+            get => canHaveMax; set
+            {
+                canHaveMax = value;
+                OnPropertyChanged();
+            }
+        }
         public string Name
         {
             get => name; set
@@ -107,6 +118,14 @@ namespace SWTORCombatParser.ViewModels.Challenges
             get => selectedSource1; set
             {
                 selectedSource1 = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool UseMaxValue
+        {
+            get => useMaxValue; set
+            {
+                useMaxValue = value;
                 OnPropertyChanged();
             }
         }
@@ -176,6 +195,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             SelectedSource = challengeToEdit.ChallengeSource;
             SelectedTarget = challengeToEdit.ChallengeTarget;
             UseRawValue = challengeToEdit.UseRawValues;
+            UseMaxValue = challengeToEdit.UseMaxValue;
 
             SelectedColor = challengeToEdit.BackgroundBrush.Color;
             Value = challengeToEdit.Value;
@@ -200,6 +220,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 Source = selectedSource,
                 IsEnabled = true,
                 UseRawValues = UseRawValue,
+                UseMaxValue = UseMaxValue,
             }, _isEditing);
         }
         private void Reset()
@@ -212,6 +233,8 @@ namespace SWTORCombatParser.ViewModels.Challenges
             ValuePrompt = string.Empty;
             UseRawValue = false;
             CanBeRate = false;
+            CanHaveMax= false;
+            UseMaxValue = false;
         }
         private void SetupUI()
         {
@@ -243,7 +266,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                         ValuePrompt = "Interrupted Ability: ";
                         TargetText = "Target: ";
                         CanBeRate = true;
-                        UseRawValue= true;
+                        UseRawValue = true;
                         break;
                     }
                 case ChallengeType.AbilityCount:
@@ -265,7 +288,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                         HasSource = true;
                         ValuePrompt = "From Effect: ";
                         SourceText = "Source: ";
-                        CanBeRate = false;
+                        CanHaveMax = true;
                         break;
                     }
             }

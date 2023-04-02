@@ -19,10 +19,16 @@
             </Border>
             
         </Grid>
-        <TextBlock  Margin="0,0,10,0" Grid.Column="1" FontSize="18" Visibility="{Binding DisplayTimerValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TimerValue, StringFormat=N1}"></TextBlock>
+        <Viewbox MaxHeight="20" Margin="0,2,10,2" Grid.Column="1"  HorizontalAlignment="Right" VerticalAlignment="Center">
+            <TextBlock  FontSize="18" Visibility="{Binding DisplayTimerValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontFamily="{StaticResource MainFont}" Foreground="Beige" Text="{Binding TimerValue, StringFormat=N1}"></TextBlock>
+        </Viewbox>
+       
 
-        <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,4">
-            <TextBlock  Margin="0,5,0,0" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding TimerName}" ></TextBlock>
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,2,0,2">
+            <Viewbox MaxHeight="20">
+                <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding TimerName}" ></TextBlock>
+            </Viewbox>
+            
         </Grid>
     </Grid>
 </UserControl>

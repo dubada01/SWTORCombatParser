@@ -21,6 +21,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.DataStructures.Timers.Defensive_Timers;
+using SWTORCombatParser.DataStructures.Timers.Offensive_Timers;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -115,7 +116,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public bool DisciplineTimerSelected => SelectedTimerSourceType == TimerType.Discipline;
 
         public bool VisibleTimerSelected => DisciplineTimerSelected && SelectedTimerSource != "Shared" &&
-                                            SelectedTimerSource != "HOTS" && SelectedTimerSource != "DOTS" && SelectedTimerSource != "DCD";
+                                            SelectedTimerSource != "HOTS" && SelectedTimerSource != "DOTS" && SelectedTimerSource != "DCD" && SelectedTimerSource != "OCD";
 
         public List<string> AvailableTimerSources
         {
@@ -231,14 +232,15 @@ namespace SWTORCombatParser.ViewModels.Timers
                 BossTimerLoader.TryLoadBossTimers();
                 HotTimerLoader.TryLoadHots();
                 DotTimerLoader.TryLoadDots();
+                OffensiveTimerLoader.TryLoadOffensives();
                 DefensiveTimerLoader.TryLoadDefensives();
                 TimerController.RefreshAvailableTimers();
+                RefreshAvaialbleTriggerOwners();
                 if (DisciplineTimersList.Count > 0)
                 {
                     SelectedTimerSource = DisciplineTimersList[0];
                     OnPropertyChanged("SelectedTimerSource");
                 }
-                RefreshAvaialbleTriggerOwners();
             });
 
             CombatLogStreamer.CombatUpdated += status =>
@@ -296,6 +298,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             savedTimerSources.SwapItems(1, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "HOTS")));
             savedTimerSources.SwapItems(2, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "DOTS")));
             savedTimerSources.SwapItems(3, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "DCD")));
+            savedTimerSources.SwapItems(4, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "OCD")));
 
             DisciplineTimersList = savedTimerSources;
             OnPropertyChanged("DisciplineTimersList");
@@ -558,6 +561,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             _encounterTimersWindow.SetScale(sizeScalar);
             _disciplineTimersWindow.SetScale(sizeScalar);
+           
         }
     }
 }

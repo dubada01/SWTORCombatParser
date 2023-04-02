@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Reflection;
 using Newtonsoft.Json;
 using System.Xml;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -38,11 +39,18 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     test.Headers.Add("Content-Transfer-Encoding", "binary");
                     
                     content.Add(test, "file", currentlySelectedLogName);
+                    if (Settings.HasSetting("username"))
+                    {
+                        content.Add(new StringContent(Settings.ReadSettingOfType<string>("username").Trim('"')), "username");
+                        content.Add(new StringContent(Crypto.DecryptStringAES(Settings.ReadSettingOfType<string>("password").Trim('"'), "parselyInfo")), "password");
+                        if(!string.IsNullOrEmpty(Settings.ReadSettingOfType<string>("guild").Trim('"')))
+                            content.Add(new StringContent(Settings.ReadSettingOfType<string>("guild").Trim('"')), "guild");
+                    }
                     content.Add(new StringContent("1"),"public");
                     using (var message = await client.PostAsync(parselyURL, content))
                     {
                         var response = await message.Content.ReadAsStringAsync();
-                        if (response.Contains("NOT OK"))
+                        if (response.Contains("NOT OK") || response.Contains("error"))
                         {
                             UploadCompleted(false,"");
                             return;

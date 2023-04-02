@@ -36,6 +36,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
 using System.Security.Policy;
+using SWTORCombatParser.ViewModels.Death_Review;
+using Prism.Commands;
 
 namespace SWTORCombatParser.ViewModels
 {
@@ -47,7 +49,7 @@ namespace SWTORCombatParser.ViewModels
         private readonly OverlayViewModel _overlayViewModel;
         private readonly OverviewViewModel _tableViewModel;
         private readonly DataGridViewModel _dataGridViewModel;
-        private readonly OverviewViewModel _histViewModel;
+        private readonly DeathReviewViewModel _deathViewModel;
         private readonly LeaderboardViewModel _leaderboardViewModel;
         private Entity localEntity;
         private string parselyLink;
@@ -81,7 +83,7 @@ namespace SWTORCombatParser.ViewModels
             EncounterLoader.LoadAllEncounters();
             //SwtorDetector.StartMonitoring();
             TimerController.Init();
-            VariableManager.Init();
+            VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
             MainWindowClosing.Hiding += () =>
             {
@@ -122,18 +124,20 @@ namespace SWTORCombatParser.ViewModels
             var tableView = new OverviewView(_tableViewModel);
             ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Table" });
 
-            _histViewModel = new HistogramVeiewModel();
-            var histView = new OverviewView(_histViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = histView, HeaderText = "Histogram" });
-
-            _reviewViewModel = new BattleReviewViewModel();
-            ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log" });
-
             _overlayViewModel = new OverlayViewModel();
             var overlayView = new OverlayView(_overlayViewModel);
             var overlayTab = new TabInstance()
             { TabContent = overlayView, HeaderText = "Overlays", IsOverlaysTab = true };
             _overlayViewModel.OverlayLockStateChanged += overlayTab.UpdateLockIcon;
+
+            _deathViewModel = new DeathReviewViewModel();
+            var deathView = new DeathReviewPage(_deathViewModel);
+            ContentTabs.Add(new TabInstance() { TabContent = deathView, HeaderText = "Death Review" });
+
+            _reviewViewModel = new BattleReviewViewModel();
+            ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log" });
+
+
             ContentTabs.Add(overlayTab);
 
             _leaderboardViewModel = new LeaderboardViewModel();
@@ -166,6 +170,13 @@ namespace SWTORCombatParser.ViewModels
         private void OpenParsely(object obj)
         {
             Process.Start(new ProcessStartInfo(parselyLink) { UseShellExecute = true });
+        }
+        public ICommand OpenParselyConfigCommand => new DelegateCommand(OpenParselyConfig);
+
+        private void OpenParselyConfig()
+        {
+            var parselySettingsWindow = new ParselySettings();
+            parselySettingsWindow.ShowDialog();
         }
 
         public ICommand UploadToParselyCommand => new CommandHandler(UploadToParsely);
@@ -250,7 +261,7 @@ namespace SWTORCombatParser.ViewModels
                 {
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
-                    _histViewModel.Reset();
+                    _deathViewModel.Reset();
                     _dataGridViewModel.Reset();
                     _reviewViewModel.Reset();
                 });
@@ -279,9 +290,6 @@ namespace SWTORCombatParser.ViewModels
                     case "Table":
                         _tableViewModel.AddCombat(updatedCombat);
                         break;
-                    case "Histogram":
-                        _histViewModel.AddCombat(updatedCombat);
-                        break;
                     case "Combat Log":
                         _reviewViewModel.CombatSelected(updatedCombat);
                         break;
@@ -300,7 +308,7 @@ namespace SWTORCombatParser.ViewModels
                 _plotViewModel.UpdateParticipants(selectedCombat);
                 _plotViewModel.AddCombatPlot(selectedCombat);
                 _tableViewModel.AddCombat(selectedCombat);
-                _histViewModel.AddCombat(selectedCombat);
+                _deathViewModel.AddCombat(selectedCombat);
                 _reviewViewModel.CombatSelected(selectedCombat);
                 _dataGridViewModel.AddCombat(selectedCombat);
             });
@@ -312,7 +320,7 @@ namespace SWTORCombatParser.ViewModels
             {
                 _plotViewModel.RemoveCombatPlot(obj);
                 _tableViewModel.RemoveCombat(obj);
-                _histViewModel.RemoveCombat(obj);
+                _deathViewModel.RemoveCombat(obj);
                 _dataGridViewModel.RemoveCombat(obj);
             });
         }
@@ -326,7 +334,7 @@ namespace SWTORCombatParser.ViewModels
                 {
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
-                    _histViewModel.Reset();
+                    _deathViewModel.Reset();
                     _dataGridViewModel.Reset();
                 }
                 localEntity = obj;

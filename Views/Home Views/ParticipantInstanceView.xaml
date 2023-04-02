@@ -14,6 +14,7 @@
             <Image Opacity="0.75" Source="{Binding RoleImageSource}" HorizontalAlignment="Left" Margin="0,0,0,5"></Image>
             <TextBlock Grid.Row="1" Margin="0,0,0,5" FontFamily="{StaticResource MainFont}" FontSize="15" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding PlayerName}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
             <Image MaxHeight="20" Source="../../resources/LocalPlayerIcon.png" Visibility="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,5,0" VerticalAlignment="Top"></Image>
+            <Image MaxHeight="19" Source="../../resources/skull_Icon.png" Visibility="{Binding DiedNatrually, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,0,3" VerticalAlignment="Bottom"></Image>
         </Grid>
     </Border>
 </UserControl>

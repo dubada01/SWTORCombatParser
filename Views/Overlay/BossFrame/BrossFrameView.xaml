@@ -27,7 +27,7 @@
         <ItemsControl Margin="0,30,0,0" ItemsSource="{Binding BossesDetected}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="5,0,5,25">
+                    <Grid Margin="5,0,5,8">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="2*"/>
                             <RowDefinition Height="2*"/>
