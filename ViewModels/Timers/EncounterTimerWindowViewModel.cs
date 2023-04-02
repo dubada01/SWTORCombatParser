@@ -190,14 +190,13 @@ namespace SWTORCombatParser.ViewModels.Timers
                 callback(obj);
                 return;
             }
+            obj.Scale = _currentScale;
             lock (_timerChangeLock)
             {
-                obj.Scale = _currentScale;
                 _visibleTimers.Add(obj);
-                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-                OnPropertyChanged("SwtorTimers");
-                callback(obj);
             }
+            ReorderTimers();
+            callback(obj);
         }
 
         private void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
@@ -205,11 +204,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             lock (_timerChangeLock)
             {
                 _visibleTimers.Remove(removedTimer);
-                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-                OnPropertyChanged("SwtorTimers");
-                callback(removedTimer);
             }
-
+            ReorderTimers();
+            callback(removedTimer);
         }
 
         private void ReorderTimers()
@@ -218,10 +215,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 _visibleTimers.RemoveAll(t => t.TimerValue <= 0);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-                OnPropertyChanged("SwtorTimers");
             }
+            OnPropertyChanged("SwtorTimers");
         }
-
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

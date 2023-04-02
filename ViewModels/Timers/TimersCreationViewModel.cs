@@ -229,12 +229,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         public TimersCreationViewModel()
         {
             Task.Run(() => {
-                //BossTimerLoader.TryLoadBossTimers();
-                //HotTimerLoader.TryLoadHots();
-                //DotTimerLoader.TryLoadDots();
-                //OffensiveTimerLoader.TryLoadOffensives();
-                //DefensiveTimerLoader.TryLoadDefensives();
-                //TimerController.RefreshAvailableTimers();
+                BossTimerLoader.TryLoadBossTimers();
+                HotTimerLoader.TryLoadHots();
+                DotTimerLoader.TryLoadDots();
+                OffensiveTimerLoader.TryLoadOffensives();
+                DefensiveTimerLoader.TryLoadDefensives();
+                TimerController.RefreshAvailableTimers();
                 RefreshAvaialbleTriggerOwners();
                 if (DisciplineTimersList.Count > 0)
                 {

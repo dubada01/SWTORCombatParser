@@ -56,12 +56,13 @@ namespace SWTORCombatParser.Model.Timers
                     if (!SourceTimer.UseVisualsAndModify)
                         return;
                 }
+
                 CreateTimerNoTarget(DateTime.Now);
             }
             else
             {
                 bool fromClause1 = ParentTimer.SourceTimer.Clause1.Id == SourceTimer.Id;
-                bool fromClause2 = ParentTimer.SourceTimer.Clause2.Id== SourceTimer.Id;
+                bool fromClause2 = ParentTimer.SourceTimer.Clause2.Id == SourceTimer.Id;
                 var triggerState = TriggerDetection.CheckForTriggerNoLog(ParentTimer.SourceTimer, _startTime, _activeTimers, _alreadyDetectedEntities, _currentTarget, fromClause1, fromClause2);
                 if (triggerState == TriggerType.Start)
                 {
@@ -134,10 +135,10 @@ namespace SWTORCombatParser.Model.Timers
 
         public void Cancel()
         {
+            if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
+                _singleUseTriggerUsed = true;
             lock (_timerChangeLock)
             {
-                if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
-                    _singleUseTriggerUsed = true;
                 var currentActiveTimers = _activeTimerInstancesForTimer.Values.ToList();
                 currentActiveTimers.ForEach(t => t.Complete(false));
             }
@@ -149,12 +150,12 @@ namespace SWTORCombatParser.Model.Timers
         }
         private void CompleteTimer(TimerInstanceViewModel timer, bool endedNatrually)
         {
+            TimerOfTypeExpired(timer, endedNatrually);
             lock (_timerChangeLock)
             {
-                TimerOfTypeExpired(timer, endedNatrually);
                 _activeTimerInstancesForTimer.Remove(timer.TimerId);
-                timer.Dispose();
             }
+            timer.Dispose();
         }
 
         public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string,string,string) bossData, Entity currentTarget)
@@ -437,7 +438,10 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.StartTime = startTime;
             timerVM.TimerId = Guid.NewGuid();
             timerVM.TimerExpired += CompleteTimer;
-            _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            lock (_timerChangeLock)
+            {
+                _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            }
             timerVM.TriggerTimeTimer(startTime);
             Triggered();
             NewTimerInstance(timerVM);
@@ -450,7 +454,10 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TimerExpired += CompleteTimer;
             timerVM.TargetAddendem = targetAdendum;
             timerVM.TargetId = targetId;
-            _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            lock (_timerChangeLock)
+            {
+                _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            }
             timerVM.TriggerTimeTimer(startTime);
             if(charges != 0)
                 timerVM.Charges = charges;
@@ -464,7 +471,10 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TimerId = Guid.NewGuid();
             timerVM.TargetAddendem = targetAdendum;
             timerVM.TargetId = targetId;
-            _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            lock (_timerChangeLock)
+            {
+                _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            }
             timerVM.TriggerHPTimer(currentHP);
             Triggered();
             NewTimerInstance(timerVM);
@@ -477,7 +487,10 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TimerId = Guid.NewGuid();
             timerVM.TargetAddendem = abilityName;
             timerVM.TargetId = targetId;
-            _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            lock (_timerChangeLock)
+            {
+                _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+            }
             timerVM.TriggerAbsorbTimer(maxAbsorb);
             Triggered();
             NewTimerInstance(timerVM);

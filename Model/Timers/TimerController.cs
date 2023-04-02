@@ -88,10 +88,10 @@ public static class TimerController
         historicalParseFinished = false;
     }
 
-    private static List<string> expirationTimers = new List<string>();
+    private static List<string> _expirationTimers = new List<string>();
     public static void RefreshAvailableTimers()
     {
-        expirationTimers.Clear();
+        _expirationTimers.Clear();
         _hideTimerSubs.ForEach(s=>s.Dispose());
         _showTimerSubs.ForEach(s=>s.Dispose());
         _reorderSubs.ForEach(s=>s.Dispose());
@@ -124,7 +124,7 @@ public static class TimerController
                 if (trigger != null)
                 {
                     //timerInstance.ExpirationTimer = trigger;
-                    expirationTimers.Add(trigger.SourceTimer.Id);
+                    _expirationTimers.Add(trigger.SourceTimer.Id);
                 }
                 else
                 {
@@ -220,20 +220,22 @@ public static class TimerController
     }
     private static void OnTimerExpired(TimerInstanceViewModel t, bool endedNatrually)
     {
-        var id = t.SourceTimer.Id;
-        if (expirationTimers.Contains(id))
+        lock (_timerLock)
         {
-            var timersThatCare = _availableTimers.Where(t => t.ExperiationTimerId == id);
-            var timerInstances = timersThatCare as TimerInstance[] ?? timersThatCare.ToArray();
-            if (timerInstances.Any())
+            var id = t.SourceTimer.Id;
+            if (_expirationTimers.Contains(id))
             {
-                foreach (var timer in timerInstances)
+                var timersThatCare = _filteredTimers.Where(t => t.ExperiationTimerId == id);
+                var timerInstances = timersThatCare as TimerInstance[] ?? timersThatCare.ToArray();
+                if (timerInstances.Any())
                 {
-                    timer.ExpirationTimerEnded(t,endedNatrually);
+                    foreach (var timer in timerInstances)
+                    {
+                        timer.ExpirationTimerEnded(t, endedNatrually);
+                    }
                 }
             }
         }
-
         TimerExpired(t,TimerRemovedCallback);
     }
     private static void TimerRemovedCallback(TimerInstanceViewModel removedTimer)
@@ -261,7 +263,7 @@ public static class TimerController
             {
                 if (!timer.TrackOutsideOfCombat && !CombatDetector.InCombat)
                     continue;
-                timer.CheckForTrigger(log, _startTime, _currentDiscipline, _currentlyActiveTimers, encounter, bossData, currentTarget);
+                timer.CheckForTrigger(log, _startTime, _currentDiscipline, _currentlyActiveTimers.ToList(), encounter, bossData, currentTarget);
             }
         }
     }
