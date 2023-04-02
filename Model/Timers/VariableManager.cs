@@ -24,7 +24,7 @@ namespace SWTORCombatParser.Model.Timers
     public static class VariableManager
     {
         private static Dictionary<string,int> CustomVariables= new Dictionary<string,int>();
-        public static void Init()
+        public static void RefreshVariables()
         {
             var allcurrentvariables = DefaultTimersManager.GetAllDefaults().SelectMany(s => s.Timers).Where(t=>!string.IsNullOrEmpty(t.ModifyVariableName)).Select(t=>t.ModifyVariableName).Distinct();
 
@@ -51,7 +51,7 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static int GetValue(string variableName)
         {
-            if(string.IsNullOrEmpty(variableName)) return 0;
+            if(string.IsNullOrEmpty(variableName) || !CustomVariables.ContainsKey(variableName)) return -1;
             return CustomVariables[variableName];
         }
     }

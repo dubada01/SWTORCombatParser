@@ -34,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private object combatAddLock = new object();
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private bool _stubLogs;
-        private readonly int _linesPerWriteMin = 850;
+        private readonly int _linesPerWriteMin = 1500;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
@@ -319,11 +319,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
         private void CombatUpdated(List<ParsedLogEntry> obj, DateTime combatStartTime)
         {
-            if (!_totalLogsDuringCombat.ContainsKey(combatStartTime))
-            {
-                _totalLogsDuringCombat[combatStartTime] = new List<ParsedLogEntry>();
-            }
-            _totalLogsDuringCombat[combatStartTime].AddRange(obj);
+            _totalLogsDuringCombat[combatStartTime] = obj;
             _usingHistoricalData = false;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), true);
             CombatIdentifier.UpdateOverlays(combatInfo);

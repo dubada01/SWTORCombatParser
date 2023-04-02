@@ -60,6 +60,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => active;
             set
             {
+                if (active != value)
+                    DefaultTimersManager.UpdateTimersActive(active, _timerSource);
                 active = value;
                 if (!active)
                 {
@@ -73,7 +75,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                         {
                             _timerWindow.Show();
                         });
-                        
                     } 
                 }
 
@@ -155,19 +156,18 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert)
+            if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert || obj.SourceTimer.IsBuiltInDefensive || obj.TimerValue <=0)
             {
                 callback(obj);
                 return;
             }
+            obj.Scale = _currentScale;
             lock (_timerChangeLock)
             {
-                obj.Scale = _currentScale;
                 _visibleTimers.Add(obj);
-                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-                callback(obj);
             }
-            OnPropertyChanged("SwtorTimers");
+            ReorderTimers();
+            callback(obj);
         }
 
         private void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
@@ -175,14 +175,17 @@ namespace SWTORCombatParser.ViewModels.Timers
             lock (_timerChangeLock)
             {
                 _visibleTimers.Remove(removedTimer);
-                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-                callback(removedTimer);
             }
-            OnPropertyChanged("SwtorTimers");
+            ReorderTimers();
+            callback(removedTimer);
         }
         private void ReorderTimers()
         {
-            SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+            lock (_timerChangeLock)
+            {
+                _visibleTimers.RemoveAll(t => t.TimerValue < 0);
+                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+            }
             OnPropertyChanged("SwtorTimers");
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)

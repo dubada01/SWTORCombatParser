@@ -16,6 +16,7 @@ namespace SWTORCombatParser.Views.Overlay
     {
         private OverlayInstanceViewModel viewModel;
         private string _currentPlayerName;
+        private bool _closed;
         public InfoOverlay(OverlayInstanceViewModel vm)
         {
             viewModel = vm;
@@ -25,19 +26,29 @@ namespace SWTORCombatParser.Views.Overlay
                 new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;
             vm.OnLocking += makeTransparent;
+            vm.OnHiding += HideOverlay;
+            vm.OnShowing += ShowOverlay;
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
-            IsWindowCheck.Checked += UpdateWindowStatus;
-            IsWindowCheck.Unchecked += UpdateWindowStatus;
-            Owner = App.Current.MainWindow;
             Loaded += OnLoaded;
         }
 
-        private void UpdateWindowStatus(object sender, RoutedEventArgs e)
+        private void ShowOverlay()
         {
-            var status = IsWindowCheck.IsChecked.Value;
-            ShowInTaskbar = status;
-            DefaultCharacterOverlays.SetCharacterWindowState(viewModel.Type.ToString(), status, _currentPlayerName);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if(!_closed)
+                    Show();
+            });
+
+        }
+
+        private void HideOverlay()
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Hide();
+            });
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -88,14 +99,11 @@ namespace SWTORCombatParser.Views.Overlay
         {
             _currentPlayerName = playerName;
         }
-        public void SetWindowState(bool windowState)
-        {
-            IsWindowCheck.IsChecked = windowState;
-            ShowInTaskbar = windowState;    
-        }
         private void CloseOverlay()
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
+                _closed = true;
                 Close();
             });
    

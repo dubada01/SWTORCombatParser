@@ -88,10 +88,10 @@ public static class TimerController
         historicalParseFinished = false;
     }
 
-    private static List<string> expirationTimers = new List<string>();
+    private static List<string> _expirationTimers = new List<string>();
     public static void RefreshAvailableTimers()
     {
-        expirationTimers.Clear();
+        _expirationTimers.Clear();
         _hideTimerSubs.ForEach(s=>s.Dispose());
         _showTimerSubs.ForEach(s=>s.Dispose());
         _reorderSubs.ForEach(s=>s.Dispose());
@@ -124,7 +124,7 @@ public static class TimerController
                 if (trigger != null)
                 {
                     //timerInstance.ExpirationTimer = trigger;
-                    expirationTimers.Add(trigger.SourceTimer.Id);
+                    _expirationTimers.Add(trigger.SourceTimer.Id);
                 }
                 else
                 {
@@ -155,7 +155,7 @@ public static class TimerController
                 handler => t.NewTimerInstance -= handler).Subscribe(AddTimerVisual)).ToList();
         _reorderSubs = _availableTimers.Select(t =>
             Observable.FromEvent(handler => t.ReorderRequested += handler,
-                handler => t.ReorderRequested -= handler).Subscribe(_=>ReorderRequest())).ToList();
+                handler => t.ReorderRequested -= handler).Throttle(TimeSpan.FromMilliseconds(250)).Subscribe(_=>ReorderRequest())).ToList();
         FilterTimers();
     }
 
@@ -192,10 +192,7 @@ public static class TimerController
     }
     public static List<TimerInstanceViewModel> GetActiveTimers()
     {
-        lock (_currentTimersModLock)
-        {
-            return _currentlyActiveTimers;
-        }
+        return _currentlyActiveTimers;
     }
 
     private static void ReorderRequest()
@@ -213,7 +210,7 @@ public static class TimerController
     private static object _currentTimersModLock = new object();
     private static void TimerAddedCallback(TimerInstanceViewModel addedTimer)
     {
-        lock (_currentTimersModLock)
+        lock (_timerLock)
         {
             if (_currentlyActiveTimers.Any(t => t.SourceTimer.Id == addedTimer.SourceTimer.Id))
                 return;
@@ -223,20 +220,22 @@ public static class TimerController
     }
     private static void OnTimerExpired(TimerInstanceViewModel t, bool endedNatrually)
     {
-        var id = t.SourceTimer.Id;
-        if (expirationTimers.Contains(id))
+        lock (_timerLock)
         {
-            var timersThatCare = _availableTimers.Where(t => t.ExperiationTimerId == id);
-            var timerInstances = timersThatCare as TimerInstance[] ?? timersThatCare.ToArray();
-            if (timerInstances.Any())
+            var id = t.SourceTimer.Id;
+            if (_expirationTimers.Contains(id))
             {
-                foreach (var timer in timerInstances)
+                var timersThatCare = _filteredTimers.Where(t => t.ExperiationTimerId == id);
+                var timerInstances = timersThatCare as TimerInstance[] ?? timersThatCare.ToArray();
+                if (timerInstances.Any())
                 {
-                    timer.ExpirationTimerEnded(t,endedNatrually);
+                    foreach (var timer in timerInstances)
+                    {
+                        timer.ExpirationTimerEnded(t, endedNatrually);
+                    }
                 }
             }
         }
-
         TimerExpired(t,TimerRemovedCallback);
     }
     private static void TimerRemovedCallback(TimerInstanceViewModel removedTimer)

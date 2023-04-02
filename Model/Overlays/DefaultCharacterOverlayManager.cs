@@ -32,6 +32,12 @@ namespace SWTORCombatParser.Model.Overlays
         InterruptCount,
         ThreatPerSecond,
         NonEDPS,
+        Damage,
+        RawDamage,
+        EffectiveHealing,
+        RawHealing,
+        CritPercent,
+        CustomVariable
     }
     public class OverlayInfo
     {

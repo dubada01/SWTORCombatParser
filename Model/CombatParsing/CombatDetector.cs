@@ -46,6 +46,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             _bossesSeenThisCombat = new List<string>();
             InCombat = false;
             _checkLogsForTimtout = false;
+            _justRevived = false;
             _timeoutTimer.Stop();
         }
         public static CombatState CheckForCombatState(ParsedLogEntry line, bool isRealTime = false)
@@ -166,7 +167,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && line.Target.IsCharacter && InCombat)
             {
                 var characterClassUpdates = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo;
-                var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k > _inCombatStartTime && k <=line.TimeStamp)).Select(kvp => kvp.Key).ToList();
+                var charactersWhoChangedAfterCombatStart = characterClassUpdates.Where(kvp => kvp.Value.Keys.Any(k => k >= _inCombatStartTime && k <=line.TimeStamp)).Select(kvp => kvp.Key).ToList();
                 var logTime = line.TimeStamp;
                 var allDead = charactersWhoChangedAfterCombatStart.All(c => CombatLogStateBuilder.CurrentState.WasPlayerDeadAtTime(c, logTime));
                 if (allDead && charactersWhoChangedAfterCombatStart.Count > 0)
@@ -202,6 +203,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private static void ExitCombatTimedOut(object sender, ElapsedEventArgs args)
         {
             _checkLogsForTimtout = false;
+            _justRevived= false;
             _timeoutTimer.Stop();
             InCombat = false;
             AlertExitCombatTimedOut(CombatState.ExitCombatDelayTimedOut);
@@ -210,6 +212,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private static CombatState EndCombat()
         {
             _checkLogsForTimtout = false;
+            _justRevived = false;
             _timeoutTimer.Stop();
             InCombat = false;
             return CombatState.ExitedCombat;

@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Model.CombatParsing;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -72,6 +73,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
+            CombatLogStreamer.CombatUpdated += CheckForEnd;
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
             _timerWindow = new TimersWindow(this);
             _timerWindow.SetIdText("BOSS TIMERS");
@@ -85,6 +87,23 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
             });
         }
+
+        private void CheckForEnd(CombatStatusUpdate obj)
+        {
+            if(obj.Type == UpdateType.Stop)
+            {
+                lock (_timerChangeLock)
+                {
+                    foreach (var timer in SwtorTimers)
+                    {
+                        timer.Dispose();
+                    }
+                    SwtorTimers = new List<TimerInstanceViewModel>();
+                    OnPropertyChanged("SwtorTimers");
+                }
+            }
+        }
+
         public void SetScale(double scale)
         {
             _currentScale = scale;
@@ -166,19 +185,18 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert ||
-                obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
+                obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield || obj.TimerValue <= 0)
             {
                 callback(obj);
                 return;
             }
+            obj.Scale = _currentScale;
             lock (_timerChangeLock)
             {
-                obj.Scale = _currentScale;
                 _visibleTimers.Add(obj);
-                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-                OnPropertyChanged("SwtorTimers");
-                callback(obj);
             }
+            ReorderTimers();
+            callback(obj);
         }
 
         private void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
@@ -186,22 +204,20 @@ namespace SWTORCombatParser.ViewModels.Timers
             lock (_timerChangeLock)
             {
                 _visibleTimers.Remove(removedTimer);
-                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-                OnPropertyChanged("SwtorTimers");
-                callback(removedTimer);
             }
-
+            ReorderTimers();
+            callback(removedTimer);
         }
 
         private void ReorderTimers()
         {
             lock (_timerChangeLock)
             {
+                _visibleTimers.RemoveAll(t => t.TimerValue <= 0);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
-                OnPropertyChanged("SwtorTimers");
             }
+            OnPropertyChanged("SwtorTimers");
         }
-
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

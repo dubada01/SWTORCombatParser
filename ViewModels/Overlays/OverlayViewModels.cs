@@ -19,14 +19,10 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.ViewModels.Overlays.RaidHots;
-using SWTORCombatParser.Views.Overlay.BossFrame;
-using SWTORCombatParser.Views.Overlay.PvP;
-using SWTORCombatParser.Views.Overlay.RaidHOTs;
-using SWTORCombatParser.ViewModels.Overlays.PvP;
 using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.Model.Challenge;
+using SWTORCombatParser.ViewModels.Overlays.Personal;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -46,7 +42,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double sizeScalar = 1d;
         private string sizeScalarString = "1";
         private bool historicalParseFinished = false;
-        private string sizeScalarString1;
+        private bool usePersonalOverlay;
+        private PersonalOverlayViewModel _personalOverlayViewModel;
+        private string selectedType = "Damage";
 
         public event Action OverlayLockStateChanged = delegate { };
 
@@ -110,6 +108,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _otherOverlayViewModel.SetScalar(sizeScalar);
             _timersViewModel.SetScalar(sizeScalar);
             _challengesViewModel.SetScalar(sizeScalar);
+            _personalOverlayViewModel.UpdateScale(sizeScalar);
         }
         public OverlayViewModel()
         {
@@ -117,19 +116,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatLogStreamer.HistoricalLogsFinished += FinishHistoricalParse;
             CombatLogStreamer.HistoricalLogsStarted += HistoricalLogsStarted;
             sizeScalar = Settings.ReadSettingOfType<double>("overlay_bar_scale");
-            
+
             sizeScalarString = sizeScalar.ToString();
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             SelectedLeaderboardType = LeaderboardSettings.ReadLeaderboardSettings();
             DefaultCharacterOverlays.Init();
             DefaultGlobalOverlays.Init();
+            DefaultPersonalOverlaysManager.Init();
             DefaultChallengeManager.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
-                if (enumVal == OverlayType.DPS || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.FocusDPS || enumVal == OverlayType.NonEDPS)
+                if (enumVal == OverlayType.DPS || enumVal == OverlayType.Damage || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.FocusDPS || enumVal == OverlayType.NonEDPS || enumVal == OverlayType.RawDamage)
                     AvailableDamageOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
-                if (enumVal == OverlayType.HPS || enumVal == OverlayType.EHPS || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime)
+                if (enumVal == OverlayType.HPS || enumVal == OverlayType.RawHealing || enumVal == OverlayType.EHPS || enumVal == OverlayType.EffectiveHealing || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime)
                     AvailableHealOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
                 if (enumVal == OverlayType.Mitigation || enumVal == OverlayType.ShieldAbsorb || enumVal == OverlayType.ProvidedAbsorb || enumVal == OverlayType.DamageTaken || enumVal == OverlayType.DamageAvoided || enumVal == OverlayType.DamageSavedDuringCD)
                     AvailableMitigationOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
@@ -148,6 +148,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             OthersSetupView = new OtherOverlaySetupView();
             OthersSetupView.DataContext = _otherOverlayViewModel;
 
+            _personalOverlayViewModel = new PersonalOverlayViewModel(sizeScalar);
+            usePersonalOverlay = _personalOverlayViewModel.Active;
+            _personalOverlayViewModel.ActiveChanged += UpdatePersonalOverlayActive;
+
             SetOverlaysScale();
         }
 
@@ -158,6 +162,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 return;
             ResetOverlays();
             _currentCharacterDiscipline = nextDiscipline;
+            SetPersonalByClass(arg2.Role);
             _timersViewModel.TryShow();
             _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults(_currentCharacterDiscipline);
             if (historicalParseFinished)
@@ -165,6 +170,27 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 UpdateOverlays();
             }
         }
+
+        private void SetPersonalByClass(Role role)
+        {
+            switch (role)
+            {
+                case Role.DPS:
+                    SelectedType = "Damage";
+                    break;
+                case Role.Healer:
+                    SelectedType = "Heals";
+                    break;
+                case Role.Tank:
+                    SelectedType = "Tank";
+                    break;
+                default:
+                case Role.Unknown:
+                    SelectedType = "Damage";
+                    break;
+            }
+        }
+
         private void UpdateOverlays()
         {
             App.Current.Dispatcher.Invoke(() =>
@@ -234,7 +260,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 overlay.Left = _overlayDefaults[stringType].Position.X;
                 overlay.Width = _overlayDefaults[stringType].WidtHHeight.X;
                 overlay.Height = _overlayDefaults[stringType].WidtHHeight.Y;
-                overlay.SetWindowState(_overlayDefaults[stringType].UseAsWindow);
             }
             overlay.Show();
             viewModel.Refresh(CombatIdentifier.CurrentCombat);
@@ -271,17 +296,35 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 overlaysLocked = value;
                 _timersViewModel.UpdateLock(value);
                 _challengesViewModel.UpdateLock(value);
-                if (overlaysLocked)
-                {
-                    _otherOverlayViewModel.UpdateLock(overlaysLocked);
-                }
-                else
-                {
-                    _otherOverlayViewModel.UpdateLock(overlaysLocked);
-                }
-
+                _otherOverlayViewModel.UpdateLock(overlaysLocked);
+                _personalOverlayViewModel.UpdateLock(overlaysLocked);
                 ToggleOverlayLock();
                 OverlayLockStateChanged();
+                OnPropertyChanged();
+            }
+        }
+        private void UpdatePersonalOverlayActive(bool obj)
+        {
+            usePersonalOverlay = obj;
+            OnPropertyChanged("UsePersonalOverlay");
+        }
+        public List<string> AvailableTypes { get; private set; } = new List<string> { "Damage", "Heals", "Tank" };
+        public string SelectedType
+        {
+            get => selectedType; set
+            {
+                selectedType = value;
+                DefaultPersonalOverlaysManager.SelectNewDefault(selectedType);
+                OnPropertyChanged();
+            }
+        }
+
+        public bool UsePersonalOverlay
+        {
+            get => usePersonalOverlay; set
+            {
+                _personalOverlayViewModel.Active = value;
+                usePersonalOverlay = value;
                 OnPropertyChanged();
             }
         }

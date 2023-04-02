@@ -150,6 +150,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (parsedLine.Effect.EffectType == EffectType.AbsorbShield)
                     return;
                 var effectId = parsedLine.Effect.EffectId;
+
                 if (parsedLine.Effect.EffectType == EffectType.Apply && parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {
                     if (!CurrentState.Modifiers.ContainsKey(effectId))
@@ -158,7 +159,8 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
 
                     CurrentState.Modifiers.TryGetValue(effectId, out var mods);
-                    var incompleteEffect = mods.FirstOrDefault(m => m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source && !m.Value.Complete);
+                    var incompleteEffect = mods.FirstOrDefault(m => m.Value.Target == parsedLine.Target && (m.Value.Source == parsedLine.Source || string.IsNullOrEmpty(parsedLine.Source.Name))
+                    && !m.Value.Complete);
                     if (incompleteEffect.Value != null)
                     {
                         incompleteEffect.Value.StopTime = parsedLine.TimeStamp;
@@ -186,14 +188,10 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 if (parsedLine.Effect.EffectType == EffectType.ModifyCharges)
                 {
-                    if (string.IsNullOrEmpty(parsedLine.Source.Name))
-                    {
-                        return;
-                    }
                     if (!CurrentState.Modifiers.ContainsKey(effectId))
                         return;
                     var effectToUpdate = CurrentState.Modifiers[effectId].FirstOrDefault(m =>
-                        m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source &&
+                        m.Value.Target == parsedLine.Target && (m.Value.Source == parsedLine.Source || string.IsNullOrEmpty(parsedLine.Source.Name)) &&
                         !m.Value.Complete);
 
                     if (effectToUpdate.Value != null)
@@ -203,14 +201,10 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 if (parsedLine.Effect.EffectType == EffectType.Remove && parsedLine.Effect.EffectId != _7_0LogParsing._damageEffectId && parsedLine.Effect.EffectId != _7_0LogParsing._healEffectId)
                 {
-                    if (string.IsNullOrEmpty(parsedLine.Source.Name))
-                    {
-                        return;
-                    }
                     if (!CurrentState.Modifiers.ContainsKey(effectId))
                         return;
                     var effectToEnd = CurrentState.Modifiers[effectId].FirstOrDefault(m =>
-                        m.Value.Target == parsedLine.Target && m.Value.Source == parsedLine.Source &&
+                        m.Value.Target == parsedLine.Target && (m.Value.Source == parsedLine.Source || string.IsNullOrEmpty(parsedLine.Source.Name)) &&
                         !m.Value.Complete);
 
                     if (effectToEnd.Value != null)

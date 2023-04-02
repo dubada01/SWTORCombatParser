@@ -35,6 +35,13 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string selectedEncounter;
         private string selectedDifficulty;
         private string selectedBoss;
+
+        private bool _isBuiltInDCD;
+        private bool _isBuiltInOCD;
+        private bool _isBuiltInHOT;
+        private bool _isBuiltInDOT;
+        private bool _isBuiltInMechanic;
+
         private bool isEditing;
         private List<string> addedCustomSources = new List<string>();
         private List<string> addedCustomTargets = new List<string>();
@@ -101,7 +108,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public List<string> AudioTypes { get; set; } = new List<string> { "Built In"};
+        public List<string> AudioTypes { get; set; } = new List<string> { "Built In" };
         public string SelectedAudioType
         {
             get => selectedAudioType; set
@@ -311,6 +318,15 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
+        public bool ShowValueComparisons
+        {
+            get => showValueComparisons; set
+            {
+                showValueComparisons = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string SourceText { get; set; }
         public ObservableCollection<string> AvailableTargets { get; set; } = new ObservableCollection<string>();
         public string SelectedTarget
@@ -566,11 +582,14 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public bool IncludeTimerVisuals { get => includeTimerVisuals; set 
+        public bool IncludeTimerVisuals
+        {
+            get => includeTimerVisuals; set
             {
-                includeTimerVisuals = value; 
+                includeTimerVisuals = value;
                 OnPropertyChanged();
-            } }
+            }
+        }
         public bool ShowColor { get => showColor; set => showColor = value; }
         public bool ShowDurationOrAlert { get => showDurationOrAlert; set => showDurationOrAlert = value; }
         public bool IsPeriodic
@@ -746,6 +765,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             MultiClauseTrigger = false;
             ResetOnEffectLoss = false;
             IsCheckingVariable = false;
+            ShowValueComparisons = false;
             if (!IsSubTrigger)
             {
                 ShowColor = true;
@@ -776,8 +796,16 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("ShowDuration");
         }
         private int editRev = 0;
+        private bool showValueComparisons;
+
         public void Edit(Timer timerToEdit)
         {
+            _isBuiltInDCD = timerToEdit.IsBuiltInDefensive;
+            _isBuiltInOCD = timerToEdit.IsBuiltInOffensive;
+            _isBuiltInDOT = timerToEdit.IsBuiltInDot;
+            IsHot = timerToEdit.IsHot;
+            _isBuiltInMechanic = timerToEdit.IsMechanic && !timerToEdit.IsUserAddedTimer;
+
             _editedTimer = timerToEdit;
             isEditing = true;
             Id = string.IsNullOrEmpty(timerToEdit.Id) ? Guid.NewGuid().ToString() : timerToEdit.Id;
@@ -792,14 +820,14 @@ namespace SWTORCombatParser.ViewModels.Timers
             Effect = timerToEdit.Effect;
             ResetOnEffectLoss = timerToEdit.ResetOnEffectLoss;
             Ability = timerToEdit.Ability;
-            IsHot = timerToEdit.IsHot;
+            
             TrackOutsideOfCombat = timerToEdit.TrackOutsideOfCombat;
             if (timerToEdit.TriggerType == TimerKeyType.TimerExpired)
             {
                 SelectedExternalTimerId = timerToEdit.ExperiationTimerId;
                 SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId) ? _missingTimerValue : (!string.IsNullOrEmpty(SelectedExternalTimerId) && AvailableTimersForCharacter.All(t => t.Id != SelectedExternalTimerId)) ? _missingTimerValue : AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
             }
-            if(timerToEdit.TriggerType == TimerKeyType.IsTimerTriggered)
+            if (timerToEdit.TriggerType == TimerKeyType.IsTimerTriggered)
             {
                 SelectedExternalTimerId = timerToEdit.SeletedTimerIsActiveId;
                 SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId) ? _missingTimerValue : (!string.IsNullOrEmpty(SelectedExternalTimerId) && AvailableTimersForCharacter.All(t => t.Id != SelectedExternalTimerId)) ? _missingTimerValue : AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
@@ -830,7 +858,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             VariableModificationValue = timerToEdit.VariableModificationValue;
             SelectedAction = timerToEdit.ModifyVariableAction;
             IsModifyingVariables = timerToEdit.ShouldModifyVariable;
-            if(timerToEdit.TimerRev > 0)
+            if (timerToEdit.TimerRev > 0)
                 editRev = timerToEdit.TimerRev;
             if (IsModifyingVariables)
             {
@@ -840,7 +868,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 else
                 {
-                    IncludeTimerVisuals= true;
+                    IncludeTimerVisuals = true;
                 }
             }
             if (_clause1 != null)
@@ -953,7 +981,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 AbsorbValue = AbsorbValue,
                 TriggerType = SelectedTriggerType,
                 ExperiationTimerId = SelectedExternalTimerId,
-                SeletedTimerIsActiveId= SelectedExternalTimerId,
+                SeletedTimerIsActiveId = SelectedExternalTimerId,
                 Ability = Ability,
                 Effect = Effect,
                 IsPeriodic = IsPeriodic,
@@ -962,14 +990,13 @@ namespace SWTORCombatParser.ViewModels.Timers
                 AlertText = AlertText,
                 DurationSec = DurationSec,
                 HideUntilSec = hideUntilSeconds,
-                TimerColor =  IncludeTimerVisuals ? SelectedColor : Colors.Transparent,
+                TimerColor = IncludeTimerVisuals ? SelectedColor : Colors.Transparent,
                 SpecificBoss = SelectedBoss,
                 SpecificEncounter = SelectedEncounter,
                 ActiveForStory = ActiveForStory,
                 ActiveForVeteran = ActiveForVeteran,
                 ActiveForMaster = ActiveForMaster,
                 CanBeRefreshed = CanBeRefreshed,
-                IsHot = IsHot,
                 ShowTargetOnTimerUI = ShowTargetOnTimerUI,
                 UseAudio = UseAudio,
                 Clause1 = _clause1,
@@ -989,7 +1016,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ShouldModifyVariable = IsModifyingVariables,
                 UseVisualsAndModify = IsModifyingVariables && IncludeTimerVisuals,
                 TimerRev = editRev,
-                IsUserAddedTimer = true,
+                IsUserAddedTimer = _isBuiltInMechanic || _isBuiltInDCD || _isBuiltInDOT || _isBuiltInHOT || _isBuiltInOCD ? false : true,
+                IsBuiltInDot = _isBuiltInDOT,
+                IsHot = IsHot,
+                IsBuiltInDefensive = _isBuiltInDCD,
+                IsBuiltInOffensive= _isBuiltInOCD,
             };
 
             OnNewTimer(newTimer, isEditing);
@@ -1256,6 +1287,28 @@ namespace SWTORCombatParser.ViewModels.Timers
                         }
                         return true;
                     }
+                case TimerKeyType.EffectCharges:
+                    {
+                        if (string.IsNullOrEmpty(Name))
+                        {
+                            TimerNameInError = true;
+                            OnPropertyChanged("TimerNameHelpTextColor");
+                            return false;
+                        }
+                        if (string.IsNullOrEmpty(Effect))
+                        {
+                            TimerNameInError = true;
+                            OnPropertyChanged("TimerNameHelpTextColor");
+                            return false;
+                        }
+                        if (string.IsNullOrEmpty(SelectedSource))
+                        {
+                            TimerNameInError = true;
+                            OnPropertyChanged("TimerNameHelpTextColor");
+                            return false;
+                        }
+                        return true;
+                    }
                 default:
                     return false;
             }
@@ -1486,14 +1539,33 @@ namespace SWTORCombatParser.ViewModels.Timers
                         OnPropertyChanged("ShowAbilityOption");
                         break;
                     }
+                case TimerKeyType.EffectCharges:
+                    {
+                        HasSource = true;
+                        SourceText = "Source";
+                        HasTarget = true;
+                        TargetText = "Target";
+                        CanChangeCombatTracking = true;
+                        ShowEffectOption = true;
+                        ShowValueComparisons = true;
+                        OnPropertyChanged("ShowDuration");
+                        OnPropertyChanged("HasSource");
+                        OnPropertyChanged("SourceText");
+                        OnPropertyChanged("HasTarget");
+                        OnPropertyChanged("TargetText");
+                        OnPropertyChanged("CanChangeCombatTracking");
+                        OnPropertyChanged("ShowEffectOption");
+                        break;
+                    }
                 case TimerKeyType.VariableCheck:
                     {
                         IsCheckingVariable = true;
+                        ShowValueComparisons = true;
                         break;
                     }
                 case TimerKeyType.IsTimerTriggered:
                     {
-                        ShowExternalTriggerOption= true;
+                        ShowExternalTriggerOption = true;
                         OnPropertyChanged("ShowExternalTriggerOption");
                         break;
                     }

@@ -28,5 +28,6 @@ namespace SWTORCombatParser.DataStructures
         public string ChallengeTarget { get; set; }
         public string Value { get; set; }
         public bool UseRawValues { get; set; }
+        public bool UseMaxValue { get; set; }
     }
 }
