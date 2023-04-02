@@ -29,10 +29,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
     public class RaidFrameOverlayViewModel : INotifyPropertyChanged
     {
-        private Entity _mostRecentTargetedPlayer;
-        private DateTime _mostRecentTargetTime;
-        private Point _mostRecentlyClickedCell;
-        private DateTime _mostRecentClickTime;
+        private Dictionary<DateTime,Point> _mostRecentlyClickedCell = new Dictionary<DateTime, Point>();
+        private object _cellClickLock = new object();
         private bool _isMouseInFrame;
         private int rows;
         private int columns;
@@ -98,7 +96,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     _conversationActive = false;
                 }
             }
-            else
+            if(update.Type == UpdateType.Stop)
             {
                 _inCombat = false;
             }
@@ -122,8 +120,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             var cellX = (int)(xFract * columns);
             var cellY = (int)(yFract * rows);
-            _mostRecentlyClickedCell = new Point(cellX, cellY);
-            _mostRecentClickTime = DateTime.Now;
+            DateTime clickedTime = DateTime.Now;
+            lock (_cellClickLock)
+            {
+                _mostRecentlyClickedCell[clickedTime] = new Point(cellX, cellY);
+                Debug.WriteLine($"Clicked {cellX}-{cellY}");
+            }
+            Task.Run(() => {
+                Thread.Sleep(2500);
+                lock (_cellClickLock)
+                {
+                    if(_mostRecentlyClickedCell.Remove(clickedTime))
+                        Debug.WriteLine($"Removed click from due to inactivity {cellX}-{cellY}");
+                }
+            });
         }
         private void CheckForTargetChanged(ParsedLogEntry obj)
         {
@@ -153,58 +163,75 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private void CorrectCellWhenTargeted(ParsedLogEntry obj)
         {
             if(_inCombat)
+                return;
+
+            //#if DEBUG
+            //            //DELETE THIS
+            //            var orbsTestDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Orbs Dev Stuff");
+            //            var clickHistoryPath = Path.Combine(orbsTestDir, "characterSelectHistory.txt");
+            //            if (!Directory.Exists(orbsTestDir))
+            //            {
+            //                Directory.CreateDirectory(orbsTestDir);
+            //            }
+            //            if (!File.Exists(clickHistoryPath))
+            //            {
+            //                File.Create(clickHistoryPath).Close();
+            //            }
+            //            var currentHistory = File.ReadAllLines(clickHistoryPath).ToList();
+            //            currentHistory.Add($"Time: {_mostRecentClickTime} - Cell: ({_mostRecentlyClickedCell.X},{_mostRecentlyClickedCell.Y}) - Player: {obj.Target.Name}");
+            //            File.WriteAllLines(clickHistoryPath, currentHistory);
+            //            //wwwwwwwwwww
+            //#endif
+            if (!obj.Source.IsLocalPlayer || obj.Effect.EffectType != EffectType.TargetChanged || !obj.Target.IsCharacter)
+            {
                 return; 
-//#if DEBUG
-//            //DELETE THIS
-//            var orbsTestDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Orbs Dev Stuff");
-//            var clickHistoryPath = Path.Combine(orbsTestDir, "characterSelectHistory.txt");
-//            if (!Directory.Exists(orbsTestDir))
-//            {
-//                Directory.CreateDirectory(orbsTestDir);
-//            }
-//            if (!File.Exists(clickHistoryPath))
-//            {
-//                File.Create(clickHistoryPath).Close();
-//            }
-//            var currentHistory = File.ReadAllLines(clickHistoryPath).ToList();
-//            currentHistory.Add($"Time: {_mostRecentClickTime} - Cell: ({_mostRecentlyClickedCell.X},{_mostRecentlyClickedCell.Y}) - Player: {obj.Target.Name}");
-//            File.WriteAllLines(clickHistoryPath, currentHistory);
-//            //
-//#endif
-            if (!obj.Source.IsLocalPlayer || obj.Effect.EffectType != EffectType.TargetChanged || !obj.Target.IsCharacter || !_isMouseInFrame) return;
-            var cellClicked = CurrentNames.FirstOrDefault(n => n.Row == _mostRecentlyClickedCell.Y && n.Column == _mostRecentlyClickedCell.X);
+            }
+            var oldestUnhandledCell = new Point();
+            lock (_cellClickLock)
+            {
+                if (!_mostRecentlyClickedCell.Any())
+                    return;
+                oldestUnhandledCell = _mostRecentlyClickedCell.MinBy(d => d.Key).Value;
+                Debug.WriteLine($"Adding cell from click at {oldestUnhandledCell.X}-{oldestUnhandledCell.Y}");
+                _mostRecentlyClickedCell.Remove(_mostRecentlyClickedCell.MinBy(d => d.Key).Key);
+            }
+            var cellClicked = CurrentNames.FirstOrDefault(n => n.Row == oldestUnhandledCell.Y && n.Column == oldestUnhandledCell.X);
             if (cellClicked != null)
             {
+                Debug.WriteLine($"Existing cell clicked {cellClicked.Column}-{cellClicked.Row} with name {cellClicked.Name}");
                 if (AreNamesCloseEnough(cellClicked.Name.ToLower(), GetNameWithoutSpecials(obj.Target.Name).ToLower(),4))
                 {
-//#if DEBUG
-//                    //DELETE THIS
-//                    currentHistory = File.ReadAllLines(clickHistoryPath).ToList();
-//                    currentHistory.Add($"Someone close to {obj.Target.Name} already found");
-//                    File.WriteAllLines(clickHistoryPath, currentHistory);
-//                    //
-//#endif
+                    //#if DEBUG
+                    //                    //DELETE THIS
+                    //                    currentHistory = File.ReadAllLines(clickHistoryPath).ToList();
+                    //                    currentHistory.Add($"Someone close to {obj.Target.Name} already found");
+                    //                    File.WriteAllLines(clickHistoryPath, currentHistory);
+                    //                    //
+                    //#endif
+                    Debug.WriteLine($"Close enough, stopping!");
                     return;
                 }
-//#if DEBUG
-//                //DELETE THIS
-//                currentHistory = File.ReadAllLines(clickHistoryPath).ToList();
-//                currentHistory.Add($"Updating the cell at ({_mostRecentlyClickedCell.X},{_mostRecentlyClickedCell.Y}). Replacing {cellClicked.Name} with {obj.Target.Name}");
-//                File.WriteAllLines(clickHistoryPath, currentHistory);
-//                //
-//#endif
+                //#if DEBUG
+                //                //DELETE THIS
+                //                currentHistory = File.ReadAllLines(clickHistoryPath).ToList();
+                //                currentHistory.Add($"Updating the cell at ({_mostRecentlyClickedCell.X},{_mostRecentlyClickedCell.Y}). Replacing {cellClicked.Name} with {obj.Target.Name}");
+                //                File.WriteAllLines(clickHistoryPath, currentHistory);
+                //                //
+                //#endif
+                Debug.WriteLine($"Updating cell with name {obj.Target.Name}");
                 cellClicked.Name = obj.Target.Name;
             }
             else
             {
-//#if DEBUG
-//                //DELETE THIS
-//                currentHistory = File.ReadAllLines(clickHistoryPath).ToList();
-//                currentHistory.Add($"Adding {obj.Target.Name} to {JsonConvert.SerializeObject(CurrentNames)}");
-//                File.WriteAllLines(clickHistoryPath, currentHistory);
-//                //
-//#endif
-                CurrentNames.Add(new PlacedName { Column = (int)_mostRecentlyClickedCell.X, Row = (int)_mostRecentlyClickedCell.Y, Name = obj.Target.Name });
+                //#if DEBUG
+                //                //DELETE THIS
+                //                currentHistory = File.ReadAllLines(clickHistoryPath).ToList();
+                //                currentHistory.Add($"Adding {obj.Target.Name} to {JsonConvert.SerializeObject(CurrentNames)}");
+                //                File.WriteAllLines(clickHistoryPath, currentHistory);
+                //                //
+                //#endif
+                Debug.WriteLine($"Adding new cell {oldestUnhandledCell.X}-{oldestUnhandledCell.Y} with name {obj.Target.Name}");
+                CurrentNames.Add(new PlacedName { Column = (int)oldestUnhandledCell.X, Row = (int)oldestUnhandledCell.Y, Name = obj.Target.Name });
             }
             UpdateCells();
         }
