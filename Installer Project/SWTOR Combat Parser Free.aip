@@ -53,6 +53,7 @@
     <ROW Directory="DataStructures_Dir" Directory_Parent="APPDIR" DefaultDir="DATAST~1|DataStructures"/>
     <ROW Directory="DefensiveTimers_1_Dir" Directory_Parent="Timers_1_Dir" DefaultDir="DEFENS~1|Defensive Timers"/>
     <ROW Directory="DefensiveTimers_Dir" Directory_Parent="Timers_Dir" DefaultDir="DEFENS~1|Defensive Timers"/>
+    <ROW Directory="DesktopFolder" Directory_Parent="TARGETDIR" DefaultDir="DESKTO~1|DesktopFolder" IsPseudoRoot="1"/>
     <ROW Directory="Dxun_1_Dir" Directory_Parent="Raids_1_Dir" DefaultDir="Dxun"/>
     <ROW Directory="Dxun_Dir" Directory_Parent="Raids_Dir" DefaultDir="Dxun"/>
     <ROW Directory="EncounterInfo_1_Dir" Directory_Parent="DataStructures_1_Dir" DefaultDir="ENCOUN~1|EncounterInfo"/>
@@ -85,8 +86,10 @@
     <ROW Directory="RoomOverlay_Dir" Directory_Parent="DataStructures_Dir" DefaultDir="ROOMOV~1|RoomOverlay"/>
     <ROW Directory="RoomOverlays_1_Dir" Directory_Parent="resources_1_Dir" DefaultDir="ROOMOV~1|RoomOverlays"/>
     <ROW Directory="RoomOverlays_Dir" Directory_Parent="resources_Dir" DefaultDir="ROOMOV~1|RoomOverlays"/>
+    <ROW Directory="SHORTCUTDIR" Directory_Parent="TARGETDIR" DefaultDir="SHORTC~1|SHORTCUTDIR" IsPseudoRoot="1"/>
     <ROW Directory="ScumandVillainy_1_Dir" Directory_Parent="Raids_1_Dir" DefaultDir="SCUMAN~1|Scum and Villainy"/>
     <ROW Directory="ScumandVillainy_Dir" Directory_Parent="Raids_Dir" DefaultDir="SCUMAN~1|Scum and Villainy"/>
+    <ROW Directory="StartMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="STARTM~1|StartMenuFolder" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="TempleofSacrifice_1_Dir" Directory_Parent="Raids_1_Dir" DefaultDir="TEMPLE~1|Temple of Sacrifice"/>
     <ROW Directory="TempleofSacrifice_Dir" Directory_Parent="Raids_Dir" DefaultDir="TEMPLE~1|Temple of Sacrifice"/>
@@ -283,6 +286,7 @@
     <ROW Component="ReachFramework.resources.dll_7" ComponentId="{9C1A73BC-74EB-4B9A-B56D-863F2C58F668}" Directory_="pl_Dir" Attributes="0" KeyPath="ReachFramework.resources.dll_7"/>
     <ROW Component="ReachFramework.resources.dll_8" ComponentId="{4036E285-CEF5-44FD-8E37-02569749081B}" Directory_="ptBR_Dir" Attributes="0" KeyPath="ReachFramework.resources.dll_8"/>
     <ROW Component="ReachFramework.resources.dll_9" ComponentId="{4CD9AB6D-C2A6-4EE6-910F-21D315CA1D1D}" Directory_="ru_Dir" Attributes="0" KeyPath="ReachFramework.resources.dll_9"/>
+    <ROW Component="SHORTCUTDIR" ComponentId="{C166E686-407B-4518-AF8B-909C3EF01D93}" Directory_="SHORTCUTDIR" Attributes="0"/>
     <ROW Component="ScottPlot.WPF.dll" ComponentId="{7DD9D8E6-A149-465A-8520-F7040C37F279}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.WPF.dll"/>
     <ROW Component="ScottPlot.WPF.dll_1" ComponentId="{10AA853D-20AC-4464-B60B-189F54D9A95D}" Directory_="msixpublish_Dir" Attributes="0" KeyPath="ScottPlot.WPF.dll_1"/>
     <ROW Component="ScottPlot.dll" ComponentId="{630723A0-5B8D-499C-8D56-F53B3F0FFE17}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.dll"/>
@@ -2886,6 +2890,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="APPDIR" Component_="APPDIR" ManualDelete="true"/>
+    <ROW Directory_="SHORTCUTDIR" Component_="SHORTCUTDIR" ManualDelete="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
@@ -3483,8 +3488,10 @@
     <ROW Feature_="MainFeature" Component_="WpfAnimatedGif.dll"/>
     <ROW Feature_="MainFeature" Component_="WindowsBase.resources.dll_12"/>
     <ROW Feature_="MainFeature" Component_="WindowsFormsIntegration.resources.dll_12"/>
+    <ROW Feature_="MainFeature" Component_="SHORTCUTDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
+    <ROW Name="Orbs.exe" SourcePath="..\bin\Release\net7.0-windows\Orbs.exe" Index="0"/>
     <ROW Name="SWTORParsingIcon.exe" SourcePath="..\SWTORParsingIcon.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
@@ -3517,6 +3524,11 @@
     <ROW Registry="ProductName" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="\"/>
     <ROW Registry="Software" Root="-1" Key="Software" Name="\"/>
     <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="Orbs" Directory_="SHORTCUTDIR" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="Orbs.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="Orbs_1" Directory_="DesktopFolder" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="Orbs.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="Orbs_2" Directory_="StartMenuFolder" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="Orbs.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
