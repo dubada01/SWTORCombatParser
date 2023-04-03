@@ -426,8 +426,11 @@ namespace SWTORCombatParser.Model.Timers
             var timerBoss = t.SourceTimer.SpecificBoss;
             if (timerEncounter == "All")
                 return true;
-
-            if (encounter.Name == timerEncounter && (supportedDifficulties.Contains(encounter.Difficutly)) && _currentBossInfo.Item1 == timerBoss)
+            if (string.IsNullOrEmpty(_currentBossInfo.Item1))
+            {
+                return false;
+            }
+            if (encounter.Name == timerEncounter && (supportedDifficulties.Contains(encounter.Difficutly)) && _currentBossInfo.Item1.ToLower() == timerBoss.ToLower())
                 return true;
             return false;
         }
