@@ -21,6 +21,7 @@ using System.Drawing;
 using System.Windows.Shapes;
 using SWTORCombatParser.Utilities;
 using Path = System.IO.Path;
+using static ScottPlot.Plottable.PopulationPlot;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
@@ -172,10 +173,11 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 }
             }
             GraphView.Plot.AxisAuto();
-            InitCrosshair(GraphView.Plot.GetAxisLimits(0).XCenter);
+            InitCrosshair(GraphView.Plot.GetAxisLimits(0).XMin);
             GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
             GraphView.Plot.SetAxisLimits(xMax: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
             GraphView.Refresh();
+            XValueSelected(GraphView.Plot.GetAxisLimits(0).XMin);
         }
         private double GetXValClosestToMouse()
         {

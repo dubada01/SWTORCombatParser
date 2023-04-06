@@ -122,7 +122,7 @@ namespace SWTORCombatParser.ViewModels
 
             _tableViewModel = new TableViewModel();
             var tableView = new OverviewView(_tableViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Table" });
+            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Details" });
 
             _overlayViewModel = new OverlayViewModel();
             var overlayView = new OverlayView(_overlayViewModel);

@@ -5,17 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Challenges"
              mc:Ignorable="d" 
-             Height="150" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+             Height="150" Width="250" AllowsTransparency="True" Title="ChallengesWindow" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
     <Grid>
         <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="0.85*"/>
+                <RowDefinition Height="25"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="25"/>
             </Grid.RowDefinitions>
-            <local:ChallengeControl MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"/>
             <Grid MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" Visibility="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -29,7 +29,8 @@
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
                 </Viewbox>
             </Grid>
-            <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="2" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
+            <local:ChallengeControl Grid.Row="1" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"/>
+            <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
         </Grid>
     </Grid>

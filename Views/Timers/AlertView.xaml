@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers"
         mc:Ignorable="d"
-        Height="300" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Background="{x:Null}"  WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+        Height="300" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Title="AlertArea" Background="{x:Null}"  WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
     <Grid>
         <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">

@@ -108,7 +108,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             var currentcombat = EncounterCombats.FirstOrDefault(c => c.IsCurrentCombat);
             if (currentcombat == null)
                 return new PastCombat();
-            currentcombat.CombatDuration = combat.DurationSeconds.ToString("0.00");
+            currentcombat.CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss");
             currentcombat.Combat = combat;
             return currentcombat;
         }
@@ -123,7 +123,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     Combat = combat,
                     IsVisible = combatsAreVisible,
                     CombatStartTime = combat.StartTime,
-                    CombatDuration = combat.DurationSeconds.ToString("0"),
+                    CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss"),
                     CombatLabel = combat.IsCombatWithBoss? combat.EncounterBossInfo : combat.IsPvPCombat ? GetPVPCombatText(combat) : string.Join(',', combat.Targets.Select(t => t.Name).Distinct()),
                 };
                 pastCombatDisplay.PastCombatSelected += SelectCombat;

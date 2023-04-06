@@ -23,7 +23,7 @@ namespace SWTORCombatParser.Model.CombatParsing
     {
         private static List<string> _bossesKilledThisCombat = new List<string>();
         private static List<string> _bossesSeenThisCombat = new List<string>();
-        private static List<string> _combatResNames = new List<string> { "Revival", "Reanimation", "Heartrigger Patch", "Resuscitation Probe", "Emergency Medical Probe" ,"Onboard AED"};
+        private static List<string> _combatResNames = new List<string> { "812826855735296", "808287075303424", "807217628446720", "814875555135488", "2940764107571200", "2940854301884416" };
         private static string _boonOfSpiritId = "3502674678906880";
         private static bool _bossCombat;
         private static BossInfo _currentBossInfo;
@@ -121,7 +121,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 }
                 
             }
-            if (_bossCombat && _combatResNames.Contains(line.Ability) && line.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
+            if (_bossCombat && _combatResNames.Contains(line.AbilityId) && line.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
             {
                 revivedPlayers.Add(CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(line.Source, line.TimeStamp).Entity);
             }
