@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.PvP"
         mc:Ignorable="d"
-        Height="150" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+        Height="150" Width="250" AllowsTransparency="True" Title="PVPHP" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
 
     <Grid x:Name="MainArea" Visibility="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip="PvP Opponent HP">
         <Border x:Name="BackgroundArea"  PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"

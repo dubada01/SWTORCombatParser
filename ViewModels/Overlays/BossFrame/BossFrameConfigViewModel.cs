@@ -22,7 +22,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private bool bossFrameEnabled;
         private bool dotTrackingEnabled;
         private bool mechPredictionsEnabled;
-        private int combatDuration;
+        private string combatDuration;
         private DispatcherTimer _timer;
         private bool _inCombat;
 
@@ -103,7 +103,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public bool ShowFrame => BossesDetected.Any() || OverlaysMoveable;
         public event Action<bool> OnLocking = delegate { };
         public ObservableCollection<BossFrameViewModel> BossesDetected { get; set; } = new ObservableCollection<BossFrameViewModel>();
-        public int CombatDuration
+        public string CombatDuration
         {
             get => combatDuration; set
             {
@@ -123,7 +123,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             _timer.Tick += (e, r) =>
             {
                 _accurateDuration += (DateTime.Now - _lastUpdateTime).TotalSeconds;
-                CombatDuration = (int)_accurateDuration;
+                CombatDuration = TimeSpan.FromSeconds(_accurateDuration).ToString(@"mm\:ss");
                 _lastUpdateTime = DateTime.Now;
             };
 
@@ -235,7 +235,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private void StopTimer()
         {
             _timer.Stop();
-            CombatDuration = 0;
+            CombatDuration = "0:00";
             _accurateDuration = 0;
         }
 
@@ -243,7 +243,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             _lastUpdateTime = startTime;
             _accurateDuration = 0;
-            CombatDuration = 0;
+            CombatDuration = "0:00";
             _timer.Start();
         }
 
