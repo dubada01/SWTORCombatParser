@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
@@ -40,7 +41,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         };
         public static void AddDamageSavedDuringCooldown(Combat combat)
         {
-            var start = DateTime.Now;
+            var start = TimeUtility.CorrectedTime;
             var state = CombatLogStateBuilder.CurrentState;
             var modifiers = state.Modifiers;
 

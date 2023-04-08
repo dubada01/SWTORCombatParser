@@ -12,6 +12,7 @@ using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 using System.Threading.Tasks;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.Timers
 {
@@ -57,7 +58,7 @@ namespace SWTORCombatParser.Model.Timers
                         return;
                 }
 
-                CreateTimerNoTarget(DateTime.Now);
+                CreateTimerNoTarget(TimeUtility.CorrectedTime);
             }
             else
             {

@@ -51,6 +51,7 @@ namespace SWTORCombatParser
             if (processCollection.Count(pc => pc.ProcessName.ToLower() == "orbs") == 1)
             {
                 ConvertToAppData.ConvertFromProgramDataToAppData();
+                var task = TimeUtility.StartUpdateTask();
                 var mainWindowVM = new MainWindowViewModel();
                 var mainWindow = new MainWindow();
                 Application.Current.MainWindow = mainWindow;

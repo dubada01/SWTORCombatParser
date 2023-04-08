@@ -9,6 +9,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -76,7 +77,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             //UnselectAll();
             var ongoingCombatDisplay = new PastCombat()
             {
-                CombatStartTime = DateTime.Now,
+                CombatStartTime = TimeUtility.CorrectedTime,
                 IsCurrentCombat = true,
                 IsSelected = true,
                 IsVisible = true,

@@ -6,6 +6,7 @@ using System.Reactive;
 using Microsoft.VisualBasic.Logging;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Model.Timers
@@ -21,7 +22,7 @@ namespace SWTORCombatParser.Model.Timers
     {
         public static TriggerType CheckForTriggerNoLog(Timer SourceTimer, DateTime startTime, List<TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
         {
-            DateTime timeStamp = DateTime.Now;
+            DateTime timeStamp = TimeUtility.CorrectedTime;
             switch (SourceTimer.TriggerType)
             {
                 case TimerKeyType.FightDuration:
