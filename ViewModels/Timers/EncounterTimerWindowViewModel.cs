@@ -130,7 +130,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void CheckForArea(DateTime arg1, bool arg2)
         {
-            var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(DateTime.Now);
+            var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(TimeUtility.CorrectedTime);
             if (currentArea.IsBossEncounter)
             {
                 if(isEnabled)

@@ -5,6 +5,7 @@ using System.Timers;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using Timer = System.Timers.Timer;
 
 namespace SWTORCombatParser.Model.CombatParsing
@@ -188,7 +189,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             if (isRealTime)
             {
-                _exitCombatDetectedTime = DateTime.Now;
+                _exitCombatDetectedTime = TimeUtility.CorrectedTime;
                 _timeoutTimer.Interval = TimeSpan.FromSeconds(3).TotalMilliseconds;
                 _timeoutTimer.Elapsed += ExitCombatTimedOut;
                 _timeoutTimer.Start();

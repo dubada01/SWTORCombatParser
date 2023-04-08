@@ -5,6 +5,7 @@ using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Timers;
 using System;
@@ -69,7 +70,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         private void CheckForArea(DateTime arg1, bool arg2)
         {
-            var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(DateTime.Now);
+            var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(TimeUtility.CorrectedTime);
             if (currentArea.IsBossEncounter)
             {
                 if (isEnabled)

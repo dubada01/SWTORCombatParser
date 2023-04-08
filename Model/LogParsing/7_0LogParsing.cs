@@ -42,7 +42,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public static void SetStartDate()
         {
-            _dateTime = DateTime.Now;
+            _dateTime = TimeUtility.CorrectedTime;
         }
         public static ParsedLogEntry ParseLog(string logEntry,DateTime previousLogTime, long lineIndex, List<string> parsedLineInfo, bool realTime)
         {           
@@ -389,6 +389,15 @@ namespace SWTORCombatParser.Model.LogParsing
                 var unknownEntity = new Entity() { IsCharacter = false, Name = "Unknown", Id = unknownEntityId, LogId = unknownEntityId };
                 var addedUknownEntity = _currentEntities.GetOrAdd(unknownEntityId, unknownEntity);
                 entityToReturn.Entity = addedUknownEntity;
+                return;
+            }
+            if(name.Count(c=>c == ':') > 2)
+            {
+                var starFighterId = long.Parse(name.Replace(":",""));
+
+                var starFighterEntity = new Entity() { IsCharacter = false, Name = starFighterId.ToString(), Id = starFighterId, LogId = starFighterId };
+                var starFighterEntityToAdd = _currentEntities.GetOrAdd(starFighterId, starFighterEntity);
+                entityToReturn.Entity = starFighterEntityToAdd;
                 return;
             }
             var id = long.Parse(name.Split(':')[1]);

@@ -181,7 +181,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 return;
             }
 
-            var offset = (DateTime.Now - timeStampOfReset).TotalSeconds * -1;
+            var offset = (TimeUtility.CorrectedTime - timeStampOfReset).TotalSeconds * -1;
             StartTime = timeStampOfReset;
             TimerValue = MaxTimerValue + offset;
 
@@ -211,10 +211,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                     DisplayTimer = true;
                 }
                 DisplayTimerValue = true;
-                var offset = (DateTime.Now - timeStampWhenTrigged).TotalSeconds * -1;
+                var offset = (TimeUtility.CorrectedTime - timeStampWhenTrigged).TotalSeconds * -1;
 
                 TimerValue = MaxTimerValue + offset;
-                _lastUpdateTime = DateTime.Now;
+                _lastUpdateTime = TimeUtility.CorrectedTime;
                 OnPropertyChanged("CurrentRatio");
                 OnPropertyChanged("TimerValue");
                 isActive = true;
@@ -290,8 +290,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void UpdateTimeBasedTimer()
         {
-            var deltaTime = (DateTime.Now - _lastUpdateTime).TotalSeconds;
-            _lastUpdateTime = DateTime.Now;
+            var deltaTime = (TimeUtility.CorrectedTime - _lastUpdateTime).TotalSeconds;
+            _lastUpdateTime = TimeUtility.CorrectedTime;
             TimerValue -= deltaTime;
             OnPropertyChanged("TimerValue");
             if (SourceTimer.UseAudio && TimerValue <= _playAtTime)

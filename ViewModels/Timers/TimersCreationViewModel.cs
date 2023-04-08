@@ -91,7 +91,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 if (selectedTimerSourceType == TimerType.Discipline)
                 {
                     AvailableTimerSources = DisciplineTimersList;
-                    var mostRecentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(DateTime.Now);
+                    var mostRecentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(TimeUtility.CorrectedTime);
                     if (mostRecentDiscipline != null && mostRecentDiscipline.Discipline != null)
                     {
                         var source = DisciplineTimersList.FirstOrDefault(v => v.Contains(mostRecentDiscipline.Discipline));

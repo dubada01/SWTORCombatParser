@@ -229,7 +229,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
             }
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
-            HistoricalLogsFinished(_currentCombatLogs.Count == 0? DateTime.Now : _currentCombatLogs.Max(l=>l.TimeStamp),localPlayerIdentified);
+            HistoricalLogsFinished(_currentCombatLogs.Count == 0? TimeUtility.CorrectedTime : _currentCombatLogs.Max(l=>l.TimeStamp),localPlayerIdentified);
         }
         private bool CheckIfStale()
         {
@@ -251,7 +251,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             var parsedLine = CombatLogParser.ParseLine(line,lineIndex, _mostRecentLogTime);
             _mostRecentLogTime = parsedLine.TimeStamp;
-            var timeOffset = Math.Abs((parsedLine.TimeStamp - DateTime.Now).TotalMilliseconds);
+            var timeOffset = Math.Abs((parsedLine.TimeStamp - TimeUtility.CorrectedTime).TotalMilliseconds);
             NewLogTimeOffsetMs(timeOffset);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
