@@ -21,20 +21,20 @@ namespace SWTORCombatParser.DataStructures
         public List<Entity> AllEntities => new List<Entity>().Concat(Targets).Concat(CharacterParticipants).ToList();
         public DateTime StartTime;
         public DateTime EndTime;
-        public string LogFileName => AllLogs.Where(l=>!string.IsNullOrEmpty(l.LogName)).First().LogName;
+        public string LogFileName => AllLogs.Where(l => !string.IsNullOrEmpty(l.LogName)).First().LogName;
         public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
         public int DurationSeconds => (int)Math.Round(DurationMS / 1000f);
 
-        
+
         public EncounterInfo.EncounterInfo ParentEncounter;
-        public string EncounterBossInfo => EncounterBossDifficultyParts == ("","","")?"": $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item2} {EncounterBossDifficultyParts.Item3}}}";
+        public string EncounterBossInfo => EncounterBossDifficultyParts == ("", "", "") ? "" : $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item2} {EncounterBossDifficultyParts.Item3}}}";
         public string OldFlashpointBossInfo => EncounterBossDifficultyParts == ("", "", "") ? "" : $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item3}}}";
-        public (string, string, string) EncounterBossDifficultyParts = ("","","");
+        public (string, string, string) EncounterBossDifficultyParts = ("", "", "");
 
         public List<string> RequiredDeadTargetsForKill { get; set; } = new List<string>();
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
         public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
-        public bool WasBossKilled =>RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => (l.Target.LogId.ToString() == t && l.Effect.EffectId == _7_0LogParsing.DeathCombatId)));
+        public bool WasBossKilled => RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Any(l => (l.Target.LogId.ToString() == t && l.Effect.EffectId == _7_0LogParsing.DeathCombatId)));
         public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
         {
@@ -44,7 +44,7 @@ namespace SWTORCombatParser.DataStructures
         {
             return GetLogsInvolvingEntity(player).Any(l => l.Target == player && l.Effect.EffectId == _7_0LogParsing.DeathCombatId);
         }
-        public ConcurrentDictionary<Entity,List<ParsedLogEntry>> OutgoingDamageLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
+        public ConcurrentDictionary<Entity, List<ParsedLogEntry>> OutgoingDamageLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingDamageLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingDamageMitigatedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> OutgoingHealingLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
@@ -73,7 +73,7 @@ namespace SWTORCombatParser.DataStructures
                 return new List<Point>();
             var timeStamps = PlotMaker.GetPlotXVals(logs, StartTime);
             var values = logs.Select(l => l.Value.EffectiveDblValue);
-            var twentySecondAverage = PlotMaker.GetPlotYValRates(values.ToArray(), timeStamps,20d);
+            var twentySecondAverage = PlotMaker.GetPlotYValRates(values.ToArray(), timeStamps, 20d);
 
             var peaks = PlotMaker.GetPeaksOfMean(twentySecondAverage, 20);
             var validPeaks = peaks.Where(p => p.Item1 > 10);
@@ -83,11 +83,11 @@ namespace SWTORCombatParser.DataStructures
         public double GetCurrentEffectStacks(string effect, Entity player)
         {
             var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, player);
-            if(allEffects.Count == 0) return 0;
-            var specificEffect = allEffects.Where(e=>e.EffectId == effect || e.Name== effect);
+            if (allEffects.Count == 0) return 0;
+            var specificEffect = allEffects.Where(e => e.EffectId == effect || e.Name == effect);
             if (!specificEffect.Any())
                 return 0;
-            return specificEffect.SelectMany(e=>e.ChargesAtTime).MaxBy(v=>v.Key).Value;
+            return specificEffect.SelectMany(e => e.ChargesAtTime).MaxBy(v => v.Key).Value;
         }
         public double GetMaxEffectStacks(string effect, Entity player)
         {
@@ -101,7 +101,7 @@ namespace SWTORCombatParser.DataStructures
         public double GetDamageFromEntityByAbilityForPlayer(string ability, string entity, Entity player)
         {
             var incomingDamageByEntity = GetIncomingDamageBySource(player);
-            var entityOfInterest = incomingDamageByEntity.Keys.FirstOrDefault(e=>e.Name == entity || e.LogId.ToString() == entity);
+            var entityOfInterest = incomingDamageByEntity.Keys.FirstOrDefault(e => e.Name == entity || e.LogId.ToString() == entity);
             if (entityOfInterest != null)
             {
                 var logsForEntity = incomingDamageByEntity[entityOfInterest];
@@ -109,6 +109,10 @@ namespace SWTORCombatParser.DataStructures
                 return logsWithAbility.Sum(v => v.Value.EffectiveDblValue);
             }
             return 0;
+        }
+        public double GetDamageIncomingByAbilityForPlayer(string ability, Entity player)
+        {
+            return IncomingDamageLogs[player].Where(l => l.Ability == ability || l.AbilityId == ability).Sum(l=>l.Value.EffectiveDblValue);
         }
         public double GetDamageToEntityByAbilityForPlayer(string ability, string entity, Entity player)
         {
@@ -132,6 +136,10 @@ namespace SWTORCombatParser.DataStructures
                 return logsForEntity.Sum(v => v.Value.EffectiveDblValue);
             }
             return 0;
+        }
+        public double GetDamageOutgoingByAbilityForPlayer(string ability, Entity player)
+        {
+            return OutgoingDamageLogs[player].Where(l => l.Ability == ability || l.AbilityId == ability).Sum(l => l.Value.EffectiveDblValue);
         }
         public double GetDamageToEntityByPlayer(string entity, Entity player)
         {

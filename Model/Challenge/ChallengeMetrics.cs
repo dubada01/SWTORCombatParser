@@ -17,13 +17,18 @@ namespace SWTORCombatParser.Model.Challenge
             switch (type)
             {
                 case ChallengeType.DamageIn:
-                    value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value == "Any" ? 
-                        combat.GetDamageFromEntityByPlayer(activeChallenge.ChallengeSource,participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
+                    value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value.ToLower() == "any" ?
+                        
+                         combat.GetDamageFromEntityByPlayer(activeChallenge.ChallengeSource, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds)
+                         :
+                        string.IsNullOrEmpty(activeChallenge.ChallengeSource) || activeChallenge.ChallengeSource.ToLower() == "any" ? combat.GetDamageIncomingByAbilityForPlayer(activeChallenge.Value, participant)/(activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
                         combat.GetDamageFromEntityByAbilityForPlayer(activeChallenge.Value,activeChallenge.ChallengeSource,participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds);
                     break;
                 case ChallengeType.DamageOut:
-                    value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value == "Any" ?
+                    value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value.ToLower() == "any" ?
                         combat.GetDamageToEntityByPlayer(activeChallenge.ChallengeTarget, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
+                        string.IsNullOrEmpty(activeChallenge.ChallengeTarget) || activeChallenge.ChallengeTarget.ToLower() == "any" ?
+                        combat.GetDamageOutgoingByAbilityForPlayer(activeChallenge.Value,participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
                         combat.GetDamageToEntityByAbilityForPlayer(activeChallenge.Value, activeChallenge.ChallengeTarget, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds);
                     break;
                 case ChallengeType.InterruptCount:
