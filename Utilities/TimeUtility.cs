@@ -73,7 +73,7 @@ namespace SWTORCombatParser.Utilities
             // Calculate the offset between local time and NIST time in milliseconds
             TimeSpan offset = nistTime - localTime;
             double offsetInMilliseconds = offset.TotalMilliseconds;
-            if (offsetInMilliseconds > TimeSpan.FromMinutes(30).TotalMilliseconds)
+            if (Math.Abs(offsetInMilliseconds) > TimeSpan.FromMinutes(30).TotalMilliseconds)
                 return;
             _currentOffset = offsetInMilliseconds;
         }

@@ -734,6 +734,46 @@ public static class LogIdFactory
                             }
                         }
                     };
+                    encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Red", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 4246176467517440L } },
+                                { "Story 16", new List<long>() { 4246176467517440L } },
+                                { "Veteran 8", new List<long>() { 4330233272467456L } },
+                                { "Veteran 16", new List<long>() { 4330233272467456L } },
+                            }
+                        },
+                        {
+                            "Trandosians", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 4245970309087232L,4245978899021824L, 4245983193989120L, 4245987488956416L} },
+                                { "Story 16", new List<long>() { 4245970309087232L,4245978899021824L, 4245983193989120L, 4245987488956416L} },
+                                { "Veteran 8", new List<long>() { 4245970309087232L,4245978899021824L, 4245983193989120L, 4245987488956416L } },
+                                { "Veteran 16", new List<long>() { 4245970309087232L,4245978899021824L, 4245983193989120L, 4245987488956416L } },
+                                { "Master 8",new List<long>(){4381150109761536L,4245970309087232L,4245978899021824L, 4245983193989120L, 4245987488956416L}},
+                                { "Master 16",new List<long>(){4381150109761536L,4245970309087232L,4245978899021824L, 4245983193989120L, 4245987488956416L}}
+                            }
+                        },
+                        {
+                            "Huntmaster", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 16", new List<long>() { 4281661487316992L } },
+                                { "Veteran 8", new List<long>() { 4330237567434752L} },
+                                { "Veteran 16", new List<long>() { 4330237567434752L} },
+                            }
+                        },
+                        {
+                            "Apex Vanguard", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 4282872668094464L} },
+                                { "Story 16", new List<long>() { 4282872668094464L } },
+                                { "Veteran 8", new List<long>() { 4350020186800128 } },
+                                { "Veteran 16", new List<long>() { 4350020186800128 } },
+                            }
+                        }
+                    };
                     break;
                 case "R4":
                     encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()

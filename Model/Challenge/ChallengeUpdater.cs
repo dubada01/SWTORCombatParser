@@ -78,11 +78,11 @@ namespace SWTORCombatParser.Model.Challenge
             {
                 case ChallengeType.DamageOut:
                     {
-                        return (log.Ability == challenge.Value || log.AbilityId == challenge.Value || string.IsNullOrEmpty(challenge.Value)) && (log.Target.Name == challenge.ChallengeTarget || log.Target.LogId.ToString() == challenge.ChallengeTarget);
+                        return (log.Ability == challenge.Value || log.AbilityId == challenge.Value || string.IsNullOrEmpty(challenge.Value)) && (log.Target.Name == challenge.ChallengeTarget || log.Target.LogId.ToString() == challenge.ChallengeTarget || string.IsNullOrEmpty(challenge.ChallengeTarget));
                     }
                 case ChallengeType.DamageIn:
                     {
-                        return (log.Ability == challenge.Value || log.AbilityId == challenge.Value || string.IsNullOrEmpty(challenge.Value)) && (log.Source.Name == challenge.ChallengeSource || log.Source.LogId.ToString() == challenge.ChallengeSource);
+                        return (log.Ability == challenge.Value || log.AbilityId == challenge.Value || string.IsNullOrEmpty(challenge.Value)) && (log.Source.Name == challenge.ChallengeSource || log.Source.LogId.ToString() == challenge.ChallengeSource || string.IsNullOrEmpty(challenge.ChallengeSource));
                     }
                 case ChallengeType.AbilityCount:
                     {
