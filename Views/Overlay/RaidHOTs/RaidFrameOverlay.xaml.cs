@@ -94,6 +94,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         }
 
         private bool _isSubscribed;
+        private bool _isLocked;
+
         private void SubscribeToClicks()
         {
             if(_isSubscribed)
@@ -136,7 +138,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 while (true)
                 {
                     POINT cursorPos = new POINT();
-                    if (GetCursorPos(out cursorPos) && !_inCombat)
+                    if (GetCursorPos(out cursorPos) && !_inCombat && !_isLocked)
                     {
                         Application.Current.Dispatcher.Invoke(() =>
                         {
@@ -234,7 +236,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 
         public void makeTransparent(bool shouldLock)
         {
-            Console.WriteLine("Transparent Toggle");
+            _isLocked = shouldLock;
             Dispatcher.Invoke(() => {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
