@@ -753,7 +753,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             HasCustomTarget = false;
             HasCustomSource = false;
             UseAudio = false;
-            IsHot = false;
             Effect = "";
             Ability = "";
             AlertText = "";

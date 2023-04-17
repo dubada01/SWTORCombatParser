@@ -19,6 +19,7 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
             {
                 timer.ResetOnEffectLoss = true;
                 timer.TrackOutsideOfCombat = true;
+                timer.IsHot = true;
                 copiedTimers.Add(timer);
 
             }
