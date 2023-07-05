@@ -343,6 +343,19 @@
       "Lord Vanithrast",
       "Grand Moff Kilran"
     ]
+  },
+  {
+    "LogName": "Voss",
+    "LogId": "137438987149",
+    "Name": "Shrine of Silence",
+    "BossNames": [
+      "Corrupted Vorantikus",
+      "Voss Mystics~?~Rada-Ki|Tem-Su",
+      "Kirba, the Forgotten",
+      "Nil-Uu",
+      "Soul Coil",
+      "The Curse"
+    ]
   }
 ]
 

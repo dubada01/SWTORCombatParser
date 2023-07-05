@@ -380,7 +380,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             }
             GraphView.Plot.AxisAuto();
             GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
-            GraphView.Plot.SetAxisLimits(xMin: 0, xMax: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
+            GraphView.Plot.SetAxisLimits(xMin: 0, xMax: Math.Max(0,(combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds));
             _combatMetaDataViewModel.PopulateEffectsFromCombat(combatToPlot);
             GraphView.Refresh();
         }

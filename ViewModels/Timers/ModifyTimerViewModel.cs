@@ -1529,9 +1529,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                         ShowAbsorbOption = true;
                         CanChangeCombatTracking = false;
                         ShowAbilityOption = true;
+                        ShowEffectOption = true;
                         ShowDurationOrAlert = false;
-                        OnPropertyChanged("ShowDuration");
-                        OnPropertyChanged("HasSource");
+                        OnPropertyChanged("ShowEffectOption");
+						OnPropertyChanged("ShowDuration");
+						OnPropertyChanged("HasSource");
                         OnPropertyChanged("ShowDurationOrAlert");
                         OnPropertyChanged("SourceText");
                         OnPropertyChanged("CanChangeCombatTracking");

@@ -1,4 +1,6 @@
-﻿using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Views.Overlay.Personal;
 using System;
 using System.Collections.Generic;
@@ -39,10 +41,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             _window.Height = defaults.WidtHHeight.Y;
 
             DefaultPersonalOverlaysManager.NewDefaultSelected += UpdateMetrics;
+            CombatLogStreamer.NewLineStreamed += CheckForConversation;
             UpdateMetrics("Damage");
         }
+		private bool _conversationActive;
+		private void CheckForConversation(ParsedLogEntry obj)
+		{
+			if (!obj.Source.IsLocalPlayer)
+				return;
+			if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply)
+			{
+				_conversationActive = true;
+				OnHiding();
+			}
 
-        private void UpdateMetrics(string defaultName)
+			if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove)
+			{
+				_conversationActive = false;
+				OnShowing();
+			}
+		}
+		private void UpdateMetrics(string defaultName)
         {
             App.Current.Dispatcher.Invoke(() => {
                 PersonalOverlayInstances.Clear();

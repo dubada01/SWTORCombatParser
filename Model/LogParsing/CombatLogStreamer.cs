@@ -134,7 +134,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     if (result == ProcessedLineResult.Incomplete)
                     {
                         Logging.LogInfo("Failed to parse line: " + lines[line]);
-                        numberOfProcessedBytes = 0;
+                        ParseExisitingLogs();
                     }
                 }
                 if (!_isInCombat)

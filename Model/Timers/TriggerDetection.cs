@@ -47,10 +47,12 @@ namespace SWTORCombatParser.Model.Timers
                 case TimerKeyType.CombatStart:
                     return CheckForComabatStart(log);
                 case TimerKeyType.AbilityUsed:
-                case TimerKeyType.AbsorbShield:
-                    return CheckForAbilityUse(log, SourceTimer.Ability, SourceTimer.Source,
-                        SourceTimer.Target, currentTarget);
-                case TimerKeyType.EffectGained:
+					return CheckForAbilityUse(log, SourceTimer.Ability, SourceTimer.Source,
+	SourceTimer.Target, currentTarget);
+				case TimerKeyType.AbsorbShield:
+					return CheckForAbsorbShield(log, SourceTimer.Ability, SourceTimer.Source,
+	SourceTimer.Target, currentTarget);
+				case TimerKeyType.EffectGained:
                     return CheckForEffectGain(log, SourceTimer.Effect,
                         SourceTimer.AbilitiesThatRefresh, SourceTimer.Source, SourceTimer.Target,
                         currentTarget,SourceTimer.ResetOnEffectLoss);
@@ -233,7 +235,31 @@ namespace SWTORCombatParser.Model.Timers
             }
             return TriggerType.None;
         }
-        public static TriggerType CheckForComabatStart(ParsedLogEntry log)
+		public static TriggerType CheckForAbsorbShield(ParsedLogEntry log, string ability, string source, string target, Entity currentTarget)
+		{
+			if (log.Effect.EffectType != EffectType.Event)
+				return TriggerType.None;
+			if (EntityIsValid(log.Source, source, currentTarget) && EntityIsValid(log.Target, target, currentTarget))
+			{
+				if (log.Ability == ability || log.AbilityId == ability)
+				{
+					if (log.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
+						return TriggerType.Start;
+					if (log.Effect.EffectId == _7_0LogParsing.InterruptCombatId)
+						return TriggerType.End;
+				}
+                if (log.Effect.EffectName == ability || log.Effect.EffectId == ability)
+                {
+                    if(log.Effect.EffectType == EffectType.Apply)
+                    {
+                        return TriggerType.Start;
+                    }
+                }
+				return TriggerType.None;
+			}
+			return TriggerType.None;
+		}
+		public static TriggerType CheckForComabatStart(ParsedLogEntry log)
         {
             if (log.Effect.EffectId == _7_0LogParsing.EnterCombatId)
                 return TriggerType.Start;

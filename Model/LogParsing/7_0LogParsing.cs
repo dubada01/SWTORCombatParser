@@ -30,7 +30,8 @@ namespace SWTORCombatParser.Model.LogParsing
         public static string TargetSetId = "836045448953668";
         public static string TargetClearedId = "836045448953669";
         public static string AbilityActivateId = "836045448945479";
-        public static string InConversationEffectId = "806968520343876";
+        public static string ApplyEffectId = "836045448945477";
+		public static string InConversationEffectId = "806968520343876";
 
         private static Regex valueRegex;
         public static Regex threatRegex;
@@ -78,7 +79,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
             var time = DateTime.Parse(entryInfo[0]);
 
-            if (time.Hour < previousLogTime.Hour)
+            if (time.Hour < previousLogTime.Hour && time != DateTime.MinValue)
                 _dateTime = _dateTime.AddDays(1);
 
             var date = new DateTime(_dateTime.Year, _dateTime.Month, _dateTime.Day);

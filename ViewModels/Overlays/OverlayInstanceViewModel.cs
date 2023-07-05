@@ -119,13 +119,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             if (!obj.Source.IsLocalPlayer)
                 return;
-            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Apply)
+            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply)
             {
                 _conversationActive = true;
                 OnHiding();
             }
 
-            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Remove)
+            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove)
             {
                 _conversationActive = false;
                 OnShowing();

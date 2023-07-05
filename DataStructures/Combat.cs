@@ -208,7 +208,27 @@ namespace SWTORCombatParser.DataStructures
             }
             return returnDict;
         }
-        public Dictionary<string, List<ParsedLogEntry>> GetByAbility(List<ParsedLogEntry> logsToCheck)
+		public Dictionary<Entity, List<ParsedLogEntry>> GetByTargetName(List<ParsedLogEntry> logsToCheck)
+		{
+			var returnDict = new Dictionary<Entity, List<ParsedLogEntry>>();
+			var distinctTargets = logsToCheck.Select(l => l.Target).Where(v => v.Name != null).DistinctBy(e => e.Name);
+			foreach (var target in distinctTargets)
+			{
+				returnDict[target] = logsToCheck.Where(l => l.Target.Name == target.Name).ToList();
+			}
+			return returnDict;
+		}
+		public Dictionary<Entity, List<ParsedLogEntry>> GetBySourceName(List<ParsedLogEntry> logsToCheck)
+		{
+			var returnDict = new Dictionary<Entity, List<ParsedLogEntry>>();
+			var distinctSources = logsToCheck.Select(l => l.Source).Where(v => v.Name != null).DistinctBy(e => e.Name);
+			foreach (var source in distinctSources)
+			{
+				returnDict[source] = logsToCheck.Where(l => l.Source.Name == source.Name).ToList();
+			}
+			return returnDict;
+		}
+		public Dictionary<string, List<ParsedLogEntry>> GetByAbility(List<ParsedLogEntry> logsToCheck)
         {
             var returnDict = new Dictionary<string, List<ParsedLogEntry>>();
             var distinctAbilities = logsToCheck.Select(l => l.Ability).Distinct();
