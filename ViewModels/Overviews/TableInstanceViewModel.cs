@@ -21,6 +21,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public double CritPercent { get; set; }
         public double MaxCrit { get; set; }
         public double Max { get; set; }
+        public string Type { get; set; }
     }
     public enum OverviewDataType
     {
@@ -188,10 +189,10 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     splitOutdata = combat.GetByAbility(logsInScope).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value);
                     break;
                 case SortingOption.BySource:
-                    splitOutdata = combat.GetBySource(logsInScope).ToDictionary(kvp => kvp.Key.Name, kvp => kvp.Value);
+                    splitOutdata = combat.GetBySourceName(logsInScope).ToDictionary(kvp => kvp.Key.Name, kvp => kvp.Value);
                     break;
                 case SortingOption.ByTarget:
-                    splitOutdata = combat.GetByTarget(logsInScope).ToDictionary(kvp => kvp.Key.Name, kvp => kvp.Value);
+                    splitOutdata = combat.GetByTargetName(logsInScope).ToDictionary(kvp => kvp.Key.Name, kvp => kvp.Value);
                     break;
             }
             return splitOutdata;
