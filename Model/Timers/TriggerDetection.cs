@@ -237,8 +237,6 @@ namespace SWTORCombatParser.Model.Timers
         }
 		public static TriggerType CheckForAbsorbShield(ParsedLogEntry log, string ability, string source, string target, Entity currentTarget)
 		{
-			if (log.Effect.EffectType != EffectType.Event)
-				return TriggerType.None;
 			if (EntityIsValid(log.Source, source, currentTarget) && EntityIsValid(log.Target, target, currentTarget))
 			{
 				if (log.Ability == ability || log.AbilityId == ability)
