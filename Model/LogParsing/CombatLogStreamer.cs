@@ -111,8 +111,8 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private void GenerateNewFrame()
         {
-            //if (!CheckIfStale())
-            //    return;
+            if (!CheckIfStale())
+                return;
             ParseLogFile();
         }
 
