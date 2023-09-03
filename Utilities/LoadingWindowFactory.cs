@@ -30,6 +30,30 @@ namespace SWTORCombatParser.Utilities
             });
             return _loadingWindow;
         }
+        public static LoadingSplash ShowInstancedLoading(string text = "Loading...")
+        {
+            var instancedLoadedSplash = new LoadingSplash();
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                var mainTop = _mainWindow.Top;
+                var mainLeft = _mainWindow.Left;
+                var mainWidth = _mainWindow.ActualWidth;
+                var mainHeight = _mainWindow.ActualHeight;
+                (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
+
+                instancedLoadedSplash.Top = center.Item2 - 50;
+                instancedLoadedSplash.Left = center.Item1 - 150;
+                instancedLoadedSplash.Show();
+            });
+            return instancedLoadedSplash;
+        }
+        public static void HideInstancedLoading(LoadingSplash splash)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                splash.Close();
+            });
+        }
         public static void ShowBackgroundNotice()
         {
             App.Current.Dispatcher.Invoke(() =>

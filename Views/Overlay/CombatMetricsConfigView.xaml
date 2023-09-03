@@ -87,5 +87,20 @@
                 <ComboBox HorizontalAlignment="Center" Height="45" Width="200" HorizontalContentAlignment="Center" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}" Style="{StaticResource NewComboStyle}"></ComboBox>
             </StackPanel>
         </Viewbox>
+        <Viewbox Margin="0,2,0,2" MaxHeight="25" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1">
+            <StackPanel  Orientation="Horizontal">
+                <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Dynamic Layout: "/>
+                <Viewbox MaxHeight="20">
+                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding UseDynamicLayout}"></CheckBox>
+                </Viewbox>
+            </StackPanel>
+        </Viewbox>
+        <Viewbox Margin="10,2,0,2" MaxHeight="50"  HorizontalAlignment="Left" Grid.Column="2" Grid.Row="1" Visibility="{Binding UseDynamicLayout, Converter={StaticResource BooleanToVisibiityConverter}}">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Layout: "/>
+                <ComboBox  Height="45" Width="200"  Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding SelectedType}"></ComboBox> 
+            </StackPanel>
+
+        </Viewbox>
     </Grid>
 </UserControl>

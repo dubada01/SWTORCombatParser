@@ -12,11 +12,12 @@ using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
 {
+    [XmlRoot("com.ixale.starparse.domain.ConfigTimers")]
     public class ConfigTimers
     {
         [XmlArray("timers")]
         [XmlArrayItem("ConfigTimer", typeof(ConfigTimer))]
-        public ConfigTimer[] Timers { get; set; }
+        public ConfigTimer[] timers { get; set; }
     }
 
     public class ConfigTimer
@@ -73,34 +74,32 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static List<Timer> ConvertXML(string xmlText)
         {
-            XmlRootAttribute xRoot = new XmlRootAttribute();
-            xRoot.ElementName = "ConfigTimers";
-            xRoot.Namespace = "com.ixale.starparse.domain";
-            xRoot.IsNullable = true;
-
-            XmlSerializer xs = new XmlSerializer(typeof(ConfigTimers), xRoot);
-            ConfigTimers timers;
+            XmlSerializer xs = new XmlSerializer(typeof(SPTimersContainer));
+            SPTimersContainer timers;
 
             using (StringReader reader = new StringReader(xmlText))
             {
-                timers = (ConfigTimers)xs.Deserialize(reader);
+                timers = (SPTimersContainer)xs.Deserialize(reader);
             }
-            return timers.Timers.Select(ConvertTimer).ToList();
+            return timers.Items.First().comixalestarparsedomainConfigTimer.Where(sp=>sp.trigger != null).Select(v=>ConvertTimer(v)).ToList();
         }
-        public static Timer ConvertTimer(ConfigTimer spTimer)
+        public static Timer ConvertTimer(SPTimer spTimer)
         {
+            var trigger = spTimer.trigger.FirstOrDefault();
             return new Timer()
             {
-                TriggerType = GetTriggerType(spTimer.Trigger.Type),
-                Name = spTimer.Name,
+                TriggerType = GetTriggerType(trigger.type),
+                Name = spTimer.name,
                 Id = Guid.NewGuid().ToString(),
-                Source = spTimer.Trigger.Source == "@Self" ? "LocalPlayer" : spTimer.Trigger.Source,
-                Target = spTimer.Trigger.Target == "@Self" ? "LocalPlayer" : spTimer.Trigger.Target,
-                Effect = spTimer.Trigger.EffectGuid,
-                Ability = spTimer.Trigger.AbilityGuid,
-                TimerColor = (Color)ColorConverter.ConvertFromString(spTimer.Color),
-                DurationSec = spTimer.Interval,
-                SpecificBoss = spTimer.Trigger.Boss,
+                Source = trigger.source == "@Self" ? "LocalPlayer" : trigger.source,
+                Target = trigger.target == "@Self" ? "LocalPlayer" : trigger.target,
+                Effect = string.IsNullOrEmpty(trigger.effectGuid)? trigger.effect : trigger.effectGuid,
+                Ability = string.IsNullOrEmpty(trigger.abilityGuid) ? trigger.ability : trigger.abilityGuid,
+                TimerColor = string.IsNullOrEmpty(spTimer.color) ? Colors.Red : (Color)ColorConverter.ConvertFromString("#"+spTimer.color.Split('x')[1]),
+                DurationSec =string.IsNullOrEmpty(spTimer.interval) ? double.Parse(spTimer.countdownCount) : double.Parse(spTimer.interval),
+                SpecificBoss = trigger.boss,
+                IsImportedFromSP = true,
+                TimerSource = "StarParse Import"
             };
         }
 
@@ -118,6 +117,10 @@ namespace SWTORCombatParser.Model.Timers
                     return TimerKeyType.AbilityUsed;
                 case "COMBAT_START":
                     return TimerKeyType.CombatStart;
+                case "DAMAGE":
+                    return TimerKeyType.DamageTaken;
+                case "HEALING":
+                    return TimerKeyType.AbilityUsed;
                 default:
                     return TimerKeyType.CombatStart;
             }

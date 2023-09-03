@@ -116,6 +116,7 @@ namespace SWTORCombatParser.DataStructures
         public bool IsBuiltInDot { get; set; }
         public bool IsBuiltInDefensive { get; set; }
         public bool IsBuiltInOffensive { get; set; }
+        public bool IsImportedFromSP { get; set; }
         public int TimerRev { get; set; }
         public bool IsUserAddedTimer { get; set; }
         public bool IsMechanic { get; set; }

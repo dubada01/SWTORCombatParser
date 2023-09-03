@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Leaderboard
 {
@@ -21,6 +22,8 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
     public class LeaderboardInstanceViewModel:INotifyPropertyChanged
     {
         private LeaderboardEntryType _leaderboardType;
+        private bool _showLoadingSplash = false;
+        private LoadingSplash splash;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public string MetricName { get; set; }
@@ -33,6 +36,14 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         }
         public async void Populate(string encounter, string boss, string difficulty, string players, bool isParsing = false, long parsingHP = 0)
         {
+            if (_showLoadingSplash)
+            {
+                 splash = LoadingWindowFactory.ShowInstancedLoading();
+            }
+            if(!_showLoadingSplash)
+            {
+                _showLoadingSplash = true;
+            }
             var newLeaders = new List<LeaderboardEntry>();
             var isFlashpoint = string.IsNullOrEmpty(players);
             var playersString = isFlashpoint ? "4 " : players +" ";
@@ -65,6 +76,11 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
 
             Leaders = newLeaders;
             OnPropertyChanged("Leaders");
+            if (splash != null)
+            { 
+                LoadingWindowFactory.HideInstancedLoading(splash);
+                splash = null;
+            }
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

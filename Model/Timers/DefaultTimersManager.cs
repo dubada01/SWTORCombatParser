@@ -112,7 +112,7 @@ namespace SWTORCombatParser.Model.Timers
             var allTimers = GetAllDefaults();
             foreach(var source in allTimers)
             {
-                source.Timers.RemoveAll(t => t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot);
+                source.Timers.RemoveAll(t => t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot && !t.IsImportedFromSP);
             }
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
         }
@@ -230,7 +230,8 @@ namespace SWTORCombatParser.Model.Timers
                 c.TimerSource == "DOTS" || 
                 c.TimerSource == "DCD" || 
                 c.TimerSource == "OCD" ||
-                c.IsBossSource).ToList();
+                c.IsBossSource ||
+            c.TimerSource == "StarParse Import").ToList();
                 _defaults = validDefaults;
                 return validDefaults;
             }
@@ -255,7 +256,8 @@ namespace SWTORCombatParser.Model.Timers
             c.TimerSource == "DOTS" || 
             c.TimerSource == "DCD" ||
             c.TimerSource == "OCD" ||
-            c.IsBossSource);
+            c.IsBossSource ||
+            c.TimerSource == "StarParse Import");
 
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
@@ -280,7 +282,8 @@ namespace SWTORCombatParser.Model.Timers
             c.TimerSource == "DOTS" || 
             c.TimerSource == "DCD" || 
             c.TimerSource == "OCD" ||
-            c.IsBossSource);
+            c.IsBossSource ||
+            c.TimerSource == "StarParse Import");
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
         }
     }

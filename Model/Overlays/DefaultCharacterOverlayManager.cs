@@ -93,6 +93,20 @@ namespace SWTORCombatParser.Model.Overlays
             currentDefaults[type] = new OverlayInfo() { UseAsWindow = defaultModified.UseAsWindow, Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state, Locked = defaultModified.Locked };
             SaveCharacterDefaults(characterName, currentDefaults);
         }
+        public static bool DoesKeyExist(string key)
+        {
+            var currentDefaults = GetCurrentCharacterDefaults();
+            return currentDefaults.ContainsKey(key);
+        }
+        public static string GetMostUsedLayout()
+        {
+            var currentDefaults = GetCurrentCharacterDefaults();
+            if (!currentDefaults.Any())
+                return "";
+            return currentDefaults.MaxBy(v => v.Value.Values.Count(o=>o.Acive)).Key;
+        }
+
+
         public static Dictionary<string,OverlayInfo> GetCharacterDefaults(string characterName)
         {
             try
@@ -134,7 +148,7 @@ namespace SWTORCombatParser.Model.Overlays
             currentDefaults[character] = data;
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
-        private static void CopyFromKey(string from, string to)
+        public static void CopyFromKey(string from, string to)
         {
             var currentDefaults = GetCurrentCharacterDefaults();
             var fromDefaults = currentDefaults[from];
@@ -148,7 +162,7 @@ namespace SWTORCombatParser.Model.Overlays
                 File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
             }
         }
-        private static void InitializeCharacterDefaults(string characterName)
+        public static void InitializeCharacterDefaults(string characterName)
         {
             var currentDefaults = GetCurrentCharacterDefaults();
             var defaults = new Dictionary<string, OverlayInfo>();

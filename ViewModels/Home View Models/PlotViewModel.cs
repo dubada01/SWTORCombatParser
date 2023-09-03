@@ -378,7 +378,14 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 }
                 ReInitializeTooltips(series, combatToPlot.StartTime);
             }
-            GraphView.Plot.AxisAuto();
+            try
+            {
+                GraphView.Plot.AxisAuto();
+            }
+            catch (InvalidOperationException ex)
+            {
+                GraphView.Plot.SetAxisLimits(yMin: 0, yMax: 0, yAxisIndex: 0);
+            }
             GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
             GraphView.Plot.SetAxisLimits(xMin: 0, xMax: Math.Max(0,(combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds));
             _combatMetaDataViewModel.PopulateEffectsFromCombat(combatToPlot);

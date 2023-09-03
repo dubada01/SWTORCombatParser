@@ -80,18 +80,18 @@ namespace SWTORCombatParser.DataStructures
             return validPeaks.Select(p => new Point() { X = p.Item1, Y = p.Item2 }).ToList();
 
         }
-        public double GetCurrentEffectStacks(string effect, Entity player)
+        public double GetCurrentEffectStacks(string effect, Entity target)
         {
-            var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, player);
+            var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, target);
             if (allEffects.Count == 0) return 0;
             var specificEffect = allEffects.Where(e => e.EffectId == effect || e.Name == effect);
             if (!specificEffect.Any())
                 return 0;
             return specificEffect.SelectMany(e => e.ChargesAtTime).MaxBy(v => v.Key).Value;
         }
-        public double GetMaxEffectStacks(string effect, Entity player)
+        public double GetMaxEffectStacks(string effect, Entity target)
         {
-            var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, player);
+            var allEffects = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(StartTime, EndTime, target);
             if (allEffects.Count == 0) return 0;
             var specificEffect = allEffects.Where(e => e.EffectId == effect || e.Name == effect);
             if (!specificEffect.Any())

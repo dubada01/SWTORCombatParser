@@ -48,6 +48,8 @@ public static class Settings
             settingList[settingName] = false;
         if(!settingList.ContainsKey(settingName) && settingName == "offline_mode")
             settingList[settingName] = false;
+        if (!settingList.ContainsKey(settingName) && settingName == "DynamicLayout")
+            settingList[settingName] = false;
         return settingList[settingName].Value<T>();
     }
     public static bool HasSetting(string settingName)

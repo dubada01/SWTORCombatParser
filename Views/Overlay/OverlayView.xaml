@@ -77,9 +77,6 @@
                         </Viewbox>
                     </StackPanel>
                 </Viewbox>
-                <Viewbox Grid.Column="2" MaxHeight="35" HorizontalAlignment="Left" Margin="0,0,10,0">
-                    <ComboBox Width="100" Visibility="{Binding UsePersonalOverlay, Converter={StaticResource BooleanToVisibiityConverter}}" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding SelectedType}"></ComboBox>
-                </Viewbox>
 
                 <Viewbox Margin="0,2,50,2" MaxHeight="50" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="1">
                     <StackPanel Orientation="Vertical">
