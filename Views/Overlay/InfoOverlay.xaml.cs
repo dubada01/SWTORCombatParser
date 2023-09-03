@@ -104,6 +104,7 @@ namespace SWTORCombatParser.Views.Overlay
             Dispatcher.Invoke(() =>
             {
                 _closed = true;
+
                 Close();
             });
    

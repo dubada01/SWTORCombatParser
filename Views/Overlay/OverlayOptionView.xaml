@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid ToolTip="{Binding HelpText}">
         <Button Background="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter}}" 
                 Foreground="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter},
                 ConverterParameter=inverted}" Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" 

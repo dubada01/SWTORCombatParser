@@ -23,6 +23,7 @@ using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.ViewModels.Overlays.Personal;
+using System.Data;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -31,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
         private Dictionary<string, OverlayInfo> _overlayDefaults = new Dictionary<string, OverlayInfo>();
-        private string _currentCharacterDiscipline = "None";
+        private string _currentCharacterRole = Role.DPS.ToString();
         private bool overlaysLocked = true;
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
@@ -45,6 +46,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool usePersonalOverlay;
         private PersonalOverlayViewModel _personalOverlayViewModel;
         private string selectedType = "Damage";
+        private bool useDynamicLayout;
 
         public event Action OverlayLockStateChanged = delegate { };
 
@@ -116,7 +118,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatLogStreamer.HistoricalLogsFinished += FinishHistoricalParse;
             CombatLogStreamer.HistoricalLogsStarted += HistoricalLogsStarted;
             sizeScalar = Settings.ReadSettingOfType<double>("overlay_bar_scale");
-
+            useDynamicLayout = Settings.ReadSettingOfType<bool>("DynamicLayout");
             sizeScalarString = sizeScalar.ToString();
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();
             SelectedLeaderboardType = LeaderboardSettings.ReadLeaderboardSettings();
@@ -157,20 +159,68 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateOverlaysForDiscipline(Entity character, SWTORClass arg2)
         {
-            var nextDiscipline = character.Name + "_" + arg2.Discipline;
-            if (_currentCharacterDiscipline == nextDiscipline)
+            var nextDiscipline = arg2.Role.ToString();
+            if (_currentCharacterRole == nextDiscipline)
                 return;
-            ResetOverlays();
-            _currentCharacterDiscipline = nextDiscipline;
-            SetPersonalByClass(arg2.Role);
-            _timersViewModel.TryShow();
-            _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults(_currentCharacterDiscipline);
+            _currentCharacterRole = arg2.Role.ToString();
             if (historicalParseFinished)
             {
-                UpdateOverlays();
+                RefreshOverlays();
             }
         }
 
+        private void RefreshOverlays()
+        {
+            ResetOverlays();
+            _timersViewModel.TryShow();
+            if (!DefaultCharacterOverlays.DoesKeyExist(_currentCharacterRole))
+            {
+                InitializeRoleBasedOverlays();
+            }
+            if (UseDynamicLayout)
+            {
+                SetOverlaysToRole();
+            }
+            else
+            {
+                SetOverlaysToCustom();
+            }
+        }
+
+        private void SetOverlaysToCustom()
+        {
+            SetPersonalByClass(Role.Unknown);
+            _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults("Custom");
+
+            UpdateOverlays();
+
+        }
+        private void SetOverlaysToRole()
+        {
+            SetPersonalByClass(Enum.Parse<Role>(_currentCharacterRole));
+            _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults(_currentCharacterRole);
+
+            UpdateOverlays();
+
+        }
+        private void InitializeRoleBasedOverlays()
+        {
+            var mostUsedOverlayLayout = DefaultCharacterOverlays.GetMostUsedLayout();
+            if (!string.IsNullOrEmpty(mostUsedOverlayLayout))
+            {
+                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "DPS");
+                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "Healer");
+                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "Tank");
+                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "Custom");
+            }
+            else
+            {
+                DefaultCharacterOverlays.InitializeCharacterDefaults("DPS");
+                DefaultCharacterOverlays.InitializeCharacterDefaults("Healer");
+                DefaultCharacterOverlays.InitializeCharacterDefaults("Tank");
+                DefaultCharacterOverlays.InitializeCharacterDefaults("Custom");
+            }
+        }
         private void SetPersonalByClass(Role role)
         {
             switch (role)
@@ -188,6 +238,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case Role.Unknown:
                     SelectedType = "Damage";
                     break;
+            }
+        }
+        private Role GetRoleFromSelectedType(string type)
+        {
+            switch (type)
+            {
+                case "Damage":
+                    return Role.DPS;
+                case "Heals":
+                    return Role.Healer;
+                case "Tank":
+                    return Role.Tank;
+                default:
+                return Role.Unknown;
             }
         }
 
@@ -210,7 +274,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     if (_overlayDefaults[enumVal.ToString()].Acive)
                         CreateOverlay(GetType(enumVal), false);
                 }
-                _currentOverlays.ForEach(o => o.CharacterDetected(_currentCharacterDiscipline));
+                _currentOverlays.ForEach(o => o.CharacterDetected(_currentCharacterRole));
             });
         }
         private void FinishHistoricalParse(DateTime combatEndTime, bool localPlayerIdentified)
@@ -223,7 +287,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             if (localPlayer == null)
                 return;
             UpdateOverlaysForDiscipline(localPlayer, currentDiscipline);
-            UpdateOverlays();
+            RefreshOverlays();
         }
         private void HistoricalLogsStarted()
         {
@@ -246,13 +310,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             overlayType.IsSelected = true;
             var viewModel = new OverlayInstanceViewModel(overlayType.Type);
-            DefaultCharacterOverlays.SetActiveStateCharacter(viewModel.Type.ToString(), true, _currentCharacterDiscipline);
+            DefaultCharacterOverlays.SetActiveStateCharacter(viewModel.Type.ToString(), true, _currentCharacterRole);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = !OverlaysLocked;
             viewModel.SizeScalar = SizeScalar;
             _currentOverlays.Add(viewModel);
             var overlay = new InfoOverlay(viewModel);
-            overlay.SetPlayer(_currentCharacterDiscipline);
+            overlay.SetPlayer(_currentCharacterRole);
             var stringType = viewModel.Type.ToString();
             if (_overlayDefaults.ContainsKey(stringType))
             {
@@ -269,9 +333,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void RemoveOverlay(OverlayInstanceViewModel obj)
         {
-            DefaultCharacterOverlays.SetActiveStateCharacter(obj.Type.ToString(), false, _currentCharacterDiscipline);
+            DefaultCharacterOverlays.SetActiveStateCharacter(obj.Type.ToString(), false, _currentCharacterRole);
             _currentOverlays.Remove(obj);
-            SetSelected(false, obj.Type);
+            SetSelected(false, obj.CreatedType);
         }
         public void HideOverlays()
         {
@@ -280,9 +344,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void ResetOverlays()
         {
-            _currentCharacterDiscipline = "";
             foreach (var overlay in _currentOverlays.ToList())
             {
+                SetSelected(false, overlay.CreatedType);
                 overlay.RequestClose();
             }
             _timersViewModel.HideTimers();
@@ -313,9 +377,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             get => selectedType; set
             {
-                selectedType = value;
-                DefaultPersonalOverlaysManager.SelectNewDefault(selectedType);
-                OnPropertyChanged();
+                if (selectedType != value)
+                {
+                    selectedType = value;
+                    _currentCharacterRole = GetRoleFromSelectedType(selectedType).ToString();
+                    RefreshOverlays();
+                    DefaultPersonalOverlaysManager.SelectNewDefault(selectedType);
+                    OnPropertyChanged();
+                }
+                
+
             }
         }
 
@@ -325,6 +396,26 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 _personalOverlayViewModel.Active = value;
                 usePersonalOverlay = value;
+                OnPropertyChanged();
+            }
+        }
+        private string _previousRole;
+        public bool UseDynamicLayout
+        {
+            get => useDynamicLayout; set
+            {
+                useDynamicLayout = value;
+                if(useDynamicLayout && !string.IsNullOrEmpty(_previousRole))
+                {
+                    _currentCharacterRole = _previousRole;
+                }
+                if (!useDynamicLayout)
+                {
+                    _previousRole = _currentCharacterRole;
+                    _currentCharacterRole = "Custom";
+                }
+                Settings.WriteSetting<bool>("DynamicLayout", useDynamicLayout);
+                RefreshOverlays();
                 OnPropertyChanged();
             }
         }
@@ -381,7 +472,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _currentOverlays.ForEach(o => o.UnlockOverlays());
             else
                 _currentOverlays.ForEach(o => o.LockOverlays());
-            DefaultCharacterOverlays.SetLockedStateCharacter(OverlaysLocked, _currentCharacterDiscipline);
+            DefaultCharacterOverlays.SetLockedStateCharacter(OverlaysLocked, _currentCharacterRole);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

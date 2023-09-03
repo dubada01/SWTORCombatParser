@@ -75,6 +75,11 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                     var combatLines = CombatLogParser.ParseAllLines(combatLog);
                     
                     var combats = SkimBossCombatsFromLogs.GetBossCombats(combatLines);
+                    foreach(var combat in combats)
+                    {
+                        combat.StartTime = new DateTime(combatLog.Time.Year, combatLog.Time.Month, combatLog.Time.Day, combat.StartTime.Hour, combat.StartTime.Minute, combat.StartTime.Second, combat.StartTime.Millisecond);
+                        combat.EndTime = new DateTime(combatLog.Time.Year, combatLog.Time.Month, combatLog.Time.Day, combat.EndTime.Hour, combat.EndTime.Minute, combat.EndTime.Second, combat.EndTime.Millisecond);
+                    }
                     if (combats.Count == 0)
                         continue;
                     allCombats.AddRange(combats);

@@ -76,9 +76,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
 
             ChallengeOverlayMetricInfo metricToUpdate;
-            if (combatToDisplay.CharacterParticipants.Count == 0)
+            if (combatToDisplay.AllEntities.Count == 0)
                 return;
-            foreach (var participant in combatToDisplay.CharacterParticipants)
+            foreach (var participant in combatToDisplay.AllEntities)
             {
                 if (_metricBarsDict.Any(m => m.Key.Item1 == participant.Name))
                 {
@@ -121,7 +121,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                         listOfBars.Add(bar);
                 }
 
-                MetricBars = new List<ChallengeOverlayMetricInfo>(listOfBars.OrderByDescending(mb => mb.RelativeLength));
+                MetricBars = new List<ChallengeOverlayMetricInfo>(listOfBars.Where(b=>b.Value !=0).OrderByDescending(mb => mb.RelativeLength));
 
                 OnPropertyChanged("MetricBars");
 
