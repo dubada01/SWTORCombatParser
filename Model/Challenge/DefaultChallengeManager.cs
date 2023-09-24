@@ -116,10 +116,13 @@ namespace SWTORCombatParser.Model.Challenge
 
             SaveResults(source, currentDefaults);
         }
-        public static void RemoveChallengeFromSource(DataStructures.Challenge challenge, string character)
+        public static void RemoveChallengeFromSource(DataStructures.Challenge challenge)
         {
             var currentDefaults = GetAllDefaults();
-            var valueToRemove = currentDefaults.SelectMany(s => s.Challenges).First(t => t.Id == challenge.Id);
+            var valueToRemove = currentDefaults.SelectMany(s => s.Challenges).FirstOrDefault(t => t.Id == challenge.Id);
+            if(valueToRemove == null) {
+                return;
+            }
             foreach (var source in currentDefaults)
             {
                 source.Challenges.Remove(valueToRemove);

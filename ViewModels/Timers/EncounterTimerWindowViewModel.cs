@@ -226,7 +226,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void UpdateLock(bool value)
         {
             OverlaysMoveable = !value;
-            if (OverlaysMoveable)
+            if (OverlaysMoveable && isEnabled)
             {
                 Active = true;
             }

@@ -51,7 +51,45 @@ public static class TimerController
         _currentEncounter = obj;
         FilterTimers();
     }
-
+    private static void TrySetEncounter(EncounterInfo obj)
+    {
+        if(obj != _currentEncounter)
+        {
+            _currentEncounter = obj;
+            FilterTimers();
+        }
+    }
+    private static void TrySetBoss((string,string,string) bossinfo)
+    {
+        if(bossinfo != _currentBoss && !string.IsNullOrEmpty(bossinfo.Item1))
+        {
+            _currentBoss = bossinfo;
+            FilterTimers();
+        }
+    }
+    private static bool CheckEncounterAndBoss(TimerInstance t)
+    {
+        var timerEncounter = t.SourceTimer.SpecificEncounter;
+        if(_currentEncounter.Name != timerEncounter)
+            return false;
+        var supportedDifficulties = new List<string>();
+        if (t.SourceTimer.ActiveForStory)
+            supportedDifficulties.Add("Story");
+        if (t.SourceTimer.ActiveForVeteran)
+            supportedDifficulties.Add("Veteran");
+        if (t.SourceTimer.ActiveForMaster)
+            supportedDifficulties.Add("Master");
+        var timerBoss = t.SourceTimer.SpecificBoss;
+        if (timerEncounter == "All")
+            return true;
+        if (string.IsNullOrEmpty(_currentBoss.Item1))
+        {
+            return false;
+        }
+        if ((supportedDifficulties.Contains(_currentEncounter.Difficutly)) && _currentBoss.Item1.ToLower() == timerBoss.ToLower())
+            return true;
+        return false;
+    }
     private static void FilterTimers()
     {
         if(Monitor.TryEnter(_timerLock,100))
@@ -65,9 +103,7 @@ public static class TimerController
                         _filteredTimers.Add(timer);
                     if (timer.SourceTimer.TimerSource.Contains("|") && _currentEncounter != null)
                     {
-                        var split = timer.SourceTimer.TimerSource.Split('|');
-                        var encounter = split[0];
-                        if (encounter == _currentEncounter.Name && !_filteredTimers.Any(t => t.SourceTimer.Id == timer.SourceTimer.Id))
+                        if (CheckEncounterAndBoss(timer) && !_filteredTimers.Any(t => t.SourceTimer.Id == timer.SourceTimer.Id))
                         {
                             _filteredTimers.Add(timer);
                         }
@@ -208,6 +244,8 @@ public static class TimerController
     }
 
     private static object _currentTimersModLock = new object();
+    private static (string, string, string) _currentBoss;
+
     private static void TimerAddedCallback(TimerInstanceViewModel addedTimer)
     {
         lock (_timerLock)
@@ -250,20 +288,20 @@ public static class TimerController
         historicalParseFinished = true;
         _timersEnabled = true;
     }
-
     private static void NewLogStreamed(ParsedLogEntry log)
     {
         lock (_timerLock)
         {
-            var encounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp);
-            var bossData = CombatIdentifier.GetCurrentBossInfo(new List<ParsedLogEntry>() { log }, encounter);
+            TrySetEncounter(CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(log.TimeStamp));
+            TrySetBoss(CombatIdentifier.GetCurrentBossInfo(new List<ParsedLogEntry>() { log }, _currentEncounter));
             _currentDiscipline ??= CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(log.TimeStamp).Discipline;
             var currentTarget = CombatLogStateBuilder.CurrentState.GetLocalPlayerTargetAtTime(log.TimeStamp).Entity;
+            var activeTimers = _currentlyActiveTimers.ToList();
             foreach (var timer in _filteredTimers)
             {
                 if (!timer.TrackOutsideOfCombat && !CombatDetector.InCombat)
                     continue;
-                timer.CheckForTrigger(log, _startTime, _currentDiscipline, _currentlyActiveTimers.ToList(), encounter, bossData, currentTarget);
+                timer.CheckForTrigger(log, _startTime, _currentDiscipline, activeTimers, _currentEncounter, _currentBoss, currentTarget);
             }
         }
     }
@@ -281,6 +319,7 @@ public static class TimerController
         }
         if (obj.Type == UpdateType.Stop)
         {
+            _currentBoss = ("", "", "");
             CancelAfterCombat();
         }
     }

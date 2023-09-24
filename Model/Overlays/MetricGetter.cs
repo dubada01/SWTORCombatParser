@@ -151,7 +151,7 @@ public static class MetricGetter
                 value = combat.TotalThreat[participant];
                 break;
             case OverlayType.DamageTaken:
-                value = combat.DTPS[participant];
+                value = combat.EDTPS[participant];
                 break;
             case OverlayType.Mitigation:
                 value = combat.MPS[participant];

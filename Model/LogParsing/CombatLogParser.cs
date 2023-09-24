@@ -19,18 +19,18 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public static ParsedLogEntry ParseLine(string logEntry,long lineIndex, DateTime previousLogTime, bool realTime = true)
         {
-            //try
-           // {
+            try
+            {
                 var listEntries = GetInfoComponents(logEntry);
 
                 return _7_0LogParsing.ParseLog(logEntry, previousLogTime, lineIndex, listEntries, realTime);
 
-           // }
-           // catch (Exception e)
-            //{
-               // Logging.LogError("Log parsing error: " + e.Message + "\r\n" + logEntry);
-               // return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
-           //}
+            }
+            catch (Exception e)
+            {
+                Logging.LogError("Log parsing error: " + e.Message + "\r\n" + logEntry);
+                return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
+            }
         }
         private static bool GetAllLines(StreamReader sr, List<string> lines)
         {

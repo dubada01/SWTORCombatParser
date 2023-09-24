@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.7.10</VersionPrefix>
+    <VersionPrefix>1.7.12</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -79,6 +79,9 @@
     <Page Remove="Orbs Package Builder\**" />
     <Page Remove="SWTORCombatParser_Test\**" />
     <Page Remove="UWP Images\**" />
+    <Compile Remove="ViewModels\BattleReview\MapViewModel.cs" />
+    <Compile Remove="ViewModels\BattleReview\ReviewPlotViewModel.cs" />
+    <Compile Remove="Views\Battle Review\MapView.xaml.cs" />
     <Page Update="Views\Timers\AlertInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <XamlRuntime>Wpf</XamlRuntime>
@@ -3280,6 +3283,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Remove="resources\Class Icons\vanguard.png" />
+    <Page Remove="Views\Battle Review\MapView.xaml" />
     <Content Include="resources\Class Icons\vanguard.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

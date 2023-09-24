@@ -93,7 +93,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     combat.IncomingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
 
                 var totalDamageTaken = combat.IncomingDamageLogs[entity].Sum(l => l.Value.DblValue);
-                var totalEffectiveDamageTaken = combat.IncomingDamageLogs[entity].Sum(l => l.Value.EffectiveDblValue);
+                var totalEffectiveDamageTaken = combat.IncomingDamageLogs[entity].Sum(l => l.Value.MitigatedDblValue);
 
                 var sheildingLogs = logEntries.Where(l => l.Value.Modifier is { ValueType: DamageType.shield });
 
@@ -135,7 +135,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     : combat.IncomingDamageLogs[entity].Max(l => l.Value.DblValue);
                 combat.MaxEffectiveIncomingDamage[entity] = combat.IncomingDamageLogs[entity].Count == 0
                     ? 0
-                    : combat.IncomingDamageLogs[entity].Max(l => l.Value.EffectiveDblValue);
+                    : combat.IncomingDamageLogs[entity].Max(l => l.Value.MitigatedDblValue);
                 combat.MaxIncomingHeal[entity] = combat.IncomingHealingLogs[entity].Count == 0
                     ? 0
                     : combat.IncomingHealingLogs[entity].Max(l => l.Value.DblValue);

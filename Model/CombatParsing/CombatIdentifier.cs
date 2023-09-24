@@ -68,21 +68,42 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false)
         {
+            
             var state = CombatLogStateBuilder.CurrentState;
-            var encounter = GetEncounterInfo(ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp);
-            var currentPariticpants = ongoingLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Where(l=>l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct().ToList();
-            currentPariticpants.AddRange(ongoingLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Target).Distinct().ToList());
+            var orderedLogs = ongoingLogs.OrderBy(t => t.TimeStamp);
+            var encounter = GetEncounterInfo(orderedLogs.First().TimeStamp);
+            var currentPariticpants = orderedLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Where(l=>l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct().ToList();
+            
+            currentPariticpants.AddRange(orderedLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Target).Distinct().ToList());
             var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
-            var participantInfos = ongoingLogs.Select(p => p.SourceInfo).Distinct().ToList();
-            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity,ongoingLogs.First().TimeStamp));
+            var participantInfos = orderedLogs.Select(p => p.SourceInfo).Distinct().ToList();
+            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity, orderedLogs.First().TimeStamp));
+            
+            var orderedLogsList = orderedLogs.ToList();
+            var targets = GetTargets(orderedLogsList);
+            var allEntities = new List<Entity>().Concat(targets).Concat(currentPariticpants).Distinct().ToList();
+
+            // Create a HashSet of distinct LogIds from allEntities for faster lookups
+            HashSet<long> distinctLogIds = new HashSet<long>(allEntities.Select(e => e.LogId));
+
+            // Create the dictionary
+            Dictionary<Entity, List<ParsedLogEntry>> entityLogs = allEntities
+                .ToDictionary(
+                    p => p,
+                    p => ongoingLogs.AsParallel().WithDegreeOfParallelism(8)
+                        .Where(l => distinctLogIds.Contains(l.Target.LogId) || distinctLogIds.Contains(l.Source.LogId)).OrderBy(t => t.TimeStamp)
+                        .ToList()
+                );
+
             var newCombat = new Combat()
             {
                 CharacterParticipants = participants,
                 CharacterClases = classes,
-                StartTime = ongoingLogs.OrderBy(t => t.TimeStamp).First().TimeStamp,
-                EndTime = ongoingLogs.OrderBy(t => t.TimeStamp).Last().TimeStamp,
-                Targets = GetTargets(ongoingLogs),
-                AllLogs = ongoingLogs
+                StartTime = orderedLogs.First().TimeStamp,
+                EndTime = orderedLogs.Last().TimeStamp,
+                Targets = targets,
+                AllLogs = orderedLogsList,
+                LogsInvolvingEntity = entityLogs
             };
             if (encounter !=  null && encounter.BossInfos != null)
             {
@@ -113,20 +134,26 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
         {
-            var combatStart = logs.OrderBy(t => t.TimeStamp).First().TimeStamp;
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectId == _7_0LogParsing._damageEffectId);
-            var parsedLogEntries = validLogs.ToList();
-            var targets = parsedLogEntries.Select(l => l.Target).Where(
-                t => (!t.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(t,combatStart)) 
-                     && !t.IsCompanion 
-                     && t.Name != null).ToList();
-            var sources = parsedLogEntries.Select(l => l.Source)
-                .Where(s => (!s.IsCharacter|| CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(s,combatStart))
-                    && !s.IsCompanion 
-                    && s.Name != null);
-            targets.AddRange(sources);
+            var combatStart = logs.First().TimeStamp;
+            HashSet<Entity> targets = new HashSet<Entity>();
 
-            return targets.DistinctBy(t=>t.Name).ToList();
+            foreach (var log in logs)
+            {
+                if (log.Effect.EffectType != EffectType.TargetChanged && log.Effect.EffectId == _7_0LogParsing._damageEffectId)
+                {
+                    if (log.Target != null && (!log.Target.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(log.Target, combatStart)) && !log.Target.IsCompanion && log.Target.Name != null)
+                    {
+                        targets.Add(log.Target);
+                    }
+
+                    if (log.Source != null && (!log.Source.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(log.Source, combatStart)) && !log.Source.IsCompanion && log.Source.Name != null)
+                    {
+                        targets.Add(log.Source);
+                    }
+                }
+            }
+
+            return targets.ToList();
         }
         private static EncounterInfo GetEncounterInfo(DateTime combatStartTime)
         {
@@ -165,38 +192,52 @@ namespace SWTORCombatParser.Model.CombatParsing
         }
         private static List<string> GetCurrentBossNames(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
-            if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
+            if (currentEncounter == null || currentEncounter.IsOpenWorld)
                 return new List<string>();
+
+            var bossIds = new HashSet<string>(currentEncounter.BossInfos.SelectMany(b => b.TargetIds));
+
             var bossNamesFound = new List<string>();
             foreach (var log in logs)
             {
-                if (currentEncounter.BossInfos.SelectMany(b => b.TargetIds).Contains(log.Source.LogId.ToString()))
+                if (bossIds.Contains(log.Source.LogId.ToString()))
                 {
                     log.Source.IsBoss = true;
                     bossNamesFound.Add(log.Source.LogId.ToString());
                 }
-                if(currentEncounter.BossInfos.SelectMany(b => b.TargetIds).Contains(log.Target.LogId.ToString()))
+                if (bossIds.Contains(log.Target.LogId.ToString()))
                 {
                     log.Target.IsBoss = true;
                     bossNamesFound.Add(log.Target.LogId.ToString());
                 }
             }
+
             return bossNamesFound.Distinct().ToList();
         }
         private static List<string> GetTargetsRequiredForKill(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return new List<string>();
-            var validLogs = logs.Where(l => l.Effect.EffectType != EffectType.TargetChanged && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
-            var bossesDetected = GetCurrentBossNames(validLogs, currentEncounter);
-            if (!bossesDetected.Any())
-                return new List<string>();
-            var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetIds.Contains(t)));
-            if (boss != null)
+
+            var bossIds = new HashSet<string>(currentEncounter.BossInfos.SelectMany(b => b.TargetIds));
+
+            var bossNamesFound = new List<string>();
+            foreach (var log in logs)
             {
-                return boss.TargetsRequiredForKill;
+                if (bossIds.Contains(log.Source.LogId.ToString()))
+                {
+                    log.Source.IsBoss = true;
+                    bossNamesFound.Add(log.Source.LogId.ToString());
+                }
+                if (bossIds.Contains(log.Target.LogId.ToString()))
+                {
+                    log.Target.IsBoss = true;
+                    bossNamesFound.Add(log.Target.LogId.ToString());
+                }
             }
-            return new List<string>();
+
+            return bossNamesFound.Distinct().ToList();
         }
+
     }
 }

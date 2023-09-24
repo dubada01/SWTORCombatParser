@@ -27,6 +27,10 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         }
         private bool selected;
         public event Action<Entity,bool> EntitiySelectionUpdated = delegate { };
+        public void DefaultSeleted()
+        {
+            selected = true;
+        }
         public bool Selected
         {
             get => selected; 
@@ -124,7 +128,9 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 var allEntity = new AvailableEntity { Entity = new Entity { Name = "All" } };
                 allEntity.EntitiySelectionUpdated += UpdateSelectedEntities;
                 AvailableEntities.Insert(0, allEntity);
-                allEntity.Selected = true;
+                allEntity.DefaultSeleted();
+                _eventViewModel.SetViewableEntities(AvailableEntities.Where(e => e.Selected).Select(e => e.Entity).ToList());
+                UpdateVisuals();
             }
         }
         private void UpdateSelectedEntities(Entity entity, bool selection)

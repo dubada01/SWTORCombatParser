@@ -33,16 +33,17 @@ namespace SWTORCombatParser.Model.CombatParsing
             foreach(var target in absorbTargets)
             {
                 var logsForTarget = allShieldLogs.Where(l=>l.Target == target).ToList();
-                var absorbsOnTarget = modifiers.Where(m => currentAbsorbAbilities.Contains(m.Value.First().Value.EffectName)).SelectMany(kvp => kvp.Value).Where(mod => mod.Value.Target == target).Select(kvp=>kvp.Value).ToList();
+                var absorbsOnTarget = modifiers.Where(m => m.Value.Any() && currentAbsorbAbilities.Contains(m.Value.First().Value.EffectName)).SelectMany(kvp => kvp.Value).Where(mod => mod.Value.Target == target).Select(kvp=>kvp.Value).ToList();
                 foreach (var log in logsForTarget)
                 {
                     var activeAbsorbs = absorbsOnTarget.Where(m => IsModifierActive(m, log)).OrderBy(a=>a.StartTime).ToList();
-
+                    if(activeAbsorbs.Count > 1 && activeAbsorbs.Any(a => a.Name.Contains("Powerbase")))
+                    {
+                        Console.WriteLine("HEre");
+                    }
                     for (var i = 0; i<activeAbsorbs.Count; i++)
                     {
                         var absorb = activeAbsorbs[i];
-                        if (absorb.HasAbsorbBeenCounted)
-                            continue;
                         var ammount = GetAbsorbAmmount(log, activeAbsorbs, i);
                         if (ammount <= 0)
                             continue;
@@ -74,7 +75,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             foreach (var source in _totalSheildingProvided.Keys)
             {
                 var shieldEvents = _totalSheildingProvided[source];
-                var logs = combat.GetLogsInvolvingEntity(source);
+                var logs = combat.GetLogsInvolvingEntity(source).ToList();
                 logs.RemoveAll(l => l.Effect.EffectType == EffectType.AbsorbShield);
                 combat.ShieldingProvidedLogs[source] = new List<ParsedLogEntry>();
                 combat.TotalProvidedSheilding[source] = 0;
@@ -128,13 +129,13 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             if (absorbs.Count == 1)
             {
-                if (log.Value.EffectiveDblValue > 0)
+                if (log.Value.MitigatedDblValue > 0)
                     absorbs[index].HasAbsorbBeenCounted = true;
                 return log.Value.Modifier.DblValue;
             }
             if (absorbs.Count >1)
             {
-                if (index > 1 && log.Value.EffectiveDblValue == 0)
+                if (index > 1 && log.Value.MitigatedDblValue == 0)
                     return 0;
                 var absorbedByFirst = 0d;
                 var absorbedByRemainder = 0d;
@@ -146,7 +147,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 {
                     if(index == 0)
                         absorbs[index].HasAbsorbBeenCounted = true;
-                    absorbedByFirst = (log.Value.DblValue - log.Value.Modifier.DblValue)-log.Value.EffectiveDblValue;
+                    absorbedByFirst = (log.Value.DblValue - log.Value.Modifier.DblValue)-log.Value.MitigatedDblValue;
                     absorbedByRemainder = log.Value.Modifier.DblValue;
                 }
                 

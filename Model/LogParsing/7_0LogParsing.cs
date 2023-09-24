@@ -186,6 +186,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 newValue.EffectiveDblValue = newValue.DblValue;
+                newValue.MitigatedDblValue = newValue.DblValue;
                 //newValue.ValueType = GetValueType(valueParts[1].Replace("-", ""));
                 newValue.ValueTypeId = valueParts[2].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
@@ -202,7 +203,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-
+                newValue.MitigatedDblValue = newValue.EffectiveDblValue;
                 newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
 
@@ -213,11 +214,12 @@ namespace SWTORCombatParser.Model.LogParsing
                 {
                     newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                     newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                    newValue.MitigatedDblValue = newValue.EffectiveDblValue;
                     return newValue;
                 }
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-
+                newValue.MitigatedDblValue = newValue.DblValue;
                 newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
 
@@ -236,13 +238,15 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ModifierDisplayValue = modifier.EffectiveDblValue.ToString("#,##0");
 
                 newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("~", "").Replace("*",""), CultureInfo.InvariantCulture);
+                newValue.MitigatedDblValue = double.Parse(valueParts[0].Replace("~", "").Replace("*",""), CultureInfo.InvariantCulture);
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 //newValue.ValueType = GetValueType(valueParts[1]);
                 newValue.ValueTypeId = valueParts[2].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
                 if (modifier.ValueType == DamageType.absorbed)
                     newValue.EffectiveDblValue = newValue.DblValue;
+                else
+                    newValue.EffectiveDblValue = newValue.MitigatedDblValue;
             }
             if (valueParts.Count == 7) // absorbed damage non-tank
             {
@@ -257,13 +261,15 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ModifierDisplayValue = modifier.EffectiveDblValue.ToString("#,##0");
 
                 newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                newValue.MitigatedDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 //newValue.ValueType = GetValueType(valueParts[2]);
                 newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
                 if (modifier.ValueType == DamageType.absorbed)
                     newValue.EffectiveDblValue = newValue.DblValue;
+                else
+                    newValue.EffectiveDblValue = newValue.MitigatedDblValue;
             }
             if (valueParts.Count == 8) // tank shielding sheilds more than damage
             {
@@ -282,6 +288,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture) + modifier.EffectiveDblValue;
                 newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                newValue.MitigatedDblValue = newValue.EffectiveDblValue;
                 //newValue.ValueType = GetValueType(valueParts[1]);
                 newValue.ValueTypeId = valueParts[2].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
@@ -304,6 +311,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.WasCrit = valueParts[0].Contains("*");
                 newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
                 newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                newValue.MitigatedDblValue = newValue.EffectiveDblValue;
                 //newValue.ValueType = GetValueType(valueParts[2]);
                 newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);

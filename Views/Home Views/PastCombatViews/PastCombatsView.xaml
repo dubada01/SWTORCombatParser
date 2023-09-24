@@ -15,11 +15,9 @@
         <Border Background="{StaticResource Gray6Brush}" CornerRadius="5" Grid.Row="0" Margin="0,0,0,0" BorderBrush="{Binding LiveParseActive, Converter={StaticResource LiveParseToBrushConverter}}" Padding="0,0,0,0" BorderThickness="5">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height=".75*"/>
-                    <RowDefinition Height="11"/>
-                    <RowDefinition Height=".75*"/>
-                    <RowDefinition Height="1"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height=".6*"/>
+                    <RowDefinition Height=".25*"/>
+                    <RowDefinition Height=".4*"/>
                 </Grid.RowDefinitions>
                 
                 <Grid Grid.Row="0" VerticalAlignment="Center" Margin="0,0,0,10">
@@ -40,11 +38,27 @@
                                 Command="{Binding  ToggleLiveParseCommand}"></Button>
                     </Viewbox>
                 </Grid>
-                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" Visibility="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
-                    <TextBlock  Text="Log Latency (s):" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray9Brush}" VerticalAlignment="Center" Margin="0,0,10,0" HorizontalAlignment="Right"></TextBlock>
-                    <TextBlock  Text="{Binding CurrentLogOffsetMs}" FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentLogOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
-                </StackPanel>
-                <Grid Grid.Row="2">
+                <Grid Grid.Row="1" VerticalAlignment="Top" Margin="20,0,20,0" Grid.Column="0" HorizontalAlignment="Stretch" Visibility="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" FontSize="15" Text="Latency" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray12Brush}" VerticalAlignment="Center" Margin="0,0,0,5" HorizontalAlignment="Center"></TextBlock>
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock  Text="SWTOR:" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray9Brush}" VerticalAlignment="Center" Margin="0,0,3,0" HorizontalAlignment="Right"></TextBlock>
+                        <TextBlock  Text="{Binding CurrentLogOffsetMs}" FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentLogOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock  Text="Orbs:" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray9Brush}" VerticalAlignment="Center" Margin="0,0,3,0" HorizontalAlignment="Right"></TextBlock>
+                        <TextBlock  Text="{Binding CurrentOrbsOffsetMs}" FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentOrbsOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="2" Height="50">
 
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.85*"/>
@@ -55,8 +69,7 @@
                         <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Width="40" Margin="5,0,5,0" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
                     </Viewbox>
                 </Grid>
-                <Rectangle Grid.Row="3" Fill="DimGray" Margin="2,0,2,0"></Rectangle>
-                <ContentPresenter Margin="0,5,0,0" Grid.Row="4" Content="{Binding HistoricalRange}"></ContentPresenter>
+                <!--<ContentPresenter Margin="0,5,0,0" Grid.Row="4" Content="{Binding HistoricalRange}"></ContentPresenter>-->
             </Grid>
         </Border>
 

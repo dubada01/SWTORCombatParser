@@ -34,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private object combatAddLock = new object();
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private bool _stubLogs;
-        private readonly int _linesPerWriteMin = 1500;
+        private readonly int _linesPerWriteMin = 5560;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
@@ -43,6 +43,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
         public event Action<Combat> LiveCombatFinished = delegate { };
         public event Action<double> OnNewLogTimeOffsetMs = delegate { };
+        public event Action<double> OnNewTotalTimeOffsetMs = delegate { };
         public event Action<string> OnNewLog = delegate { };
         public event Action<Entity> LocalPlayerId = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
@@ -66,12 +67,23 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 OnPropertyChanged();
             }
         }
+        public double CurrentOrbsOffsetMs => Math.Round(Math.Max(0, CurrentTotalOffsetMs - CurrentLogOffsetMs),1);
+        public double CurrentTotalOffsetMs
+        {
+            get => currentTotalOffsetMs; set
+            {
+                currentTotalOffsetMs = value;
+                OnPropertyChanged("CurrentOrbsOffsetMs");
+                OnPropertyChanged();
+            }
+        }
         public bool LiveParseActive
         {
             get => _liveParseActive; set
             {
 
                 _liveParseActive = value;
+                OnPropertyChanged("CurrentOrbsOffsetMs");
                 OnPropertyChanged();
             }
         }
@@ -93,6 +105,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
             _combatLogStreamer = new CombatLogStreamer();
             _combatLogStreamer.NewLogTimeOffsetMs += UpdateLogOffset;
+            _combatLogStreamer.NewTotalTimeOffsetMs += UpdateTotalOffset;
             _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
             CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
@@ -104,7 +117,10 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             OnNewLogTimeOffsetMs(offset);
         }
-
+        private void UpdateTotalOffset(double offset)
+        {
+            OnNewTotalTimeOffsetMs(offset);
+        }
         private void OnNewHistoricalCombats(List<Combat> historicalCombats)
         {
             OnHistoricalCombatsParsed(historicalCombats);
@@ -183,6 +199,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 mostRecentLog = Path.Join(_logPath, "test.txt");
                 File.Delete(mostRecentLog);
                 File.Create(mostRecentLog).Close();
+                //InitStubbedLog(mostRecentLog);
 #else
                 mostRecentLog = CombatLogLoader.GetMostRecentLogPath();
 #endif
@@ -209,30 +226,33 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         //TEST CODE
         private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
         private double currentLogOffsetMs;
-
+        private double currentTotalOffsetMs;
         private void TransferLogData(string testLogPath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var encoding = Encoding.GetEncoding(1252);
-            var testFilesPath = @"C:\Users\duban\Desktop\TestLogs";
+            var testFilesPath = @"C:\Users\duban\source\dubatech-repos\SWTORCombatParser\SWTORCombatParser_Test\TestLogs";
             var files = Directory.EnumerateFiles(testFilesPath);
             foreach (var file in files)
             {
                 using (var reader = new StreamReader(file, encoding))
                 {
+                    //reader.Read(new char[75000000]);
                     using (var fs = new FileStream(testLogPath, FileMode.Append, FileAccess.Write, FileShare.Read))
                     {
                         while (!reader.EndOfStream)
                         {
-                            var numberOfLines = new Random().Next(_linesPerWriteMin, _linesPerWriteMin * 2);
-                            char[] buffer = new char[numberOfLines];
+                            var delay = new Random().Next(25, 1500);
+                            var delayScalar = delay / 25d;
+                            var numberOfLines = new Random().Next(_linesPerWriteMin, _linesPerWriteMin * 2) * delayScalar;
+                            char[] buffer = new char[(int)numberOfLines];
                             reader.Read(buffer);
                             var stringBytes = encoding.GetBytes(string.Join("", buffer));
                             fs.Write(stringBytes);
                             fs.Flush();
 
 
-                            Thread.Sleep(25);
+                            Thread.Sleep(delay);
                         }
                         fs.Flush();
                         fs.Close();
@@ -240,8 +260,28 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     reader.Close();
                 }
             }
-
-
+        }
+        private void InitStubbedLog(string testLogPath)
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            var encoding = Encoding.GetEncoding(1252);
+            var testFilesPath = @"C:\Users\duban\source\dubatech-repos\SWTORCombatParser\SWTORCombatParser_Test\TestLogs";
+            var files = Directory.EnumerateFiles(testFilesPath);
+            var file = files.First();
+            using (var reader = new StreamReader(file, encoding))
+            {
+                using (var fs = new FileStream(testLogPath, FileMode.Append, FileAccess.Write, FileShare.Read))
+                {
+                    var initialLines = 75000000;
+                    char[] initialBuffer = new char[(int)initialLines];
+                    reader.Read(initialBuffer);
+                    var initialString = encoding.GetBytes(string.Join("", initialBuffer));
+                    fs.Write(initialString);
+                    fs.Flush();
+                    fs.Close();
+                }
+                reader.Close();
+            }
         }
         ///
         public void DisableLiveParse()

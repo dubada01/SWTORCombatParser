@@ -50,6 +50,10 @@ public static class Settings
             settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "DynamicLayout")
             settingList[settingName] = false;
+        if (!settingList.ContainsKey(settingName) && settingName == "force_log_updates")
+            settingList[settingName] = false;
+        if (!settingList.ContainsKey(settingName) && settingName == "combat_logs_path")
+            settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs"); ;
         return settingList[settingName].Value<T>();
     }
     public static bool HasSetting(string settingName)

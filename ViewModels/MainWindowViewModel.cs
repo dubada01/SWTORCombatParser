@@ -100,6 +100,9 @@ namespace SWTORCombatParser.ViewModels
             Observable.FromEvent<double>(
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs += manager,
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs -= manager).Buffer(TimeSpan.FromSeconds(2)).Subscribe(UpdateLogTimeOffset);
+            Observable.FromEvent<double>(
+    manager => _combatMonitorViewModel.OnNewTotalTimeOffsetMs += manager,
+    manager => _combatMonitorViewModel.OnNewTotalTimeOffsetMs -= manager).Buffer(TimeSpan.FromSeconds(2)).Subscribe(UpdateTotalTimeOffset);
             Observable.FromEvent<Combat>(
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate += manager,
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate -= manager).Sample(TimeSpan.FromSeconds(2)).Subscribe(UpdateCombat);
@@ -265,7 +268,6 @@ namespace SWTORCombatParser.ViewModels
                     _dataGridViewModel.Reset();
                     _reviewViewModel.Reset();
                 });
-            _overlayViewModel.LiveParseStarted(state);
         }
 
         private void UpdateLogTimeOffset(IList<double> logOffsetFor2Seconds)
@@ -274,6 +276,13 @@ namespace SWTORCombatParser.ViewModels
                 return;
             var average = logOffsetFor2Seconds.Average() / 1000d;
             _combatMonitorViewModel.CurrentLogOffsetMs = Math.Round(average, 1);
+        }
+        private void UpdateTotalTimeOffset(IList<double> logOffsetFor2Seconds)
+        {
+            if (!logOffsetFor2Seconds.Any())
+                return;
+            var average = logOffsetFor2Seconds.Average() / 1000d;
+            _combatMonitorViewModel.CurrentTotalOffsetMs = Math.Round(average, 1);
         }
         private void UpdateCombat(Combat updatedCombat)
         {
@@ -287,7 +296,7 @@ namespace SWTORCombatParser.ViewModels
                     case "Battle Plot":
                         _plotViewModel.UpdateLivePlot(updatedCombat);
                         break;
-                    case "Table":
+                    case "Details":
                         _tableViewModel.AddCombat(updatedCombat);
                         break;
                     case "Combat Log":

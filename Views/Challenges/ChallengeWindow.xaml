@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Challenges"
              mc:Ignorable="d" 
-             Height="150" Width="250" AllowsTransparency="True" Title="ChallengesWindow" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" Closing="Window_Closed" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+             Height="150" Width="250" AllowsTransparency="True" Title="ChallengesWindow" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
     <Grid>
         <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">

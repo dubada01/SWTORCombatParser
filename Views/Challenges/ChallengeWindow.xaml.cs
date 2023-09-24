@@ -31,7 +31,7 @@ namespace SWTORCombatParser.Views.Challenges
             DataContext = viewModel;
             _viewModel = viewModel;
             _viewModel.OnLocking += makeTransparent;
-            _viewModel.CloseRequested += Close;
+            _viewModel.CloseRequested += CloseOverlay;
             InitializeComponent();
             Loaded += OnLoaded;
         }
@@ -105,12 +105,6 @@ namespace SWTORCombatParser.Views.Challenges
             if (yadjust > 0)
                 SetValue(HeightProperty, yadjust);
         }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            _viewModel.OverlayClosing();
-        }
-
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
             DefaultGlobalOverlays.SetDefault("Challenge", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });

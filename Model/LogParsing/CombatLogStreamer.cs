@@ -26,22 +26,24 @@ namespace SWTORCombatParser.Model.LogParsing
         public static event Action HistoricalLogsStarted = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
         public event Action<double> NewLogTimeOffsetMs = delegate { };
+        public event Action<double> NewTotalTimeOffsetMs = delegate { };
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
 
         private bool _isInCombat = false;
         private bool _isWaitingForExitCombatTimout;
-        //private long _numberOfProcessedEntries;
-        //private long _currentLogsInFile;
+
         private string _logToMonitor; 
         private bool _monitorLog;
         private long numberOfProcessedBytes = 0;
-        private DateTime _lastUpdateTime;
         private List<ParsedLogEntry> _currentCombatLogs = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _waitingForExitCombatTimeout = new List<ParsedLogEntry>();
         private DateTime _currentCombatStartTime;
+        private DateTime _lastUpdateTime;
         private Encoding _fileEncoding;
+        private bool _forceUpdateOfLogs = false;
         public CombatLogStreamer()
         {
+            _forceUpdateOfLogs = Settings.ReadSettingOfType<bool>("force_log_updates");
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             _fileEncoding = Encoding.GetEncoding(1252);
             CombatDetector.AlertExitCombatTimedOut += OnExitCombatTimedOut;
@@ -111,13 +113,25 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private void GenerateNewFrame()
         {
-            if (!CheckIfStale())
-                return;
-            ParseLogFile();
+            if (_forceUpdateOfLogs)
+            {
+                ConfirmUsingMostRecentLog();
+                ParseLogFile();
+            }
+            else
+            {
+                if (!CheckIfStale())
+                {
+                    return;
+                }
+                ParseLogFile();
+            }
+
         }
 
         private void ParseLogFile()
-        {    
+        {
+            var logUpdateTime = TimeUtility.CorrectedTime;
             using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(fs, _fileEncoding))
             {
@@ -130,7 +144,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 
                 for (var line = 0; line < lines.Count; line++)
                 {
-                    var result = ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor));
+                    var result = ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor), logUpdateTime);
                     if (result == ProcessedLineResult.Incomplete)
                     {
                         Logging.LogInfo("Failed to parse line: " + lines[line]);
@@ -231,6 +245,15 @@ namespace SWTORCombatParser.Model.LogParsing
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
             HistoricalLogsFinished(_currentCombatLogs.Count == 0? TimeUtility.CorrectedTime : _currentCombatLogs.Max(l=>l.TimeStamp),localPlayerIdentified);
         }
+        private void ConfirmUsingMostRecentLog()
+        {
+            var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
+            if (mostRecentFile != _logToMonitor)
+            {
+                _logToMonitor = mostRecentFile;
+                ResetMonitoring();
+            }
+        }
         private bool CheckIfStale()
         {
             var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
@@ -247,12 +270,15 @@ namespace SWTORCombatParser.Model.LogParsing
             return true;
         }
         private DateTime _mostRecentLogTime;
-        private ProcessedLineResult ProcessNewLine(string line,long lineIndex,string logName)
+
+        private ProcessedLineResult ProcessNewLine(string line,long lineIndex,string logName, DateTime logUpdateTime)
         {
             var parsedLine = CombatLogParser.ParseLine(line,lineIndex, _mostRecentLogTime);
             _mostRecentLogTime = parsedLine.TimeStamp;
-            var timeOffset = Math.Abs((parsedLine.TimeStamp - TimeUtility.CorrectedTime).TotalMilliseconds);
-            NewLogTimeOffsetMs(timeOffset);
+            var logTimeOffset = Math.Abs((parsedLine.TimeStamp - logUpdateTime).TotalMilliseconds);
+            var totalTimeOffset = Math.Abs((parsedLine.TimeStamp - TimeUtility.CorrectedTime).TotalMilliseconds);
+            NewLogTimeOffsetMs(logTimeOffset);
+            NewTotalTimeOffsetMs(totalTimeOffset);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
                 return ProcessedLineResult.Incomplete;

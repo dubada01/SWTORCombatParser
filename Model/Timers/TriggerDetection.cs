@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
+using System.Windows.Media.Effects;
 using Microsoft.VisualBasic.Logging;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
@@ -182,7 +184,7 @@ namespace SWTORCombatParser.Model.Timers
                 return TriggerType.None;
             if (EntityIsValid(log.Target, target, currentTarget) && EntityIsValid(log.Source,source,currentTarget))
             {
-                if ((log.Effect.EffectName == effect || log.Effect.EffectId == effect) && log.Effect.EffectType == EffectType.Remove)
+                if (DoesEffectMatchOrContain(log, effect) && log.Effect.EffectType == EffectType.Remove)
                     return TriggerType.Start;
                 return TriggerType.None;
             }
@@ -197,15 +199,13 @@ namespace SWTORCombatParser.Model.Timers
             }
             if (EntityIsValid(log.Source, source, currentTarget) && EntityIsValid(log.Target, target, currentTarget))
             {
-                if (log.Effect.EffectType == EffectType.Remove &&
-                    (log.Effect.EffectName == effect || log.Effect.EffectId == effect) && resetOnEffectLost)
+                if (log.Effect.EffectType == EffectType.Remove && DoesEffectMatchOrContain(log, effect) && resetOnEffectLost)
                     return TriggerType.End;
-                if ((log.Effect.EffectName == effect || log.Effect.EffectId == effect) &&
-                    log.Effect.EffectType == EffectType.Apply)
+                if (DoesEffectMatchOrContain(log,effect) && log.Effect.EffectType == EffectType.Apply)
                 {
                     return TriggerType.Start;
                 }
-                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId)) && log.Effect.EffectType == EffectType.Event && (log.Ability == effect || log.AbilityId == effect))
+                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId)) && log.Effect.EffectType == EffectType.Event && DoesAbilityMatchOrContain(log,effect))
                 {
                     return TriggerType.Refresh;
                 }
@@ -217,13 +217,63 @@ namespace SWTORCombatParser.Model.Timers
             }
             return TriggerType.None;
         }
-
+        private static bool DoesEffectMatchOrContain(ParsedLogEntry log, string userProvided)
+        {
+            if (userProvided.Contains(","))
+            {
+                var effectList = userProvided.Split(',').Select(a => a.Trim()).ToList();
+                if (effectList.Any(effect => log.Effect.EffectName == effect || log.Effect.EffectId == effect))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if(log.Effect.EffectName == userProvided || log.Effect.EffectId == userProvided)
+            {
+                return true;
+            }
+            return false;
+        }
+        private static bool DoesAbilityMatchOrContain(ParsedLogEntry log, string userProvided)
+        {
+            if (userProvided.Contains(","))
+            {
+                var abilityList = userProvided.Split(',').Select(a => a.Trim()).ToList();
+                if (abilityList.Any(ability => log.Ability == ability || log.AbilityId == ability))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            if (log.Ability == userProvided || log.AbilityId == userProvided)
+            {
+                return true;
+            }
+            return false;
+        }
         public static TriggerType CheckForAbilityUse(ParsedLogEntry log, string ability, string source, string target, Entity currentTarget)
         {
             if (log.Effect.EffectType != EffectType.Event)
                 return TriggerType.None;
             if(EntityIsValid(log.Source,source,currentTarget) && EntityIsValid(log.Target, target, currentTarget))
             {
+                if (ability.Contains(","))
+                {
+                    var abilityList = ability.Split(',').Select(a=>a.Trim()).ToList();
+                    if(abilityList.Any(ability=> log.Ability == ability || log.AbilityId == ability))
+                    {
+                        if (log.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
+                            return TriggerType.Start;
+                        if (log.Effect.EffectId == _7_0LogParsing.InterruptCombatId)
+                            return TriggerType.End;
+                    }
+                }
                 if (log.Ability == ability || log.AbilityId == ability)
                 {
                     if(log.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
