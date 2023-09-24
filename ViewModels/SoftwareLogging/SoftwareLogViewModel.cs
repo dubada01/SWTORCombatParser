@@ -8,10 +8,11 @@ namespace SWTORCombatParser.ViewModels.SoftwareLogging
 
         internal void AddNewLog(SoftwareLogInstance log)
         {
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 SoftwareLogs.Insert(0, log);
             });
-            
+
         }
     }
 }

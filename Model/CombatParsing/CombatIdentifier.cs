@@ -1,14 +1,14 @@
 ﻿//using MoreLinq;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
@@ -29,7 +29,8 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             if (combat.IsCombatWithBoss)
             {
-                Task.Run(() => {
+                Task.Run(() =>
+                {
                     if (!_leaderboardsActive)
                     {
                         Leaderboards.Reset();
@@ -39,7 +40,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
                     Leaderboards.StartGetPlayerLeaderboardStandings(combat);
                 });
-             }
+            }
             FireEvent(combat);
         }
         public static void FinalizeOverlay(Combat combat)
@@ -68,17 +69,17 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false)
         {
-            
+
             var state = CombatLogStateBuilder.CurrentState;
             var orderedLogs = ongoingLogs.OrderBy(t => t.TimeStamp);
             var encounter = GetEncounterInfo(orderedLogs.First().TimeStamp);
-            var currentPariticpants = orderedLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Where(l=>l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct().ToList();
-            
+            var currentPariticpants = orderedLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct().ToList();
+
             currentPariticpants.AddRange(orderedLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Target).Distinct().ToList());
             var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
             var participantInfos = orderedLogs.Select(p => p.SourceInfo).Distinct().ToList();
             var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity, orderedLogs.First().TimeStamp));
-            
+
             var orderedLogsList = orderedLogs.ToList();
             var targets = GetTargets(orderedLogsList);
             var allEntities = new List<Entity>().Concat(targets).Concat(currentPariticpants).Distinct().ToList();
@@ -105,29 +106,29 @@ namespace SWTORCombatParser.Model.CombatParsing
                 AllLogs = orderedLogsList,
                 LogsInvolvingEntity = entityLogs
             };
-            if (encounter !=  null && encounter.BossInfos != null)
+            if (encounter != null && encounter.BossInfos != null)
             {
                 newCombat.ParentEncounter = encounter;
-                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs,encounter);
+                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
                 newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, encounter);
             }
             if (newCombat.IsCombatWithBoss)
             {
                 var parts = newCombat.EncounterBossDifficultyParts;
-                if(isRealtime)
+                if (isRealtime)
                     EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
             }
             if (newCombat.Targets.Any(t => t.LogId == 2857785339412480))
             {
-                newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Parsing", NumberOfPlayer = "1",EncounterType = EncounterType.Parsing, BossIds = new Dictionary<string, Dictionary<string, List<long>>>() {{"Training Dummy",new Dictionary<string, List<long>>(){{"Parsing 1",new List<long>{2857785339412480}}}} } };
+                newCombat.ParentEncounter = new EncounterInfo() { Name = "Parsing", LogName = "Parsing", Difficutly = "Parsing", NumberOfPlayer = "1", EncounterType = EncounterType.Parsing, BossIds = new Dictionary<string, Dictionary<string, List<long>>>() { { "Training Dummy", new Dictionary<string, List<long>>() { { "Parsing 1", new List<long> { 2857785339412480 } } } } } };
                 newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
                 newCombat.RequiredDeadTargetsForKill = new List<string> { "2857785339412480" };
             }
             CombatMetaDataParse.PopulateMetaData(newCombat);
-            var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l=>l.Value.Modifier.ValueType == DamageType.absorbed).ToList());
+            var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).ToList());
             AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
             AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
-            if(!quietOverlays)
+            if (!quietOverlays)
                 FireEvent(newCombat);
             return newCombat;
         }
@@ -183,7 +184,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             if (!bossesDetected.Any())
                 return ("", "", "");
             var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetIds.Contains(t)));
-            if (boss!=null)
+            if (boss != null)
             {
                 return (boss.EncounterName, currentEncounter.NumberOfPlayer.Replace("Player", "").Trim(), currentEncounter.Difficutly);
             }

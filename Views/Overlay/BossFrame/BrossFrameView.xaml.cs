@@ -50,7 +50,8 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
         private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
         public void makeTransparent(bool shouldLock)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
@@ -71,7 +72,8 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
         }
         private void CloseOverlay()
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 Close();
             });
 
@@ -93,7 +95,7 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
             if (xadjust > 0)
                 SetValue(WidthProperty, xadjust);
             if (yadjust > 0)
-            { 
+            {
                 SetValue(HeightProperty, yadjust);
                 MainArea.MinHeight = yadjust;
             }

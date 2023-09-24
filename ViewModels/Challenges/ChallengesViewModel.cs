@@ -1,29 +1,16 @@
-﻿using SWTORCombatParser.DataStructures.Boss_Timers;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.DataStructures.HOT_Timers;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CloudRaiding;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
-using SWTORCombatParser.Utilities.Encounter_Selection;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
-using SWTORCombatParser.ViewModels.Timers;
-using SWTORCombatParser.Views.Timers;
-using System;
+using SWTORCombatParser.Utilities.Encounter_Selection;
+using SWTORCombatParser.Views.Challenges;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using SWTORCombatParser.Model.Challenge;
 using System.Windows.Media;
-using SWTORCombatParser.Views.Challenges;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {

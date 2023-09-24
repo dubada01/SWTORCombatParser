@@ -1,16 +1,16 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using Microsoft.Win32;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Collections.ObjectModel;
-using SWTORCombatParser.Model.Timers;
-using Microsoft.Win32;
-using SWTORCombatParser.Views.Timers;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -819,7 +819,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             Effect = timerToEdit.Effect;
             ResetOnEffectLoss = timerToEdit.ResetOnEffectLoss;
             Ability = timerToEdit.Ability;
-            
+
             TrackOutsideOfCombat = timerToEdit.TrackOutsideOfCombat;
             if (timerToEdit.TriggerType == TimerKeyType.TimerExpired)
             {
@@ -1019,7 +1019,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 IsBuiltInDot = _isBuiltInDOT,
                 IsHot = IsHot,
                 IsBuiltInDefensive = _isBuiltInDCD,
-                IsBuiltInOffensive= _isBuiltInOCD,
+                IsBuiltInOffensive = _isBuiltInOCD,
             };
 
             OnNewTimer(newTimer, isEditing);
@@ -1530,8 +1530,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                         CanChangeCombatTracking = false;
                         ShowAbilityOption = true;
                         ShowDurationOrAlert = false;
-						OnPropertyChanged("ShowDuration");
-						OnPropertyChanged("HasSource");
+                        OnPropertyChanged("ShowDuration");
+                        OnPropertyChanged("HasSource");
                         OnPropertyChanged("ShowDurationOrAlert");
                         OnPropertyChanged("SourceText");
                         OnPropertyChanged("CanChangeCombatTracking");

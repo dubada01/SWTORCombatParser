@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Threading;
-using ScottPlot;
+﻿using ScottPlot;
 using ScottPlot.Plottable;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
@@ -17,6 +7,15 @@ using SWTORCombatParser.Model.Plotting;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.CombatMetaData;
 using SWTORCombatParser.Views.Home_Views;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
@@ -75,7 +74,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
             GraphView.Refresh();
         }
-        private Entity SelectedParticipant => _selectedParticipant == null || !_currentCombats.First().AllEntities.Any(c=>c.Id == _selectedParticipant.Id) ? _currentCombats.First().CharacterParticipants.First() : _selectedParticipant;
+        private Entity SelectedParticipant => _selectedParticipant == null || !_currentCombats.First().AllEntities.Any(c => c.Id == _selectedParticipant.Id) ? _currentCombats.First().CharacterParticipants.First() : _selectedParticipant;
         private void SelectParticipant(Entity obj)
         {
             if (_selectedParticipant == obj)
@@ -101,10 +100,13 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public int MaxSeletionHeight { get; set; }
         public CombatMetaDataView CombatMetaDataView { get; set; }
         public WpfPlot GraphView { get; set; }
-        public string AverageWindowDuration { get => averageWindowDuration; 
-            set {
+        public string AverageWindowDuration
+        {
+            get => averageWindowDuration;
+            set
+            {
                 double parsedVal = 0;
-                if(double.TryParse(value,out parsedVal))
+                if (double.TryParse(value, out parsedVal))
                 {
                     if (_averageWindowDurationDouble == parsedVal)
                         return;
@@ -171,21 +173,21 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             if (_selectedParticipant != null && !combat.AllEntities.Any(e => e.Id == _selectedParticipant.Id))
             {
-                if(combat.AllEntities.Any(e => e.LogId == _selectedParticipant.LogId))
+                if (combat.AllEntities.Any(e => e.LogId == _selectedParticipant.LogId))
                 {
                     _selectedParticipant = combat.AllEntities.First(e => e.LogId == _selectedParticipant.LogId);
                 }
                 else
                     _selectedParticipant = null;
             }
-            
+
             var setParticipants = _participantsViewModel.SetParticipants(combat);
             UpdateParticipantUI(setParticipants.Count);
         }
 
         public void UpdateLivePlot(Combat updatedCombat)
         {
-            
+
             var updatedParticipants = _participantsViewModel.UpdateParticipantsData(updatedCombat);
             UpdateParticipantUI(updatedParticipants.Count);
             lock (graphLock)
@@ -320,7 +322,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
             foreach (var series in _seriesToPlot)
             {
-                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, selectedEntity).OrderBy(l=>l.TimeStamp).ToList();
+                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, selectedEntity).OrderBy(l => l.TimeStamp).ToList();
                 if (applicableData == null || applicableData.Count == 0)
                     continue;
                 double[] plotXvals;
@@ -360,7 +362,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 if (series.Legend.HasEffective)
                 {
                     var rawYVals = PlotMaker.GetPlotYVals(applicableData, false);
-                    var rawYValRates = PlotMaker.GetPlotYValRates(rawYVals, plotXvals,_averageWindowDurationDouble);
+                    var rawYValRates = PlotMaker.GetPlotYValRates(rawYVals, plotXvals, _averageWindowDurationDouble);
                     series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, rawYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Raw" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 15);
                     series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     if (plotXValRates.Length > 1)
@@ -371,7 +373,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
                 }
 
-                
+
                 if (plotXValRates.Length > 1)
                 {
                     series.Line[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
@@ -387,7 +389,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 GraphView.Plot.SetAxisLimits(yMin: 0, yMax: 0, yAxisIndex: 0);
             }
             GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
-            GraphView.Plot.SetAxisLimits(xMin: 0, xMax: Math.Max(0,(combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds));
+            GraphView.Plot.SetAxisLimits(xMin: 0, xMax: Math.Max(0, (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds));
             _combatMetaDataViewModel.PopulateEffectsFromCombat(combatToPlot);
             GraphView.Refresh();
         }

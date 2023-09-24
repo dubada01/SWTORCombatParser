@@ -2,7 +2,6 @@
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
 using System;
-using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -46,7 +45,7 @@ namespace SWTORCombatParser.Model.CloudLogging
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logging.LogError("Failed to connect to database: " + e.Message, false);
             }

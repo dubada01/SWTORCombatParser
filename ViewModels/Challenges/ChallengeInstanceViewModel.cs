@@ -1,6 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Challenge;
-using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -9,8 +8,6 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Challenges
@@ -121,7 +118,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                         listOfBars.Add(bar);
                 }
 
-                MetricBars = new List<ChallengeOverlayMetricInfo>(listOfBars.Where(b=>b.Value !=0).OrderByDescending(mb => mb.RelativeLength));
+                MetricBars = new List<ChallengeOverlayMetricInfo>(listOfBars.Where(b => b.Value != 0).OrderByDescending(mb => mb.RelativeLength));
 
                 OnPropertyChanged("MetricBars");
 

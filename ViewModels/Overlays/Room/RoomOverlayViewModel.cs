@@ -3,16 +3,14 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Timers;
+using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
-using SWTORCombatParser.Views.Overlay.Room;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room
 {

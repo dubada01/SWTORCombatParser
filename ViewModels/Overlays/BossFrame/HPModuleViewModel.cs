@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
+﻿using SWTORCombatParser.DataStructures;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -13,11 +13,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private double defaultHeight = 50;
         private double height;
 
-        public double Height { get => height; set
-            { 
+        public double Height
+        {
+            get => height; set
+            {
                 height = value;
                 OnPropertyChanged();
-            } 
+            }
         }
         public string BossName
         {

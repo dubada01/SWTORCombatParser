@@ -1,10 +1,9 @@
-﻿using SWTORCombatParser.Utilities;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
 
 namespace SWTORCombatParser.Model.HistoricalLogs
 {
@@ -50,8 +49,9 @@ namespace SWTORCombatParser.Model.HistoricalLogs
         private static List<Combat> GetCombats(List<List<ParsedLogEntry>> logsSplitIntoCombats)
         {
             ConcurrentBag<Combat> concurrentCombats = new ConcurrentBag<Combat>();
-            Parallel.ForEach(logsSplitIntoCombats, logs => {
-                var combatCreated = CombatIdentifier.GenerateNewCombatFromLogs(logs,false,true);
+            Parallel.ForEach(logsSplitIntoCombats, logs =>
+            {
+                var combatCreated = CombatIdentifier.GenerateNewCombatFromLogs(logs, false, true);
                 if (!string.IsNullOrEmpty(combatCreated.EncounterBossInfo))
                     concurrentCombats.Add(combatCreated);
             });

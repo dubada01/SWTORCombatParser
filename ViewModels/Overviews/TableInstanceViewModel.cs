@@ -1,9 +1,9 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Media;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -36,16 +36,18 @@ namespace SWTORCombatParser.ViewModels.Overviews
         BySource,
         ByTarget
     }
-    public class TableInstanceViewModel :OverviewInstanceViewModel, INotifyPropertyChanged
+    public class TableInstanceViewModel : OverviewInstanceViewModel, INotifyPropertyChanged
     {
         private SortingOption sortingOption;
         private double _sumTotal = 0;
-        public override SortingOption SortingOption { get => sortingOption; set
-            { 
+        public override SortingOption SortingOption
+        {
+            get => sortingOption; set
+            {
                 sortingOption = value;
                 OnPropertyChanged("SelectedSortName");
                 Update();
-            } 
+            }
         }
         public string SelectedSortName => GetSortNameFromEnum(SortingOption);
         public List<CombatInfoInstance> DataToView { get; set; }
@@ -95,9 +97,9 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     break;
             }
             DataToView = DataToView.OrderByDescending(v => v.PercentOfTotal).ToList();
-            for(var i=0;i<DataToView.Count;i++)
+            for (var i = 0; i < DataToView.Count; i++)
             {
-                if(i%2==0)
+                if (i % 2 == 0)
                 {
                     DataToView[i].RowBackground = Brushes.DimGray;
                 }
@@ -173,11 +175,11 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 Total = (int)orderedKey.Value.Sum(v => v.Value.EffectiveDblValue),
                 Rate = (int)(orderedKey.Value.Sum(v => v.Value.EffectiveDblValue) / SelectedCombat.DurationSeconds),
                 Average = (int)orderedKey.Value.Average(v => v.Value.EffectiveDblValue),
-                Max = orderedKey.Value.Any(a => !a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => !v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue):0,
-                MaxCrit = orderedKey.Value.Any(a=>a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue):0,
+                Max = orderedKey.Value.Any(a => !a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => !v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue) : 0,
+                MaxCrit = orderedKey.Value.Any(a => a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue) : 0,
                 Count = (int)orderedKey.Value.Count(),
                 CritPercent = orderedKey.Value.Count(v => v.Value.WasCrit) / (double)orderedKey.Value.Count() * 100d,
-            }); 
+            });
         }
 
         private Dictionary<string, List<ParsedLogEntry>> GetDataSplitOut(Combat combat, List<ParsedLogEntry> logsInScope)
@@ -186,7 +188,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             switch (SortingOption)
             {
                 case SortingOption.ByAbility:
-                    splitOutdata = combat.GetByAbility(logsInScope).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value);
+                    splitOutdata = combat.GetByAbility(logsInScope).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
                     break;
                 case SortingOption.BySource:
                     splitOutdata = combat.GetBySourceName(logsInScope).ToDictionary(kvp => kvp.Key.Name, kvp => kvp.Value);

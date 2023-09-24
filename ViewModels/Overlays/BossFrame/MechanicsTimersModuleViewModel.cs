@@ -1,11 +1,11 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -19,7 +19,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public ObservableCollection<TimerInstanceViewModel> UpcomingMechanics { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
         public MechanicsTimersModuleViewModel(EntityInfo bossInfo, bool mechTrackingEnabled, double scale)
         {
-            _currentScale= scale;
+            _currentScale = scale;
             isActive = mechTrackingEnabled;
             _bossInfo = bossInfo;
             TimerController.TimerTriggered += OnNewTimer;

@@ -1,12 +1,12 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using System.IO;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
@@ -34,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 viewEnemies = value;
                 SetParticipants(SelectedCombat);
                 UpdateParticipantsData(SelectedCombat);
-                var entitiesToShow = ViewEnemies ? SelectedCombat.AllEntities.Where(e=>e.IsBoss || e.IsCharacter).ToList() : SelectedCombat.CharacterParticipants;
+                var entitiesToShow = ViewEnemies ? SelectedCombat.AllEntities.Where(e => e.IsBoss || e.IsCharacter).ToList() : SelectedCombat.CharacterParticipants;
                 ViewEnemiesToggled(entitiesToShow.Count);
                 if (!viewEnemies && SelectedParticipant.IsBoss)
                     SetSelection(entitiesToShow.First(e => e.IsLocalPlayer));
@@ -45,7 +45,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             var uiElement = AvailableParticipants.FirstOrDefault(p => p.Entity.IsLocalPlayer);
             if (uiElement == null)
                 return;
-            SelectParticipant(uiElement,true);
+            SelectParticipant(uiElement, true);
         }
         public List<Entity> SetParticipants(Combat combat)
         {
@@ -83,7 +83,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
         private void SelectParticipant(ParticipantViewModel obj, bool isSelected)
         {
-            if(isSelected)
+            if (isSelected)
                 SetSelection(obj.Entity);
         }
         private void SetSelection(Entity obj)
@@ -107,8 +107,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             viewModel.PlayerName = e.Name;
             viewModel.IsLocalPlayer = e.IsLocalPlayer;
             viewModel.RoleImageSource = Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
-            viewModel.IsSelected = ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == 0 ?  
-                ParticipantSelectionHandler.CurrentlySelectedParticpant?.Id == viewModel.Entity?.Id : 
+            viewModel.IsSelected = ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == 0 ?
+                ParticipantSelectionHandler.CurrentlySelectedParticpant?.Id == viewModel.Entity?.Id :
                 ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == viewModel.Entity?.LogId;
             return viewModel;
         }
@@ -141,7 +141,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         private string GetRoleImage(SWTORClass sWTORClass)
         {
             if (sWTORClass == null)
-                return Path.Combine(Environment.CurrentDirectory,"resources/question-mark.png");
+                return Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
             switch (sWTORClass.Role)
             {
                 case Role.DPS:

@@ -1,18 +1,14 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.ViewModels.Timers;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
-using Timer = SWTORCombatParser.DataStructures.Timer;
-using System.Threading.Tasks;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Timers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
 {
@@ -32,7 +28,7 @@ namespace SWTORCombatParser.Model.Timers
         private IDisposable _expirationSub;
         public event Action<TimerInstanceViewModel> NewTimerInstance = delegate { };
         public event Action Triggered = delegate { };
-        public event Action ReorderRequested = delegate {  };
+        public event Action ReorderRequested = delegate { };
         public event Action<TimerInstanceViewModel, bool> TimerOfTypeExpired = delegate { };
         public Timer SourceTimer;
         private readonly Dictionary<Guid, TimerInstanceViewModel> _activeTimerInstancesForTimer = new Dictionary<Guid, TimerInstanceViewModel>();
@@ -79,7 +75,7 @@ namespace SWTORCombatParser.Model.Timers
                 if (!SourceTimer.UseVisualsAndModify)
                     return;
             }
-            if (endedNatrually && CheckEncounterAndBoss(this,_currentEncounter))
+            if (endedNatrually && CheckEncounterAndBoss(this, _currentEncounter))
             {
                 TryTriggerParent();
             }
@@ -90,7 +86,7 @@ namespace SWTORCombatParser.Model.Timers
             get => cancelTimer; set
             {
                 cancelTimer = value;
-                cancelTimer.Triggered +=() =>
+                cancelTimer.Triggered += () =>
                 {
                     Cancel();
                 };
@@ -159,7 +155,7 @@ namespace SWTORCombatParser.Model.Timers
             timer.Dispose();
         }
 
-        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string,string,string) bossData, Entity currentTarget)
+        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string, string, string) bossData, Entity currentTarget)
         {
             lock (_timerChangeLock)
             {
@@ -310,7 +306,7 @@ namespace SWTORCombatParser.Model.Timers
                     UpdateCharges(log, targetInfo);
                 }
             }
-            
+
         }
 
         private void ModifyVariable(Timer sourceTimer)
@@ -405,7 +401,7 @@ namespace SWTORCombatParser.Model.Timers
         private void UpdateCombatState(CombatStatusUpdate obj)
         {
             if (obj.Type == UpdateType.Stop && historicalParseEnded)
-            { 
+            {
                 _currentBossInfo = ("", "", "");
                 _alreadyDetectedEntities.Clear();
             }
@@ -446,7 +442,7 @@ namespace SWTORCombatParser.Model.Timers
             Triggered();
             NewTimerInstance(timerVM);
         }
-        public void CreateTimerInstance(DateTime startTime, string targetAdendum, long targetId,int charges = 0)
+        public void CreateTimerInstance(DateTime startTime, string targetAdendum, long targetId, int charges = 0)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.StartTime = startTime;
@@ -459,7 +455,7 @@ namespace SWTORCombatParser.Model.Timers
                 _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             }
             timerVM.TriggerTimeTimer(startTime);
-            if(charges != 0)
+            if (charges != 0)
                 timerVM.Charges = charges;
             Triggered();
             NewTimerInstance(timerVM);

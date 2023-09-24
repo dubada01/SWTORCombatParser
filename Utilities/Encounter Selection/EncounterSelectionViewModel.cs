@@ -1,21 +1,21 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures.EncounterInfo;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.Utilities.Encounter_Selection
 {
-    public class EncounterSelectionViewModel:INotifyPropertyChanged
+    public class EncounterSelectionViewModel : INotifyPropertyChanged
     {
         private EncounterInfo selectedEncounter;
         private string selectedBoss;
         private string selectedPlayerCount;
         private List<string> _allPlayerCounts = new List<string> { "8", "16" };
 
-        public event Action<string,string> SelectionUpdated = delegate { };
+        public event Action<string, string> SelectionUpdated = delegate { };
 
         public event PropertyChangedEventHandler PropertyChanged;
         public List<EncounterInfo> AvailableEncounters { get; set; }
@@ -58,9 +58,9 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
                     return;
             }
         }
-        public (string,string) GetCurrentSelection()
+        public (string, string) GetCurrentSelection()
         {
-            return (selectedEncounter.Name,selectedBoss);
+            return (selectedEncounter.Name, selectedBoss);
         }
         private List<string> _populatedEncounters = new List<string>();
         public EncounterSelectionViewModel(bool showPlayerCount = true, List<string> populatedEncounters = null)
@@ -73,11 +73,12 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
         private void SetAvailableEncounters()
         {
             var allEncounters = EncounterLister.SortedEncounterInfos;
-            App.Current.Dispatcher.Invoke(() => {
-                if(!_populatedEncounters.Any())
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                if (!_populatedEncounters.Any())
                     AvailableEncounters = allEncounters.ToList();
                 else
-                    AvailableEncounters = allEncounters.Where(e=> _populatedEncounters.Any(pe=>pe.Split("|")[0]==e.Name)).ToList();
+                    AvailableEncounters = allEncounters.Where(e => _populatedEncounters.Any(pe => pe.Split("|")[0] == e.Name)).ToList();
                 OnPropertyChanged("AvailableEncounters");
                 SelectedEncounter = AvailableEncounters[1];
             });

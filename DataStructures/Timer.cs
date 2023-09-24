@@ -1,7 +1,7 @@
 ﻿using SWTORCombatParser.Model.Timers;
+using SWTORCombatParser.ViewModels.Timers;
 using System.Collections.Generic;
 using System.Windows.Media;
-using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -60,7 +60,7 @@ namespace SWTORCombatParser.DataStructures
             set
             {
                 _hpPercentageDisplayBuffer = value;
-                if(HPPercentageUpper == 0)
+                if (HPPercentageUpper == 0)
                     HPPercentageUpper = HPPercentage + value;
             }
         }
@@ -94,7 +94,9 @@ namespace SWTORCombatParser.DataStructures
         public bool ActiveForStory { get; set; }
         public bool ActiveForVeteran { get; set; }
         public bool ActiveForMaster { get; set; }
-        public string SpecificDifficulty { get => specificDifficulty; set 
+        public string SpecificDifficulty
+        {
+            get => specificDifficulty; set
             {
                 specificDifficulty = value;
                 if (specificDifficulty == "All")
@@ -175,33 +177,33 @@ namespace SWTORCombatParser.DataStructures
                 CanBeRefreshed = CanBeRefreshed,
                 AbilitiesThatRefresh = AbilitiesThatRefresh,
                 IsHot = IsHot,
-                IsBuiltInDefensive= IsBuiltInDefensive,
+                IsBuiltInDefensive = IsBuiltInDefensive,
                 IsBuiltInOffensive = IsBuiltInOffensive,
                 IsMechanic = IsMechanic,
                 HideUntilSec = HideUntilSec,
                 UseAudio = UseAudio,
                 CustomAudioPath = CustomAudioPath,
                 AudioStartTime = AudioStartTime,
-                Clause1 = Clause1 != null ? Clause1.Copy():Clause1,
-                Clause2 = Clause2 != null ? Clause2.Copy():Clause2,
-                ActiveForStory= ActiveForStory,
-                ActiveForVeteran= ActiveForVeteran,
-                ActiveForMaster= ActiveForMaster,
+                Clause1 = Clause1 != null ? Clause1.Copy() : Clause1,
+                Clause2 = Clause2 != null ? Clause2.Copy() : Clause2,
+                ActiveForStory = ActiveForStory,
+                ActiveForVeteran = ActiveForVeteran,
+                ActiveForMaster = ActiveForMaster,
                 ComparisonVal = ComparisonVal,
                 ComparisonAction = ComparisonAction,
-                VariableName= VariableName,
-                ComparisonValMax= ComparisonValMax,
-                ComparisonValMin= ComparisonValMin,
-                ModifyVariableAction= ModifyVariableAction,
-                ModifyVariableName= ModifyVariableName,
-                VariableModificationValue= VariableModificationValue,
+                VariableName = VariableName,
+                ComparisonValMax = ComparisonValMax,
+                ComparisonValMin = ComparisonValMin,
+                ModifyVariableAction = ModifyVariableAction,
+                ModifyVariableName = ModifyVariableName,
+                VariableModificationValue = VariableModificationValue,
                 ShouldModifyVariable = ShouldModifyVariable,
                 UseVisualsAndModify = UseVisualsAndModify,
                 TimerRev = TimerRev,
                 IsCooldownTimer = IsCooldownTimer,
-                SeletedTimerIsActiveId = TriggerType == TimerKeyType.IsTimerTriggered ? SeletedTimerIsActiveId : null ,
+                SeletedTimerIsActiveId = TriggerType == TimerKeyType.IsTimerTriggered ? SeletedTimerIsActiveId : null,
             };
-            
+
         }
 
         private string GetTimerTargetType(Timer legacyTimer)

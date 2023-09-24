@@ -1,22 +1,15 @@
-﻿using System;
+﻿using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Model.Timers;
+using SWTORCombatParser.Views.Timers;
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.DataStructures.EncounterInfo;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
-using SWTORCombatParser.Views.Timers;
 
 namespace SWTORCombatParser.ViewModels.Timers;
 
-public class AlertsWindowViewModel:INotifyPropertyChanged
+public class AlertsWindowViewModel : INotifyPropertyChanged
 {
     private ITimerWindow _timerWindow;
     private bool active;
@@ -125,5 +118,5 @@ public class AlertsWindowViewModel:INotifyPropertyChanged
         OnPropertyChanged("OverlaysMoveable");
         OnLocking(value);
     }
-    
+
 }

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -43,7 +43,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 ActiveDOTS.Remove(obj);
             });
             callback(obj);
@@ -55,9 +56,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 return;
             if (obj.TargetId == _bossInfo.Entity.Id && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer && obj.TimerValue > 0)
             {
-                App.Current.Dispatcher.Invoke(() => {
+                App.Current.Dispatcher.Invoke(() =>
+                {
                     obj.Scale = _currentScale;
-                    ActiveDOTS.Add(obj); 
+                    ActiveDOTS.Add(obj);
                 });
             }
             callback(obj);

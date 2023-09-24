@@ -1,23 +1,13 @@
-﻿using Microsoft.VisualBasic.Logging;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.EncounterInfo;
+﻿using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.Challenge;
-using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Challenges;
-using SWTORCombatParser.Views.Timers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data;
-using System.Diagnostics.Metrics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
@@ -168,8 +158,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
         internal void SetScale(double sizeScalar)
         {
             _challengeUpdater.UpdateScale(sizeScalar);
-            App.Current.Dispatcher.Invoke(() => { 
-                foreach(var challenge in ActiveChallengeInstances)
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                foreach (var challenge in ActiveChallengeInstances)
                 {
                     challenge.Scale = sizeScalar;
                 }

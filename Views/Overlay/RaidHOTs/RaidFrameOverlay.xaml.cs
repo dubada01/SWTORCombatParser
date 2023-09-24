@@ -6,7 +6,6 @@ using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,21 +32,21 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         public RaidFrameOverlay()
         {
             InitializeComponent();
-            
+
             Loaded += Hello;
             CombatLogStreamer.CombatUpdated += CheckForCombat;
         }
 
         private void CheckForCombat(CombatStatusUpdate obj)
         {
-            if(obj.Type == UpdateType.Start)
+            if (obj.Type == UpdateType.Start)
             {
-                _inCombat= true;
+                _inCombat = true;
                 UnsubscribeFromClicks();
             }
-            if(obj.Type == UpdateType.Stop)
+            if (obj.Type == UpdateType.Stop)
             {
-                _inCombat= false;
+                _inCombat = false;
             }
         }
 
@@ -55,8 +54,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         {
             if (e.X < GetTopLeft().X || e.X > (GetTopLeft().X + GetWidth()) || e.Y < GetTopLeft().Y || e.Y > (GetTopLeft().Y + GetHeight()))
                 return;
-            var relativeX =e.X - GetTopLeft().X;
-            var relativeY =e.Y - GetTopLeft().Y;
+            var relativeX = e.X - GetTopLeft().X;
+            var relativeY = e.Y - GetTopLeft().Y;
             var xFract = relativeX / (double)GetWidth();
             var yFract = relativeY / (double)GetHeight();
             AreaClicked(xFract, yFract);
@@ -68,12 +67,13 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
             SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
         }
-        
+
         public void SetPlayer(string playerName)
         {
             _currentPlayerName = playerName;
             var defaults = RaidFrameOverlayManager.GetDefaults(_currentPlayerName);
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 Width = defaults.WidtHHeight.X;
                 Height = defaults.WidtHHeight.Y;
                 Top = defaults.Position.Y;
@@ -88,7 +88,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
             viewModel.ToggleLocked += makeTransparent;
             viewModel.PlayerChanged += SetPlayer;
-            
+
             RemoveFromAppWindow();
             PollForCursorPos();
         }
@@ -98,7 +98,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 
         private void SubscribeToClicks()
         {
-            if(_isSubscribed)
+            if (_isSubscribed)
                 return;
             _isSubscribed = true;
             _globalHook = Hook.GlobalEvents();
@@ -124,9 +124,9 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
                 args.Handled = true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Logging.LogInfo("Failed to drag window: "+JsonConvert.SerializeObject(e));
+                Logging.LogInfo("Failed to drag window: " + JsonConvert.SerializeObject(e));
             }
 
         }
@@ -198,7 +198,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             if (yadjust > 0)
                 SetValue(HeightProperty, yadjust);
             var viewModel = DataContext as RaidFrameOverlayViewModel;
-            viewModel.UpdatePositionAndSize(GetHeight(),GetWidth(), Height, Width, GetTopLeft());
+            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
         }
         private void Thumb_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -219,7 +219,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             var realLeft = (int)((Left + 50) * dpi.Item1);
             return new System.Drawing.Point(realLeft, realTop);
         }
-        private (double,double) GetDPI()
+        private (double, double) GetDPI()
         {
             PresentationSource source = PresentationSource.FromVisual(this);
             var dpiX = source.CompositionTarget.TransformToDevice.M11;
@@ -237,7 +237,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         public void makeTransparent(bool shouldLock)
         {
             _isLocked = shouldLock;
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {

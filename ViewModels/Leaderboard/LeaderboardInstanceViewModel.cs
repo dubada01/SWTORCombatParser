@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using SWTORCombatParser.Model.CloudRaiding;
-using System.Collections.ObjectModel;
+﻿using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Utilities;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Leaderboard
 {
@@ -19,7 +18,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         public string Duration { get; set; }
         public string CombatTime { get; set; }
     }
-    public class LeaderboardInstanceViewModel:INotifyPropertyChanged
+    public class LeaderboardInstanceViewModel : INotifyPropertyChanged
     {
         private LeaderboardEntryType _leaderboardType;
         private bool _showLoadingSplash = false;
@@ -38,38 +37,38 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         {
             if (_showLoadingSplash)
             {
-                 splash = LoadingWindowFactory.ShowInstancedLoading();
+                splash = LoadingWindowFactory.ShowInstancedLoading();
             }
-            if(!_showLoadingSplash)
+            if (!_showLoadingSplash)
             {
                 _showLoadingSplash = true;
             }
             var newLeaders = new List<LeaderboardEntry>();
             var isFlashpoint = string.IsNullOrEmpty(players);
-            var playersString = isFlashpoint ? "4 " : players +" ";
+            var playersString = isFlashpoint ? "4 " : players + " ";
             playersString = isParsing ? "" : playersString;
             var extraBossInfo = $"{{{playersString}{difficulty}}}";
             extraBossInfo = isParsing ? $"{{{parsingHP}HP }}" : extraBossInfo;
             var bossWithDifficulty = boss.Trim() + " " + extraBossInfo;
             var leaderboard = await PostgresConnection.GetEntriesForBossOfType(bossWithDifficulty, encounter, _leaderboardType);
-            if(isFlashpoint)
+            if (isFlashpoint)
             {
                 var oldFlashpointBossInfo = boss.Trim() + " " + $"{{{difficulty}}}";
                 var oldFlashpointBoard = await PostgresConnection.GetEntriesForBossOfType(oldFlashpointBossInfo, encounter, _leaderboardType);
                 leaderboard.AddRange(oldFlashpointBoard);
             }
-            
-            
+
+
             var orderedLeaders = leaderboard.OrderByDescending(l => l.Value).ToList();
-            for(var i = 0; i<orderedLeaders.Count; i++)
+            for (var i = 0; i < orderedLeaders.Count; i++)
             {
                 var entry = orderedLeaders[i];
                 var backgroundColor = Brushes.Transparent;
-                if (i%2==0)
+                if (i % 2 == 0)
                 {
-                    backgroundColor= Brushes.DimGray;
+                    backgroundColor = Brushes.DimGray;
                 }
-                newLeaders.Add(new LeaderboardEntry {Position = i+1,Player = entry.Character, Metric = entry.Value, Discipline = entry.Class, Duration = entry.Duration.ToString(),CombatTime = entry.TimeStamp.ToString(), RowBackground = backgroundColor });
+                newLeaders.Add(new LeaderboardEntry { Position = i + 1, Player = entry.Character, Metric = entry.Value, Discipline = entry.Class, Duration = entry.Duration.ToString(), CombatTime = entry.TimeStamp.ToString(), RowBackground = backgroundColor });
 
 
             }
@@ -77,7 +76,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             Leaders = newLeaders;
             OnPropertyChanged("Leaders");
             if (splash != null)
-            { 
+            {
                 LoadingWindowFactory.HideInstancedLoading(splash);
                 splash = null;
             }

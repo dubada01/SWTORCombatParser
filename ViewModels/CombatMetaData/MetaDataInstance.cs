@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
-    public class MetaDataInstance:INotifyPropertyChanged
+    public class MetaDataInstance : INotifyPropertyChanged
     {
         public string Category { get; set; }
         public System.Windows.Media.Brush Color { get; set; }

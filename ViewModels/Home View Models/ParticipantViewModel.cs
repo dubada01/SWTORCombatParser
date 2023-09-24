@@ -1,8 +1,8 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
@@ -70,7 +70,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public void SetValues(double dps, double hps, double dtps, string roleImage)
         {
 
-            DPS = dps == 0 ? "0" : dps.ToString("#,##",CultureInfo.InvariantCulture);
+            DPS = dps == 0 ? "0" : dps.ToString("#,##", CultureInfo.InvariantCulture);
             OnPropertyChanged("DPS");
             HPS = hps == 0 ? "0" : hps.ToString("#,##", CultureInfo.InvariantCulture);
             OnPropertyChanged("HPS");

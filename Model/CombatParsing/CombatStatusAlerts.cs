@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
+using System;
 using System.Collections.Generic;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {

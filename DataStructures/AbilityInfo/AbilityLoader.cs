@@ -10,7 +10,7 @@ namespace SWTORCombatParser.DataStructures.AbilityInfo
     }
     public static class AbilityLoader
     {
-        public static Dictionary<double,AbilityInfo> GetAbosrbAbilities()
+        public static Dictionary<double, AbilityInfo> GetAbosrbAbilities()
         {
             return JsonConvert.DeserializeObject<Dictionary<double, AbilityInfo>>(File.ReadAllText(@"DataStructures/AbilityInfo/absorbs.json"));
         }

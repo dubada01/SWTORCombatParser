@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using SWTORCombatParser.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.DataStructures.EncounterInfo
 {
@@ -66,9 +65,9 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 SupportedEncounters.AddRange(raids);
                 SupportedEncounters.AddRange(flashpoints);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Logging.LogError("Failed to load encounter infos:"+e.Message);
+                Logging.LogError("Failed to load encounter infos:" + e.Message);
             }
         }
     }

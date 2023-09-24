@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ScottPlot.Plottable;
+using SWTORCombatParser.ViewModels.Home_View_Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using ScottPlot.Plottable;
-using SWTORCombatParser.ViewModels.Home_View_Models;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -15,7 +15,7 @@ namespace SWTORCombatParser.DataStructures
         public event PropertyChangedEventHandler PropertyChanged;
         public LegendItemViewModel Legend { get; set; }
         public Dictionary<DateTime, Tooltip> Tooltip { get; internal set; } = new Dictionary<DateTime, Tooltip>();
-        public Dictionary<DateTime, Tooltip> EffectiveTooltip { get; internal set; }= new Dictionary<DateTime, Tooltip>();
+        public Dictionary<DateTime, Tooltip> EffectiveTooltip { get; internal set; } = new Dictionary<DateTime, Tooltip>();
         public Dictionary<DateTime, ScatterPlot> Points { get; set; } = new Dictionary<DateTime, ScatterPlot>();
         public Dictionary<DateTime, ScatterPlot> Line { get; set; } = new Dictionary<DateTime, ScatterPlot>();
         public Dictionary<string, ScatterPlot> LineByCharacter { get; set; } = new Dictionary<string, ScatterPlot>();
@@ -24,7 +24,7 @@ namespace SWTORCombatParser.DataStructures
         public Dictionary<DateTime, ScatterPlot> EffectiveLine { get; set; } = new Dictionary<DateTime, ScatterPlot>();
 
         public PlotType Type { get; internal set; }
-        public Dictionary<DateTime, List<(string,string)>> Abilities { get; internal set; } = new Dictionary<DateTime, List<(string, string)>>();
+        public Dictionary<DateTime, List<(string, string)>> Abilities { get; internal set; } = new Dictionary<DateTime, List<(string, string)>>();
 
         public string Name;
 
@@ -73,7 +73,7 @@ namespace SWTORCombatParser.DataStructures
                 }
             }
 
-            TriggerRender(arg1||arg2);
+            TriggerRender(arg1 || arg2);
         }
     }
 }

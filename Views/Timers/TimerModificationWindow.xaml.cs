@@ -1,7 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,8 +17,8 @@ namespace SWTORCombatParser.Views.Timers
             InitializeComponent();
             _vm = vm;
             DataContext = vm;
-            Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth/2) - (750/2d);
-            Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight/2) - (450/2d);
+            Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth / 2) - (750 / 2d);
+            Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight / 2) - (450 / 2d);
             TimerName.TextChanged += UpdateNameHelpText;
             EffectName.TextChanged += UpdateValueHelpText;
             AbilityName.TextChanged += UpdateValueHelpText;
@@ -35,7 +33,7 @@ namespace SWTORCombatParser.Views.Timers
             {
                 EffectsTabControl.SelectedIndex = 0;
             }
-            if(VariableCheck.IsChecked.Value && EffectsTabControl.SelectedIndex == 0)
+            if (VariableCheck.IsChecked.Value && EffectsTabControl.SelectedIndex == 0)
             {
                 EffectsTabControl.SelectedIndex = 1;
             }
@@ -67,7 +65,7 @@ namespace SWTORCombatParser.Views.Timers
 
         private void SourceEntered(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Enter)
+            if (e.Key == Key.Enter)
             {
                 _vm.SaveSource();
             }

@@ -1,5 +1,7 @@
 ﻿//using MoreLinq;
 using ScottPlot;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.HistoricalLogs;
 using System;
 using System.Collections.Generic;
@@ -7,8 +9,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {
@@ -33,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             //LocalPlayersDuringHistory = MetaDataExtractor.GetLocalEntities(CombatsDuringHistory);
             //OnPropertyChanged("LocalPlayersDuringHistory");
             _allEncountersDuringHistory = MetaDataExtractor.GetAllEncounters(CombatsDuringHistory);
-            AllEncounters = _allEncountersDuringHistory.OrderBy(e=>e.NamePlus).ToList();
+            AllEncounters = _allEncountersDuringHistory.OrderBy(e => e.NamePlus).ToList();
             OnPropertyChanged("AllEncounters");
             _allBossFightsDuringHisotry = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory);
         }
@@ -74,7 +74,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 selectedEncounter = value;
                 if (selectedEncounter == null)
                     return;
-                BossesInSelectedEncounter = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory.Where(c=>c.ParentEncounter.NamePlus == SelectedEncounter.NamePlus).ToList());
+                BossesInSelectedEncounter = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory.Where(c => c.ParentEncounter.NamePlus == SelectedEncounter.NamePlus).ToList());
                 SelectedLocalEntity = null;
                 OnPropertyChanged("BossesInSelectedEncounter");
                 OnPropertyChanged("SelectedLocalEntity");
@@ -89,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 selectedBoss = value;
                 if (selectedBoss == null)
                     return;
-                LocalPlayersDuringHistory = MetaDataExtractor.GetPlayersForBossInEncounter(CombatsDuringHistory,SelectedEncounter, SelectedBoss);
+                LocalPlayersDuringHistory = MetaDataExtractor.GetPlayersForBossInEncounter(CombatsDuringHistory, SelectedEncounter, SelectedBoss);
                 if (LocalPlayersDuringHistory.Contains(SelectedLocalEntity))
                     MakeFinalSelection();
                 else

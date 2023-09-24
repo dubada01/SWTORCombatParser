@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
-    class LiveParseActiveToBrushConverter:IValueConverter
+    class LiveParseActiveToBrushConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

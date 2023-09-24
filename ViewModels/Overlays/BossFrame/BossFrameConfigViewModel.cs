@@ -1,4 +1,6 @@
-﻿using SWTORCombatParser.Model.CombatParsing;
+﻿using Prism.Commands;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Views.Overlay.BossFrame;
@@ -7,12 +9,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Threading;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Utilities;
 using System.Windows.Input;
-using Prism.Commands;
-using Microsoft.VisualBasic.Logging;
+using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -192,7 +190,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         private void HandleNewLog(ParsedLogEntry log)
         {
-            if(log.Effect.EffectType == EffectType.TargetChanged || !_inCombat)
+            if (log.Effect.EffectType == EffectType.TargetChanged || !_inCombat)
             {
                 return;
             }

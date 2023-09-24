@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
-    public class LiveParseActiveToButtonColorConverter:IValueConverter
+    public class LiveParseActiveToButtonColorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

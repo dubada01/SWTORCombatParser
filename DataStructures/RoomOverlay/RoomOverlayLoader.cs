@@ -23,11 +23,11 @@ namespace SWTORCombatParser.DataStructures.RoomOverlay
             if (settings == null)
                 settings = new List<RoomOverlaySettings>();
 
-            if(!settings.Any(s=>s.EncounterName == "IP-CPT"))
+            if (!settings.Any(s => s.EncounterName == "IP-CPT"))
             {
                 var ipCPT = JsonConvert.DeserializeObject<RoomOverlaySettings>(File.ReadAllText("DataStructures/RoomOverlay/IPCPT.json"));
                 settings.Add(ipCPT);
-                File.WriteAllText(_settingsPath,JsonConvert.SerializeObject(settings));
+                File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settings));
             }
             return settings;
         }

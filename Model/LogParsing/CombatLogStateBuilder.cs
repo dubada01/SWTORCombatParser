@@ -1,12 +1,10 @@
 ﻿using SWTORCombatParser.DataStructures;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.ViewModels.Timers;
-using System.Windows.Media.Effects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -140,7 +138,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!string.IsNullOrEmpty(log.Source.Name))
                 CurrentState.CurrentCharacterPositions[log.Source] = log.SourceInfo.Position;
         }
-        private static CombatModifier GetModifierInScope(Dictionary<Guid,CombatModifier> mods, ParsedLogEntry parsedLine)
+        private static CombatModifier GetModifierInScope(Dictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
         {
             var incompleteMods = mods.Values.Where(v => !v.Complete);
             var incompleteWithTarget = incompleteMods.Where(m => m.Target == parsedLine.Target);

@@ -1,12 +1,6 @@
-﻿using SWTORCombatParser.DataStructures.ClassInfos;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -16,7 +10,7 @@ namespace SWTORCombatParser.Utilities
 
         public static void Init()
         {
-            _unknownIcon =  new Bitmap(Environment.CurrentDirectory + "/resources/question-mark.png");
+            _unknownIcon = new Bitmap(Environment.CurrentDirectory + "/resources/question-mark.png");
         }
 
         public static Bitmap GetIcon(string className)

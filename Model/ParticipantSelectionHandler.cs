@@ -1,5 +1,5 @@
-﻿using System;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
+using System;
 
 namespace SWTORCombatParser.Model
 {

@@ -1,12 +1,11 @@
-﻿using SWTORCombatParser.Views.Battle_Review;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Views.Battle_Review;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
@@ -18,7 +17,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             OnSliderUpdated(value);
         }
     }
-    public class AvailableEntity:INotifyPropertyChanged
+    public class AvailableEntity : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -26,14 +25,14 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         private bool selected;
-        public event Action<Entity,bool> EntitiySelectionUpdated = delegate { };
+        public event Action<Entity, bool> EntitiySelectionUpdated = delegate { };
         public void DefaultSeleted()
         {
             selected = true;
         }
         public bool Selected
         {
-            get => selected; 
+            get => selected;
             set
             {
                 selected = value;

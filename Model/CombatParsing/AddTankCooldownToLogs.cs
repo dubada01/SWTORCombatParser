@@ -1,9 +1,9 @@
-﻿using SWTORCombatParser.Model.LogParsing;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
@@ -47,10 +47,10 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             var damageLogs = combat.IncomingDamageLogs;
             var damageTargets = damageLogs.Keys;
-            
-            foreach(var target in damageTargets)
+
+            foreach (var target in damageTargets)
             {
-                var damageTakenDuringCooldowns = new Dictionary<string,List<double>>();
+                var damageTakenDuringCooldowns = new Dictionary<string, List<double>>();
                 var damageTakenOutsideOfCooldowns = new Dictionary<string, List<double>>();
 
 
@@ -68,9 +68,9 @@ namespace SWTORCombatParser.Model.CombatParsing
                     combat.AverageDamageSavedDuringCooldown[target] = 0;
                     continue;
                 }
-                foreach(var ability in logsForTarget)
+                foreach (var ability in logsForTarget)
                 {
-                    if(cooldownsForTarget.Any(cd => cd.StartTime <= ability.TimeStamp && (cd.StopTime > ability.TimeStamp || cd.StopTime == DateTime.MinValue)))
+                    if (cooldownsForTarget.Any(cd => cd.StartTime <= ability.TimeStamp && (cd.StopTime > ability.TimeStamp || cd.StopTime == DateTime.MinValue)))
                     {
                         if (!damageTakenDuringCooldowns.ContainsKey(ability.Ability))
                             damageTakenDuringCooldowns[ability.Ability] = new List<double> { ability.Value.MitigatedDblValue };
@@ -85,11 +85,11 @@ namespace SWTORCombatParser.Model.CombatParsing
                             damageTakenOutsideOfCooldowns[ability.Ability].Add(ability.Value.MitigatedDblValue);
                     }
                 }
-                var fun = damageTakenDuringCooldowns.ToDictionary(kvp => kvp.Key, kvp => (damageTakenOutsideOfCooldowns.ContainsKey(kvp.Key) ? damageTakenOutsideOfCooldowns[kvp.Key].Count > 2 && kvp.Value.Count >2 ? Math.Max(0, (damageTakenOutsideOfCooldowns[kvp.Key].Average() - kvp.Value.Average())) :0: 0));
-                combat.AverageDamageSavedDuringCooldown[target] = damageTakenDuringCooldowns.Select(kvp => (damageTakenOutsideOfCooldowns.ContainsKey(kvp.Key) ? damageTakenOutsideOfCooldowns[kvp.Key].Count > 2 && kvp.Value.Count > 2 ? Math.Max(0,(damageTakenOutsideOfCooldowns[kvp.Key].Average() - kvp.Value.Average())) : 0 : 0) * kvp.Value.Count).Sum();
+                var fun = damageTakenDuringCooldowns.ToDictionary(kvp => kvp.Key, kvp => (damageTakenOutsideOfCooldowns.ContainsKey(kvp.Key) ? damageTakenOutsideOfCooldowns[kvp.Key].Count > 2 && kvp.Value.Count > 2 ? Math.Max(0, (damageTakenOutsideOfCooldowns[kvp.Key].Average() - kvp.Value.Average())) : 0 : 0));
+                combat.AverageDamageSavedDuringCooldown[target] = damageTakenDuringCooldowns.Select(kvp => (damageTakenOutsideOfCooldowns.ContainsKey(kvp.Key) ? damageTakenOutsideOfCooldowns[kvp.Key].Count > 2 && kvp.Value.Count > 2 ? Math.Max(0, (damageTakenOutsideOfCooldowns[kvp.Key].Average() - kvp.Value.Average())) : 0 : 0) * kvp.Value.Count).Sum();
             }
         }
 
-       
+
     }
 }

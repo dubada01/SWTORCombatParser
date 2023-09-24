@@ -3,13 +3,10 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Views.Overlay.Personal;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Personal
 {
@@ -44,26 +41,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             CombatLogStreamer.NewLineStreamed += CheckForConversation;
             UpdateMetrics("Damage");
         }
-		private bool _conversationActive;
-		private void CheckForConversation(ParsedLogEntry obj)
-		{
-			if (!obj.Source.IsLocalPlayer)
-				return;
-			if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && Active)
-			{
-				_conversationActive = true;
-				OnHiding();
-			}
-
-			if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && Active)
-			{
-				_conversationActive = false;
-				OnShowing();
-			}
-		}
-		private void UpdateMetrics(string defaultName)
+        private bool _conversationActive;
+        private void CheckForConversation(ParsedLogEntry obj)
         {
-            App.Current.Dispatcher.Invoke(() => {
+            if (!obj.Source.IsLocalPlayer)
+                return;
+            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && Active)
+            {
+                _conversationActive = true;
+                OnHiding();
+            }
+
+            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && Active)
+            {
+                _conversationActive = false;
+                OnShowing();
+            }
+        }
+        private void UpdateMetrics(string defaultName)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 PersonalOverlayInstances.Clear();
                 _currentOwner = defaultName;
                 var dpsSettings = DefaultPersonalOverlaysManager.GetSettingsForOwner(defaultName);
@@ -86,7 +84,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             initialCell.CellUpdated += UpdateDefaults;
             initialCell.CellChangedFromNone += AddNewBlank;
             PersonalOverlayInstances.Add(initialCell);
-            if(OverlaysMoveable)
+            if (OverlaysMoveable)
                 Rows = (int)Math.Ceiling(PersonalOverlayInstances.Count / 2d);
             else
                 Rows = (int)Math.Floor(PersonalOverlayInstances.Count / 2d);
@@ -103,7 +101,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         }
         private void UpdateDefaults()
         {
-            DefaultPersonalOverlaysManager.SetSettingsForOwner(_currentOwner, new PersonalOverlaySettings { CellInfos = PersonalOverlayInstances.Where(c=>c.SelectedMetric != OverlayType.None).Select(i => i.CurrentCellInfo).ToList() });
+            DefaultPersonalOverlaysManager.SetSettingsForOwner(_currentOwner, new PersonalOverlaySettings { CellInfos = PersonalOverlayInstances.Where(c => c.SelectedMetric != OverlayType.None).Select(i => i.CurrentCellInfo).ToList() });
         }
         public ObservableCollection<PersonalOverlayInstanceViewModel> PersonalOverlayInstances { get; set; } = new ObservableCollection<PersonalOverlayInstanceViewModel>();
         public void UpdateScale(double scale)
@@ -124,13 +122,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                 if (overlaysMoveable == value)
                     return;
                 overlaysMoveable = value;
-                foreach(var instance in PersonalOverlayInstances)
+                foreach (var instance in PersonalOverlayInstances)
                 {
                     instance.OverlayUnlocked = overlaysMoveable;
                 }
                 if (!OverlaysMoveable)
                 {
-                    if(PersonalOverlayInstances.Count % 2 != 0)
+                    if (PersonalOverlayInstances.Count % 2 != 0)
                     {
                         Rows = Rows - 1;
                     }

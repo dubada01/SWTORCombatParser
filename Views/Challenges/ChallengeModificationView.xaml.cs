@@ -1,18 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.ViewModels.Challenges;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SWTORCombatParser.Views.Challenges
 {
@@ -25,8 +14,8 @@ namespace SWTORCombatParser.Views.Challenges
         public ChallengeModificationView(ChallengeModificationViewModel vm)
         {
             InitializeComponent();
-            DataContext= vm;
-            _vm= vm;
+            DataContext = vm;
+            _vm = vm;
             Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth / 2) - (750 / 2d);
             Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight / 2) - (450 / 2d);
             _vm.OnNewChallenge += CloseWindow;

@@ -1,11 +1,8 @@
-﻿using Npgsql;
+﻿using Newtonsoft.Json;
+using Npgsql;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
-using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Windows.Media;
-using Newtonsoft.Json;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -33,13 +30,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 using (var cmd = new NpgsqlCommand("INSERT INTO public.timer_export" +
                 "(timer_id,timer_contents)" +
-                $" VALUES (@p1,@p2)", connection){
-                        Parameters =
+                $" VALUES (@p1,@p2)", connection)
+                {
+                    Parameters =
                         {
                             new ("p1",newTimer.ShareId),
                             new ("p2",JsonConvert.SerializeObject(newTimer)),
                         }
-                    })
+                })
                 {
                     cmd.ExecuteNonQuery();
                 }

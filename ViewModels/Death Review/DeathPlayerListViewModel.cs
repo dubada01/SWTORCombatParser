@@ -1,20 +1,16 @@
-﻿using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.ViewModels.Home_View_Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using static Npgsql.Replication.PgOutput.Messages.RelationMessage;
-using System.IO;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
-    public class DeathPlayerListViewModel:INotifyPropertyChanged
+    public class DeathPlayerListViewModel : INotifyPropertyChanged
     {
         public event Action<List<Entity>> ParticipantSelected = delegate { };
         public List<ParticipantViewModel> AvailableParticipants { get; set; } = new List<ParticipantViewModel>();
@@ -46,15 +42,15 @@ namespace SWTORCombatParser.ViewModels.Death_Review
 
         private void SelectParticipant(ParticipantViewModel obj, bool isSelected)
         {
-            SetSelection(obj.Entity,isSelected);
+            SetSelection(obj.Entity, isSelected);
         }
-        private void SetSelection(Entity obj,bool isSelected)
+        private void SetSelection(Entity obj, bool isSelected)
         {
             if (!AvailableParticipants.Any(part => part.Entity == obj))
                 return;
-            if(isSelected && !SelectedParticipants.Contains(obj))
+            if (isSelected && !SelectedParticipants.Contains(obj))
                 SelectedParticipants.Add(obj);
-            if(!isSelected && SelectedParticipants.Contains(obj))
+            if (!isSelected && SelectedParticipants.Contains(obj))
                 SelectedParticipants.Remove(obj);
             ParticipantSelected(SelectedParticipants);
         }
@@ -76,11 +72,11 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         {
             AvailableParticipants.Clear();
             SelectedParticipants.Clear();
-            var entitiesToView =  info.CharacterParticipants;
+            var entitiesToView = info.CharacterParticipants;
             foreach (var participant in entitiesToView)
             {
-                ParticipantViewModel participantViewModel = GenerateInstance(participant,playersDiedNatrually.Contains(participant));
-                
+                ParticipantViewModel participantViewModel = GenerateInstance(participant, playersDiedNatrually.Contains(participant));
+
                 var imagePath = Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
                 if (participant.IsCompanion)
                     imagePath = Path.Combine(Environment.CurrentDirectory, "resources/LocalPlayerIcon.png");
@@ -95,7 +91,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 if (playersDiedNatrually.Contains(participant) || playersDiedNatrually.Count == 0)
                 {
                     participantViewModel.IsSelected = true;
-                    SelectedParticipants.Add(participant); 
+                    SelectedParticipants.Add(participant);
                 }
                 participantViewModel.SelectionChanged += SelectParticipant;
             }
@@ -106,7 +102,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         }
         public void SetEntityHPS(List<EntityInfo> entityInfo)
         {
-            foreach(var participant in AvailableParticipants)
+            foreach (var participant in AvailableParticipants)
             {
                 var info = entityInfo.FirstOrDefault(e => e.Entity.LogId == participant.Entity.LogId);
                 if (info != null)

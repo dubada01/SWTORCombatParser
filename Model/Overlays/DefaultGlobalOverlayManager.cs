@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Windows;
 
 namespace SWTORCombatParser.Model.Overlays
@@ -37,10 +36,10 @@ namespace SWTORCombatParser.Model.Overlays
             var currentDefaults = ReadDefaultsFromFile();
             if (!currentDefaults.ContainsKey(type))
             {
-                currentDefaults[type] = new OverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive=state };
+                currentDefaults[type] = new OverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive = state };
             }
             var defaultModified = currentDefaults[type];
-            currentDefaults[type] = new OverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state, Locked = defaultModified.Locked };
+            currentDefaults[type] = new OverlayInfo() { Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive = state, Locked = defaultModified.Locked };
             SaveDefaults(currentDefaults);
         }
         public static OverlayInfo GetOverlayInfoForType(string type)

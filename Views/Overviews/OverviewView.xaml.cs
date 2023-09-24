@@ -1,5 +1,5 @@
-﻿using System.Windows.Controls;
-using SWTORCombatParser.ViewModels.Overviews;
+﻿using SWTORCombatParser.ViewModels.Overviews;
+using System.Windows.Controls;
 
 namespace SWTORCombatParser.Views.Overviews
 {

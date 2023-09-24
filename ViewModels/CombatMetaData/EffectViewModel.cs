@@ -7,10 +7,13 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
     {
         private bool selected;
 
-        public bool Selected { get => selected; set {
+        public bool Selected
+        {
+            get => selected; set
+            {
                 selected = value;
                 OnPropertyChanged();
-            } 
+            }
         }
         public string Name { get; set; }
         public string Source { get; set; }

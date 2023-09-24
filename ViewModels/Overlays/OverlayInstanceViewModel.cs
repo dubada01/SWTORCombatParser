@@ -1,7 +1,11 @@
 ﻿//using MoreLinq;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,10 +14,6 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
-using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -31,7 +31,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => sizeScalar; set
             {
                 sizeScalar = value;
-                foreach(var bar in _metricBarsDict)
+                foreach (var bar in _metricBarsDict)
                 {
                     bar.Value.SizeScalar = sizeScalar;
                 }
@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public ConcurrentDictionary<(string,bool),OverlayMetricInfo> _metricBarsDict { get; set; } = new ConcurrentDictionary<(string, bool), OverlayMetricInfo>();
+        public ConcurrentDictionary<(string, bool), OverlayMetricInfo> _metricBarsDict { get; set; } = new ConcurrentDictionary<(string, bool), OverlayMetricInfo>();
         public List<OverlayMetricInfo> MetricBars { get; set; } = new List<OverlayMetricInfo>();
         public OverlayType CreatedType { get; set; }
         public OverlayType Type { get; set; }
@@ -58,7 +58,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
-        public event Action OnHiding  = delegate { };
+        public event Action OnHiding = delegate { };
         public event Action OnShowing = delegate { };
         public event Action<string> OnCharacterDetected = delegate { };
         public void OverlayClosing()
@@ -134,7 +134,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateLeaderboardType(LeaderboardType obj)
         {
-            if(obj == LeaderboardType.Off)
+            if (obj == LeaderboardType.Off)
             {
                 UsingLeaderboard = false;
             }
@@ -154,16 +154,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateTopEntries(Dictionary<LeaderboardEntryType, (string, double)> obj)
         {
-            foreach(var entry in _metricBarsDict)
+            foreach (var entry in _metricBarsDict)
             {
-                if(entry.Key.Item2)
+                if (entry.Key.Item2)
                     _metricBarsDict.TryRemove(entry.Key, out var ignore);
             }
             OnPropertyChanged("MetricBars");
             if (obj.Count == 0)
             {
                 OrderMetricBars();
-                return; 
+                return;
             }
             UpdateLeaderboardValues(obj);
         }
@@ -246,7 +246,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SizeScalar = SizeScalar,
                 MedalIconPath = "../../resources/crownIcon.png"
             };
-            _metricBarsDict.TryAdd((characterName,true),metricbar);
+            _metricBarsDict.TryAdd((characterName, true), metricbar);
             OrderMetricBars();
         }
         private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType, (double, bool)> standings)
@@ -280,7 +280,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             RefreshBarViews(obj);
             double sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value);
-            if(CreatedType == OverlayType.DPS || CreatedType == OverlayType.EHPS || CreatedType == OverlayType.Mitigation)
+            if (CreatedType == OverlayType.DPS || CreatedType == OverlayType.EHPS || CreatedType == OverlayType.Mitigation)
                 sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value + b.Value.SecondaryValue);
             if (CreatedType == OverlayType.DamageTaken)
                 sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value - b.Value.SecondaryValue);
@@ -303,8 +303,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 else
                 {
-                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, SizeScalar = SizeScalar};
-                    _metricBarsDict.TryAdd((participant.Name,false),metricToUpdate);
+                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, SizeScalar = SizeScalar };
+                    _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
 
                 UpdateMetric(Type, metricToUpdate, combatToDisplay, participant);
@@ -332,11 +332,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
                 var listOfBars = new List<OverlayMetricInfo>();
                 var keys = _metricBarsDict.Keys.ToList();
-                for(var i = 0; i < keys.Count; i++)
+                for (var i = 0; i < keys.Count; i++)
                 {
                     OverlayMetricInfo bar;
                     var worked = _metricBarsDict.TryGetValue(keys[i], out bar);
-                    if(worked)
+                    if (worked)
                         listOfBars.Add(bar);
                 }
 
@@ -347,7 +347,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             catch (Exception ex)
             {
-                Logging.LogError("Failed to order overlay metrics: "+ex.Message);
+                Logging.LogError("Failed to order overlay metrics: " + ex.Message);
             }
 
         }

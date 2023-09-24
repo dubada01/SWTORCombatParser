@@ -1,11 +1,17 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.Boss_Timers;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.HOT_Timers;
+using SWTORCombatParser.DataStructures.Timers.Defensive_Timers;
+using SWTORCombatParser.DataStructures.Timers.Offensive_Timers;
 using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
@@ -16,12 +22,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
-using SWTORCombatParser.DataStructures.Timers.Defensive_Timers;
-using SWTORCombatParser.DataStructures.Timers.Offensive_Timers;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -228,7 +228,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public TimersCreationViewModel()
         {
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 BossTimerLoader.TryLoadBossTimers();
                 HotTimerLoader.TryLoadHots();
                 DotTimerLoader.TryLoadDots();
@@ -258,7 +259,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             _encounterTimersWindow = new EncounterTimerWindowViewModel();
             alertTimersActive = _alertTimersWindow.Active;
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
-            CombatLogStreamer.HistoricalLogsFinished += SetDiscipline; 
+            CombatLogStreamer.HistoricalLogsFinished += SetDiscipline;
         }
 
         private void SetDiscipline(DateTime combatEndTime, bool localPlayerIdentified)
@@ -325,7 +326,9 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string _importId;
         private bool allActive;
 
-        public bool AllActive { get => allActive; set 
+        public bool AllActive
+        {
+            get => allActive; set
             {
                 allActive = value;
                 OnPropertyChanged();
@@ -340,7 +343,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     DefaultTimersManager.SetTimersEnabledForSource(TimerRows.Select(t => t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
                     TimerController.RefreshAvailableTimers();
                 });
-            } 
+            }
         }
         public bool CanChangeAudio
         {
@@ -561,7 +564,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             _encounterTimersWindow.SetScale(sizeScalar);
             _disciplineTimersWindow.SetScale(sizeScalar);
-           
+
         }
     }
 }

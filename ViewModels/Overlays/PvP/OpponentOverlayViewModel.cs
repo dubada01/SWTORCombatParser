@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
@@ -7,20 +6,14 @@ using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.PvP;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
-    public class OpponentOverlayViewModel:INotifyPropertyChanged
+    public class OpponentOverlayViewModel : INotifyPropertyChanged
     {
         private bool _isActive = false;
         private readonly OpponentHpOverlay _opponentHPView;
@@ -109,12 +102,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 else
                 {
                     _opponentHPView.Show();
-                    if (OverlaysMoveable ||  _isTriggered)
+                    if (OverlaysMoveable || _isTriggered)
                     {
                         ShowFrame = true;
                         OnPropertyChanged("ShowFrame");
                     }
-                    
+
                 }
 
                 OverlayStateChanged("OpponentHP", _isActive);
@@ -128,7 +121,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             OnLocking(true);
             OverlaysMoveable = false;
-            if (!GetCurrentActive()  || !_isTriggered)
+            if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
             OnPropertyChanged("ShowFrame");
             OnPropertyChanged("OverlaysMoveable");
@@ -144,7 +137,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         private void NewCombatInfo(Combat currentCombat)
         {
-            lock(_combatUpdateLock)
+            lock (_combatUpdateLock)
                 _mostRecentCombat = currentCombat;
         }
         private void NewLineStreamed(ParsedLogEntry newLine)
@@ -192,7 +185,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             var sorted = (from entry in _currentHps orderby entry.Key ascending select entry).ToList();
             var bars = new List<OpponentHPBarViewModel>();
             foreach (var opponent in sorted)
-            {           
+            {
                 var newBar = new OpponentHPBarViewModel(opponent.Key) { Value = opponent.Value, InRange = IsInRangeOfLocalPlayer(opponent.Key), IsCurrentInfo = IsCurrentInfo(opponent.Key), IsTargeted = IsCurrentTarget(opponent.Key), Menace = GetMenaceType(opponent.Key) };
                 bars.Add(newBar);
             }
@@ -236,7 +229,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private bool IsInRangeOfLocalPlayer(string key)
         {
             var characterPosition = CombatLogStateBuilder.CurrentState.CurrentLocalCharacterPosition;
-            if(!CombatLogStateBuilder.CurrentState.CurrentCharacterPositions.Any(c=>c.Key.Name == key))
+            if (!CombatLogStateBuilder.CurrentState.CurrentCharacterPositions.Any(c => c.Key.Name == key))
             {
                 return false;
             }

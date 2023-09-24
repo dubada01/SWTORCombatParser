@@ -1,15 +1,14 @@
-﻿using SWTORCombatParser.Model.CloudRaiding;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SWTORCombatParser.Utilities;
-using System;
 
 namespace SWTORCombatParser.Model.Overlays
 {
@@ -27,7 +26,7 @@ namespace SWTORCombatParser.Model.Overlays
         private static string ocr_url = "/ocr";
         private static string ocr_port = "8651";
         public static async Task<List<PlacedName>> GetCurrentPlayerLayoutLOCAL(Point topLeftOfFrame, MemoryStream raidFrameStream,
-            int numberOfRows, int numberOfColumns,int height, int width)
+            int numberOfRows, int numberOfColumns, int height, int width)
         {
             try
             {
@@ -56,14 +55,14 @@ namespace SWTORCombatParser.Model.Overlays
                                     return new List<PlacedName>();
                                 }
 
-                                return GetNamesFromResponse(JsonConvert.DeserializeObject<Dictionary<string, List<List<double>>>>(jsonObject["response"].ToString()), height,width, topLeftOfFrame, numberOfRows, numberOfColumns);
+                                return GetNamesFromResponse(JsonConvert.DeserializeObject<Dictionary<string, List<List<double>>>>(jsonObject["response"].ToString()), height, width, topLeftOfFrame, numberOfRows, numberOfColumns);
                             }
                         }
 
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logging.LogError("Failed to pull names for raid frame overlay: " + e.Message);
                 return new List<PlacedName>();
@@ -113,30 +112,30 @@ namespace SWTORCombatParser.Model.Overlays
             }
 
         }
-        private static List<PlacedName> GetNamesFromResponse(Dictionary<string, List<List<double>>> ocrResponse,int height, int width,Point topLeftOfFrame,int numberOfRows, int numberOfColumns)
+        private static List<PlacedName> GetNamesFromResponse(Dictionary<string, List<List<double>>> ocrResponse, int height, int width, Point topLeftOfFrame, int numberOfRows, int numberOfColumns)
         {
-            var validEntries = ocrResponse.Where(kvp=>kvp.Key.All(c=>char.IsLetter(c)|| c == '-' || c =='\'') && kvp.Key.Length > 2).OrderBy(kv=>kv.Value[0][0]);
-            var correctedEntries = validEntries.Select(ve => 
+            var validEntries = ocrResponse.Where(kvp => kvp.Key.All(c => char.IsLetter(c) || c == '-' || c == '\'') && kvp.Key.Length > 2).OrderBy(kv => kv.Value[0][0]);
+            var correctedEntries = validEntries.Select(ve =>
                 new KeyValuePair<string, List<List<double>>>(ve.Key,
-                    ve.Value.Select(coord=>coord.Select(ConvertCoordWithCompressionFactor).ToList()).ToList()));
+                    ve.Value.Select(coord => coord.Select(ConvertCoordWithCompressionFactor).ToList()).ToList()));
             double rowHeights = height / (double)numberOfRows;
             double columnWidth = width / (double)numberOfColumns;
-            
+
             var placedNames = new List<PlacedName>();
 
             foreach (var validEntry in correctedEntries)
             {
                 var topLeft = validEntry.Value[0];
-                var row = Math.Min(numberOfRows-1,(int)(topLeft[1] / rowHeights));
-                var column =Math.Min(numberOfColumns-1,(int)(topLeft[0] / columnWidth));
+                var row = Math.Min(numberOfRows - 1, (int)(topLeft[1] / rowHeights));
+                var column = Math.Min(numberOfColumns - 1, (int)(topLeft[0] / columnWidth));
                 var nameAtLocation = placedNames.FirstOrDefault(n => n.Row == row && n.Column == column);
                 if (nameAtLocation == null)
                 {
-                    placedNames.Add(new PlacedName() { Name = validEntry.Key, Row = row, Column = column, Vertices = validEntry.Value.Select(v=>new Point((int)v[0]+ topLeftOfFrame.X,(int)v[1]+ topLeftOfFrame.Y)).ToList() });
+                    placedNames.Add(new PlacedName() { Name = validEntry.Key, Row = row, Column = column, Vertices = validEntry.Value.Select(v => new Point((int)v[0] + topLeftOfFrame.X, (int)v[1] + topLeftOfFrame.Y)).ToList() });
                 }
                 else
                 {
-                    if(nameAtLocation.Vertices[0].Y < ((topLeft[1] +  topLeftOfFrame.Y) - 5))
+                    if (nameAtLocation.Vertices[0].Y < ((topLeft[1] + topLeftOfFrame.Y) - 5))
                         continue;
                     nameAtLocation.Name += " " + validEntry.Key;
                 }
@@ -146,9 +145,9 @@ namespace SWTORCombatParser.Model.Overlays
 
         private static double ConvertCoordWithCompressionFactor(double value)
         {
-            return value/RaidFrameScreenGrab.CurrentCompressionFactor;
+            return value / RaidFrameScreenGrab.CurrentCompressionFactor;
         }
-       
+
         private static byte[] ImageToByte2(Image img)
         {
             using (var stream = new MemoryStream())

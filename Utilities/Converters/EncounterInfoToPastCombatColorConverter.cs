@@ -1,8 +1,8 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures.EncounterInfo;
+using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -10,7 +10,7 @@ namespace SWTORCombatParser.Utilities.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var setterInfo = ((EncounterInfo,bool,SolidColorBrush))value;
+            var setterInfo = ((EncounterInfo, bool, SolidColorBrush))value;
             if (setterInfo.Item1 == null)
                 return setterInfo.Item2 ? Brushes.MediumAquamarine : setterInfo.Item3;
             return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("LightGrayGreenColor"));

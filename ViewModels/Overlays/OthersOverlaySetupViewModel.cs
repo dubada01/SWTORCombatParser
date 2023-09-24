@@ -6,13 +6,8 @@ using SWTORCombatParser.Views.Overlay.BossFrame;
 using SWTORCombatParser.Views.Overlay.PvP;
 using SWTORCombatParser.Views.Overlay.RaidHOTs;
 using SWTORCombatParser.Views.Overlay.Room;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {

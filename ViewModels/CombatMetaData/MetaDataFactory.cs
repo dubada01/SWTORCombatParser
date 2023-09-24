@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using SWTORCombatParser.DataStructures;
+using System.Collections.Generic;
 using System.Windows.Media;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
@@ -18,7 +18,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 Color = Brushes.MediumAquamarine,
                 Category = "Healing",
                 TotalLabel = "Total: ",
-                TotalValue = string.IsNullOrEmpty(currentParticipant.Name)?"0": combat.TotalHealing[currentParticipant].ToString("#,##0"),
+                TotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalHealing[currentParticipant].ToString("#,##0"),
                 MaxLabel = "Max: ",
                 MaxValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.MaxHeal[currentParticipant].ToString("#,##0"),
                 RateLabel = "HPS: ",
@@ -30,7 +30,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 EffectiveRateLabel = "EHPS: ",
                 EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.EHPS[currentParticipant].ToString("#,##0.0"),
             };
-            
+
             var healingTaken = new MetaDataInstance()
             {
                 Color = Brushes.LightSkyBlue,
@@ -48,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 EffectiveRateLabel = "EHRPS: ",
                 EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.EHTPS[currentParticipant].ToString("#,##0.0"),
             };
-            
+
             var damageTaken = new MetaDataInstance()
             {
                 Color = Brushes.Peru,
@@ -66,7 +66,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 EffectiveRateLabel = "EDTPS: ",
                 EffectiveRateValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.EDTPS[currentParticipant].ToString("#,##0.0"),
             };
-            
+
             var damage = new MetaDataInstance()
             {
                 Color = Brushes.LightCoral,

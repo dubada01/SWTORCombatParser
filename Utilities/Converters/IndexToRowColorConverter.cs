@@ -9,7 +9,7 @@ namespace SWTORCombatParser.Utilities.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch ((int)value%2==0)
+            switch ((int)value % 2 == 0)
             {
                 case true:
                     return Brushes.WhiteSmoke;

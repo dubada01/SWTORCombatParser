@@ -55,7 +55,8 @@ namespace SWTORCombatParser.Views.Timers
 
         public void makeTransparent(bool shouldLock)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
@@ -78,7 +79,8 @@ namespace SWTORCombatParser.Views.Timers
         }
         private void CloseOverlay()
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 Hide();
             });
 

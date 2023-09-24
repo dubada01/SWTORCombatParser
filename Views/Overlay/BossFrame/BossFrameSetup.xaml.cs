@@ -1,5 +1,5 @@
-﻿using System.Windows.Controls;
-using SWTORCombatParser.ViewModels.Overlays.BossFrame;
+﻿using SWTORCombatParser.ViewModels.Overlays.BossFrame;
+using System.Windows.Controls;
 
 namespace SWTORCombatParser.Views.Overlay.BossFrame
 {

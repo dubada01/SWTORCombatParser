@@ -1,21 +1,10 @@
 ﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.PvP;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SWTORCombatParser.Views.Overlay.PvP
 {
@@ -60,7 +49,8 @@ namespace SWTORCombatParser.Views.Overlay.PvP
 
         public void makeTransparent(bool shouldLock)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
@@ -81,7 +71,8 @@ namespace SWTORCombatParser.Views.Overlay.PvP
         }
         private void CloseOverlay()
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 Close();
             });
 

@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using SWTORCombatParser.Views.Overviews;
+using System.Collections.Generic;
 using System.Windows;
-using SWTORCombatParser.Views.Overviews;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public class TableViewModel:OverviewViewModel
+    public class TableViewModel : OverviewViewModel
     {
         private SortingOption selectedOrdering;
 

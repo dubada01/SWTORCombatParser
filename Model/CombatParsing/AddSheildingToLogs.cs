@@ -1,11 +1,11 @@
 ﻿using MoreLinq;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.AbilityInfo;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
@@ -27,21 +27,21 @@ namespace SWTORCombatParser.Model.CombatParsing
             var modifiers = state.Modifiers;
             var allShieldLogs = allPriticipantSheildingLogs.Values.SelectMany(l => l).ToList();
 
-            Dictionary<Entity, List<ShieldingEvent>> _totalSheildingProvided = allPriticipantSheildingLogs.ToDictionary(kvp=>kvp.Key,kvp=>new List<ShieldingEvent>());
+            Dictionary<Entity, List<ShieldingEvent>> _totalSheildingProvided = allPriticipantSheildingLogs.ToDictionary(kvp => kvp.Key, kvp => new List<ShieldingEvent>());
             var absorbTargets = allShieldLogs.Select(l => l.Target).Distinct();
-            
-            foreach(var target in absorbTargets)
+
+            foreach (var target in absorbTargets)
             {
-                var logsForTarget = allShieldLogs.Where(l=>l.Target == target).ToList();
-                var absorbsOnTarget = modifiers.Where(m => m.Value.Any() && currentAbsorbAbilities.Contains(m.Value.First().Value.EffectName)).SelectMany(kvp => kvp.Value).Where(mod => mod.Value.Target == target).Select(kvp=>kvp.Value).ToList();
+                var logsForTarget = allShieldLogs.Where(l => l.Target == target).ToList();
+                var absorbsOnTarget = modifiers.Where(m => m.Value.Any() && currentAbsorbAbilities.Contains(m.Value.First().Value.EffectName)).SelectMany(kvp => kvp.Value).Where(mod => mod.Value.Target == target).Select(kvp => kvp.Value).ToList();
                 foreach (var log in logsForTarget)
                 {
-                    var activeAbsorbs = absorbsOnTarget.Where(m => IsModifierActive(m, log)).OrderBy(a=>a.StartTime).ToList();
-                    if(activeAbsorbs.Count > 1 && activeAbsorbs.Any(a => a.Name.Contains("Powerbase")))
+                    var activeAbsorbs = absorbsOnTarget.Where(m => IsModifierActive(m, log)).OrderBy(a => a.StartTime).ToList();
+                    if (activeAbsorbs.Count > 1 && activeAbsorbs.Any(a => a.Name.Contains("Powerbase")))
                     {
                         Console.WriteLine("HEre");
                     }
-                    for (var i = 0; i<activeAbsorbs.Count; i++)
+                    for (var i = 0; i < activeAbsorbs.Count; i++)
                     {
                         var absorb = activeAbsorbs[i];
                         var ammount = GetAbsorbAmmount(log, activeAbsorbs, i);
@@ -71,7 +71,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     }
                 }
             }
-            
+
             foreach (var source in _totalSheildingProvided.Keys)
             {
                 var shieldEvents = _totalSheildingProvided[source];
@@ -111,14 +111,14 @@ namespace SWTORCombatParser.Model.CombatParsing
                     combat.TotalProvidedSheilding[source] += sheild.ShieldValue;
                 }
             }
-            modifiers.ForEach(m => m.Value.ForEach(mv => mv.Value.HasAbsorbBeenCounted=false));
+            modifiers.ForEach(m => m.Value.ForEach(mv => mv.Value.HasAbsorbBeenCounted = false));
         }
 
         private static bool IsModifierActive(CombatModifier modifier, ParsedLogEntry log)
         {
             if (modifier.HasAbsorbBeenCounted)
                 return false;
-            if(modifier.StartTime < log.TimeStamp && (modifier.StopTime.AddSeconds(4.25) >= log.TimeStamp))
+            if (modifier.StartTime < log.TimeStamp && (modifier.StopTime.AddSeconds(4.25) >= log.TimeStamp))
             {
                 return true;
             }
@@ -133,24 +133,24 @@ namespace SWTORCombatParser.Model.CombatParsing
                     absorbs[index].HasAbsorbBeenCounted = true;
                 return log.Value.Modifier.DblValue;
             }
-            if (absorbs.Count >1)
+            if (absorbs.Count > 1)
             {
                 if (index > 1 && log.Value.MitigatedDblValue == 0)
                     return 0;
                 var absorbedByFirst = 0d;
                 var absorbedByRemainder = 0d;
-                if(log.Value.DblValue == log.Value.Modifier.DblValue)
+                if (log.Value.DblValue == log.Value.Modifier.DblValue)
                 {
                     absorbedByFirst = log.Value.Modifier.DblValue;
                 }
                 else
                 {
-                    if(index == 0)
+                    if (index == 0)
                         absorbs[index].HasAbsorbBeenCounted = true;
-                    absorbedByFirst = (log.Value.DblValue - log.Value.Modifier.DblValue)-log.Value.MitigatedDblValue;
+                    absorbedByFirst = (log.Value.DblValue - log.Value.Modifier.DblValue) - log.Value.MitigatedDblValue;
                     absorbedByRemainder = log.Value.Modifier.DblValue;
                 }
-                
+
                 if (index == 0)
                 {
                     return absorbedByFirst;

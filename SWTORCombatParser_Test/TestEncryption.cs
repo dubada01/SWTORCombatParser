@@ -1,8 +1,5 @@
 ﻿using NUnit.Framework;
 using SWTORCombatParser.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SWTORCombatParser_Test
 {

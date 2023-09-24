@@ -8,7 +8,7 @@ namespace SWTORCombatParser.Utilities.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            switch((bool)value)
+            switch ((bool)value)
             {
                 case true:
                     return "Stop";

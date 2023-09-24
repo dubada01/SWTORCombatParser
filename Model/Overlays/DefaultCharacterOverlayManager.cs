@@ -76,9 +76,9 @@ namespace SWTORCombatParser.Model.Overlays
         public static void SetLockedStateCharacter(bool state, string characterName)
         {
             var currentDefaults = GetCharacterDefaults(characterName);
-            foreach(var overlay in currentDefaults.Keys)
+            foreach (var overlay in currentDefaults.Keys)
             {
-                currentDefaults[overlay] = new OverlayInfo() { UseAsWindow = currentDefaults[overlay].UseAsWindow, Position = currentDefaults[overlay].Position, WidtHHeight = currentDefaults[overlay].WidtHHeight, Locked=state,  Acive = currentDefaults[overlay].Acive };
+                currentDefaults[overlay] = new OverlayInfo() { UseAsWindow = currentDefaults[overlay].UseAsWindow, Position = currentDefaults[overlay].Position, WidtHHeight = currentDefaults[overlay].WidtHHeight, Locked = state, Acive = currentDefaults[overlay].Acive };
             }
             SaveCharacterDefaults(characterName, currentDefaults);
         }
@@ -87,10 +87,10 @@ namespace SWTORCombatParser.Model.Overlays
             var currentDefaults = GetCharacterDefaults(characterName);
             if (!currentDefaults.ContainsKey(type))
             {
-                currentDefaults[type] = new OverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive=state };
+                currentDefaults[type] = new OverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive = state };
             }
             var defaultModified = currentDefaults[type];
-            currentDefaults[type] = new OverlayInfo() { UseAsWindow = defaultModified.UseAsWindow, Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive=state, Locked = defaultModified.Locked };
+            currentDefaults[type] = new OverlayInfo() { UseAsWindow = defaultModified.UseAsWindow, Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive = state, Locked = defaultModified.Locked };
             SaveCharacterDefaults(characterName, currentDefaults);
         }
         public static bool DoesKeyExist(string key)
@@ -103,11 +103,11 @@ namespace SWTORCombatParser.Model.Overlays
             var currentDefaults = GetCurrentCharacterDefaults();
             if (!currentDefaults.Any())
                 return "";
-            return currentDefaults.MaxBy(v => v.Value.Values.Count(o=>o.Acive)).Key;
+            return currentDefaults.MaxBy(v => v.Value.Values.Count(o => o.Acive)).Key;
         }
 
 
-        public static Dictionary<string,OverlayInfo> GetCharacterDefaults(string characterName)
+        public static Dictionary<string, OverlayInfo> GetCharacterDefaults(string characterName)
         {
             try
             {
@@ -130,12 +130,12 @@ namespace SWTORCombatParser.Model.Overlays
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var overlayType in enumVals)
                 {
-                    if(!defaultsForToon.ContainsKey(overlayType.ToString()))
+                    if (!defaultsForToon.ContainsKey(overlayType.ToString()))
                         defaultsForToon[overlayType.ToString()] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 300 } };
                 }
                 return defaultsForToon;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 InitializeCharacterDefaults(characterName);
                 return GetCurrentCharacterDefaults()[characterName];
@@ -152,7 +152,7 @@ namespace SWTORCombatParser.Model.Overlays
         {
             var currentDefaults = GetCurrentCharacterDefaults();
             var fromDefaults = currentDefaults[from];
-            if(fromDefaults == null)
+            if (fromDefaults == null)
             {
                 InitializeCharacterDefaults(to);
             }
@@ -166,7 +166,7 @@ namespace SWTORCombatParser.Model.Overlays
         {
             var currentDefaults = GetCurrentCharacterDefaults();
             var defaults = new Dictionary<string, OverlayInfo>();
-            if(characterName != "All")
+            if (characterName != "All")
             {
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var overlayType in enumVals)
@@ -186,11 +186,11 @@ namespace SWTORCombatParser.Model.Overlays
             var stringInfo = File.ReadAllText(infoPath);
             var typedDefaults = new Dictionary<string, Dictionary<string, OverlayInfo>>();
             var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, OverlayInfo>>>(stringInfo);
-            foreach(var player in currentDefaults.Keys)
+            foreach (var player in currentDefaults.Keys)
             {
                 var playerDefaults = currentDefaults[player];
                 var playerTypedDefaults = typedDefaults[player] = new Dictionary<string, OverlayInfo>();
-                foreach(var overlayType in playerDefaults.Keys)
+                foreach (var overlayType in playerDefaults.Keys)
                 {
                     OverlayType typedResult;
                     var typeIsValid = Enum.TryParse(overlayType, out typedResult);

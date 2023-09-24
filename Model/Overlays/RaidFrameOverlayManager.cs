@@ -37,7 +37,7 @@ namespace SWTORCombatParser.Model.Overlays
         {
             var currentDefaults = GetDefaults(characterName);
 
-            currentDefaults = new RaidFrameOverlayInfo() { Position = currentDefaults.Position, WidtHHeight = currentDefaults.WidtHHeight, Acive=state, Columns = currentDefaults.Columns, Rows = currentDefaults.Rows };
+            currentDefaults = new RaidFrameOverlayInfo() { Position = currentDefaults.Position, WidtHHeight = currentDefaults.WidtHHeight, Acive = state, Columns = currentDefaults.Columns, Rows = currentDefaults.Rows };
             SaveResults(characterName, currentDefaults);
         }
         public static void SetRowsColumns(double rows, double columns, string characterName)
@@ -57,14 +57,14 @@ namespace SWTORCombatParser.Model.Overlays
                     InitializeDefaults(characterName);
                 }
                 var defaultsForToon = currentDefaults[characterName];
-                if(defaultsForToon.Rows == 0)
+                if (defaultsForToon.Rows == 0)
                 {
                     defaultsForToon.Rows = 4;
                     defaultsForToon.Columns = 2;
                 }
                 return defaultsForToon;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 InitializeDefaults(characterName);
                 var freshDefaults = GetCurrentDefaults()[characterName];
@@ -86,10 +86,10 @@ namespace SWTORCombatParser.Model.Overlays
         private static void InitializeDefaults(string characterName)
         {
             var currentDefaults = GetCurrentDefaults();
-            var defaults = new RaidFrameOverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(400, 400), Rows = 4, Columns=2 };
-            if(characterName != "no character")
+            var defaults = new RaidFrameOverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(400, 400), Rows = 4, Columns = 2 };
+            if (characterName != "no character")
                 defaults = new RaidFrameOverlayInfo() { Position = currentDefaults["no character"].Position, WidtHHeight = currentDefaults["no character"].WidtHHeight, Columns = 2, Rows = 4 };
- 
+
             currentDefaults[characterName] = defaults;
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }

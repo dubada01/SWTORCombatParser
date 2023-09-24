@@ -1,7 +1,9 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.DataGrid;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Collections.Generic;
@@ -9,8 +11,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
@@ -67,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 OnPropertyChanged();
             }
         }
-        public List<string> AvailableColumns => _columnOrder.Select(c => GetNameFromType(c)).Where(c => !HeaderNames.Any(h=>h.Text == c)).ToList();
+        public List<string> AvailableColumns => _columnOrder.Select(c => GetNameFromType(c)).Where(c => !HeaderNames.Any(h => h.Text == c)).ToList();
         public ObservableCollection<MemberInfoViewModel> PartyMembers
         {
             get => partyMembers; set
@@ -80,7 +80,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             _allSelectedCombats.Clear();
             _allSelectedCombats.Add(updatedCombat);
-            
+
             UpdateUI();
         }
         public void AddCombat(Combat combatInfo)
@@ -137,15 +137,15 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             {
                 sortedMembers = newPlayers.OrderByDescending(v => MetricGetter.GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
             }
-            if(_sortDirection == SortingDirection.None)
+            if (_sortDirection == SortingDirection.None)
             {
                 sortedMembers = newPlayers.ToList();
             }
-            for(var i = 0; i < sortedMembers.Count; i++)
+            for (var i = 0; i < sortedMembers.Count; i++)
             {
                 sortedMembers[i].AssignBackground(i);
             }
-            foreach(var member in sortedMembers)
+            foreach (var member in sortedMembers)
             {
                 PartyMembers.Add(member);
             }
@@ -161,7 +161,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private void AddHeader(string obj)
         {
             _selectedColumnTypes.Add(_columnOrder.FirstOrDefault(c => GetNameFromType(c) == obj));
-            DataGridDefaults.SetDefaults(_selectedColumnTypes,_localPlayer);
+            DataGridDefaults.SetDefaults(_selectedColumnTypes, _localPlayer);
             UpdateUI();
         }
 
@@ -182,6 +182,6 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             return (string)new OverlayTypeToReadableNameConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
         }
-       
+
     }
 }

@@ -4,8 +4,6 @@ using Npgsql;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,7 +20,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             if (newEntry.Value == 0 || Settings.ReadSettingOfType<bool>("offline_mode"))
                 return false;
-            Logging.LogInfo("Trying to add valid entry to DB: "+JsonConvert.SerializeObject(newEntry));
+            Logging.LogInfo("Trying to add valid entry to DB: " + JsonConvert.SerializeObject(newEntry));
             var currentMatchingEntries = await GetEntriesForBossAndCharacterWithClass(newEntry.Boss, newEntry.Character, newEntry.Class, newEntry.Encounter, newEntry.Type);
             Logging.LogInfo($"Found {currentMatchingEntries.Count} entries in DB already for that character and boss fight");
             if (currentMatchingEntries.Any())
@@ -53,14 +51,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
             Logging.LogInfo($"Found {entries.Count} entries");
             if (entries.Count == 1 || entries.Count == 0)
                 return;
-            Logging.LogInfo($"{entries.Count-1} entries need to be cleansed");
-            var orderedValues = entries.OrderByDescending(e=>e.Value).ToList();
-            for(var i = 1; i<orderedValues.Count; i++)
+            Logging.LogInfo($"{entries.Count - 1} entries need to be cleansed");
+            var orderedValues = entries.OrderByDescending(e => e.Value).ToList();
+            for (var i = 1; i < orderedValues.Count; i++)
             {
                 await RemoveLeaderBoardEntry(orderedValues[i]);
                 Logging.LogInfo($"Removed with value of {orderedValues[i].Value}");
             }
-            
+
         }
         public static async Task<int> RemoveLeaderBoardEntry(LeaderboardEntry entry)
         {
@@ -71,8 +69,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("DELETE FROM public.boss_leaderboards " +
-      $"WHERE boss_name = @p1 and encounter_name =  @p2 and player_name =  @p3 and player_class =  @p4 and value_type =  @p5 and software_version= @p6", connection){
-                               Parameters =
+      $"WHERE boss_name = @p1 and encounter_name =  @p2 and player_name =  @p3 and player_class =  @p4 and value_type =  @p5 and software_version= @p6", connection)
+                    {
+                        Parameters =
                                {
                                    new ("p1",entry.Boss),
                                    new ("p2",entry.Encounter),
@@ -81,7 +80,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                    new ("p5",entry.Type.ToString()),
                                    new ("p6",Leaderboards._leaderboardVersion),
                                }
-                           })
+                    })
                     {
                         return await cmd.ExecuteNonQueryAsync();
                     }
@@ -152,7 +151,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new LeaderboardEntry();
             return entries.MaxBy(l => l.Value);
         }
-        public static async Task<LeaderboardEntry> GetTopLeaderboardForClass(string bossName,  string encounter, string className, LeaderboardEntryType type)
+        public static async Task<LeaderboardEntry> GetTopLeaderboardForClass(string bossName, string encounter, string className, LeaderboardEntryType type)
         {
             var entries = await GetEntriesForBossWithClass(bossName, encounter, className, type);
             if (entries.Count == 0)
@@ -169,8 +168,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name = @p1 and encounter_name = @p2 and player_name = @p3 and player_class = @p4 and value_type = @p5 and software_version= @p6", connection){
-                               Parameters =
+                    $"WHERE boss_name = @p1 and encounter_name = @p2 and player_name = @p3 and player_class = @p4 and value_type = @p5 and software_version= @p6", connection)
+                    {
+                        Parameters =
                                {
                                    new ("p1",bossName),
                                    new ("p2",encounter),
@@ -179,7 +179,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                    new ("p5",entryType.ToString()),
                                    new ("p6",Leaderboards._leaderboardVersion),
                                }
-                           })
+                    })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -214,8 +214,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     $"player_class = @p4 and " +
                     $"value_type = @p5 and " +
                     $"software_version = @p6 and " +
-                    $"timestamp > to_timestamp(@p6,\'YYYY-MM-DD hh24:mi:ss\')", connection){
-                               Parameters =
+                    $"timestamp > to_timestamp(@p6,\'YYYY-MM-DD hh24:mi:ss\')", connection)
+                    {
+                        Parameters =
                                {
                                    new ("p1",bossName),
                                    new ("p2",encounter),
@@ -225,7 +226,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                    new ("p6",Leaderboards._leaderboardVersion),
                                    new ("p6",GetUTCTimeStamp(from).ToString("yyyy-MM-dd HH:00:00")),
                                }
-                           })
+                    })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -255,8 +256,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name = @p1 and encounter_name = @p2 and player_class = @p3 and value_type = @p4 and software_version = @p5", connection){
-                               Parameters =
+                    $"WHERE boss_name = @p1 and encounter_name = @p2 and player_class = @p3 and value_type = @p4 and software_version = @p5", connection)
+                    {
+                        Parameters =
                                {
                                    new ("p1",bossName),
                                    new ("p2",encounter),
@@ -264,7 +266,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                    new ("p4",entryType.ToString()),
                                    new ("p5",Leaderboards._leaderboardVersion),
                                }
-                           })
+                    })
                     {
 
                         var reader = cmd.ExecuteReader();
@@ -292,8 +294,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                                                       $"WHERE boss_name = @p1 and encounter_name = @p2 and player_class = @p3 and value_type = @p4 and software_version = @p5", connection){
-                               Parameters =
+                                                       $"WHERE boss_name = @p1 and encounter_name = @p2 and player_class = @p3 and value_type = @p4 and software_version = @p5", connection)
+                    {
+                        Parameters =
                                {
                                    new ("p1",bossName),
                                    new ("p2",encounter),
@@ -301,7 +304,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                    new ("p4",entryType.ToString()),
                                    new ("p5",Leaderboards._leaderboardVersion),
                                }
-                           })
+                    })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -358,13 +361,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT distinct boss_name FROM public.boss_leaderboards " +
-                    $"WHERE encounter_name = @p1 and software_version = @p2", connection){
-                               Parameters =
+                    $"WHERE encounter_name = @p1 and software_version = @p2", connection)
+                    {
+                        Parameters =
                                {
                                    new ("p1",encounter),
                                    new ("p2",Leaderboards._leaderboardVersion),
                                }
-                           })
+                    })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -393,15 +397,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
-                    $"WHERE boss_name = @p1 and encounter_name = @p2 and value_type = @p3 and software_version = @p4", connection){
-                               Parameters =
+                    $"WHERE boss_name = @p1 and encounter_name = @p2 and value_type = @p3 and software_version = @p4", connection)
+                    {
+                        Parameters =
                                {
                                    new ("p1",bossName),
                                    new ("p2",encounter),
                                    new ("p3",entryType.ToString()),
                                    new ("p4",Leaderboards._leaderboardVersion),
                                }
-                           })
+                    })
                     {
 
                         var reader = await cmd.ExecuteReaderAsync();
@@ -434,7 +439,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 Type = (LeaderboardEntryType)Enum.Parse(typeof(LeaderboardEntryType), reader.GetString(4)),
                 Encounter = encounterName,
                 VerifiedKill = reader.GetBoolean(6),
-                TimeStamp = ((DateTime)reader.GetTimeStamp(7)), 
+                TimeStamp = ((DateTime)reader.GetTimeStamp(7)),
                 Duration = reader.GetInt32(8)
             };
         }
@@ -446,12 +451,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 Character = reader.GetString(2),
                 Class = reader.GetString(3),
                 Value = reader.GetDouble(4),
-                Type = (LeaderboardEntryType)Enum.Parse(typeof(LeaderboardEntryType),reader.GetString(5)),
+                Type = (LeaderboardEntryType)Enum.Parse(typeof(LeaderboardEntryType), reader.GetString(5)),
                 Duration = reader.GetInt32(6),
                 Encounter = reader.GetString(7),
                 Version = reader.GetString(8),
                 VerifiedKill = reader.GetBoolean(9),
-                Logs = !reader.IsDBNull(10)? reader.GetString(10):""
+                Logs = !reader.IsDBNull(10) ? reader.GetString(10) : ""
             };
         }
 
@@ -467,7 +472,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 conn.Open();
                 return conn;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception("Connection attempt failed: " + JsonConvert.SerializeObject(e));
             }

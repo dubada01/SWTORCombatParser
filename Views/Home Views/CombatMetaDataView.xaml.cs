@@ -1,5 +1,5 @@
-﻿using System.Windows.Controls;
-using SWTORCombatParser.ViewModels.CombatMetaData;
+﻿using SWTORCombatParser.ViewModels.CombatMetaData;
+using System.Windows.Controls;
 
 namespace SWTORCombatParser.Views.Home_Views
 {

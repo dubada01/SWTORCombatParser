@@ -25,7 +25,7 @@ namespace SWTORCombatParser.Utilities
             Init();
             var savedData = JsonConvert.DeserializeObject<OrbsWindowInfo>(File.ReadAllText(infoPath));
 
-            return savedData != null ? savedData: new OrbsWindowInfo();
+            return savedData != null ? savedData : new OrbsWindowInfo();
         }
         private static void Init()
         {

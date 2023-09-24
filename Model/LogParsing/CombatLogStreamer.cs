@@ -1,15 +1,13 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Utilities;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -22,7 +20,7 @@ namespace SWTORCombatParser.Model.LogParsing
     public class CombatLogStreamer
     {
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
-        public static event Action<DateTime,bool> HistoricalLogsFinished = delegate { };
+        public static event Action<DateTime, bool> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
         public event Action<double> NewLogTimeOffsetMs = delegate { };
@@ -32,7 +30,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private bool _isInCombat = false;
         private bool _isWaitingForExitCombatTimout;
 
-        private string _logToMonitor; 
+        private string _logToMonitor;
         private bool _monitorLog;
         private long numberOfProcessedBytes = 0;
         private List<ParsedLogEntry> _currentCombatLogs = new List<ParsedLogEntry>();
@@ -76,8 +74,8 @@ namespace SWTORCombatParser.Model.LogParsing
             HistoricalLogsStarted();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
             CombatLogParser.SetParseDate();
-            var currentLogs = CombatLogParser.ParseAllLines(file,true);
-            Logging.LogInfo("Found " + currentLogs.Count + " log entries in "+_logToMonitor);
+            var currentLogs = CombatLogParser.ParseAllLines(file, true);
+            Logging.LogInfo("Found " + currentLogs.Count + " log entries in " + _logToMonitor);
             int[] characters = new int[currentLogs.Count];
             Parallel.For(0, currentLogs.Count, i =>
             {
@@ -103,7 +101,8 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private void PollForUpdates()
         {
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 while (_monitorLog)
                 {
                     GenerateNewFrame();
@@ -140,8 +139,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 sr.Close();
                 fs.Close();
                 if (lines.Count == 0)
-                    return;          
-                
+                    return;
+
                 for (var line = 0; line < lines.Count; line++)
                 {
                     var result = ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor), logUpdateTime);
@@ -155,7 +154,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     return;
                 var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentCombatLogs, CombatStartTime = _currentCombatStartTime };
                 CombatUpdated(updateMessage);
-                
+
             }
         }
 
@@ -218,9 +217,9 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                Logging.LogError("Error occured while parsing log file at position " + numberOfProcessedBytes+" - "+_logToMonitor+"\r\n"+"Exception Message: "+e.Message);
+                Logging.LogError("Error occured while parsing log file at position " + numberOfProcessedBytes + " - " + _logToMonitor + "\r\n" + "Exception Message: " + e.Message);
             }
         }
 
@@ -243,7 +242,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
             }
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
-            HistoricalLogsFinished(_currentCombatLogs.Count == 0? TimeUtility.CorrectedTime : _currentCombatLogs.Max(l=>l.TimeStamp),localPlayerIdentified);
+            HistoricalLogsFinished(_currentCombatLogs.Count == 0 ? TimeUtility.CorrectedTime : _currentCombatLogs.Max(l => l.TimeStamp), localPlayerIdentified);
         }
         private void ConfirmUsingMostRecentLog()
         {
@@ -271,9 +270,9 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private DateTime _mostRecentLogTime;
 
-        private ProcessedLineResult ProcessNewLine(string line,long lineIndex,string logName, DateTime logUpdateTime)
+        private ProcessedLineResult ProcessNewLine(string line, long lineIndex, string logName, DateTime logUpdateTime)
         {
-            var parsedLine = CombatLogParser.ParseLine(line,lineIndex, _mostRecentLogTime);
+            var parsedLine = CombatLogParser.ParseLine(line, lineIndex, _mostRecentLogTime);
             _mostRecentLogTime = parsedLine.TimeStamp;
             var logTimeOffset = Math.Abs((parsedLine.TimeStamp - logUpdateTime).TotalMilliseconds);
             var totalTimeOffset = Math.Abs((parsedLine.TimeStamp - TimeUtility.CorrectedTime).TotalMilliseconds);
@@ -293,17 +292,17 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 _currentCombatLogs.Add(parsedLine);
             }
-            if(_isInCombat && _isWaitingForExitCombatTimout)
+            if (_isInCombat && _isWaitingForExitCombatTimout)
             {
                 _currentCombatLogs.Add(parsedLine);
                 _waitingForExitCombatTimeout.Add(parsedLine);
             }
             return ProcessedLineResult.Success;
         }
-        private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true,bool isrealtime = false)
+        private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true, bool isrealtime = false)
         {
             var currentCombatState = CombatDetector.CheckForCombatState(parsedLine, isrealtime);
-            if(currentCombatState == CombatState.ExitedByEntering)
+            if (currentCombatState == CombatState.ExitedByEntering)
             {
                 EndCombat(parsedLine);
                 EnterCombat(parsedLine, shouldUpdateOnNewCombat);
@@ -312,11 +311,11 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 EnterCombat(parsedLine, shouldUpdateOnNewCombat);
             }
-            if(currentCombatState == CombatState.ExitedCombat)
+            if (currentCombatState == CombatState.ExitedCombat)
             {
                 EndCombat(parsedLine);
             }
-            if(currentCombatState == CombatState.ExitCombatDetected)
+            if (currentCombatState == CombatState.ExitCombatDetected)
             {
                 _isWaitingForExitCombatTimout = true;
             }
@@ -344,7 +343,7 @@ namespace SWTORCombatParser.Model.LogParsing
             _isWaitingForExitCombatTimout = false;
             if (!_isInCombat)
                 return;
-            if(_waitingForExitCombatTimeout.Count > 0)
+            if (_waitingForExitCombatTimeout.Count > 0)
             {
                 _currentCombatLogs.AddRange(_waitingForExitCombatTimeout);
             }
