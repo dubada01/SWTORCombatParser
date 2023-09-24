@@ -30,7 +30,10 @@ namespace SWTORCombatParser.Model.Plotting
             if(!checkEffective)
                 return totalLogsDuringCombat.Select(l => l.Value.DblValue).ToArray();
             else
+            {
                 return totalLogsDuringCombat.Select(l => l.Value.EffectiveDblValue).ToArray();
+            }
+
         }
         internal static double[] GetPlotXValsRates(double[] timeStamps)
         {

@@ -17,8 +17,14 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
     public class BossInfo
     {
         private List<string> targetsRequiredForKill = new List<string>();
-
-        public string EncounterName { get; set; }
+        private string encounterName;
+        public bool IsOpenWorld { get; set; }
+        public string EncounterName { get => encounterName; set 
+            {
+                IsOpenWorld = value.Contains("Open World");
+                encounterName = value; 
+            }
+        }
         public List<string> TargetIds { get; set; } = new List<string>();
         public List<string> TargetsRequiredForKill { 
             get 
@@ -44,6 +50,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         private string _difficutly = "Story";
         private string _numberOfPlayer = "4";
         private Dictionary<string, Dictionary<string, List<long>>> requiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>();
+        private string name;
 
         public static EncounterInfo GetCopy(EncounterInfo source)
         {
@@ -85,9 +92,13 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
 
         public EncounterType EncounterType { get; set; }
         public string LogName { get; set; }
+        public bool IsOpenWorld { get; set; }
         public string LogId { get; set; }
         public string NamePlus => GetNamePlus();
-        public string Name { get; set; }
+        public string Name { get => name; set {
+                IsOpenWorld = value.Contains("Open World");
+                name = value; } 
+        }
         public MapInfo MapInfo { get; set; }
         public List<string> BossNames
         {

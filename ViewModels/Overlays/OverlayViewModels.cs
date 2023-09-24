@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private ChallengeSetupViewModel _challengesViewModel;
         private OthersOverlaySetupViewModel _otherOverlayViewModel;
         private double maxScalar = 1.5d;
-        private double minScalar = 0.5d;
+        private double minScalar = 0.1d;
         private double sizeScalar = 1d;
         private string sizeScalarString = "1";
         private bool historicalParseFinished = false;
@@ -155,6 +155,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _personalOverlayViewModel.ActiveChanged += UpdatePersonalOverlayActive;
 
             SetOverlaysScale();
+            RefreshOverlays();
         }
 
         private void UpdateOverlaysForDiscipline(Entity character, SWTORClass arg2)
@@ -189,8 +190,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void SetOverlaysToCustom()
         {
-            SetPersonalByClass(Role.Unknown);
-            _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults("Custom");
+            SetPersonalByClass(Role.DPS);
+            _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults("DPS");
 
             UpdateOverlays();
 
@@ -211,14 +212,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "DPS");
                 DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "Healer");
                 DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "Tank");
-                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "Custom");
             }
             else
             {
                 DefaultCharacterOverlays.InitializeCharacterDefaults("DPS");
                 DefaultCharacterOverlays.InitializeCharacterDefaults("Healer");
                 DefaultCharacterOverlays.InitializeCharacterDefaults("Tank");
-                DefaultCharacterOverlays.InitializeCharacterDefaults("Custom");
             }
         }
         private void SetPersonalByClass(Role role)
@@ -479,11 +478,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        internal void LiveParseStarted(bool state)
-        {
-            _otherOverlayViewModel.UpdateLiveParse(state);
         }
     }
 }

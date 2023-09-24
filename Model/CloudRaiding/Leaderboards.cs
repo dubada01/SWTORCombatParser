@@ -29,6 +29,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static Combat CurrentCombat;
         private static List<string> healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> tankDisciplines = new List<string> { "Shield Tech", "Immortal", "Darkness", "Defense", "Shield Specialist", "Kinetic Combat" };
+        private static double _maxParseValue = 500000;
         public static void UpdateLeaderboardType(LeaderboardType type)
         {
             LeaderboardSettings.SaveLeaderboardSettings(type);
@@ -254,9 +255,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         VerifiedKill = combat.WasBossKilled,
                         TimeStamp = combat.EndTime,
                     };
-                    if (CheckForValidParseUpload(combat)||CheckForValidCombatUpload(combat,player))
+                    if (leaderboardEntry.Value < _maxParseValue)
                     {
-                        updatedAny = await PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                        if (CheckForValidParseUpload(combat) || CheckForValidCombatUpload(combat, player))
+                        {
+                            updatedAny = await PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                        }
                     }
                 }
             }
@@ -266,6 +270,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private static bool CheckForValidCombatUpload(Combat combat, Entity player)
         {
+            if(combat.DurationSeconds < 5)
+                return false;
             if (combat.ParentEncounter.Name == "Parsing")
                 return false;
             if (combat.WasBossKilled)

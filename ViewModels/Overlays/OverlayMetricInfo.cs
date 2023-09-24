@@ -38,9 +38,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
         }
         public GridLength ValueWidth => new GridLength(defaultValueWidth*SizeScalar, GridUnitType.Pixel);
-        public double FontSize => defaultFontSize * SizeScalar;
-        public double InfoFontSize => FontSize - 2;
-        public double RankFontSize => InfoFontSize - 5;
+        public double FontSize => Math.Max(7,defaultFontSize * SizeScalar);
+        public double InfoFontSize => Math.Max(6.5, FontSize  * 0.9);
+        public double RankFontSize => Math.Max(6, InfoFontSize * 0.6);
         public double BarHeight => defaultBarHeight * SizeScalar;
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }

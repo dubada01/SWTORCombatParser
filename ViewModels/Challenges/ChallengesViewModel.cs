@@ -111,7 +111,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private void NewChallenge(Challenge obj, bool wasEdit)
         {
             if (wasEdit)
-                DefaultChallengeManager.RemoveChallengeFromSource(_challengeEdited, SelectedSource);
+                DefaultChallengeManager.RemoveChallengeFromSource(_challengeEdited);
             SaveNewTimer(obj);
             var newTimer = new ChallengeRowViewModel() { SourceChallenge = obj, IsEnabled = obj.IsEnabled };
             newTimer.EditRequested += Edit;
@@ -163,7 +163,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         }
         private void Delete(ChallengeRowViewModel obj)
         {
-            DefaultChallengeManager.ResetChallengesForSouce(SelectedSource);
+            DefaultChallengeManager.RemoveChallengeFromSource(obj.SourceChallenge);
             ChallengeRows.Remove(obj);
             _challengeWindowViewModel.RefreshChallenges();
             UpdateRowColors();

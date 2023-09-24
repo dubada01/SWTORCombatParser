@@ -112,7 +112,7 @@ namespace SWTORCombatParser.Model.Timers
             var allTimers = GetAllDefaults();
             foreach(var source in allTimers)
             {
-                source.Timers.RemoveAll(t => t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot && !t.IsImportedFromSP);
+                source.Timers.RemoveAll(t => t.IsMechanic && t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot && !t.IsImportedFromSP);
             }
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
         }

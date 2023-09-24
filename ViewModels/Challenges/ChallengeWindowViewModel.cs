@@ -146,7 +146,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         internal void UpdateLock(bool value)
         {
             OverlaysMoveable = !value;
-            if (OverlaysMoveable)
+            if (OverlaysMoveable && isEnabled)
             {
                 Active = true;
             }

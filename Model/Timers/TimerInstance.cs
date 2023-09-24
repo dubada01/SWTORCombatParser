@@ -172,9 +172,7 @@ namespace SWTORCombatParser.Model.Timers
                 if (SourceTimer.Name.Contains("Other's") &&
                     currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                     return;
-                if ((SourceTimer.IsMechanic && !CheckEncounterAndBoss(this, _currentEncounter)) || SourceTimer.TriggerType == TimerKeyType.CombatStart)
-                    return;
-                if (!IsEnabled || _singleUseTriggerUsed)
+                if (!IsEnabled || _singleUseTriggerUsed || SourceTimer.TriggerType == TimerKeyType.CombatStart)
                     return;
 
                 if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
@@ -195,7 +193,7 @@ namespace SWTORCombatParser.Model.Timers
 
 
 
-                var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered);
+                var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered, currentTarget);
 
                 if (SourceTimer.ShouldModifyVariable && (wasTriggered == TriggerType.Start || (wasTriggered == TriggerType.Refresh && _activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id))))
                 {
@@ -342,12 +340,10 @@ namespace SWTORCombatParser.Model.Timers
             else
                 timerToUpdate.Charges = (int)log.Value.DblValue;
         }
-        private TimerTargetInfo GetTargetInfo(ParsedLogEntry log, Timer sourceTimer, TriggerType triggerType)
+        private TimerTargetInfo GetTargetInfo(ParsedLogEntry log, Timer sourceTimer, TriggerType triggerType, Entity currentTarget)
         {
             if (triggerType == TriggerType.None && log.Effect.EffectType != EffectType.ModifyCharges)
                 return new TimerTargetInfo();
-            Entity playerTarget =
-                CombatLogStateBuilder.CurrentState.GetLocalPlayerTargetAtTime(log.TimeStamp).Entity;
             if (sourceTimer.TriggerType == TimerKeyType.AbsorbShield)
             {
                 return new TimerTargetInfo()
@@ -359,7 +355,7 @@ namespace SWTORCombatParser.Model.Timers
 
             if (sourceTimer.TriggerType == TimerKeyType.NewEntitySpawn && triggerType == TriggerType.Start)
             {
-                var newEntityInfo = TriggerDetection.GetTargetId(log, SourceTimer.Source,playerTarget);
+                var newEntityInfo = TriggerDetection.GetTargetId(log, SourceTimer.Source, currentTarget);
                 return new TimerTargetInfo()
                 {
                     Name = newEntityInfo.Name,
@@ -369,7 +365,7 @@ namespace SWTORCombatParser.Model.Timers
             if (sourceTimer.TriggerType == TimerKeyType.EntityHP && triggerType != TriggerType.None)
             {
                 var hpTargetInfo = TriggerDetection.GetTargetId(log, SourceTimer.Target,
-                    playerTarget);
+                    currentTarget);
                 return new TimerTargetInfo()
                 {
                     Name = hpTargetInfo.Name,
@@ -378,7 +374,7 @@ namespace SWTORCombatParser.Model.Timers
             }
             if ((triggerType == TriggerType.Refresh && SourceTimer.CanBeRefreshed) || (triggerType == TriggerType.Start && (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or)))
             {
-                var currentTarget =
+                var sourceTarget =
                     CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp).Entity;
                 return new TimerTargetInfo()
                 {

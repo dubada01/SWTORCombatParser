@@ -57,9 +57,9 @@ namespace SWTORCombatParser.Model.CombatParsing
                 var allLogs = damageLogs[target];
                 var logsForTarget = damageLogs[target];
                 var uniqueAbilities = logsForTarget.Select(d => d.Ability).Distinct();
-                var averageDamageFromAbility = uniqueAbilities.ToDictionary(a => a, a => allLogs.Where(l => l.Ability == a).Select(v => v.Value.EffectiveDblValue).Average());
+                var averageDamageFromAbility = uniqueAbilities.ToDictionary(a => a, a => allLogs.Where(l => l.Ability == a).Select(v => v.Value.MitigatedDblValue).Average());
                 var cooldownsForTarget = modifiers
-                    .Where(m => _tankCooldowns.Contains(m.Value.First().Value.EffectName))
+                    .Where(m => m.Value.Any() && _tankCooldowns.Contains(m.Value.First().Value.EffectName))
                     .SelectMany(kvp => kvp.Value)
                     .Where(mod => mod.Value.Target == target)
                     .Select(kvp => kvp.Value).ToList();
@@ -73,16 +73,16 @@ namespace SWTORCombatParser.Model.CombatParsing
                     if(cooldownsForTarget.Any(cd => cd.StartTime <= ability.TimeStamp && (cd.StopTime > ability.TimeStamp || cd.StopTime == DateTime.MinValue)))
                     {
                         if (!damageTakenDuringCooldowns.ContainsKey(ability.Ability))
-                            damageTakenDuringCooldowns[ability.Ability] = new List<double> { ability.Value.EffectiveDblValue };
+                            damageTakenDuringCooldowns[ability.Ability] = new List<double> { ability.Value.MitigatedDblValue };
                         else
-                            damageTakenDuringCooldowns[ability.Ability].Add(ability.Value.EffectiveDblValue);
+                            damageTakenDuringCooldowns[ability.Ability].Add(ability.Value.MitigatedDblValue);
                     }
                     else
                     {
                         if (!damageTakenOutsideOfCooldowns.ContainsKey(ability.Ability))
-                            damageTakenOutsideOfCooldowns[ability.Ability] = new List<double> { ability.Value.EffectiveDblValue };
+                            damageTakenOutsideOfCooldowns[ability.Ability] = new List<double> { ability.Value.MitigatedDblValue };
                         else
-                            damageTakenOutsideOfCooldowns[ability.Ability].Add(ability.Value.EffectiveDblValue);
+                            damageTakenOutsideOfCooldowns[ability.Ability].Add(ability.Value.MitigatedDblValue);
                     }
                 }
                 var fun = damageTakenDuringCooldowns.ToDictionary(kvp => kvp.Key, kvp => (damageTakenOutsideOfCooldowns.ContainsKey(kvp.Key) ? damageTakenOutsideOfCooldowns[kvp.Key].Count > 2 && kvp.Value.Count >2 ? Math.Max(0, (damageTakenOutsideOfCooldowns[kvp.Key].Average() - kvp.Value.Average())) :0: 0));

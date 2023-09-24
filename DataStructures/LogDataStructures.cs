@@ -180,6 +180,7 @@ namespace SWTORCombatParser.DataStructures
     {
         public double DblValue;
         public double EffectiveDblValue;
+        public double MitigatedDblValue;
         public string StrValue;
         public string DisplayValue { get; set; }
         public string ModifierDisplayValue { get; set; }

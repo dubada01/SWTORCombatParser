@@ -110,7 +110,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             OnPropertyChanged("MitigationContent");
 
             SetAvailableEncounters();
-            PostgresConnection.LeaderboardUpdated += SetAvailableEncounters;
+            //PostgresConnection.LeaderboardUpdated += SetAvailableEncounters;
             LeaderboardVersion = $"leaderboard v" + Leaderboards._leaderboardVersion;
         }
         private async void SetAvailableEncounters()

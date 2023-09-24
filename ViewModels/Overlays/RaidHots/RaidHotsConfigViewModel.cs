@@ -31,11 +31,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private string _unEditText = "Lock Raid Frame";
         private string toggleEditText;
         private string _currentCharacter = "no character";
-        private bool _shouldCheckForRaidFrame;
-        private bool _raidFramePresentAndChanged;
-        private bool _waitingForUpdate;
-        private bool _liveParseActive;
-        private bool _outOfCombatDetecting;
         private bool _decreasedSpecificity;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -141,14 +136,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 if (raidHotsEnabled)
                 {
                     _currentOverlay.Show();
-                    if (_liveParseActive)
-                    {
-                        PollForRaidFramePresence();
-                    }
                 }
                 else
                 {
-                    _shouldCheckForRaidFrame = false;
                     _currentOverlay.Hide();
                     _currentOverlayViewModel.CurrentNames.Clear();
                 }
@@ -193,53 +183,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 });
             });
         }
-        private void PollForRaidFramePresence()
-        {            
-            if (_shouldCheckForRaidFrame || !RaidHotsEnabled)
-            {
-                return;
-            }
-            _shouldCheckForRaidFrame = true;
-            Task.Run(() =>
-            {
-                Thread.Sleep(500);
-                while (_shouldCheckForRaidFrame)
-                {
-                    if (CombatDetector.InCombat)
-                    {
-                        Thread.Sleep(100);
-                        continue;
-                    }
-
-                    using (var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmap(
-                               _currentOverlayViewModel.TopLeft, _currentOverlayViewModel.Width,
-                               _currentOverlayViewModel.Height))
-                    {
-                        RaidFrameScreenGrab.UpdateCellNamePixels(_currentOverlayViewModel, raidFrameBitmap);
-
-                        var redPixelAverage = RaidFrameScreenGrab.GetRatioOfRedPixels(raidFrameBitmap);
-                        if (redPixelAverage > 0.15 &&
-                            _currentOverlayViewModel.RaidHotCells.Any(c => c.NameJustChanged && !string.IsNullOrEmpty(c.Name)))
-                        {
-                            _currentOverlayViewModel.RaidHotCells.ForEach(c => c.NameJustChanged = false);
-                            AutoDetection();
-                            Thread.Sleep(5000);
-                        }
-
-                        else
-                        {
-                            if (redPixelAverage < 0.05 && !CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(DateTime.Now).IsBossEncounter) //check to verify that you're not in a raid phase
-                            {
-                                //_currentOverlayViewModel.Reset();
-                            }
-                            Thread.Sleep(1000);
-                        }
-
-                    }
-                }
-            });
-
-        }
 
         internal void ToggleLock(bool overlaysLocked)
         {
@@ -280,20 +223,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 return;
             _currentCharacter = arg1.Name + "/" + arg2.Discipline;
             UpdateVisualsBasedOnRole(arg2);
-        }
-
-        internal void LiveParseActive(bool state)
-        {
-            _liveParseActive = state;
-            if (RaidHotsEnabled && state)
-            {
-                PollForRaidFramePresence();
-            }
-
-            if (!_liveParseActive)
-            {
-                _shouldCheckForRaidFrame = false;
-            }
         }
     }
 }

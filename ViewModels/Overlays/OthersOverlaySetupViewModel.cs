@@ -69,11 +69,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
         }
 
-        internal void UpdateLiveParse(bool state)
-        {
-            _raidHotsConfigViewModel.LiveParseActive(state);
-        }
-
         internal void HideAll()
         {
             _raidHotsConfigViewModel.HideRaidHots();

@@ -92,7 +92,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 _inCombat = true;
                 if (_conversationActive)
                 {
-                    _view.Show();
+                    App.Current.Dispatcher.Invoke(() => {
+                        _view.Show();
+                    });
+
                     _conversationActive = false;
                 }
             }
@@ -120,22 +123,48 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             var cellX = (int)(xFract * columns);
             var cellY = (int)(yFract * rows);
-            DateTime clickedTime = DateTime.Now;
+            DateTime clickedTime = TimeUtility.CorrectedTime;
             lock (_cellClickLock)
             {
-                if (_mostRecentlyClickedCell.Any())
+                var clickedPoint = new Point(cellX, cellY);
+                var cellClicked = RaidHotCells.FirstOrDefault(n => n.Row == clickedPoint.Y && n.Column == clickedPoint.X);
+                if(cellClicked != null)
+                    cellClicked.Name = "Updating...";
+                _mostRecentlyClickedCell[clickedTime] = clickedPoint;
+                Task.Run(() => {
+                    TryRemoveUpdatingNames();
+                });
+
+            }
+        }
+        private bool tryingToRemoveUpdates = false;
+        private void TryRemoveUpdatingNames()
+        {
+            if (tryingToRemoveUpdates)
+                return;
+            tryingToRemoveUpdates = true;
+            while (true)
+            {
+                lock (_cellClickLock)
                 {
+                    if (!_mostRecentlyClickedCell.Any())
+                        break;
                     var previousClickTimes = _mostRecentlyClickedCell.Keys.ToList();
                     foreach (var clickTime in previousClickTimes)
                     {
-                        if ((DateTime.Now - clickTime).TotalSeconds > 2.5)
+                        if ((TimeUtility.CorrectedTime - clickTime).TotalSeconds > 4)
                         {
+                            var toBeRemoved = _mostRecentlyClickedCell[clickTime];
                             _mostRecentlyClickedCell.Remove(clickTime);
+                            var expiredCell = RaidHotCells.FirstOrDefault(n => n.Row == toBeRemoved.Y && n.Column == toBeRemoved.X);
+                            if (expiredCell != null)
+                                expiredCell.Name = "";
                         }
                     }
                 }
-                _mostRecentlyClickedCell[clickedTime] = new Point(cellX, cellY);
+                Thread.Sleep(500);
             }
+            tryingToRemoveUpdates = false;
         }
         private void CheckForTargetChanged(ParsedLogEntry obj)
         {
@@ -148,14 +177,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                         ResetCellPreviouslyTargeted();
                         if (obj.Effect.EffectId == _7_0LogParsing.TargetSetId)
                         {
-
                             var cellToUpdate = GetCellThatMatchesName(obj.Target.Name);
                             if (cellToUpdate == null)
                                 return;
                             cellToUpdate.IsTargeted = true;
                             cellToUpdate.TargetedBy = bossId;
                         }
-
                     }
                 }
             }
@@ -172,11 +199,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 return; 
             }
             var oldestUnhandledCell = new Point();
+            var oldestClickedCellTime = new DateTime();
             lock (_cellClickLock)
             {
                 if (!_mostRecentlyClickedCell.Any())
                     return;
                 oldestUnhandledCell = _mostRecentlyClickedCell.MinBy(d => d.Key).Value;
+                oldestClickedCellTime = _mostRecentlyClickedCell.MinBy(d => d.Key).Key;
+                Debug.WriteLine($"Clicked At: {oldestClickedCellTime}   with Target Change at: {obj.TimeStamp}");
+                if (oldestClickedCellTime.AddSeconds(-1) > obj.TimeStamp)
+                    return;
                 _mostRecentlyClickedCell.Remove(_mostRecentlyClickedCell.MinBy(d => d.Key).Key);
             }
             var cellClicked = CurrentNames.FirstOrDefault(n => n.Row == oldestUnhandledCell.Y && n.Column == oldestUnhandledCell.X);
@@ -186,13 +218,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 {
                     return;
                 }
+                var frameToUpdate = RaidHotCells.FirstOrDefault(n => n.Row == oldestUnhandledCell.Y && n.Column == oldestUnhandledCell.X);
+                frameToUpdate.Name = obj.Target.Name.ToUpper();
                 cellClicked.Name = obj.Target.Name;
             }
             else
             {
+                var frameToUpdate = RaidHotCells.FirstOrDefault(n => n.Row == oldestUnhandledCell.Y && n.Column == oldestUnhandledCell.X);
+                frameToUpdate.Name = obj.Target.Name.ToUpper();
                 CurrentNames.Add(new PlacedName { Column = (int)oldestUnhandledCell.X, Row = (int)oldestUnhandledCell.Y, Name = obj.Target.Name });
             }
-            UpdateCells();
+            //UpdateCells();
         }
 
         private void CheckForConversation(ParsedLogEntry obj)

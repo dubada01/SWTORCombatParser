@@ -210,7 +210,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 case PlotType.SheildedDamageTaken:
                     return combatToPlot.ShieldingProvidedLogs[selectedParticipant];
                 case PlotType.HPPercent:
-                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant);
+                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant).ToList();
 
             }
             return null;
