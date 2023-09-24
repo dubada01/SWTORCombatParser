@@ -1,10 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.Challenge
 {
@@ -18,17 +14,17 @@ namespace SWTORCombatParser.Model.Challenge
             {
                 case ChallengeType.DamageIn:
                     value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value.ToLower() == "any" ?
-                        
+
                          combat.GetDamageFromEntityByPlayer(activeChallenge.ChallengeSource, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds)
                          :
-                        string.IsNullOrEmpty(activeChallenge.ChallengeSource) || activeChallenge.ChallengeSource.ToLower() == "any" ? combat.GetDamageIncomingByAbilityForPlayer(activeChallenge.Value, participant)/(activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
-                        combat.GetDamageFromEntityByAbilityForPlayer(activeChallenge.Value,activeChallenge.ChallengeSource,participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds);
+                        string.IsNullOrEmpty(activeChallenge.ChallengeSource) || activeChallenge.ChallengeSource.ToLower() == "any" ? combat.GetDamageIncomingByAbilityForPlayer(activeChallenge.Value, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
+                        combat.GetDamageFromEntityByAbilityForPlayer(activeChallenge.Value, activeChallenge.ChallengeSource, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds);
                     break;
                 case ChallengeType.DamageOut:
                     value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value.ToLower() == "any" ?
                         combat.GetDamageToEntityByPlayer(activeChallenge.ChallengeTarget, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
                         string.IsNullOrEmpty(activeChallenge.ChallengeTarget) || activeChallenge.ChallengeTarget.ToLower() == "any" ?
-                        combat.GetDamageOutgoingByAbilityForPlayer(activeChallenge.Value,participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
+                        combat.GetDamageOutgoingByAbilityForPlayer(activeChallenge.Value, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
                         combat.GetDamageToEntityByAbilityForPlayer(activeChallenge.Value, activeChallenge.ChallengeTarget, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds);
                     break;
                 case ChallengeType.InterruptCount:
@@ -38,7 +34,7 @@ namespace SWTORCombatParser.Model.Challenge
                     value = combat.GetLogsInvolvingEntity(participant).Where(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (l.Ability == activeChallenge.Value || l.AbilityId == activeChallenge.Value)).Count();
                     break;
                 case ChallengeType.EffectStacks:
-                    value = activeChallenge.UseMaxValue ? combat.GetMaxEffectStacks(activeChallenge.Value,participant) : combat.GetCurrentEffectStacks(activeChallenge.Value,participant);
+                    value = activeChallenge.UseMaxValue ? combat.GetMaxEffectStacks(activeChallenge.Value, participant) : combat.GetCurrentEffectStacks(activeChallenge.Value, participant);
                     break;
                 case ChallengeType.MetricDuringPhase:
                     value = 0; //TO BE IMPLEMENTED AFTER PHASES

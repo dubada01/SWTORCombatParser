@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures.ClassInfos;
+using System;
 using System.Globalization;
 using System.Windows.Data;
-using SWTORCombatParser.DataStructures.ClassInfos;
 
 namespace SWTORCombatParser.Utilities.Converters
 {

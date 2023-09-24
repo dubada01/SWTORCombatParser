@@ -233,7 +233,7 @@ namespace SWTORCombatParser.Utilities
                 this.FlowDirection,
                 new Typeface(this.FontFamily, this.FontStyle, this.FontWeight, FontStretches.Normal),
                 this.FontSize,
-                Brushes.Black,VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                Brushes.Black, VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
             this.UpdateFormattedText();
         }

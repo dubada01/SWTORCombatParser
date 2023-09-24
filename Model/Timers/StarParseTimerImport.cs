@@ -1,8 +1,6 @@
-﻿using Microsoft.VisualBasic.ApplicationServices;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -44,7 +42,7 @@ namespace SWTORCombatParser.Model.Timers
     public class Cancel
     {
         public string Type { get; set; }
-        public string Timer { get; set; } 
+        public string Timer { get; set; }
     }
     public class Trigger
     {
@@ -81,7 +79,7 @@ namespace SWTORCombatParser.Model.Timers
             {
                 timers = (SPTimersContainer)xs.Deserialize(reader);
             }
-            return timers.Items.First().comixalestarparsedomainConfigTimer.Where(sp=>sp.trigger != null).Select(v=>ConvertTimer(v)).ToList();
+            return timers.Items.First().comixalestarparsedomainConfigTimer.Where(sp => sp.trigger != null).Select(v => ConvertTimer(v)).ToList();
         }
         public static Timer ConvertTimer(SPTimer spTimer)
         {
@@ -93,10 +91,10 @@ namespace SWTORCombatParser.Model.Timers
                 Id = Guid.NewGuid().ToString(),
                 Source = trigger.source == "@Self" ? "LocalPlayer" : trigger.source,
                 Target = trigger.target == "@Self" ? "LocalPlayer" : trigger.target,
-                Effect = string.IsNullOrEmpty(trigger.effectGuid)? trigger.effect : trigger.effectGuid,
+                Effect = string.IsNullOrEmpty(trigger.effectGuid) ? trigger.effect : trigger.effectGuid,
                 Ability = string.IsNullOrEmpty(trigger.abilityGuid) ? trigger.ability : trigger.abilityGuid,
-                TimerColor = string.IsNullOrEmpty(spTimer.color) ? Colors.Red : (Color)ColorConverter.ConvertFromString("#"+spTimer.color.Split('x')[1]),
-                DurationSec =string.IsNullOrEmpty(spTimer.interval) ? double.Parse(spTimer.countdownCount) : double.Parse(spTimer.interval),
+                TimerColor = string.IsNullOrEmpty(spTimer.color) ? Colors.Red : (Color)ColorConverter.ConvertFromString("#" + spTimer.color.Split('x')[1]),
+                DurationSec = string.IsNullOrEmpty(spTimer.interval) ? double.Parse(spTimer.countdownCount) : double.Parse(spTimer.interval),
                 SpecificBoss = trigger.boss,
                 IsImportedFromSP = true,
                 TimerSource = "StarParse Import"

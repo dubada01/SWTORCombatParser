@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace SWTORCombatParser.DataStructures.EncounterInfo
@@ -19,21 +18,25 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         private List<string> targetsRequiredForKill = new List<string>();
         private string encounterName;
         public bool IsOpenWorld { get; set; }
-        public string EncounterName { get => encounterName; set 
+        public string EncounterName
+        {
+            get => encounterName; set
             {
                 IsOpenWorld = value.Contains("Open World");
-                encounterName = value; 
+                encounterName = value;
             }
         }
         public List<string> TargetIds { get; set; } = new List<string>();
-        public List<string> TargetsRequiredForKill { 
-            get 
+        public List<string> TargetsRequiredForKill
+        {
+            get
             {
                 if (!targetsRequiredForKill.Any())
                     return TargetIds;
                 return targetsRequiredForKill;
-            } 
-            set => targetsRequiredForKill = value; }
+            }
+            set => targetsRequiredForKill = value;
+        }
     }
 
     public class MapInfo
@@ -64,7 +67,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 EncounterType = source.EncounterType,
                 BossInfos = source.BossInfos,
                 MapInfo = source.MapInfo,
-                RequiredIdsForKill= source.RequiredIdsForKill,
+                RequiredIdsForKill = source.RequiredIdsForKill,
 
             };
         }
@@ -95,9 +98,13 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         public bool IsOpenWorld { get; set; }
         public string LogId { get; set; }
         public string NamePlus => GetNamePlus();
-        public string Name { get => name; set {
+        public string Name
+        {
+            get => name; set
+            {
                 IsOpenWorld = value.Contains("Open World");
-                name = value; } 
+                name = value;
+            }
         }
         public MapInfo MapInfo { get; set; }
         public List<string> BossNames

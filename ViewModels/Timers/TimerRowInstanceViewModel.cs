@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class TimerRowInstanceViewModel:INotifyPropertyChanged
+    public class TimerRowInstanceViewModel : INotifyPropertyChanged
     {
         private bool _isEnabled;
         private SolidColorBrush _rowBackground;
@@ -52,8 +52,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void ToggleAudio(object obj)
         {
-            SourceTimer.UseAudio= !SourceTimer.UseAudio;
-            DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio,SourceTimer);
+            SourceTimer.UseAudio = !SourceTimer.UseAudio;
+            DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
             TimerController.RefreshAvailableTimers();
             OnPropertyChanged("AudioImageSource");
         }
@@ -97,14 +97,14 @@ namespace SWTORCombatParser.ViewModels.Timers
         internal void SetAudio(bool muted)
         {
             if (muted)
-            { 
+            {
                 SourceTimer.UseAudio = !muted;
             }
             else
             {
                 SourceTimer.UseAudio = !string.IsNullOrEmpty(SourceTimer.CustomAudioPath);
             }
-            
+
             OnPropertyChanged("AudioImageSource");
         }
 

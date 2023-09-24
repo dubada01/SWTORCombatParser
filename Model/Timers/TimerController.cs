@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Documents;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers;
@@ -32,9 +29,9 @@ public static class TimerController
     private static List<IDisposable> _showTimerSubs = new List<IDisposable>();
     private static List<IDisposable> _hideTimerSubs = new List<IDisposable>();
     private static List<IDisposable> _reorderSubs = new List<IDisposable>();
-    public static event Action<TimerInstanceViewModel,Action<TimerInstanceViewModel>> TimerExpired = delegate { };
-    public static event Action<TimerInstanceViewModel,Action<TimerInstanceViewModel>> TimerTriggered = delegate { };
-    public static event Action ReorderRequested = delegate {  };
+    public static event Action<TimerInstanceViewModel, Action<TimerInstanceViewModel>> TimerExpired = delegate { };
+    public static event Action<TimerInstanceViewModel, Action<TimerInstanceViewModel>> TimerTriggered = delegate { };
+    public static event Action ReorderRequested = delegate { };
     public static void Init()
     {
         CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
@@ -53,15 +50,15 @@ public static class TimerController
     }
     private static void TrySetEncounter(EncounterInfo obj)
     {
-        if(obj != _currentEncounter)
+        if (obj != _currentEncounter)
         {
             _currentEncounter = obj;
             FilterTimers();
         }
     }
-    private static void TrySetBoss((string,string,string) bossinfo)
+    private static void TrySetBoss((string, string, string) bossinfo)
     {
-        if(bossinfo != _currentBoss && !string.IsNullOrEmpty(bossinfo.Item1))
+        if (bossinfo != _currentBoss && !string.IsNullOrEmpty(bossinfo.Item1))
         {
             _currentBoss = bossinfo;
             FilterTimers();
@@ -70,7 +67,7 @@ public static class TimerController
     private static bool CheckEncounterAndBoss(TimerInstance t)
     {
         var timerEncounter = t.SourceTimer.SpecificEncounter;
-        if(_currentEncounter.Name != timerEncounter)
+        if (_currentEncounter.Name != timerEncounter)
             return false;
         var supportedDifficulties = new List<string>();
         if (t.SourceTimer.ActiveForStory)
@@ -92,7 +89,7 @@ public static class TimerController
     }
     private static void FilterTimers()
     {
-        if(Monitor.TryEnter(_timerLock,100))
+        if (Monitor.TryEnter(_timerLock, 100))
         {
             try
             {
@@ -128,9 +125,9 @@ public static class TimerController
     public static void RefreshAvailableTimers()
     {
         _expirationTimers.Clear();
-        _hideTimerSubs.ForEach(s=>s.Dispose());
-        _showTimerSubs.ForEach(s=>s.Dispose());
-        _reorderSubs.ForEach(s=>s.Dispose());
+        _hideTimerSubs.ForEach(s => s.Dispose());
+        _showTimerSubs.ForEach(s => s.Dispose());
+        _reorderSubs.ForEach(s => s.Dispose());
         var allDefaults = DefaultTimersManager.GetAllDefaults();
         var timers = allDefaults.SelectMany(t => t.Timers);
 
@@ -138,8 +135,8 @@ public static class TimerController
         GetAllSubTimers(ref secondaryTimers, timers.ToList());
         var distinctTimers = secondaryTimers.DistinctBy(t => t.Id);
 
-       
-       _availableTimers = distinctTimers.Where(t=>t.IsEnabled).Select(t => new TimerInstance(t.Copy())).ToList();
+
+        _availableTimers = distinctTimers.Where(t => t.IsEnabled).Select(t => new TimerInstance(t.Copy())).ToList();
         foreach (var timerInstance in _availableTimers)
         {
             if (timerInstance.SourceTimer.IsSubTimer)
@@ -151,7 +148,7 @@ public static class TimerController
                 }
                 else
                 {
-                    Logging.LogInfo("Parent timer not found for: "+JsonConvert.SerializeObject(timerInstance));
+                    Logging.LogInfo("Parent timer not found for: " + JsonConvert.SerializeObject(timerInstance));
                 }
             }
             if (!string.IsNullOrEmpty(timerInstance.ExperiationTimerId))
@@ -164,10 +161,10 @@ public static class TimerController
                 }
                 else
                 {
-                    Logging.LogInfo("Expiration timer not found for: "+JsonConvert.SerializeObject(timerInstance));
+                    Logging.LogInfo("Expiration timer not found for: " + JsonConvert.SerializeObject(timerInstance));
                 }
             }
-            if (!string.IsNullOrEmpty(timerInstance.CancellationTimerId)) 
+            if (!string.IsNullOrEmpty(timerInstance.CancellationTimerId))
             {
                 var cancelTrigger = _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.CancellationTimerId);
                 if (cancelTrigger != null)
@@ -176,22 +173,22 @@ public static class TimerController
                 }
                 else
                 {
-                    Logging.LogInfo("Cancel timer not found for: "+JsonConvert.SerializeObject(timerInstance));
+                    Logging.LogInfo("Cancel timer not found for: " + JsonConvert.SerializeObject(timerInstance));
                 }
             }
         }
 
-        _hideTimerSubs = _availableTimers.Select(t => Observable.FromEvent<Action<TimerInstanceViewModel,bool>,Tuple<TimerInstanceViewModel,bool>>(
-            onNextHandler =>(p1, p2) => onNextHandler(Tuple.Create(p1,p2)),
+        _hideTimerSubs = _availableTimers.Select(t => Observable.FromEvent<Action<TimerInstanceViewModel, bool>, Tuple<TimerInstanceViewModel, bool>>(
+            onNextHandler => (p1, p2) => onNextHandler(Tuple.Create(p1, p2)),
             manager => t.TimerOfTypeExpired += manager,
             manager => t.TimerOfTypeExpired -= manager
-        ).Subscribe(args=>OnTimerExpired(args.Item1,args.Item2))).ToList();
+        ).Subscribe(args => OnTimerExpired(args.Item1, args.Item2))).ToList();
         _showTimerSubs = _availableTimers.Select(t =>
             Observable.FromEvent<TimerInstanceViewModel>(handler => t.NewTimerInstance += handler,
                 handler => t.NewTimerInstance -= handler).Subscribe(AddTimerVisual)).ToList();
         _reorderSubs = _availableTimers.Select(t =>
             Observable.FromEvent(handler => t.ReorderRequested += handler,
-                handler => t.ReorderRequested -= handler).Throttle(TimeSpan.FromMilliseconds(250)).Subscribe(_=>ReorderRequest())).ToList();
+                handler => t.ReorderRequested -= handler).Throttle(TimeSpan.FromMilliseconds(250)).Subscribe(_ => ReorderRequest())).ToList();
         FilterTimers();
     }
 
@@ -240,7 +237,7 @@ public static class TimerController
         if (t.SourceTimer.IsSubTimer)
             TimerAddedCallback(t);
         else
-            TimerTriggered(t,TimerAddedCallback);
+            TimerTriggered(t, TimerAddedCallback);
     }
 
     private static object _currentTimersModLock = new object();
@@ -274,7 +271,7 @@ public static class TimerController
                 }
             }
         }
-        TimerExpired(t,TimerRemovedCallback);
+        TimerExpired(t, TimerRemovedCallback);
     }
     private static void TimerRemovedCallback(TimerInstanceViewModel removedTimer)
     {
@@ -315,7 +312,7 @@ public static class TimerController
             VariableManager.ResetVariables();
             _startTime = obj.CombatStartTime;
             UncancellBeforeCombat();
-            _currentDiscipline =  CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(obj.CombatStartTime).Discipline;
+            _currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(obj.CombatStartTime).Discipline;
         }
         if (obj.Type == UpdateType.Stop)
         {
@@ -332,7 +329,7 @@ public static class TimerController
     }
     private static void CancelAfterCombat()
     {
-        foreach (var timer in _filteredTimers.Where(t=>!t.SourceTimer.TrackOutsideOfCombat))
+        foreach (var timer in _filteredTimers.Where(t => !t.SourceTimer.TrackOutsideOfCombat))
         {
             timer.Cancel();
         }
@@ -341,6 +338,6 @@ public static class TimerController
     internal static void TryTriggerTimer(CombatModifier combatModifier)
     {
         var timer = _filteredTimers.First(t => t.SourceTimer.Effect == combatModifier.EffectId);
-        timer.CreateTimerInstance(combatModifier.StartTime, combatModifier.Target.Name, combatModifier.Target.Id,combatModifier.ChargesAtTime.MaxBy(t=>t.Key).Value);
+        timer.CreateTimerInstance(combatModifier.StartTime, combatModifier.Target.Name, combatModifier.Target.Id, combatModifier.ChargesAtTime.MaxBy(t => t.Key).Value);
     }
 }

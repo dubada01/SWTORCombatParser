@@ -1,12 +1,12 @@
-﻿using System;
+﻿using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.ViewModels.Overlays.Room;
+using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Overlays.Room;
 
 namespace SWTORCombatParser.Views.Overlay.Room
 {
@@ -56,7 +56,8 @@ namespace SWTORCombatParser.Views.Overlay.Room
         {
             if (!_loaded)
                 return;
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
@@ -77,7 +78,8 @@ namespace SWTORCombatParser.Views.Overlay.Room
         }
         private void CloseOverlay()
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 Hide();
             });
 
@@ -135,18 +137,19 @@ namespace SWTORCombatParser.Views.Overlay.Room
 
         internal void DrawCharacter(double xFraction, double yFraction, double facing)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 var imageLocation = GetBoundingBox(RoomImage, ReferenceInfo);
                 Point characterLocation = new Point((imageLocation.Width * xFraction) + imageLocation.X, (imageLocation.Height * yFraction) + imageLocation.Y);
                 CharImage.Height = imageLocation.Width * 0.1;
                 CharImage.Width = imageLocation.Width * 0.1;
-                Canvas.SetLeft(CharImage, characterLocation.X - (CharImage.Width/2));
-                Canvas.SetTop(CharImage, characterLocation.Y - (CharImage.Height/2));
+                Canvas.SetLeft(CharImage, characterLocation.X - (CharImage.Width / 2));
+                Canvas.SetTop(CharImage, characterLocation.Y - (CharImage.Height / 2));
 
                 var Rotation = new RotateTransform(90, imageLocation.Width / 2, imageLocation.Height / 2);
                 ReferenceInfo.RenderTransform = Rotation;
 
-                var rotationTransform = new RotateTransform(facing*-1, CharImage.Width/2 , CharImage.Height/2);
+                var rotationTransform = new RotateTransform(facing * -1, CharImage.Width / 2, CharImage.Height / 2);
                 CharImage.RenderTransform = rotationTransform;
             });
 

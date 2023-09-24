@@ -1,9 +1,7 @@
 ﻿using SWTORCombatParser.ViewModels.Timers;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -79,7 +77,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 RaidHotsOnPlayer.Clear();
                 DCDSOnPlayer.Clear();
             });
-            IsTargeted= false;
+            IsTargeted = false;
             TargetedBy = 0;
             NameJustChanged = true;
             StaticPixelChanges.Clear();
@@ -159,7 +157,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         public RaidHotCell(int columnCount)
         {
-            Columns= columnCount;
+            Columns = columnCount;
         }
         public ObservableCollection<TimerInstanceViewModel> RaidHotsOnPlayer { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
 
@@ -184,7 +182,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             Application.Current.Dispatcher.Invoke(() =>
             {
                 var currentHots = RaidHotsOnPlayer.OrderBy(t => t.TimerValue);
-                RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentHots.Where(h=>h.TimerValue > 0));
+                RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentHots.Where(h => h.TimerValue > 0));
                 var currentDcds = DCDSOnPlayer.OrderBy(t => t.TimerValue);
                 DCDSOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentDcds.Where(h => h.TimerValue > 0));
                 OnPropertyChanged("RaidHotsOnPlayer");

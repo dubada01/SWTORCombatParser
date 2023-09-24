@@ -1,6 +1,4 @@
 using NUnit.Framework;
-using SWTORCombatParser;
-using System.IO;
 using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser_Test
@@ -12,7 +10,7 @@ namespace SWTORCombatParser_Test
         public void TestLoadCombatLogs()
         {
             var allCombatLogs = CombatLogLoader.LoadAllCombatLogs();
-            if (allCombatLogs.Length > 0 && allCombatLogs[0].Time > allCombatLogs[allCombatLogs.Length-1].Time)
+            if (allCombatLogs.Length > 0 && allCombatLogs[0].Time > allCombatLogs[allCombatLogs.Length - 1].Time)
                 Assert.Pass();
             else
                 Assert.Fail();
@@ -22,7 +20,7 @@ namespace SWTORCombatParser_Test
         {
             var allCombatLogs = CombatLogLoader.LoadAllCombatLogs();
             var mostRecentLog = CombatLogLoader.LoadMostRecentLog();
-            if (mostRecentLog!=null && mostRecentLog.Time == allCombatLogs[0].Time)
+            if (mostRecentLog != null && mostRecentLog.Time == allCombatLogs[0].Time)
                 Assert.Pass();
             else
                 Assert.Fail();

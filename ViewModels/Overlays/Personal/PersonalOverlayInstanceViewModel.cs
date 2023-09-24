@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Personal
@@ -49,7 +47,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                     shouldUpdate = true;
                 }
                 selectedMetric = value;
-                if(SelectedMetric != OverlayType.CustomVariable)
+                if (SelectedMetric != OverlayType.CustomVariable)
                 {
                     SelectedVariable = "";
                 }
@@ -104,7 +102,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                 OnPropertyChanged();
             }
         }
-        public CellInfo CurrentCellInfo => new CellInfo { CellType = selectedMetric, CustomVariable= selectedVariable };
+        public CellInfo CurrentCellInfo => new CellInfo { CellType = selectedMetric, CustomVariable = selectedVariable };
         public string MetricValue => metricValue.ToString("N0");
 
         public PersonalOverlayInstanceViewModel(bool currentlyUnlocked, double scalar, CellInfo overlay = null)
@@ -125,7 +123,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
 
         private void CheckCombatState(CombatStatusUpdate obj)
         {
-            if(obj.Type == UpdateType.Start)
+            if (obj.Type == UpdateType.Start)
             {
                 metricValue = 0;
                 OnPropertyChanged("MetricValue");
@@ -153,7 +151,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             if (string.IsNullOrEmpty(SelectedVariable))
             {
                 UpdateMetricNumber();
-            }               
+            }
         }
 
         private void UpdateMetricVariable()

@@ -14,7 +14,7 @@ namespace SWTORCombatParser.DataStructures.ClassInfos
         Unknown,
         DPS,
         Tank,
-        Healer   
+        Healer
     }
     public class SWTORClass
     {

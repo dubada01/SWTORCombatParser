@@ -1,16 +1,12 @@
-﻿using ScottPlot;
-using ScottPlot.Drawing.Colormaps;
-using SWTORCombatParser.ViewModels.Overlays.RaidHots;
+﻿using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Interop;
 
 namespace SWTORCombatParser.Model.Overlays
@@ -26,16 +22,16 @@ namespace SWTORCombatParser.Model.Overlays
             g.CopyFromScreen(rect.Left, rect.Top, 0, 0, bmp.Size, CopyPixelOperation.SourceCopy);
             return bmp;
         }
-        public static MemoryStream GetRaidFrameBitmapStream(System.Drawing.Point topLeft, int width, int height,int rowsCount)
+        public static MemoryStream GetRaidFrameBitmapStream(System.Drawing.Point topLeft, int width, int height, int rowsCount)
         {
-            CurrentCompressionFactor = Math.Min((300d / height),1f);
+            CurrentCompressionFactor = Math.Min((300d / height), 1f);
             Rectangle rect = new Rectangle(topLeft.X, topLeft.Y, width, height);
             using (Bitmap bmp = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppArgb))
             {
                 using (Graphics g = Graphics.FromImage(bmp))
                 {
                     g.CopyFromScreen(rect.Left, rect.Top, 0, 0, bmp.Size, CopyPixelOperation.SourceCopy);
-                    RemoveOverlayNames(bmp,rowsCount);
+                    RemoveOverlayNames(bmp, rowsCount);
                     return CompressByReducingPixelsToStream(bmp);
                 }
             }
@@ -153,7 +149,7 @@ namespace SWTORCombatParser.Model.Overlays
                     }
                     if (((h > 350 || h < 5) && s > 0.95 && v > 0.66))
                     {
-                        fullRedHPPixelCount[(cellx, celly)]++;     
+                        fullRedHPPixelCount[(cellx, celly)]++;
                     }
                 }
             }
@@ -161,12 +157,12 @@ namespace SWTORCombatParser.Model.Overlays
             raidFrame.UnlockBits(bmpData);
             foreach (var cell in raidViewModel.RaidHotCells)
             {
-                if(fullRedHPPixelCount[(cell.Column, cell.Row)] > 100)
+                if (fullRedHPPixelCount[(cell.Column, cell.Row)] > 100)
                     cell.NamePixelIndicies = namePixelIndicies[(cell.Column, cell.Row)];
             }
         }
 
-        private static Bitmap CreateTestImage(List<int> nameIndicies,Bitmap testImage)
+        private static Bitmap CreateTestImage(List<int> nameIndicies, Bitmap testImage)
         {
             Rectangle rect = new Rectangle(0, 0, testImage.Width, testImage.Height);
             BitmapData bmpData = testImage.LockBits(rect, ImageLockMode.ReadWrite, testImage.PixelFormat);
@@ -190,13 +186,13 @@ namespace SWTORCombatParser.Model.Overlays
                     count++;
                 }
             }
-            Marshal.Copy(rgbValues, 0, bmpData.Scan0,bytes);
+            Marshal.Copy(rgbValues, 0, bmpData.Scan0, bytes);
             testImage.UnlockBits(bmpData);
             return testImage;
         }
         public static double GetRatioOfRedPixels(Bitmap raidFrame)
         {
-            return GetNumberOfPixelsBetweenHue(raidFrame,5,345)/(double)(raidFrame.Width * raidFrame.Height);
+            return GetNumberOfPixelsBetweenHue(raidFrame, 5, 345) / (double)(raidFrame.Width * raidFrame.Height);
         }
         private static int GetNumberOfPixelsBetweenHue(Bitmap image, int maxHue, int minHue)
         {

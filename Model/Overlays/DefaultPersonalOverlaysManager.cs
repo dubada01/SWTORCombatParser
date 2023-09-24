@@ -38,8 +38,8 @@ namespace SWTORCombatParser.Model.Overlays
         }
         public static PersonalOverlaySettings GetSettingsForOwner(string owner)
         {
-            var currentSettings = JsonConvert.DeserializeObject<Dictionary<string,PersonalOverlaySettings>>(File.ReadAllText(infoPath));
-            if(currentSettings.ContainsKey(owner)) return currentSettings[owner];
+            var currentSettings = JsonConvert.DeserializeObject<Dictionary<string, PersonalOverlaySettings>>(File.ReadAllText(infoPath));
+            if (currentSettings.ContainsKey(owner)) return currentSettings[owner];
             return new PersonalOverlaySettings();
         }
         public static void SetSettingsForOwner(string owner, PersonalOverlaySettings settings)

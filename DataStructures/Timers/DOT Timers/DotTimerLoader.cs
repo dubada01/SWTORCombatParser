@@ -17,10 +17,10 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
             var timerToLoad = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@".\DataStructures\Timers\DOT Timers\timers.json"));
             var timers = (timerToLoad["Timers"] as JArray).ToObject<List<Timer>>();
             List<Timer> copiedTimers = new List<Timer>();
-            foreach(var timer in timers)
+            foreach (var timer in timers)
             {
                 timer.IsBuiltInDot = true;
-                timer.ResetOnEffectLoss= true;
+                timer.ResetOnEffectLoss = true;
                 timer.TrackOutsideOfCombat = false;
                 copiedTimers.Add(timer.Copy());
             }

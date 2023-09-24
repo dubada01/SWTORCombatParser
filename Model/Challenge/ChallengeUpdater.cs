@@ -3,16 +3,12 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Timers;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.Challenge
 {
@@ -53,21 +49,22 @@ namespace SWTORCombatParser.Model.Challenge
 
         public void RefreshChallenges()
         {
-            _allChallenges = DefaultChallengeManager.GetAllDefaults().SelectMany(c => c.Challenges).Where(c=>c.IsEnabled).ToList();
+            _allChallenges = DefaultChallengeManager.GetAllDefaults().SelectMany(c => c.Challenges).Where(c => c.IsEnabled).ToList();
         }
         private void CheckForActiveChallenge(ParsedLogEntry obj)
         {
-            foreach(var challenge in _allChallenges)
+            foreach (var challenge in _allChallenges)
             {
-                if(IsLogForChallenge(obj,challenge) && (_currentBossName == challenge.Source.Split('|')[1]))
+                if (IsLogForChallenge(obj, challenge) && (_currentBossName == challenge.Source.Split('|')[1]))
                 {
                     if (!_activeChallenges.Any(c => c.Id == challenge.Id))
-                    { 
+                    {
                         _activeChallenges.Add(challenge);
-                        App.Current.Dispatcher.Invoke(() => {
-                            _challenges.Add(new ChallengeInstanceViewModel(challenge) { Scale = _currentScale});
+                        App.Current.Dispatcher.Invoke(() =>
+                        {
+                            _challenges.Add(new ChallengeInstanceViewModel(challenge) { Scale = _currentScale });
                         });
-                        
+
                     }
                 }
             }
@@ -110,7 +107,7 @@ namespace SWTORCombatParser.Model.Challenge
         {
             _currentBossName = obj.EncounterBossDifficultyParts.Item1;
             ResetChallenges();
-            foreach(var log in obj.AllLogs)
+            foreach (var log in obj.AllLogs)
             {
                 CheckForActiveChallenge(log);
             }
@@ -128,7 +125,7 @@ namespace SWTORCombatParser.Model.Challenge
 
         private void UpdateCombats(Combat obj)
         {
-            _currentCombat= obj;
+            _currentCombat = obj;
             var activeChallenges = _activeChallenges.ToList();
             foreach (var challenge in activeChallenges)
             {

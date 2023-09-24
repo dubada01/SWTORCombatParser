@@ -1,17 +1,12 @@
 ﻿using NUnit.Framework;
-using SWTORCombatParser;
-using SWTORCombatParser.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser_Test
 {
-    
+
     public class TestComabtLogParsing
     {
         private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
@@ -21,15 +16,15 @@ namespace SWTORCombatParser_Test
             var logName = "combat_2021-07-11_19_01_39_463431.txt";
             var testLogPath = "testLog.txt";
             File.Create(testLogPath).Close();
-            
+
 
             TransferLogData(logName, testLogPath);
-            
+
         }
 
         private void TransferLogData(string logName, string testLogPath)
         {
-            var logLines = File.ReadAllLines(Path.Combine(_logPath, logName),new UTF7Encoding());
+            var logLines = File.ReadAllLines(Path.Combine(_logPath, logName), new UTF7Encoding());
             using (var fs = new FileStream(testLogPath, FileMode.Open, FileAccess.Write, FileShare.Read))
             {
                 var logIndex = 0;

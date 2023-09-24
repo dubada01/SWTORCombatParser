@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Prism.Commands;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.LogParsing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Prism.Commands;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -16,12 +16,12 @@ namespace SWTORCombatParser.DataStructures
         private string _targetId;
         private string _abilityId;
         private string _effectId;
-        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName,string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue,double maxValue,double logValue)
+        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue)
         {
-            _sourceId= sourceId;
+            _sourceId = sourceId;
             _targetId = targetId;
-            _abilityId=abilityId;
-            _effectId=effectId;
+            _abilityId = abilityId;
+            _effectId = effectId;
 
             SecondsSinceCombatStart = sec;
             Source = source;
@@ -42,11 +42,11 @@ namespace SWTORCombatParser.DataStructures
             {
                 EffectBackground = Brushes.CornflowerBlue;
             }
-            if(effectId == _7_0LogParsing._damageEffectId)
+            if (effectId == _7_0LogParsing._damageEffectId)
             {
                 EffectBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#613b3b"));
             }
-            if(double.TryParse(value, out var r))
+            if (double.TryParse(value, out var r))
             {
                 ValueBackground = new SolidColorBrush(GetColorForValue(logValue / maxValue));
             }
@@ -102,7 +102,7 @@ namespace SWTORCombatParser.DataStructures
             byte b = (byte)(startColor.B + (endColor.B - startColor.B) * fraction);
 
             // Create a new color object
-            Color selectedColor = Color.FromArgb(a,r, g, b);
+            Color selectedColor = Color.FromArgb(a, r, g, b);
             return selectedColor;
         }
     }
@@ -184,14 +184,14 @@ namespace SWTORCombatParser.DataStructures
         public string StrValue;
         public string DisplayValue { get; set; }
         public string ModifierDisplayValue { get; set; }
-        public string ModifierType { get; set; } 
-        public string AllBuffs => string.Join(',',Buffs.Select(b=>b.Name));
+        public string ModifierType { get; set; }
+        public string AllBuffs => string.Join(',', Buffs.Select(b => b.Name));
         public List<CombatModifier> Buffs { get; set; } = new List<CombatModifier>();
         public List<CombatModifier> DefensiveBuffs { get; set; } = new List<CombatModifier>();
         public string AllDefensiveBuffs => string.Join(',', DefensiveBuffs.Select(db => db.Name));
-        
+
         public DamageType ValueType { get; set; }
-        public string  ValueTypeId { get; set; }
+        public string ValueTypeId { get; set; }
 
         public Value Modifier;
         public bool WasCrit { get; set; }

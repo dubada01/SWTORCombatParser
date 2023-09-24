@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MathNet.Numerics.Statistics;
+﻿using MathNet.Numerics.Statistics;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class CombatMetaDataParse
     {
-        private static readonly List<string> _interruptAbilityIds = new List<string> { "963120646324224","987747988799488", "875086701658112","997020823191552","3433285187272704", "812105301229568","807750204391424","2204391964672000","3029313448312832","3029339218116608","875060931854336" ,"2204499338854400"};
-        private static List<string> stunAbilityIds = new List<string> {"814214130171904","814802540691456","3908961405239296","1962284658196480","808244125630464","807754499358720","958439131971584","807178973741056","1679250608357376","1261925816074240" };
+        private static readonly List<string> _interruptAbilityIds = new List<string> { "963120646324224", "987747988799488", "875086701658112", "997020823191552", "3433285187272704", "812105301229568", "807750204391424", "2204391964672000", "3029313448312832", "3029339218116608", "875060931854336", "2204499338854400" };
+        private static List<string> stunAbilityIds = new List<string> { "814214130171904", "814802540691456", "3908961405239296", "1962284658196480", "808244125630464", "807754499358720", "958439131971584", "807178973741056", "1679250608357376", "1261925816074240" };
 
         private static List<string> abilityIdsThatCanInterrupt => _interruptAbilityIds.Concat(stunAbilityIds).ToList();
         public static void PopulateMetaData(Combat combatToPopulate)
@@ -144,7 +144,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     : combat.IncomingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
             }
 
-            if((combat.DurationSeconds%50)==0 || !combat.HasBurstValues())
+            if ((combat.DurationSeconds % 50) == 0 || !combat.HasBurstValues())
                 combat.SetBurstValues();
 
             var healers = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == Role.Healer);
@@ -159,17 +159,17 @@ namespace SWTORCombatParser.Model.CombatParsing
                 combat.TankDamageRecoveryTimes[healer] = reactionTimesToBigHigsOnTanks;
             }
         }
-        private static Dictionary<Entity, List<double>> CalculateReactionToBigHits(Dictionary<Entity,List<DateTime>> bigHitTimestamps, Dictionary<Entity, List<DateTime>> reactionTimeStamps)
+        private static Dictionary<Entity, List<double>> CalculateReactionToBigHits(Dictionary<Entity, List<DateTime>> bigHitTimestamps, Dictionary<Entity, List<DateTime>> reactionTimeStamps)
         {
             var delays = new Dictionary<Entity, List<double>>();
-            foreach(var target in bigHitTimestamps.Keys.Where(e=>e.IsCharacter))
+            foreach (var target in bigHitTimestamps.Keys.Where(e => e.IsCharacter))
             {
                 if (!delays.ContainsKey(target))
                     delays[target] = new List<double>();
                 if (!reactionTimeStamps.ContainsKey(target))
                     continue;
                 var reactionsForTarget = reactionTimeStamps[target];
-                foreach(var hit in bigHitTimestamps[target])
+                foreach (var hit in bigHitTimestamps[target])
                 {
                     var reactionAfterHit = GetNextBiggerTimestamp(hit, reactionsForTarget);
                     if (!reactionAfterHit.HasValue)
@@ -199,8 +199,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                 return timestamps;
 
             var threshold = incomingDamage.First().TargetInfo.MaxHP * 0.05;
-            List<(DateTime,double)> oneSecondOfDamage = new List<(DateTime,double)> ();
-            foreach(var damage in incomingDamage)
+            List<(DateTime, double)> oneSecondOfDamage = new List<(DateTime, double)>();
+            foreach (var damage in incomingDamage)
             {
                 if (damage.Value.EffectiveDblValue >= threshold)
                 {
@@ -211,8 +211,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                 {
                     oneSecondOfDamage.Add((damage.TimeStamp, damage.Value.EffectiveDblValue));
                     oneSecondOfDamage.RemoveAll(v => (damage.TimeStamp - v.Item1) > TimeSpan.FromSeconds(1));
-                    var totalDamageOverLastSecond = oneSecondOfDamage.Select(v=>v.Item2).Sum();
-                    if(totalDamageOverLastSecond >= threshold)
+                    var totalDamageOverLastSecond = oneSecondOfDamage.Select(v => v.Item2).Sum();
+                    if (totalDamageOverLastSecond >= threshold)
                     {
                         timestamps.Add(damage.TimeStamp);
                         oneSecondOfDamage.Clear();
@@ -221,12 +221,12 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             return timestamps;
         }
-        private static Dictionary<Entity,List<DateTime>> GetTimestampsOfAbilitiesOnPlayers(List<ParsedLogEntry> abilityActivateLogs)
+        private static Dictionary<Entity, List<DateTime>> GetTimestampsOfAbilitiesOnPlayers(List<ParsedLogEntry> abilityActivateLogs)
         {
             var returnDict = new Dictionary<Entity, List<DateTime>>();
-            foreach(var abilityActivation in abilityActivateLogs.Where(l=>l.Target.IsCharacter))
+            foreach (var abilityActivation in abilityActivateLogs.Where(l => l.Target.IsCharacter))
             {
-               var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(abilityActivation.Source, abilityActivation.TimeStamp).Entity;
+                var target = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(abilityActivation.Source, abilityActivation.TimeStamp).Entity;
                 if (target == null)
                     continue;
                 if (!returnDict.ContainsKey(target))

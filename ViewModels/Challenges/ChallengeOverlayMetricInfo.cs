@@ -1,10 +1,10 @@
-﻿using System.ComponentModel;
+﻿using SWTORCombatParser.DataStructures;
+using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
-using SWTORCombatParser.DataStructures;
-using System;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
@@ -33,11 +33,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 OnPropertyChanged("ValueWidth");
             }
         }
-        public SolidColorBrush ChallengeColor { get => challengeColor; set 
-            { 
+        public SolidColorBrush ChallengeColor
+        {
+            get => challengeColor; set
+            {
                 challengeColor = value;
                 OnPropertyChanged();
-            } 
+            }
         }
         public ChallengeOverlayMetricInfo(SolidColorBrush background)
         {

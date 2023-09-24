@@ -1,27 +1,18 @@
-﻿using ScottPlot.Plottable;
-using ScottPlot;
+﻿using ScottPlot;
+using ScottPlot.Plottable;
 using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Plotting;
-using SWTORCombatParser.ViewModels.CombatMetaData;
 using SWTORCombatParser.ViewModels.Home_View_Models;
-using SWTORCombatParser.Views.Home_Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Threading;
 using System.Windows;
-using System.Drawing;
-using System.Windows.Shapes;
-using SWTORCombatParser.Utilities;
 using Path = System.IO.Path;
-using static ScottPlot.Plottable.PopulationPlot;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
@@ -59,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             legend.FontSize = 10;
             InitCrosshair(0);
             GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 10, 10, 10),
-                figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 120, 120, 120), tick:Color.LightGray, axisLabel:Color.WhiteSmoke, titleLabel: Color.WhiteSmoke);
+                figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 120, 120, 120), tick: Color.LightGray, axisLabel: Color.WhiteSmoke, titleLabel: Color.WhiteSmoke);
             GraphView.Refresh();
         }
 
@@ -86,12 +77,12 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             lock (graphLock)
             {
                 var xVal = GetXValClosestToMouse();
-                SetAnnotationPosition(xVal,true);
+                SetAnnotationPosition(xVal, true);
             }
         }
         public void SetAnnotationPosition(double position, bool fromMouse = false)
         {
-            if(_crossHair.X == position) return;
+            if (_crossHair.X == position) return;
             Application.Current.Dispatcher.Invoke(() =>
             {
                 _crossHair.X = position;
@@ -101,7 +92,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 _crossHair.VerticalLine.PositionLabel = true;
                 _crossHair.IsVisible = true;
                 GraphView.Render();
-                if(fromMouse)
+                if (fromMouse)
                 {
                     XValueSelected(position);
                 }
@@ -110,7 +101,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         public void PlotCombat(Combat combatToPlot, List<Entity> viewableEntities, DateTime minVal)
         {
             _currentPlayers = viewableEntities;
-            
+
             foreach (var entity in _currentPlayers)
             {
                 CombatMetaDataSeries series = new CombatMetaDataSeries
@@ -120,9 +111,9 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                     Type = PlotType.DamageTaken
                 };
                 _seriesToPlot.Add(series);
-                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l=>l.TimeStamp > minVal).OrderBy(l => l.TimeStamp).ToList();
+                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l => l.TimeStamp > minVal).OrderBy(l => l.TimeStamp).ToList();
                 List<ParsedLogEntry> hpData = GetCorrectData(PlotType.HPPercent, combatToPlot, entity).Where(l => l.TimeStamp > minVal).OrderBy(l => l.TimeStamp).ToList();
-                
+
                 if (applicableData == null || applicableData.Count == 0)
                     continue;
                 double[] plotXvals;

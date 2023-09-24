@@ -13,7 +13,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         Ascending,
         Descending,
     }
-    public class DataGridHeaderViewModel:INotifyPropertyChanged
+    public class DataGridHeaderViewModel : INotifyPropertyChanged
     {
         private string selectedNewHeader;
         private SortingDirection sortDirection;

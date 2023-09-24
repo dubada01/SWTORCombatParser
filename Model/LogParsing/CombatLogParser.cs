@@ -1,12 +1,12 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Utilities;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             _7_0LogParsing.SetStartDate();
         }
-        public static ParsedLogEntry ParseLine(string logEntry,long lineIndex, DateTime previousLogTime, bool realTime = true)
+        public static ParsedLogEntry ParseLine(string logEntry, long lineIndex, DateTime previousLogTime, bool realTime = true)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     if (readChars[c] == '\r')
                     {
                         lastValueWasbsR = true;
-                        continue; 
+                        continue;
                     }
                     if (readChars[c] == '\n' && lastValueWasbsR)
                     {
@@ -76,7 +76,7 @@ namespace SWTORCombatParser.Model.LogParsing
                             continue;
                         lines.Add(newLine.ToString() + Environment.NewLine);
                         newLine.Clear();
-                        
+
                     }
                     else
                     {
@@ -100,7 +100,7 @@ namespace SWTORCombatParser.Model.LogParsing
             List<ParsedLogEntry> incompleteLines = new List<ParsedLogEntry>();
             Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
             {
-                
+
                 if (logLines[i] == "")
                     return;
                 var parsedLine = ParseLine(logLines[i], i, DateTime.MinValue, false);
@@ -112,9 +112,9 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 parsedLog[i] = parsedLine;
                 parsedLog[i].LogName = combatLog.Name;
-                
+
             });
-          
+
             var cleanedLogs = parsedLog.Where(l => l != null);
             CombatTimestampRectifier.RectifyTimeStamps(cleanedLogs.ToList());
             var orderdedLog = cleanedLogs.OrderBy(l => l.TimeStamp);
@@ -122,7 +122,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (includeIncomplete)
             {
                 var includedLines = orderdedLog.ToList();
-                includedLines.AddRange(incompleteLines); 
+                includedLines.AddRange(incompleteLines);
                 orderdedLog = includedLines.OrderBy(l => l.TimeStamp);
             }
             return orderdedLog.ToList();

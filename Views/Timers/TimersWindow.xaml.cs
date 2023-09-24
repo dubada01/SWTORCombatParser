@@ -25,7 +25,7 @@ namespace SWTORCombatParser.Views.Timers
         void SetPlayer(string player);
         void SetIdText(string text);
     }
-    public partial class TimersWindow :  Window, ITimerWindow
+    public partial class TimersWindow : Window, ITimerWindow
     {
         private ITimerWindowViewModel viewModel;
         private string _currentPlayerName;
@@ -41,7 +41,7 @@ namespace SWTORCombatParser.Views.Timers
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
             Loaded += OnLoaded;
-            
+
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -70,7 +70,8 @@ namespace SWTORCombatParser.Views.Timers
 
         public void makeTransparent(bool shouldLock)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
@@ -93,7 +94,8 @@ namespace SWTORCombatParser.Views.Timers
         }
         private void CloseOverlay()
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 viewModel.Closing();
             });
 

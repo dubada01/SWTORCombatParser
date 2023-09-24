@@ -1,10 +1,4 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media.Animation;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.ViewModels.Timers;
+﻿using System.Windows.Controls;
 
 namespace SWTORCombatParser.Views.Timers
 {

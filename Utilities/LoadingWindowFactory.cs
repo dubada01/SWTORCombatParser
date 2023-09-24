@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using SWTORCombatParser.Views;
+﻿using SWTORCombatParser.Views;
+using System.Windows;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -74,7 +74,7 @@ namespace SWTORCombatParser.Utilities
         {
             App.Current.Dispatcher.Invoke(() =>
             {
-                if(_loadingWindow != null)
+                if (_loadingWindow != null)
                     _loadingWindow.Close();
             });
         }

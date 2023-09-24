@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Overlays;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,15 +7,14 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using System.Windows.Input;
-using SWTORCombatParser.ViewModels.Overlays;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class TabInstance:INotifyPropertyChanged
+    public class TabInstance : INotifyPropertyChanged
     {
         public TabInstance()
         {
-            
+
         }
         public event Action<TabInstance> RequestTabClose = delegate { };
         public ICommand CloseTabCommand => new CommandHandler(CloseTab);

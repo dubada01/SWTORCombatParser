@@ -1,15 +1,11 @@
 ﻿using Prism.Commands;
 using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -233,7 +229,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             ValuePrompt = string.Empty;
             UseRawValue = false;
             CanBeRate = false;
-            CanHaveMax= false;
+            CanHaveMax = false;
             UseMaxValue = false;
         }
         private void SetupUI()

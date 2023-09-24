@@ -8,9 +8,9 @@ namespace SWTORCombatParser.Model.Timers
         {
             return
                 (
-                    timer1.Id == timer2.Id 
+                    timer1.Id == timer2.Id
                 );
-                
+
         }
     }
 }

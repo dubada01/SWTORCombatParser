@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ScottPlot;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using ScottPlot;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
@@ -146,7 +146,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             if (string.IsNullOrEmpty(SelectedParticipant.Name))
                 return;
             var combatLogsInView = combatLogs.Where(l => (l.TimeStamp - startTime).TotalSeconds >= minX && (l.TimeStamp - startTime).TotalSeconds <= maxX);
-           
+
             if (combatLogsInView.Count() == 0)
             {
                 CombatEffects.Clear();
@@ -178,19 +178,19 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             List<CombatModifier> releventMods = new List<CombatModifier>();
             var currentState = CombatLogStateBuilder.CurrentState;
             if (SelectedEffectType == selfSelf)
-                releventMods= currentState.GetPersonalEffects(_minTime, _maxTime, SelectedParticipant);
+                releventMods = currentState.GetPersonalEffects(_minTime, _maxTime, SelectedParticipant);
             if (SelectedEffectType == selfOther)
-                releventMods= currentState.GetEffectsWithSource(_minTime, _maxTime, SelectedParticipant).Where(e => e.Target != SelectedParticipant).ToList();
+                releventMods = currentState.GetEffectsWithSource(_minTime, _maxTime, SelectedParticipant).Where(e => e.Target != SelectedParticipant).ToList();
             if (SelectedEffectType == otherSelf)
-                releventMods= currentState.GetEffectsWithTarget(_minTime, _maxTime, SelectedParticipant).Where(e => e.Source != SelectedParticipant).ToList();
-            if(SelectedOther == "All")
+                releventMods = currentState.GetEffectsWithTarget(_minTime, _maxTime, SelectedParticipant).Where(e => e.Source != SelectedParticipant).ToList();
+            if (SelectedOther == "All")
             {
                 return releventMods;
             }
-            if(SelectedOther == "Enemies")
+            if (SelectedOther == "Enemies")
             {
                 if (SelectedEffectType.Split("->")[0].Trim() == "Other")
-                    return releventMods.Where(m=>!_currentCombat.CharacterParticipants.Contains(m.Source)).ToList();
+                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Contains(m.Source)).ToList();
                 if (SelectedEffectType.Split("->")[0].Trim() != "Other")
                     return releventMods.Where(m => !_currentCombat.CharacterParticipants.Contains(m.Target)).ToList();
             }
@@ -204,7 +204,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             if (SelectedEffectType.Split("->")[0].Trim() == "Other")
                 return releventMods.Where(m => m.Source.Name == SelectedOther).ToList();
             if (SelectedEffectType.Split("->")[0].Trim() != "Other")
-                return releventMods.Where(m =>m.Target.Name == SelectedOther).ToList();
+                return releventMods.Where(m => m.Target.Name == SelectedOther).ToList();
             return releventMods;
         }
 

@@ -1,6 +1,4 @@
 ﻿//using MoreLinq;
-using Microsoft.VisualBasic.Logging;
-using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
@@ -15,21 +13,18 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
     public class RaidFrameOverlayViewModel : INotifyPropertyChanged
     {
-        private Dictionary<DateTime,Point> _mostRecentlyClickedCell = new Dictionary<DateTime, Point>();
+        private Dictionary<DateTime, Point> _mostRecentlyClickedCell = new Dictionary<DateTime, Point>();
         private object _cellClickLock = new object();
         private bool _isMouseInFrame;
         private int rows;
@@ -87,19 +82,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         private void OnStartCombat(CombatStatusUpdate update)
         {
-            if(update.Type == UpdateType.Start)
+            if (update.Type == UpdateType.Start)
             {
                 _inCombat = true;
                 if (_conversationActive)
                 {
-                    App.Current.Dispatcher.Invoke(() => {
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
                         _view.Show();
                     });
 
                     _conversationActive = false;
                 }
             }
-            if(update.Type == UpdateType.Stop)
+            if (update.Type == UpdateType.Stop)
             {
                 _inCombat = false;
             }
@@ -128,10 +124,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 var clickedPoint = new Point(cellX, cellY);
                 var cellClicked = RaidHotCells.FirstOrDefault(n => n.Row == clickedPoint.Y && n.Column == clickedPoint.X);
-                if(cellClicked != null)
+                if (cellClicked != null)
                     cellClicked.Name = "Updating...";
                 _mostRecentlyClickedCell[clickedTime] = clickedPoint;
-                Task.Run(() => {
+                Task.Run(() =>
+                {
                     TryRemoveUpdatingNames();
                 });
 
@@ -191,12 +188,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void CorrectCellWhenTargeted(ParsedLogEntry obj)
         {
-            if(_inCombat)
+            if (_inCombat)
                 return;
 
             if (!obj.Source.IsLocalPlayer || obj.Effect.EffectType != EffectType.TargetChanged || !obj.Target.IsCharacter)
             {
-                return; 
+                return;
             }
             var oldestUnhandledCell = new Point();
             var oldestClickedCellTime = new DateTime();
@@ -214,7 +211,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             var cellClicked = CurrentNames.FirstOrDefault(n => n.Row == oldestUnhandledCell.Y && n.Column == oldestUnhandledCell.X);
             if (cellClicked != null)
             {
-                if (AreNamesCloseEnough(cellClicked.Name.ToLower(), GetNameWithoutSpecials(obj.Target.Name).ToLower(),4))
+                if (AreNamesCloseEnough(cellClicked.Name.ToLower(), GetNameWithoutSpecials(obj.Target.Name).ToLower(), 4))
                 {
                     return;
                 }
@@ -281,7 +278,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             var cellToUpdate = GetCellThatMatchesName(playerName);
             if (cellToUpdate == null || cellToUpdate.AlreadyHasTimer(obj.TimerName))
                 return;
-            var currentRole = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(playerName,DateTime.Now).Role;
+            var currentRole = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(playerName, DateTime.Now).Role;
             if (currentRole != DataStructures.ClassInfos.Role.Tank)
             {
                 callback(obj);
@@ -303,12 +300,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             var normalName = GetNameWithoutSpecials(playerName);
 
             var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, normalName));
-            if (!AreNamesCloseEnough(normalName, bestMatch,4) && !_usingDecreasedAccuracy)
+            if (!AreNamesCloseEnough(normalName, bestMatch, 4) && !_usingDecreasedAccuracy)
                 return null;
             return RaidHotCells.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), bestMatch));
         }
 
-        private bool AreNamesCloseEnough(string normalName, string bestMatch,int threshold)
+        private bool AreNamesCloseEnough(string normalName, string bestMatch, int threshold)
         {
             return LevenshteinDistance.Compute(bestMatch, normalName) < threshold;
         }
@@ -495,8 +492,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 }
             }
         }
-        public List<RaidHotCell> LeftColumnCells => RaidHotCells.Where(c=>c.Column== 0).ToList();
-        public List<RaidHotCell> RightColumnCells => RaidHotCells.Where(c => c.Column == Columns-1).ToList();
+        public List<RaidHotCell> LeftColumnCells => RaidHotCells.Where(c => c.Column == 0).ToList();
+        public List<RaidHotCell> RightColumnCells => RaidHotCells.Where(c => c.Column == Columns - 1).ToList();
         public List<RaidHotCell> RaidHotCells { get; set; } = new List<RaidHotCell>();
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -1,6 +1,6 @@
-﻿using System;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
+using System;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {

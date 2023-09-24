@@ -1,10 +1,10 @@
-﻿using System.ComponentModel;
+﻿using SWTORCombatParser.DataStructures;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public abstract class OverviewInstanceViewModel:INotifyPropertyChanged
+    public abstract class OverviewInstanceViewModel : INotifyPropertyChanged
     {
         internal OverviewDataType _type;
         internal Entity _selectedEntity;

@@ -1,9 +1,9 @@
-﻿using System.Windows;
-using SWTORCombatParser.Views.Overviews;
+﻿using SWTORCombatParser.Views.Overviews;
+using System.Windows;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public class HistogramVeiewModel:OverviewViewModel
+    public class HistogramVeiewModel : OverviewViewModel
     {
         public HistogramInstanceView DamageContent { get; set; }
         public HistogramInstanceView HealingContent { get; set; }

@@ -12,12 +12,12 @@ namespace SWTORCombatParser.Views.Battle_Review
         public EventHistoryView(EventHistoryViewModel eventViewModel)
         {
             DataContext = eventViewModel;
-            _eventViewModel= eventViewModel;
+            _eventViewModel = eventViewModel;
             InitializeComponent();
         }
         private void Selection1List_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(DataArea.SelectedItem != null)
+            if (DataArea.SelectedItem != null)
                 DataArea.ScrollIntoView(DataArea.SelectedItem);
         }
 

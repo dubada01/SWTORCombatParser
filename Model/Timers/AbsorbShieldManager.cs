@@ -1,5 +1,4 @@
-﻿using System;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.Model.Timers;

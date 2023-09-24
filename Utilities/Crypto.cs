@@ -10,7 +10,7 @@ namespace SWTORCombatParser.Utilities
         //While an app specific salt is not the best practice for
         //password based encryption, it's probably safe enough as long as
         //it is truly uncommon. Also too much work to alter this answer otherwise.
-        private static byte[] _salt = new byte[] { 5,5,2,5,5,5,2,5};
+        private static byte[] _salt = new byte[] { 5, 5, 2, 5, 5, 5, 2, 5 };
 
         /// <summary>
         /// Encrypt the given string using AES.  The string can be decrypted using 

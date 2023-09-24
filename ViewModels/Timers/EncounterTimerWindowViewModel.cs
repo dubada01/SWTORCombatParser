@@ -1,24 +1,21 @@
-﻿using SWTORCombatParser.DataStructures.ClassInfos;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.Model.CombatParsing;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class EncounterTimerWindowViewModel:INotifyPropertyChanged, ITimerWindowViewModel
+    public class EncounterTimerWindowViewModel : INotifyPropertyChanged, ITimerWindowViewModel
     {
         private ITimerWindow _timerWindow;
         private bool active;
@@ -90,7 +87,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void CheckForEnd(CombatStatusUpdate obj)
         {
-            if(obj.Type == UpdateType.Stop)
+            if (obj.Type == UpdateType.Stop)
             {
                 lock (_timerChangeLock)
                 {
@@ -118,11 +115,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void UpdateState()
         {
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
-            if(active && !isEnabled)
+            if (active && !isEnabled)
             {
                 Active = false;
             }
-            if((inBossRoom || OverlaysMoveable) && isEnabled)
+            if ((inBossRoom || OverlaysMoveable) && isEnabled)
             {
                 Active = true;
             }
@@ -133,13 +130,13 @@ namespace SWTORCombatParser.ViewModels.Timers
             var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(TimeUtility.CorrectedTime);
             if (currentArea.IsBossEncounter)
             {
-                if(isEnabled)
+                if (isEnabled)
                     Active = true;
                 inBossRoom = true;
             }
             else
-            { 
-                if(!OverlaysMoveable)
+            {
+                if (!OverlaysMoveable)
                     Active = false;
                 inBossRoom = false;
             }
@@ -149,7 +146,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (areaInfo.IsBossEncounter)
             {
-                if(isEnabled)
+                if (isEnabled)
                     Active = true;
                 inBossRoom = true;
             }
@@ -243,12 +240,12 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public void SetPlayer(SWTORClass classInfo)
         {
-            
+
         }
 
         public void SetSource(string source)
         {
-            
+
         }
     }
 }

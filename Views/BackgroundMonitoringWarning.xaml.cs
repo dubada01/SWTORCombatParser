@@ -12,7 +12,7 @@ namespace SWTORCombatParser.Views
         {
             InitializeComponent();
             OkButton.Click += (e, s) => { Close(); };
-            ExitButton.Click += (e,s) => { ExitApp(); };
+            ExitButton.Click += (e, s) => { ExitApp(); };
 
             ShowAgainCheck.Checked += CheckChanged;
             ShowAgainCheck.Unchecked += CheckChanged;

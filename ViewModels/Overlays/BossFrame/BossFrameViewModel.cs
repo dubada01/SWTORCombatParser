@@ -1,8 +1,7 @@
-﻿using SWTORCombatParser.Views.Overlay.BossFrame;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Views.Overlay.BossFrame;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using SWTORCombatParser.DataStructures;
-using System;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -22,19 +21,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public BossFrameViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, bool mechTrackingEnabled, bool isDuplicate, double scale)
         {
             _scale = scale;
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 CurrentBoss = bossInfo.Entity;
 
                 HPContent = new HPModule();
-                _hpVM = new HPModuleViewModel(bossInfo,isDuplicate, _scale);
+                _hpVM = new HPModuleViewModel(bossInfo, isDuplicate, _scale);
                 HPContent.DataContext = _hpVM;
 
                 DOTSContent = new DotModuleView();
-                dotModuleViewModel = new DotModuleViewModel(bossInfo,dotTrackingEnabled, _scale);
+                dotModuleViewModel = new DotModuleViewModel(bossInfo, dotTrackingEnabled, _scale);
                 DOTSContent.DataContext = dotModuleViewModel;
 
                 MechanicsModule = new MechanicsTimersModule();
-                _mechsVM = new MechanicsTimersModuleViewModel(bossInfo,mechTrackingEnabled, _scale);
+                _mechsVM = new MechanicsTimersModuleViewModel(bossInfo, mechTrackingEnabled, _scale);
                 MechanicsModule.DataContext = _mechsVM;
             });
         }

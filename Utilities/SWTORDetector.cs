@@ -13,34 +13,35 @@ namespace SWTORCombatParser.Utilities
         public static bool SwtorRunning;
         public static void StartMonitoring()
         {
-                _monitorForSwtor = true;
-                Task.Run(() => {
-                    while (_monitorForSwtor)
+            _monitorForSwtor = true;
+            Task.Run(() =>
+            {
+                while (_monitorForSwtor)
+                {
+                    try
                     {
-                        try
+                        var processCollection = Process.GetProcesses();
+                        if (processCollection.Any(p => p.ProcessName == "swtor"))
                         {
-                            var processCollection = Process.GetProcesses();
-                            if (processCollection.Any(p => p.ProcessName == "swtor"))
-                            {
-                                if (!SwtorRunning)
-                                    UpdateStatus();
-                                SwtorRunning = true;
-                            }
-                            else
-                            {
-                                if (SwtorRunning)
-                                    UpdateStatus();
-                                SwtorRunning = false;
-                            }
+                            if (!SwtorRunning)
+                                UpdateStatus();
+                            SwtorRunning = true;
+                        }
+                        else
+                        {
+                            if (SwtorRunning)
+                                UpdateStatus();
+                            SwtorRunning = false;
+                        }
 
-                            Thread.Sleep(SwtorRunning ? 1500 : 5000);
-                        }
-                        catch (Exception e)
-                        {
-                            Logging.LogError("Error during process dection: " + e.Message);
-                        }
+                        Thread.Sleep(SwtorRunning ? 1500 : 5000);
                     }
-                });
+                    catch (Exception e)
+                    {
+                        Logging.LogError("Error during process dection: " + e.Message);
+                    }
+                }
+            });
         }
 
         private static void UpdateStatus()

@@ -1,21 +1,11 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Threading;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.DataStructures.EncounterInfo;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -75,7 +65,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                         {
                             _timerWindow.Show();
                         });
-                    } 
+                    }
                 }
 
             }
@@ -134,7 +124,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             UpdateSource();
         }
         private void UpdateSource()
-        {                
+        {
             if (_timerSource.Contains('|') || _timerSource == "Shared" || _timerSource == "HOTS")
                 return;
             TimerTitle = _timerSource + " Timers";
@@ -156,7 +146,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert || obj.SourceTimer.IsBuiltInDefensive || obj.TimerValue <=0)
+            if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert || obj.SourceTimer.IsBuiltInDefensive || obj.TimerValue <= 0)
             {
                 callback(obj);
                 return;

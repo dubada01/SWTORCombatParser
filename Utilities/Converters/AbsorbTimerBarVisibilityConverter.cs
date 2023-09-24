@@ -1,12 +1,12 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures;
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.Utilities.Converters;
 
-public class AbsorbTimerBarVisibilityConverter:IValueConverter
+public class AbsorbTimerBarVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {

@@ -16,7 +16,7 @@ namespace SWTORCombatParser.Utilities
         private static object _logLock = new object();
 
         private static bool _useVerboseLogging;
-        public static void LogError(string message,bool tryCloudLogs = true)
+        public static void LogError(string message, bool tryCloudLogs = true)
         {
             LoadLoggingConfig();
             lock (_logLock)
@@ -24,13 +24,13 @@ namespace SWTORCombatParser.Utilities
                 if (tryCloudLogs)
                     CloudLogging.UploadLogAsync(message, "error");
                 InitLogFile();
-                using (StreamWriter sw = new StreamWriter(_logPath,true))
+                using (StreamWriter sw = new StreamWriter(_logPath, true))
                 {
-                    sw.WriteLine(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff")+"----- ERROR ----- "+": "+message+'\n');
+                    sw.WriteLine(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff") + "----- ERROR ----- " + ": " + message + '\n');
                 }
             }
         }
-        public static void LogInfo(string message, bool isVerbose = true , bool tryCloudLogs = true)
+        public static void LogInfo(string message, bool isVerbose = true, bool tryCloudLogs = true)
         {
             LoadLoggingConfig();
             if (isVerbose && !_useVerboseLogging)
@@ -42,7 +42,7 @@ namespace SWTORCombatParser.Utilities
                 InitLogFile();
                 using (StreamWriter sw = new StreamWriter(_logPath, true))
                 {
-                    sw.WriteLine(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff")+"----- INFO ------ "+": "+message+'\n');
+                    sw.WriteLine(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff") + "----- INFO ------ " + ": " + message + '\n');
                 }
             }
         }
@@ -52,11 +52,11 @@ namespace SWTORCombatParser.Utilities
             {
                 _useVerboseLogging = JsonConvert.DeserializeObject<LoggingConfig>(File.ReadAllText(@"LoggingConfig.json")).verbose;
             }
-            catch(Exception)
+            catch (Exception)
             {
                 LogError("Failed to determine logging configuration. Please close and save LoggingConfig.json");
             }
-            
+
         }
         private static void InitLogFile()
         {

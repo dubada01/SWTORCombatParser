@@ -37,7 +37,7 @@ namespace SWTORCombatParser.Views.Overlay
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                if(!_closed)
+                if (!_closed)
                     Show();
             });
 
@@ -74,7 +74,8 @@ namespace SWTORCombatParser.Views.Overlay
 
         public void makeTransparent(bool shouldLock)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
@@ -107,7 +108,7 @@ namespace SWTORCombatParser.Views.Overlay
 
                 Close();
             });
-   
+
         }
 
         public void DragWindow(object sender, MouseButtonEventArgs args)
@@ -123,9 +124,9 @@ namespace SWTORCombatParser.Views.Overlay
         {
             var yadjust = Height + e.VerticalChange;
             var xadjust = Width + e.HorizontalChange;
-            if(xadjust > 0)
+            if (xadjust > 0)
                 SetValue(WidthProperty, xadjust);
-            if(yadjust > 0)
+            if (yadjust > 0)
                 SetValue(HeightProperty, yadjust);
         }
         private void Window_MouseLeave(object sender, MouseEventArgs e)

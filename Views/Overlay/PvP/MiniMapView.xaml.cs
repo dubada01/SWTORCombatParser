@@ -1,24 +1,18 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.PvP;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using SWTORCombatParser.DataStructures.EncounterInfo;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
 using DateTime = System.DateTime;
 
 namespace SWTORCombatParser.Views.Overlay.PvP
@@ -29,7 +23,7 @@ namespace SWTORCombatParser.Views.Overlay.PvP
     public partial class MiniMapView : Window
     {
         private MapInfo _currentMapInfo;
-        private List<OpponentMapIcon> opponentImages => new List<OpponentMapIcon> { Op1, Op2, Op3, Op4, Op5, Op6, Op7, Op8,Op9,Op10,Op11,Op12,Op13,Op14,Op15,Op16 };
+        private List<OpponentMapIcon> opponentImages => new List<OpponentMapIcon> { Op1, Op2, Op3, Op4, Op5, Op6, Op7, Op8, Op9, Op10, Op11, Op12, Op13, Op14, Op15, Op16 };
         private MiniMapViewModel viewModel;
         public MiniMapView(MiniMapViewModel vm)
         {
@@ -66,7 +60,8 @@ namespace SWTORCombatParser.Views.Overlay.PvP
 
         public void makeTransparent(bool shouldLock)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 IntPtr hwnd = new WindowInteropHelper(this).Handle;
                 if (shouldLock)
                 {
@@ -87,7 +82,8 @@ namespace SWTORCombatParser.Views.Overlay.PvP
         }
         private void CloseOverlay()
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 Close();
             });
 
@@ -145,16 +141,17 @@ namespace SWTORCombatParser.Views.Overlay.PvP
             viewModel.OverlayEnabled = false;
         }
 
-        private void UpdateIconPosition(double xFraction, double yFraction, double facing, OpponentMapInfo opponent,int opponentIndex)
+        private void UpdateIconPosition(double xFraction, double yFraction, double facing, OpponentMapInfo opponent, int opponentIndex)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 var icon = opponent.IsLocalPlayer ? CharImage : opponentImages[opponentIndex];
-                icon.Icon.Source = new BitmapImage(GetUriFromMenaceType(opponent.IsEnemy,opponent.IsTarget,opponent.IsLocalPlayer));
+                icon.Icon.Source = new BitmapImage(GetUriFromMenaceType(opponent.IsEnemy, opponent.IsTarget, opponent.IsLocalPlayer));
                 icon.SelectionAdornment.Visibility = opponent.IsTarget ? Visibility.Visible : Visibility.Hidden;
 
                 //icon.PlayerName.Text = opponent.Name;
                 icon.Visibility = Visibility.Visible;
-                
+
                 var imageLocation = GetBoundingBox(Arena, ImageCanvas);
 
                 var characterXposOverlay = imageLocation.Width * xFraction;
@@ -164,12 +161,12 @@ namespace SWTORCombatParser.Views.Overlay.PvP
                 Canvas.SetLeft(icon, characterXposOverlay - (icon.Width / 2));
                 Canvas.SetTop(icon, characterYposOverlay - (icon.Height / 2));
 
-                var rotationTransform = new RotateTransform(facing* -1, 0, 0);
+                var rotationTransform = new RotateTransform(facing * -1, 0, 0);
                 icon.Icon.RenderTransform = rotationTransform;
             });
         }
-        internal void AddOpponents(List<OpponentMapInfo> opponentInfos,DateTime startTime)
-        {            
+        internal void AddOpponents(List<OpponentMapInfo> opponentInfos, DateTime startTime)
+        {
             if (CombatIdentifier.CurrentCombat == null)
                 return;
             var currentMap = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(startTime);
@@ -178,29 +175,29 @@ namespace SWTORCombatParser.Views.Overlay.PvP
             var roomLeft = _currentMapInfo.MinX;
             var roomWidth = _currentMapInfo.MaxX - _currentMapInfo.MinX;
             var roomHeight = _currentMapInfo.MaxY - _currentMapInfo.MinY;
-            
+
             var opponentIndex = 0;
             HideAllOpponents();
-            foreach (var opponent in opponentInfos.Where(o=>o.IsEnemy != EnemyState.Friend && !o.IsLocalPlayer))
-            {            
+            foreach (var opponent in opponentInfos.Where(o => o.IsEnemy != EnemyState.Friend && !o.IsLocalPlayer))
+            {
                 var xFraction = (opponent.Position.X - roomLeft) / roomWidth;
                 var yFraction = (opponent.Position.Y - roomTop) / roomHeight;
-                UpdateIconPosition(xFraction,yFraction,opponent.Position.Facing,opponent,opponentIndex);
+                UpdateIconPosition(xFraction, yFraction, opponent.Position.Facing, opponent, opponentIndex);
                 opponentIndex++;
             }
         }
 
         private Uri GetUriFromMenaceType(EnemyState isEnemy, bool isTaget, bool isLocalPlayer)
         {
-            if(isLocalPlayer)
+            if (isLocalPlayer)
                 return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/PlayerLocation.png"));
             if (isEnemy == EnemyState.Enemy)
             {
-                return isTaget ? 
-                    new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/TargetedEnemyLocation.png")) : 
+                return isTaget ?
+                    new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/TargetedEnemyLocation.png")) :
                     new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/EnemyLocation.png"));
             }
-               
+
             return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/UnknownPlayerLocation.png"));
         }
 

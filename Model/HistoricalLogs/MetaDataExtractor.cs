@@ -1,9 +1,9 @@
 ﻿//using MoreLinq;
 
-using System.Collections.Generic;
-using System.Linq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SWTORCombatParser.Model.HistoricalLogs
 {
@@ -11,7 +11,7 @@ namespace SWTORCombatParser.Model.HistoricalLogs
     {
         public static List<Entity> GetLocalEntities(List<Combat> combats)
         {
-            return combats.Select(c => c.LocalPlayer).DistinctBy(c=>c.Name).ToList();
+            return combats.Select(c => c.LocalPlayer).DistinctBy(c => c.Name).ToList();
         }
         public static List<Entity> GetPlayersForBossInEncounter(List<Combat> combats, EncounterInfo encounter, string bossName)
         {
@@ -23,11 +23,11 @@ namespace SWTORCombatParser.Model.HistoricalLogs
         }
         public static List<EncounterInfo> GetAllEncounters(List<Combat> combats)
         {
-            return combats.Select(c => c.ParentEncounter).DistinctBy(e=>e.NamePlus).ToList();
+            return combats.Select(c => c.ParentEncounter).DistinctBy(e => e.NamePlus).ToList();
         }
         public static List<string> GetAllBossesFromCombats(List<Combat> combats)
         {
-            return combats.Where(c=>c.IsCombatWithBoss).Select(e => e.EncounterBossDifficultyParts.Item1).Distinct().ToList();
+            return combats.Where(c => c.IsCombatWithBoss).Select(e => e.EncounterBossDifficultyParts.Item1).Distinct().ToList();
         }
     }
 }

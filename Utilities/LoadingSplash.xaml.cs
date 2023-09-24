@@ -13,7 +13,8 @@ namespace SWTORCombatParser.Utilities
         }
         public void SetString(string value)
         {
-            Dispatcher.Invoke(() => {
+            Dispatcher.Invoke(() =>
+            {
                 LoadingText.Text = value;
             });
 

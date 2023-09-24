@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Npgsql;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System;
 using System.IO;
 using System.Linq;
-using SWTORCombatParser.DataStructures;
-using System.Globalization;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -61,7 +60,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                 $"@p5," +
                                 $"@p6)", connection)
                             {
-                                Parameters  =
+                                Parameters =
                                 {
                                     new ("p1",GetUTCTimeStamp(DateTime.Now)),
                                     new ("p2",secondsElapsed),

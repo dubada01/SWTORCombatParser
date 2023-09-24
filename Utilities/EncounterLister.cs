@@ -1,8 +1,6 @@
-﻿using System;
+﻿using SWTORCombatParser.DataStructures.EncounterInfo;
 using System.Collections.Generic;
 using System.Linq;
-using SWTORCombatParser.DataStructures.EncounterInfo;
-using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -14,7 +12,7 @@ namespace SWTORCombatParser.Utilities
             var encounters = EncounterLoader.SupportedEncounters;
             return encounters.Select(e => e.Name).ToList();
         }
-        public static List<string> SortedEncounterNames => new List<string> { "All"}.Concat(GetSortedEncountersByType()).ToList();
+        public static List<string> SortedEncounterNames => new List<string> { "All" }.Concat(GetSortedEncountersByType()).ToList();
         public static List<string> SortedEncounterNamesNoAll => GetSortedEncountersByType();
         public static List<EncounterInfo> SortedEncounterInfos => GetSortedEncounterInfos();
         private static List<EncounterInfo> GetSortedEncounterInfos()
@@ -24,11 +22,11 @@ namespace SWTORCombatParser.Utilities
             var operations = encounters.Where(e => e.EncounterType == EncounterType.Operation).OrderBy(o => o.Name);
             var lairs = encounters.Where(e => e.EncounterType == EncounterType.Lair).OrderBy(l => l.Name);
             var listOfEncounters = new List<EncounterInfo>();
-            listOfEncounters.Add(new EncounterInfo { Name ="--Operations--" });
+            listOfEncounters.Add(new EncounterInfo { Name = "--Operations--" });
             listOfEncounters.AddRange(operations);
-            listOfEncounters.Add(new EncounterInfo { Name ="--Lairs--" });
+            listOfEncounters.Add(new EncounterInfo { Name = "--Lairs--" });
             listOfEncounters.AddRange(lairs);
-            listOfEncounters.Add(new EncounterInfo { Name ="--Flashpoints--" });
+            listOfEncounters.Add(new EncounterInfo { Name = "--Flashpoints--" });
             listOfEncounters.AddRange(flashpoints);
             return listOfEncounters;
         }
@@ -62,7 +60,7 @@ namespace SWTORCombatParser.Utilities
         {
             var encounters = EncounterLoader.SupportedEncounters;
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
-            return encounterSelected.BossNames.SelectMany(bn=>bn.Contains("~?~")?bn.Split("~?~")[1].Split('|').ToList() : new List<string>{bn}).ToList();
+            return encounterSelected.BossNames.SelectMany(bn => bn.Contains("~?~") ? bn.Split("~?~")[1].Split('|').ToList() : new List<string> { bn }).ToList();
         }
         public static List<string> GetTargetsOfBossFight(string encounter, string bossFight)
         {
@@ -74,7 +72,7 @@ namespace SWTORCombatParser.Utilities
             {
                 return rawBossNamesForFight.Split("~?~")[1].Split("|").ToList();
             }
-            return new List<string>(){rawBossNamesForFight};
+            return new List<string>() { rawBossNamesForFight };
         }
     }
 }

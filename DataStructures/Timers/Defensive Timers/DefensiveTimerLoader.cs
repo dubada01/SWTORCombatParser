@@ -1,16 +1,12 @@
-﻿using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SWTORCombatParser.Model.Timers;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
 namespace SWTORCombatParser.DataStructures.Timers.Defensive_Timers
 {
-    public  class DefensiveTimerLoader
+    public class DefensiveTimerLoader
     {
         public static void TryLoadDefensives()
         {
@@ -19,7 +15,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Defensive_Timers
             List<Timer> copiedTimers = new List<Timer>();
             foreach (var timer in timers)
             {
-               
+
                 timer.IsBuiltInDefensive = true;
                 timer.ResetOnEffectLoss = true;
                 timer.TrackOutsideOfCombat = true;

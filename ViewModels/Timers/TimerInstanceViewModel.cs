@@ -1,15 +1,13 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Utilities;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using Timer = SWTORCombatParser.DataStructures.Timer;
 using System.Windows.Media;
-using System.Threading;
-using System.Media;
-using SWTORCombatParser.Utilities;
+using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -145,7 +143,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                         swtorTimer.IsAlert ? Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav") :
                         Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
                 }
-                Application.Current.Dispatcher.Invoke(() => {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
                     _mediaPlayer = new MediaPlayer();
                     _mediaPlayer.Open(new Uri(_audioPath, UriKind.RelativeOrAbsolute));
                 });
@@ -175,7 +174,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public void Reset(DateTime timeStampOfReset)
         {
-            if(TimerValue <= 0)
+            if (TimerValue <= 0)
             {
                 TriggerTimeTimer(timeStampOfReset);
                 return;
@@ -230,7 +229,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 if (SourceTimer.UseAudio)
                 {
-                    Application.Current.Dispatcher.Invoke(() => {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
                         _mediaPlayer.Play();
                     });
 
@@ -296,7 +296,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("TimerValue");
             if (SourceTimer.UseAudio && TimerValue <= _playAtTime)
             {
-                Application.Current.Dispatcher.Invoke(() => {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
                     _mediaPlayer.Play();
                 });
 

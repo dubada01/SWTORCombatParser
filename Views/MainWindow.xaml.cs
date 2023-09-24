@@ -1,11 +1,11 @@
-﻿using System;
+﻿using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels;
 
 namespace SWTORCombatParser.Views
 {
@@ -65,7 +65,7 @@ namespace SWTORCombatParser.Views
             menuItem2.Click += new EventHandler(ShowClick);
 
             contextMenu1.Items.AddRange(
-                        new ToolStripMenuItem[] { menuItem2,menuItem1 });
+                        new ToolStripMenuItem[] { menuItem2, menuItem1 });
 
             _notifyIcon1 = new NotifyIcon(components);
             _notifyIcon1.Icon = new Icon("resources/SWTORParsingIcon.ico");
@@ -88,7 +88,7 @@ namespace SWTORCombatParser.Views
             LoadingWindowFactory.MainWindowHidden = false;
             WindowState = WindowState.Normal;
         }
-        
+
         private void ExitClick(object sender, EventArgs e)
         {
             _actuallyClosing = true;

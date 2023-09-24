@@ -1,58 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Compression;
+﻿using SWTORCombatParser.Utilities;
+using System;
 using System.IO;
-using System.Linq;
+using System.IO.Compression;
+using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Net.Http;
-using System.Net;
-using System.Security.Policy;
-using System.Globalization;
-using System.Reflection;
-using Newtonsoft.Json;
 using System.Xml;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class ParselyUploader
     {
         private static string parselyURL = "https://parsely.io/api/upload2";
-        internal static event Action<bool,string> UploadCompleted = delegate { };
+        internal static event Action<bool, string> UploadCompleted = delegate { };
         internal static async Task UploadCurrentCombat(string currentlySelectedLogName)
         {
             if (string.IsNullOrEmpty(currentlySelectedLogName) || !File.Exists(currentlySelectedLogName))
             {
-                UploadCompleted(false,"");
+                UploadCompleted(false, "");
                 return;
             }
             var zippedData = Zip(ReadAllText(currentlySelectedLogName));
             var parselyLink = "";
-            using(var client = new HttpClient())
+            using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add("User-Agent", "Orbs v" + Assembly.GetExecutingAssembly().GetName().Version);
-                using(var content = new MultipartFormDataContent())
+                using (var content = new MultipartFormDataContent())
                 {
                     var test = new ByteArrayContent(zippedData);
                     test.Headers.Add("Content-Type", "text/html");
                     test.Headers.Add("Content-Transfer-Encoding", "binary");
-                    
+
                     content.Add(test, "file", currentlySelectedLogName);
                     if (Settings.HasSetting("username"))
                     {
                         content.Add(new StringContent(Settings.ReadSettingOfType<string>("username").Trim('"')), "username");
                         content.Add(new StringContent(Crypto.DecryptStringAES(Settings.ReadSettingOfType<string>("password").Trim('"'), "parselyInfo")), "password");
-                        if(!string.IsNullOrEmpty(Settings.ReadSettingOfType<string>("guild").Trim('"')))
+                        if (!string.IsNullOrEmpty(Settings.ReadSettingOfType<string>("guild").Trim('"')))
                             content.Add(new StringContent(Settings.ReadSettingOfType<string>("guild").Trim('"')), "guild");
                     }
-                    content.Add(new StringContent("1"),"public");
+                    content.Add(new StringContent("1"), "public");
                     using (var message = await client.PostAsync(parselyURL, content))
                     {
                         var response = await message.Content.ReadAsStringAsync();
                         if (response.Contains("NOT OK") || response.Contains("error"))
                         {
-                            UploadCompleted(false,"");
+                            UploadCompleted(false, "");
                             return;
                         }
                         XmlDocument xdoc = new XmlDocument();
@@ -68,7 +62,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             using (var fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var textReader = new StreamReader(fileStream,Encoding.GetEncoding(1252)))
+            using (var textReader = new StreamReader(fileStream, Encoding.GetEncoding(1252)))
                 return textReader.ReadToEnd();
         }
         public static void CopyTo(Stream src, Stream dest)

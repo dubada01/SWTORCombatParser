@@ -7,20 +7,18 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
-    public class StatsSlotViewModel:BaseViewModel
+    public class StatsSlotViewModel : BaseViewModel
     {
         private SolidColorBrush backgroundColor;
         public bool DisplayIcon { get; set; }
         public BitmapSource RoleIcon { get; set; }
         public bool IsLocalPlayer { get; set; }
-        public StatsSlotViewModel(OverlayType type,System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false)
+        public StatsSlotViewModel(OverlayType type, System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false)
         {
             if (!string.IsNullOrEmpty(name))
             {
@@ -31,9 +29,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                     ForegroundColor = System.Windows.Media.Brushes.WhiteSmoke;
                 Value = name;
                 DisplayIcon = true;
-                var coloredIcon = SetIconColor(IconFactory.GetIcon(iconName),iconColor);
+                var coloredIcon = SetIconColor(IconFactory.GetIcon(iconName), iconColor);
                 RoleIcon = coloredIcon;
-                
+
                 return;
             }
             ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
@@ -43,7 +41,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             get => backgroundColor; set
             {
-                backgroundColor = value; 
+                backgroundColor = value;
                 OnPropertyChanged();
             }
         }
@@ -70,7 +68,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                     }
                 }
             }
-            Marshal.Copy(rgbValues, 0, bmpData.Scan0,bytes);
+            Marshal.Copy(rgbValues, 0, bmpData.Scan0, bytes);
             image.UnlockBits(bmpData);
 
             return BitmapToImageSource(image);

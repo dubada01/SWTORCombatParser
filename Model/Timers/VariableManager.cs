@@ -1,10 +1,5 @@
-﻿using SWTORCombatParser.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.Timers
 {
@@ -23,16 +18,16 @@ namespace SWTORCombatParser.Model.Timers
     }
     public static class VariableManager
     {
-        private static Dictionary<string,int> CustomVariables= new Dictionary<string,int>();
+        private static Dictionary<string, int> CustomVariables = new Dictionary<string, int>();
         public static void RefreshVariables()
         {
-            var allcurrentvariables = DefaultTimersManager.GetAllDefaults().SelectMany(s => s.Timers).Where(t=>!string.IsNullOrEmpty(t.ModifyVariableName)).Select(t=>t.ModifyVariableName).Distinct();
+            var allcurrentvariables = DefaultTimersManager.GetAllDefaults().SelectMany(s => s.Timers).Where(t => !string.IsNullOrEmpty(t.ModifyVariableName)).Select(t => t.ModifyVariableName).Distinct();
 
             CustomVariables = allcurrentvariables.ToDictionary(v => v, v => 0);
         }
         public static void ResetVariables()
         {
-            foreach(var variable in CustomVariables.Keys.ToList())
+            foreach (var variable in CustomVariables.Keys.ToList())
             {
                 CustomVariables[variable] = 0;
             }
@@ -51,7 +46,7 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static int GetValue(string variableName)
         {
-            if(string.IsNullOrEmpty(variableName) || !CustomVariables.ContainsKey(variableName)) return -1;
+            if (string.IsNullOrEmpty(variableName) || !CustomVariables.ContainsKey(variableName)) return -1;
             return CustomVariables[variableName];
         }
     }

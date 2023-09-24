@@ -1,9 +1,9 @@
-﻿using System;
+﻿using SWTORCombatParser.Utilities;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -43,7 +43,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return new CombatLogFile[0];
             var filePaths = Directory.GetFiles(LoggingPath);
             CombatLogFile[] combatLogsData = new CombatLogFile[filePaths.Length];
-            Parallel.For(0, filePaths.Length, i => 
+            Parallel.For(0, filePaths.Length, i =>
             {
                 var filePath = filePaths[i];
                 combatLogsData[i] = LoadCombatLog(filePath);
@@ -79,7 +79,7 @@ namespace SWTORCombatParser.Model.LogParsing
             return GetMostRecentCombatFile();
         }
         public static CombatLogFile LoadMostRecentLog()
-        {   
+        {
             return LoadSpecificLog(GetMostRecentCombatFile());
         }
         public static CombatLogFile LoadMostRecentPopulatedLog()
@@ -104,10 +104,10 @@ namespace SWTORCombatParser.Model.LogParsing
             fileData.Time = new FileInfo(path).LastWriteTime;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            var sr = new StreamReader(fs, Encoding.GetEncoding(1252),true);
+            var sr = new StreamReader(fs, Encoding.GetEncoding(1252), true);
 
             fileData.Data = sr;
-            
+
             return fileData;
         }
     }

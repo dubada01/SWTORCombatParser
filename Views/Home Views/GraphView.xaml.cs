@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SWTORCombatParser.ViewModels.Home_View_Models;
+using System;
 using System.Windows.Controls;
 using System.Windows.Input;
-using SWTORCombatParser.ViewModels.Home_View_Models;
 
 namespace SWTORCombatParser.Views.Home_Views
 {

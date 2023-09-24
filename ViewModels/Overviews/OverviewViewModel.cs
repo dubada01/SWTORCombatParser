@@ -1,14 +1,14 @@
-﻿using SWTORCombatParser.Model;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public abstract class OverviewViewModel:INotifyPropertyChanged
+    public abstract class OverviewViewModel : INotifyPropertyChanged
     {
         private Entity selectedEntity;
 
@@ -49,7 +49,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 DamageTakenVM.UpdateEntity(selectedEntity);
                 HealingReceivedVM.UpdateEntity(selectedEntity);
                 OnPropertyChanged();
-                
+
             }
         }
         public void AddCombat(Combat combat)

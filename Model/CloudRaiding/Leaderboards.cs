@@ -1,11 +1,11 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.CombatParsing;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -39,11 +39,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
             LeaderboardTypeChanged(CurrentLeaderboardType);
             if (CurrentCombat == null)
                 return;
-            Task.Run(() => { 
+            Task.Run(() =>
+            {
                 StartGetPlayerLeaderboardStandings(CurrentCombat);
                 StartGetTopLeaderboardEntries(CurrentCombat);
             });
-            
+
         }
         public static void StartGetTopLeaderboardEntries(Combat newCombat)
         {
@@ -133,11 +134,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             continue;
                         var parses = CurrentFightLeaderboard[enumVal];
                         if (parses == null)
-                            returnData[participant][enumVal] = (0,false);
+                            returnData[participant][enumVal] = (0, false);
                         else
                         {
                             var currentValue = GetValueForLeaderboardEntry(enumVal, newCombat, participant);
-                            var parsesWithVal = parses.Where(p=>MatchesRole(enumVal,p.Class)).Select(v => v.Value).ToList();
+                            var parsesWithVal = parses.Where(p => MatchesRole(enumVal, p.Class)).Select(v => v.Value).ToList();
                             if (parses.All(p => p.Character != participant.Name))
                             {
                                 //returnData[participant][enumVal] = (parsesWithVal.OrderByDescending(v => v).ToList().IndexOf(currentValue) + 1,false);
@@ -149,7 +150,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                                 var currentMaxForParticipant = parses.Where(p => p.Character == participant.Name).MaxBy(v => v.Value);
                                 var fresh = parsesWithVal.RemoveAll(v => v.Equals(currentValue));
                                 //returnData[participant][enumVal] = (parsesWithVal.OrderByDescending(v => v).ToList().IndexOf(currentValue) + 1,currentValue>=currentMaxForParticipant.Value);
-                                returnData[participant][enumVal] = (GetLeaderboardPercentile(parsesWithVal, currentValue),currentValue>=currentMaxForParticipant.Value);
+                                returnData[participant][enumVal] = (GetLeaderboardPercentile(parsesWithVal, currentValue), currentValue >= currentMaxForParticipant.Value);
                             }
 
                         }
@@ -194,7 +195,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                 {
                     var results = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
-                    if(bossName.Contains("4 "))
+                    if (bossName.Contains("4 "))
                     {
                         var oldFPResults = PostgresConnection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
                         results.AddRange(oldFPResults);
@@ -211,7 +212,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     }
                     CurrentFightLeaderboard[enumVal] = allResults;
                 }
-                    
+
 
             }
         }
@@ -270,7 +271,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private static bool CheckForValidCombatUpload(Combat combat, Entity player)
         {
-            if(combat.DurationSeconds < 5)
+            if (combat.DurationSeconds < 5)
                 return false;
             if (combat.ParentEncounter.Name == "Parsing")
                 return false;
@@ -289,7 +290,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
         private static double GetLeaderboardPercentile(List<double> entries, double currentValue)
         {
-            if(entries.Count == 0) return 0;
+            if (entries.Count == 0) return 0;
             return Math.Round(((entries.Count(v => v < currentValue) + (0.5 * entries.Count(v => v.Equals(currentValue)))) / (double)entries.Count) * 100d);
         }
         private static double GetValueForLeaderboardEntry(LeaderboardEntryType role, Combat combat, Entity player)

@@ -34,14 +34,14 @@ namespace SWTORCombatParser.Utilities
                 var file = File.Create(_checkedStateFile);
                 file.Close();
             }
-            
+
             var currentPopupStates = JsonConvert.DeserializeObject<Dictionary<string, bool>>(File.ReadAllText(_checkedStateFile));
             if (currentPopupStates == null)
             {
                 currentPopupStates = new Dictionary<string, bool>();
             }
-            if(!currentPopupStates.ContainsKey(key))
-                    return true;
+            if (!currentPopupStates.ContainsKey(key))
+                return true;
             else
             {
                 return currentPopupStates[key];

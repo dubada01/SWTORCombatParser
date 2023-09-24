@@ -1,21 +1,21 @@
 ﻿using ScottPlot;
+using SWTORCombatParser.DataStructures;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using SWTORCombatParser.DataStructures;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public class HistogramInstanceViewModel :OverviewInstanceViewModel, INotifyPropertyChanged
+    public class HistogramInstanceViewModel : OverviewInstanceViewModel, INotifyPropertyChanged
     {
         private Dictionary<string, Dictionary<string, List<double>>> _combatDatas;
         private Dictionary<string, Combat> _selectedCombats;
         private string selectedAbility;
         private SortingOption sortingOption;
 
-        public override SortingOption SortingOption { get { return sortingOption; }set { sortingOption = value; } }
+        public override SortingOption SortingOption { get { return sortingOption; } set { sortingOption = value; } }
         public string SelectedAbility
         {
             get => selectedAbility; set
@@ -30,7 +30,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
 
         public List<string> AvailableAbilities { get; set; }
         public WpfPlot HistogramPlot { get; set; }
-        public HistogramInstanceViewModel(OverviewDataType type): base(type)
+        public HistogramInstanceViewModel(OverviewDataType type) : base(type)
         {
             HistogramPlot = new WpfPlot();
             HistogramPlot.Plot.Style(dataBackground: Color.FromArgb(150, 20, 20, 20), figureBackground: Color.FromArgb(0, 20, 20, 20), grid: Color.FromArgb(100, 40, 40, 40));
@@ -92,7 +92,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             if (_selectedEntity == null)
                 return;
-            
+
             foreach (var kvp in _selectedCombats)
             {
                 switch (_type)
@@ -113,7 +113,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             }
             PlotData();
         }
-        
+
         private void DisplayDamageTakenData(KeyValuePair<string, Combat> combat)
         {
             var comb = combat.Value;
@@ -145,7 +145,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             if (data.Count == 0)
                 return;
-            var orderedData = data.OrderByDescending(kvp => kvp.Value.Select(v=>v.Value.DblValue).Sum()).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            var orderedData = data.OrderByDescending(kvp => kvp.Value.Select(v => v.Value.DblValue).Sum()).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             if (AvailableAbilities.Count == 0)
             {
                 AvailableAbilities = orderedData.Keys.ToList();

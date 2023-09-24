@@ -29,7 +29,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         public PositionData Position { get; set; }
         public bool IsTarget { get; set; }
     }
-    public class MiniMapViewModel:INotifyPropertyChanged
+    public class MiniMapViewModel : INotifyPropertyChanged
     {
         private bool _isActive = false;
         private MiniMapView _miniMapView;
@@ -115,7 +115,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                         ShowFrame = true;
                         OnPropertyChanged("ShowFrame");
                     }
-                    
+
                 }
 
                 OverlayStateChanged("MiniMap", _isActive);
@@ -160,17 +160,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private void AddOrUpdateEntity(EntityInfo info)
         {
             _lastUpdatedPlayer[info.Entity.Name] = _lastUpdate;
-            if (CharacterPositionInfos.Any(p=>p.Name == info.Entity.Name))
+            if (CharacterPositionInfos.Any(p => p.Name == info.Entity.Name))
             {
                 var update = CharacterPositionInfos.First(p => p.Name == info.Entity.Name);
                 update.Position = info.Position;
                 update.Menace = GetMenaceType(info.Entity.Name);
                 update.IsTarget = IsCurrentTarget(info.Entity.Name);
-                update.IsEnemy = _mostRecentCombat == null ? EnemyState.Unknown : (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(info.Entity,_lastUpdate) ? EnemyState.Enemy : EnemyState.Friend);
+                update.IsEnemy = _mostRecentCombat == null ? EnemyState.Unknown : (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(info.Entity, _lastUpdate) ? EnemyState.Enemy : EnemyState.Friend);
             }
             else
             {
-                if(CharacterPositionInfos.Count == 16)
+                if (CharacterPositionInfos.Count == 16)
                 {
                     CharacterPositionInfos.Remove(CharacterPositionInfos.MinBy(p => _lastUpdatedPlayer[p.Name]));
                 }
@@ -181,11 +181,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     Menace = GetMenaceType(info.Entity.Name),
                     IsTarget = IsCurrentTarget(info.Entity.Name),
                     IsLocalPlayer = info.Entity.IsLocalPlayer,
-                    IsEnemy = _mostRecentCombat == null ? EnemyState.Unknown : (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(info.Entity,_lastUpdate) ? EnemyState.Enemy : EnemyState.Friend)
-                    
+                    IsEnemy = _mostRecentCombat == null ? EnemyState.Unknown : (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(info.Entity, _lastUpdate) ? EnemyState.Enemy : EnemyState.Friend)
+
                 });
             }
-            
+
         }
         private void NewCombatInfo(Combat currentCombat)
         {
@@ -203,15 +203,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             if (_lastUpdatedPlayer.Count == 0)
                 return;
             var positionInfo = CharacterPositionInfos.ToList();
-            positionInfo.ForEach(p=>p.IsCurrentInfo = IsCurrentInfo(p.Name));
-            _miniMapView.AddOpponents(positionInfo,_lastUpdatedPlayer.MaxBy(kvp=>kvp.Value).Value);
+            positionInfo.ForEach(p => p.IsCurrentInfo = IsCurrentInfo(p.Name));
+            _miniMapView.AddOpponents(positionInfo, _lastUpdatedPlayer.MaxBy(kvp => kvp.Value).Value);
         }
 
         private MenaceTypes GetMenaceType(string key)
         {
-            if(_mostRecentCombat == null || !_mostRecentCombat.EDPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).Any())
+            if (_mostRecentCombat == null || !_mostRecentCombat.EDPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).Any())
                 return MenaceTypes.None;
-            var maxDPS = _mostRecentCombat.EDPS.Where(kvp=>CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key,_mostRecentCombat.StartTime)).MaxBy(d => d.Value);
+            var maxDPS = _mostRecentCombat.EDPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
             if (maxDPS.Key.Name == key)
                 return MenaceTypes.Dps;
             //Doesn't seem like the logs have information about healing done by opponents. Can't know who is the healing menace.

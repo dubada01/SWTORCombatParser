@@ -3,7 +3,6 @@ using Newtonsoft.Json.Linq;
 using SWTORCombatParser.Model.Timers;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.DataStructures.HOT_Timers
 {
@@ -15,7 +14,7 @@ namespace SWTORCombatParser.DataStructures.HOT_Timers
             var timerToLoad = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(@".\DataStructures\Timers\HOT Timers\timers.json"));
             var timers = (timerToLoad["Timers"] as JArray).ToObject<List<Timer>>();
             List<Timer> copiedTimers = new List<Timer>();
-            foreach(var timer in timers)
+            foreach (var timer in timers)
             {
                 timer.ResetOnEffectLoss = true;
                 timer.TrackOutsideOfCombat = true;

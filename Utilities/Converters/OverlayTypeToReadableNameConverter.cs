@@ -9,7 +9,7 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class OverlayTypeToReadableNameConverter : IValueConverter
     {
-       private static Dictionary<OverlayType, string> overlayTypeToString = new Dictionary<OverlayType, string>()
+        private static Dictionary<OverlayType, string> overlayTypeToString = new Dictionary<OverlayType, string>()
 {
     { OverlayType.None, "None" },
     { OverlayType.DPS, "Effective DPS" },
@@ -41,7 +41,7 @@ namespace SWTORCombatParser.Utilities.Converters
             if (value.GetType() == typeof(List<OverlayType>))
             {
                 List<string> typeStrings = new List<string>();
-                foreach(var type in (List<OverlayType>)value)
+                foreach (var type in (List<OverlayType>)value)
                 {
                     typeStrings.Add(GetStringForType(type));
                 }

@@ -1,12 +1,8 @@
 ﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.ClassInfos;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 
@@ -120,7 +116,8 @@ namespace SWTORCombatParser.Model.Challenge
         {
             var currentDefaults = GetAllDefaults();
             var valueToRemove = currentDefaults.SelectMany(s => s.Challenges).FirstOrDefault(t => t.Id == challenge.Id);
-            if(valueToRemove == null) {
+            if (valueToRemove == null)
+            {
                 return;
             }
             foreach (var source in currentDefaults)

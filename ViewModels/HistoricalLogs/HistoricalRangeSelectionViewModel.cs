@@ -1,5 +1,7 @@
-﻿using SWTORCombatParser.Model.CloudRaiding;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.HistoricalLogs;
+using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -8,8 +10,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {
@@ -66,16 +66,17 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         private void FetchHistoryBetweenDates(object obj)
         {
             var window = LoadingWindowFactory.ShowLoading();
-            Task.Run(() => {
-                var combatFiles = CombatLogLoader.LoadCombatsBetweenTimes(FromDate,ToDate.AddDays(1));
+            Task.Run(() =>
+            {
+                var combatFiles = CombatLogLoader.LoadCombatsBetweenTimes(FromDate, ToDate.AddDays(1));
                 var combatsWithinRange = combatFiles.Where(c => c.Time > FromDate && c.Time <= ToDate.AddDays(1));
                 var allCombats = new List<Combat>();
                 foreach (var combatLog in combatsWithinRange)
                 {
                     var combatLines = CombatLogParser.ParseAllLines(combatLog);
-                    
+
                     var combats = SkimBossCombatsFromLogs.GetBossCombats(combatLines);
-                    foreach(var combat in combats)
+                    foreach (var combat in combats)
                     {
                         combat.StartTime = new DateTime(combatLog.Time.Year, combatLog.Time.Month, combatLog.Time.Day, combat.StartTime.Hour, combat.StartTime.Minute, combat.StartTime.Second, combat.StartTime.Millisecond);
                         combat.EndTime = new DateTime(combatLog.Time.Year, combatLog.Time.Month, combatLog.Time.Day, combat.EndTime.Hour, combat.EndTime.Minute, combat.EndTime.Second, combat.EndTime.Millisecond);
@@ -87,12 +88,12 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
 
                 }
                 var uploadedCombats = 0;
-                var distinctEncounters = allCombats.Select(c=>c.ParentEncounter.NamePlus + c.EncounterBossDifficultyParts.Item1).Distinct();
-                foreach(var encounter in allCombats)
+                var distinctEncounters = allCombats.Select(c => c.ParentEncounter.NamePlus + c.EncounterBossDifficultyParts.Item1).Distinct();
+                foreach (var encounter in allCombats)
                 {
-                   // var combat = allCombats.First(c => c.ParentEncounter.NamePlus + c.EncounterBossDifficultyParts.Item1 == encounter);
-                    BossMechanicInfoSkimmer.AddBossInfoAfterCombat(encounter,false);
-                    uploadedCombats ++;
+                    // var combat = allCombats.First(c => c.ParentEncounter.NamePlus + c.EncounterBossDifficultyParts.Item1 == encounter);
+                    BossMechanicInfoSkimmer.AddBossInfoAfterCombat(encounter, false);
+                    uploadedCombats++;
                     window.SetString($"Cached {uploadedCombats.ToString("#,0")} boss combats");
                 }
                 HistoricalCombatsParsed(allCombats);

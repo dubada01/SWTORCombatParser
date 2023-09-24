@@ -1,4 +1,12 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.HistoricalLogs;
+using SWTORCombatParser.Views.Home_Views;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,14 +19,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Win32;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CloudRaiding;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.HistoricalLogs;
-using SWTORCombatParser.Views.Home_Views;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -67,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 OnPropertyChanged();
             }
         }
-        public double CurrentOrbsOffsetMs => Math.Round(Math.Max(0, CurrentTotalOffsetMs - CurrentLogOffsetMs),1);
+        public double CurrentOrbsOffsetMs => Math.Round(Math.Max(0, CurrentTotalOffsetMs - CurrentLogOffsetMs), 1);
         public double CurrentTotalOffsetMs
         {
             get => currentTotalOffsetMs; set
@@ -383,7 +383,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true,combatEndUpdate:true);
+                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true, combatEndUpdate: true);
                 CombatIdentifier.FinalizeOverlays(combatInfo);
                 LiveCombatFinished(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))

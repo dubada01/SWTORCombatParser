@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Diagnostics;
-using System.Globalization;
+﻿using System;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,14 +16,15 @@ namespace SWTORCombatParser.Utilities
             {
                 return Task.CompletedTask;
             }
-            return Task.Run(() => {
+            return Task.Run(() =>
+            {
                 while (true)
                 {
                     try
                     {
                         UpdateCurrentTimeOffset();
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
 
                     }

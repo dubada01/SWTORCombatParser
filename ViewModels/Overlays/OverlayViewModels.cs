@@ -1,29 +1,25 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Overlays.BossFrame;
-using SWTORCombatParser.ViewModels.Overlays.Room;
+using SWTORCombatParser.ViewModels.Challenges;
+using SWTORCombatParser.ViewModels.Overlays.Personal;
 using SWTORCombatParser.ViewModels.Timers;
+using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Overlay;
-using SWTORCombatParser.Views.Overlay.Room;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Views.Challenges;
-using SWTORCombatParser.ViewModels.Challenges;
-using SWTORCombatParser.Model.Challenge;
-using SWTORCombatParser.ViewModels.Overlays.Personal;
-using System.Data;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -250,7 +246,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case "Tank":
                     return Role.Tank;
                 default:
-                return Role.Unknown;
+                    return Role.Unknown;
             }
         }
 
@@ -384,7 +380,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     DefaultPersonalOverlaysManager.SelectNewDefault(selectedType);
                     OnPropertyChanged();
                 }
-                
+
 
             }
         }
@@ -404,7 +400,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => useDynamicLayout; set
             {
                 useDynamicLayout = value;
-                if(useDynamicLayout && !string.IsNullOrEmpty(_previousRole))
+                if (useDynamicLayout && !string.IsNullOrEmpty(_previousRole))
                 {
                     _currentCharacterRole = _previousRole;
                 }

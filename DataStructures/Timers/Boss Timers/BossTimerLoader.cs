@@ -1,5 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SWTORCombatParser.Model.Timers;
 using System.Collections.Generic;
@@ -28,7 +27,7 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
             var currentBossTimers = DefaultTimersManager.GetAllDefaults();
             currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
 
-            
+
             foreach (var source in bossTimerData)
             {
                 if (source.Timers.Count == 0)
@@ -36,7 +35,7 @@ namespace SWTORCombatParser.DataStructures.Boss_Timers
                 source.IsBossSource = true;
                 foreach (var timer in source.Timers)
                 {
-                    if(timer.TriggerType == TimerKeyType.EntityHP)
+                    if (timer.TriggerType == TimerKeyType.EntityHP)
                     {
                         timer.TargetIsLocal = timer.SourceIsLocal;
                         timer.Source = "Any";

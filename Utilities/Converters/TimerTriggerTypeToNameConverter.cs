@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace SWTORCombatParser.Utilities.Converters
@@ -19,7 +17,7 @@ namespace SWTORCombatParser.Utilities.Converters
             {
                 orderedConvertedNames.Add(GetConvertedType(type));
             }
-            return orderedConvertedNames.OrderBy(v=>v).ToList();
+            return orderedConvertedNames.OrderBy(v => v).ToList();
         }
         private string GetConvertedType(TimerKeyType type)
         {

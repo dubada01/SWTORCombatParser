@@ -2,23 +2,18 @@
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.BattleReview;
 using SWTORCombatParser.ViewModels.Challenges;
-using SWTORCombatParser.ViewModels.Death_Review;
-using SWTORCombatParser.ViewModels.Home_View_Models;
 using SWTORCombatParser.Views.Battle_Review;
 using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Death_Review;
-using SWTORCombatParser.Views.Home_Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
-    public class DeathReviewViewModel:INotifyPropertyChanged
+    public class DeathReviewViewModel : INotifyPropertyChanged
     {
         public ChallengeControl DeathChallengeView { get; set; }
         private DeathChallengeViewModel _challengeViewModel;
@@ -32,7 +27,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         public event PropertyChangedEventHandler PropertyChanged;
         private Combat _currentCombat;
 
-        public DeathReviewViewModel() 
+        public DeathReviewViewModel()
         {
             DeathChallengeView = new ChallengeControl();
             DeathChallengeView.DataContext = ChallengeSetupViewModel._challengeWindowViewModel;
@@ -84,13 +79,13 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         {
             _currentCombat = selectedCombat;
             Reset();
-            var playersThatDidNotStuck = selectedCombat.AllLogs.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(l.Source.Name) && l.Target.IsCharacter).Select(l=>l.Target).DistinctBy(p=>p.LogId).ToList();
+            var playersThatDidNotStuck = selectedCombat.AllLogs.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(l.Source.Name) && l.Target.IsCharacter).Select(l => l.Target).DistinctBy(p => p.LogId).ToList();
             var selectedParticipants = _playerListViewModel.UpdateParticipantsData(selectedCombat, playersThatDidNotStuck);
-            if(playersThatDidNotStuck.Any())
+            if (playersThatDidNotStuck.Any())
             {
                 _deathLogsViewModel.SetViewableEntities(selectedParticipants);
             }
-            var startTime = _deathLogsViewModel.SelectCombat(selectedCombat,true);
+            var startTime = _deathLogsViewModel.SelectCombat(selectedCombat, true);
             _plotViewModel.Reset();
             _plotViewModel.PlotCombat(_currentCombat, selectedParticipants, startTime);
         }

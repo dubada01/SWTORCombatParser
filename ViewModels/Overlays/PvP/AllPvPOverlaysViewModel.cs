@@ -1,15 +1,11 @@
 ﻿using SWTORCombatParser.Model.Overlays;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
-    public class AllPvPOverlaysViewModel:INotifyPropertyChanged
+    public class AllPvPOverlaysViewModel : INotifyPropertyChanged
     {
         private OpponentOverlayViewModel _opponentOverlayViewModel;
         private MiniMapViewModel _miniMapViewModel;
@@ -27,10 +23,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _miniMapViewModel.OverlayStateChanged += UpdateOverlay;
             miniMapEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap").Acive;
             MiniMapRangeBuffer = 15;
-            
+
 
         }
-        
+
         public int MiniMapRangeBuffer
         {
             get => miniMapRangeBuffer; set
@@ -65,7 +61,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             {
                 miniMapEnabled = state;
                 OnPropertyChanged("MiniMapEnabled");
-                
+
             }
             else
             {

@@ -1,12 +1,12 @@
-﻿using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Overlays;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
-using SWTORCombatParser.DataStructures;
-using System;
-using System.Collections.Generic;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double defaultValueWidth = 70;
 
         private string valueStringFormat = "#,##0";
-        private double sizeScalar=1;
+        private double sizeScalar = 1;
 
         public string MedalIconPath { get; set; } = "../../resources/redX.png";
         public string InfoText => $"{Type}: {(int)Value}" + (SecondaryType != OverlayType.None ? $"\n{SecondaryType}: {(int)SecondaryValue}" : "");
@@ -37,9 +37,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged("ValueWidth");
             }
         }
-        public GridLength ValueWidth => new GridLength(defaultValueWidth*SizeScalar, GridUnitType.Pixel);
-        public double FontSize => Math.Max(7,defaultFontSize * SizeScalar);
-        public double InfoFontSize => Math.Max(6.5, FontSize  * 0.9);
+        public GridLength ValueWidth => new GridLength(defaultValueWidth * SizeScalar, GridUnitType.Pixel);
+        public double FontSize => Math.Max(7, defaultFontSize * SizeScalar);
+        public double InfoFontSize => Math.Max(6.5, FontSize * 0.9);
         public double RankFontSize => Math.Max(6, InfoFontSize * 0.6);
         public double BarHeight => defaultBarHeight * SizeScalar;
         public GridLength RemainderWidth { get; set; }
@@ -129,13 +129,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public double SecondaryValue
         {
-            get => double.IsNaN(_secondaryValue) ? 0:_secondaryValue; set
+            get => double.IsNaN(_secondaryValue) ? 0 : _secondaryValue; set
             {
                 _secondaryValue = value;
                 OnPropertyChanged();
             }
         }
-        public string TotalValue => Math.Max(0,Value + Math.Max(0,AddSecondayToValue ? SecondaryValue : SecondaryValue * -1)).ToString(valueStringFormat, CultureInfo.InvariantCulture);
+        public string TotalValue => Math.Max(0, Value + Math.Max(0, AddSecondayToValue ? SecondaryValue : SecondaryValue * -1)).ToString(valueStringFormat, CultureInfo.InvariantCulture);
         public void Reset()
         {
             Value = 0;

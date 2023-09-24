@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using ScottPlot.Styles;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using System;
@@ -16,7 +15,7 @@ namespace SWTORCombatParser.Model.Timers
         public bool IsBossSource;
         public Point Position;
         public Point WidtHHeight;
-        
+
         public List<Timer> Timers = new List<Timer>();
     }
     public static class DefaultTimersManager
@@ -31,7 +30,7 @@ namespace SWTORCombatParser.Model.Timers
         public static void UpdateTimersActive(bool timersActive, string timerSource)
         {
             var currentActives = GetAllTimersActiveInfo();
-            
+
             currentActives[timerSource] = timersActive;
             SaveActiveTimersInfo(currentActives);
         }
@@ -45,11 +44,11 @@ namespace SWTORCombatParser.Model.Timers
             }
             return activeInfo[currentCharacter];
         }
-        private static void SaveActiveTimersInfo(Dictionary<string,bool> activesInfo)
+        private static void SaveActiveTimersInfo(Dictionary<string, bool> activesInfo)
         {
             File.WriteAllText(activePath, JsonConvert.SerializeObject(activesInfo));
         }
-        private static Dictionary<string,bool> GetAllTimersActiveInfo()
+        private static Dictionary<string, bool> GetAllTimersActiveInfo()
         {
             return JsonConvert.DeserializeObject<Dictionary<string, bool>>(File.ReadAllText(activePath));
         }
@@ -97,7 +96,7 @@ namespace SWTORCombatParser.Model.Timers
                 var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
                 foreach (var timer in source.Timers)
                 {
-                    if(sourceToUpdate.Timers.Any(t=>t.Id == timer.Id) || timer.Id == "")
+                    if (sourceToUpdate.Timers.Any(t => t.Id == timer.Id) || timer.Id == "")
                         continue;
                     sourceToUpdate.Timers.Add(timer);
                 }
@@ -110,7 +109,7 @@ namespace SWTORCombatParser.Model.Timers
         public static void ClearBuiltinMechanics(int currentrev)
         {
             var allTimers = GetAllDefaults();
-            foreach(var source in allTimers)
+            foreach (var source in allTimers)
             {
                 source.Timers.RemoveAll(t => t.IsMechanic && t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot && !t.IsImportedFromSP);
             }
@@ -137,8 +136,8 @@ namespace SWTORCombatParser.Model.Timers
         public static void RemoveTimerForCharacter(Timer timer, string character)
         {
             var currentDefaults = GetAllDefaults();
-            var valueToRemove = currentDefaults.SelectMany(s=>s.Timers).First(t => TimerEquality.Equals(timer, t));
-            foreach(var source in currentDefaults)
+            var valueToRemove = currentDefaults.SelectMany(s => s.Timers).First(t => TimerEquality.Equals(timer, t));
+            foreach (var source in currentDefaults)
             {
                 source.Timers.Remove(valueToRemove);
             }
@@ -161,9 +160,9 @@ namespace SWTORCombatParser.Model.Timers
         public static void SetTimersAudioForSource(List<Timer> timers, string source)
         {
             var currentDefaults = GetDefaults(source);
-            foreach(var timer in currentDefaults.Timers)
+            foreach (var timer in currentDefaults.Timers)
             {
-                timer.UseAudio = timers.First(t=>t.Id == timer.Id).UseAudio;
+                timer.UseAudio = timers.First(t => t.Id == timer.Id).UseAudio;
             }
             //var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
             //timerToModify.UseAudio = state;
@@ -184,20 +183,20 @@ namespace SWTORCombatParser.Model.Timers
             try
             {
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
-                if (!currentDefaults.Any(c=>c.TimerSource == timerSource))
+                if (!currentDefaults.Any(c => c.TimerSource == timerSource))
                 {
                     InitializeDefaults(timerSource);
                 }
 
                 var initializedInfo = File.ReadAllText(infoPath);
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
-                return currentDefaults.First(t=>t.TimerSource == timerSource);
+                return currentDefaults.First(t => t.TimerSource == timerSource);
             }
             catch (Exception)
             {
                 InitializeDefaults(timerSource);
                 var resetDefaults = File.ReadAllText(infoPath);
-                return JsonConvert.DeserializeObject<List<DefaultTimersData>>(resetDefaults).First(t=>t.TimerSource == timerSource);
+                return JsonConvert.DeserializeObject<List<DefaultTimersData>>(resetDefaults).First(t => t.TimerSource == timerSource);
             }
         }
         public static List<DefaultTimersData> GetAllMechanicsDefaults()
@@ -207,13 +206,13 @@ namespace SWTORCombatParser.Model.Timers
         public static List<DefaultTimersData> GetAllDefaults()
         {
             var stringInfo = File.ReadAllText(infoPath);
-            if(_currentDefaults == stringInfo)
+            if (_currentDefaults == stringInfo)
             {
                 return _defaults;
             }
             else
             {
-                _currentDefaults= stringInfo;
+                _currentDefaults = stringInfo;
             }
             if (string.IsNullOrEmpty(stringInfo))
             {
@@ -224,18 +223,18 @@ namespace SWTORCombatParser.Model.Timers
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
                 var classes = ClassLoader.LoadAllClasses();
                 var validSources = classes.Select(c => c.Discipline);
-                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) || 
+                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) ||
                 c.TimerSource == "Shared" ||
-                c.TimerSource == "HOTS"|| 
-                c.TimerSource == "DOTS" || 
-                c.TimerSource == "DCD" || 
+                c.TimerSource == "HOTS" ||
+                c.TimerSource == "DOTS" ||
+                c.TimerSource == "DCD" ||
                 c.TimerSource == "OCD" ||
                 c.IsBossSource ||
             c.TimerSource == "StarParse Import").ToList();
                 _defaults = validDefaults;
                 return validDefaults;
             }
-            catch(JsonSerializationException)
+            catch (JsonSerializationException)
             {
                 File.WriteAllText(infoPath, "");
                 return new List<DefaultTimersData>();
@@ -253,7 +252,7 @@ namespace SWTORCombatParser.Model.Timers
             var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) ||
             c.TimerSource == "Shared" ||
             c.TimerSource == "HOTS" ||
-            c.TimerSource == "DOTS" || 
+            c.TimerSource == "DOTS" ||
             c.TimerSource == "DCD" ||
             c.TimerSource == "OCD" ||
             c.IsBossSource ||
@@ -270,7 +269,7 @@ namespace SWTORCombatParser.Model.Timers
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
             }
 
-            var defaults = new DefaultTimersData() {TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(300, 200)};
+            var defaults = new DefaultTimersData() { TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(300, 200) };
             if (timerSource.Contains("|"))
                 defaults.IsBossSource = true;
             currentDefaults.Add(defaults);
@@ -279,8 +278,8 @@ namespace SWTORCombatParser.Model.Timers
             var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) ||
             c.TimerSource == "Shared" ||
             c.TimerSource == "HOTS" ||
-            c.TimerSource == "DOTS" || 
-            c.TimerSource == "DCD" || 
+            c.TimerSource == "DOTS" ||
+            c.TimerSource == "DCD" ||
             c.TimerSource == "OCD" ||
             c.IsBossSource ||
             c.TimerSource == "StarParse Import");

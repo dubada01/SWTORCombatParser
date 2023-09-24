@@ -16,7 +16,7 @@ namespace SWTORCombatParser.Utilities
     {
         public static IList<(int, double)> FindPeaks(IList<double> values, int rangeOfPeaks)
         {
-            List<(int,double)> peaks = new List<(int,double)>();
+            List<(int, double)> peaks = new List<(int, double)>();
 
             int checksOnEachSide = rangeOfPeaks / 2;
             for (int i = 0; i < values.Count; i++)
@@ -27,7 +27,7 @@ namespace SWTORCombatParser.Utilities
                     range = range.Skip(i - checksOnEachSide);
                 range = range.Take(rangeOfPeaks);
                 if (current == range.Max())
-                    peaks.Add((i,current));
+                    peaks.Add((i, current));
             }
             return peaks;
         }

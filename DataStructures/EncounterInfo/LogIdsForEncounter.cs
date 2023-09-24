@@ -420,7 +420,7 @@ public static class LogIdFactory
                                 { "Veteran 16", new List<long>() { 3468740142301184L ,3371437658210304L, 3371441953177600L} },
                             }
                         }
-                    }; 
+                    };
                     encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
                     {
                         {
@@ -880,7 +880,7 @@ public static class LogIdFactory
                             }
                         }
                     };
-                    break;                
+                    break;
                 case "Boarding Party":
                     encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
                     {
@@ -1159,7 +1159,7 @@ public static class LogIdFactory
                                 { "Master 4", new List<long>() { 2511744119341056} }
                             }
                         }
-                        
+
                         ,
                         {
                             "Darth Malgus", new Dictionary<string, List<long>>()
@@ -1192,7 +1192,7 @@ public static class LogIdFactory
                             {
                                 { "Veteran 4", new List<long>() { 2762127827795968,2762123532828672,2762140712697856} },
                                 { "Master 4", new List<long>() { 2762260971782144,2762265266749440,2762269561716736} }
-                                
+
                             }
                         }
                     };
@@ -1237,7 +1237,7 @@ public static class LogIdFactory
                                 { "Master 4", new List<long>() { 2835799401824256} }
                             }
                         }
-                        
+
                         ,
                         {
                             "Doctor Lorrick", new Dictionary<string, List<long>>()
@@ -1340,7 +1340,7 @@ public static class LogIdFactory
                                 { "Master 4", new List<long>() { 3465579046371328} }
                             }
                         }
-                        
+
                         ,
                         {
                             "Lord Goh", new Dictionary<string, List<long>>()
@@ -1391,7 +1391,7 @@ public static class LogIdFactory
                                 { "Master 4", new List<long>() { 3468757322170368} }
                             }
                         }
-                        
+
                         ,
                         {
                             "Darth Soverus", new Dictionary<string, List<long>>()
@@ -1820,55 +1820,55 @@ public static class LogIdFactory
                         }
                     };
                     break;
-				case "Shrine of Silence":
-					encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
-					{
-						{
-							"Corrupted Vorantikus", new Dictionary<string, List<long>>()
-							{
+                case "Shrine of Silence":
+                    encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Corrupted Vorantikus", new Dictionary<string, List<long>>()
+                            {
                                 { "Story 4", new List<long>() { 4702735786049536 } },
-								{ "Veteran 4", new List<long>() { 4702748670951424 } },
-								{ "Master 4", new List<long>() { 4702752965918720 } }
-							}
-						},
-						{
-							"Voss Mystics", new Dictionary<string, List<long>>()
-							{
-								{ "Veteran 4", new List<long>() { 4705574759432192 , 4705600529235968 } },
-								{ "Master 4", new List<long>() { 4705591939301376 , 4705596234268672 } }
-							}
-						},
-						{
-							"Kirba, the Forgotten", new Dictionary<string, List<long>>()
-							{
-								{ "Veteran 4", new List<long>() { 4702765850820608 } },
-								{ "Master 4", new List<long>() { 4702770145787904 } }
-							}
-						},
-						{
-							"Nil-Uu", new Dictionary<string, List<long>>()
-							{
-								{ "Veteran 4", new List<long>() { 4699299812212736 } },
-								{ "Master 4", new List<long>() { 4699299812212736 } }
-							}
-						},
-						{
-							"Soul Coil", new Dictionary<string, List<long>>()
-							{
-								{ "Veteran 4", new List<long>() { 4699119423586304 } },
-								{ "Master 4", new List<long>() { 4699119423586304 } }
-							}
-						},
-												{
-							"The Curse", new Dictionary<string, List<long>>()
-							{
-								{ "Veteran 4", new List<long>() { 4705561874530304 } },
-								{ "Master 4", new List<long>() { 4705566169497600 } }
-							}
-						}
-					};
-					break;
-			}
+                                { "Veteran 4", new List<long>() { 4702748670951424 } },
+                                { "Master 4", new List<long>() { 4702752965918720 } }
+                            }
+                        },
+                        {
+                            "Voss Mystics", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 4705574759432192 , 4705600529235968 } },
+                                { "Master 4", new List<long>() { 4705591939301376 , 4705596234268672 } }
+                            }
+                        },
+                        {
+                            "Kirba, the Forgotten", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 4702765850820608 } },
+                                { "Master 4", new List<long>() { 4702770145787904 } }
+                            }
+                        },
+                        {
+                            "Nil-Uu", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 4699299812212736 } },
+                                { "Master 4", new List<long>() { 4699299812212736 } }
+                            }
+                        },
+                        {
+                            "Soul Coil", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 4699119423586304 } },
+                                { "Master 4", new List<long>() { 4699119423586304 } }
+                            }
+                        },
+                                                {
+                            "The Curse", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 4705561874530304 } },
+                                { "Master 4", new List<long>() { 4705566169497600 } }
+                            }
+                        }
+                    };
+                    break;
+            }
         }
     }
 }

@@ -20,14 +20,14 @@ namespace SWTORCombatParser.Model.Overlays
     {
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "bossframe_overlay_info.json");
-        public static event Action DefaultsUpdated = delegate{};
+        public static event Action DefaultsUpdated = delegate { };
         public static void Init()
         {
             if (!Directory.Exists(appDataPath))
                 Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new BossFrameDefaults() { WidtHHeight = new Point(200,300), Position = new Point(), TrackDOTS = true, PredictMechs = true}));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new BossFrameDefaults() { WidtHHeight = new Point(200, 300), Position = new Point(), TrackDOTS = true, PredictMechs = true }));
             }
         }
         internal static void SetDefaults(Point point1, Point point2)
@@ -88,7 +88,7 @@ namespace SWTORCombatParser.Model.Overlays
         }
         public static void SaveDefaults(BossFrameDefaults toSave)
         {
-            File.WriteAllText(infoPath,JsonConvert.SerializeObject(toSave));
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(toSave));
             DefaultsUpdated();
         }
     }

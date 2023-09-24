@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xaml;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace SWTORCombatParser.Utilities;
 
@@ -18,10 +17,10 @@ public static class Settings
             Directory.CreateDirectory(_appDataPath);
         if (!File.Exists(_settingsPath))
         {
-            File.WriteAllText(_settingsPath,"{\"overlay_bar_scale\": 1.0,\"custom_audio_paths\": []}");
+            File.WriteAllText(_settingsPath, "{\"overlay_bar_scale\": 1.0,\"custom_audio_paths\": []}");
         }
     }
-    
+
     public static List<T> GetListSetting<T>(string settingName)
     {
         Init();
@@ -31,14 +30,14 @@ public static class Settings
         var stringsetting = settingList[settingName].ToString();
         return JsonConvert.DeserializeObject<List<T>>(stringsetting);
     }
-    public static Dictionary<T,T2> GetDictionarySetting<T,T2>(string settingName)
+    public static Dictionary<T, T2> GetDictionarySetting<T, T2>(string settingName)
     {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName))
-            settingList[settingName] = JsonConvert.SerializeObject(new Dictionary<string,int>());
+            settingList[settingName] = JsonConvert.SerializeObject(new Dictionary<string, int>());
         var stringsetting = settingList[settingName].ToString();
-        return JsonConvert.DeserializeObject<Dictionary<T,T2>>(stringsetting);
+        return JsonConvert.DeserializeObject<Dictionary<T, T2>>(stringsetting);
     }
     public static T ReadSettingOfType<T>(string settingName)
     {
@@ -46,7 +45,7 @@ public static class Settings
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName) && settingName == "stub_logs")
             settingList[settingName] = false;
-        if(!settingList.ContainsKey(settingName) && settingName == "offline_mode")
+        if (!settingList.ContainsKey(settingName) && settingName == "offline_mode")
             settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "DynamicLayout")
             settingList[settingName] = false;
@@ -67,6 +66,6 @@ public static class Settings
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         settingList[settingName] = JsonConvert.SerializeObject(value);
-        File.WriteAllText(_settingsPath,JsonConvert.SerializeObject(settingList));
+        File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settingList));
     }
 }
