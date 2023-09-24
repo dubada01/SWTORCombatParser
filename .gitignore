@@ -27,7 +27,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 
-TestCombatLogs/
+*/TestLogs/
 
 connectionConfig.json
 
