@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.IO;
 using System.Text;
@@ -19,7 +20,12 @@ namespace SWTORCombatParser_Test
 
 
             TransferLogData(logName, testLogPath);
-
+            //test that the log is parsed correctly
+            var log = CombatLogLoader.LoadSpecificLog(testLogPath);
+            if (log != null)
+                Assert.Pass();
+            else
+                Assert.Fail();
         }
 
         private void TransferLogData(string logName, string testLogPath)

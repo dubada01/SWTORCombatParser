@@ -3292,7 +3292,7 @@
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
-    <PackageReference Include="MouseKeyHook" Version="5.6.0" />
+    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Npgsql" Version="5.0.10" />
     <PackageReference Include="PInvoke.Kernel32" Version="0.7.124" />
