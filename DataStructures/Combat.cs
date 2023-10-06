@@ -355,7 +355,7 @@ namespace SWTORCombatParser.DataStructures
                 {
                     returnDict[player] = AllDamageRecoveryTimes[player].ToDictionary(
                         kvp => kvp.Key,
-                        kvp => kvp.Value.Any(v => !double.IsNaN(v)) ? kvp.Value.Where(v => !double.IsNaN(v)).Count(c => c < minReactionTime) : double.NaN);
+                        kvp => kvp.Value.Any(v => !double.IsNaN(v)) ? kvp.Value.Count(c => !double.IsNaN(c) && c < minReactionTime) : double.NaN);
                 }
                 else
                 {

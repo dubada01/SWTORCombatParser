@@ -2,6 +2,7 @@
 using SWTORCombatParser.Utilities;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -177,6 +178,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (TimerValue <= 0)
             {
                 TriggerTimeTimer(timeStampOfReset);
+                TimerRefreshed();
                 return;
             }
 
@@ -305,9 +307,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (SourceTimer.HideUntilSec > 0 && !DisplayTimer && TimerValue <= SourceTimer.HideUntilSec)
                 DisplayTimer = true;
         }
-        public void Complete(bool endedNatrually)
+        public void Complete(bool endedNatrually, bool force=false)
         {
             if (!isActive) return;
+            if (SourceTimer.IsHot && !force)
+                return;
             isActive = false;
             TimerValue = 0;
             TimerExpired(this, endedNatrually);

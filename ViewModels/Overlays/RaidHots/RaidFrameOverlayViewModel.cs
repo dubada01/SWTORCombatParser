@@ -225,7 +225,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 frameToUpdate.Name = obj.Target.Name.ToUpper();
                 CurrentNames.Add(new PlacedName { Column = (int)oldestUnhandledCell.X, Row = (int)oldestUnhandledCell.Y, Name = obj.Target.Name });
             }
-            //UpdateCells();
         }
 
         private void CheckForConversation(ParsedLogEntry obj)
