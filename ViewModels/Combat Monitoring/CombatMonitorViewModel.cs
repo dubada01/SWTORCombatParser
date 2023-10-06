@@ -494,9 +494,14 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 return;
             }
             OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
-            OnCombatSelected(selectedCombat.Combat);
 
-            CombatSelectionMonitor.FireNewCombat(selectedCombat.Combat);
+            //Run these in a task so that the UI can update first
+            Task.Run(() => {
+                OnCombatSelected(selectedCombat.Combat);
+
+                CombatSelectionMonitor.FireNewCombat(selectedCombat.Combat);
+            });
+
 
         }
         private void NewCombatStatusAlert(CombatStatusUpdate update)

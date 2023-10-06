@@ -35,7 +35,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 {
                     bar.Value.SizeScalar = sizeScalar;
                 }
-
+                OnPropertyChanged("LeaderboardSeperationDistance");
+                OnPropertyChanged("TotalRowHeight");
                 OnPropertyChanged();
             }
         }
@@ -52,8 +53,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
+        public double LeaderboardSeperationDistance => HasLeaderboard ? (SizeScalar *5) : 0;
         public bool HasLeaderboard => (Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS || Type == OverlayType.FocusDPS) && UsingLeaderboard;
         public GridLength LeaderboardRowHeight => HasLeaderboard ? new GridLength(20) : new GridLength(0);
+        public GridLength TotalRowHeight => new GridLength(20);
         public bool AddSecondaryToValue { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
         public event Action CloseRequested = delegate { };

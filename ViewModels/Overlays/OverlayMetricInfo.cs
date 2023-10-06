@@ -18,7 +18,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private int leaderboardRank;
         private double defaultBarHeight = 35;
         private double defaultFontSize = 18;
-        private double defaultValueWidth = 70;
+        private double defaultValueWidth = 60;
 
         private string valueStringFormat = "#,##0";
         private double sizeScalar = 1;
@@ -35,17 +35,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged("RankFontSize");
                 OnPropertyChanged("BarHeight");
                 OnPropertyChanged("ValueWidth");
+                OnPropertyChanged("BorderThickness");
+                OnPropertyChanged("TotalFontSize");
             }
         }
-        public GridLength ValueWidth => new GridLength(defaultValueWidth * SizeScalar, GridUnitType.Pixel);
+        public GridLength ValueWidth => new GridLength(defaultValueWidth * Math.Sqrt(SizeScalar), GridUnitType.Pixel);
         public double FontSize => Math.Max(7, defaultFontSize * SizeScalar);
+        public double TotalFontSize => Math.Max(9, defaultFontSize * SizeScalar);
         public double InfoFontSize => Math.Max(6.5, FontSize * 0.9);
         public double RankFontSize => Math.Max(6, InfoFontSize * 0.6);
         public double BarHeight => defaultBarHeight * SizeScalar;
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
-        public double BorderThickness => IsLeaderboardValue ? 3 : 0;
+        public double BorderThickness => IsLeaderboardValue ? (3*SizeScalar) : 0;
         public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
         public CornerRadius BarRadiusSecondary { get; set; } = new CornerRadius(3, 3, 3, 3);
         public SolidColorBrush BarOutline => IsLeaderboardValue ? Brushes.WhiteSmoke : Brushes.Transparent;

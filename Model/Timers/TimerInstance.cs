@@ -297,7 +297,7 @@ namespace SWTORCombatParser.Model.Timers
                     {
                         return;
                     }
-                    endedTimer.Complete(true);
+                    endedTimer.Complete(true,true);
                 }
 
                 if (log.Effect.EffectType == EffectType.ModifyCharges || (log.Effect.EffectType == EffectType.Apply &&

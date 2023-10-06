@@ -84,15 +84,12 @@ namespace SWTORCombatParser.Model.CombatParsing
             var targets = GetTargets(orderedLogsList);
             var allEntities = new List<Entity>().Concat(targets).Concat(currentPariticpants).Distinct().ToList();
 
-            // Create a HashSet of distinct LogIds from allEntities for faster lookups
-            HashSet<long> distinctLogIds = new HashSet<long>(allEntities.Select(e => e.LogId));
-
             // Create the dictionary
             Dictionary<Entity, List<ParsedLogEntry>> entityLogs = allEntities
                 .ToDictionary(
                     p => p,
                     p => ongoingLogs.AsParallel().WithDegreeOfParallelism(8)
-                        .Where(l => distinctLogIds.Contains(l.Target.LogId) || distinctLogIds.Contains(l.Source.LogId)).OrderBy(t => t.TimeStamp)
+                        .Where(l => p.LogId == l.Target.LogId || p.LogId == l.Source.LogId).OrderBy(t => t.TimeStamp)
                         .ToList()
                 );
 
@@ -125,7 +122,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 newCombat.RequiredDeadTargetsForKill = new List<string> { "2857785339412480" };
             }
             CombatMetaDataParse.PopulateMetaData(newCombat);
-            var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).ToList());
+            var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8).Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l=>l.TimeStamp).ToList());
             AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
             AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
             if (!quietOverlays)
