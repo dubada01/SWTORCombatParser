@@ -37,11 +37,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged("ValueWidth");
                 OnPropertyChanged("BorderThickness");
                 OnPropertyChanged("TotalFontSize");
+                OnPropertyChanged("LeaderboardSeperationDistance");
             }
         }
         public GridLength ValueWidth => new GridLength(defaultValueWidth * Math.Sqrt(SizeScalar), GridUnitType.Pixel);
         public double FontSize => Math.Max(7, defaultFontSize * SizeScalar);
-        public double TotalFontSize => Math.Max(9, defaultFontSize * SizeScalar);
         public double InfoFontSize => Math.Max(6.5, FontSize * 0.9);
         public double RankFontSize => Math.Max(6, InfoFontSize * 0.6);
         public double BarHeight => defaultBarHeight * SizeScalar;
@@ -55,6 +55,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool AddSecondayToValue { get; set; }
         public Entity Player { get; set; }
         public bool RankIsPersonalRecord { get; set; }
+        public double LeaderboardSeperationDistance =>  (SizeScalar * 5);
         public string LeaderboardRank
         {
             get => leaderboardRank == 0 ? "" : leaderboardRank.ToString();
