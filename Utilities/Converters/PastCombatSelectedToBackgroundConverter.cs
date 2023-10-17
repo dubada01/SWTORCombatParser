@@ -12,9 +12,9 @@ namespace SWTORCombatParser.Utilities.Converters
             switch ((bool)value)
             {
                 case false:
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#565956"));
+                    return (SolidColorBrush)App.Current.FindResource("Gray4Brush");
                 case true:
-                    return System.Windows.Media.Brushes.Gray;
+                    return (SolidColorBrush)App.Current.FindResource("Gray6Brush");
             }
         }
 

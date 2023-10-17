@@ -311,12 +311,20 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (!isActive) return;
             if (SourceTimer.IsHot && !force)
+            {
+				DelayRemoval(endedNatrually);
                 return;
+            }    
             isActive = false;
             TimerValue = 0;
             TimerExpired(this, endedNatrually);
         }
-
+        private async void DelayRemoval(bool endedNatrually)
+        {
+            await Task.Delay(1500);
+            if(isActive)
+				TimerExpired(this, endedNatrually);
+		}
         private string GetTimerName()
         {
             var name = "";

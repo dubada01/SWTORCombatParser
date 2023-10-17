@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Plotting;
 using SWTORCombatParser.ViewModels.Home_View_Models;
@@ -27,11 +28,12 @@ namespace SWTORCombatParser.DataStructures
 
 
         public EncounterInfo.EncounterInfo ParentEncounter;
+        public BossInfo BossInfo;
         public string EncounterBossInfo => EncounterBossDifficultyParts == ("", "", "") ? "" : $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item2} {EncounterBossDifficultyParts.Item3}}}";
         public string OldFlashpointBossInfo => EncounterBossDifficultyParts == ("", "", "") ? "" : $"{EncounterBossDifficultyParts.Item1} {{{EncounterBossDifficultyParts.Item3}}}";
         public (string, string, string) EncounterBossDifficultyParts = ("", "", "");
 
-        public List<string> RequiredDeadTargetsForKill { get; set; } = new List<string>();
+        public List<string> RequiredDeadTargetsForKill => BossInfo.TargetsRequiredForKill;
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
         public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
         public bool WasBossKilled => RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Where(t => t.Target.IsBoss).Any(l => (l.Target.LogId.ToString() == t && l.Effect.EffectId == _7_0LogParsing.DeathCombatId)));

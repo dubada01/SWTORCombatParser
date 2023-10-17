@@ -68,7 +68,6 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 BossInfos = source.BossInfos,
                 MapInfo = source.MapInfo,
                 RequiredIdsForKill = source.RequiredIdsForKill,
-
             };
         }
 
@@ -120,21 +119,21 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         }
         private List<BossInfo> GetBossInfos()
         {
-            if (!RequiredIdsForKill.Any())
+            foreach(var boss in bossIds)
             {
-                RequiredIdsForKill = bossIds;
-            }
-            else
-            {
-
+                if(RequiredIdsForKill.ContainsKey(boss.Key))
+                {
+                    continue;
+                }
+                RequiredIdsForKill.Add(boss.Key, boss.Value);
             }
             if (bossIds.Count > 0)
             {
                 return BossIds.Select(bi => new BossInfo()
                 {
                     EncounterName = bi.Key,
-                    TargetIds = bi.Value[GetKey(bi.Value.Keys.ToList())].Select(id => id.ToString()).ToList(),
-                    TargetsRequiredForKill = RequiredIdsForKill[bi.Key][GetKey(bi.Value.Keys.ToList())].Select(id => id.ToString()).ToList()
+                    TargetIds = bi.Value[GetKey(bi.Value,bi.Value.Keys.ToList())].Select(id => id.ToString()).ToList(),
+                    TargetsRequiredForKill = RequiredIdsForKill[bi.Key][GetKey(bi.Value, bi.Value.Keys.ToList())].Select(id => id.ToString()).ToList()
                 }).ToList();
             }
             if (bossNames.Count == 0)
@@ -147,12 +146,14 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
             }).ToList();
         }
 
-        private string GetKey(List<string> availableModes)
+        private string GetKey(Dictionary<string,List<long>> self, List<string> availableModes)
         {
             if (NumberOfPlayer.Contains("4") && availableModes.All(m => m == "All"))
                 return "All";
             if (NumberOfPlayer.Contains("4") && availableModes.All(m => m != "All"))
                 return ((Difficutly == "Story" ? "Veteran" : Difficutly) + " " + NumberOfPlayer.Split(" ")[0]);
+            if(self.ContainsKey(Difficutly))
+                return  Difficutly + " " + NumberOfPlayer.Split(" ")[0];
             return ((Difficutly == "Master" ? "Veteran" : Difficutly) + " " + NumberOfPlayer.Split(" ")[0]);
         }
 

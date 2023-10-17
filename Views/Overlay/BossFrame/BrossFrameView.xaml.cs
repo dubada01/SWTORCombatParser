@@ -20,7 +20,6 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
             InitializeComponent();
             viewModel = vm;
             DataContext = vm;
-            InitializeComponent();
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close,
                 new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;

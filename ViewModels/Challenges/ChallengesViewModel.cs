@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 selectedTimerSource = value;
 
                 OnPropertyChanged();
-                UpdateTimerRows();
+                UpdateChallengeRows();
                 OnPropertyChanged("VisibleTimerSelected");
             }
         }
@@ -117,17 +117,17 @@ namespace SWTORCombatParser.ViewModels.Challenges
             _challengeWindowViewModel.UpdateLock(state);
             _isLocked = state;
         }
-        private void UpdateTimerRows()
+        private void UpdateChallengeRows()
         {
             _savedChallengeData = DefaultChallengeManager.GetAllDefaults();
-            var allValidTimers = _savedChallengeData.Where(t => SelectedSource.Contains('|') ? CompareEncounters(t.ChallengeSource, SelectedSource) : t.ChallengeSource == SelectedSource).ToList();
+            var allValidChallenges = _savedChallengeData.Where(t => SelectedSource.Contains('|') ? CompareEncounters(t.ChallengeSource, SelectedSource) : t.ChallengeSource == SelectedSource).ToList();
             List<ChallengeRowViewModel> timerObjects = new List<ChallengeRowViewModel>();
-            if (allValidTimers.Count() == 0)
+            if (allValidChallenges.Count() == 0)
                 timerObjects = new List<ChallengeRowViewModel>();
-            if (allValidTimers.Count() == 1)
-                timerObjects = allValidTimers[0].Challenges.Select(t => new ChallengeRowViewModel() { SourceChallenge = t, IsEnabled = t.IsEnabled }).ToList();
-            if (allValidTimers.Count() > 1)
-                timerObjects = allValidTimers.SelectMany(s => s.Challenges.Select(t => new ChallengeRowViewModel() { SourceChallenge = t, IsEnabled = t.IsEnabled }).ToList()).ToList();
+            if (allValidChallenges.Count() == 1)
+                timerObjects = allValidChallenges[0].Challenges.Select(t => new ChallengeRowViewModel() { SourceChallenge = t, IsEnabled = t.IsEnabled }).ToList();
+            if (allValidChallenges.Count() > 1)
+                timerObjects = allValidChallenges.SelectMany(s => s.Challenges.Select(t => new ChallengeRowViewModel() { SourceChallenge = t, IsEnabled = t.IsEnabled }).ToList()).ToList();
 
             timerObjects.ForEach(t => t.EditRequested += Edit);
             timerObjects.ForEach(t => t.DeleteRequested += Delete);

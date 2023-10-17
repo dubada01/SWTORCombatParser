@@ -154,7 +154,6 @@ namespace SWTORCombatParser.Model.LogParsing
                     return;
                 var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentCombatLogs, CombatStartTime = _currentCombatStartTime };
                 CombatUpdated(updateMessage);
-
             }
         }
 

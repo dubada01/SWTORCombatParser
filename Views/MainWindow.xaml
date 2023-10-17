@@ -1,12 +1,15 @@
-﻿<Window x:Class="SWTORCombatParser.Views.MainWindow"
+﻿<Window  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                  x:Class="SWTORCombatParser.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser"
+         xmlns:ui="http://schemas.modernwpf.com/2019"
         mc:Ignorable="d"
-        Title="{Binding Title}" Height="1080" Width="1920" Closing="Window_Closing" MouseLeave="Window_MouseLeave_1">
-    <Grid Background="{StaticResource Gray3Brush}">
+        Title="{Binding Title}" Icon="../resources/SWTORParsingIcon.ico" Height="1080" Width="1920" Closing="Window_Closing" MouseLeave="Window_MouseLeave_1" ResizeMode="CanResizeWithGrip"
+                  >
+    <Grid Background="{StaticResource Gray2Brush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width=".25*" MinWidth="175"/>
             <ColumnDefinition Width="*"/>
@@ -15,9 +18,12 @@
         <Grid.RowDefinitions>
             <RowDefinition Height=".95*"/>
             <RowDefinition Height="1.5"/>
-            <RowDefinition Height=".045*"/>
+            <RowDefinition Height=".045*" MinHeight="25" MaxHeight="40"/>
         </Grid.RowDefinitions>
-        <TabControl SelectedIndex="{Binding SelectedTabIndex}" SelectionChanged="TabControl_SelectionChanged"  ItemsSource="{Binding ContentTabs}" BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="{StaticResource Gray5Brush}" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2">
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+            <ContentPresenter Content="{Binding PhasesBar}"></ContentPresenter>
+        </Grid>
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}" SelectionChanged="TabControl_SelectionChanged"  ItemsSource="{Binding ContentTabs}" BorderThickness="3,2,3,2" Margin="0,0,5,5" BorderBrush="DimGray" Background="{StaticResource Gray5Brush}" Grid.RowSpan="{Binding ActiveRowSpan}" Grid.Column="1" Grid.ColumnSpan="2">
             <TabControl.Resources>
                 <Style TargetType="{x:Type TabControl}">
                     <Setter Property="Template">
@@ -62,7 +68,13 @@
                                         <Setter TargetName="Border" Property="Background" Value="{StaticResource ParticipantHPSBrush}" />
                                         <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,0" />
                                     </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter Property="Panel.ZIndex" Value="100" />
+                                        <Setter TargetName="Border" Property="Background" Value="{StaticResource Gray3Brush}" />
+                                        <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,0" />
+                                    </Trigger>
                                 </ControlTemplate.Triggers>
+                                
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
@@ -98,7 +110,11 @@
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
-
+        <Button Margin="0,2,10,0" Visibility="{Binding AppIsOutOfDate, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" 
+                Command ="{Binding AppOutOfDateCommand}" ToolTip="Open Microsoft Store to update" Style="{StaticResource RoundCornerButton}" 
+                VerticalAlignment="Top" HorizontalAlignment="Right" Height="25" Width="25" Grid.Column="2">
+            <Image Source="../resources/alert-icon.png"></Image>
+        </Button>
         <ContentPresenter  Margin="5,5,5,5" Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
         <Rectangle Grid.Row="1" Fill="DimGray" Margin="15,0,15,0"></Rectangle>
         <StackPanel HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Orientation="Horizontal">

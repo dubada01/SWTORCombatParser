@@ -53,6 +53,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public CornerRadius BarRadiusSecondary { get; set; } = new CornerRadius(3, 3, 3, 3);
         public SolidColorBrush BarOutline => IsLeaderboardValue ? Brushes.WhiteSmoke : Brushes.Transparent;
         public bool AddSecondayToValue { get; set; }
+        public bool FlipSecondaryAndPrimaryBars { get; set; }
         public Entity Player { get; set; }
         public bool RankIsPersonalRecord { get; set; }
         public double LeaderboardSeperationDistance =>  (SizeScalar * 5);
@@ -90,9 +91,22 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 {
                     var primaryFraction = Value / double.Parse(TotalValue, NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture);
                     var secondaryFraction = SecondaryValue / double.Parse(TotalValue, NumberStyles.AllowThousands | NumberStyles.Float, CultureInfo.InvariantCulture);
-                    BarWidth = new GridLength(relativeLength * primaryFraction, GridUnitType.Star);
-                    SecondaryBarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
-                    RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
+                    if (!FlipSecondaryAndPrimaryBars)
+                    {
+                        BarWidth = new GridLength(relativeLength * primaryFraction, GridUnitType.Star);
+                        SecondaryBarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
+                        RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
+                    }
+                    else
+                    {
+                        var cachedPrimary = Type;
+                        Type = SecondaryType;
+                        SecondaryType = cachedPrimary;
+
+						BarWidth = new GridLength(relativeLength * secondaryFraction, GridUnitType.Star);
+						SecondaryBarWidth = new GridLength(relativeLength * primaryFraction, GridUnitType.Star);
+						RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
+					}
                 }
                 else
                 {
@@ -139,8 +153,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged();
             }
         }
-        public string TotalValue => Math.Max(0, Value + Math.Max(0, AddSecondayToValue ? SecondaryValue : SecondaryValue * -1)).ToString(valueStringFormat, CultureInfo.InvariantCulture);
-        public void Reset()
+        public string TotalValue => TrueValue.ToString(valueStringFormat, CultureInfo.InvariantCulture);
+        public double TrueValue => GetTotalValue();
+        public double OrderingValue => Value + SecondaryValue;
+		private double GetTotalValue()
+		{
+            var total = Value;
+            if (AddSecondayToValue)
+            {
+                total = Math.Max(0, Value + SecondaryValue);
+			}
+            return total;
+		}
+
+		public void Reset()
         {
             Value = 0;
             SecondaryValue = 0;

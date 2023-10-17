@@ -350,12 +350,12 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
                 if (series.Type != PlotType.HPPercent)
                 {
-                    series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), label: seriesName, color: series.Color, markerSize: 10);
+                    series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), label: seriesName, color: series.Color, markerSize: 5);
                     series.Points[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
                 }
                 if (plotXValRates.Length > 1)
                 {
-                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, color: series.Color, lineWidth: 2);
+                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, color: series.Color, lineWidth: 1.5f);
                     if (series.Type == PlotType.HPPercent)
                         series.Line[combatToPlot.StartTime].YAxisIndex = 1;
                 }
@@ -363,11 +363,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 {
                     var rawYVals = PlotMaker.GetPlotYVals(applicableData, false);
                     var rawYValRates = PlotMaker.GetPlotYValRates(rawYVals, plotXvals, _averageWindowDurationDouble);
-                    series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, rawYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Raw" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 15);
+                    series.EffectivePoints[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, rawYVals, lineStyle: LineStyle.None, markerShape: MarkerShape.openCircle, label: "Raw" + seriesName, color: series.Color.Lerp(Color.White, 0.33f), markerSize: 7);
                     series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     if (plotXValRates.Length > 1)
                     {
-                        series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, rawYValRates, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 2);
+                        series.EffectiveLine[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, rawYValRates, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, color: series.Color.Lerp(Color.White, 0.33f), lineWidth: 1.5f);
                         series.EffectiveLine[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     }
 

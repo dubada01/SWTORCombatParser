@@ -59,6 +59,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength TotalRowHeight => new GridLength(20);
         public double TotalFontSize => Math.Max(9, 18 * SizeScalar);
         public bool AddSecondaryToValue { get; set; } = false;
+        public bool FlipSecondaryAndPrimaryBars { get; set;} = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
         public event Action CloseRequested = delegate { };
         public event Action<bool> OnLocking = delegate { };
@@ -77,33 +78,33 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             CreatedType = type;
             Type = type;
-            if (Type == OverlayType.EHPS)
+            if (type == OverlayType.EHPS)
             {
                 SecondaryType = OverlayType.ProvidedAbsorb;
                 AddSecondaryToValue = true;
             }
-            if (Type == OverlayType.HPS)
+            if (type == OverlayType.HPS)
             {
                 SecondaryType = OverlayType.ProvidedAbsorb;
                 AddSecondaryToValue = true;
             }
-            if (Type == OverlayType.DPS)
+            if (type == OverlayType.DPS)
             {
                 SecondaryType = OverlayType.FocusDPS;
                 AddSecondaryToValue = true;
             }
-            if (Type == OverlayType.DamageTaken)
+            if (type == OverlayType.DamageTaken)
             {
                 SecondaryType = OverlayType.Mitigation;
-                AddSecondaryToValue = false;
+                FlipSecondaryAndPrimaryBars = true;
             }
-            if (Type == OverlayType.Mitigation)
+            if (type == OverlayType.Mitigation)
             {
                 Type = OverlayType.ShieldAbsorb;
                 SecondaryType = OverlayType.DamageAvoided;
                 AddSecondaryToValue = true;
             }
-            if (Type == OverlayType.ShieldAbsorb)
+            if (type == OverlayType.ShieldAbsorb)
             {
                 SecondaryType = OverlayType.DamageAvoided;
                 AddSecondaryToValue = true;
@@ -287,7 +288,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             if (CreatedType == OverlayType.DPS || CreatedType == OverlayType.EHPS || CreatedType == OverlayType.Mitigation)
                 sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value + b.Value.SecondaryValue);
             if (CreatedType == OverlayType.DamageTaken)
-                sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value - b.Value.SecondaryValue);
+                sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value);
 
             MetricTotal = sum.ToString("N0");
         }
@@ -307,16 +308,18 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 else
                 {
-                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, SizeScalar = SizeScalar };
+                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue,FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
                     _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
+                var primaryType = Type;
+                var secondaryType = SecondaryType;
 
-                UpdateMetric(Type, metricToUpdate, combatToDisplay, participant);
-                if (SecondaryType != OverlayType.None)
-                {
-                    UpdateSecondary(SecondaryType, metricToUpdate, combatToDisplay, participant);
-                }
-            }
+				UpdateMetric(primaryType, metricToUpdate, combatToDisplay, participant);
+				if (SecondaryType != OverlayType.None)
+				{
+					UpdateSecondary(secondaryType, metricToUpdate, combatToDisplay, participant);
+				}
+			}
             OrderMetricBars();
         }
         private void OrderMetricBars()
@@ -325,13 +328,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 return;
             try
             {
-                var maxValue = _metricBarsDict.MaxBy(m => double.Parse(m.Value.TotalValue, CultureInfo.InvariantCulture)).Value.TotalValue;
+                var maxValue = _metricBarsDict.MaxBy(m => m.Value.OrderingValue).Value.OrderingValue;
                 foreach (var metric in _metricBarsDict)
                 {
-                    if (double.Parse(metric.Value.TotalValue, CultureInfo.InvariantCulture) == 0 || (metric.Value.Value + metric.Value.SecondaryValue == 0) || double.IsInfinity(metric.Value.Value) || double.IsNaN(metric.Value.Value))
+                    if (metric.Value.OrderingValue == 0 || double.IsInfinity(metric.Value.OrderingValue) || double.IsNaN(metric.Value.OrderingValue))
                         metric.Value.RelativeLength = 0;
                     else
-                        metric.Value.RelativeLength = double.Parse(maxValue, CultureInfo.InvariantCulture) == 0 ? 0 : (double.Parse(metric.Value.TotalValue, CultureInfo.InvariantCulture) / double.Parse(maxValue, CultureInfo.InvariantCulture));
+                        metric.Value.RelativeLength = maxValue == 0 ? 0 : (metric.Value.OrderingValue / maxValue);
                 }
 
                 var listOfBars = new List<OverlayMetricInfo>();
@@ -344,7 +347,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                         listOfBars.Add(bar);
                 }
 
-                MetricBars = new List<OverlayMetricInfo>(listOfBars.OrderByDescending(mb => mb.RelativeLength));
+                MetricBars = new List<OverlayMetricInfo>(listOfBars.OrderByDescending(mb =>mb.TrueValue));
 
                 OnPropertyChanged("MetricBars");
 
@@ -386,6 +389,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             var value = MetricGetter.GetValueForMetric(type, obj, participant);
             metricToUpdate.Value = value;
+            metricToUpdate.Type = type;
         }
 
 

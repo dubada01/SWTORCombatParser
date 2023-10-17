@@ -185,12 +185,22 @@ public static class LogIdFactory
                         {
                             "The Terror From Beyond", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 2938891501830144L, 2938895796797440L, 2938887206862848L, 2978340776443904L } },
-                                { "Story 16", new List<long>() { 3025263294152704L, 3025276179054592L, 3025224639447040L, 3025237524348928L } },
-                                { "Veteran 8", new List<long>() { 3025271884087296L, 3025258999185408L, 3025220344479744L, 3025233229381632L } },
-                                { "Veteran 16", new List<long>() { 3025280474021888L, 3025267589120000L, 3025228934414336L, 3025241819316224L } },
+                                { "Story 8", new List<long>() { 2938891501830144L, 2938895796797440L, 2938887206862848L, 2978340776443904L, 3009943145807872L } },
+                                { "Story 16", new List<long>() { 3025263294152704L, 3025276179054592L, 3025224639447040L, 3025237524348928L, 2994872105566208L } },
+                                { "Veteran 8", new List<long>() { 3025271884087296L, 3025258999185408L, 3025220344479744L, 3025233229381632L, 3014921012903936L } },
+                                { "Veteran 16", new List<long>() { 3025280474021888L, 3025267589120000L, 3025228934414336L, 3025241819316224L, 2994876400533504L } },
                             }
                         }
+                    };
+                    encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {                            "The Terror From Beyond", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3009943145807872L } },
+                                { "Story 16", new List<long>() { 2994872105566208L } },
+                                { "Veteran 8", new List<long>() { 3014921012903936L } },
+                                { "Veteran 16", new List<long>() { 2994876400533504L } },
+                            } }
                     };
                     break;
                 case "Scum and Villainy":

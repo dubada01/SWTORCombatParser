@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Phases;
 using System.Collections.Generic;
 using System.Linq;
 
