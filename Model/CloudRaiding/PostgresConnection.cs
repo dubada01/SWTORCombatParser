@@ -350,8 +350,34 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 Logging.LogError(e.Message);
             }
             return entriesFound.ToList();
-        }
-        public static async Task<List<string>> GetBossesFromEncounterWithEntries(string encounter)
+		}
+		public static async Task<Version> GetMostRecentVersion()
+		{
+			List<Version> entriesFound = new List<Version>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return new Version();
+			try
+			{
+				using (NpgsqlConnection connection = ConnectToDB())
+				{
+					using (var cmd = new NpgsqlCommand("SELECT version_name FROM public.software_versions", connection))
+					{
+
+						var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false);
+						while (reader.Read())
+						{
+							entriesFound.Add(new Version(reader.GetString(0)));
+						}
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Logging.LogError(e.Message);
+			}
+			return entriesFound.Max();
+		}
+		public static async Task<List<string>> GetBossesFromEncounterWithEntries(string encounter)
         {
             List<string> bossesFound = new List<string>();
             if (Settings.ReadSettingOfType<bool>("offline_mode"))

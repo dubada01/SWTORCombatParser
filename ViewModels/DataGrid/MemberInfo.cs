@@ -2,6 +2,7 @@
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
 {
     public class MemberInfoViewModel
     {
-        private SolidColorBrush _evenRow = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
-        private SolidColorBrush _oddRow = new SolidColorBrush(Color.FromArgb(255, 90, 90, 90));
+        private SolidColorBrush _evenRow = (SolidColorBrush)App.Current.FindResource("Gray3Brush");
+        private SolidColorBrush _oddRow = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
         private string valueStringFormat = "#,##0";
         public Entity _entity;
-        private List<Combat> _info;
+        private List<Combat> _info = new List<Combat>();
+
         public MemberInfoViewModel(int order, Entity e, List<Combat> info, List<OverlayType> selectedColumns)
         {
             _info = info;

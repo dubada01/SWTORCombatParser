@@ -3,12 +3,14 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.DataGrid;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.DirectoryServices;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -36,8 +38,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             DataGridDefaults.Init();
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateColumns;
             CombatLogStreamer.HistoricalLogsFinished += UpdateLocalPlayer;
+
             UpdateHeaders();
-        }
+			var firstHeader = HeaderNames.Where(h => !h.IsName).First();
+			firstHeader.ToggleSortingCommand.Execute(null);
+		}
+
 
         private void UpdateLocalPlayer(DateTime combatEndTime, bool localPlayerIdentified)
         {
@@ -81,12 +87,6 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             _allSelectedCombats.Clear();
             _allSelectedCombats.Add(updatedCombat);
 
-            UpdateUI();
-        }
-        public void AddCombat(Combat combatInfo)
-        {
-            _allSelectedCombats.Clear();
-            _allSelectedCombats.Add(combatInfo);
             UpdateUI();
         }
         public void RemoveCombat(Combat combatInfo)

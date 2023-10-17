@@ -29,6 +29,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public static string TargetSetId = "836045448953668";
         public static string TargetClearedId = "836045448953669";
         public static string AbilityActivateId = "836045448945479";
+        public static string AbilityCancelId = "836045448945481";
         public static string ApplyEffectId = "836045448945477";
         public static string InConversationEffectId = "806968520343876";
 

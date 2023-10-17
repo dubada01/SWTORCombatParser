@@ -12,7 +12,7 @@
             <RowDefinition Height="50"/>
             <RowDefinition Height="0.9*"/>
         </Grid.RowDefinitions>
-        <Border Background="{StaticResource Gray6Brush}" CornerRadius="5" Grid.Row="0" Margin="0,0,0,0" BorderBrush="{Binding LiveParseActive, Converter={StaticResource LiveParseToBrushConverter}}" Padding="0,0,0,0" BorderThickness="5">
+        <Border Background="{StaticResource Gray3Brush}" CornerRadius="5" Grid.Row="0" Margin="0,0,0,0" BorderBrush="{Binding LiveParseActive, Converter={StaticResource LiveParseToBrushConverter}}" Padding="0,0,0,0" BorderThickness="5">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height=".6*"/>
@@ -38,21 +38,23 @@
                                 Command="{Binding  ToggleLiveParseCommand}"></Button>
                     </Viewbox>
                 </Grid>
-                <Grid Grid.Row="1" VerticalAlignment="Top" Margin="20,0,20,0" Grid.Column="0" HorizontalAlignment="Stretch" Visibility="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
+                <Grid Grid.Row="1" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Column="0" HorizontalAlignment="Stretch" Visibility="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="65"/>
+                        <ColumnDefinition Width="65"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" FontSize="15" Text="Latency" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray12Brush}" VerticalAlignment="Center" Margin="0,0,0,5" HorizontalAlignment="Center"></TextBlock>
-                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" FontSize="15" Text="Latency" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray12Brush}" VerticalAlignment="Center" Margin="0,0,0,5" HorizontalAlignment="Center"></TextBlock>
+                    <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Orientation="Horizontal">
                         <TextBlock  Text="SWTOR:" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray9Brush}" VerticalAlignment="Center" Margin="0,0,3,0" HorizontalAlignment="Right"></TextBlock>
-                        <TextBlock  Text="{Binding CurrentLogOffsetMs}" FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentLogOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+                        <TextBlock  Text="{Binding CurrentLogOffsetMs}"  FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentLogOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                    <StackPanel Grid.Row="1" Margin="5,0,0,0" Grid.Column="2" HorizontalAlignment="Left" Orientation="Horizontal">
                         <TextBlock  Text="Orbs:" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray9Brush}" VerticalAlignment="Center" Margin="0,0,3,0" HorizontalAlignment="Right"></TextBlock>
                         <TextBlock  Text="{Binding CurrentOrbsOffsetMs}" FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentOrbsOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
                     </StackPanel>

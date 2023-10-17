@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -18,6 +19,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public bool DisplayIcon { get; set; }
         public BitmapSource RoleIcon { get; set; }
         public bool IsLocalPlayer { get; set; }
+        public HorizontalAlignment ValueAlignment { get; set; }
         public StatsSlotViewModel(OverlayType type, System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false)
         {
             if (!string.IsNullOrEmpty(name))
@@ -31,9 +33,10 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 DisplayIcon = true;
                 var coloredIcon = SetIconColor(IconFactory.GetIcon(iconName), iconColor);
                 RoleIcon = coloredIcon;
-
+                ValueAlignment = HorizontalAlignment.Center;
                 return;
             }
+            ValueAlignment = HorizontalAlignment.Right;
             ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
         }
         public string Value { get; set; }

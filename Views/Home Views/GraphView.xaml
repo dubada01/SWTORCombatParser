@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:SWTORCombatParser"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid
+        Background="{StaticResource Gray3Brush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="{Binding ParticipantSelectionHeight}" MaxHeight="{Binding MaxSeletionHeight}" MinHeight="{Binding MinSeletionHeight}"/>
             <RowDefinition Height="*"/>
@@ -25,7 +26,7 @@
                 <ColumnDefinition Width="0.66*"/>
                 <ColumnDefinition Width="13"/>
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="1" Background="DimGray" CornerRadius="5,5,0,0" HorizontalAlignment="Stretch" BorderBrush="LightGray" BorderThickness="0">
+            <Border Grid.Column="1" Background="{StaticResource Gray4Brush}" CornerRadius="5,5,0,0" HorizontalAlignment="Stretch" BorderBrush="LightGray" BorderThickness="0">
                 <Viewbox MaxHeight="80" MaxWidth="900" Margin="5,0,5,0">
                     <ItemsControl BorderThickness="0" ItemsSource="{Binding LegendItems}" Background="Transparent">
                         <ItemsControl.ItemsPanel>
@@ -57,10 +58,10 @@
             </Border>
         </Grid>
 
-        <Viewbox MaxHeight="75" Margin="15,0,0,15" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="2">
+        <Viewbox MaxHeight="75" Margin="5,0,0,10" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="2">
             <StackPanel  Orientation="Vertical">
                 <TextBox Style="{StaticResource RoundedTextBox}" Width="60" Text="{Binding AverageWindowDuration, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Center" FontSize="15" FontFamily="{StaticResource MainFont}"></TextBox>
-                <TextBlock FontFamily="{StaticResource MainFont}" FontSize="12" FontWeight="DemiBold" HorizontalAlignment="Center" Text="  Rolling Average&#x0a;Window Duration"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="Beige" FontSize="14" FontWeight="DemiBold" HorizontalAlignment="Center" Text="  Rolling Average&#x0a;Window Duration"></TextBlock>
             </StackPanel>
         </Viewbox>
 

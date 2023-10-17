@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Timers;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -21,7 +23,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private bool dotTrackingEnabled;
         private bool mechPredictionsEnabled;
         private string combatDuration;
-        private DispatcherTimer _timer;
+        private System.Timers.Timer _timer;
         private bool _inCombat;
 
         public BrossFrameView View { get; set; }
@@ -116,9 +118,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
         public BossFrameConfigViewModel()
         {
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(1);
-            _timer.Tick += (e, r) =>
+            _timer = new System.Timers.Timer();
+            _timer.Interval = TimeSpan.FromSeconds(1).TotalMilliseconds;
+            _timer.Elapsed += (e, r) =>
             {
                 _accurateDuration += (DateTime.Now - _lastUpdateTime).TotalSeconds;
                 CombatDuration = TimeSpan.FromSeconds(_accurateDuration).ToString(@"mm\:ss");
@@ -135,7 +137,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             View.Width = currentDefaults.WidtHHeight.X;
             View.MainArea.MinHeight = currentDefaults.WidtHHeight.Y;
 
-            BossFrameEnabled = currentDefaults.Acive;
+            bossFrameEnabled = currentDefaults.Acive;
             DotTrackingEnabled = currentDefaults.TrackDOTS;
             MechPredictionsEnabled = currentDefaults.PredictMechs;
             RaidChallengesEnabled = currentDefaults.RaidChallenges;

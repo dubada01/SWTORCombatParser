@@ -1,0 +1,14 @@
+  [
+    {
+      "PhaseSource": "Dxun|Red",
+      "Name": "Bull",
+      "StartTrigger": 1,
+      "EndTrigger": 2,
+      "StartArgs": {
+        "EntityIds": [ 4246356856143872 ]
+      },
+      "EndArgs": {
+        "EntityIds": [ 4246356856143872 ]
+      }
+    }
+  ]

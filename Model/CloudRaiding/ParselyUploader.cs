@@ -25,6 +25,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var parselyLink = "";
             using (var client = new HttpClient())
             {
+                client.Timeout = TimeSpan.FromSeconds(300);
                 client.DefaultRequestHeaders.Add("User-Agent", "Orbs v" + Assembly.GetExecutingAssembly().GetName().Version);
                 using (var content = new MultipartFormDataContent())
                 {
@@ -41,18 +42,26 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             content.Add(new StringContent(Settings.ReadSettingOfType<string>("guild").Trim('"')), "guild");
                     }
                     content.Add(new StringContent("1"), "public");
-                    using (var message = await client.PostAsync(parselyURL, content))
+                    try
                     {
-                        var response = await message.Content.ReadAsStringAsync();
-                        if (response.Contains("NOT OK") || response.Contains("error"))
-                        {
-                            UploadCompleted(false, "");
-                            return;
-                        }
-                        XmlDocument xdoc = new XmlDocument();
-                        xdoc.LoadXml(response);
-                        parselyLink = xdoc.GetElementsByTagName("file")[0].InnerText;
-                    }
+						using (var message = await client.PostAsync(parselyURL, content))
+						{
+							var response = await message.Content.ReadAsStringAsync();
+							if (response.Contains("NOT OK") || response.Contains("error"))
+							{
+								UploadCompleted(false, "");
+								return;
+							}
+							XmlDocument xdoc = new XmlDocument();
+							xdoc.LoadXml(response);
+							parselyLink = xdoc.GetElementsByTagName("file")[0].InnerText;
+						}
+					}
+                    catch(Exception ex)
+                    {
+						UploadCompleted(false, "");
+						return;
+					}
                 }
             }
             UploadCompleted(true, parselyLink);

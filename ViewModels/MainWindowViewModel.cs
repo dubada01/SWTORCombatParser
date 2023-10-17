@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.BattleReview;
@@ -14,6 +15,7 @@ using SWTORCombatParser.ViewModels.Home_View_Models;
 using SWTORCombatParser.ViewModels.Leaderboard;
 using SWTORCombatParser.ViewModels.Overlays;
 using SWTORCombatParser.ViewModels.Overviews;
+using SWTORCombatParser.ViewModels.Phases;
 using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Battle_Review;
 using SWTORCombatParser.Views.DataGrid_Views;
@@ -23,6 +25,7 @@ using SWTORCombatParser.Views.Home_Views.PastCombatViews;
 using SWTORCombatParser.Views.Leaderboard_View;
 using SWTORCombatParser.Views.Overlay;
 using SWTORCombatParser.Views.Overviews;
+using SWTORCombatParser.Views.Phases;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -50,6 +53,8 @@ namespace SWTORCombatParser.ViewModels
         private readonly DataGridViewModel _dataGridViewModel;
         private readonly DeathReviewViewModel _deathViewModel;
         private readonly LeaderboardViewModel _leaderboardViewModel;
+        private readonly PhaseBarViewModel _phaseBarViewModel;
+        private readonly PhaseManager _phaseManager;
         private Entity localEntity;
         private string parselyLink;
         private bool canOpenParsely;
@@ -63,8 +68,11 @@ namespace SWTORCombatParser.ViewModels
         public ObservableCollection<TabInstance> ContentTabs { get; set; } = new ObservableCollection<TabInstance>();
         public PastCombatsView PastCombatsView { get; set; }
 
+        public PhaseBar PhasesBar { get; set; }
         public Combat CurrentlyDisplayedCombat { get; set; }
+        public Combat UnfilteredDisplayedCombat { get; set; }
         private bool _allViewsUpToDate;
+        private int activeRowSpan;
 
         public int SelectedTabIndex
         {
@@ -75,15 +83,32 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged();
             }
         }
-        public MainWindowViewModel()
+        public int ActiveRowSpan
+        {
+            get => activeRowSpan; set
+            {
+                activeRowSpan = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool AppIsOutOfDate { get; set; }
+        public ICommand AppOutOfDateCommand => new DelegateCommand(VersionChecker.OpenMicrosoftStoreToAppPage);
+
+		public MainWindowViewModel()
         {
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
-            //SwtorDetector.StartMonitoring();
+
             TimerController.Init();
             VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
+
+            VersionChecker.AppVersionInfoReady+= UpdateIcon;
+
+            _phaseManager = new PhaseManager();
+            PhaseManager.SelectedPhasesUpdated += FilterForPhase;
+
             MainWindowClosing.Hiding += () =>
             {
                 if (!SwtorDetector.SwtorRunning)
@@ -146,11 +171,37 @@ namespace SWTORCombatParser.ViewModels
             var leaderboardView = new LeaderboardView(_leaderboardViewModel);
             ContentTabs.Add(new TabInstance { TabContent = leaderboardView, HeaderText = "Leaderboards" });
 
+            _phaseBarViewModel = new PhaseBarViewModel();
+            PhasesBar = new PhaseBar(_phaseBarViewModel);
+
             SelectedTabIndex = 0;
             HeaderSelectionState.NewHeaderSelected += UpdateDataForNewTab;
             ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
         }
-        public SolidColorBrush UploadButtonBackground
+
+        private void FilterForPhase(List<PhaseInstance> list)
+        {
+            if (UnfilteredDisplayedCombat == null)
+                return;
+            if (list.Count == 0)
+            {
+                if(CurrentlyDisplayedCombat.DurationMS != UnfilteredDisplayedCombat.DurationMS)
+                    UpdateViewsWithSelectedCombat(UnfilteredDisplayedCombat);
+                return; 
+            }
+            list.ForEach(p => p.PhaseEnd = p.PhaseEnd == DateTime.MinValue ? UnfilteredDisplayedCombat.EndTime : p.PhaseEnd);
+            var logsDuringPhases = UnfilteredDisplayedCombat.AllLogs.Where(l => list.Any(p => p.ContainsTime(l.TimeStamp))).ToList();
+            var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(logsDuringPhases);
+            UpdateViewsWithSelectedCombat(newCombat);
+        }
+
+        private void UpdateIcon()
+		{
+            AppIsOutOfDate = !VersionChecker.AppIsUpToDate;
+            OnPropertyChanged("AppIsOutOfDate");
+		}
+
+		public SolidColorBrush UploadButtonBackground
         {
             get => uploadButtonBackground; set
             {
@@ -210,6 +261,9 @@ namespace SWTORCombatParser.ViewModels
 
         private void UpdateDataForNewTab()
         {
+            ActiveRowSpan = HeaderSelectionState.CurrentlySelectedTabHeader == "Overlays" ||
+                HeaderSelectionState.CurrentlySelectedTabHeader == "Leaderboards" ||
+                HeaderSelectionState.CurrentlySelectedTabHeader == "Death Review" ? 3 : 2;
             if (CurrentlyDisplayedCombat != null && _allViewsUpToDate == false)
                 SelectCombat(CurrentlyDisplayedCombat);
         }
@@ -310,6 +364,12 @@ namespace SWTORCombatParser.ViewModels
         }
         private void SelectCombat(Combat selectedCombat)
         {
+            UnfilteredDisplayedCombat = selectedCombat;
+            UpdateViewsWithSelectedCombat(selectedCombat);
+        }
+
+        private void UpdateViewsWithSelectedCombat(Combat selectedCombat)
+        {
             CurrentlyDisplayedCombat = selectedCombat;
             Application.Current.Dispatcher.Invoke(delegate
             {
@@ -318,10 +378,11 @@ namespace SWTORCombatParser.ViewModels
                 _tableViewModel.AddCombat(selectedCombat);
                 _deathViewModel.AddCombat(selectedCombat);
                 _reviewViewModel.CombatSelected(selectedCombat);
-                _dataGridViewModel.AddCombat(selectedCombat);
+                _dataGridViewModel.UpdateCombat(selectedCombat);
             });
             _allViewsUpToDate = true;
         }
+
         private void UnselectCombat(Combat obj)
         {
             Application.Current.Dispatcher.Invoke(delegate

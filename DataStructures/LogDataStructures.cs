@@ -75,16 +75,16 @@ namespace SWTORCombatParser.DataStructures
             switch (obj)
             {
                 case "Source":
-                    Clipboard.SetText(_sourceId);
+                    Clipboard.SetDataObject(_sourceId);
                     break;
                 case "Target":
-                    Clipboard.SetText(_targetId);
+                    Clipboard.SetDataObject(_targetId);
                     break;
                 case "Ability":
-                    Clipboard.SetText(_abilityId);
+                    Clipboard.SetDataObject(_abilityId);
                     break;
                 case "Effect":
-                    Clipboard.SetText(_effectId);
+                    Clipboard.SetDataObject(_effectId);
                     break;
 
             }

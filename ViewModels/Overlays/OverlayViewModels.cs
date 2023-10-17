@@ -328,7 +328,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void RemoveOverlay(OverlayInstanceViewModel obj)
         {
-            DefaultCharacterOverlays.SetActiveStateCharacter(obj.Type.ToString(), false, _currentCharacterRole);
+            DefaultCharacterOverlays.SetActiveStateCharacter(obj.CreatedType.ToString(), false, _currentCharacterRole);
             _currentOverlays.Remove(obj);
             SetSelected(false, obj.CreatedType);
         }
