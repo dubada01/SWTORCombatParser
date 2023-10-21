@@ -108,6 +108,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _challengesViewModel.SetScalar(sizeScalar);
             _personalOverlayViewModel.UpdateScale(sizeScalar);
         }
+        public void CombatSeleted(Combat selectedCombat)
+        {
+            _challengesViewModel.CombatSelected(selectedCombat);
+
+        }
         public OverlayViewModel()
         {
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForDiscipline;
@@ -282,7 +287,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             if (localPlayer == null)
                 return;
             UpdateOverlaysForDiscipline(localPlayer, currentDiscipline);
-            RefreshOverlays();
         }
         private void HistoricalLogsStarted()
         {
@@ -300,7 +304,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     return;
                 var currentOverlay = _currentOverlays.First(o => o.CreatedType == overlayType.Type);
                 currentOverlay.RequestClose();
-                RemoveOverlay(currentOverlay);
                 return;
             }
             overlayType.IsSelected = true;

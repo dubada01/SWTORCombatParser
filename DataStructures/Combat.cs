@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Model.Plotting;
 using SWTORCombatParser.ViewModels.Home_View_Models;
 using System;
@@ -37,11 +39,13 @@ namespace SWTORCombatParser.DataStructures
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
         public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
         public bool WasBossKilled => RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Where(t => t.Target.IsBoss).Any(l => (l.Target.LogId.ToString() == t && l.Effect.EffectId == _7_0LogParsing.DeathCombatId)));
-        public List<ParsedLogEntry> AllLogs { get; set; } = new List<ParsedLogEntry>();
+        public HashSet<ParsedLogEntry> AllLogs { get; set; } = new HashSet<ParsedLogEntry>();
         public Dictionary<Entity, List<ParsedLogEntry>> LogsInvolvingEntity = new Dictionary<Entity, List<ParsedLogEntry>>();
 
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
         {
+            if (string.IsNullOrEmpty(e.Name))
+                return new List<ParsedLogEntry>();
             try
             {
                 return LogsInvolvingEntity[e];
@@ -451,9 +455,12 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, double> MaxEffectiveHeal = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> MaxIncomingHeal = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> MaxIncomingEffectiveHeal = new ConcurrentDictionary<Entity, double>();
-        public string Serialize()
+        public Combat GetPhaseCopy(PhaseInstance phase)
         {
-            return JsonConvert.SerializeObject(this);
+            if(phase.PhaseEnd == DateTime.MinValue)
+                phase.PhaseEnd = EndTime;
+            var validLogs = AllLogs.Where(l => phase.ContainsTime(l.TimeStamp));
+            return CombatIdentifier.GenerateNewCombatFromLogs(validLogs.ToList(),isPhaseCombat:true);
         }
     }
 }

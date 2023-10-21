@@ -54,7 +54,6 @@ namespace SWTORCombatParser.ViewModels
         private readonly DeathReviewViewModel _deathViewModel;
         private readonly LeaderboardViewModel _leaderboardViewModel;
         private readonly PhaseBarViewModel _phaseBarViewModel;
-        private readonly PhaseManager _phaseManager;
         private Entity localEntity;
         private string parselyLink;
         private bool canOpenParsely;
@@ -106,7 +105,7 @@ namespace SWTORCombatParser.ViewModels
 
             VersionChecker.AppVersionInfoReady+= UpdateIcon;
 
-            _phaseManager = new PhaseManager();
+            PhaseManager.Init();
             PhaseManager.SelectedPhasesUpdated += FilterForPhase;
 
             MainWindowClosing.Hiding += () =>
@@ -119,8 +118,8 @@ namespace SWTORCombatParser.ViewModels
                     _overlayViewModel!.OverlaysLocked = true;
             };
             _combatMonitorViewModel = new CombatMonitorViewModel();
-            _combatMonitorViewModel.OnCombatSelected += SelectCombat;
-            _combatMonitorViewModel.OnCombatUnselected += UnselectCombat;
+            CombatSelectionMonitor.CombatSelected += SelectCombat;
+            CombatSelectionMonitor.CombatDeselected += UnselectCombat;
             Observable.FromEvent<double>(
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs += manager,
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs -= manager).Buffer(TimeSpan.FromSeconds(2)).Subscribe(UpdateLogTimeOffset);
@@ -130,7 +129,6 @@ namespace SWTORCombatParser.ViewModels
             Observable.FromEvent<Combat>(
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate += manager,
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate -= manager).Sample(TimeSpan.FromSeconds(2)).Subscribe(UpdateCombat);
-            _combatMonitorViewModel.LiveCombatFinished += UpdateCombat;
             _combatMonitorViewModel.OnMonitoringStateChanged += MonitoringStarted;
             _combatMonitorViewModel.LocalPlayerId += LocalPlayerChanged;
             _combatMonitorViewModel.OnHistoricalCombatsParsed += AddHistoricalViewer;
@@ -181,17 +179,21 @@ namespace SWTORCombatParser.ViewModels
 
         private void FilterForPhase(List<PhaseInstance> list)
         {
-            if (UnfilteredDisplayedCombat == null)
+            if (UnfilteredDisplayedCombat == null || CurrentlyDisplayedCombat == null)
                 return;
             if (list.Count == 0)
             {
-                if(CurrentlyDisplayedCombat.DurationMS != UnfilteredDisplayedCombat.DurationMS)
+                if (CurrentlyDisplayedCombat.DurationMS != UnfilteredDisplayedCombat.DurationMS)
+                {
+                    CombatSelectionMonitor.SelectPhase(UnfilteredDisplayedCombat);
                     UpdateViewsWithSelectedCombat(UnfilteredDisplayedCombat);
+                }
                 return; 
             }
             list.ForEach(p => p.PhaseEnd = p.PhaseEnd == DateTime.MinValue ? UnfilteredDisplayedCombat.EndTime : p.PhaseEnd);
             var logsDuringPhases = UnfilteredDisplayedCombat.AllLogs.Where(l => list.Any(p => p.ContainsTime(l.TimeStamp))).ToList();
             var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(logsDuringPhases);
+            CombatSelectionMonitor.SelectPhase(newCombat);
             UpdateViewsWithSelectedCombat(newCombat);
         }
 
@@ -364,7 +366,7 @@ namespace SWTORCombatParser.ViewModels
         }
         private void SelectCombat(Combat selectedCombat)
         {
-            UnfilteredDisplayedCombat = selectedCombat;
+            UnfilteredDisplayedCombat = selectedCombat; 
             UpdateViewsWithSelectedCombat(selectedCombat);
         }
 
@@ -373,6 +375,7 @@ namespace SWTORCombatParser.ViewModels
             CurrentlyDisplayedCombat = selectedCombat;
             Application.Current.Dispatcher.Invoke(delegate
             {
+                _overlayViewModel.CombatSeleted(selectedCombat);
                 _plotViewModel.UpdateParticipants(selectedCombat);
                 _plotViewModel.AddCombatPlot(selectedCombat);
                 _tableViewModel.AddCombat(selectedCombat);

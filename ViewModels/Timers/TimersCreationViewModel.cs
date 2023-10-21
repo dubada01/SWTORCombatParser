@@ -547,11 +547,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 if (i % 2 == 1)
                 {
-                    TimerRows[i].RowBackground = Brushes.Gray;
+                    TimerRows[i].RowBackground = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
                 }
                 else
                 {
-                    TimerRows[i].RowBackground = Brushes.Transparent;
+                    TimerRows[i].RowBackground = (SolidColorBrush)App.Current.FindResource("Gray3Brush");
                 }
             }
         }

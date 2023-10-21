@@ -84,7 +84,6 @@ namespace SWTORCombatParser.Model.CombatParsing
                     var logToInsertAfter = logs.FirstOrDefault(l => l.TimeStamp > sheild.ShieldingTime);
                     if (logToInsertAfter == null)
                         continue;
-                    var indexToInsert = logs.IndexOf(logToInsertAfter);
                     var sheildLog = new ParsedLogEntry
                     {
                         TimeStamp = sheild.ShieldingTime,
@@ -104,9 +103,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                             ValueType = DamageType.heal
                         }
                     };
-                    combat.AllLogs.Insert(
-                        indexToInsert, sheildLog
-                        );
+                    combat.AllLogs.Add(sheildLog);
                     combat.ShieldingProvidedLogs[source].Add(sheildLog);
                     combat.TotalProvidedSheilding[source] += sheild.ShieldValue;
                 }

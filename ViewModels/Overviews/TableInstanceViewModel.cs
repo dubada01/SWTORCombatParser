@@ -99,9 +99,9 @@ namespace SWTORCombatParser.ViewModels.Overviews
             DataToView = DataToView.OrderByDescending(v => v.PercentOfTotal).ToList();
             for (var i = 0; i < DataToView.Count; i++)
             {
-                if (i % 2 == 0)
+                if (i % 2 == 1)
                 {
-                    DataToView[i].RowBackground = Brushes.DimGray;
+                    DataToView[i].RowBackground = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
                 }
             }
             OnPropertyChanged("DataToView");

@@ -1,5 +1,8 @@
 ﻿using Prism.Commands;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Model.Phases;
+using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,24 +24,24 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private string _value;
         private string valuePrompt;
         private bool hasValue;
-        private ObservableCollection<string> availableTargets = new ObservableCollection<string>();
-        private List<string> addedCustomTargets = new List<string>();
         private Color selectedColor;
         private string currentColorHex;
         private string targetText;
         private bool hasTarget;
-        private bool hasCustomTarget;
-        private string customTarget;
         private string selectedTarget;
         private string sourceText;
         private bool hasSource;
-        private bool hasCustomSource;
-        private string customSource;
         private string selectedSource1;
         private bool useRawValues;
         private bool canBeRate;
         private bool useMaxValue;
         private bool canHaveMax;
+
+        private List<Phase> availablePhases = new List<Phase>();
+        private Phase selectedPhase;
+        private bool hasPhases;
+        private List<string> availableMetrics;
+        private string selectedMetricName;
 
         public event Action<Challenge, bool> OnNewChallenge = delegate { };
         public event Action<Challenge> OnCancelEdit = delegate { };
@@ -133,6 +136,14 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 OnPropertyChanged();
             }
         }
+        public bool HasPhases
+        {
+            get => hasPhases; set
+            {
+                hasPhases = value;
+                OnPropertyChanged();
+            }
+        }
         public bool HasValue
         {
             get => hasValue; set
@@ -167,7 +178,39 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 OnPropertyChanged();
             }
         }
-
+        public List<string> AvailableMetrics
+        {
+            get => availableMetrics; set
+            {
+                availableMetrics = value;
+                OnPropertyChanged();
+            }
+        }
+        public string SelectedMetric
+        {
+            get => selectedMetricName; set
+            {
+                selectedMetricName = value;
+                OnPropertyChanged();
+            }
+        }
+        public OverlayType OverlayType => (OverlayType)new OverlayTypeToReadableNameConverter().ConvertBack(SelectedMetric, null, null, System.Globalization.CultureInfo.InvariantCulture);
+        public List<Phase> AvailablePhases
+        {
+            get => availablePhases; set
+            {
+                availablePhases = value;
+                OnPropertyChanged();
+            }
+        }
+        public Phase SelectedPhase
+        {
+            get => selectedPhase; set
+            {
+                selectedPhase = value;
+                OnPropertyChanged();
+            }
+        }
         public List<ChallengeType> AvailableChallengeTypes => Enum.GetValues<ChallengeType>().ToList();
         public string SelectedBoss { get; set; }
         public string SelectedEncounter { get; set; }
@@ -180,6 +223,11 @@ namespace SWTORCombatParser.ViewModels.Challenges
             SelectedBoss = selectedSource.Split('|')[1];
             SelectedChallengeType = AvailableChallengeTypes.FirstOrDefault();
             SelectedColor = Brushes.CornflowerBlue.Color;
+            AvailablePhases = DefaultPhaseManager.GetExisitingPhases().Where(p => p.PhaseSource == selectedSource).ToList();
+            if(AvailablePhases.Any())   
+                SelectedPhase = AvailablePhases.First();
+            AvailableMetrics = (List<string>)new OverlayTypeToReadableNameConverter().Convert(Enum.GetValues<OverlayType>().ToList(),null,null,System.Globalization.CultureInfo.InvariantCulture);
+            SelectedMetric = AvailableMetrics.First();
         }
         public void Edit(Challenge challengeToEdit)
         {
@@ -192,6 +240,10 @@ namespace SWTORCombatParser.ViewModels.Challenges
             SelectedTarget = challengeToEdit.ChallengeTarget;
             UseRawValue = challengeToEdit.UseRawValues;
             UseMaxValue = challengeToEdit.UseMaxValue;
+
+            SelectedPhase = AvailablePhases.FirstOrDefault(p => p.Id == challengeToEdit.PhaseId);
+            if(challengeToEdit.PhaseMetric != OverlayType.None)
+                SelectedMetric = (string)new OverlayTypeToReadableNameConverter().Convert(challengeToEdit.PhaseMetric, null, null, System.Globalization.CultureInfo.InvariantCulture);
 
             SelectedColor = challengeToEdit.BackgroundBrush.Color;
             Value = challengeToEdit.Value;
@@ -217,6 +269,8 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 IsEnabled = true,
                 UseRawValues = UseRawValue,
                 UseMaxValue = UseMaxValue,
+                PhaseId = SelectedPhase.Id, 
+                PhaseMetric = OverlayType
             }, _isEditing);
         }
         private void Reset()
@@ -231,6 +285,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             CanBeRate = false;
             CanHaveMax = false;
             UseMaxValue = false;
+            HasPhases = false;
         }
         private void SetupUI()
         {
@@ -275,6 +330,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     }
                 case ChallengeType.MetricDuringPhase:
                     {
+                        HasPhases = true;
                         CanBeRate = false;
                         break;
                     }

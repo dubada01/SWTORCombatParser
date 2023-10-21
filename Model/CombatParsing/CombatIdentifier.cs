@@ -1,73 +1,19 @@
-﻿//using MoreLinq;
-
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
-using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class CombatIdentifier
     {
-        public static event Action<Combat> NewCombatAvailable = delegate { };
-        public static event Action NewCombatStarted = delegate { };
-        private static object leaderboardLock = new object();
-
-        private static bool _leaderboardsActive;
         public static Combat CurrentCombat { get; set; }
-        public static void FinalizeOverlays(Combat combat)
-        {
-            _leaderboardsActive = false;
-            UpdateOverlays(combat);
-        }
-        public static void UpdateOverlays(Combat combat)
-        {
-            if (combat.IsCombatWithBoss)
-            {
-                Task.Run(() =>
-                {
-                    if (!_leaderboardsActive)
-                    {
-                        Leaderboards.Reset();
-                        Leaderboards.StartGetTopLeaderboardEntries(combat);
-                        _leaderboardsActive = true;
-                    }
 
-                    Leaderboards.StartGetPlayerLeaderboardStandings(combat);
-                });
-            }
-            FireEvent(combat);
-        }
-        public static void FinalizeOverlay(Combat combat)
-        {
-            if (combat.IsCombatWithBoss)
-            {
-                Task.Run(() =>
-                {
-                    Leaderboards.Reset();
-                    Leaderboards.StartGetTopLeaderboardEntries(combat);
-                    Leaderboards.StartGetPlayerLeaderboardStandings(combat);
-                });
-            }
-            FireEvent(combat);
-        }
-        public static void FireEvent(Combat combat)
-        {
-            CurrentCombat = combat;
-            NewCombatAvailable(combat);
-        }
-        public static void NotifyNewCombatStarted()
-        {
-            _leaderboardsActive = false;
-            NewCombatStarted();
-        }
 
-        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false)
+        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false, bool isPhaseCombat = false)
         {
 
             var state = CombatLogStateBuilder.CurrentState;
@@ -80,7 +26,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             var participantInfos = orderedLogs.Select(p => p.SourceInfo).Distinct().ToList();
             var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity, orderedLogs.First().TimeStamp));
 
-            var orderedLogsList = orderedLogs.ToList();
+            var orderedLogsList = orderedLogs.ToHashSet();
             var targets = GetTargets(orderedLogsList);
             var allEntities = new List<Entity>().Concat(targets).Concat(currentPariticpants).Distinct().ToList();
 
@@ -135,12 +81,11 @@ namespace SWTORCombatParser.Model.CombatParsing
             var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8).Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l=>l.TimeStamp).ToList());
             AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
             AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
-            if (!quietOverlays)
-                FireEvent(newCombat);
+
             return newCombat;
         }
 
-        private static List<Entity> GetTargets(List<ParsedLogEntry> logs)
+        private static List<Entity> GetTargets(HashSet<ParsedLogEntry> logs)
         {
             var combatStart = logs.First().TimeStamp;
             HashSet<Entity> targets = new HashSet<Entity>();

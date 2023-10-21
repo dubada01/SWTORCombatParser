@@ -10,8 +10,8 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
 {
     public class EncounterSelectionViewModel : INotifyPropertyChanged
     {
-        private EncounterInfo selectedEncounter;
-        private string selectedBoss;
+        public EncounterInfo selectedEncounter;
+        public string selectedBoss;
         private string selectedPlayerCount;
         private List<string> _allPlayerCounts = new List<string> { "8", "16" };
 

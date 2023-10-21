@@ -10,6 +10,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -68,11 +69,23 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public event Action<string> OnCharacterDetected = delegate { };
         public void OverlayClosing()
         {
+            Dispose();
             OverlayClosed(this);
         }
         public void RequestClose()
         {
+            Dispose();
             CloseRequested();
+        }
+        private void Dispose()
+        {
+            CombatLogStreamer.CombatStarted -= Reset;
+            CombatSelectionMonitor.CombatSelected -= UpdateMetrics;
+            CombatSelectionMonitor.PhaseSelected -= UpdateMetrics;
+            Leaderboards.LeaderboardStandingsAvailable -= UpdateStandings;
+            Leaderboards.TopLeaderboardEntriesAvailable -= UpdateTopEntries;
+            Leaderboards.LeaderboardTypeChanged -= UpdateLeaderboardType;
+            CombatLogStreamer.NewLineStreamed -= CheckForConversation;
         }
         public OverlayInstanceViewModel(OverlayType type)
         {
@@ -109,9 +122,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SecondaryType = OverlayType.DamageAvoided;
                 AddSecondaryToValue = true;
             }
-            CombatSelectionMonitor.NewCombatSelected += Refresh;
-            CombatIdentifier.NewCombatStarted += Reset;
-            CombatIdentifier.NewCombatAvailable += UpdateMetrics;
+            CombatLogStreamer.CombatStarted += Reset;
+            CombatSelectionMonitor.OnInProgressCombatSelected += UpdateMetrics;
+            CombatSelectionMonitor.CombatSelected += DisplayFinalMetrics;
+            CombatSelectionMonitor.PhaseSelected += UpdateMetrics;
             Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged += UpdateLeaderboardType;
@@ -175,7 +189,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateStandings(Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> obj)
         {
-            UpdateLeaderboardTopEntries(obj);
+            AddLeaderboardStandings(obj);
         }
 
         private void UpdateLeaderboardValues(Dictionary<LeaderboardEntryType, (string, double)> obj)
@@ -197,6 +211,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     AddLeaderboardBar(healingValues.Value.Item1, healingValues.Value.Item2);
                 if (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided && mitigationValues.Value.Item1 != null)
                     AddLeaderboardBar(mitigationValues.Value.Item1, mitigationValues.Value.Item2);
+                Debug.WriteLine("Leaderboard " + CreatedType.ToString() + " set for overlay");
             }
         }
 
@@ -281,9 +296,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
             metricToUpdate.LeaderboardRank = leaderboardRanking.Item1.ToString();
             metricToUpdate.RankIsPersonalRecord = leaderboardRanking.Item2;
         }
-        private void UpdateMetrics(Combat obj)
+        private void DisplayFinalMetrics(Combat combat)
         {
-            RefreshBarViews(obj);
+            ResetMetrics();
+            UpdateMetrics(combat);
+            if (combat.IsCombatWithBoss)
+                CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(combat);
+        }
+        private void UpdateMetrics(Combat combat)
+        {
+            RefreshBarViews(combat);
             double sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value);
             if (CreatedType == OverlayType.DPS || CreatedType == OverlayType.EHPS || CreatedType == OverlayType.Mitigation)
                 sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value + b.Value.SecondaryValue);
@@ -294,7 +316,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void RefreshBarViews(Combat combatToDisplay)
         {
-
             OverlayMetricInfo metricToUpdate;
             if (combatToDisplay.CharacterParticipants.Count == 0)
                 return;
@@ -358,7 +379,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
 
         }
-        private void UpdateLeaderboardTopEntries(Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> leaderboardInfo)
+        private void AddLeaderboardStandings(Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> leaderboardInfo)
         {
             foreach (var metricBar in _metricBarsDict)
             {

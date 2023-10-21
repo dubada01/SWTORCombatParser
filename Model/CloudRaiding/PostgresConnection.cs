@@ -11,11 +11,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class PostgresConnection
     {
-        public static event Action LeaderboardUpdated = delegate { };
-        public static void FireUpdatedEvent()
-        {
-            LeaderboardUpdated();
-        }
         public static async Task<bool> TryAddLeaderboardEntry(LeaderboardEntry newEntry)
         {
             if (newEntry.Value == 0 || Settings.ReadSettingOfType<bool>("offline_mode"))

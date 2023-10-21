@@ -17,7 +17,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Border Grid.Row="0" Grid.ColumnSpan="4" Padding="0,10,0,0" BorderBrush="DimGray" BorderThickness="0,2,2,2" CornerRadius="0,5,5,0" Margin="0,20,0,0">
+        <Border Grid.Row="0" Grid.ColumnSpan="4" BorderBrush="Transparent" BorderThickness="0,2,2,2" CornerRadius="0,5,5,0" Margin="0,10,0,0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25"/>
@@ -30,16 +30,16 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Viewbox MaxHeight="30">
-                    <TextBlock Text="Damage" TextDecorations="Underline" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="Damage" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
                 <Viewbox MaxHeight="30" Grid.Column="1">
-                    <TextBlock Text="Healing" TextDecorations="Underline" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="Healing"  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
                 <Viewbox MaxHeight="30" Grid.Column="2">
-                    <TextBlock Text="Mitigation" TextDecorations="Underline" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="Mitigation" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
                 <Viewbox MaxHeight="30" Grid.Column="3">
-                    <TextBlock Text="General" TextDecorations="Underline" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                    <TextBlock Text="General" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
                 <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding AvailableDamageOverlays}">
@@ -80,7 +80,6 @@
 
             </Grid>
         </Border>
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" FontSize="15" Margin="0,10,0,0" FontWeight="DemiBold" VerticalAlignment="Top" Foreground="WhiteSmoke" Background="{StaticResource Gray5Brush}" FontFamily="{StaticResource MainFont}" Text=" Available Overlays " HorizontalAlignment="Center"></TextBlock>
         <Viewbox Margin="0,2,0,2" MaxHeight="50"  HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">
             <StackPanel Orientation="Vertical">
                 <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Leaderboard Filter: "/>

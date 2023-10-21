@@ -2,6 +2,7 @@
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static void UpdateLeaderboardType(LeaderboardType type)
         {
             LeaderboardSettings.SaveLeaderboardSettings(type);
+            EncounterTimerTrigger.EncounterDetected += TrySetLeaderboardTops;
             CurrentLeaderboardType = type;
             CurrentFightLeaderboard.Clear();
             TopLeaderboards.Clear();
@@ -45,6 +47,27 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 StartGetTopLeaderboardEntries(CurrentCombat);
             });
 
+        }
+
+        private static void TrySetLeaderboardTops(string arg1, string arg2, string arg3)
+        {
+            Task.Run(() =>
+            {
+                StartGetTopLeaderboardEntries(CombatIdentifier.CurrentCombat);
+            });
+        }
+
+        public static void UpdateOverlaysWithNewLeaderboard(Combat combat)
+        {
+            if (combat.IsCombatWithBoss)
+            {
+                Task.Run(() =>
+                {
+                    Reset();
+                    StartGetTopLeaderboardEntries(combat);
+                    StartGetPlayerLeaderboardStandings(combat);
+                });
+            }
         }
         public static void StartGetTopLeaderboardEntries(Combat newCombat)
         {
@@ -266,8 +289,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
             if (updatedAny)
-                PostgresConnection.FireUpdatedEvent();
-            CombatIdentifier.FinalizeOverlay(combat);
+                UpdateOverlaysWithNewLeaderboard(combat);
         }
         private static bool CheckForValidCombatUpload(Combat combat, Entity player)
         {

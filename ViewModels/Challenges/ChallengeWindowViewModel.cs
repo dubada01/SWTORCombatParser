@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures.EncounterInfo;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
@@ -36,6 +37,10 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public void RefreshChallenges()
         {
             _challengeUpdater.RefreshChallenges();
+        }
+        public void CombatSelected(Combat combatSelected)
+        {
+            _challengeUpdater.CombatSelected(combatSelected);
         }
         public ChallengeWindowViewModel()
         {

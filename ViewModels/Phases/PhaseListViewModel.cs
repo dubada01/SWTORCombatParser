@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Challenge;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
@@ -33,6 +34,11 @@ namespace SWTORCombatParser.ViewModels.Phases
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
+            if (CombatIdentifier.CurrentCombat.IsCombatWithBoss)
+            {
+                _enounterSelectionViewModel.SelectedEncounter = _enounterSelectionViewModel.AvailableEncounters.FirstOrDefault(e=>e.Name == CombatIdentifier.CurrentCombat.ParentEncounter.Name);
+                _enounterSelectionViewModel.SelectedBoss = CombatIdentifier.CurrentCombat.EncounterBossDifficultyParts.Item1;
+            }
             UpdateSelectedEncounter(_enounterSelectionViewModel.SelectedEncounter.Name, _enounterSelectionViewModel.SelectedBoss);
         }
         public void UpdateSelectedEncounter(string encounterName, string bossName)

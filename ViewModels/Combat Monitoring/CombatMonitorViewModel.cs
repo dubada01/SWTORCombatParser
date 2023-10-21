@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.HistoricalLogs;
 using SWTORCombatParser.Views.Home_Views;
@@ -38,10 +39,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
-        public event Action<Combat> OnCombatSelected = delegate { };
-        public event Action<Combat> OnCombatUnselected = delegate { };
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
-        public event Action<Combat> LiveCombatFinished = delegate { };
         public event Action<double> OnNewLogTimeOffsetMs = delegate { };
         public event Action<double> OnNewTotalTimeOffsetMs = delegate { };
         public event Action<string> OnNewLog = delegate { };
@@ -347,7 +345,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private void CombatStarted(DateTime startTime, string location)
         {
             //reset leaderboards and overlays
-            CombatIdentifier.NotifyNewCombatStarted();
+            Leaderboards.Reset();
             TryAddEncounter(startTime);
             if (!LiveParseActive)
                 return;
@@ -362,7 +360,9 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _totalLogsDuringCombat[combatStartTime] = obj;
             _usingHistoricalData = false;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), true);
-            CombatIdentifier.UpdateOverlays(combatInfo);
+            if(combatInfo.IsCombatWithBoss)
+                Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
+            CombatSelectionMonitor.InProgressCombatSeleted(combatInfo);
             if (CurrentEncounter == null)
                 return;
             var combatUI = CurrentEncounter.UpdateOngoing(combatInfo);
@@ -384,8 +384,9 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true, combatEndUpdate: true);
-                CombatIdentifier.FinalizeOverlays(combatInfo);
-                LiveCombatFinished(combatInfo);
+                if (combatInfo.IsCombatWithBoss)
+                    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
+                CombatSelectionMonitor.SelectCompleteCombat(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
                 {
                     _totalLogsDuringCombat.TryRemove(combatStartTime, out var t);
@@ -426,7 +427,10 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _usingHistoricalData = false;
             UpdateVisibleEncounters();
             if (_allEncounters.Any())
-                _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle();
+            {
+                _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle(); 
+                CombatIdentifier.CurrentCombat = _allEncounters.Last().EncounterCombats.First().Combat;
+            }
         }
         private bool TryAddEncounter(DateTime time)
         {
@@ -483,7 +487,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             if (unslectedCombat.Combat == null)
                 return;
             OnNewLog("Removing combat: " + unslectedCombat.CombatLabel + " from plot.");
-            OnCombatUnselected(unslectedCombat.Combat);
+            CombatSelectionMonitor.DeselectCombat(unslectedCombat.Combat);
         }
         private void SelectCombat(PastCombat selectedCombat)
         {
@@ -497,9 +501,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
             //Run these in a task so that the UI can update first
             Task.Run(() => {
-                OnCombatSelected(selectedCombat.Combat);
-
-                CombatSelectionMonitor.FireNewCombat(selectedCombat.Combat);
+                CombatSelectionMonitor.SelectCompleteCombat(selectedCombat.Combat);
             });
 
 

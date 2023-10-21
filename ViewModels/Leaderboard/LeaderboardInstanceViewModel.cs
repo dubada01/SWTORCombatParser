@@ -66,7 +66,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
                 var backgroundColor = Brushes.Transparent;
                 if (i % 2 == 0)
                 {
-                    backgroundColor = Brushes.DimGray;
+                    backgroundColor = (SolidColorBrush)App.Current.FindResource("Gray3Brush");
                 }
                 newLeaders.Add(new LeaderboardEntry { Position = i + 1, Player = entry.Character, Metric = entry.Value, Discipline = entry.Class, Duration = entry.Duration.ToString(), CombatTime = entry.TimeStamp.ToString(), RowBackground = backgroundColor });
 

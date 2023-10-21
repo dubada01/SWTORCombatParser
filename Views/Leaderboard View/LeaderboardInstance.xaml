@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
-        <Grid Background="{StaticResource Gray5Brush}">
+        <Grid Background="{StaticResource Gray4Brush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
@@ -16,9 +16,9 @@
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0"
                                      EndPoint="0,1">
-                        <GradientStop Color="{StaticResource Gray5}"
+                        <GradientStop Color="{StaticResource Gray4}"
                 Offset="0" />
-                        <GradientStop Color="{StaticResource Gray6}"
+                        <GradientStop Color="{StaticResource Gray3}"
                 Offset="1" />
                     </LinearGradientBrush>
                 </Grid.Background>

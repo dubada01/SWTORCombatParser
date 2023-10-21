@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Battle_Review"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border BorderBrush="DimGray" Background="{StaticResource Gray5Brush}" BorderThickness="2" CornerRadius="3">
+    <Border BorderBrush="DimGray" Background="{StaticResource Gray3Brush}" BorderThickness="2" CornerRadius="3">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
@@ -16,9 +16,9 @@
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0"
                                      EndPoint="0,1">
-                        <GradientStop Color="{StaticResource Gray5}"
+                        <GradientStop Color="{StaticResource Gray4}"
                 Offset="0" />
-                        <GradientStop Color="{StaticResource Gray6}"
+                        <GradientStop Color="{StaticResource Gray3}"
                 Offset="1" />
                     </LinearGradientBrush>
                 </Grid.Background>
@@ -60,10 +60,10 @@
                     <Style TargetType="{x:Type DataGridRow}">
                         <Style.Triggers>
                             <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                <Setter Property="Background" Value="{StaticResource Gray5Brush}"></Setter>
+                                <Setter Property="Background" Value="{StaticResource Gray3Brush}"></Setter>
                             </Trigger>
                             <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                <Setter Property="Background" Value="DimGray"></Setter>
+                                <Setter Property="Background" Value="{StaticResource Gray4Brush}"></Setter>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -72,7 +72,7 @@
                     <Style TargetType="{x:Type DataGridCell}">
                         <Style.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="Gray"/>
+                                <Setter Property="Background" Value="{StaticResource Gray5Brush}"/>
                                 <Setter Property="BorderBrush" Value="WhiteSmoke"/>
                                 <Setter Property="BorderThickness" Value="0,2,0,2"/>
                                 <Setter Property="Foreground" Value="WhiteSmoke"/>

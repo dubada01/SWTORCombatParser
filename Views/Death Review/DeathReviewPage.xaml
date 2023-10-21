@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views" xmlns:battle_review="clr-namespace:SWTORCombatParser.Views.Battle_Review" xmlns:challenges="clr-namespace:SWTORCombatParser.Views.Challenges" xmlns:death_review="clr-namespace:SWTORCombatParser.Views.Death_Review"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1000">
-    <Grid>
+    <Grid Background="{StaticResource Gray2Brush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="85"/>
             <RowDefinition Height="{Binding ElementName=HideTab, Path=IsSelected, Converter={StaticResource HideToHeightConverter}}"/>

@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -117,7 +118,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             }
             CombatLogStreamer.NewLineStreamed += TryUpdateVariable;
             CombatLogStreamer.CombatUpdated += CheckCombatState;
-            CombatIdentifier.NewCombatAvailable += HandleNewCombatInfo;
+            CombatSelectionMonitor.CombatSelected += HandleNewCombatInfo;
+            CombatSelectionMonitor.PhaseSelected += HandleNewCombatInfo;
             HandleNewCombatInfo(CombatIdentifier.CurrentCombat);
         }
 

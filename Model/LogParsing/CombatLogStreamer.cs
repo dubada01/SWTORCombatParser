@@ -19,6 +19,7 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public class CombatLogStreamer
     {
+        public static event Action CombatStarted = delegate { };
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
         public static event Action<DateTime, bool> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
@@ -334,7 +335,10 @@ namespace SWTORCombatParser.Model.LogParsing
             _currentCombatLogs.Add(parsedLine);
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(parsedLine.TimeStamp).Name };
             if (shouldUpdateOnNewCombat)
-                CombatUpdated(updateMessage);
+            {
+                CombatStarted();
+                CombatUpdated(updateMessage); 
+            }
         }
         private void EndCombat(ParsedLogEntry parsedLine = null)
         {
