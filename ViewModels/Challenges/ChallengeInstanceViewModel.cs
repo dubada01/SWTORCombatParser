@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Challenge;
+using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -15,10 +16,10 @@ namespace SWTORCombatParser.ViewModels.Challenges
     public class ChallengeInstanceViewModel : INotifyPropertyChanged
     {
         private string metricTotal;
-        private Challenge _sourceChallenge;
+
         private SolidColorBrush challengeColor;
         private double scale = 1;
-
+        private PhaseInstance _phaseOfInterest;
         public double Scale
         {
             get => scale; set
@@ -31,7 +32,8 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 OnPropertyChanged();
             }
         }
-        public Guid SourceChallengeId => _sourceChallenge != null ? _sourceChallenge.Id : Guid.Empty;
+        public Challenge SourceChallenge { get; set; }
+        public Guid SourceChallengeId => SourceChallenge != null ? SourceChallenge.Id : Guid.Empty;
         public event PropertyChangedEventHandler PropertyChanged;
         public ChallengeType Type { get; set; }
         public ConcurrentDictionary<(string, bool), ChallengeOverlayMetricInfo> _metricBarsDict { get; set; } = new ConcurrentDictionary<(string, bool), ChallengeOverlayMetricInfo>();
@@ -47,10 +49,14 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public string ChallengeName { get; set; }
         public ChallengeInstanceViewModel(Challenge sourceChallenge)
         {
-            _sourceChallenge = sourceChallenge;
+            SourceChallenge = sourceChallenge;
             ChallengeName = sourceChallenge.Name;
             Type = sourceChallenge.ChallengeType;
-            challengeColor = _sourceChallenge.BackgroundBrush;
+            challengeColor = SourceChallenge.BackgroundBrush;
+        }
+        public void UpdatePhase(PhaseInstance phase)
+        {
+            _phaseOfInterest = phase;
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
@@ -58,12 +64,12 @@ namespace SWTORCombatParser.ViewModels.Challenges
         }
         private void UpdateMetric(ChallengeType type, ChallengeOverlayMetricInfo metricToUpdate, Combat obj, Entity participant, Challenge sourceChallenge)
         {
-            var value = ChallengeMetrics.GetValueForChallenege(type, obj, participant, sourceChallenge);
+            var value = ChallengeMetrics.GetValueForChallenege(type, obj, participant, sourceChallenge, _phaseOfInterest);
             metricToUpdate.Value = value;
         }
         public void UpdateMetrics(Combat obj, Challenge sourceChallenge)
         {
-            _sourceChallenge = sourceChallenge;
+            SourceChallenge = sourceChallenge;
             RefreshBarViews(obj, sourceChallenge);
             double sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value);
             MetricTotal = sum.ToString("N0");
@@ -112,7 +118,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 var keys = _metricBarsDict.Keys.ToList();
                 for (var i = 0; i < keys.Count; i++)
                 {
-                    ChallengeOverlayMetricInfo bar = new ChallengeOverlayMetricInfo(_sourceChallenge.BackgroundBrush);
+                    ChallengeOverlayMetricInfo bar = new ChallengeOverlayMetricInfo(SourceChallenge.BackgroundBrush);
                     var worked = _metricBarsDict.TryGetValue(keys[i], out bar);
                     if (worked)
                         listOfBars.Add(bar);
@@ -132,6 +138,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         internal void Reset()
         {
             MetricBars.ForEach(mb => mb.Reset());
+            _phaseOfInterest = null;
         }
     }
 }

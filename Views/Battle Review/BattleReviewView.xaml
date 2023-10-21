@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid Background="{StaticResource Gray2Brush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="0.45*"/>
             <!--<RowDefinition Height="0.45*"/>-->
@@ -27,7 +27,7 @@
 
                     <Grid Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,5,5,0" Grid.Row="0" >
                     <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Text="Available Entities" HorizontalAlignment="Center" Margin="0,23,0,0"></TextBlock>
-                    <ListView Background="{StaticResource Gray6Brush}" Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{Binding AvailableEntities}">
+                    <ListView Background="{StaticResource Gray3Brush}" Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{Binding AvailableEntities}">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -36,7 +36,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock FontFamily="{StaticResource MainFont}" TextTrimming="CharacterEllipsis" Text="{Binding Entity.Name}"></TextBlock>
+                                    <TextBlock FontFamily="{StaticResource MainFont}" TextTrimming="CharacterEllipsis" Foreground="WhiteSmoke" Text="{Binding Entity.Name}"></TextBlock>
 
                                     <Viewbox MaxHeight="20" Grid.Column="1" HorizontalAlignment="Right">
                                         <CheckBox  IsChecked="{Binding Selected}"></CheckBox>

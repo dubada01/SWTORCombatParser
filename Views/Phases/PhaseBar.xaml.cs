@@ -1,7 +1,9 @@
 ﻿using ScottPlot.Drawing.Colormaps;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Phases;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Phases;
 using System;
 using System.Collections.Generic;
@@ -26,12 +28,15 @@ namespace SWTORCombatParser.Views.Phases
     public partial class PhaseBar : UserControl
     {
         Dictionary<PhaseInstance,Button> _phaseButtons = new Dictionary<PhaseInstance, Button>();
+        private List<PhaseInstance> _phases = new List<PhaseInstance>();
         public PhaseBar(PhaseBarViewModel viewModel)
         {
             InitializeComponent();
             DataContext = viewModel;
             viewModel.PhaseInstancesUpdated += UpdatePhases;
             PhaseManager.SelectedPhasesUpdated += UpdateButtonStates;
+            CombatSelectionMonitor.OnInProgressCombatSelected += UpdatePhaseBar;
+            CombatSelectionMonitor.CombatSelected += UpdatePhaseBar;
         }
 
         private void UpdateButtonStates(List<PhaseInstance> list)
@@ -73,63 +78,83 @@ namespace SWTORCombatParser.Views.Phases
 
         private void UpdatePhases(List<PhaseInstance> list)
         {
+            _phases = list;
+        }
+        private void UpdatePhaseBar(Combat newCombat)
+        {
             Reset();
-            var currentCombat = CombatIdentifier.CurrentCombat;
+            var currentCombat = newCombat;
             var combatDuration = currentCombat.DurationSeconds;
             var startTime = currentCombat.StartTime;
 
             var previousStop = -1d;
             var columnIndex = 0;
             try
-            {            App.Current.Dispatcher.Invoke(() =>
             {
-                foreach (var phase in list)
+                App.Current.Dispatcher.Invoke(() =>
                 {
-                    if (previousStop != -1)
+                    foreach (var phase in _phases)
                     {
-                        var relativeStop = (phase.PhaseStart - startTime).TotalSeconds / combatDuration;
-                        var stopWidth = relativeStop - previousStop;
-                        PartitionsHolder.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(stopWidth, GridUnitType.Star) });
+                        if (previousStop != -1)
+                        {
+                            var relativeStop = (phase.PhaseStart - startTime).TotalSeconds / combatDuration;
+                            var stopWidth = relativeStop - previousStop;
+                            AddColumnDefinition(stopWidth);
+                            columnIndex++;
+                        }
+                        else
+                        {
+                            var relativeStop = (phase.PhaseStart - startTime).TotalSeconds / combatDuration;
+                            AddColumnDefinition(relativeStop);
+                            columnIndex++;
+                        }
+                        previousStop = (phase.PhaseEnd - startTime).TotalSeconds / combatDuration;
+
+
+                        var relativeStart = (phase.PhaseStart - startTime).TotalSeconds / combatDuration;
+                        var relativeEnd = (phase.PhaseEnd - startTime).TotalSeconds / combatDuration;
+                        if (phase.PhaseEnd == DateTime.MinValue)
+                        {
+                            relativeEnd = (currentCombat.EndTime - startTime).TotalSeconds / combatDuration;
+                        }
+                        var width = relativeEnd - relativeStart;
+                        AddColumnDefinition(width);
+                        var button = new Button()
+                        {
+                            Foreground = Brushes.WhiteSmoke,
+                            Background = (SolidColorBrush)FindResource("Gray5Brush"),
+                            Content = new TextBlock
+                            {
+                                Text = phase.SourcePhase.Name,
+                                TextTrimming = TextTrimming.CharacterEllipsis, // This sets the text trimming
+                            },
+                            CommandParameter = phase,
+                            Style = (Style)FindResource("RoundCornerButton"),
+                        };
+                        button.Command = (DataContext as PhaseBarViewModel).PhaseSelectionToggled;
+                        _phaseButtons[phase] = button;
+                        Grid.SetColumn(button, columnIndex);
+                        PartitionsHolder.Children.Add(button);
                         columnIndex++;
                     }
-                    else
+                    if (!_phases.Any(l => l.PhaseEnd == DateTime.MinValue) && _phases.Count != 0)
                     {
-                        var relativeStop = (phase.PhaseStart - startTime).TotalSeconds / combatDuration;
-                        PartitionsHolder.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(relativeStop, GridUnitType.Star) });
-                        columnIndex++;
+                        var maxPhase = _phases.MaxBy(p => p.PhaseEnd);
+                        var remainingTime = (currentCombat.EndTime - maxPhase.PhaseEnd).TotalSeconds / combatDuration;
+                        AddColumnDefinition(remainingTime);
                     }
-                    previousStop = (phase.PhaseEnd - startTime).TotalSeconds / combatDuration;
-
-
-                    var relativeStart = (phase.PhaseStart - startTime).TotalSeconds / combatDuration;
-                    var relativeEnd = (phase.PhaseEnd - startTime).TotalSeconds / combatDuration;
-                    if (phase.PhaseEnd == DateTime.MinValue)
-                    {
-                        relativeEnd = (currentCombat.EndTime - startTime).TotalSeconds / combatDuration;
-                    }
-                    var width = relativeEnd - relativeStart;
-                    PartitionsHolder.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(width, GridUnitType.Star) });
-                    var button = new Button() {Foreground = Brushes.WhiteSmoke, Background = (SolidColorBrush)FindResource("Gray5Brush"), Content = phase.SourcePhase.Name, CommandParameter = phase, Style = (Style)FindResource("RoundCornerButton") };
-                    button.Command = (DataContext as PhaseBarViewModel).PhaseSelectionToggled;
-                    _phaseButtons[phase] = button;
-                    Grid.SetColumn(button, columnIndex);
-                    PartitionsHolder.Children.Add(button);
-                    columnIndex++;
-                }
-                if(!list.Any(l=>l.PhaseEnd == DateTime.MinValue) && list.Count!=0)
-                {
-                    var maxPhase = list.MaxBy(p => p.PhaseEnd);
-                    var remainingTime = (currentCombat.EndTime - maxPhase.PhaseEnd).TotalSeconds / combatDuration;
-                    PartitionsHolder.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(remainingTime, GridUnitType.Star) });
-                }
-            });
-
+                });
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
-
+        }
+        private void AddColumnDefinition(double width)
+        {
+            if (width < 0 || double.IsNaN(width) || double.IsInfinity(width))
+                width = 0;
+            PartitionsHolder.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(width, GridUnitType.Star) });
         }
     }
 }

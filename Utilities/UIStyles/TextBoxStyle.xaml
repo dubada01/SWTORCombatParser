@@ -5,7 +5,7 @@
         <Setter Property="Foreground" Value="WhiteSmoke"/>
         <Setter Property="FontSize" Value="20"/>
         <Setter Property="FontWeight" Value="Bold" />
-        <Setter Property="Background" Value="{StaticResource Gray8Brush}"/>
+        <Setter Property="Background" Value="{StaticResource Gray7Brush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource Gray3Brush}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -25,12 +25,12 @@ VerticalScrollBarVisibility="Hidden"/>
                         <Trigger Property="IsMouseOver" Value="true">
                             <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Gray4Brush}"/>
                             <Setter Property="Foreground" Value="WhiteSmoke" />
-                            <Setter Property="Background" TargetName="border" Value="{StaticResource Gray10Brush}" />
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource Gray8Brush}" />
                             <Setter Property="FontWeight" Value="Bold" />
                         </Trigger>
                         <Trigger Property="IsFocused" Value="true">
                             <Setter Property="Foreground" Value="WhiteSmoke"/>
-                            <Setter Property="Background" TargetName="border" Value="{StaticResource Gray10Brush}"/>
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource Gray9Brush}"/>
                             <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Gray2Brush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

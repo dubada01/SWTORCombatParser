@@ -3,9 +3,11 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Timers;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,22 +19,32 @@ namespace SWTORCombatParser.Model.Challenge
         private ObservableCollection<ChallengeInstanceViewModel> _challenges;
         private List<DataStructures.Challenge> _activeChallenges = new List<DataStructures.Challenge>();
         private List<DataStructures.Challenge> _allChallenges = new List<DataStructures.Challenge>();
-        private Combat _currentCombat;
         private string _currentBossName;
+        private Combat _currentSelectedCombat;
         private EncounterInfo _currentEncounter;
         private double _currentScale = 1;
-
         public ChallengeUpdater()
         {
-            CombatIdentifier.NewCombatStarted += ResetChallenges;
-            CombatIdentifier.NewCombatAvailable += UpdateCombats;
-            CombatSelectionMonitor.NewCombatSelected += CombatSelected;
+            CombatLogStreamer.CombatStarted += ResetChallenges;
             CombatLogStreamer.NewLineStreamed += CheckForActiveChallenge;
 
             EncounterTimerTrigger.EncounterDetected += SetBossInfo;
             CombatLogStateBuilder.AreaEntered += EncounterChanged;
             RefreshChallenges();
         }
+
+        private void UpdateChallengesWithPhases()
+        {
+            if(!PhaseManager.ActivePhases.Any())
+                _challenges.ForEach(c=>c.UpdatePhase(null));
+            foreach (var phaseChallenge in _challenges.Where(c => c.Type == ChallengeType.MetricDuringPhase))
+            {
+                phaseChallenge.UpdatePhase(phaseChallenge.SourceChallenge.PhaseId == Guid.Empty ? 
+                    null : 
+                    PhaseManager.ActivePhases.First(p => p.SourcePhase.Id == phaseChallenge.SourceChallenge.PhaseId));
+            }
+        }
+
         public void UpdateScale(double scale)
         {
             _currentScale = scale;
@@ -55,7 +67,8 @@ namespace SWTORCombatParser.Model.Challenge
         {
             foreach (var challenge in _allChallenges)
             {
-                if (IsLogForChallenge(obj, challenge) && (_currentBossName == challenge.Source.Split('|')[1]))
+                if (IsLogForChallenge(obj, challenge) && (_currentBossName == challenge.Source.Split('|')[1]) || 
+                    (challenge.ChallengeType == ChallengeType.MetricDuringPhase && PhaseManager.ActivePhases.Any(p => challenge.PhaseId == p.SourcePhase.Id)))
                 {
                     if (!_activeChallenges.Any(c => c.Id == challenge.Id))
                     {
@@ -64,7 +77,6 @@ namespace SWTORCombatParser.Model.Challenge
                         {
                             _challenges.Add(new ChallengeInstanceViewModel(challenge) { Scale = _currentScale });
                         });
-
                     }
                 }
             }
@@ -103,9 +115,10 @@ namespace SWTORCombatParser.Model.Challenge
         {
             _challenges = activeChallengeInstances;
         }
-        private void CombatSelected(Combat obj)
+        public void CombatSelected(Combat obj)
         {
             _currentBossName = obj.EncounterBossDifficultyParts.Item1;
+            _currentSelectedCombat = obj;
             ResetChallenges();
             foreach (var log in obj.AllLogs)
             {
@@ -125,7 +138,7 @@ namespace SWTORCombatParser.Model.Challenge
 
         private void UpdateCombats(Combat obj)
         {
-            _currentCombat = obj;
+            UpdateChallengesWithPhases();
             var activeChallenges = _activeChallenges.ToList();
             foreach (var challenge in activeChallenges)
             {

@@ -6,13 +6,13 @@
              xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid Background="{StaticResource Gray2Brush}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.9*"/>
                 <RowDefinition Height="0.1*"/>
             </Grid.RowDefinitions>
-            <TabControl Background="Transparent">
+            <TabControl Margin="5,5,0,5" Background="{StaticResource Gray3Brush}">
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabControl}">
                         <Setter Property="Template">

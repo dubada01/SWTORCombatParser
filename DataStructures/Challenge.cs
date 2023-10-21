@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SWTORCombatParser.Model.Overlays;
+using System;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.DataStructures
@@ -25,5 +26,7 @@ namespace SWTORCombatParser.DataStructures
         public string Value { get; set; }
         public bool UseRawValues { get; set; }
         public bool UseMaxValue { get; set; }
+        public Guid PhaseId { get; set; }
+        public OverlayType PhaseMetric { get; set; }
     }
 }

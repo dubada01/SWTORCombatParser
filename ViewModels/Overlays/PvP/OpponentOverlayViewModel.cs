@@ -2,6 +2,7 @@
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.PvP;
 using System;
@@ -33,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             EncounterTimerTrigger.NonPvpEncounterEntered += OnPvpCombatEnded;
             EncounterTimerTrigger.PvPEncounterEntered += OnPvpCombatStarted;
             CombatLogStreamer.NewLineStreamed += NewLineStreamed;
-            CombatIdentifier.NewCombatAvailable += NewCombatInfo;
+            CombatSelectionMonitor.CombatSelected += NewCombatInfo;
             SetInitialPosition();
         }
 

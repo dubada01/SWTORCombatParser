@@ -309,14 +309,14 @@ public static class TimerController
             return;
         if (obj.Type == UpdateType.Start)
         {
+            _currentBoss = ("", "", "");
             VariableManager.ResetVariables();
             _startTime = obj.CombatStartTime;
             UncancellBeforeCombat();
             _currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(obj.CombatStartTime).Discipline;
         }
         if (obj.Type == UpdateType.Stop)
-        {
-            _currentBoss = ("", "", "");
+        {         
             CancelAfterCombat();
         }
     }
