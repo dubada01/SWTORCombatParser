@@ -11,13 +11,18 @@ public static class Settings
     private static string _appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
     private static string _settingsPath = Path.Combine(_appDataPath, "general_settings.json");
 
+    private static object _initLock = new object();
+
     private static void Init()
     {
-        if (!Directory.Exists(_appDataPath))
-            Directory.CreateDirectory(_appDataPath);
-        if (!File.Exists(_settingsPath))
+        lock (_initLock)
         {
-            File.WriteAllText(_settingsPath, "{\"overlay_bar_scale\": 1.0,\"custom_audio_paths\": []}");
+            if (!Directory.Exists(_appDataPath))
+                Directory.CreateDirectory(_appDataPath);
+            if (!File.Exists(_settingsPath))
+            {
+                File.WriteAllText(_settingsPath, "{\"overlay_bar_scale\": 1.0,\"custom_audio_paths\": []}");
+            }
         }
     }
 

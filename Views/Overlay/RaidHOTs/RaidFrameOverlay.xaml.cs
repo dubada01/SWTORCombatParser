@@ -94,7 +94,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         }
 
         private bool _isSubscribed;
-        private bool _isLocked;
+        private bool _isLocked = true;
 
         private void SubscribeToClicks()
         {
