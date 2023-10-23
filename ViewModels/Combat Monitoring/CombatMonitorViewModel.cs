@@ -229,7 +229,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var encoding = Encoding.GetEncoding(1252);
-            var testFilesPath = @"C:\Users\duban\source\dubatech-repos\SWTORCombatParser\SWTORCombatParser_Test\TestLogs";
+            var testFilesPath = @"C:\Users\duban\Desktop\TestLogs";
             var files = Directory.EnumerateFiles(testFilesPath);
             foreach (var file in files)
             {

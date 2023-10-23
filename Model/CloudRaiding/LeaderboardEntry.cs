@@ -10,6 +10,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
         EffectiveHealing,
         Mitigation
     }
+    public class LeaderboardVersion
+    {
+        public DateTime timestamp { get; set; }
+        public int leadeboard_version { get; set; }
+    }
     public class LeaderboardEntry
     {
         public DateTime TimeStamp { get; set; }

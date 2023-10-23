@@ -4,6 +4,7 @@ using Npgsql;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,6 +12,37 @@ namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class PostgresConnection
     {
+        public static int GetCurrentLeaderboardVersion()
+        {
+            List<LeaderboardVersion> versions = new List<LeaderboardVersion>();
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return 0;
+            try
+            {
+                using (NpgsqlConnection connection = ConnectToDB())
+                {
+                    using (var cmd = new NpgsqlCommand("SELECT leaderboard_version, timestamp FROM public.leaderboard_versions", connection))
+                    {
+
+                        var reader = cmd.ExecuteReader();
+                        while (reader.Read())
+                        {
+                            versions.Add(new LeaderboardVersion
+                            {
+                                leadeboard_version = reader.GetInt32(0),
+                                timestamp = (DateTime)reader.GetDate(1)
+                            });
+                        }
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+            }
+            return versions.Any() ? versions.Where(t=>t.timestamp < DateTime.Now).MaxBy(v=>v.timestamp).leadeboard_version : 0;
+        }
         public static async Task<bool> TryAddLeaderboardEntry(LeaderboardEntry newEntry)
         {
             if (newEntry.Value == 0 || Settings.ReadSettingOfType<bool>("offline_mode"))

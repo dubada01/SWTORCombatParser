@@ -42,6 +42,8 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         public static void Reset()
         {
+            _inCombatStartTime = DateTime.MinValue;
+            _exitCombatDetectedTime = DateTime.MinValue;
             _bossCombat = false;
             _bossesKilledThisCombat = new List<string>();
             _bossesSeenThisCombat = new List<string>();
@@ -49,6 +51,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             _checkLogsForTimtout = false;
             _justRevived = false;
             _timeoutTimer.Stop();
+            revivedPlayers = new List<Entity>();
         }
         public static CombatState CheckForCombatState(ParsedLogEntry line, bool isRealTime = false)
         {
@@ -61,22 +64,25 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (line.Effect.EffectId == _7_0LogParsing.EnterCombatId)
             {
-                if (!_justRevived)
+                if ((line.TimeStamp - _exitCombatDetectedTime).TotalSeconds > 1)
                 {
-                    _inCombatStartTime = line.TimeStamp;
-                    _currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(line.TimeStamp);
-                    if (InCombat)
+                    if (!_justRevived)
                     {
+                        _inCombatStartTime = line.TimeStamp;
+                        _currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(line.TimeStamp);
+                        if (InCombat)
+                        {
+                            Reset();
+                            InCombat = true;
+
+                            return CombatState.ExitedByEntering;
+                        }
                         Reset();
                         InCombat = true;
-
-                        return CombatState.ExitedByEntering;
+                        return CombatState.EnteredCombat;
                     }
-                    Reset();
-                    InCombat = true;
-                    return CombatState.EnteredCombat;
+                    _justRevived = false;
                 }
-                _justRevived = false;
             }
 
             if (_currentEncounter == null)
@@ -144,7 +150,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (line.Effect.EffectId == _7_0LogParsing.ExitCombatId && InCombat)
             {
-                if ((!_bossCombat || _currentBossInfo.EncounterName == "Dread Master Styrak" || _currentBossInfo.EncounterName == "Dread Master Calphayus"))
+                if (!_bossCombat || _currentBossInfo.EncounterName == "Dread Master Styrak")
                 {
                     return EndCombat();
                 }
@@ -153,7 +159,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     ExitCombatDetected(line, isRealTime);
                 }
             }
-            if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && (_currentBossInfo.EncounterName != "Dread Master Styrak" || _currentBossInfo.EncounterName == "Dread Master Calphayus") && InCombat)
+            if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && (_currentBossInfo.EncounterName != "Dread Master Styrak") && InCombat)
             {
                 var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.LogId.ToString());
                 if (bossKilled)
@@ -207,6 +213,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             _justRevived = false;
             _timeoutTimer.Stop();
             InCombat = false;
+            Reset();
             AlertExitCombatTimedOut(CombatState.ExitCombatDelayTimedOut);
         }
 
@@ -216,6 +223,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             _justRevived = false;
             _timeoutTimer.Stop();
             InCombat = false;
+            Reset();
             return CombatState.ExitedCombat;
         }
     }
