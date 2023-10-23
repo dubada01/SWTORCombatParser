@@ -18,13 +18,14 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             var state = CombatLogStateBuilder.CurrentState;
             var orderedLogs = ongoingLogs.OrderBy(t => t.TimeStamp);
-            var encounter = GetEncounterInfo(orderedLogs.First().TimeStamp);
+            var firstTime = orderedLogs.First().TimeStamp;
+            var encounter = GetEncounterInfo(firstTime);
             var currentPariticpants = orderedLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct().ToList();
 
             currentPariticpants.AddRange(orderedLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Target).Distinct().ToList());
             var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
             var participantInfos = orderedLogs.Select(p => p.SourceInfo).Distinct().ToList();
-            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity, orderedLogs.First().TimeStamp));
+            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity, firstTime));
 
             var orderedLogsList = orderedLogs.ToHashSet();
             var targets = GetTargets(orderedLogsList);

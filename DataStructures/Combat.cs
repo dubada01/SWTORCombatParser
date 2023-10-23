@@ -36,9 +36,36 @@ namespace SWTORCombatParser.DataStructures
         public (string, string, string) EncounterBossDifficultyParts = ("", "", "");
 
         public List<string> RequiredDeadTargetsForKill => BossInfo.TargetsRequiredForKill;
+        public string RequiredAbilityForKill => BossInfo.AbilityRequiredForKill;
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
         public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
-        public bool WasBossKilled => RequiredDeadTargetsForKill.Count > 0 && RequiredDeadTargetsForKill.All(t => AllLogs.Where(t => t.Target.IsBoss).Any(l => (l.Target.LogId.ToString() == t && l.Effect.EffectId == _7_0LogParsing.DeathCombatId)));
+        public bool WasBossKilled
+        {
+            get
+            {
+                if (RequiredDeadTargetsForKill.Count > 0)
+                {
+                    // Check if all required targets are killed using efficient HashSet lookup
+                    var killedTargetsSet = new HashSet<string>(RequiredDeadTargetsForKill);
+                    if (killedTargetsSet.IsSubsetOf(AllLogs.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId)
+                        .Select(l => l.Target.LogId.ToString())))
+                    {
+                        return true;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(RequiredAbilityForKill))
+                {
+                    // Check if at least one log contains the required ability
+                    if (AllLogs.Any(l => l.AbilityId == RequiredAbilityForKill))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
         public HashSet<ParsedLogEntry> AllLogs { get; set; } = new HashSet<ParsedLogEntry>();
         public Dictionary<Entity, List<ParsedLogEntry>> LogsInvolvingEntity = new Dictionary<Entity, List<ParsedLogEntry>>();
 

@@ -130,6 +130,7 @@ namespace SWTORCombatParser.Views.Phases
                             },
                             CommandParameter = phase,
                             Style = (Style)FindResource("RoundCornerButton"),
+                            ToolTip = $"{phase.SourcePhase.Name}: {(phase.PhaseStart-startTime).TotalSeconds} - {(phase.PhaseEnd - startTime).TotalSeconds}"
                         };
                         button.Command = (DataContext as PhaseBarViewModel).PhaseSelectionToggled;
                         _phaseButtons[phase] = button;

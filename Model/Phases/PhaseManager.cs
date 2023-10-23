@@ -199,6 +199,12 @@ namespace SWTORCombatParser.Model.Phases
         }
         private static void HandleEntitySpawn(ParsedLogEntry entry, Phase phase, bool starting)
         {
+            var activePhase = ActivePhases.FirstOrDefault(p => p.PhaseEnd == DateTime.MinValue);
+            if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
+                return;
+            var activaePhaseOfSameType = ActivePhases.FirstOrDefault(p => p.SourcePhase.Id == phase.Id && p.PhaseEnd == DateTime.MinValue);
+            if (activaePhaseOfSameType != null && starting)
+                return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
             if (!_detectedEntities.Any(e => argsToUse.EntityIds.Contains(e.LogId)) && argsToUse.EntityIds.Contains(entry.Source.LogId) && entry.Effect.EffectType == EffectType.TargetChanged)
             {
@@ -211,6 +217,9 @@ namespace SWTORCombatParser.Model.Phases
 
         private static void HandleEntityDeath(ParsedLogEntry entry, Phase phase, bool starting)
         {
+            var activePhase = ActivePhases.FirstOrDefault(p => p.PhaseEnd == DateTime.MinValue);
+            if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
+                return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
             if (argsToUse.EntityIds.Contains(entry.Target.LogId) && entry.Effect.EffectId == _7_0LogParsing.DeathCombatId)
             {
@@ -227,9 +236,12 @@ namespace SWTORCombatParser.Model.Phases
             {
                 return;
             }
+            var activePhase = ActivePhases.FirstOrDefault(p => p.PhaseEnd == DateTime.MinValue);
+            if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
+                return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
             if (((entry.TargetInfo.CurrentHP / entry.TargetInfo.MaxHP) * 100 <= argsToUse.HPPercentage && argsToUse.EntityIds.Contains(entry.Target.LogId)) ||
-                ((entry.SourceInfo.CurrentHP / entry.SourceInfo.MaxHP) * 100 <= argsToUse.HPPercentage) && argsToUse.EntityIds.Contains(entry.Target.LogId))
+                ((entry.SourceInfo.CurrentHP / entry.SourceInfo.MaxHP) * 100 <= argsToUse.HPPercentage) && argsToUse.EntityIds.Contains(entry.Source.LogId))
             {
                 if (starting)
                 {
@@ -245,8 +257,11 @@ namespace SWTORCombatParser.Model.Phases
 
         private static void HandleAbilityUsage(ParsedLogEntry entry, Phase phase, bool starting)
         {
-            var activePhase = ActivePhases.FirstOrDefault(p => p.SourcePhase.Id == phase.Id && p.PhaseEnd == DateTime.MinValue);
-            if (activePhase != null && starting)
+            var activePhase = ActivePhases.FirstOrDefault(p => p.PhaseEnd == DateTime.MinValue);
+            if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
+                return;
+            var activaePhaseOfSameType = ActivePhases.FirstOrDefault(p => p.SourcePhase.Id == phase.Id && p.PhaseEnd == DateTime.MinValue);
+            if (activaePhaseOfSameType != null && starting)
                 return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
             if ((argsToUse.AbilityIds.Contains(entry.AbilityId) || argsToUse.AbilityIds.Contains(entry.Ability)) && entry.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (argsToUse.EntityIds.Contains(entry.Source.LogId)||!argsToUse.EntityIds.Any()))
@@ -259,6 +274,9 @@ namespace SWTORCombatParser.Model.Phases
         }
         private static void HandleAbilityCancel(ParsedLogEntry entry, Phase phase, bool starting)
         {
+            var activePhase = ActivePhases.FirstOrDefault(p => p.PhaseEnd == DateTime.MinValue);
+            if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
+                return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
             if ((argsToUse.AbilityIds.Contains(entry.AbilityId) || argsToUse.AbilityIds.Contains(entry.Ability)) && entry.Effect.EffectId == _7_0LogParsing.AbilityCancelId && (argsToUse.EntityIds.Contains(entry.Source.LogId) || !argsToUse.EntityIds.Any()))
             {
@@ -270,6 +288,12 @@ namespace SWTORCombatParser.Model.Phases
         }
         private static void HandleEffectGain(ParsedLogEntry entry, Phase phase, bool starting)
         {
+            var activePhase = ActivePhases.FirstOrDefault(p => p.PhaseEnd == DateTime.MinValue);
+            if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
+                return;
+            var activaePhaseOfSameType = ActivePhases.FirstOrDefault(p => p.SourcePhase.Id == phase.Id && p.PhaseEnd == DateTime.MinValue);
+            if (activaePhaseOfSameType != null && starting)
+                return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
             if ((argsToUse.EffectIds.Contains(entry.Effect.EffectName) || argsToUse.EffectIds.Contains(entry.Effect.EffectId)) && entry.Effect.EffectType == EffectType.Apply && (argsToUse.EntityIds.Contains(entry.Target.LogId) || !argsToUse.EntityIds.Any()))
             {
@@ -282,6 +306,9 @@ namespace SWTORCombatParser.Model.Phases
 
         private static void HandleEffectLoss(ParsedLogEntry entry, Phase phase, bool starting)
         {
+            var activePhase = ActivePhases.FirstOrDefault(p => p.PhaseEnd == DateTime.MinValue);
+            if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
+                return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
             if ((argsToUse.EffectIds.Contains(entry.Effect.EffectName) || argsToUse.EffectIds.Contains(entry.Effect.EffectId)) && entry.Effect.EffectType == EffectType.Remove && (argsToUse.EntityIds.Contains(entry.Target.LogId) || !argsToUse.EntityIds.Any()))
             {

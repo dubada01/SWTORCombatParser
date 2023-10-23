@@ -49,25 +49,16 @@ namespace SWTORCombatParser.Model.CombatParsing
 
                 var totalDamage = combat.OutgoingDamageLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveDamage = combat.OutgoingDamageLogs[entity].Sum(l => l.Value.EffectiveDblValue);
-                var currentFocusTarget = combat.ParentEncounter?.BossNames;
+                var currentFocusTarget = combat.ParentEncounter?.BossIds;
                 if (currentFocusTarget is { Count: > 0 })
                 {
-                    var bosses = currentFocusTarget.SelectMany(boss =>
-                    {
-                        if (!boss.Contains("~?~"))
-                            return new List<string> { boss };
-                        else
-                        {
-                            var names = boss.Split("~?~")[1];
-                            return new List<string>(names.Split('|'));
-                        }
-                    }).ToList();
+                    var bosses = currentFocusTarget.SelectMany(boss => boss.Value.SelectMany(diff => diff.Value)).ToList();
 
-                    totalDamage = combat.OutgoingDamageLogs[entity].Where(d => !bosses.Contains(d.Target.Name))
+                    totalDamage = combat.OutgoingDamageLogs[entity].Where(d => !bosses.Contains(d.Target.LogId))
                         .Sum(l => l.Value.DblValue);
-                    totalEffectiveDamage = combat.OutgoingDamageLogs[entity].Where(d => !bosses.Contains(d.Target.Name))
+                    totalEffectiveDamage = combat.OutgoingDamageLogs[entity].Where(d => !bosses.Contains(d.Target.LogId))
                         .Sum(l => l.Value.EffectiveDblValue);
-                    var focusDamageLogs = combat.OutgoingDamageLogs[entity].Where(d => bosses.Contains(d.Target.Name));
+                    var focusDamageLogs = combat.OutgoingDamageLogs[entity].Where(d => bosses.Contains(d.Target.LogId));
                     var damageLogs = focusDamageLogs as ParsedLogEntry[] ?? focusDamageLogs.ToArray();
                     var allFocusDamage = damageLogs.Sum(l => l.Value.DblValue);
                     var allEffectiveFocusDamage = damageLogs.Sum(l => l.Value.EffectiveDblValue);

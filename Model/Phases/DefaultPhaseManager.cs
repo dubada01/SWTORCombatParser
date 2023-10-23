@@ -9,9 +9,13 @@ namespace SWTORCombatParser.Model.Phases
 {
     public static class DefaultPhaseManager
     {
-        private static string _phaseFile = "DataStructures/Phases/phase_info.json";
+        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+
+        private static string _phaseFile = Path.Combine(appDataPath, "phase_info.json");
+       
         public static IEnumerable<Phase> GetExisitingPhases()
         {
+            TryInit();
             var phaseText = File.ReadAllText(_phaseFile);
             var phases = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<Phase>>(phaseText);
             foreach (var phase in phases)
@@ -38,6 +42,14 @@ namespace SWTORCombatParser.Model.Phases
             phases.Add(phase);
             var phaseText = Newtonsoft.Json.JsonConvert.SerializeObject(phases);
             File.WriteAllText(_phaseFile, phaseText);
+        }
+        private static void TryInit()
+        {
+            if(!File.Exists(_phaseFile))
+            {
+                Directory.CreateDirectory(appDataPath);
+                File.WriteAllText(_phaseFile, "[]");
+            }
         }
     }
 }

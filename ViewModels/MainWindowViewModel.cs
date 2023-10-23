@@ -1,6 +1,7 @@
 ﻿using Prism.Commands;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.DataStructures.Phases;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Phases;
@@ -95,7 +96,12 @@ namespace SWTORCombatParser.ViewModels
 
 		public MainWindowViewModel()
         {
+            Leaderboards.Init();
+
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
+
+            DefaultPhaseLoader.LoadBuiltinPhases();
+
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
 

@@ -30,6 +30,11 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             selected = true;
         }
+        public void DeselectAll()
+        {
+            selected = false;
+            OnPropertyChanged("Selected");
+        }
         public bool Selected
         {
             get => selected;
@@ -136,7 +141,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             if (entity.Name == "All" && selection)
             {
-                AvailableEntities.Where(e => e.Entity.Name != "All").ToList().ForEach(e => e.Selected = false);
+                AvailableEntities.Where(e => e.Entity.Name != "All").ToList().ForEach(e => e.DeselectAll());
             }
             if (entity.Name != "All" && selection)
             {
