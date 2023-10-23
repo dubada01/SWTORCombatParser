@@ -828,29 +828,6 @@
     }
   },
   {
-    "Id": "704be724-69ac-4b2d-92fb-2c8a80740ea8",
-    "SourcePt1": null,
-    "SourcePt2": "Dread Master Brontes",
-    "PhaseSource": "The Dread Fortress|Dread Master Brontes",
-    "Name": "Kephass",
-    "StartTrigger": 1,
-    "EndTrigger": 4,
-    "StartArgs": {
-      "EntityIds": [ 3309040373334016 ],
-      "AbilityIds": [],
-      "EffectIds": [],
-      "HPPercentage": 0.0,
-      "CombatDuration": 0.0
-    },
-    "EndArgs": {
-      "EntityIds": [],
-      "AbilityIds": [ "3300802626060288" ],
-      "EffectIds": [ "3300802626060288" ],
-      "HPPercentage": 0.0,
-      "CombatDuration": 0.0
-    }
-  },
-  {
     "Id": "ae1dda9d-6585-430c-a1f2-3eb1b0fdc398",
     "SourcePt1": null,
     "SourcePt2": "Dread Master Brontes",
@@ -2049,7 +2026,7 @@
   {
     "Id": "3ecceb1d-1181-4cbb-a167-f9a3e44d7c46",
     "SourcePt1": null,
-    "SourcePt2": null,
+    "SourcePt2": "SCYVA",
     "PhaseSource": "The Gods from the Machine|SCYVA",
     "Name": "Burn",
     "StartTrigger": 4,
@@ -2065,6 +2042,29 @@
       "EntityIds": [],
       "AbilityIds": [],
       "EffectIds": [],
+      "HPPercentage": 0.0,
+      "CombatDuration": 0.0
+    }
+  },
+  {
+    "Id": "704be724-69ac-4b2d-92fb-2c8a80740ea8",
+    "SourcePt1": null,
+    "SourcePt2": null,
+    "PhaseSource": "The Dread Fortress|Dread Master Brontes",
+    "Name": "Kephess",
+    "StartTrigger": 1,
+    "EndTrigger": 4,
+    "StartArgs": {
+      "EntityIds": [ 3309040373334016 ],
+      "AbilityIds": [],
+      "EffectIds": [],
+      "HPPercentage": 0.0,
+      "CombatDuration": 0.0
+    },
+    "EndArgs": {
+      "EntityIds": [],
+      "AbilityIds": [ "3300802626060288" ],
+      "EffectIds": [ "3300802626060288" ],
       "HPPercentage": 0.0,
       "CombatDuration": 0.0
     }

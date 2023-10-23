@@ -64,6 +64,10 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             _challengeWindowViewModel.CombatSelected(selectedCombat); 
         }
+        public void CombatUpdated(Combat combat)
+        {
+            _challengeWindowViewModel.CombatUpdated(combat);
+        }
         public ChallengeSetupViewModel()
         {
             ChallengesEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;

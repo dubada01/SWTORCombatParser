@@ -368,6 +368,7 @@ namespace SWTORCombatParser.ViewModels
                         break;
                 }
             });
+            _overlayViewModel.CombatUpdated(updatedCombat);
             _allViewsUpToDate = false;
         }
         private void SelectCombat(Combat selectedCombat)

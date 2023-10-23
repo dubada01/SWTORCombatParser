@@ -42,6 +42,10 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             _challengeUpdater.CombatSelected(combatSelected);
         }
+        public void CombatUpdated(Combat combat)
+        {
+            _challengeUpdater.UpdateCombats(combat);
+        }
         public ChallengeWindowViewModel()
         {
             _challengeUpdater = new ChallengeUpdater();

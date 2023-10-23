@@ -113,6 +113,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _challengesViewModel.CombatSelected(selectedCombat);
 
         }
+        public void CombatUpdated(Combat combat)
+        {
+            _challengesViewModel.CombatUpdated(combat);
+        }
         public OverlayViewModel()
         {
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForDiscipline;

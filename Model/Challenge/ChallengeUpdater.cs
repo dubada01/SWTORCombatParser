@@ -136,14 +136,15 @@ namespace SWTORCombatParser.Model.Challenge
             });
         }
 
-        private void UpdateCombats(Combat obj)
+        public void UpdateCombats(Combat obj)
         {
             UpdateChallengesWithPhases();
             var activeChallenges = _activeChallenges.ToList();
             foreach (var challenge in activeChallenges)
             {
-                var activeChallenge = _challenges.First(c => c.SourceChallengeId == challenge.Id);
-                activeChallenge.UpdateMetrics(obj, challenge);
+                var activeChallenge = _challenges.FirstOrDefault(c => c.SourceChallengeId == challenge.Id);
+                if(activeChallenge != null)
+                    activeChallenge.UpdateMetrics(obj, challenge);
             }
         }
     }
