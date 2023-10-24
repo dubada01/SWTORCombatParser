@@ -35,7 +35,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private object combatAddLock = new object();
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private bool _stubLogs;
-        private readonly int _linesPerWriteMin = 5560;
+        // private readonly int _linesPerWriteMin = 5560;
+        private readonly int _linesPerWriteMin = 1560;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
@@ -240,9 +241,9 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     {
                         while (!reader.EndOfStream)
                         {
-                            var delay = new Random().Next(25, 1500);
+                            var delay = new Random().Next(25, 500);
                             var delayScalar = delay / 25d;
-                            var numberOfLines = new Random().Next(_linesPerWriteMin, _linesPerWriteMin * 2) * delayScalar;
+                            var numberOfLines = new Random().Next(_linesPerWriteMin, (int)(_linesPerWriteMin * 1.5)) * delayScalar;
                             char[] buffer = new char[(int)numberOfLines];
                             reader.Read(buffer);
                             var stringBytes = encoding.GetBytes(string.Join("", buffer));
