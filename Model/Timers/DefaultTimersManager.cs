@@ -103,7 +103,7 @@ namespace SWTORCombatParser.Model.Timers
             }
             else
                 defaults.Add(source);
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
+            UpdateConfig(JsonConvert.SerializeObject(defaults));
         }
 
         public static void ClearBuiltinMechanics(int currentrev)
@@ -113,7 +113,7 @@ namespace SWTORCombatParser.Model.Timers
             {
                 source.Timers.RemoveAll(t => t.IsMechanic && t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot && !t.IsImportedFromSP);
             }
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(allTimers));
+            UpdateConfig(JsonConvert.SerializeObject(allTimers));
         }
         public static void ResetTimersForSource(string source)
         {
@@ -141,7 +141,7 @@ namespace SWTORCombatParser.Model.Timers
             {
                 source.Timers.Remove(valueToRemove);
             }
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
         }
         public static void SetTimerEnabled(bool state, Timer timer)
         {
@@ -258,7 +258,7 @@ namespace SWTORCombatParser.Model.Timers
             c.IsBossSource ||
             c.TimerSource == "StarParse Import");
 
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
+            UpdateConfig(JsonConvert.SerializeObject(validDefaults));
         }
         private static void InitializeDefaults(string timerSource)
         {
@@ -283,7 +283,24 @@ namespace SWTORCombatParser.Model.Timers
             c.TimerSource == "OCD" ||
             c.IsBossSource ||
             c.TimerSource == "StarParse Import");
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(validDefaults));
+            UpdateConfig(JsonConvert.SerializeObject(validDefaults));
+        }
+        private static void UpdateConfig(string textToWrite)
+        {
+            string tempFileName = infoPath + ".temp";
+
+            try
+            {
+                File.WriteAllText(tempFileName, textToWrite);
+
+                // Replace the original file with the temporary file atomically
+                File.Move(tempFileName, infoPath, true);
+            }
+            catch (Exception e)
+            {
+                // Handle the error, e.g., log it or inform the user
+                Console.WriteLine($"Error writing config to file: {e.Message}");
+            }
         }
     }
 }

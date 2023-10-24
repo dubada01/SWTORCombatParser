@@ -150,7 +150,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (line.Effect.EffectId == _7_0LogParsing.ExitCombatId && InCombat)
             {
-                if (!_bossCombat || _currentBossInfo.EncounterName == "Dread Master Styrak")
+                if (!_bossCombat)
                 {
                     return EndCombat();
                 }
@@ -159,7 +159,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     ExitCombatDetected(line, isRealTime);
                 }
             }
-            if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && (_currentBossInfo.EncounterName != "Dread Master Styrak") && InCombat)
+            if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && InCombat)
             {
                 var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.LogId.ToString());
                 if (bossKilled)
