@@ -178,6 +178,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             foreach (var entity in _distinctEntities)
             {
                 var closestLog = _currentlySelectedCombat.AllLogs.Where(e => e.Source.LogId == entity.LogId || e.Target.LogId == entity.LogId).MinBy(l => Math.Abs(l.SecondsSinceCombatStart - seekTime));
+                if (closestLog == null)
+                    return returnList;
                 if (closestLog.Source.LogId == entity.LogId)
                 {
                     returnList.Add(closestLog.SourceInfo);
