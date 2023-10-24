@@ -231,6 +231,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 m.Value.Target.Id.ToString() == entity || m.Value.Target.Name == entity).Select(kvp => kvp.Value).ToList();
             return activeModifiersOnPlayer;
         }
+        private static object _getEffetsLock = new object();
         private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, IEnumerable<CombatModifier> inScopeModifiers)
         {
             var correctedModifiers = inScopeModifiers.Select(m =>
@@ -262,7 +263,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     return correctedModifier;
                 }
                 return m;
-            });
+            }).ToList();
             return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
         }
 

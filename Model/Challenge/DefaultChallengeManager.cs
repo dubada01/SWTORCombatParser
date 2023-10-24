@@ -91,7 +91,7 @@ namespace SWTORCombatParser.Model.Challenge
             }
             else
                 defaults.Add(source);
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults));
+            UpdateConfig(JsonConvert.SerializeObject(defaults));
         }
 
         public static void ResetChallengesForSouce(string source)
@@ -124,7 +124,7 @@ namespace SWTORCombatParser.Model.Challenge
             {
                 source.Challenges.Remove(valueToRemove);
             }
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
         }
         public static void SetChallengeEnabled(bool state, DataStructures.Challenge challenge)
         {
@@ -181,7 +181,7 @@ namespace SWTORCombatParser.Model.Challenge
             currentDefaults.Remove(currentDefaults.First(cd => cd.ChallengeSource == source));
             currentDefaults.Add(data);
 
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
         }
         private static void InitializeDefaults(string source)
         {
@@ -194,7 +194,24 @@ namespace SWTORCombatParser.Model.Challenge
 
             var defaults = new DefaultChallengeData() { ChallengeSource = source, Position = new Point(0, 0), WidtHHeight = new Point(300, 200) };
             currentDefaults.Add(defaults);
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
+        }
+        private static void UpdateConfig(string textToWrite)
+        {
+            string tempFileName = infoPath + ".temp";
+
+            try
+            {
+                File.WriteAllText(tempFileName, textToWrite);
+
+                // Replace the original file with the temporary file atomically
+                File.Move(tempFileName, infoPath, true);
+            }
+            catch (Exception e)
+            {
+                // Handle the error, e.g., log it or inform the user
+                Console.WriteLine($"Error writing config to file: {e.Message}");
+            }
         }
     }
 }
