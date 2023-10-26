@@ -485,8 +485,8 @@ namespace SWTORCombatParser.ViewModels.Phases
                     {
                         HasValue = true;
                         ValuePrompt = "At HP %: ";
-                        HasTarget = true;
-                        TargetText = "Entity Id: ";
+                        HasMultiTarget = true;
+                        TargetText = "Entity Ids: ";
                         break;
                     }
                 case PhaseTrigger.EffectGain:
@@ -531,8 +531,8 @@ namespace SWTORCombatParser.ViewModels.Phases
                     {
                         EndHasValue = true;
                         EndValuePrompt = "At HP %: ";
-                        EndHasTarget = true;
-                        EndTargetText = "Entity Id: ";
+                        EndHasMultiTarget = true;
+                        EndTargetText = "Entity Ids: ";
                         break;
                     }
                 case PhaseTrigger.EffectGain:

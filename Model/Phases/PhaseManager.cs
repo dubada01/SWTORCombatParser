@@ -90,7 +90,7 @@ namespace SWTORCombatParser.Model.Phases
         private static double phaseDuration;
 
         private static IEnumerable<Phase> _loadedPhases { get; set; }
-        public static ConcurrentBag<PhaseInstance> ActivePhases
+        public static List<PhaseInstance> ActivePhases
         {
             get
             {
@@ -121,7 +121,7 @@ namespace SWTORCombatParser.Model.Phases
         public static event Action<Phase> PhaseEnded = delegate { };
 
         private static int _processedLines = 0;
-        private static ConcurrentBag<PhaseInstance> activePhases = new ConcurrentBag<PhaseInstance>();
+        private static List<PhaseInstance> activePhases = new List<PhaseInstance>();
 
         public static void Init()
         {
