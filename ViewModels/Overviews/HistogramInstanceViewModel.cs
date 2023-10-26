@@ -45,12 +45,6 @@ namespace SWTORCombatParser.ViewModels.Overviews
             _selectedCombats[combat.StartTime.ToString()] = combat;
             Update();
         }
-        public override void RemoveData(Combat combat)
-        {
-            _selectedCombats.Remove(combat.StartTime.ToString());
-            _combatDatas.Remove(combat.StartTime.ToString());
-            Update();
-        }
         public override void Reset()
         {
             AvailableAbilities.Clear();

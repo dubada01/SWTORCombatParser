@@ -6,6 +6,7 @@ using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Phases;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -86,10 +87,33 @@ namespace SWTORCombatParser.Model.Phases
         private static DateTime _combatStartTime;
         private static bool _combatStartToggled;
         private static Dictionary<Guid,bool> _hpPhasesTriggered = new Dictionary<Guid, bool>();
+        private static double phaseDuration;
 
         private static IEnumerable<Phase> _loadedPhases { get; set; }
-        public static List<PhaseInstance> ActivePhases { get; set; } = new List<PhaseInstance>();
+        public static ConcurrentBag<PhaseInstance> ActivePhases
+        {
+            get
+            {
+                    return activePhases;
+            }
+            set 
+            {
+                    activePhases = value; 
+            }
+        }
         public static List<PhaseInstance> SelectedPhases { get; set; } = new List<PhaseInstance>();
+        public static double PhaseDuration => phaseDuration * 1000f;
+
+        public static void SetSelectedPhaseDuration()
+        {
+            if (SelectedPhases.Count == 0)
+            {
+                phaseDuration = 0;
+                return;
+            }
+            // set phaseDuration to the sum of the duration of the selected phases
+            phaseDuration = SelectedPhases.Sum(p => ((p.PhaseEnd == DateTime.MinValue ? CombatIdentifier.CurrentCombat.EndTime : p.PhaseEnd)- p.PhaseStart).TotalSeconds);
+        }
 
         public static event Action<List<PhaseInstance>> PhaseInstancesUpdated = delegate { };
         public static event Action<List<PhaseInstance>> SelectedPhasesUpdated = delegate { };
@@ -97,6 +121,8 @@ namespace SWTORCombatParser.Model.Phases
         public static event Action<Phase> PhaseEnded = delegate { };
 
         private static int _processedLines = 0;
+        private static ConcurrentBag<PhaseInstance> activePhases = new ConcurrentBag<PhaseInstance>();
+
         public static void Init()
         {
             //need to load phases from a .json file that can be edited by the user
@@ -116,18 +142,22 @@ namespace SWTORCombatParser.Model.Phases
         {
             _currentBossName = bossName;
         }
+        private static object _selectionLock = new object();
         public static void UpdateForSelectedCombat(Combat combat)
         {
-            _loadedPhases = DefaultPhaseManager.GetExisitingPhases();
-            ResetPhases();
-            _combatStartTime = combat.StartTime;
-            _currentBossName = combat.EncounterBossDifficultyParts.Item1;
-            foreach (var line in combat.AllLogs.Skip(_processedLines))
+            lock (_selectionLock)
             {
-                HandleNewLine(line);
-                _processedLines++;
+                _loadedPhases = DefaultPhaseManager.GetExisitingPhases();
+                ResetPhases();
+                _combatStartTime = combat.StartTime;
+                _currentBossName = combat.EncounterBossDifficultyParts.Item1;
+                foreach (var line in combat.AllLogs.Skip(_processedLines))
+                {
+                    HandleNewLine(line);
+                    _processedLines++;
+                }
+                PhaseInstancesUpdated(ActivePhases.ToList());
             }
-            PhaseInstancesUpdated(ActivePhases);
         }
         private static void UpdatePhases(CombatStatusUpdate update)
         {
@@ -144,7 +174,7 @@ namespace SWTORCombatParser.Model.Phases
                     _processedLines++;
                 }
             }
-            PhaseInstancesUpdated(ActivePhases);
+            PhaseInstancesUpdated(ActivePhases.ToList());
         }
         private static void UpdateActiveEntities(ParsedLogEntry entry)
         {
@@ -168,11 +198,12 @@ namespace SWTORCombatParser.Model.Phases
             SelectedPhases.Clear();
             _hpPhasesTriggered.Clear();
             SelectedPhasesUpdated(SelectedPhases);
+            SetSelectedPhaseDuration();
         }
 
         private static void HandleNewLine(ParsedLogEntry entry)
         {
-            foreach (var phase in _loadedPhases.Where(p => p.SourcePt2 ==_currentBossName))
+            foreach (var phase in _loadedPhases.Where(p => p.SourcePt2 == _currentBossName))
             {
                 if (triggerHandlers.ContainsKey(phase.StartTrigger))
                 {
@@ -240,8 +271,8 @@ namespace SWTORCombatParser.Model.Phases
             if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
                 return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
-            if (((entry.TargetInfo.CurrentHP / entry.TargetInfo.MaxHP) * 100 <= argsToUse.HPPercentage && argsToUse.EntityIds.Contains(entry.Target.LogId)) ||
-                ((entry.SourceInfo.CurrentHP / entry.SourceInfo.MaxHP) * 100 <= argsToUse.HPPercentage) && argsToUse.EntityIds.Contains(entry.Source.LogId))
+            if (((entry.TargetInfo.CurrentHP / entry.TargetInfo.MaxHP) * 100d <= argsToUse.HPPercentage && argsToUse.EntityIds.Contains(entry.Target.LogId)) ||
+                ((entry.SourceInfo.CurrentHP / entry.SourceInfo.MaxHP) * 100d <= argsToUse.HPPercentage) && argsToUse.EntityIds.Contains(entry.Source.LogId))
             {
                 if (starting)
                 {
@@ -360,6 +391,7 @@ namespace SWTORCombatParser.Model.Phases
             }
 
             ActivePhases.Add(phaseInstance);
+
             PhaseStarted(phase);
         }
         private static void StopPhase(ParsedLogEntry entry, Phase phase)
@@ -383,6 +415,7 @@ namespace SWTORCombatParser.Model.Phases
             {
                 SelectedPhases.Add(instance);
             }
+            SetSelectedPhaseDuration();
             SelectedPhasesUpdated(SelectedPhases);
         }
     }

@@ -64,25 +64,27 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (line.Effect.EffectId == _7_0LogParsing.EnterCombatId)
             {
-                if ((line.TimeStamp - _exitCombatDetectedTime).TotalSeconds > 1)
+                if (!_justRevived)
                 {
-                    if (!_justRevived)
+                    if (InCombat)
                     {
-                        _inCombatStartTime = line.TimeStamp;
-                        _currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(line.TimeStamp);
-                        if (InCombat)
+                        if (_bossCombat)
                         {
-                            Reset();
-                            InCombat = true;
-
-                            return CombatState.ExitedByEntering;
+                            _checkLogsForTimtout = false;
+                            _timeoutTimer.Stop();
+                            return CombatState.InCombat;
                         }
                         Reset();
                         InCombat = true;
-                        return CombatState.EnteredCombat;
+                        return CombatState.ExitedByEntering;
                     }
-                    _justRevived = false;
+                    _inCombatStartTime = line.TimeStamp;
+                    _currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(line.TimeStamp);
+                    Reset();
+                    InCombat = true;
+                    return CombatState.EnteredCombat;
                 }
+                _justRevived = false;
             }
 
             if (_currentEncounter == null)

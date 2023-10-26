@@ -25,7 +25,8 @@ namespace SWTORCombatParser.DataStructures
         public DateTime StartTime;
         public DateTime EndTime;
         public string LogFileName => AllLogs.Where(l => !string.IsNullOrEmpty(l.LogName)).First().LogName;
-        public double DurationMS => (EndTime - StartTime).TotalMilliseconds;
+        public double DurationOverride { get; set; }
+        public double DurationMS => DurationOverride == 0 ? ( PhaseManager.SelectedPhases.Any() ? PhaseManager.PhaseDuration : (EndTime - StartTime).TotalMilliseconds) : DurationOverride;
         public int DurationSeconds => (int)Math.Round(DurationMS / 1000f);
 
 
@@ -71,16 +72,12 @@ namespace SWTORCombatParser.DataStructures
 
         public List<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
         {
-            if (string.IsNullOrEmpty(e.Name))
-                return new List<ParsedLogEntry>();
-            try
-            {
-                return LogsInvolvingEntity[e];
-            }
-            catch (KeyNotFoundException ex)
+            if (string.IsNullOrEmpty(e.Name) || !LogsInvolvingEntity.ContainsKey(e))
             {
                 return new List<ParsedLogEntry>();
             }
+
+            return LogsInvolvingEntity[e];
         }
         public bool WasPlayerKilled(Entity player)
         {
@@ -482,12 +479,25 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, double> MaxEffectiveHeal = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> MaxIncomingHeal = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> MaxIncomingEffectiveHeal = new ConcurrentDictionary<Entity, double>();
-        public Combat GetPhaseCopy(PhaseInstance phase)
+        public Combat GetPhaseCopy(List<PhaseInstance> phases)
         {
-            if(phase.PhaseEnd == DateTime.MinValue)
-                phase.PhaseEnd = EndTime;
-            var validLogs = AllLogs.Where(l => phase.ContainsTime(l.TimeStamp));
-            return CombatIdentifier.GenerateNewCombatFromLogs(validLogs.ToList(),isPhaseCombat:true);
+            List<ParsedLogEntry> phaseLogs = new List<ParsedLogEntry>();
+            foreach(var phase in phases)
+            {
+                if (phase.PhaseEnd == DateTime.MinValue)
+                    phase.PhaseEnd = EndTime;
+                phaseLogs.AddRange(AllLogs.Where(l => phase.ContainsTime(l.TimeStamp)));
+            }
+
+            if (!phaseLogs.Any())
+                return new Combat();
+            var duration = phases.Sum(p => ((p.PhaseEnd == DateTime.MinValue ? CombatIdentifier.CurrentCombat.EndTime : p.PhaseEnd) - p.PhaseStart).TotalSeconds);
+
+            var phaseCombat = CombatIdentifier.GenerateNewCombatFromLogs(phaseLogs.ToList(), isPhaseCombat: true);
+            var tempDuration = duration * 1000;
+            if(tempDuration<phaseCombat.DurationMS)
+                phaseCombat.DurationOverride = tempDuration;
+            return phaseCombat;
         }
     }
 }

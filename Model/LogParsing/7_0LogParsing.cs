@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SWTORCombatParser.Model.LogParsing
@@ -35,11 +36,13 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private static Regex valueRegex;
         public static Regex threatRegex;
+        private static Encoding _fileEncoding;
 
         public static void SetupRegex()
         {
             valueRegex = new Regex(@"\(.*?\)", RegexOptions.Compiled);
             threatRegex = new Regex(@"\<.*?\>", RegexOptions.Compiled);
+            _fileEncoding = Encoding.GetEncoding(1252);
         }
         public static void SetStartDate()
         {
@@ -56,11 +59,11 @@ namespace SWTORCombatParser.Model.LogParsing
             //if(!logEntry.Contains('\n'))
             //    return new ParsedLogEntry() { Error = ErrorType.IncompleteLine };
             if (logEntryInfos.Count < 5)
-                return new ParsedLogEntry() { LogText = logEntry, Error = ErrorType.IncompleteLine };
+                return new ParsedLogEntry() { LogBytes = _fileEncoding.GetByteCount(logEntry), Error = ErrorType.IncompleteLine };
             //try
             // {
             var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat.Select(v => v.Value).First(), previousLogTime);
-            parsedLine.LogText = logEntry;
+            parsedLine.LogBytes = _fileEncoding.GetByteCount(logEntry);
             parsedLine.LogLineNumber = lineIndex;
             if (realTime)
                 CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, true);
@@ -88,8 +91,8 @@ namespace SWTORCombatParser.Model.LogParsing
 
             newEntry.SourceInfo = ParseEntity(entryInfo[1]);
             newEntry.TargetInfo = entryInfo[2] == "=" ? newEntry.SourceInfo : ParseEntity(entryInfo[2]);
-            newEntry.Ability = ParseAbility(entryInfo[3]);
-            newEntry.AbilityId = ParseAbilityId(entryInfo[3]);
+            newEntry.Ability = string.Intern(ParseAbility(entryInfo[3]));
+            newEntry.AbilityId = string.Intern(ParseAbilityId(entryInfo[3]));
             newEntry.Effect = ParseEffect(entryInfo[4]);
 
             if (newEntry.Effect.EffectId == DeathCombatId)
@@ -460,7 +463,7 @@ namespace SWTORCombatParser.Model.LogParsing
             switch (newEffect.EffectType)
             {
                 case EffectType.DisciplineChanged:
-                    newEffect.EffectName = name;
+                    newEffect.EffectName = string.Intern(name);
                     break;
                 case EffectType.AreaEntered:
                     {
@@ -473,8 +476,8 @@ namespace SWTORCombatParser.Model.LogParsing
                         break;
                     }
                 default:
-                    newEffect.EffectName = splitName[0].Trim();
-                    newEffect.EffectId = splitName[1].Replace("}", "").Trim();
+                    newEffect.EffectName = string.Intern(splitName[0].Trim());
+                    newEffect.EffectId = string.Intern(splitName[1].Replace("}", "").Trim());
                     break;
             }
             if (newEffect.EffectType == EffectType.Event)

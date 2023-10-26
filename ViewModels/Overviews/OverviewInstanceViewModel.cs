@@ -26,7 +26,6 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public Combat SelectedCombat { get; set; }
         public abstract void UpdateData(Combat combat);
 
-        public abstract void RemoveData(Combat combat);
         internal abstract void UpdateParticipant();
         internal abstract void Update();
 

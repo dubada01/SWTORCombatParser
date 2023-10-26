@@ -19,7 +19,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         private SolidColorBrush challengeColor;
         private double scale = 1;
-        private PhaseInstance _phaseOfInterest;
+        private List<PhaseInstance> _phaseOfInterest = new List<PhaseInstance>();
         public double Scale
         {
             get => scale; set
@@ -54,9 +54,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
             Type = sourceChallenge.ChallengeType;
             challengeColor = SourceChallenge.BackgroundBrush;
         }
-        public void UpdatePhase(PhaseInstance phase)
+        public void UpdatePhase(List<PhaseInstance> phases)
         {
-            _phaseOfInterest = phase;
+            _phaseOfInterest = phases;
         }
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

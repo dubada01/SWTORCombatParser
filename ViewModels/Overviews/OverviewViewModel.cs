@@ -18,7 +18,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public OverviewInstanceViewModel HealingReceivedVM;
         public abstract Visibility SortOptionVisibility { get; }
         public List<Entity> AvailableParticipants { get; set; } = new List<Entity>();
-        public List<Combat> CurrentlySelectedCombats = new List<Combat>();
+        private Combat _currentCombat;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public OverviewViewModel()
@@ -54,31 +54,22 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         public void AddCombat(Combat combat)
         {
-            CurrentlySelectedCombats.Add(combat);
+            _currentCombat =combat;
             UpdateParticipants();
             DamageVM.UpdateData(combat);
             DamageTakenVM.UpdateData(combat);
             HealingVM.UpdateData(combat);
             HealingReceivedVM.UpdateData(combat);
         }
-        public void RemoveCombat(Combat combatToRemove)
-        {
-            CurrentlySelectedCombats.Remove(combatToRemove);
-            UpdateParticipants();
-            DamageVM.RemoveData(combatToRemove);
-            DamageTakenVM.RemoveData(combatToRemove);
-            HealingVM.RemoveData(combatToRemove);
-            HealingReceivedVM.RemoveData(combatToRemove);
-        }
         private void UpdateParticipants()
         {
-            if (CurrentlySelectedCombats.Count == 0)
+            if (_currentCombat == null)
             {
                 AvailableParticipants = new List<Entity>();
             }
             else
             {
-                AvailableParticipants = new List<Entity>(CurrentlySelectedCombats.SelectMany(c => c.AllEntities).Distinct());
+                AvailableParticipants = _currentCombat.AllEntities.Distinct().ToList();
                 if (!AvailableParticipants.Any(p => p.IsLocalPlayer))
                 {
                     SelectedEntity = AvailableParticipants.FirstOrDefault();
@@ -98,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         public void Reset()
         {
-            CurrentlySelectedCombats.Clear();
+            _currentCombat = null;
             AvailableParticipants.Clear();
             DamageVM.Reset();
             DamageTakenVM.Reset();

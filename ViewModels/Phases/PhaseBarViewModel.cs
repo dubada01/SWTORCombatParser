@@ -6,6 +6,7 @@ using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.Views.Phases;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

@@ -6,8 +6,10 @@ using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Phases;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -36,7 +38,9 @@ namespace SWTORCombatParser.Views.Phases
             viewModel.PhaseInstancesUpdated += UpdatePhases;
             PhaseManager.SelectedPhasesUpdated += UpdateButtonStates;
             CombatSelectionMonitor.OnInProgressCombatSelected += UpdatePhaseBar;
-            CombatSelectionMonitor.CombatSelected += UpdatePhaseBar;
+
+            Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.CombatSelected += manager,
+                manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdatePhaseBar);
         }
 
         private void UpdateButtonStates(List<PhaseInstance> list)
@@ -78,7 +82,7 @@ namespace SWTORCombatParser.Views.Phases
 
         private void UpdatePhases(List<PhaseInstance> list)
         {
-            _phases = list;
+            _phases = list.OrderBy(p=>p.PhaseStart).ToList();
         }
         private void UpdatePhaseBar(Combat newCombat)
         {

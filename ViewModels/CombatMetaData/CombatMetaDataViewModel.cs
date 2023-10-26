@@ -170,8 +170,11 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                     Duration = durations.Sum(),
                     Count = durations.Count()
                 }).OrderByDescending(effect => effect.Duration).ToList();
-            CombatEffects.Clear();
-            effectsList.ForEach(ef => CombatEffects.Add(ef));
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                CombatEffects.Clear();
+                effectsList.ForEach(ef => CombatEffects.Add(ef));
+            });
         }
         private List<CombatModifier> GetReleventModifiers()
         {

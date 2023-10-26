@@ -33,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
         private List<CombatMetaDataSeries> _seriesToPlot = new List<CombatMetaDataSeries>();
-        private List<Combat> _currentCombats = new List<Combat>();
+        private Combat _currentCombat = new Combat();
         private CombatEfffectViewModel _combatMetaDataViewModel;
         private ParticipantSelectionViewModel _participantsViewModel;
         private object graphLock = new object();
@@ -74,7 +74,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
             GraphView.Refresh();
         }
-        private Entity SelectedParticipant => _selectedParticipant == null || !_currentCombats.First().AllEntities.Any(c => c.Id == _selectedParticipant.Id) ? _currentCombats.First().CharacterParticipants.First() : _selectedParticipant;
+        private Entity SelectedParticipant => _selectedParticipant == null || !_currentCombat.AllEntities.Any(c => c.Id == _selectedParticipant.Id) ? _currentCombat.CharacterParticipants.First() : _selectedParticipant;
         private void SelectParticipant(Entity obj)
         {
             if (_selectedParticipant == obj)
@@ -87,10 +87,10 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 GraphView.Plot.Clear();
                 GraphView.Plot.AxisAuto();
                 GraphView.Plot.SetAxisLimits(xMin: 0);
-                if (_currentCombats.Count == 0)
+                if (_currentCombat == null)
                     return;
 
-                PlotCombat(_currentCombats[0], obj);
+                PlotCombat(_currentCombat, obj);
 
             }
         }
@@ -112,10 +112,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                         return;
                     _averageWindowDurationDouble = parsedVal;
                     GraphView.Plot.Clear();
-                    foreach (var combat in _currentCombats)
-                    {
-                        PlotCombat(combat, _selectedParticipant);
-                    }
+                    PlotCombat(_currentCombat, _selectedParticipant);
                     OnPropertyChanged("AverageWindowDuration");
                 }
                 averageWindowDuration = value;
@@ -158,8 +155,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 ResetEffectVisuals();
                 foreach (var effect in obj)
                 {
-                    var startTime = _currentCombats.OrderBy(c => c.StartTime).ToList()[0].StartTime;
-                    var endTime = _currentCombats.OrderByDescending(c => c.EndTime).ToList()[0].EndTime;
+                    var startTime = _currentCombat.StartTime;
+                    var endTime = _currentCombat.EndTime;
                     var maxDuration = (endTime - startTime).TotalSeconds;
                     var effectStart = (effect.StartTime - startTime).TotalSeconds;
                     var effectEnd = (effect.StopTime - startTime).TotalSeconds;
@@ -193,13 +190,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             lock (graphLock)
             {
                 ResetEffectVisuals();
-                var staleCombat = _currentCombats.FirstOrDefault(c => c.StartTime == updatedCombat.StartTime);
-                if (staleCombat != null)
-                {
-                    RemoveCombatPlot(staleCombat);
-                }
-
-                _currentCombats.Add(updatedCombat);
+                Reset();
                 PlotCombat(updatedCombat, SelectedParticipant);
             }
         }
@@ -220,66 +211,28 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 Reset();
                 ResetEffectVisuals();
-                _currentCombats.Add(combatToPlot);
+                _currentCombat=combatToPlot;
                 PlotCombat(combatToPlot, SelectedParticipant);
             }
         }
 
-        public void RemoveCombatPlot(Combat combatToRemove)
-        {
-            lock (graphLock)
-            {
-                ResetEffectVisuals();
-                if (_currentCombats.All(c => c.StartTime != combatToRemove.StartTime))
-                    return;
-                _currentCombats.Remove(_currentCombats.First(c => c.StartTime == combatToRemove.StartTime));
-
-                foreach (var series in _seriesToPlot)
-                {
-                    GraphView.Plot.RenderLock();
-                    if (series.Points.ContainsKey(combatToRemove.StartTime))
-                    {
-                        series.Points.Remove(combatToRemove.StartTime);
-                        series.Line.Remove(combatToRemove.StartTime);
-                        series.Tooltip.Remove(combatToRemove.StartTime);
-                    }
-                    if (series.Legend.HasEffective && series.EffectivePoints.ContainsKey(combatToRemove.StartTime))
-                    {
-                        series.Tooltip.Remove(combatToRemove.StartTime);
-                        series.EffectivePoints.Remove(combatToRemove.StartTime);
-                        series.EffectiveLine.Remove(combatToRemove.StartTime);
-                    }
-                    GraphView.Plot.RenderUnlock();
-                }
-
-                GraphView.Plot.RenderLock();
-                GraphView.Plot.Clear();
-                GraphView.Plot.RenderUnlock();
-
-                foreach (var remainingCombat in _currentCombats)
-                {
-                    PlotCombat(remainingCombat, SelectedParticipant);
-                }
-
-                GraphView.Plot.AxisAuto();
-                GraphView.Plot.SetAxisLimits(xMin: 0);
-            }
-        }
         public ObservableCollection<LegendItemViewModel> GetLegends()
         {
             return new ObservableCollection<LegendItemViewModel>(_seriesToPlot.Select(s => s.Legend));
         }
         public void Reset()
         {
-            lock (graphLock)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                _currentCombats.Clear();
+
+                _currentCombat = null;
                 _combatMetaDataViewModel.Reset();
                 GraphView.Plot.Clear();
                 GraphView.Plot.AxisAuto();
                 GraphView.Plot.SetAxisLimits(xMin: 0);
                 GraphView.Refresh();
-            }
+
+            });
         }
         public void MousePositionUpdated()
         {
@@ -291,16 +244,13 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                         plot.EffectiveTooltip.Values.ToList().ForEach(v => v.IsVisible = false);
                     if (plot.Tooltip != null)
                         plot.Tooltip.Values.ToList().ForEach(v => v.IsVisible = false);
-                    foreach (var combat in _currentCombats)
+                    if (plot.Points.Count > 0 && plot.Points.ContainsKey(_currentCombat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.Points[_currentCombat.StartTime]))
                     {
-                        if (plot.Points.Count > 0 && plot.Points.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.Points[combat.StartTime]))
-                        {
-                            UpdateSeriesAnnotation(plot.Points[combat.StartTime], plot.Tooltip[combat.StartTime], plot.Name, plot.Abilities[combat.StartTime], true);
-                        }
-                        if (plot.EffectivePoints.Count > 0 && plot.EffectivePoints.ContainsKey(combat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.EffectivePoints[combat.StartTime]))
-                        {
-                            UpdateSeriesAnnotation(plot.EffectivePoints[combat.StartTime], plot.EffectiveTooltip[combat.StartTime], plot.Name + "Raw", plot.Abilities[combat.StartTime], false);
-                        }
+                        UpdateSeriesAnnotation(plot.Points[_currentCombat.StartTime], plot.Tooltip[_currentCombat.StartTime], plot.Name, plot.Abilities[_currentCombat.StartTime], true);
+                    }
+                    if (plot.EffectivePoints.Count > 0 && plot.EffectivePoints.ContainsKey(_currentCombat.StartTime) && GraphView.Plot.GetPlottables().Contains(plot.EffectivePoints[_currentCombat.StartTime]))
+                    {
+                        UpdateSeriesAnnotation(plot.EffectivePoints[_currentCombat.StartTime], plot.EffectiveTooltip[_currentCombat.StartTime], plot.Name + "Raw", plot.Abilities[_currentCombat.StartTime], false);
                     }
 
                 }
@@ -347,15 +297,15 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
                 List<(string, string)> abilityNames = PlotMaker.GetAnnotationString(applicableData, series.Type == PlotType.DamageTaken || series.Type == PlotType.HealingTaken, series.Type == PlotType.SheildedDamageTaken);
                 series.Abilities[combatToPlot.StartTime] = abilityNames;
-                var seriesName = _currentCombats.Count == 1 ? series.Name : series.Name + " (" + combatToPlot.StartTime + ")";
+                var seriesName = series.Name;
                 if (series.Type != PlotType.HPPercent)
                 {
-                    series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), label: seriesName, color: series.Color, markerSize: 5);
+                    series.Points[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXvals, plotYvals, lineStyle: LineStyle.None, markerShape: GetMarkerFromNumberOfComparisons(1), label: seriesName, color: series.Color, markerSize: 5);
                     series.Points[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
                 }
                 if (plotXValRates.Length > 1)
                 {
-                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: _currentCombats.Count == 1 ? MarkerShape.none : GetMarkerFromNumberOfComparisons(_currentCombats.IndexOf(combatToPlot) + 1), markerSize: 7, color: series.Color, lineWidth: 1.5f);
+                    series.Line[combatToPlot.StartTime] = GraphView.Plot.AddScatter(plotXValRates, plotYvaRates, lineStyle: LineStyle.Solid, markerShape: MarkerShape.none, markerSize: 7, color: series.Color, lineWidth: 1.5f);
                     if (series.Type == PlotType.HPPercent)
                         series.Line[combatToPlot.StartTime].YAxisIndex = 1;
                 }
@@ -392,7 +342,9 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             //need to be sure that xmax is greater that xmin
             GraphView.Plot.SetAxisLimits(xMin: 0, xMax: Math.Max(1, (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds));
             _combatMetaDataViewModel.PopulateEffectsFromCombat(combatToPlot);
-            GraphView.Refresh();
+            App.Current.Dispatcher.Invoke(() => {
+                GraphView.Refresh();
+            });     
         }
 
 
@@ -448,8 +400,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 {
                     GraphView.Plot.Remove(span);
                 }
-                GraphView.Refresh();
+                
             }
+            App.Current.Dispatcher.Invoke(() => {
+                GraphView.Refresh();
+            });
         }
         private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
         {

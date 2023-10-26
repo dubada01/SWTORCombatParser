@@ -69,8 +69,8 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 GraphView.Plot.Clear();
                 GraphView.Plot.RenderUnlock();
                 GraphView.Plot.AxisAuto();
-                GraphView.Refresh();
             }
+            App.Current.Dispatcher.Invoke(() => { GraphView.Refresh(); });
         }
         public void MousePositionUpdated()
         {
@@ -167,7 +167,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             InitCrosshair(GraphView.Plot.GetAxisLimits(0).XMin);
             GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
             GraphView.Plot.SetAxisLimits(xMax: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
-            GraphView.Refresh();
+            App.Current.Dispatcher.Invoke(GraphView.Refresh);
             XValueSelected(GraphView.Plot.GetAxisLimits(0).XMin);
         }
         private double GetXValClosestToMouse()

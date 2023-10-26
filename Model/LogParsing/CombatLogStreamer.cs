@@ -80,7 +80,7 @@ namespace SWTORCombatParser.Model.LogParsing
             int[] characters = new int[currentLogs.Count];
             Parallel.For(0, currentLogs.Count, i =>
             {
-                characters[i] = _fileEncoding.GetByteCount(currentLogs[i].LogText);
+                characters[i] = currentLogs[i].LogBytes;
             });
             numberOfProcessedBytes = characters.Sum();
             Logging.LogInfo("Processed " + numberOfProcessedBytes + " bytes of data in " + _logToMonitor);

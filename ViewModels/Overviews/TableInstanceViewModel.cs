@@ -61,10 +61,6 @@ namespace SWTORCombatParser.ViewModels.Overviews
             SelectedCombat = combat;
             Update();
         }
-        public override void RemoveData(Combat combat)
-        {
-            SelectedCombat = null;
-        }
         public override void Reset()
         {
             _selectedEntity = null;

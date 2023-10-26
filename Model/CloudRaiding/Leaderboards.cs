@@ -317,7 +317,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         private static double GetLeaderboardPercentile(List<double> entries, double currentValue)
         {
             if (entries.Count == 0) return 0;
-            return Math.Round(((entries.Count(v => v < currentValue) + (0.5 * entries.Count(v => v.Equals(currentValue)))) / (double)entries.Count) * 100d);
+            return Math.Floor(((entries.Count(v => v < currentValue) + (0.5 * entries.Count(v => v.Equals(currentValue)))) / (double)entries.Count) * 100d);
         }
         private static double GetValueForLeaderboardEntry(LeaderboardEntryType role, Combat combat, Entity player)
         {
