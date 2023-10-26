@@ -118,6 +118,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             }
             CombatLogStreamer.NewLineStreamed += TryUpdateVariable;
             CombatLogStreamer.CombatUpdated += CheckCombatState;
+            CombatSelectionMonitor.OnInProgressCombatSelected += HandleNewCombatInfo;
             CombatSelectionMonitor.CombatSelected += HandleNewCombatInfo;
             CombatSelectionMonitor.PhaseSelected += HandleNewCombatInfo;
             HandleNewCombatInfo(CombatIdentifier.CurrentCombat);
