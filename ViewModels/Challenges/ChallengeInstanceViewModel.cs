@@ -2,6 +2,7 @@
 using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -62,9 +63,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        private void UpdateMetric(ChallengeType type, ChallengeOverlayMetricInfo metricToUpdate, Combat obj, Entity participant, Challenge sourceChallenge)
+        private void UpdateMetric(ChallengeType type, ChallengeOverlayMetricInfo metricToUpdate, Combat obj, Entity participant, Challenge sourceChallenge, Combat phaseCombat)
         {
-            var value = ChallengeMetrics.GetValueForChallenege(type, obj, participant, sourceChallenge, _phaseOfInterest);
+            var value = ChallengeMetrics.GetValueForChallenege(type, obj, participant, sourceChallenge, phaseCombat);
             metricToUpdate.Value = value;
         }
         public void UpdateMetrics(Combat obj, Challenge sourceChallenge)
@@ -81,6 +82,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
             ChallengeOverlayMetricInfo metricToUpdate;
             if (combatToDisplay.AllEntities.Count == 0)
                 return;
+            Combat phaseCombat = new Combat();
+            if(_phaseOfInterest.Any())
+                phaseCombat = combatToDisplay.GetPhaseCopy(_phaseOfInterest);
             foreach (var participant in combatToDisplay.AllEntities)
             {
                 if (_metricBarsDict.Any(m => m.Key.Item1 == participant.Name))
@@ -95,7 +99,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
 
-                UpdateMetric(Type, metricToUpdate, combatToDisplay, participant, sourceChallenge);
+                UpdateMetric(Type, metricToUpdate, combatToDisplay, participant, sourceChallenge, phaseCombat);
             }
             OrderMetricBars();
         }
