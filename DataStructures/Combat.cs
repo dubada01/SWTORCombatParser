@@ -485,8 +485,14 @@ namespace SWTORCombatParser.DataStructures
             foreach(var phase in phases)
             {
                 if (phase.PhaseEnd == DateTime.MinValue)
-                    phase.PhaseEnd = EndTime;
-                phaseLogs.AddRange(AllLogs.Where(l => phase.ContainsTime(l.TimeStamp)));
+                {
+                    phaseLogs.AddRange(AllLogs.Where(l => l.TimeStamp > phase.PhaseStart));
+                }
+                else
+                {
+                    phaseLogs.AddRange(AllLogs.Where(l => phase.ContainsTime(l.TimeStamp)));
+                }
+
             }
 
             if (!phaseLogs.Any())
