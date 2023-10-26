@@ -10,7 +10,7 @@ namespace SWTORCombatParser.Model.Challenge
 {
     public static class ChallengeMetrics
     {
-        public static double GetValueForChallenege(ChallengeType type, Combat combat, Entity participant, DataStructures.Challenge activeChallenge, List<PhaseInstance> phaseOfInterest)
+        public static double GetValueForChallenege(ChallengeType type, Combat combat, Entity participant, DataStructures.Challenge activeChallenge,Combat phaseCombat)
         {
 
             double value = 0;
@@ -41,13 +41,7 @@ namespace SWTORCombatParser.Model.Challenge
                     value = activeChallenge.UseMaxValue ? combat.GetMaxEffectStacks(activeChallenge.Value, participant) : combat.GetCurrentEffectStacks(activeChallenge.Value, participant);
                     break;
                 case ChallengeType.MetricDuringPhase:
-                    if(phaseOfInterest == null)
-                    {
-                        value = 0;
-                        break;
-                    }
-                    var phaseCombat = combat.GetPhaseCopy(phaseOfInterest);
-                    if(phaseCombat.AllEntities.Contains(participant))
+                    if(combat.DurationMS > 0 && phaseCombat.AllEntities.Contains(participant))
                         value = MetricGetter.GetValueForMetric(activeChallenge.PhaseMetric, new List<Combat> { phaseCombat } , participant);
                     break;
             }
