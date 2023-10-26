@@ -42,7 +42,7 @@ namespace SWTORCombatParser.Model.Phases
         public Phase SourcePhase { get; set; }
         public DateTime PhaseStart { get; set; }
         public DateTime PhaseEnd { get; set; }
-
+        public bool ArtificallyEnded { get; set; }
         internal bool ContainsTime(DateTime timeStamp)
         {
             //this function returns true if the timestamp is within the phase
@@ -161,20 +161,23 @@ namespace SWTORCombatParser.Model.Phases
         }
         private static void UpdatePhases(CombatStatusUpdate update)
         {
-            if (update.Type == UpdateType.Start)
+            lock (_selectionLock)
             {
-                ResetPhases();
-                _combatStartTime = update.CombatStartTime;
-            }
-            if (update.Type == UpdateType.Update)
-            {
-                foreach (var line in update.Logs.Skip(_processedLines))
+                if (update.Type == UpdateType.Start)
                 {
-                    HandleNewLine(line);
-                    _processedLines++;
+                    ResetPhases();
+                    _combatStartTime = update.CombatStartTime;
                 }
+                if (update.Type == UpdateType.Update)
+                {
+                    foreach (var line in update.Logs.Skip(_processedLines))
+                    {
+                        HandleNewLine(line);
+                        _processedLines++;
+                    }
+                }
+                PhaseInstancesUpdated(ActivePhases.ToList());
             }
-            PhaseInstancesUpdated(ActivePhases.ToList());
         }
         private static void UpdateActiveEntities(ParsedLogEntry entry)
         {

@@ -351,6 +351,7 @@ namespace SWTORCombatParser.ViewModels
                 return;
             Application.Current.Dispatcher.Invoke(delegate
             {
+                _overlayViewModel.CombatUpdated(updatedCombat);
                 switch (HeaderSelectionState.CurrentlySelectedTabHeader)
                 {
                     case "Battle Plot":
@@ -367,7 +368,7 @@ namespace SWTORCombatParser.ViewModels
                         break;
                 }
             });
-            _overlayViewModel.CombatUpdated(updatedCombat);
+            
             _allViewsUpToDate = false;
         }
         private void SelectCombat(Combat selectedCombat)

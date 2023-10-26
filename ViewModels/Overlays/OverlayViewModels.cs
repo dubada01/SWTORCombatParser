@@ -308,6 +308,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     return;
                 var currentOverlay = _currentOverlays.First(o => o.CreatedType == overlayType.Type);
                 currentOverlay.RequestClose();
+                RemoveOverlay(currentOverlay);
                 return;
             }
             overlayType.IsSelected = true;

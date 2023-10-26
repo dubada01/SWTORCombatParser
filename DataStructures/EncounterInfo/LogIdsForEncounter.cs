@@ -760,6 +760,15 @@ public static class LogIdFactory
                                 { "Veteran 8", new List<long>() { 4158786767945728L } },
                                 { "Veteran 16", new List<long>() { 4158859782389760L } },
                             }
+                        },
+                                                {
+                            "IZAX", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 4163124684914688L } },
+                                { "Story 16", new List<long>() { 4163133274849280L } },
+                                { "Veteran 8", new List<long>() {  4163128979881984L } },
+                                { "Veteran 16", new List<long>() {  4163137569816576L } },
+                            }
                         }
                     };
                     break;
