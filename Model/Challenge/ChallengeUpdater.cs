@@ -40,8 +40,8 @@ namespace SWTORCombatParser.Model.Challenge
             foreach (var phaseChallenge in _challenges.Where(c => c.Type == ChallengeType.MetricDuringPhase))
             {
                 phaseChallenge.UpdatePhase(phaseChallenge.SourceChallenge.PhaseId == Guid.Empty ? 
-                    null : 
-                    PhaseManager.ActivePhases.First(p => p.SourcePhase.Id == phaseChallenge.SourceChallenge.PhaseId));
+                    new List<PhaseInstance>() : 
+                    PhaseManager.ActivePhases.Where(p => p.SourcePhase.Id == phaseChallenge.SourceChallenge.PhaseId).ToList());
             }
         }
 

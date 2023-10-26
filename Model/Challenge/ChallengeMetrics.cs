@@ -10,7 +10,7 @@ namespace SWTORCombatParser.Model.Challenge
 {
     public static class ChallengeMetrics
     {
-        public static double GetValueForChallenege(ChallengeType type, Combat combat, Entity participant, DataStructures.Challenge activeChallenge, PhaseInstance phaseOfInterest)
+        public static double GetValueForChallenege(ChallengeType type, Combat combat, Entity participant, DataStructures.Challenge activeChallenge, List<PhaseInstance> phaseOfInterest)
         {
 
             double value = 0;

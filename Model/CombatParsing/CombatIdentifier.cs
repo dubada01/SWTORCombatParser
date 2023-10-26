@@ -12,7 +12,7 @@ namespace SWTORCombatParser.Model.CombatParsing
     {
         public static Combat CurrentCombat { get; set; }
 
-
+        private static object _modlock = new object();
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false, bool isPhaseCombat = false)
         {
 
@@ -78,11 +78,13 @@ namespace SWTORCombatParser.Model.CombatParsing
                 newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
                 newCombat.BossInfo = GetCurrentBossInfoObject(ongoingLogs, encounter);
             }
-            CombatMetaDataParse.PopulateMetaData(newCombat);
-            var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8).Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l=>l.TimeStamp).ToList());
-            AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
-            AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
-
+            lock (_modlock)
+            {
+                CombatMetaDataParse.PopulateMetaData(newCombat);
+                var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8).Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l => l.TimeStamp).ToList());
+                AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
+                AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
+            }
             return newCombat;
         }
 

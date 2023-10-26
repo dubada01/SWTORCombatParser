@@ -126,8 +126,8 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             UpdateHeaders();
             var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
-            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns));
-            PartyMembers.Clear();
+            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => App.Current.Dispatcher.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList(); 
+            App.Current.Dispatcher.Invoke(PartyMembers.Clear);
             var sortedMembers = new List<MemberInfoViewModel>();
             if (_sortDirection == SortingDirection.Ascending)
             {
@@ -145,10 +145,13 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             {
                 sortedMembers[i].AssignBackground(i);
             }
-            foreach (var member in sortedMembers)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                PartyMembers.Add(member);
-            }
+                foreach (var member in sortedMembers)
+                {
+                    PartyMembers.Add(member);
+                }
+            });
         }
 
         private void Sort(SortingDirection arg1, string arg2)

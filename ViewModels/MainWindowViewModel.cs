@@ -94,7 +94,7 @@ namespace SWTORCombatParser.ViewModels
         public bool AppIsOutOfDate { get; set; }
         public ICommand AppOutOfDateCommand => new DelegateCommand(VersionChecker.OpenMicrosoftStoreToAppPage);
 
-		public MainWindowViewModel()
+        public MainWindowViewModel()
         {
             Leaderboards.Init();
 
@@ -109,7 +109,7 @@ namespace SWTORCombatParser.ViewModels
             VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
 
-            VersionChecker.AppVersionInfoReady+= UpdateIcon;
+            VersionChecker.AppVersionInfoReady += UpdateIcon;
 
             PhaseManager.Init();
             PhaseManager.SelectedPhasesUpdated += FilterForPhase;
@@ -125,7 +125,6 @@ namespace SWTORCombatParser.ViewModels
             };
             _combatMonitorViewModel = new CombatMonitorViewModel();
             CombatSelectionMonitor.CombatSelected += SelectCombat;
-            CombatSelectionMonitor.CombatDeselected += UnselectCombat;
             Observable.FromEvent<double>(
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs += manager,
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs -= manager).Buffer(TimeSpan.FromSeconds(2)).Subscribe(UpdateLogTimeOffset);
@@ -194,7 +193,7 @@ namespace SWTORCombatParser.ViewModels
                     CombatSelectionMonitor.SelectPhase(UnfilteredDisplayedCombat);
                     UpdateViewsWithSelectedCombat(UnfilteredDisplayedCombat);
                 }
-                return; 
+                return;
             }
             list.ForEach(p => p.PhaseEnd = p.PhaseEnd == DateTime.MinValue ? UnfilteredDisplayedCombat.EndTime : p.PhaseEnd);
             var logsDuringPhases = UnfilteredDisplayedCombat.AllLogs.Where(l => list.Any(p => p.ContainsTime(l.TimeStamp))).ToList();
@@ -204,12 +203,12 @@ namespace SWTORCombatParser.ViewModels
         }
 
         private void UpdateIcon()
-		{
+        {
             AppIsOutOfDate = !VersionChecker.AppIsUpToDate;
             OnPropertyChanged("AppIsOutOfDate");
-		}
+        }
 
-		public SolidColorBrush UploadButtonBackground
+        public SolidColorBrush UploadButtonBackground
         {
             get => uploadButtonBackground; set
             {
@@ -373,15 +372,15 @@ namespace SWTORCombatParser.ViewModels
         }
         private void SelectCombat(Combat selectedCombat)
         {
-            UnfilteredDisplayedCombat = selectedCombat; 
+            UnfilteredDisplayedCombat = selectedCombat;
             UpdateViewsWithSelectedCombat(selectedCombat);
         }
-
         private void UpdateViewsWithSelectedCombat(Combat selectedCombat)
         {
-            CurrentlyDisplayedCombat = selectedCombat;
+
             Application.Current.Dispatcher.Invoke(delegate
             {
+                CurrentlyDisplayedCombat = selectedCombat;
                 _overlayViewModel.CombatSeleted(selectedCombat);
                 _plotViewModel.UpdateParticipants(selectedCombat);
                 _plotViewModel.AddCombatPlot(selectedCombat);
@@ -389,20 +388,11 @@ namespace SWTORCombatParser.ViewModels
                 _deathViewModel.AddCombat(selectedCombat);
                 _reviewViewModel.CombatSelected(selectedCombat);
                 _dataGridViewModel.UpdateCombat(selectedCombat);
+
+                _allViewsUpToDate = true;
             });
-            _allViewsUpToDate = true;
         }
 
-        private void UnselectCombat(Combat obj)
-        {
-            Application.Current.Dispatcher.Invoke(delegate
-            {
-                _plotViewModel.RemoveCombatPlot(obj);
-                _tableViewModel.RemoveCombat(obj);
-                _deathViewModel.RemoveCombat(obj);
-                _dataGridViewModel.RemoveCombat(obj);
-            });
-        }
         private void LocalPlayerChanged(Entity obj)
         {
             if (localEntity == obj)

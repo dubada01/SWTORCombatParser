@@ -117,7 +117,7 @@ public static class LogIdFactory
                         {
                             "Colonel Vorgath", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 2783478110224384L, 2813182104043520L } },
+                                { "Story 8", new List<long>() { 2783478110224384L, 2848692893646848L } },
                                 { "Story 16", new List<long>() { 2854156092047360L, 2854224811524096L } },
                                 { "Veteran 8", new List<long>() { 2854151797080064L, 2854117437341696L } },
                                 { "Veteran 16", new List<long>() { 2854160387014656L, 2854229106491392L } },
@@ -126,10 +126,10 @@ public static class LogIdFactory
                         {
                             "Warlord Kephess", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 2747344550363136L, 2800357331697664L,2794185463693312L} },
-                                { "Story 16", new List<long>() { 2876545756561408L,2876550051528704L,2876562936430592L } },
-                                { "Veteran 8", new List<long>() { 2876515691790336L, 2876528576692224L,2876532871659520L } },
-                                { "Veteran 16", new List<long>() { 2876575821332480L, 2876588706234368L,2876593001201664L } },
+                                { "Story 8", new List<long>() {  2800357331697664L,2794185463693312L} },
+                                { "Story 16", new List<long>() { 2876550051528704L,2876562936430592L } },
+                                { "Veteran 8", new List<long>() {  2876528576692224L,2876532871659520L } },
+                                { "Veteran 16", new List<long>() {  2876588706234368L,2876593001201664L } },
                             }
                         }
                     };
@@ -140,7 +140,7 @@ public static class LogIdFactory
                         {
                             "The Writhing Horror", new Dictionary<string, List<long>>()
                             {
-                                { "Story 8", new List<long>() { 2962174519541760L } },
+                                { "Story 8", new List<long>() { 2938874321960960L } },
                                 { "Story 16", new List<long>() { 3010428477112320L } },
                                 { "Veteran 8", new List<long>() { 3010424182145024L } },
                                 { "Veteran 16", new List<long>() { 3010432772079616L } },

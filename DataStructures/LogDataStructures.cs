@@ -111,7 +111,7 @@ namespace SWTORCombatParser.DataStructures
         public ErrorType Error;
         public long RaidLogId;
         public string LogName;
-        public string LogText;
+        public int LogBytes;
         public long LogLineNumber { get; set; }
         public string LogLocation { get; set; }
         public string LogLocationId { get; set; }

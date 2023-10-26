@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 
@@ -124,7 +125,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             CombatLogStreamer.CombatStarted += Reset;
             CombatSelectionMonitor.OnInProgressCombatSelected += UpdateMetrics;
-            CombatSelectionMonitor.CombatSelected += DisplayFinalMetrics;
+            Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.CombatSelected += manager,
+    manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(DisplayFinalMetrics);
             CombatSelectionMonitor.PhaseSelected += UpdateMetrics;
             Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
