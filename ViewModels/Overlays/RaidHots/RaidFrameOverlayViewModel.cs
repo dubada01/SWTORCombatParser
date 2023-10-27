@@ -124,6 +124,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 var clickedPoint = new Point(cellX, cellY);
                 var cellClicked = RaidHotCells.FirstOrDefault(n => n.Row == clickedPoint.Y && n.Column == clickedPoint.X);
+                var nameClicked = CurrentNames.FirstOrDefault(n => n.Row == clickedPoint.Y && n.Column == clickedPoint.X);
+                if (nameClicked != null)
+                    nameClicked.Name = "";
                 if (cellClicked != null)
                     cellClicked.Name = "Updating...";
                 _mostRecentlyClickedCell[clickedTime] = clickedPoint;

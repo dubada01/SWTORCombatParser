@@ -83,7 +83,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             if (combatToDisplay.AllEntities.Count == 0)
                 return;
             Combat phaseCombat = new Combat();
-            if(_phaseOfInterest.Any())
+            if(_phaseOfInterest != null && _phaseOfInterest.Any())
                 phaseCombat = combatToDisplay.GetPhaseCopy(_phaseOfInterest);
             foreach (var participant in combatToDisplay.AllEntities)
             {

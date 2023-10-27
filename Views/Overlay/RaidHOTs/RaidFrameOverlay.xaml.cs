@@ -86,6 +86,10 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         {
             var viewModel = DataContext as RaidFrameOverlayViewModel;
             viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
+            if (!viewModel.Editable)
+                makeTransparent(true);
+            else
+                makeTransparent(false);
             viewModel.ToggleLocked += makeTransparent;
             viewModel.PlayerChanged += SetPlayer;
 
