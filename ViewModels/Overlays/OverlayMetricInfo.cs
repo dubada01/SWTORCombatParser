@@ -114,6 +114,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     SecondaryBarWidth = new GridLength(0, GridUnitType.Star);
                     RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
                 }
+                OnPropertyChanged("SecondaryBarWidth");
                 OnPropertyChanged("RemainderWidth");
                 OnPropertyChanged("BarWidth");
                 BarRadiusSecondary = SecondaryType == OverlayType.None || SecondaryValue == 0 ? new CornerRadius(3, 3, 3, 3) : new CornerRadius(3, 0, 0, 3);
@@ -127,8 +128,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             relativeLength = 0;
             BarWidth = new GridLength(0, GridUnitType.Star);
             RemainderWidth = new GridLength(1, GridUnitType.Star);
+            SecondaryBarWidth = new GridLength (0, GridUnitType.Star);
             OnPropertyChanged("RemainderWidth");
             OnPropertyChanged("BarWidth");
+            OnPropertyChanged("SecondaryBarWidth");
         }
         public double Value
         {

@@ -28,6 +28,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private string toggleEditText;
         private string _currentCharacter = "no character";
         private bool _decreasedSpecificity;
+        private bool canDetect = true;
 
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> EnabledChanged = delegate { };
@@ -123,6 +124,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 _currentOverlay.Hide();
             });
         }
+        public bool CanDetect
+        {
+            get => canDetect; set
+            {
+                canDetect = value;
+                OnPropertyChanged();
+            }
+        }
         public bool RaidHotsEnabled
         {
             get => raidHotsEnabled; set
@@ -166,8 +175,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         private void AutoDetection()
         {
-            if (!RaidHotsEnabled)
+            if (!RaidHotsEnabled || !CanDetect)
                 return;
+            CanDetect = false;
             Task.Run(() =>
             {
                 var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(_currentOverlayViewModel.TopLeft,
@@ -179,6 +189,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 {
                     _currentOverlayViewModel.UpdateNames(names);
                 });
+                CanDetect = true;
+
             });
         }
 

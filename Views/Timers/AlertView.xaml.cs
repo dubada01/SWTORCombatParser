@@ -24,6 +24,10 @@ namespace SWTORCombatParser.Views.Timers
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close,
     new ExecutedRoutedEventHandler(delegate (object sender, ExecutedRoutedEventArgs args) { this.Close(); })));
             MainWindowClosing.Closing += CloseOverlay;
+            if (vm.OverlaysMoveable)
+                makeTransparent(false);
+            else
+                makeTransparent(true);
             vm.OnLocking += makeTransparent;
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
@@ -32,7 +36,6 @@ namespace SWTORCombatParser.Views.Timers
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             RemoveFromAppWindow();
-            makeTransparent(true);
         }
 
         private void RemoveFromAppWindow()

@@ -52,7 +52,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public LogVersion LogVersion { get; set; } = LogVersion.Legacy;
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public string CurrentLocation { get; set; }
-        public Dictionary<string, Dictionary<Guid, CombatModifier>> Modifiers { get; set; } = new Dictionary<string, Dictionary<Guid, CombatModifier>>();
+        public ConcurrentDictionary<string, Dictionary<Guid, CombatModifier>> Modifiers { get; set; } = new ConcurrentDictionary<string, Dictionary<Guid, CombatModifier>>();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public PositionData CurrentLocalCharacterPosition => LocalPlayer == null ? new PositionData() : CurrentCharacterPositions[LocalPlayer];
         public Entity LocalPlayer { get; internal set; }

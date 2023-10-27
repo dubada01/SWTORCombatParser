@@ -109,6 +109,7 @@ namespace SWTORCombatParser.ViewModels
             VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
 
+            AppIsOutOfDate = !VersionChecker.AppIsUpToDate;
             VersionChecker.AppVersionInfoReady += UpdateIcon;
 
             PhaseManager.Init();
