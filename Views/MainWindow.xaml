@@ -94,7 +94,7 @@
                                 <TextBlock Text="X"></TextBlock>
                             </Viewbox>
                         </Button>
-                        <Button Grid.Column="1" Height="20" Width="20" Background="{StaticResource Gray10Brush}" Style="{StaticResource RoundCornerButton}" Command="{Binding ToggleLockedCommand}" Visibility="{Binding IsOverlaysTab, Converter={StaticResource BooleanToVisibiityConverter}}">
+                        <Button Grid.Column="1" Height="20" Width="20" ToolTip="Hotkey: Ctrl+Alt+L" Background="{StaticResource Gray10Brush}" Style="{StaticResource RoundCornerButton}" Command="{Binding ToggleLockedCommand}" Visibility="{Binding IsOverlaysTab, Converter={StaticResource BooleanToVisibiityConverter}}">
                             <Image Source="{Binding OverlayLockIcon}"></Image>
                         </Button>
 

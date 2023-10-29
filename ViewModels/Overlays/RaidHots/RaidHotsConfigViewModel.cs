@@ -36,7 +36,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public RaidHotsConfigViewModel()
         {
             RaidFrameOverlayManager.Init();
-
+            HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
             _currentOverlay = new RaidFrameOverlay();
             CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
             {
