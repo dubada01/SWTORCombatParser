@@ -161,6 +161,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
             SetOverlaysScale();
             RefreshOverlays();
+            HotkeyHandler.OnLockOverlayHotkey += () => OverlaysLocked = !OverlaysLocked;
         }
 
         private void UpdateOverlaysForDiscipline(Entity character, SWTORClass arg2)
