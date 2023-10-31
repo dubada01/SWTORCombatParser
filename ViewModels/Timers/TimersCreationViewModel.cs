@@ -86,6 +86,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     AvailableTimerSources = EncounterTimersList;
                     var currentSelection = _enounterSelectionViewModel.GetCurrentSelection();
+                    if (CombatIdentifier.CurrentCombat != null && CombatIdentifier.CurrentCombat.IsCombatWithBoss)
+                    {
+                        _enounterSelectionViewModel.SelectedEncounter = _enounterSelectionViewModel.AvailableEncounters.FirstOrDefault(e => e.Name == CombatIdentifier.CurrentCombat.ParentEncounter.Name);
+                        _enounterSelectionViewModel.SelectedBoss = CombatIdentifier.CurrentCombat.EncounterBossDifficultyParts.Item1;
+                    }
                     UpdateSelectedEncounter(currentSelection.Item1, currentSelection.Item2);
                 }
                 if (selectedTimerSourceType == TimerType.Discipline)
