@@ -214,7 +214,7 @@ namespace SWTORCombatParser.Model.Phases
                     triggerHandlers[phase.EndTrigger](entry, phase, false);
                 }
             }
-            
+            UpdateActiveEntities(entry);
         }
         private static void HandleCombatStart(ParsedLogEntry entry, Phase phase, bool starting)
         {
@@ -241,8 +241,7 @@ namespace SWTORCombatParser.Model.Phases
                 if(starting)
                     StartPhase(entry, phase);
                 else
-                    StopPhase(entry, phase);
-                UpdateActiveEntities(entry);
+                    StopPhase(entry, phase);            
             }
         }
 
@@ -258,7 +257,6 @@ namespace SWTORCombatParser.Model.Phases
                     StartPhase(entry, phase);
                 else
                     StopPhase(entry, phase);
-                UpdateActiveEntities(entry);
             }
         }
 
