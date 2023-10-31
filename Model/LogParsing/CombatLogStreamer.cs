@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -336,6 +337,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(parsedLine.TimeStamp).Name };
             if (shouldUpdateOnNewCombat)
             {
+                EncounterTimerTrigger.CurrentEncounter = ("", "", "");
                 CombatStarted();
                 CombatUpdated(updateMessage); 
             }

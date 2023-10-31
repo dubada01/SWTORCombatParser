@@ -1833,6 +1833,15 @@ public static class LogIdFactory
                             }
                         }
                     };
+                    encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>
+                    {
+                        {
+                            "Heta Kol", new Dictionary<string, List<long>>
+                                {
+                                { "All", new List<long>{ 4442409228304384L } }
+                                }
+                        }
+                    };
                     break;
                 case "Secrets of the Enclave":
                     encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
