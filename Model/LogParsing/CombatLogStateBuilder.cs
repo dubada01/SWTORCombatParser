@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -138,7 +139,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!string.IsNullOrEmpty(log.Source.Name))
                 CurrentState.CurrentCharacterPositions[log.Source] = log.SourceInfo.Position;
         }
-        private static CombatModifier GetModifierInScope(Dictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
+        private static CombatModifier GetModifierInScope(ConcurrentDictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
         {
             var incompleteMods = mods.Values.Where(v => !v.Complete);
             var incompleteWithTarget = incompleteMods.Where(m => m.Target == parsedLine.Target);
@@ -158,7 +159,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var effectId = parsedLine.Effect.EffectId;
             if (!CurrentState.Modifiers.ContainsKey(effectId))
             {
-                CurrentState.Modifiers[effectId] = new Dictionary<Guid, CombatModifier>();
+                CurrentState.Modifiers[effectId] = new ConcurrentDictionary<Guid, CombatModifier>();
             }
             var mods = CurrentState.Modifiers[effectId];
             var modifierOfInterest = GetModifierInScope(mods, parsedLine);

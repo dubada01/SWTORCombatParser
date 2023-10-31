@@ -168,7 +168,7 @@ namespace SWTORCombatParser.Model.Phases
                     ResetPhases();
                     _combatStartTime = update.CombatStartTime;
                 }
-                if (update.Type == UpdateType.Update)
+                if (update.Logs != null && update.Logs.Any())
                 {
                     foreach (var line in update.Logs.Skip(_processedLines))
                     {
@@ -181,11 +181,7 @@ namespace SWTORCombatParser.Model.Phases
         }
         private static void UpdateActiveEntities(ParsedLogEntry entry)
         {
-            if (entry.Effect.EffectType == EffectType.TargetChanged)
-            {
-                _detectedEntities.Add(entry.Source);
-            }
-
+            _detectedEntities.Add(entry.Source);
             if (entry.Effect.EffectId == _7_0LogParsing.DeathCombatId)
             {
                 _detectedEntities.RemoveWhere(x => x.LogId == entry.Target.LogId);
@@ -218,7 +214,7 @@ namespace SWTORCombatParser.Model.Phases
                     triggerHandlers[phase.EndTrigger](entry, phase, false);
                 }
             }
-            UpdateActiveEntities(entry);
+            
         }
         private static void HandleCombatStart(ParsedLogEntry entry, Phase phase, bool starting)
         {
@@ -240,12 +236,13 @@ namespace SWTORCombatParser.Model.Phases
             if (activaePhaseOfSameType != null && starting)
                 return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
-            if (!_detectedEntities.Any(e => argsToUse.EntityIds.Contains(e.LogId)) && argsToUse.EntityIds.Contains(entry.Source.LogId) && entry.Effect.EffectType == EffectType.TargetChanged)
+            if (!_detectedEntities.Any(e => argsToUse.EntityIds.Contains(e.LogId)) && argsToUse.EntityIds.Contains(entry.Source.LogId))
             {
                 if(starting)
                     StartPhase(entry, phase);
                 else
                     StopPhase(entry, phase);
+                UpdateActiveEntities(entry);
             }
         }
 
@@ -261,6 +258,7 @@ namespace SWTORCombatParser.Model.Phases
                     StartPhase(entry, phase);
                 else
                     StopPhase(entry, phase);
+                UpdateActiveEntities(entry);
             }
         }
 
