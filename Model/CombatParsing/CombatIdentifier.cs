@@ -176,11 +176,19 @@ namespace SWTORCombatParser.Model.CombatParsing
             {
                 if (bossIds.Contains(log.Source.LogId.ToString()))
                 {
+                    if (log.Effect.EffectType == EffectType.Remove)
+                    {
+                        continue;
+                    }
                     log.Source.IsBoss = true;
                     bossNamesFound.Add(log.Source.LogId.ToString());
                 }
                 if (bossIds.Contains(log.Target.LogId.ToString()))
                 {
+                    if (log.Effect.EffectType == EffectType.TargetChanged)
+                    {
+                        continue;
+                    }
                     log.Target.IsBoss = true;
                     bossNamesFound.Add(log.Target.LogId.ToString());
                 }
