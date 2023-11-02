@@ -269,7 +269,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 IsEnabled = true,
                 UseRawValues = UseRawValue,
                 UseMaxValue = UseMaxValue,
-                PhaseId = SelectedPhase.Id, 
+                PhaseId = SelectedPhase != null ? SelectedPhase.Id : Guid.Empty, 
                 PhaseMetric = OverlayType
             }, _isEditing);
         }

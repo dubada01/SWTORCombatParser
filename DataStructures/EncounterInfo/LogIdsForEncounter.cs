@@ -1367,10 +1367,18 @@ public static class LogIdFactory
                         {
                             "Doctor Lorrick", new Dictionary<string, List<long>>()
                             {
-                                { "Veteran 4", new List<long>() { 2794163988856832,2809320928444416} },
+                                { "Veteran 4", new List<long>() { 2794163988856832,2809320928444416 } },
                                 { "Master 4", new List<long>() { 2838582540632064,2819959562436608} }
                             }
                         }
+                    };
+                    encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>
+                    {
+                        {"Doctor Lorrick", new Dictionary<string, List<long>>
+                        {
+                            {"Veteran 4", new List<long>{ 2809320928444416 } },
+                            { "Master 4", new List<long>() {2819959562436608} }
+                        } }
                     };
                     break;
                 case "Czerka Corporate Labs":
