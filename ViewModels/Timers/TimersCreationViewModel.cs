@@ -86,12 +86,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     AvailableTimerSources = EncounterTimersList;
                     var currentSelection = _enounterSelectionViewModel.GetCurrentSelection();
-                    if (CombatIdentifier.CurrentCombat != null && CombatIdentifier.CurrentCombat.IsCombatWithBoss)
-                    {
-                        _enounterSelectionViewModel.SelectedEncounter = _enounterSelectionViewModel.AvailableEncounters.FirstOrDefault(e => e.Name == CombatIdentifier.CurrentCombat.ParentEncounter.Name);
-                        _enounterSelectionViewModel.SelectedBoss = CombatIdentifier.CurrentCombat.EncounterBossDifficultyParts.Item1;
-                    }
-                    UpdateSelectedEncounter(_enounterSelectionViewModel.SelectedEncounter.Name, _enounterSelectionViewModel.SelectedBoss);
+                    UpdatePreSelectedEncounter();
                 }
                 if (selectedTimerSourceType == TimerType.Discipline)
                 {
@@ -118,6 +113,17 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged("VisibleTimerSelected");
             }
         }
+
+        private void UpdatePreSelectedEncounter()
+        {
+            if (CombatIdentifier.CurrentCombat != null && CombatIdentifier.CurrentCombat.IsCombatWithBoss)
+            {
+                _enounterSelectionViewModel.SelectedEncounter = _enounterSelectionViewModel.AvailableEncounters.FirstOrDefault(e => e.Name == CombatIdentifier.CurrentCombat.ParentEncounter.Name);
+                _enounterSelectionViewModel.SelectedBoss = CombatIdentifier.CurrentCombat.EncounterBossDifficultyParts.Item1;
+            }
+            UpdateSelectedEncounter(_enounterSelectionViewModel.SelectedEncounter.Name, _enounterSelectionViewModel.SelectedBoss);
+        }
+
         public bool DisciplineTimerSelected => SelectedTimerSourceType == TimerType.Discipline;
 
         public bool VisibleTimerSelected => DisciplineTimerSelected && SelectedTimerSource != "Shared" &&
@@ -230,7 +236,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-
+        public void RefreshEncounterSelection()
+        {
+            UpdatePreSelectedEncounter();
+        }
         public TimersCreationViewModel()
         {
             Task.Run(() =>

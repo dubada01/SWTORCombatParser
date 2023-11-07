@@ -145,6 +145,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             {
                 sortedMembers[i].AssignBackground(i);
             }
+            sortedMembers.Add(new MemberInfoViewModel(sortedMembers.Count, null, _allSelectedCombats, orderedSelectedColumns));
             App.Current.Dispatcher.Invoke(() =>
             {
                 foreach (var member in sortedMembers)

@@ -87,9 +87,9 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             var logs = new List<DisplayableLogEntry>(_displayedLogs.Select(
                 l => new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
                 l.Source.Name,
-                l.Source.LogId.ToString(),
+                string.Intern(l.Source.LogId.ToString()),
                 l.Target.Name,
-                l.Target.LogId.ToString(),
+                string.Intern(l.Target.LogId.ToString()),
                 l.Ability,
                 l.AbilityId,
                 l.Effect.EffectName,

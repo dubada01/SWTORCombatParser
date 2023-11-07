@@ -60,13 +60,14 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
             ParticipantSelectionContent.DataContext = _participantsViewModel;
             GraphView = new WpfPlot();
-            GraphView.Plot.XLabel("Combat Duration (s)");
-            GraphView.Plot.YLabel("Value");
+            GraphView.Plot.XAxis.Label(label: "Combat Duration (s)", size: 12);
+            GraphView.Plot.YAxis.Label(label: "Value", size: 12);
+
             GraphView.AxesChanged += UpdatePlotAxis;
             var legend = GraphView.Plot.Legend(location: Alignment.UpperRight);
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
             legend.FontColor = Color.WhiteSmoke;
-            legend.FontSize = 12;
+            legend.FontSize = 10;
             ConfigureSeries(Enum.GetValues(typeof(PlotType)).Cast<PlotType>().ToList());
             LegendItems = GetLegends();
             GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 10, 10, 10),
@@ -74,7 +75,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             GraphView.Plot.AddPoint(0, 0, color: Color.Transparent);
             GraphView.Refresh();
         }
-        private Entity SelectedParticipant => _selectedParticipant == null || !_currentCombat.AllEntities.Any(c => c.Id == _selectedParticipant.Id) ? _currentCombat.CharacterParticipants.First() : _selectedParticipant;
+        private Entity SelectedParticipant => _selectedParticipant != null && (_currentCombat != null && !_currentCombat.AllEntities.Any(c => c.Id == _selectedParticipant.Id)) ? _currentCombat.CharacterParticipants.First() : _selectedParticipant;
         private void SelectParticipant(Entity obj)
         {
             if (_selectedParticipant == obj)
@@ -126,22 +127,22 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 switch (plotType)
                 {
                     case PlotType.DamageOutput:
-                        AddSeries(plotType, "Damage Output", Color.LightCoral, true);
+                        AddSeries(plotType, "DPS", Color.LightCoral, true);
                         break;
                     case PlotType.DamageTaken:
-                        AddSeries(plotType, "Damage Incoming", Color.Peru, true);
+                        AddSeries(plotType, "DTPS", Color.Peru, true);
                         break;
                     case PlotType.SheildedDamageTaken:
-                        AddSeries(plotType, "Shielding", Color.WhiteSmoke);
+                        AddSeries(plotType, "Absorb", Color.WhiteSmoke);
                         break;
                     case PlotType.HealingOutput:
-                        AddSeries(plotType, "Heal Output", Color.MediumAquamarine, true);
+                        AddSeries(plotType, "HPS", Color.MediumAquamarine, true);
                         break;
                     case PlotType.HealingTaken:
-                        AddSeries(plotType, "Heal Incoming", Color.LightSkyBlue, true);
+                        AddSeries(plotType, "HRPS", Color.LightSkyBlue, true);
                         break;
                     case PlotType.HPPercent:
-                        AddSeries(plotType, "Health Percentage", Color.LightGoldenrodYellow, false, false);
+                        AddSeries(plotType, "HP", Color.LightGoldenrodYellow, false, false);
                         break;
                     default:
                         break;
@@ -178,7 +179,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                     _selectedParticipant = null;
             }
 
-            var setParticipants = _participantsViewModel.SetParticipants(combat);
+            var setParticipants = _participantsViewModel.UpdateParticipantsData(combat);
             UpdateParticipantUI(setParticipants.Count);
         }
 
@@ -209,7 +210,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             _participantsViewModel.UpdateParticipantsData(combatToPlot);
             lock (graphLock)
             {
-                Reset();
+                QuietReset();
                 ResetEffectVisuals();
                 _currentCombat=combatToPlot;
                 PlotCombat(combatToPlot, SelectedParticipant);
@@ -220,22 +221,29 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             return new ObservableCollection<LegendItemViewModel>(_seriesToPlot.Select(s => s.Legend));
         }
+        public void QuietReset()
+        {
+            _currentCombat = null;
+            _combatMetaDataViewModel.Reset();
+            GraphView.Plot.Clear();
+            GraphView.Plot.AxisAuto();
+            GraphView.Plot.SetAxisLimits(xMin: 0);
+        }
         public void Reset()
         {
             App.Current.Dispatcher.Invoke(() =>
             {
-
                 _currentCombat = null;
                 _combatMetaDataViewModel.Reset();
                 GraphView.Plot.Clear();
                 GraphView.Plot.AxisAuto();
                 GraphView.Plot.SetAxisLimits(xMin: 0);
                 GraphView.Refresh();
-
             });
         }
         public void MousePositionUpdated()
         {
+            if (_currentCombat == null) return;
             lock (graphLock)
             {
                 foreach (var plot in _seriesToPlot)
@@ -269,7 +277,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void PlotCombat(Combat combatToPlot, Entity selectedEntity)
         {
-
             foreach (var series in _seriesToPlot)
             {
                 List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, selectedEntity).OrderBy(l => l.TimeStamp).ToList();
@@ -428,25 +435,25 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void ReInitializeTooltips(CombatMetaDataSeries series, DateTime startTime)
         {
-
+            var backgroundcolor = ResourceFinder.GetColorFromResourceName("Gray4");
             if (series.Legend.HasEffective)
             {
                 series.EffectiveTooltip[startTime] = GraphView.Plot.AddTooltip("test", 0, 0);
                 series.EffectiveTooltip[startTime].BorderColor = series.Color;
-                series.EffectiveTooltip[startTime].LabelPadding = 2;
-                series.EffectiveTooltip[startTime].Font.Size = 15;
-                series.EffectiveTooltip[startTime].FillColor = Color.Gray;
+                series.EffectiveTooltip[startTime].LabelPadding = 1;
+                series.EffectiveTooltip[startTime].Font.Size = 11;
+                series.EffectiveTooltip[startTime].FillColor = Color.FromArgb(backgroundcolor.A, backgroundcolor.R, backgroundcolor.G, backgroundcolor.B);
                 series.EffectiveTooltip[startTime].Font.Color = Color.WhiteSmoke;
                 series.EffectiveTooltip[startTime].IsVisible = false;
-                series.EffectiveTooltip[startTime].ArrowSize = 10;
+                series.EffectiveTooltip[startTime].ArrowSize = 5;
             }
 
             series.Tooltip[startTime] = GraphView.Plot.AddTooltip("test", 0, 0);
-            series.Tooltip[startTime].ArrowSize = 10;
-            series.Tooltip[startTime].LabelPadding = 2;
+            series.Tooltip[startTime].ArrowSize = 5;
+            series.Tooltip[startTime].LabelPadding = 1;
             series.Tooltip[startTime].BorderColor = series.Color;
-            series.Tooltip[startTime].Font.Size = 15;
-            series.Tooltip[startTime].FillColor = Color.Gray;
+            series.Tooltip[startTime].Font.Size = 11;
+            series.Tooltip[startTime].FillColor = Color.FromArgb(backgroundcolor.A, backgroundcolor.R, backgroundcolor.G, backgroundcolor.B);
             series.Tooltip[startTime].Font.Color = Color.WhiteSmoke;
             series.Tooltip[startTime].IsVisible = false;
         }
@@ -467,7 +474,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 if (toggleState && type == PlotType.HPPercent)
                 {
-                    GraphView.Plot.YAxis2.Label("Health");
+                    GraphView.Plot.YAxis2.Label("Health", size: 12);
                     GraphView.Plot.YAxis2.Ticks(true);
                 }
                 if (!toggleState && type == PlotType.HPPercent)

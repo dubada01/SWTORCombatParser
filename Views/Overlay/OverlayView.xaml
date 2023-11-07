@@ -12,7 +12,7 @@
                 <RowDefinition Height="0.9*"/>
                 <RowDefinition Height="0.1*"/>
             </Grid.RowDefinitions>
-            <TabControl Margin="5,5,0,5" Background="{StaticResource Gray3Brush}">
+            <TabControl Margin="5,5,0,5" Background="{StaticResource Gray3Brush}" SelectedIndex="{Binding SelectedOverlayTab}">
                 <TabControl.Resources>
                     <Style TargetType="{x:Type TabControl}">
                         <Setter Property="Template">

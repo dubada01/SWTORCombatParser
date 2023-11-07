@@ -39,15 +39,15 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             GraphView = new WpfPlot();
             GraphView.Configuration.Pan = false;
             GraphView.Configuration.Zoom = false;
-            GraphView.Plot.XLabel("Combat Duration (s)");
-            GraphView.Plot.Title("Damage Taken");
-            GraphView.Plot.YLabel("Value");
-            GraphView.Plot.YAxis2.Label("Health");
+            GraphView.Plot.XAxis.Label(label: "Combat Duration (s)", size: 12);
+            GraphView.Plot.Title("Damage Taken",size:13);
+            GraphView.Plot.YAxis.Label(label: "Value", size: 12);
+            GraphView.Plot.YAxis2.Label(label: "HP", size: 12);
             GraphView.Plot.YAxis2.Ticks(true);
             var legend = GraphView.Plot.Legend(location: Alignment.UpperRight);
             legend.FillColor = Color.FromArgb(50, 50, 50, 50);
             legend.FontColor = Color.WhiteSmoke;
-            legend.FontSize = 10;
+            legend.FontSize = 8;
             InitCrosshair(0);
             GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 10, 10, 10),
                 figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 120, 120, 120), tick: Color.LightGray, axisLabel: Color.WhiteSmoke, titleLabel: Color.WhiteSmoke);
@@ -138,7 +138,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                     markerShape: MarkerShape.filledCircle,
                     label: seriesName,
                     color: series.Color,
-                    markerSize: 10);
+                    markerSize: 3);
                 series.PointsByCharacter[entity.Name].IsVisible = true;
 
 
