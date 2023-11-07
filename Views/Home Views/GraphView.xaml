@@ -11,7 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="{Binding ParticipantSelectionHeight}" MaxHeight="{Binding MaxSeletionHeight}" MinHeight="{Binding MinSeletionHeight}"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.8*"/>
@@ -27,7 +27,7 @@
                 <ColumnDefinition Width="13"/>
             </Grid.ColumnDefinitions>
             <Border Grid.Column="1" Background="{StaticResource Gray4Brush}" CornerRadius="5,5,0,0" HorizontalAlignment="Stretch" BorderBrush="LightGray" BorderThickness="0">
-                <Viewbox MaxHeight="80" MaxWidth="900" Margin="5,0,5,0">
+                <Viewbox MaxHeight="30" MaxWidth="900" Margin="5,0,5,0">
                     <ItemsControl BorderThickness="0" ItemsSource="{Binding LegendItems}" Background="Transparent">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -49,7 +49,7 @@
                                     <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="{Binding Name}" Foreground="{Binding LegendColor}"></TextBlock>
 
                                     <CheckBox Visibility="{Binding ShowEffective}"  Grid.Row="1" Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding EffectiveChecked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
-                                    <TextBlock FontFamily="{StaticResource MainFont}" Visibility="{Binding ShowEffective}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="Show raw" Foreground="WhiteSmoke"></TextBlock>
+                                    <TextBlock FontFamily="{StaticResource MainFont}" Visibility="{Binding ShowEffective}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="raw" Foreground="WhiteSmoke"></TextBlock>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

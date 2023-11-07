@@ -127,7 +127,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private static Value ParseValues(string valueString, Effect currentEffect)
         {
-            var cleanValueString = valueString.Replace("(", "").Replace(")", "");
+            var cleanValueString = string.Intern(valueString.Replace("(", "").Replace(")", ""));
             if (currentEffect.EffectType == EffectType.Apply && (currentEffect.EffectId == _damageEffectId || currentEffect.EffectId == _healEffectId))
                 return ParseValueNumber(valueString, currentEffect.EffectName);
             if (currentEffect.EffectType == EffectType.Restore || currentEffect.EffectType == EffectType.Spend)
@@ -153,7 +153,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (string.IsNullOrEmpty(value) || value == "()")
                 return chargesValue;
             var valueParts = value.Replace("(", string.Empty).Replace(")", string.Empty).Trim().Split(' ');
-            chargesValue.StrValue = valueParts[0] + " " + valueParts[1];
+            chargesValue.StrValue = string.Intern(valueParts[0] + " " + valueParts[1]);
             chargesValue.DisplayValue = chargesValue.StrValue;
             chargesValue.DblValue = double.Parse(valueParts[0], CultureInfo.InvariantCulture);
             return chargesValue;
@@ -319,7 +319,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
             }
-            newValue.DisplayValue = newValue.EffectiveDblValue.ToString("#,##0");
+            newValue.ValueTypeId = "";
+            newValue.DisplayValue = string.Intern(newValue.EffectiveDblValue.ToString("#,##0"));
             return newValue;
         }
         private static EntityInfo ParseEntity(string value)

@@ -106,7 +106,104 @@ public static class MetricGetter
 
         return value;
     }
+    public static double GetTotalforMetric(OverlayType type, List<Combat> combats)
+    {
+        double value = 0;
+        if (!combats.Any())
+            return value;
+        switch (type)
+        {
+            case OverlayType.APM:
+                value = combats.SelectMany(c => c.APM).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.DPS:
+                value = combats.SelectMany(c => c.EDPS).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.Damage:
+                value = combats.SelectMany(c => c.TotalEffectiveDamage)
+                    .Select(v => v.Value).Sum();
+                break;
+            case OverlayType.RawDamage:
+                value = combats.SelectMany(c => c.TotalDamage).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.NonEDPS:
+                value = combats.SelectMany(c => c.DPS).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.EHPS:
+                value = combats.SelectMany(c => c.EHPS).Select(v => v.Value).Sum();
+                value += combats.SelectMany(c => c.PSPS).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.EffectiveHealing:
+                value = combats.SelectMany(c => c.TotalEffectiveHealing)
+                    .Select(v => v.Value).Sum();
+                break;
+            case OverlayType.RawHealing:
+                value = combats.SelectMany(c => c.TotalHealing).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.ProvidedAbsorb:
+                value = combats.SelectMany(c => c.PSPS).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.FocusDPS:
+                value = combats.SelectMany(c => c.EFocusDPS).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.ThreatPerSecond:
+                value = combats.SelectMany(c => c.TPS).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.Threat:
+                value = combats.SelectMany(c => c.TotalThreat).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.DamageTaken:
+                value = combats.SelectMany(c => c.EDTPS).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.Mitigation:
+                value = combats.SelectMany(c => c.MPS).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.DamageSavedDuringCD:
+                value = combats.SelectMany(c => c.DamageSavedFromCDPerSecond)
+                    .Select(v => v.Value).Sum();
+                break;
+            case OverlayType.DamageAvoided:
+                value = combats.SelectMany(c => c.DAPS).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.ShieldAbsorb:
+                value = combats.SelectMany(c => c.SAPS).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.BurstDPS:
+                value = combats.SelectMany(c => c.MaxBurstDamage).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.BurstEHPS:
+                value = combats.SelectMany(c => c.MaxBurstHeal).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.BurstDamageTaken:
+                value = combats.SelectMany(c => c.MaxBurstDamageTaken)
+                    .Select(v => v.Value).Sum();
+                break;
+            case OverlayType.HealReactionTime:
+                value = combats.SelectMany(c => c.NumberOfHighSpeedReactions).Select(v => v.Value).Sum();
+                break;
+            case OverlayType.TankHealReactionTime:
+                value = combats.SelectMany(c => c.AverageTankDamageRecoveryTimeTotal)
+                    .Select(v => v.Value).Sum();
+                break;
+            case OverlayType.InterruptCount:
+                value = combats.SelectMany(c => c.TotalInterrupts).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.CritPercent:
+                value = combats.SelectMany(c => c.CritPercent).Select(v => v.Value).Average() * 100;
+                break;
+        }
 
+        return value;
+    }
     public static double GetValueForMetric(OverlayType type, Combat combat, Entity participant)
     {
         double value = 0;

@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Challenges
@@ -76,17 +77,17 @@ namespace SWTORCombatParser.ViewModels.Challenges
             MetricTotal = sum.ToString("N0");
         }
 
-        private void RefreshBarViews(Combat combatToDisplay, Challenge sourceChallenge)
+        private async void RefreshBarViews(Combat combatToDisplay, Challenge sourceChallenge)
         {
-
-            ChallengeOverlayMetricInfo metricToUpdate;
             if (combatToDisplay.AllEntities.Count == 0)
                 return;
             Combat phaseCombat = new Combat();
-            if(_phaseOfInterest != null && _phaseOfInterest.Any())
+            if (_phaseOfInterest != null && _phaseOfInterest.Any())
                 phaseCombat = combatToDisplay.GetPhaseCopy(_phaseOfInterest);
+            List<Task> metricUpdateTasks = new List<Task>();
             foreach (var participant in combatToDisplay.AllEntities)
             {
+                ChallengeOverlayMetricInfo metricToUpdate;
                 if (_metricBarsDict.Any(m => m.Key.Item1 == participant.Name))
                 {
                     metricToUpdate = _metricBarsDict.FirstOrDefault(mb => mb.Key.Item1 == participant.Name && !mb.Key.Item2).Value;
@@ -98,9 +99,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     metricToUpdate = new ChallengeOverlayMetricInfo(challengeColor) { Player = participant, Type = Type, SizeScalar = Scale };
                     _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
+                metricUpdateTasks.Add(Task.Run(() =>
+                {
+                    UpdateMetric(Type, metricToUpdate, combatToDisplay, participant, sourceChallenge, phaseCombat);
+                }));
 
-                UpdateMetric(Type, metricToUpdate, combatToDisplay, participant, sourceChallenge, phaseCombat);
             }
+            await Task.WhenAll(metricUpdateTasks);
             OrderMetricBars();
         }
         private void OrderMetricBars()

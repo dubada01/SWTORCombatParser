@@ -117,6 +117,21 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             _challengesViewModel.CombatUpdated(combat);
         }
+        public int SelectedOverlayTab
+        {
+            get => selectedOverlayTab; set
+            {
+                selectedOverlayTab = value;
+                if(selectedOverlayTab == 1)
+                {
+                    _timersViewModel.RefreshEncounterSelection();
+                }
+                if(selectedOverlayTab == 2)
+                {
+                    _challengesViewModel.RefreshEncounterSelection();
+                }
+            }
+        }
         public OverlayViewModel()
         {
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForDiscipline;
@@ -404,6 +419,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
         }
         private string _previousRole;
+        private int selectedOverlayTab;
+
         public bool UseDynamicLayout
         {
             get => useDynamicLayout; set

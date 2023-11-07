@@ -22,11 +22,19 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             _info = info;
             _entity = e;
-            IsLocalPlayer = e.IsLocalPlayer;
+            
             StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i, Colors.WhiteSmoke) { Value = GetValue(i) }));
-            var playerClass =
-                CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.Last().StartTime);
-            StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, GetIconColorFromClass(playerClass), _entity.Name, playerClass.Name, IsLocalPlayer));
+            if(_entity != null)
+            {
+                IsLocalPlayer = e.IsLocalPlayer;
+                var playerClass =
+    CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.Last().StartTime);
+                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, GetIconColorFromClass(playerClass), _entity.Name, playerClass.Name, IsLocalPlayer));
+            }
+            else
+            {
+                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, Colors.WhiteSmoke, "Totals"));
+            }
             if (selectedColumns.Count < 10)
                 StatsSlots.Add(new StatsSlotViewModel(OverlayType.None, Colors.WhiteSmoke) { Value = "" });
         }
@@ -40,6 +48,8 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         }
         private string GetValue(OverlayType columnType)
         {
+            if (_entity == null)
+                return MetricGetter.GetTotalforMetric(columnType, _info).ToString(valueStringFormat);
             return MetricGetter.GetValueForMetric(columnType, _info, _entity).ToString(valueStringFormat);
         }
         private Color GetIconColorFromClass(SWTORClass classInfo)

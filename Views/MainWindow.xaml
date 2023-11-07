@@ -11,7 +11,7 @@
                   >
     <Grid Background="{StaticResource Gray2Brush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width=".25*" MinWidth="175"/>
+            <ColumnDefinition Width="175"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width=".3*"/>
         </Grid.ColumnDefinitions>

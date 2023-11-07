@@ -125,7 +125,7 @@ namespace SWTORCombatParser.DataStructures
         public string Ability { get; set; }
         public string AbilityId { get; set; }
         public Effect Effect { get; set; }
-        public string ModifierEffectName => Ability + AddSecondHalf(Ability, Effect.EffectName);
+        public string ModifierEffectName => string.Intern(Ability + AddSecondHalf(Ability, Effect.EffectName));
         public Value Value { get; set; }
         public long Threat { get; set; }
 

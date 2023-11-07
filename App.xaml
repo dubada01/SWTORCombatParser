@@ -51,6 +51,7 @@
             <converters:TimerTriggerTypeToNameConverter x:Key="TimerTriggerTypeToNameConverter"/>
             <converters:BooleanToMetricOptionBackgroundConverter x:Key="BooleanToMetricOptionBackgroundConverter"/>
             <converters:HideToHeightConverter x:Key="HideToHeightConverter"/>
+            <converters:BooleanToEncounterColorConverter x:Key="BooleanToEncounterColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

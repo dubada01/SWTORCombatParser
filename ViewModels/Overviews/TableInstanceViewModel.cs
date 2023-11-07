@@ -12,7 +12,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public SolidColorBrush RowBackground { get; set; }
         public double SumTotal { get; set; }
         public string SortItem { get; set; }
-        public double Rate { get; set; }
+        public double Rate => Math.Round(RateDouble);
+        public double RateDouble { get; set; }
         public double Total { get; set; }
         public double PercentOfTotal => Total / SumTotal;
         public string PercentOfTotalStr => Math.Round((PercentOfTotal * 100)).ToString() + "%";
@@ -93,6 +94,21 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     break;
             }
             DataToView = DataToView.OrderByDescending(v => v.PercentOfTotal).ToList();
+            if (DataToView.Any())
+            {
+                DataToView.Add(new CombatInfoInstance
+                {
+                    
+                    SumTotal = _sumTotal,
+                    Total = DataToView.Sum(v => v.Total),
+                    RateDouble = DataToView.Sum(v => v.RateDouble),
+                    Average = DataToView.Average(v => v.Average),
+                    Max = DataToView.Max(v => v.Max),
+                    MaxCrit = DataToView.Max(v => v.MaxCrit),
+                    Count = DataToView.Sum(v => v.Count),
+                    CritPercent = DataToView.Average(v => v.CritPercent)
+                });
+            }
             for (var i = 0; i < DataToView.Count; i++)
             {
                 if (i % 2 == 1)
@@ -169,7 +185,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 SortItem = orderedKey.Key,
                 SumTotal = _sumTotal,
                 Total = (int)orderedKey.Value.Sum(v => v.Value.EffectiveDblValue),
-                Rate = (int)(orderedKey.Value.Sum(v => v.Value.EffectiveDblValue) / SelectedCombat.DurationSeconds),
+                RateDouble = orderedKey.Value.Sum(v => v.Value.EffectiveDblValue) / SelectedCombat.DurationSeconds,
                 Average = (int)orderedKey.Value.Average(v => v.Value.EffectiveDblValue),
                 Max = orderedKey.Value.Any(a => !a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => !v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue) : 0,
                 MaxCrit = orderedKey.Value.Any(a => a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue) : 0,

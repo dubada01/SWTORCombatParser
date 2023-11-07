@@ -9,32 +9,40 @@ namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class AddTankCooldown
     {
-        private static List<string> _tankCooldowns = new List<string>
+        private static HashSet<string> _tankCooldowns = new HashSet<string>
         {
+            //guaridan
             "Focused Defense",
             "Warding Call",
             "Saber Refelect",
             "Saber Ward",
             "Blade Turning",
-            //assasin tank
+
+            //assasin
             "Deflection",
             "Overcharge Saber",
             "Force Shroud",
             "Recklessness",
-            //jugg tank
+
+            //jugg
             "Invincible",
-            //shadow tank
+
+            //shadow
             "Battle Readiness",
             "Resilience",
             "Force Potency",
-            //PT tank
-            "Oil Slick",
-            "Explosive Fuel",
-            "Energy Shield",
+
+            //PT
+            //coolant is the effect for explosive fuel
+            "986266225082627",
+            //the id for energy shield
+            "814218425139459",
             "Power Yield",
-            "Energy Yield",
+            //the id for energy yield
+            "4504089253642508",
             "Thermal Yield",
-            //vanguard tank
+
+            //vanguard
             "Riot Gas",
             "Battle Focus",
             "Reactive Shield"
@@ -59,7 +67,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 var uniqueAbilities = logsForTarget.Select(d => d.Ability).Distinct();
                 var averageDamageFromAbility = uniqueAbilities.ToDictionary(a => a, a => allLogs.Where(l => l.Ability == a).Select(v => v.Value.MitigatedDblValue).Average());
                 var cooldownsForTarget = modifiers
-                    .Where(m => m.Value.Any() && _tankCooldowns.Contains(m.Value.First().Value.EffectName))
+                    .Where(m => _tankCooldowns.Contains(m.Value.FirstOrDefault().Value?.EffectName) || _tankCooldowns.Contains(m.Value.FirstOrDefault().Value?.EffectId))
                     .SelectMany(kvp => kvp.Value)
                     .Where(mod => mod.Value.Target == target)
                     .Select(kvp => kvp.Value).ToList();

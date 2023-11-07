@@ -22,7 +22,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public HorizontalAlignment ValueAlignment { get; set; }
         public StatsSlotViewModel(OverlayType type, System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false)
         {
-            if (!string.IsNullOrEmpty(name))
+            if (!string.IsNullOrEmpty(name) && name != "Totals")
             {
                 IsLocalPlayer = isLocalPlayer;
                 if (isLocalPlayer)
@@ -33,6 +33,13 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 DisplayIcon = true;
                 var coloredIcon = SetIconColor(IconFactory.GetIcon(iconName), iconColor);
                 RoleIcon = coloredIcon;
+                ValueAlignment = HorizontalAlignment.Center;
+                return;
+            }
+            if(name == "Totals")
+            {
+                ForegroundColor = System.Windows.Media.Brushes.WhiteSmoke;
+                Value = name;
                 ValueAlignment = HorizontalAlignment.Center;
                 return;
             }

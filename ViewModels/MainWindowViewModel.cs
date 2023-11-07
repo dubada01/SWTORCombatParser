@@ -356,6 +356,7 @@ namespace SWTORCombatParser.ViewModels
                 switch (HeaderSelectionState.CurrentlySelectedTabHeader)
                 {
                     case "Battle Plot":
+                        _plotViewModel.UpdateParticipants(updatedCombat);
                         _plotViewModel.UpdateLivePlot(updatedCombat);
                         break;
                     case "Details":
