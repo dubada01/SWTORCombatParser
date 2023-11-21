@@ -3,6 +3,7 @@ using SWTORCombatParser.ViewModels.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Views.Timers
 {
