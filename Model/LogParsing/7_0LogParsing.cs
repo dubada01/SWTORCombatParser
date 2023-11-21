@@ -12,6 +12,23 @@ using System.Text.RegularExpressions;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
+    public class CustomStringInterning
+    {
+        private ConcurrentDictionary<string, string> internPool = new ConcurrentDictionary<string, string>();
+
+        public string Intern(string value)
+        {
+            if (internPool.TryGetValue(value, out var internedValue))
+            {
+                return internedValue;
+            }
+            else
+            {
+                internPool[value] = value;
+                return value;
+            }
+        }
+    }
     public static class _7_0LogParsing
     {
         private static ConcurrentDictionary<long, Entity> _currentEntities = new ConcurrentDictionary<long, Entity>();
@@ -37,9 +54,11 @@ namespace SWTORCombatParser.Model.LogParsing
         private static Regex valueRegex;
         public static Regex threatRegex;
         private static Encoding _fileEncoding;
+        private static CustomStringInterning _interner;
 
         public static void SetupRegex()
         {
+            _interner = new CustomStringInterning();
             valueRegex = new Regex(@"\(.*?\)", RegexOptions.Compiled);
             threatRegex = new Regex(@"\<.*?\>", RegexOptions.Compiled);
             _fileEncoding = Encoding.GetEncoding(1252);
@@ -91,8 +110,8 @@ namespace SWTORCombatParser.Model.LogParsing
 
             newEntry.SourceInfo = ParseEntity(entryInfo[1]);
             newEntry.TargetInfo = entryInfo[2] == "=" ? newEntry.SourceInfo : ParseEntity(entryInfo[2]);
-            newEntry.Ability = string.Intern(ParseAbility(entryInfo[3]));
-            newEntry.AbilityId = string.Intern(ParseAbilityId(entryInfo[3]));
+            newEntry.Ability = _interner.Intern(ParseAbility(entryInfo[3]));
+            newEntry.AbilityId = _interner.Intern(ParseAbilityId(entryInfo[3]));
             newEntry.Effect = ParseEffect(entryInfo[4]);
 
             if (newEntry.Effect.EffectId == DeathCombatId)
@@ -127,7 +146,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private static Value ParseValues(string valueString, Effect currentEffect)
         {
-            var cleanValueString = string.Intern(valueString.Replace("(", "").Replace(")", ""));
+            var cleanValueString = _interner.Intern(valueString.Replace("(", "").Replace(")", ""));
             if (currentEffect.EffectType == EffectType.Apply && (currentEffect.EffectId == _damageEffectId || currentEffect.EffectId == _healEffectId))
                 return ParseValueNumber(valueString, currentEffect.EffectName);
             if (currentEffect.EffectType == EffectType.Restore || currentEffect.EffectType == EffectType.Spend)
@@ -153,7 +172,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (string.IsNullOrEmpty(value) || value == "()")
                 return chargesValue;
             var valueParts = value.Replace("(", string.Empty).Replace(")", string.Empty).Trim().Split(' ');
-            chargesValue.StrValue = string.Intern(valueParts[0] + " " + valueParts[1]);
+            chargesValue.StrValue = _interner.Intern(valueParts[0] + " " + valueParts[1]);
             chargesValue.DisplayValue = chargesValue.StrValue;
             chargesValue.DblValue = double.Parse(valueParts[0], CultureInfo.InvariantCulture);
             return chargesValue;
@@ -320,7 +339,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
             }
             newValue.ValueTypeId = "";
-            newValue.DisplayValue = string.Intern(newValue.EffectiveDblValue.ToString("#,##0"));
+            newValue.DisplayValue = _interner.Intern(newValue.EffectiveDblValue.ToString("#,##0"));
             return newValue;
         }
         private static EntityInfo ParseEntity(string value)
@@ -365,8 +384,9 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (name.Contains("@") && !name.Contains(":"))
             {
-                var characterName = name.Split('#')[0].Replace("@", "");
-                var playerId = long.Parse(name.Split('#')[1], CultureInfo.InvariantCulture);
+                var parts = name.Split('#');
+                var characterName = parts[0].Replace("@", "");
+                var playerId = long.Parse(parts[1], CultureInfo.InvariantCulture);
 
 
                 var characterEntity = new Entity() { IsCharacter = true, Name = characterName, Id = playerId, LogId = playerId };
@@ -464,7 +484,7 @@ namespace SWTORCombatParser.Model.LogParsing
             switch (newEffect.EffectType)
             {
                 case EffectType.DisciplineChanged:
-                    newEffect.EffectName = string.Intern(name);
+                    newEffect.EffectName = _interner.Intern(name);
                     break;
                 case EffectType.AreaEntered:
                     {
@@ -477,8 +497,8 @@ namespace SWTORCombatParser.Model.LogParsing
                         break;
                     }
                 default:
-                    newEffect.EffectName = string.Intern(splitName[0].Trim());
-                    newEffect.EffectId = string.Intern(splitName[1].Replace("}", "").Trim());
+                    newEffect.EffectName = _interner.Intern(splitName[0].Trim());
+                    newEffect.EffectId = _interner.Intern(splitName[1].Replace("}", "").Trim());
                     break;
             }
             if (newEffect.EffectType == EffectType.Event)
@@ -543,7 +563,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 case "836045448953666":
                     return EffectType.ModifyCharges;
                 default:
-                    throw new Exception("No valid type");
+                    return EffectType.Unknown;
             }
         }
     }

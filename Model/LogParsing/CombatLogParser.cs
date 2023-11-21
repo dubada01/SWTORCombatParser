@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using Newtonsoft.Json;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Utilities;
 using System;
@@ -31,7 +32,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             catch (Exception e)
             {
-                Logging.LogError("Log parsing error: " + e.Message + "\r\n" + logEntry);
+                Logging.LogError("Log parsing error: ++" + logEntry + "++\r\n" + JsonConvert.SerializeObject(e));
                 return new ParsedLogEntry() { LogBytes = _fileEncoding.GetByteCount(logEntry), Error = ErrorType.IncompleteLine };
             }
         }

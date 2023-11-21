@@ -172,7 +172,7 @@ namespace SWTORCombatParser.Views
             else
             {
                 // Failed to register the hotkey
-                Logging.LogError("Failed to register hotkey: " + key +" with id: "+ hotkeyId);
+                Logging.LogInfo("Failed to register hotkey: " + key +" with id: "+ hotkeyId);
             }
         }
 

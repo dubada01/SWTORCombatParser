@@ -149,7 +149,10 @@ namespace SWTORCombatParser.Model.LogParsing
                     if (result == ProcessedLineResult.Incomplete)
                     {
                         Logging.LogInfo("Failed to parse line: " + lines[line]);
+                        ResetMonitoring();
+                        _monitorLog = false;
                         ParseExisitingLogs();
+                        _monitorLog = true;
                     }
                 }
                 if (!_isInCombat)
@@ -315,6 +318,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (currentCombatState == CombatState.ExitedCombat)
             {
                 EndCombat(parsedLine);
+                
             }
             if (currentCombatState == CombatState.ExitCombatDetected)
             {

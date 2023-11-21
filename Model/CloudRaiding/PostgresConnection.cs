@@ -1,6 +1,7 @@
 ﻿//using MoreLinq;
 using Newtonsoft.Json;
 using Npgsql;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async Task<bool> TryAddLeaderboardEntry(LeaderboardEntry newEntry)
         {
             if (newEntry.Value == 0 || Settings.ReadSettingOfType<bool>("offline_mode"))
+                return false;
+            var stats = await GetTimestampMed_StdDev(newEntry.Boss, newEntry.Encounter, newEntry.Type);
+            if ((stats.Item1 - newEntry.Duration) / stats.Item2 > 4)
                 return false;
             Logging.LogInfo("Trying to add valid entry to DB: " + JsonConvert.SerializeObject(newEntry));
             var currentMatchingEntries = await GetEntriesForBossAndCharacterWithClass(newEntry.Boss, newEntry.Character, newEntry.Class, newEntry.Encounter, newEntry.Type);
@@ -447,6 +451,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return entriesFound;
             try
             {
+                var stats = await GetTimestampMed_StdDev(bossName, encounter, entryType);
                 using (NpgsqlConnection connection = ConnectToDB())
                 {
                     using (var cmd = new NpgsqlCommand("SELECT boss_name, player_name, player_class, value, value_type, encounter_name, verified_kill, timestamp, duration_sec FROM public.boss_leaderboards " +
@@ -465,7 +470,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         var reader = await cmd.ExecuteReaderAsync();
                         while (reader.Read())
                         {
-                            entriesFound.Add(GetLightweightLeaderboardEntry(reader));
+                            var entry = GetLightweightLeaderboardEntry(reader);
+                            if ((stats.Item1 - entry.Duration) / stats.Item2 > 4)
+                                continue;
+                            entriesFound.Add(entry);
                         }
 
 
@@ -477,6 +485,49 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 Logging.LogError(e.Message);
             }
             return entriesFound.DistinctBy(e => e.Value).ToList();
+        }
+        public static async Task<(double,double)> GetTimestampMed_StdDev(string bossName, string encounter, LeaderboardEntryType entryType)
+        {
+            (double, double) stats = new(0, 0);
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return stats;
+            try
+            {
+                using (NpgsqlConnection connection = ConnectToDB())
+                {
+                    // Step 1: Fetch the median and standard deviation
+                    var sqlFetchStats = "SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY duration_sec) AS median, " +
+                                        "stddev(duration_sec) AS standard_deviation FROM public.boss_leaderboards WHERE boss_name = @p1 and encounter_name = @p2 and value_type = @p3 and software_version = @p4";
+
+                    using (var cmd = new NpgsqlCommand(sqlFetchStats, connection)
+                    {
+                        Parameters =
+                               {
+                                   new ("p1",bossName),
+                                   new ("p2",encounter),
+                                   new ("p3",entryType.ToString()),
+                                   new ("p4",Leaderboards._leaderboardVersion),
+                               }
+                    })
+                    {
+
+                        var reader = await cmd.ExecuteReaderAsync();
+
+                        if (reader.Read() && reader["median"] != DBNull.Value && reader["standard_deviation"] != DBNull.Value)
+                        {
+                            stats.Item1 = Convert.ToInt32(reader["median"]);
+                            stats.Item2 = Convert.ToDouble(reader["standard_deviation"]);
+                        }
+
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+            }
+            return stats;
         }
         private static LeaderboardEntry GetLightweightLeaderboardEntry(NpgsqlDataReader reader)
         {
