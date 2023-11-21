@@ -3,6 +3,7 @@ using Npgsql;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System.Collections.Generic;
+using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {

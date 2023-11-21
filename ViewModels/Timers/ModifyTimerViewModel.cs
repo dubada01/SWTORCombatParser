@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
+using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {

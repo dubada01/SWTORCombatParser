@@ -302,6 +302,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void DisplayFinalMetrics(Combat combat)
         {
+            ResetMetrics();
             UpdateMetrics(combat);
             if (combat.IsCombatWithBoss && UsingLeaderboard)
                 CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(combat);
