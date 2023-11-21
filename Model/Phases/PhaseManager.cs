@@ -196,7 +196,7 @@ namespace SWTORCombatParser.Model.Phases
             ActivePhases.Clear();
             SelectedPhases.Clear();
             _hpPhasesTriggered.Clear();
-            SelectedPhasesUpdated(SelectedPhases);
+            //SelectedPhasesUpdated(SelectedPhases);
             SetSelectedPhaseDuration();
         }
 

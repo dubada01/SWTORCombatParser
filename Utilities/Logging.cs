@@ -21,7 +21,7 @@ namespace SWTORCombatParser.Utilities
             LoadLoggingConfig();
             lock (_logLock)
             {
-                if (tryCloudLogs)
+                if (tryCloudLogs && !Settings.ReadSettingOfType<bool>("offline_mode"))
                     CloudLogging.UploadLogAsync(message, "error");
                 InitLogFile();
                 using (StreamWriter sw = new StreamWriter(_logPath, true))
@@ -37,7 +37,7 @@ namespace SWTORCombatParser.Utilities
                 return;
             lock (_logLock)
             {
-                if (tryCloudLogs)
+                if (tryCloudLogs && !Settings.ReadSettingOfType<bool>("offline_mode"))
                     CloudLogging.UploadLogAsync(message, "info");
                 InitLogFile();
                 using (StreamWriter sw = new StreamWriter(_logPath, true))

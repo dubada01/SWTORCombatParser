@@ -207,7 +207,8 @@ namespace SWTORCombatParser.DataStructures
         DisciplineChanged,
         TargetChanged,
         ModifyCharges,
-        AbsorbShield
+        AbsorbShield,
+        Unknown
     }
     public enum DamageType
     {

@@ -87,6 +87,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Leaderboards.TopLeaderboardEntriesAvailable -= UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged -= UpdateLeaderboardType;
             CombatLogStreamer.NewLineStreamed -= CheckForConversation;
+            _updateSub.Dispose();
         }
         public OverlayInstanceViewModel(OverlayType type)
         {
@@ -125,7 +126,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             CombatLogStreamer.CombatStarted += Reset;
             CombatSelectionMonitor.OnInProgressCombatSelected += UpdateMetrics;
-            Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.CombatSelected += manager,
+            _updateSub = Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.CombatSelected += manager,
     manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(DisplayFinalMetrics);
             CombatSelectionMonitor.PhaseSelected += UpdateMetrics;
             Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
@@ -136,6 +137,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
 
         private bool _conversationActive;
+        private IDisposable _updateSub;
+
         private void CheckForConversation(ParsedLogEntry obj)
         {
             if (!obj.Source.IsLocalPlayer)
@@ -180,7 +183,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 if (entry.Key.Item2)
                     _metricBarsDict.TryRemove(entry.Key, out var ignore);
             }
-            OnPropertyChanged("MetricBars");
             if (obj.Count == 0)
             {
                 OrderMetricBars();
@@ -300,13 +302,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void DisplayFinalMetrics(Combat combat)
         {
-            ResetMetrics();
             UpdateMetrics(combat);
-            if (combat.IsCombatWithBoss)
+            if (combat.IsCombatWithBoss && UsingLeaderboard)
                 CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(combat);
         }
         private void UpdateMetrics(Combat combat)
         {
+            
             RefreshBarViews(combat);
             double sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value);
             if (CreatedType == OverlayType.DPS || CreatedType == OverlayType.EHPS || CreatedType == OverlayType.Mitigation)
@@ -317,7 +319,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             MetricTotal = sum.ToString("N0");
         }
         private void RefreshBarViews(Combat combatToDisplay)
-        {
+        {               
             OverlayMetricInfo metricToUpdate;
             if (combatToDisplay.CharacterParticipants.Count == 0)
                 return;
@@ -398,9 +400,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void ResetMetrics()
         {
-            _metricBarsDict.Clear();
-            MetricBars.Clear();
-            OnPropertyChanged("MetricBars");
+            _metricBarsDict = new ConcurrentDictionary<(string, bool), OverlayMetricInfo>();
         }
         private void UpdateSecondary(OverlayType type, OverlayMetricInfo metric, Combat combat, Entity participant)
         {

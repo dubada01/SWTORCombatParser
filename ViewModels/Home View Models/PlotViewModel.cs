@@ -277,6 +277,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void PlotCombat(Combat combatToPlot, Entity selectedEntity)
         {
+            if(selectedEntity == null)
+                return;
             foreach (var series in _seriesToPlot)
             {
                 List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, selectedEntity).OrderBy(l => l.TimeStamp).ToList();

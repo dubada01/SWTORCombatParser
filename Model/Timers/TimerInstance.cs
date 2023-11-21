@@ -252,8 +252,11 @@ namespace SWTORCombatParser.Model.Timers
 
                 if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.Start)
                 {
-                    _absorbShieldManager = new AbsorbShieldManager(log.Source);
-                    CreateAbsorbTimerInstance(SourceTimer.AbsorbValue, SourceTimer.Ability, log.Source.Id);
+                    if(_activeTimerInstancesForTimer.All(t=>t.Value.TargetId != targetInfo.Id))
+                    {
+                        _absorbShieldManager = new AbsorbShieldManager(log.Source);
+                        CreateAbsorbTimerInstance(SourceTimer.AbsorbValue, SourceTimer.Ability, log.Source.Id);
+                    }
                 }
                 if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.End)
                 {
