@@ -39,6 +39,7 @@ namespace SWTORCombatParser.Model.Timers
         private EncounterInfo _currentEncounter;
         private TimerInstance parentTimer;
         private object _timerChangeLock = new object();
+        private bool _combatStarted;
 
         public bool TrackOutsideOfCombat { get; set; }
         public bool IsEnabled { get; set; }
@@ -129,7 +130,11 @@ namespace SWTORCombatParser.Model.Timers
         {
             historicalParseEnded = true;
         }
-
+        public void CombatEnd()
+        {
+            _currentBossInfo = ("", "", "");
+            _combatStarted = false;
+        }
         public void Cancel()
         {
             if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
@@ -165,6 +170,13 @@ namespace SWTORCombatParser.Model.Timers
                 _currentEncounter = currentEncounter;
                 if (bossData.Item1 != "")
                     UpdateBossInfo(bossData, log.TimeStamp);
+                if(bossData.Item1 == "" && SourceTimer.TriggerType == TimerKeyType.CombatStart && _combatStarted != true)
+                {
+                    //handle a combat start timer
+                    _combatStarted = true;
+                    CreateTimerNoTarget(log.TimeStamp);
+                    return;
+                }
                 if (SourceTimer.Name.Contains("Other's") &&
                     currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                     return;
