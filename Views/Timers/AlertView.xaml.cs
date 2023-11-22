@@ -36,6 +36,7 @@ namespace SWTORCombatParser.Views.Timers
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             RemoveFromAppWindow();
+            makeTransparent(true);
         }
 
         private void RemoveFromAppWindow()

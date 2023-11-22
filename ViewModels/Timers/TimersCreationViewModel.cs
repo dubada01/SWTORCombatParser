@@ -239,7 +239,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void RefreshEncounterSelection()
         {
-            UpdatePreSelectedEncounter();
+            if (selectedTimerSourceType == TimerType.Encounter)
+                UpdatePreSelectedEncounter();
         }
         public TimersCreationViewModel()
         {

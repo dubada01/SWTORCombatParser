@@ -332,6 +332,7 @@ public static class TimerController
         foreach (var timer in _filteredTimers.Where(t => !t.SourceTimer.TrackOutsideOfCombat))
         {
             timer.Cancel();
+            timer.CombatEnd();
         }
     }
 
