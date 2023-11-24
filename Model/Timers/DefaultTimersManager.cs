@@ -224,7 +224,7 @@ namespace SWTORCombatParser.Model.Timers
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
                 var classes = ClassLoader.LoadAllClasses();
                 var validSources = classes.Select(c => c.Discipline);
-                var validDefaults = currentDefaults.Where(c => validSources.Contains(c.TimerSource) ||
+                var validDefaults = currentDefaults.Where(c => c != null && c.TimerSource !=null && validSources.Contains(c.TimerSource) ||
                 c.TimerSource == "Shared" ||
                 c.TimerSource == "HOTS" ||
                 c.TimerSource == "DOTS" ||
