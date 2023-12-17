@@ -1,4 +1,5 @@
 ﻿using MvvmHelpers;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
@@ -19,9 +20,11 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public bool DisplayIcon { get; set; }
         public BitmapSource RoleIcon { get; set; }
         public bool IsLocalPlayer { get; set; }
+        public bool IsTotal { get; set; }
         public HorizontalAlignment ValueAlignment { get; set; }
-        public StatsSlotViewModel(OverlayType type, System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false)
+        public StatsSlotViewModel(OverlayType type, System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false, Entity entity = null)
         {
+            IsTotal = entity == null || name == "Totals";
             if (!string.IsNullOrEmpty(name) && name != "Totals")
             {
                 IsLocalPlayer = isLocalPlayer;

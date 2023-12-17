@@ -92,7 +92,6 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 foreach (var encounter in allCombats)
                 {
                     // var combat = allCombats.First(c => c.ParentEncounter.NamePlus + c.EncounterBossDifficultyParts.Item1 == encounter);
-                    BossMechanicInfoSkimmer.AddBossInfoAfterCombat(encounter, false);
                     uploadedCombats++;
                     window.SetString($"Cached {uploadedCombats.ToString("#,0")} boss combats");
                 }

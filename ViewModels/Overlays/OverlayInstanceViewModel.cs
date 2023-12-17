@@ -178,11 +178,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateTopEntries(Dictionary<LeaderboardEntryType, (string, double)> obj)
         {
-            foreach (var entry in _metricBarsDict)
-            {
-                if (entry.Key.Item2)
-                    _metricBarsDict.TryRemove(entry.Key, out var ignore);
-            }
             if (obj.Count == 0)
             {
                 OrderMetricBars();
@@ -191,7 +186,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             UpdateLeaderboardValues(obj);
         }
 
-        private void UpdateStandings(Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> obj)
+        private void UpdateStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> obj)
         {
             AddLeaderboardStandings(obj);
         }
@@ -215,7 +210,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     AddLeaderboardBar(healingValues.Value.Item1, healingValues.Value.Item2);
                 if (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided && mitigationValues.Value.Item1 != null)
                     AddLeaderboardBar(mitigationValues.Value.Item1, mitigationValues.Value.Item2);
-                Debug.WriteLine("Leaderboard " + CreatedType.ToString() + " set for overlay");
             }
         }
 
@@ -258,8 +252,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void AddLeaderboardBar(string characterName, double value)
         {
-            if (_metricBarsDict.Keys.Any(mb => mb.Item2))
+            if (_metricBarsDict.Any(mb => mb.Key.Item2 && mb.Value.Value == value))
                 return;
+            if (_metricBarsDict.Any(mb => mb.Key.Item2 && mb.Value.Value != value))
+            {
+                var staleTop = _metricBarsDict.FirstOrDefault(mb => mb.Key.Item2 && mb.Value.Value != value);
+                _metricBarsDict.TryRemove(staleTop);
+            }
             var metricbar = new OverlayMetricInfo
             {
                 Type = Type,
@@ -270,10 +269,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SizeScalar = SizeScalar,
                 MedalIconPath = "../../resources/crownIcon.png"
             };
+            Debug.WriteLine("Leaderboard " + CreatedType.ToString() + " set for overlay");
             _metricBarsDict.TryAdd((characterName, true), metricbar);
             OrderMetricBars();
         }
-        private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, Dictionary<LeaderboardEntryType, (double, bool)> standings)
+        private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, ConcurrentDictionary<LeaderboardEntryType, (double, bool)> standings)
         {
             (double, bool) leaderboardRanking = (0, false);
             if (Type == OverlayType.DPS && standings.ContainsKey(LeaderboardEntryType.Damage))
@@ -326,7 +326,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 return;
             foreach (var participant in combatToDisplay.CharacterParticipants)
             {
-                if (_metricBarsDict.Any(m => m.Key.Item1 == participant.Name))
+                if (_metricBarsDict.Where(b => !b.Key.Item2).Any(m => m.Key.Item1 == participant.Name))
                 {
                     metricToUpdate = _metricBarsDict.FirstOrDefault(mb => mb.Key.Item1 == participant.Name && !mb.Key.Item2).Value;
                     if (metricToUpdate == null)
@@ -384,7 +384,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
 
         }
-        private void AddLeaderboardStandings(Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>> leaderboardInfo)
+        private void AddLeaderboardStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> leaderboardInfo)
         {
             foreach (var metricBar in _metricBarsDict)
             {

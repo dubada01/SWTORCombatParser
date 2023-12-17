@@ -28,33 +28,29 @@ namespace SWTORCombatParser.Model.DataGrid
 
         public static List<OverlayType> GetDefaults(string characterName)
         {
-            try
+            var currentDefaults = GetCurrentDefaults();
+
+            if (!currentDefaults.ContainsKey(characterName))
             {
-                var currentDefaults = GetCurrentDefaults();
-
-                if (!currentDefaults.ContainsKey(characterName))
+                if (characterName.Contains("_") && currentDefaults.ContainsKey(characterName.Split('_')[0]))
                 {
-                    if (characterName.Contains("_") && currentDefaults.ContainsKey(characterName.Split('_')[0]))
-                    {
-                        CopyFromKey(characterName.Split('_')[0], characterName);
-                        currentDefaults = GetCurrentDefaults();
-                    }
-                    else
-                    {
-                        InitializeDefaults(characterName);
-                    }
+                    CopyFromKey(characterName.Split('_')[0], characterName);
+                    currentDefaults = GetCurrentDefaults();
                 }
-                var defaultsForToon = currentDefaults[characterName];
-
-                return defaultsForToon;
+                else
+                {
+                    InitializeDefaults(characterName);
+                }
             }
-            catch (Exception)
+            if (!currentDefaults.ContainsKey(characterName))
             {
                 Logging.LogInfo("Creating new source: " + characterName);
                 InitializeDefaults(characterName);
                 return GetCurrentDefaults()[characterName];
             }
+            var defaultsForToon = currentDefaults[characterName];
 
+            return defaultsForToon;
         }
         private static void SaveResults(string character, List<OverlayType> data)
         {

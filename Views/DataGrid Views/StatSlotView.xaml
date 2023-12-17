@@ -12,7 +12,7 @@
         <Viewbox MaxHeight="20" HorizontalAlignment="{Binding ValueAlignment}">
             <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,2,8,2"  VerticalAlignment="Center" Foreground="{Binding ForegroundColor}" Text="{Binding Value}"></TextBlock>
         </Viewbox>
-        
-        <Rectangle Width="1.5" Fill="Gray" HorizontalAlignment="Right"></Rectangle>
+        <Rectangle Height="1" Fill="Gray" VerticalAlignment="Top" Visibility="{Binding IsTotal, Converter={StaticResource  BooleanToHiddenVisibilityConverter}}"/>
+        <Rectangle Width="1" Fill="Gray" HorizontalAlignment="Right"></Rectangle>
     </Grid>
 </UserControl>

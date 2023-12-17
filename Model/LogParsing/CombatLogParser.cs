@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.LogParsing
@@ -133,41 +134,29 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static List<string> GetInfoComponents(string log)
         {
-            var returnValues = new List<string>();
-            int startIndex = 0;
-            int numberOfCloses = 0;
-            bool isOpen = false;
-            bool needsSecondClose = false;
-            for (var i = 0; i < log.Length; i++)
+            var substrings = new List<string>();
+            int startIndex = -1;
+            int numberOfOpens = 0;
+            for (int i = 0; i < log.Length; i++)
             {
-                if (log[i] == '[' && !isOpen)
+                if (log[i] == '[')
                 {
-                    startIndex = i + 1;
-                    isOpen = true;
-                    continue;
+                    numberOfOpens++;
+                    if(numberOfOpens == 1)
+                        startIndex = i + 1;
                 }
-
-                if (log[i] == '[' && isOpen)
+                else if (log[i] == ']' && startIndex != -1)
                 {
-                    needsSecondClose = true;
-                }
-                if (log[i] == ']' && !needsSecondClose)
-                {
-                    isOpen = false;
-                    returnValues.Add(log.Substring(startIndex, i - startIndex));
-                    numberOfCloses++;
-                    if (numberOfCloses == 5)
-                        return returnValues;
-                    else
-                        continue;
-                }
-
-                if (log[i] == ']' && needsSecondClose)
-                {
-                    needsSecondClose = false;
+                    numberOfOpens--;
+                    if (numberOfOpens == 0)
+                    {
+                        substrings.Add(log.Substring(startIndex, i - startIndex));
+                        startIndex = -1;
+                    }
                 }
             }
-            return returnValues;
+
+            return substrings;
         }
         private static void UpdateStateAndLogs(List<ParsedLogEntry> orderdedLog, bool realTime)
         {

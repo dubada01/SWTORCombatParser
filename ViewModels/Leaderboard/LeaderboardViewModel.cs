@@ -115,7 +115,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         }
         private async void SetAvailableEncounters()
         {
-            var savedEncounters = await PostgresConnection.GetEncountersWithEntries();
+            var savedEncounters = await API_Connection.GetEncountersWithEntries();
             var allEncounters = EncounterLister.SortedEncounterInfos;
             allEncounters.Insert(0, new EncounterInfo { Name = "Parsing" });
             App.Current.Dispatcher.Invoke(() =>
@@ -127,7 +127,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         }
         private async void SetSelectedEncounter()
         {
-            var bossesSavedForEncounter = await PostgresConnection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
+            var bossesSavedForEncounter = await API_Connection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
             var namesAndDifficulties = bossesSavedForEncounter.Select(s => s.Split('{'));
             var names = namesAndDifficulties.Select(nd => nd[0].Trim()).Distinct();
 
@@ -142,7 +142,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         }
         private async void SetSelectedBoss()
         {
-            var bossesSavedForEncounter = await PostgresConnection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
+            var bossesSavedForEncounter = await API_Connection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
             var namesAndDifficulties = bossesSavedForEncounter.Where(b => b.Contains(SelectedBoss)).ToList();
             var difficultiesAndPlayers = namesAndDifficulties.Select(s => s.Split('{')).Select(s => s[1]);
             var cleaned = difficultiesAndPlayers.Select(d => d.Replace("}", "").Split(" "));

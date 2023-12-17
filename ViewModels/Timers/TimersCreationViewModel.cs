@@ -408,11 +408,11 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public ICommand ImportCommand => new CommandHandler(Import);
 
-        private void Import(object obj)
+        private async void Import(object obj)
         {
             if (TimerRows.Any(t => t.SourceTimer.ShareId == ImportId))
                 return;
-            var timer = TimerDatabaseAccess.GetTimerFromId(ImportId);
+            var timer = await TimerDatabaseAccess.GetTimerFromId(ImportId);
             if (timer == null)
                 return;
             timer.IsEnabled = true;
@@ -527,9 +527,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             UpdateRowColors();
         }
 
-        private void Share(TimerRowInstanceViewModel obj)
+        private async void Share(TimerRowInstanceViewModel obj)
         {
-            var currentIds = TimerDatabaseAccess.GetAllTimerIds();
+            var currentIds = await TimerDatabaseAccess.GetAllTimerIds();
             string id;
             do
             {
@@ -539,7 +539,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var shareWindow = new TimerSharePopup(id);
             shareWindow.ShowDialog();
             DefaultTimersManager.SetIdForTimer(obj.SourceTimer, SelectedTimerSource, id);
-            TimerDatabaseAccess.AddTimer(obj.SourceTimer);
+            await TimerDatabaseAccess.AddTimer(obj.SourceTimer);
         }
         private void Edit(TimerRowInstanceViewModel obj)
         {

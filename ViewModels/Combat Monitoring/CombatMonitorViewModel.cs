@@ -362,8 +362,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _totalLogsDuringCombat[combatStartTime] = obj;
             _usingHistoricalData = false;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), true);
-            if(combatInfo.IsCombatWithBoss)
+            if (combatInfo.IsCombatWithBoss)
+            {
                 Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
+                Leaderboards.StartGetTopLeaderboardEntries(combatInfo);
+            }
             CombatSelectionMonitor.InProgressCombatSeleted(combatInfo);
             if (CurrentEncounter == null)
                 return;
@@ -396,7 +399,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 AddCombatToEncounter(combatInfo, true);
                 if (combatInfo.IsCombatWithBoss)
                 {
-                    BossMechanicInfoSkimmer.AddBossInfoAfterCombat(combatInfo);
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
                 }
             }

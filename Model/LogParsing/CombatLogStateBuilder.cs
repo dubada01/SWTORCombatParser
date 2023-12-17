@@ -141,9 +141,9 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static CombatModifier GetModifierInScope(ConcurrentDictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
         {
-            var incompleteMods = mods.Values.Where(v => !v.Complete);
-            var incompleteWithTarget = incompleteMods.Where(m => m.Target == parsedLine.Target);
-            return incompleteMods.FirstOrDefault(m => m.Target == parsedLine.Target && (m.Source == parsedLine.Source || string.IsNullOrEmpty(parsedLine.Source.Name)));
+            var incompleteMods = mods.Where(v => !v.Value.Complete);
+            var incompleteWithTarget = incompleteMods.Where(m => m.Value.Target == parsedLine.Target);
+            return incompleteMods.FirstOrDefault(m => m.Value.Target == parsedLine.Target && (m.Value.Source == parsedLine.Source || string.IsNullOrEmpty(parsedLine.Source.Name))).Value;
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine)
         {

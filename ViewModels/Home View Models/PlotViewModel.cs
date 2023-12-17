@@ -420,15 +420,15 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             switch (type)
             {
                 case PlotType.DamageOutput:
-                    return combatToPlot.OutgoingDamageLogs[selectedParticipant];
+                    return combatToPlot.OutgoingDamageLogs.ContainsKey(selectedParticipant) ? combatToPlot.OutgoingDamageLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.DamageTaken:
-                    return combatToPlot.IncomingDamageLogs[selectedParticipant];
+                    return combatToPlot.IncomingDamageLogs.ContainsKey(selectedParticipant) ? combatToPlot.IncomingDamageLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.HealingOutput:
-                    return combatToPlot.OutgoingHealingLogs[selectedParticipant];
+                    return combatToPlot.OutgoingHealingLogs.ContainsKey(selectedParticipant) ? combatToPlot.OutgoingHealingLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.HealingTaken:
-                    return combatToPlot.IncomingHealingLogs[selectedParticipant];
+                    return combatToPlot.IncomingHealingLogs.ContainsKey(selectedParticipant) ? combatToPlot.IncomingHealingLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.SheildedDamageTaken:
-                    return combatToPlot.ShieldingProvidedLogs[selectedParticipant];
+                    return combatToPlot.ShieldingProvidedLogs.ContainsKey(selectedParticipant) ? combatToPlot.ShieldingProvidedLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.HPPercent:
                     return combatToPlot.GetLogsInvolvingEntity(selectedParticipant).ToList();
 

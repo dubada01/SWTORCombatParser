@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 		public static async Task CheckForMostRecentVersion()
         {
             var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            var maxVersion = await PostgresConnection.GetMostRecentVersion();
+            var maxVersion = await API_Connection.GetMostRecentVersion();
 			if (maxVersion > currentVersion)
 				AppIsUpToDate = false;
 			else

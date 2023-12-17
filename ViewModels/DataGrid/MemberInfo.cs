@@ -15,6 +15,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private SolidColorBrush _evenRow = (SolidColorBrush)App.Current.FindResource("Gray3Brush");
         private SolidColorBrush _oddRow = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
         private string valueStringFormat = "#,##0";
+        private string floatValueString = "0.00";
         public Entity _entity;
         private List<Combat> _info = new List<Combat>();
 
@@ -23,13 +24,13 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             _info = info;
             _entity = e;
             
-            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i, Colors.WhiteSmoke) { Value = GetValue(i) }));
+            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i, Colors.WhiteSmoke, entity:_entity) { Value = GetValue(i) }));
             if(_entity != null)
             {
                 IsLocalPlayer = e.IsLocalPlayer;
                 var playerClass =
     CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.Last().StartTime);
-                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, GetIconColorFromClass(playerClass), _entity.Name, playerClass.Name, IsLocalPlayer));
+                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, GetIconColorFromClass(playerClass), _entity.Name, playerClass.Name, IsLocalPlayer, _entity));
             }
             else
             {
@@ -48,9 +49,10 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         }
         private string GetValue(OverlayType columnType)
         {
+            var formatToUse = columnType == OverlayType.CleanseSpeed ? floatValueString : valueStringFormat;
             if (_entity == null)
-                return MetricGetter.GetTotalforMetric(columnType, _info).ToString(valueStringFormat);
-            return MetricGetter.GetValueForMetric(columnType, _info, _entity).ToString(valueStringFormat);
+                return MetricGetter.GetTotalforMetric(columnType, _info).ToString(formatToUse);
+            return MetricGetter.GetValueForMetric(columnType, _info, _entity).ToString(formatToUse);
         }
         private Color GetIconColorFromClass(SWTORClass classInfo)
         {
