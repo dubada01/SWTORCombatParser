@@ -32,7 +32,7 @@
                                     <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Text}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FontSize="13" FontWeight="Normal" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center">
 
                                     </TextBlock>
-                                    <Rectangle HorizontalAlignment="Right" Width="1.5" Fill="Gray"></Rectangle>
+                                    <Rectangle HorizontalAlignment="Right" Width="1" Fill="Gray"></Rectangle>
                                     <Viewbox Visibility="{Binding IsName, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" MaxHeight="15" MaxWidth="20" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,3,0">
                                         <Button Style="{StaticResource RoundCornerButton}" Padding="4,0,4,1" Foreground="IndianRed" Content="X" Background="{StaticResource Gray4Brush}" Command="{Binding HeaderClickedCommand}" BorderBrush="Transparent" ></Button>
                                     </Viewbox>

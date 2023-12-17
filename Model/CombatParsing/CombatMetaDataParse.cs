@@ -4,19 +4,25 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class CombatMetaDataParse
     {
-        private static readonly List<string> _interruptAbilityIds = new List<string> { "963120646324224", "987747988799488", "875086701658112", "997020823191552", "3433285187272704", "812105301229568", "807750204391424", "2204391964672000", "3029313448312832", "3029339218116608", "875060931854336", "2204499338854400" };
-        private static List<string> stunAbilityIds = new List<string> { "814214130171904", "814802540691456", "3908961405239296", "1962284658196480", "808244125630464", "807754499358720", "958439131971584", "807178973741056", "1679250608357376", "1261925816074240" };
+        private static readonly HashSet<string> _interruptAbilityIds = new HashSet<string> { "963120646324224", "987747988799488", "875086701658112", "997020823191552", "3433285187272704", "812105301229568", "807750204391424", "2204391964672000", "3029313448312832", "3029339218116608", "875060931854336", "2204499338854400" };
+        private static HashSet<string> stunAbilityIds = new HashSet<string> { "814214130171904", "814802540691456", "3908961405239296", "1962284658196480", "808244125630464", "807754499358720", "958439131971584", "807178973741056", "1679250608357376", "1261925816074240" };
 
-        private static List<string> abilityIdsThatCanInterrupt => _interruptAbilityIds.Concat(stunAbilityIds).ToList();
+        private static readonly HashSet<string> _cleanseAbilityIds = new HashSet<string> {"985007799664640", "3413249164836864", "992541172301824", "981455861710848", "3412806783205376", "952181364621312","992541172302291" };
+        private static HashSet<string> abilityIdsThatCanInterrupt => new HashSet<string>(_interruptAbilityIds.Concat(stunAbilityIds));
         public static void PopulateMetaData(Combat combatToPopulate)
         {
             var combat = combatToPopulate;
+
+            var cleanseLogs = combat.AllLogs.Where(l =>
+l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && l.Target.IsCharacter);
+
             //Parallel.ForEach(combatToPopulate.AllEntities, entitiy =>
             foreach (var entity in combatToPopulate.AllEntities)
             {
@@ -79,6 +85,10 @@ namespace SWTORCombatParser.Model.CombatParsing
                     l.value.Effect.EffectId == _7_0LogParsing.InterruptCombatId &&
                     abilityIdsThatCanInterrupt.Contains(parsedLogEntries.ElementAt(l.index - 1).AbilityId));
 
+                var mycleanseLogs = parsedLogEntries.Where(l => _cleanseAbilityIds.Contains(l.AbilityId)).Where(l => cleanseLogs.Any(t => t.LogLineNumber - l.LogLineNumber < 4 && t.LogLineNumber - l.LogLineNumber > 0));
+                var myCleanseSpeeds = mycleanseLogs.Select(cl => GetSpeedFromLog(cl,cleanseLogs));
+                var averageCleansespeed = myCleanseSpeeds.Any() ? myCleanseSpeeds.Average(): 0;
+
                 var totalHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveHealingReceived =
                     combat.IncomingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
@@ -93,7 +103,9 @@ namespace SWTORCombatParser.Model.CombatParsing
 
                 Dictionary<string, double> parriedAttackSums = CalculateEstimatedAvoidedDamage(combat, entity);
 
+                combat.AverageCleanseSpeed[entity] = averageCleansespeed;
                 combat.TotalInterrupts[entity] = interruptLogs.Count();
+                combat.TotalCleanses[entity] = mycleanseLogs.Count();
                 combat.TotalThreat[entity] = parsedLogEntries.Sum(l => l.Threat);
                 combat.MaxDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0
                     ? 0
@@ -150,6 +162,22 @@ namespace SWTORCombatParser.Model.CombatParsing
                 combat.TankDamageRecoveryTimes[healer] = reactionTimesToBigHigsOnTanks;
             }
         }
+
+        private static double GetSpeedFromLog(ParsedLogEntry cl, IEnumerable<ParsedLogEntry> effectRemoveLogs)
+        {
+            var removedEffectLog = effectRemoveLogs.FirstOrDefault(l => l.LogLineNumber > cl.LogLineNumber);
+            var cleanseTime = removedEffectLog.TimeStamp;
+            var effectInQuestion = removedEffectLog.Effect.EffectId;
+            var modifiersForCleansedEffect = CombatLogStateBuilder.CurrentState.Modifiers[effectInQuestion];
+            var orderedModifiers = modifiersForCleansedEffect.Values.OrderBy(l => l.StartTime);
+            var removedMod = orderedModifiers.LastOrDefault(l => l.StopTime == DateTime.MinValue || l.StopTime == cleanseTime);
+            if(removedMod != null)
+            {
+                return (cl.TimeStamp - removedMod.StartTime).TotalSeconds;
+            }
+            return 0;
+        }
+
         private static Dictionary<Entity, List<double>> CalculateReactionToBigHits(Dictionary<Entity, List<DateTime>> bigHitTimestamps, Dictionary<Entity, List<DateTime>> reactionTimeStamps)
         {
             var delays = new Dictionary<Entity, List<double>>();

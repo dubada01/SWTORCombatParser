@@ -67,6 +67,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     return "Total raw healing";
                 case OverlayType.CritPercent:
                     return "Current percentage of critical hits";
+                case OverlayType.SingleTargetDPS:
+                    return "Max Single target DPS";
+                case OverlayType.SingleTargetEHPS:
+                    return "Max single target EHPS";
                 case OverlayType.CustomVariable:
                 case OverlayType.None:
                     return "Unexpected Overlay";

@@ -50,11 +50,11 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             var extraBossInfo = $"{{{playersString}{difficulty}}}";
             extraBossInfo = isParsing ? $"{{{parsingHP}HP }}" : extraBossInfo;
             var bossWithDifficulty = boss.Trim() + " " + extraBossInfo;
-            var leaderboard = await PostgresConnection.GetEntriesForBossOfType(bossWithDifficulty, encounter, _leaderboardType);
+            var leaderboard = await API_Connection.GetEntriesForBossOfType(bossWithDifficulty, encounter, _leaderboardType);
             if (isFlashpoint)
             {
                 var oldFlashpointBossInfo = boss.Trim() + " " + $"{{{difficulty}}}";
-                var oldFlashpointBoard = await PostgresConnection.GetEntriesForBossOfType(oldFlashpointBossInfo, encounter, _leaderboardType);
+                var oldFlashpointBoard = await API_Connection.GetEntriesForBossOfType(oldFlashpointBossInfo, encounter, _leaderboardType);
                 leaderboard.AddRange(oldFlashpointBoard);
             }
 

@@ -24,7 +24,7 @@ namespace SWTORCombatParser.Model.Overlays
     {
         private static string aws_url = "http://ec2-35-85-227-238.us-west-2.compute.amazonaws.com";
         private static string ocr_url = "/ocr";
-        private static string ocr_port = "8651";
+        private static string ocr_port = "27506";
         public static async Task<List<PlacedName>> GetCurrentPlayerLayoutLOCAL(Point topLeftOfFrame, MemoryStream raidFrameStream,
             int numberOfRows, int numberOfColumns, int height, int width)
         {
@@ -39,6 +39,7 @@ namespace SWTORCombatParser.Model.Overlays
                             var test = new ByteArrayContent(raidFrameStream.ToArray());
                             content.Add(test, "file", "orbs_overlay.png");
                             var baseUrl = DatabaseIPGetter.GetCurrentRemoteServerIP();
+                            baseUrl = "orbsapi.hopto.org";
                             var fullUrl = $"http://{baseUrl}:{ocr_port}{ocr_url}";
                             using (var message = await client.PostAsync(fullUrl, content))
                             {

@@ -34,7 +34,11 @@ namespace SWTORCombatParser.Utilities.Converters
     { OverlayType.RawDamage, "Raw Damage" },
     { OverlayType.RawHealing, "Raw Healing" },
     { OverlayType.EffectiveHealing,"Effective Healing"},
-        { OverlayType.CritPercent,"Crit %"}
+        { OverlayType.CritPercent,"Crit %"},
+            {OverlayType.SingleTargetDPS,"Single Target DPS" },
+            {OverlayType.SingleTargetEHPS, "Single Target EHPS" },
+            {OverlayType.CleanseCount, "Cleanse Count" },
+            {OverlayType.CleanseSpeed, "Cleanse Speed" }
 };
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

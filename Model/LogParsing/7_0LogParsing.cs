@@ -49,6 +49,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public static string AbilityActivateId = "836045448945479";
         public static string AbilityCancelId = "836045448945481";
         public static string ApplyEffectId = "836045448945477";
+        public static string RemoveEffectId = "836045448945478";
         public static string InConversationEffectId = "806968520343876";
 
         private static Regex valueRegex;
@@ -363,7 +364,8 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static void AddPosition(EntityInfo entityInfo, string positionInfo)
         {
-            var positionParts = positionInfo.Replace("(", "").Replace(")", "").Split(",");
+            var innerPart = positionInfo.Substring(1, positionInfo.Length - 2);
+            var positionParts = innerPart.Split(',');
             entityInfo.Position = new PositionData()
             {
                 X = double.Parse(positionParts[0], CultureInfo.InvariantCulture),
@@ -376,61 +378,87 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (string.IsNullOrEmpty(hpInfo))
                 return;
-            var hpParts = hpInfo.Replace("(", "").Replace(")", "").Split("/");
+            var innerPart = hpInfo.Substring(1, hpInfo.Length - 2);
+            var hpParts = innerPart.Split('/');
             entityInfo.CurrentHP = double.Parse(hpParts[0], CultureInfo.InvariantCulture);
             entityInfo.MaxHP = double.Parse(hpParts[1], CultureInfo.InvariantCulture);
         }
         private static void AddEntity(EntityInfo entityToReturn, string name)
         {
-            if (name.Contains("@") && !name.Contains(":"))
+            // Constants
+            const char atSymbol = '@';
+            const char colonSymbol = ':';
+            const char leftBraceSymbol = '{';
+            const char rightBraceSymbol = '}';
+            if (name.Contains(atSymbol))
             {
-                var parts = name.Split('#');
-                var characterName = parts[0].Replace("@", "");
-                var playerId = long.Parse(parts[1], CultureInfo.InvariantCulture);
+                if (!name.Contains(colonSymbol))
+                {
+                    var parts = name.Split('#');
+                    var characterName = parts[0].Replace(atSymbol.ToString(), "");
+                    if (long.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var playerId))
+                    {
+                        entityToReturn.Entity = _currentEntities.GetOrAdd(playerId, new Entity
+                        {
+                            IsCharacter = true,
+                            Name = characterName,
+                            Id = playerId,
+                            LogId = playerId
+                        });
+                    }
+                    return;
+                }
 
-
-                var characterEntity = new Entity() { IsCharacter = true, Name = characterName, Id = playerId, LogId = playerId };
-                var charEntity = _currentEntities.GetOrAdd(playerId, characterEntity);
-                entityToReturn.Entity = charEntity;
-
-                return;
-
-            }
-            if (name.Contains("@") && name.Contains(":"))
-            {
-                var compaionName = "";
                 if (name.Contains("/"))
                 {
                     var valueToUse = name.Split('/')[1];
-                    compaionName = valueToUse.Split(':')[0];
+                    var companionName = valueToUse.Split(colonSymbol)[0].Trim();
+
+                    var companionNameComponents = companionName.Split(leftBraceSymbol);
+                    var compName = companionNameComponents[0].Trim();
+                    if (long.TryParse(companionNameComponents[1].Replace(rightBraceSymbol.ToString(), ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out var compId))
+                    {
+                        entityToReturn.Entity = _currentEntities.GetOrAdd(compId, new Entity
+                        {
+                            IsCharacter = true,
+                            IsCompanion = true,
+                            Name = compName,
+                            Id = compId,
+                            LogId = compId
+                        });
+                    }
+                    return;
                 }
+            }
 
-                var companionNameComponents = compaionName.Split('{');
-                var compName = companionNameComponents[0].Trim();
-                var compId = long.Parse(companionNameComponents[1].Replace("}", ""));
-
-                var companion = new Entity() { IsCharacter = true, IsCompanion = true, Name = compName, Id = compId, LogId = compId };
-                var compEntity = _currentEntities.GetOrAdd(compId, companion);
-                entityToReturn.Entity = compEntity;
-
+            if (!name.Contains(colonSymbol))
+            {
+                var unknownValParts = name.Split(leftBraceSymbol);
+                if (long.TryParse(unknownValParts[1].Replace(rightBraceSymbol.ToString(), ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out var unknownEntityId))
+                {
+                    entityToReturn.Entity = _currentEntities.GetOrAdd(unknownEntityId, new Entity
+                    {
+                        IsCharacter = false,
+                        Name = "Unknown",
+                        Id = unknownEntityId,
+                        LogId = unknownEntityId
+                    });
+                }
                 return;
             }
-            if (!name.Contains(":"))
-            {
-                var unknownValParts = name.Split('{');
-                var unknownEntityId = long.Parse(unknownValParts[1].Replace("}", ""));
-                var unknownEntity = new Entity() { IsCharacter = false, Name = "Unknown", Id = unknownEntityId, LogId = unknownEntityId };
-                var addedUknownEntity = _currentEntities.GetOrAdd(unknownEntityId, unknownEntity);
-                entityToReturn.Entity = addedUknownEntity;
-                return;
-            }
-            if (name.Count(c => c == ':') > 2)
-            {
-                var starFighterId = long.Parse(name.Replace(":", ""));
 
-                var starFighterEntity = new Entity() { IsCharacter = false, Name = starFighterId.ToString(), Id = starFighterId, LogId = starFighterId };
-                var starFighterEntityToAdd = _currentEntities.GetOrAdd(starFighterId, starFighterEntity);
-                entityToReturn.Entity = starFighterEntityToAdd;
+            if (name[0] == ':' && name[1]==':')
+            {
+                if (long.TryParse(name.Replace(colonSymbol.ToString(), ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out var starFighterId))
+                {
+                    entityToReturn.Entity = _currentEntities.GetOrAdd(starFighterId, new Entity
+                    {
+                        IsCharacter = false,
+                        Name = starFighterId.ToString(),
+                        Id = starFighterId,
+                        LogId = starFighterId
+                    });
+                }
                 return;
             }
             var id = long.Parse(name.Split(':')[1]);
@@ -460,7 +488,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private static Effect ParseEffect(string value)
         {
             var split = value.Split(':');
-            var type = "ApplyEffect {";
+            var type = "";
             var name = "";
             if (split.Length == 2)
             {
