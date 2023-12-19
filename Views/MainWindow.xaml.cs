@@ -98,7 +98,7 @@ namespace SWTORCombatParser.Views
                         new ToolStripMenuItem[] { menuItem2, menuItem1 });
 
             _notifyIcon1 = new NotifyIcon(components);
-            _notifyIcon1.Icon = new Icon("resources/SWTORParsingIcon.ico");
+            _notifyIcon1.Icon = new Icon("resources/NewGreenOrbsIcon.ico");
             _notifyIcon1.ContextMenuStrip = contextMenu1;
             _notifyIcon1.Text = System.Windows.Forms.Application.ProductName;
             _notifyIcon1.Visible = true;

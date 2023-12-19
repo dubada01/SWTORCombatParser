@@ -57,8 +57,10 @@ public static class Settings
         if (!settingList.ContainsKey(settingName) && settingName == "force_log_updates")
             settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "combat_logs_path")
-            settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs"); ;
-        return settingList[settingName].Value<T>();
+            settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+        if(settingList.TryGetValue(settingName, out var returnVal))
+            return returnVal.Value<T>();
+        return default;
     }
     public static bool HasSetting(string settingName)
     {

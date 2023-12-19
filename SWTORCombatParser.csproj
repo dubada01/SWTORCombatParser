@@ -6,12 +6,13 @@
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
-    <ApplicationIcon>SWTORParsingIcon.ico</ApplicationIcon>
+    <ApplicationIcon>NewGreenOrbsIcon.ico</ApplicationIcon>
     <AssemblyName>Orbs</AssemblyName>
     <SignAssembly>false</SignAssembly>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
      <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+     <PackageIcon>OrbsNewIcon.png</PackageIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -181,6 +182,7 @@
     <None Remove="resources\LocalPlayerIcon.png" />
     <None Remove="resources\MinusIcon.png" />
     <None Remove="resources\mutedIcon.png" />
+    <None Remove="resources\NewGreenOrbsIcon.ico" />
     <None Remove="resources\openParselyIcon.png" />
     <None Remove="resources\PlusIcon.png" />
     <None Remove="resources\question-mark.png" />
@@ -573,6 +575,9 @@
     <Content Include="LoggingConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="NewGreenOrbsIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\alert-icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -742,6 +747,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\mutedIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\NewGreenOrbsIcon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\openParselyIcon.png">
@@ -3316,12 +3324,6 @@
 
   <ItemGroup>
     <Content Include="resources\SwtorLogo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="resources\SWTORParsingIcon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

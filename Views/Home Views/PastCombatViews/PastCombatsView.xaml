@@ -35,7 +35,13 @@
                                 Background="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonColorConverter}}"
                                 Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}"
                                 Foreground="WhiteSmoke"
-                                Command="{Binding  ToggleLiveParseCommand}"></Button>
+                                Command="{Binding  ToggleLiveParseCommand}" ToolTip="Right click to configure auto live parsing">
+                            <Button.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="{Binding AutoLiveParseText}" Command="{Binding AutoLiveParseCommand}"/>
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
                     </Viewbox>
                 </Grid>
                 <Grid Grid.Row="1" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Column="0" HorizontalAlignment="Stretch" Visibility="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">

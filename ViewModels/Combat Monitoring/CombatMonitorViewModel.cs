@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Prism.Commands;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
@@ -26,6 +27,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
     {
         private ConcurrentDictionary<DateTime, List<ParsedLogEntry>> _totalLogsDuringCombat = new ConcurrentDictionary<DateTime, List<ParsedLogEntry>>();
         private static bool _liveParseActive;
+        private static bool _autoParseEnabled;
         private CombatLogStreamer _combatLogStreamer;
         private int _numberOfSelectedCombats = 0;
         private bool showTrash;
@@ -85,6 +87,16 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 OnPropertyChanged();
             }
         }
+        public string AutoLiveParseText => _autoParseEnabled ? "Disable Auto Parse" : "Enable Auto Parse";
+        public ICommand AutoLiveParseCommand => new DelegateCommand(AutoLiveParseToggle);
+
+        private void AutoLiveParseToggle()
+        {
+            _autoParseEnabled = !_autoParseEnabled;
+            Settings.WriteSetting("Auto_Parse", _autoParseEnabled);
+            OnPropertyChanged("AutoLiveParseText");
+        }
+
         public string GetActiveFile()
         {
             return _combatLogStreamer.CurrentLog;
@@ -96,6 +108,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public CombatMonitorViewModel()
         {
             _stubLogs = Settings.ReadSettingOfType<bool>("stub_logs");
+            _autoParseEnabled = Settings.ReadSettingOfType<bool>("Auto_Parse");
             HistoricalRange = new HistoricalRangeWiget();
             _historicalRangeVM = new HistoricalRangeSelectionViewModel();
             _historicalRangeVM.HistoricalCombatsParsed += OnNewHistoricalCombats;
@@ -109,6 +122,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             Observable.FromEvent<CombatStatusUpdate>(
                 manager => CombatLogStreamer.CombatUpdated += manager,
                 manager => CombatLogStreamer.CombatUpdated -= manager).Subscribe(NewCombatStatusAlert);
+            if (_autoParseEnabled)
+                EnableLiveParse();
         }
 
         private void UpdateLogOffset(double offset)
