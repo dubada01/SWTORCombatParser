@@ -387,8 +387,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true, combatEndUpdate: true);
-                if (combatInfo.IsCombatWithBoss)
-                    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
+                //if (combatInfo.IsCombatWithBoss)
+                //    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
                 CombatSelectionMonitor.SelectCompleteCombat(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
                 {
@@ -505,6 +505,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             Task.Run(() =>
             {
                 CombatSelectionMonitor.SelectCompleteCombat(selectedCombat.Combat);
+                CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(selectedCombat.Combat);
             });
 
 

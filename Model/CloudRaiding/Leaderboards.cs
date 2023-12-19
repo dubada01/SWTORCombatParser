@@ -2,6 +2,7 @@
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.ViewModels.Leaderboard;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Concurrent;
@@ -311,7 +312,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async void TryAddLeaderboardEntry(Combat combat)
         {
             var state = CombatLogStateBuilder.CurrentState;
-            bool updatedAny = false;
+            List<LeaderboardEntry> boardEntries = new List<LeaderboardEntry>();
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
                 foreach (var player in combat.CharacterParticipants)
@@ -343,11 +344,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     {
                         if (CheckForValidParseUpload(combat) || CheckForValidCombatUpload(combat, player))
                         {
-                            updatedAny = await API_Connection.TryAddLeaderboardEntry(leaderboardEntry);
+                            boardEntries.Add(leaderboardEntry);
                         }
                     }
                 }
             }
+            bool updatedAny = await API_Connection.TryAddLeaderboardEntries(boardEntries);
             if (updatedAny)
                 UpdateOverlaysWithNewLeaderboard(combat);
         }
