@@ -53,7 +53,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             {
                 log.SecondsSinceCombatStart = (log.TimeStamp - _startTime).TotalSeconds;
             }
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 return UpdateLogs(inverted);
             });
             return DateTime.MinValue;

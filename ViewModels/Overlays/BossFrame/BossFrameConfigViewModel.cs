@@ -9,10 +9,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Timers;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {

@@ -56,6 +56,10 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.DeepSkyBlue;
                 case OverlayType.InterruptCount:
                     return Brushes.SteelBlue;
+                case OverlayType.CleanseCount:
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#357fa1"));
+                case OverlayType.CleanseSpeed:
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#5b8bd9"));
                 case OverlayType.HealReactionTime:
                     return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("YellowGrayColor"));
                 case OverlayType.HealReactionTimeRatio:
@@ -64,6 +68,10 @@ namespace SWTORCombatParser.Utilities.Converters
                     return Brushes.RosyBrown;
                 case OverlayType.CritPercent:
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#13ad7d"));
+                case OverlayType.SingleTargetDPS:
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#d834eb"));
+                case OverlayType.SingleTargetEHPS:
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00c497"));
                 default:
                     return Brushes.Gray;
             }

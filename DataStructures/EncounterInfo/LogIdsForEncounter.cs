@@ -194,7 +194,7 @@ public static class LogIdFactory
                     };
                     encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
                     {
-                        { 
+                        {
                             "The Terror From Beyond", new Dictionary<string, List<long>>()
                             {
                                 { "Story 8", new List<long>() { 3009943145807872L } },
@@ -327,6 +327,18 @@ public static class LogIdFactory
                                 { "Story 16", new List<long>() { 3303538520227840L,3275625527771136L, 3277721471811584L } },
                                 { "Veteran 8", new List<long>() { 3303529930293248L,3275625527771136L, 3277721471811584L } },
                                 { "Veteran 16", new List<long>() { 3303547110162432L ,3275625527771136L, 3277721471811584L} },
+                            }
+                        }
+                    };
+                    encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Dread Master Brontes", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 3273937605623808L} },
+                                { "Story 16", new List<long>() { 3303538520227840L} },
+                                { "Veteran 8", new List<long>() { 3303529930293248L} },
+                                { "Veteran 16", new List<long>() { 3303547110162432L} },
                             }
                         }
                     };

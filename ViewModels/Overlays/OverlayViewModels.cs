@@ -122,11 +122,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => selectedOverlayTab; set
             {
                 selectedOverlayTab = value;
-                if(selectedOverlayTab == 1)
+                if (selectedOverlayTab == 1)
                 {
                     _timersViewModel.RefreshEncounterSelection();
                 }
-                if(selectedOverlayTab == 2)
+                if (selectedOverlayTab == 2)
                 {
                     _challengesViewModel.RefreshEncounterSelection();
                 }
@@ -149,9 +149,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
-                if (enumVal == OverlayType.DPS || enumVal == OverlayType.Damage || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.FocusDPS || enumVal == OverlayType.NonEDPS || enumVal == OverlayType.RawDamage)
+                if (enumVal == OverlayType.DPS || enumVal == OverlayType.Damage || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.FocusDPS || enumVal == OverlayType.NonEDPS || enumVal == OverlayType.RawDamage || enumVal == OverlayType.SingleTargetDPS)
                     AvailableDamageOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
-                if (enumVal == OverlayType.HPS || enumVal == OverlayType.RawHealing || enumVal == OverlayType.EHPS || enumVal == OverlayType.EffectiveHealing || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime)
+                if (enumVal == OverlayType.HPS || enumVal == OverlayType.RawHealing || enumVal == OverlayType.EHPS || enumVal == OverlayType.EffectiveHealing || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.SingleTargetEHPS || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime)
                     AvailableHealOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
                 if (enumVal == OverlayType.Mitigation || enumVal == OverlayType.ShieldAbsorb || enumVal == OverlayType.ProvidedAbsorb || enumVal == OverlayType.DamageTaken || enumVal == OverlayType.DamageAvoided || enumVal == OverlayType.DamageSavedDuringCD)
                     AvailableMitigationOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });

@@ -3,7 +3,6 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.HistoricalLogs;
 using SWTORCombatParser.Views.Home_Views;
@@ -12,7 +11,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -362,8 +360,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _totalLogsDuringCombat[combatStartTime] = obj;
             _usingHistoricalData = false;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), true);
-            if(combatInfo.IsCombatWithBoss)
+            if (combatInfo.IsCombatWithBoss)
+            {
                 Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
+                Leaderboards.StartGetTopLeaderboardEntries(combatInfo);
+            }
             CombatSelectionMonitor.InProgressCombatSeleted(combatInfo);
             if (CurrentEncounter == null)
                 return;
@@ -386,8 +387,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true, combatEndUpdate: true);
-                if (combatInfo.IsCombatWithBoss)
-                    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
+                //if (combatInfo.IsCombatWithBoss)
+                //    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
                 CombatSelectionMonitor.SelectCompleteCombat(combatInfo);
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
                 {
@@ -396,7 +397,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 AddCombatToEncounter(combatInfo, true);
                 if (combatInfo.IsCombatWithBoss)
                 {
-                    BossMechanicInfoSkimmer.AddBossInfoAfterCombat(combatInfo);
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
                 }
             }
@@ -430,7 +430,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             UpdateVisibleEncounters();
             if (_allEncounters.Any())
             {
-                _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle(); 
+                _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle();
                 CombatIdentifier.CurrentCombat = _allEncounters.Last().EncounterCombats.First().Combat;
             }
         }
@@ -502,8 +502,10 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
 
             //Run these in a task so that the UI can update first
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 CombatSelectionMonitor.SelectCompleteCombat(selectedCombat.Combat);
+                CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(selectedCombat.Combat);
             });
 
 

@@ -370,7 +370,7 @@ namespace SWTORCombatParser.ViewModels
                         break;
                 }
             });
-            
+
             _allViewsUpToDate = false;
         }
         private void SelectCombat(Combat selectedCombat)

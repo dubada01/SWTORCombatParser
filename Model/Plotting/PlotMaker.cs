@@ -48,7 +48,7 @@ namespace SWTORCombatParser.Model.Plotting
 
 
             Dictionary<int, double> perSecondSums = new Dictionary<int, double>();
-            for (var t = 0; t < timeStamps.Count(); t++)
+            for (var t = 0; t < timeStamps.Length; t++)
             {
                 var second = (int)timeStamps[t];
                 if (!perSecondSums.ContainsKey(second))
@@ -57,16 +57,16 @@ namespace SWTORCombatParser.Model.Plotting
                 }
                 perSecondSums[second] += yValues[t];
             }
-            var movingaverage = new double[timeStampsSpread.Count()];
-            for (int i = 0; i < timeStampsSpread.Count(); i++)
+            var movingaverage = new double[timeStampsSpread.Count];
+            for (int i = 0; i < timeStampsSpread.Count; i++)
             {
-                if (!perSecondSums.ContainsKey(timeStampsSpread[i]))
+                if (!perSecondSums.TryGetValue(timeStampsSpread[i], out var spread))
                 {
                     movingaverage[i] = movingAverageCalc.ComputeAverage(0, timeStampsSpread[i]);
                 }
                 else
                 {
-                    movingaverage[i] = movingAverageCalc.ComputeAverage(perSecondSums[timeStampsSpread[i]], timeStampsSpread[i]);
+                    movingaverage[i] = movingAverageCalc.ComputeAverage(spread, timeStampsSpread[i]);
                 }
             }
 

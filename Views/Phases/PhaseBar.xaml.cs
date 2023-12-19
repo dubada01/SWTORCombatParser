@@ -1,26 +1,14 @@
-﻿using ScottPlot.Drawing.Colormaps;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Model.LogParsing;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Phases;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SWTORCombatParser.Views.Phases
 {
@@ -29,7 +17,7 @@ namespace SWTORCombatParser.Views.Phases
     /// </summary>
     public partial class PhaseBar : UserControl
     {
-        Dictionary<PhaseInstance,Button> _phaseButtons = new Dictionary<PhaseInstance, Button>();
+        Dictionary<PhaseInstance, Button> _phaseButtons = new Dictionary<PhaseInstance, Button>();
         private List<PhaseInstance> _phases = new List<PhaseInstance>();
         public PhaseBar(PhaseBarViewModel viewModel)
         {
@@ -45,14 +33,15 @@ namespace SWTORCombatParser.Views.Phases
 
         private void UpdateButtonStates(List<PhaseInstance> list)
         {
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 ResetButtonBackgrounds();
                 foreach (var phaseInstance in list)
                 {
                     var button = _phaseButtons[phaseInstance];
                     button.Background = (SolidColorBrush)FindResource("GreenColorBrush");
                 }
-                if(list.Count == 0)
+                if (list.Count == 0)
                 {
                     PartitionBorder.BorderBrush = (SolidColorBrush)FindResource("GreenColorBrush");
                 }
@@ -65,24 +54,24 @@ namespace SWTORCombatParser.Views.Phases
         }
         private void ResetButtonBackgrounds()
         {
-            foreach(var button in _phaseButtons.Values)
+            foreach (var button in _phaseButtons.Values)
             {
                 button.Background = (SolidColorBrush)FindResource("Gray5Brush");
             }
-        }   
+        }
         private void Reset()
         {
             App.Current.Dispatcher.Invoke(() =>
             {
                 PartitionsHolder.ColumnDefinitions.Clear();
-                PartitionsHolder.Children.Clear();  
+                PartitionsHolder.Children.Clear();
             });
             _phaseButtons.Clear();
         }
 
         private void UpdatePhases(List<PhaseInstance> list)
         {
-            _phases = list.OrderBy(p=>p.PhaseStart).ToList();
+            _phases = list.OrderBy(p => p.PhaseStart).ToList();
         }
         private void UpdatePhaseBar(Combat newCombat)
         {
@@ -134,7 +123,7 @@ namespace SWTORCombatParser.Views.Phases
                             },
                             CommandParameter = phase,
                             Style = (Style)FindResource("RoundCornerButton"),
-                            ToolTip = $"{phase.SourcePhase.Name}: {(phase.PhaseStart-startTime).TotalSeconds} - {(phase.PhaseEnd - startTime).TotalSeconds}"
+                            ToolTip = $"{phase.SourcePhase.Name}: {(phase.PhaseStart - startTime).TotalSeconds} - {(phase.PhaseEnd - startTime).TotalSeconds}"
                         };
                         button.Command = (DataContext as PhaseBarViewModel).PhaseSelectionToggled;
                         _phaseButtons[phase] = button;

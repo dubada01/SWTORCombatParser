@@ -62,7 +62,7 @@ namespace SWTORCombatParser.Utilities
 
                 return localNetworkTime;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return DateTime.Now;
             }

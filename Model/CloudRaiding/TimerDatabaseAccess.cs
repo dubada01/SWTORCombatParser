@@ -1,75 +1,73 @@
 ﻿using Newtonsoft.Json;
-using Npgsql;
-using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class TimerDatabaseAccess
     {
-        public static List<string> GetAllTimerIds()
+        private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
+        public static async Task<List<string>> GetAllTimerIds()
         {
-            List<string> entriesFound = new List<string>();
-            using (NpgsqlConnection connection = ConnectToDB())
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return new List<string>();
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT timer_id FROM public.timers", connection))
+                using (HttpClient connection = new HttpClient())
                 {
-                    var reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        entriesFound.Add(reader.GetString(0));
-                    }
+                    Uri uri = new Uri($"{_apiPath}/timers/getAll");
+                    var response = await connection.GetAsync(uri);
+                    return await response.Content.ReadFromJsonAsync<List<string>>();
                 }
             }
-            return entriesFound;
-        }
-        public static void AddTimer(Timer newTimer)
-        {
-            using (NpgsqlConnection connection = ConnectToDB())
+            catch (Exception e)
             {
-                using (var cmd = new NpgsqlCommand("INSERT INTO public.timer_export" +
-                "(timer_id,timer_contents)" +
-                $" VALUES (@p1,@p2)", connection)
-                {
-                    Parameters =
-                        {
-                            new ("p1",newTimer.ShareId),
-                            new ("p2",JsonConvert.SerializeObject(newTimer)),
-                        }
-                })
-                {
-                    cmd.ExecuteNonQuery();
-                }
+                Logging.LogError(e.Message);
+                return new List<string>();
             }
         }
-        public static Timer GetTimerFromId(string timerId)
+        public static async Task AddTimer(Timer newTimer)
         {
-            using (NpgsqlConnection connection = ConnectToDB())
+            try
             {
-                using (var cmd = new NpgsqlCommand("SELECT * FROM public.timer_export " +
-                $"WHERE timer_id='{timerId.MakePGSQLSafe()}'", connection))
+                using (HttpClient connection = new HttpClient())
                 {
-                    var reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        return GetTimer(reader);
-                    }
+                    Uri uri = new Uri($"{_apiPath}/timers/add");
+                    var str = JsonConvert.SerializeObject(newTimer);
+                    var content = new StringContent(str, Encoding.UTF8, "application/json");
+                    var response = await connection.PostAsync(uri, content);
+                    response.EnsureSuccessStatusCode();
+                    return;
                 }
             }
-            return null;
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return;
+            }
         }
-        private static Timer GetTimer(NpgsqlDataReader reader)
+        public static async Task<Timer> GetTimerFromId(string timerId)
         {
-            var stringContents = reader.GetString(2);
-            return JsonConvert.DeserializeObject<Timer>(stringContents);
-        }
-        private static NpgsqlConnection ConnectToDB()
-        {
-            var conn = new NpgsqlConnection(DatabaseIPGetter.GetCurrentConnectionString());
-            conn.Open();
-            return conn;
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
+                    Uri uri = new Uri($"{_apiPath}/timers/get?timerId={timerId}");
+                    var response = await connection.GetAsync(uri);
+                    return await response.Content.ReadFromJsonAsync<Timer>();
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return null;
+            }
         }
     }
 }

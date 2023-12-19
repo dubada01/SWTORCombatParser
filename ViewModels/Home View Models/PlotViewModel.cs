@@ -212,7 +212,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 QuietReset();
                 ResetEffectVisuals();
-                _currentCombat=combatToPlot;
+                _currentCombat = combatToPlot;
                 PlotCombat(combatToPlot, SelectedParticipant);
             }
         }
@@ -277,7 +277,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void PlotCombat(Combat combatToPlot, Entity selectedEntity)
         {
-            if(selectedEntity == null)
+            if (selectedEntity == null)
                 return;
             foreach (var series in _seriesToPlot)
             {
@@ -351,9 +351,10 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             //need to be sure that xmax is greater that xmin
             GraphView.Plot.SetAxisLimits(xMin: 0, xMax: Math.Max(1, (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds));
             _combatMetaDataViewModel.PopulateEffectsFromCombat(combatToPlot);
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 GraphView.Refresh();
-            });     
+            });
         }
 
 
@@ -409,9 +410,10 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 {
                     GraphView.Plot.Remove(span);
                 }
-                
+
             }
-            App.Current.Dispatcher.Invoke(() => {
+            App.Current.Dispatcher.Invoke(() =>
+            {
                 GraphView.Refresh();
             });
         }
@@ -420,15 +422,15 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             switch (type)
             {
                 case PlotType.DamageOutput:
-                    return combatToPlot.OutgoingDamageLogs[selectedParticipant];
+                    return combatToPlot.OutgoingDamageLogs.ContainsKey(selectedParticipant) ? combatToPlot.OutgoingDamageLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.DamageTaken:
-                    return combatToPlot.IncomingDamageLogs[selectedParticipant];
+                    return combatToPlot.IncomingDamageLogs.ContainsKey(selectedParticipant) ? combatToPlot.IncomingDamageLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.HealingOutput:
-                    return combatToPlot.OutgoingHealingLogs[selectedParticipant];
+                    return combatToPlot.OutgoingHealingLogs.ContainsKey(selectedParticipant) ? combatToPlot.OutgoingHealingLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.HealingTaken:
-                    return combatToPlot.IncomingHealingLogs[selectedParticipant];
+                    return combatToPlot.IncomingHealingLogs.ContainsKey(selectedParticipant) ? combatToPlot.IncomingHealingLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.SheildedDamageTaken:
-                    return combatToPlot.ShieldingProvidedLogs[selectedParticipant];
+                    return combatToPlot.ShieldingProvidedLogs.ContainsKey(selectedParticipant) ? combatToPlot.ShieldingProvidedLogs[selectedParticipant] : new List<ParsedLogEntry>();
                 case PlotType.HPPercent:
                     return combatToPlot.GetLogsInvolvingEntity(selectedParticipant).ToList();
 

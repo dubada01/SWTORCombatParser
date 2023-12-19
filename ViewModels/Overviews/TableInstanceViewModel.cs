@@ -98,7 +98,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             {
                 DataToView.Add(new CombatInfoInstance
                 {
-                    
+
                     SumTotal = _sumTotal,
                     Total = DataToView.Sum(v => v.Total),
                     RateDouble = DataToView.Sum(v => v.RateDouble),

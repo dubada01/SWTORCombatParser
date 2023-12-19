@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using System;
 using System.Collections.Generic;
@@ -189,6 +188,7 @@ namespace SWTORCombatParser.Model.Timers
                     InitializeDefaults(timerSource);
                 }
 
+
                 var initializedInfo = File.ReadAllText(infoPath);
                 currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
                 return currentDefaults.First(t => t.TimerSource == timerSource);
@@ -224,7 +224,7 @@ namespace SWTORCombatParser.Model.Timers
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
                 var classes = ClassLoader.LoadAllClasses();
                 var validSources = classes.Select(c => c.Discipline);
-                var validDefaults = currentDefaults.Where(c => c != null && c.TimerSource !=null && validSources.Contains(c.TimerSource) ||
+                var validDefaults = currentDefaults.Where(c => c != null && c.TimerSource != null && validSources.Contains(c.TimerSource) ||
                 c.TimerSource == "Shared" ||
                 c.TimerSource == "HOTS" ||
                 c.TimerSource == "DOTS" ||
@@ -286,16 +286,20 @@ namespace SWTORCombatParser.Model.Timers
             c.TimerSource == "StarParse Import");
             UpdateConfig(JsonConvert.SerializeObject(validDefaults));
         }
+        private static object fileModLock = new object();
         private static void UpdateConfig(string textToWrite)
         {
             string tempFileName = infoPath + ".temp";
 
             try
             {
-                File.WriteAllText(tempFileName, textToWrite);
+                lock (fileModLock)
+                {
+                    File.WriteAllText(tempFileName, textToWrite);
 
-                // Replace the original file with the temporary file atomically
-                File.Move(tempFileName, infoPath, true);
+                    // Replace the original file with the temporary file atomically
+                    File.Move(tempFileName, infoPath, true);
+                }
             }
             catch (Exception e)
             {
