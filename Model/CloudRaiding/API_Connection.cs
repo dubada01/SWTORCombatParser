@@ -33,15 +33,15 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return 0;
             }
         }
-        public static async Task<bool> TryAddLeaderboardEntry(LeaderboardEntry newEntry)
+        public static async Task<bool> TryAddLeaderboardEntries(List<LeaderboardEntry> newEntry)
         {
-            if (newEntry.Value == 0 || Settings.ReadSettingOfType<bool>("offline_mode"))
+            if (newEntry.Count == 0 || Settings.ReadSettingOfType<bool>("offline_mode"))
                 return false;
             try
             {
                 using (HttpClient connection = new HttpClient())
                 {
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/add");
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/addMany");
                     var response = await connection.PostAsJsonAsync(uri, newEntry);
                     var body = await response.Content.ReadFromJsonAsync<bool>();
                     return body;

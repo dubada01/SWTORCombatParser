@@ -57,8 +57,8 @@ namespace SWTORCombatParser.Model.Plotting
                 }
                 perSecondSums[second] += yValues[t];
             }
-            var movingaverage = new double[timeStampsSpread.Count()];
-            for (int i = 0; i < timeStampsSpread.Count(); i++)
+            var movingaverage = new double[timeStampsSpread.Count];
+            for (int i = 0; i < timeStampsSpread.Count; i++)
             {
                 if (!perSecondSums.TryGetValue(timeStampsSpread[i], out var spread))
                 {
