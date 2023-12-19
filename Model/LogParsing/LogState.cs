@@ -62,11 +62,10 @@ namespace SWTORCombatParser.Model.LogParsing
 
         public bool WasPlayerDeadAtTime(Entity player, DateTime timestamp)
         {
-            if (!PlayerDeathChangeInfo.ContainsKey(player))
+            if (!PlayerDeathChangeInfo.TryGetValue(player, out var playerDeathInfo))
             {
                 return true;
             }
-            var playerDeathInfo = PlayerDeathChangeInfo[player];
             if (!playerDeathInfo.Any(d => d.Key < timestamp))
                 return true;
             var updateTimes = playerDeathInfo.Keys.ToList();
@@ -125,9 +124,8 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public SWTORClass GetCharacterClassAtTime(Entity entity, DateTime time)
         {
-            if (entity == null || !PlayerClassChangeInfo.ContainsKey(entity))
+            if (entity == null || !PlayerClassChangeInfo.TryGetValue(entity, out var classOfSource))
                 return new SWTORClass();
-            var classOfSource = PlayerClassChangeInfo[entity];
             if (classOfSource == null)
                 return new SWTORClass();
 
@@ -144,9 +142,8 @@ namespace SWTORCombatParser.Model.LogParsing
         public SWTORClass GetCharacterClassAtTime(string entityString, DateTime time)
         {
             var entity = PlayerClassChangeInfo.Keys.FirstOrDefault(e => e.Name.ToLower() == entityString || e.LogId.ToString() == entityString);
-            if (entity == null || !PlayerClassChangeInfo.ContainsKey(entity))
+            if (entity == null || !PlayerClassChangeInfo.TryGetValue(entity, out var classOfSource))
                 return new SWTORClass();
-            var classOfSource = PlayerClassChangeInfo[entity];
             if (classOfSource == null)
                 return new SWTORClass();
 
@@ -163,7 +160,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private DateTime GetNextEncounterStartTime(DateTime currentEncounterStartTime)
         {
-            if (!_orderedEncounterChangeTimes.Any() || !_orderedEncounterChangeTimes.Contains(currentEncounterStartTime))
+            if (_orderedEncounterChangeTimes.Count == 0 || !_orderedEncounterChangeTimes.Contains(currentEncounterStartTime))
             {
                 return currentEncounterStartTime;
             }
@@ -179,29 +176,28 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public EntityInfo GetPlayerTargetAtTime(Entity player, DateTime time)
         {
-            if (!PlayerTargetsInfo.ContainsKey(player))
+            if (!PlayerTargetsInfo.TryGetValue(player, out var targets))
                 return new EntityInfo();
-            var targets = PlayerTargetsInfo[player];
             var targetKeys = targets.Keys.ToList();
             return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v => v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : new EntityInfo();
         }
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {
-                var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-                var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner).Select(kvp => kvp.Value);
-                return GetEffects(startTime, endTime, inScopeModifiers);
+            var allMods = Modifiers.SelectMany(kvp => kvp.Value);
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner).Select(kvp => kvp.Value);
+            return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetEffectsWithTarget(DateTime startTime, DateTime endTime, Entity owner)
         {
-                var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-                var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Target == owner).Select(kvp => kvp.Value);
-                return GetEffects(startTime, endTime, inScopeModifiers);
+            var allMods = Modifiers.SelectMany(kvp => kvp.Value);
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Target == owner).Select(kvp => kvp.Value);
+            return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetPersonalEffects(DateTime startTime, DateTime endTime, Entity owner)
         {
-                var allMods = Modifiers.SelectMany(kvp => kvp.Value);
-                var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner && m.Value.Target == owner).Select(kvp => kvp.Value);
-                return GetEffects(startTime, endTime, inScopeModifiers);
+            var allMods = Modifiers.SelectMany(kvp => kvp.Value);
+            var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Source == owner && m.Value.Target == owner).Select(kvp => kvp.Value);
+            return GetEffects(startTime, endTime, inScopeModifiers);
         }
         public List<CombatModifier> GetCurrentlyActiveRaidHOTS(DateTime time)
         {
@@ -217,18 +213,16 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public List<CombatModifier> GetInstancesOfEffectAtTime(DateTime time, string effect)
         {
-            if (!Modifiers.ContainsKey(effect))
+            if (!Modifiers.TryGetValue(effect, out var instancesOfEffect))
                 return new List<CombatModifier>();
-            var instancesOfEffect = Modifiers[effect];
             var activeModifiersOnPlayer = instancesOfEffect.Where(m =>
                 m.Value.StartTime <= time && (m.Value.StopTime > time || m.Value.StopTime == DateTime.MinValue)).Select(kvp => kvp.Value).ToList();
             return activeModifiersOnPlayer;
         }
         public List<CombatModifier> GetInstancesOfEffectOnEntityAtTime(DateTime time, string entity, string effect)
         {
-            if (!Modifiers.ContainsKey(effect))
+            if (!Modifiers.TryGetValue(effect, out var instancesOfEffect))
                 return new List<CombatModifier>();
-            var instancesOfEffect = Modifiers[effect];
             var activeModifiersOnPlayer = instancesOfEffect.Where(m =>
                 m.Value.StartTime <= time && (m.Value.StopTime > time || m.Value.StopTime == DateTime.MinValue) &&
                 m.Value.Target.Id.ToString() == entity || m.Value.Target.Name == entity).Select(kvp => kvp.Value).ToList();
@@ -237,37 +231,37 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, IEnumerable<CombatModifier> inScopeModifiers)
         {
-                var correctedModifiers = inScopeModifiers.Select(m =>
+            var correctedModifiers = inScopeModifiers.Select(m =>
+            {
+                CombatModifier correctedModifier = new CombatModifier();
+                if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
                 {
-                    CombatModifier correctedModifier = new CombatModifier();
-                    if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
+                    correctedModifier.EffectId = m.EffectId;
+                    correctedModifier.EffectName = m.EffectName;
+                    correctedModifier.Source = m.Source;
+                    correctedModifier.Target = m.Target;
+                    correctedModifier.Type = m.Type;
+                    correctedModifier.Name = m.Name;
+                    correctedModifier.StartTime = m.StartTime;
+                    correctedModifier.StopTime = m.StopTime;
+                    correctedModifier.ChargesAtTime = m.ChargesAtTime;
+                    if (m.StopTime == DateTime.MinValue)
                     {
-                        correctedModifier.EffectId = m.EffectId;
-                        correctedModifier.EffectName = m.EffectName;
-                        correctedModifier.Source = m.Source;
-                        correctedModifier.Target = m.Target;
-                        correctedModifier.Type = m.Type;
-                        correctedModifier.Name = m.Name;
-                        correctedModifier.StartTime = m.StartTime;
-                        correctedModifier.StopTime = m.StopTime;
-                        correctedModifier.ChargesAtTime = m.ChargesAtTime;
-                        if (m.StopTime == DateTime.MinValue)
-                        {
-                            correctedModifier.StopTime = endTime;
-                        }
-                        if (m.StopTime > endTime)
-                        {
-                            correctedModifier.StopTime = endTime;
-                        }
-                        if (m.StartTime < startTime)
-                        {
-                            correctedModifier.StartTime = startTime;
-                        }
-                        return correctedModifier;
+                        correctedModifier.StopTime = endTime;
                     }
-                    return m;
-                });
-                return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
+                    if (m.StopTime > endTime)
+                    {
+                        correctedModifier.StopTime = endTime;
+                    }
+                    if (m.StartTime < startTime)
+                    {
+                        correctedModifier.StartTime = startTime;
+                    }
+                    return correctedModifier;
+                }
+                return m;
+            });
+            return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
         }
 
         internal void CacheEncounterEnterList()

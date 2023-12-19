@@ -54,7 +54,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         public void AddCombat(Combat combat)
         {
-            _currentCombat =combat;
+            _currentCombat = combat;
             UpdateParticipants();
             DamageVM.UpdateData(combat);
             DamageTakenVM.UpdateData(combat);

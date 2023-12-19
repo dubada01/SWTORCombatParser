@@ -109,7 +109,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         return;
                     LeaderboardEntry topParse;
                     if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
-                        topParse = CurrentFightLeaderboard[enumVal].Where(v => MatchesClass(v.Class,className,enumVal)).Where(v=>MatchesRole(enumVal,v.Class))
+                        topParse = CurrentFightLeaderboard[enumVal].Where(v => MatchesClass(v.Class, className, enumVal)).Where(v => MatchesRole(enumVal, v.Class))
                             .MaxBy(v => v.Value);
                     else
                         topParse = CurrentFightLeaderboard[enumVal].Where(v => MatchesRole(enumVal, v.Class)).MaxBy(v => v.Value);
@@ -123,10 +123,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
         }
 
-        private static bool MatchesClass(string @class, string className,LeaderboardEntryType type)
+        private static bool MatchesClass(string @class, string className, LeaderboardEntryType type)
         {
             var includingMirror = GetMirrorClassesForLeaderboard(type).FirstOrDefault(v => v.Contains(className));
-            if(includingMirror == null)
+            if (includingMirror == null)
                 return false;
             return includingMirror.Contains(@class);
         }
@@ -226,8 +226,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new List<List<string>> {
                     new List<string>{ "Powertech/Pyrotech","Vanguard/Plasmatech"},
                     new List<string>{ "Powertech/Advanced Prototype","Vanguard/Tactics" },
-                    new List<string>{"Sniper/Marksmanship","Gunslinger/Sharpshooter" }, 
-                    new List<string>{"Sniper/Engineering","Gunslinger/Saboteur" }, 
+                    new List<string>{"Sniper/Marksmanship","Gunslinger/Sharpshooter" },
+                    new List<string>{"Sniper/Engineering","Gunslinger/Saboteur" },
                     new List < string > { "Sniper/Virulence","Gunslinger/Dirty Fighting" },
                     new List < string > { "Juggernaut/Rage","Guardian/Focus" },
                     new List < string > { "Juggernaut/Vengeance","Guardian/Vigilance" },
@@ -247,7 +247,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
             if (enumVal == LeaderboardEntryType.Healing || enumVal == LeaderboardEntryType.EffectiveHealing)
             {
-                return new List<List<string>> { 
+                return new List<List<string>> {
                     new List<string>{"Sorcerer/Corruption","Sage/Seer"},
                     new List < string > { "Operative/Medicine","Scoundrel/Sawbones"},
                     new List < string > { "Mercenary/Bodyguard", "Commando/Combat Medic" }
@@ -256,8 +256,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
             if (enumVal == LeaderboardEntryType.Mitigation)
             {
-                return new List<List<string>> { 
-                    new List < string > { "Powertech/Shield Tech","Vanguard/Shield Specialist" }, 
+                return new List<List<string>> {
+                    new List < string > { "Powertech/Shield Tech","Vanguard/Shield Specialist" },
                     new List < string > { "Juggernaut/Immortal","Guardian/Defense" },
                     new List < string > { "Assassin/Darkness", "Shadow/Kinetic Combat" } };
             }

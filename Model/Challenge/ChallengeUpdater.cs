@@ -1,11 +1,9 @@
 ﻿using MoreLinq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
-using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.ViewModels.Challenges;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
@@ -35,12 +33,12 @@ namespace SWTORCombatParser.Model.Challenge
 
         private void UpdateChallengesWithPhases()
         {
-            if(!PhaseManager.ActivePhases.Any())
-                _challenges.ForEach(c=>c.UpdatePhase(null));
+            if (PhaseManager.ActivePhases.Count == 0)
+                _challenges.ForEach(c => c.UpdatePhase(null));
             foreach (var phaseChallenge in _challenges.Where(c => c.Type == ChallengeType.MetricDuringPhase))
             {
-                phaseChallenge.UpdatePhase(phaseChallenge.SourceChallenge.PhaseId == Guid.Empty ? 
-                    new List<PhaseInstance>() : 
+                phaseChallenge.UpdatePhase(phaseChallenge.SourceChallenge.PhaseId == Guid.Empty ?
+                    new List<PhaseInstance>() :
                     PhaseManager.ActivePhases.Where(p => p.SourcePhase.Id == phaseChallenge.SourceChallenge.PhaseId).ToList());
             }
         }
@@ -67,7 +65,7 @@ namespace SWTORCombatParser.Model.Challenge
         {
             foreach (var challenge in _allChallenges)
             {
-                if (IsLogForChallenge(obj, challenge) && (_currentBossName == challenge.Source.Split('|')[1]) || 
+                if (IsLogForChallenge(obj, challenge) && (_currentBossName == challenge.Source.Split('|')[1]) ||
                     (challenge.ChallengeType == ChallengeType.MetricDuringPhase && PhaseManager.ActivePhases.Any(p => challenge.PhaseId == p.SourcePhase.Id)))
                 {
                     if (!_activeChallenges.Any(c => c.Id == challenge.Id))
@@ -143,7 +141,7 @@ namespace SWTORCombatParser.Model.Challenge
             foreach (var challenge in activeChallenges)
             {
                 var activeChallenge = _challenges.FirstOrDefault(c => c.SourceChallengeId == challenge.Id);
-                if(activeChallenge != null)
+                if (activeChallenge != null)
                     activeChallenge.UpdateMetrics(obj, challenge);
             }
         }

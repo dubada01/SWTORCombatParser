@@ -44,24 +44,24 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     content.Add(new StringContent("1"), "public");
                     try
                     {
-						using (var message = await client.PostAsync(parselyURL, content))
-						{
-							var response = await message.Content.ReadAsStringAsync();
-							if (response.Contains("NOT OK") || response.Contains("error"))
-							{
-								UploadCompleted(false, "");
-								return;
-							}
-							XmlDocument xdoc = new XmlDocument();
-							xdoc.LoadXml(response);
-							parselyLink = xdoc.GetElementsByTagName("file")[0].InnerText;
-						}
-					}
-                    catch(Exception ex)
+                        using (var message = await client.PostAsync(parselyURL, content))
+                        {
+                            var response = await message.Content.ReadAsStringAsync();
+                            if (response.Contains("NOT OK") || response.Contains("error"))
+                            {
+                                UploadCompleted(false, "");
+                                return;
+                            }
+                            XmlDocument xdoc = new XmlDocument();
+                            xdoc.LoadXml(response);
+                            parselyLink = xdoc.GetElementsByTagName("file")[0].InnerText;
+                        }
+                    }
+                    catch (Exception ex)
                     {
-						UploadCompleted(false, "");
-						return;
-					}
+                        UploadCompleted(false, "");
+                        return;
+                    }
                 }
             }
             UploadCompleted(true, parselyLink);

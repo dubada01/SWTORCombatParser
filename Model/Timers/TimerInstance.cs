@@ -188,7 +188,7 @@ namespace SWTORCombatParser.Model.Timers
                     var damage = _absorbShieldManager?.CheckForDamage(log);
                     if (damage.HasValue)
                     {
-                        if (_activeTimerInstancesForTimer.Any())
+                        if (_activeTimerInstancesForTimer.Count > 0)
                             _activeTimerInstancesForTimer.FirstOrDefault().Value.DamageDoneToAbsorb += damage.Value;
                     }
                 }
@@ -264,7 +264,7 @@ namespace SWTORCombatParser.Model.Timers
 
                 if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.Start)
                 {
-                    if(_activeTimerInstancesForTimer.All(t=>t.Value.TargetId != targetInfo.Id))
+                    if (_activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
                     {
                         _absorbShieldManager = new AbsorbShieldManager(log.Source);
                         CreateAbsorbTimerInstance(SourceTimer.AbsorbValue, SourceTimer.Ability, log.Source.Id);
@@ -291,7 +291,7 @@ namespace SWTORCombatParser.Model.Timers
                     {
                         if (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or)
                         {
-                            if (!_activeTimerInstancesForTimer.Any())
+                            if (_activeTimerInstancesForTimer.Count == 0)
                                 CreateTimerInstance(log.TimeStamp, targetInfo.Name, targetInfo.Id);
                         }
                         else
@@ -312,7 +312,7 @@ namespace SWTORCombatParser.Model.Timers
                     {
                         return;
                     }
-                    endedTimer.Complete(true,true);
+                    endedTimer.Complete(true, true);
                 }
 
                 if (log.Effect.EffectType == EffectType.ModifyCharges || (log.Effect.EffectType == EffectType.Apply &&
@@ -406,7 +406,7 @@ namespace SWTORCombatParser.Model.Timers
             {
                 _currentBossInfo = bossInfoParts;
                 var currentEnecounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStart);
-                if (CheckEncounterAndBoss(this, currentEnecounter) && !_activeTimerInstancesForTimer.Any())
+                if (CheckEncounterAndBoss(this, currentEnecounter) && _activeTimerInstancesForTimer.Count == 0)
                 {
                     CreateTimerNoTarget(combatStart);
                 }

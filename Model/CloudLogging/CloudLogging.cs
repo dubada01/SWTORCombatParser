@@ -1,10 +1,8 @@
-﻿using Npgsql;
-using SWTORCombatParser.Model.CloudRaiding;
+﻿using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -32,7 +30,7 @@ namespace SWTORCombatParser.Model.CloudLogging
             }
             catch (Exception e)
             {
-                Logging.LogError(e.Message,false);
+                Logging.LogError(e.Message, false);
                 return;
             }
 

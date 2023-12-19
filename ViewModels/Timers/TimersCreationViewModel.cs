@@ -1,7 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.Boss_Timers;
+using SWTORCombatParser.DataStructures.Timers.Boss_Timers;
 using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.DataStructures.HOT_Timers;
+using SWTORCombatParser.DataStructures.Timers.HOT_Timers;
 using SWTORCombatParser.DataStructures.Timers.Defensive_Timers;
 using SWTORCombatParser.DataStructures.Timers.Offensive_Timers;
 using SWTORCombatParser.Model.CloudRaiding;

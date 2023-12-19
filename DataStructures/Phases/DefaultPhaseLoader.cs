@@ -1,13 +1,9 @@
 ﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.DataStructures.Phases
 {
@@ -18,7 +14,7 @@ namespace SWTORCombatParser.DataStructures.Phases
             try
             {
                 var phases = JsonConvert.DeserializeObject<IEnumerable<Phase>>(File.ReadAllText(@"DataStructures/Phases/phase_info.json"));
-                foreach(var phase in phases)
+                foreach (var phase in phases)
                 {
                     DefaultPhaseManager.AddOrUpdatePhase(phase);
                 }

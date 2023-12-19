@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures.ClassInfos;
+﻿using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
@@ -26,7 +25,7 @@ namespace SWTORCombatParser.DataStructures
         public DateTime EndTime;
         public string LogFileName => AllLogs.Where(l => !string.IsNullOrEmpty(l.LogName)).First().LogName;
         public double DurationOverride { get; set; }
-        public double DurationMS => DurationOverride == 0 ? ( PhaseManager.SelectedPhases.Any() ? PhaseManager.PhaseDuration : (EndTime - StartTime).TotalMilliseconds) : DurationOverride;
+        public double DurationMS => DurationOverride == 0 ? (PhaseManager.SelectedPhases.Any() ? PhaseManager.PhaseDuration : (EndTime - StartTime).TotalMilliseconds) : DurationOverride;
         public int DurationSeconds => (int)Math.Round(DurationMS / 1000f);
 
 
@@ -194,9 +193,9 @@ namespace SWTORCombatParser.DataStructures
         public double GetMaxTotalDamageToSingleTargetByPlayer(Entity player)
         {
             var outgoingDamageByEntity = GetOutgoingDamageByTarget(player);
-            if(outgoingDamageByEntity.Any())
+            if (outgoingDamageByEntity.Any())
             {
-                var target =  outgoingDamageByEntity.MaxBy(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
+                var target = outgoingDamageByEntity.MaxBy(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
                 return target.Value.Sum(v => v.Value.EffectiveDblValue);
             }
             return 0;
@@ -508,7 +507,7 @@ namespace SWTORCombatParser.DataStructures
         public Combat GetPhaseCopy(List<PhaseInstance> phases)
         {
             List<ParsedLogEntry> phaseLogs = new List<ParsedLogEntry>();
-            foreach(var phase in phases)
+            foreach (var phase in phases)
             {
                 if (phase.PhaseEnd == DateTime.MinValue)
                 {
@@ -527,7 +526,7 @@ namespace SWTORCombatParser.DataStructures
 
             var phaseCombat = CombatIdentifier.GenerateNewCombatFromLogs(phaseLogs.ToList(), isPhaseCombat: true);
             var tempDuration = duration * 1000;
-            if(tempDuration<phaseCombat.DurationMS)
+            if (tempDuration < phaseCombat.DurationMS)
                 phaseCombat.DurationOverride = tempDuration;
             return phaseCombat;
         }

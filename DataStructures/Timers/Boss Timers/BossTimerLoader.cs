@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace SWTORCombatParser.DataStructures.Boss_Timers
+namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
 {
     public static class BossTimerLoader
     {

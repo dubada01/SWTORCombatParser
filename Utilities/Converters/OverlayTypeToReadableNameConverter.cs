@@ -27,6 +27,8 @@ namespace SWTORCombatParser.Utilities.Converters
     { OverlayType.DamageSavedDuringCD, "Damage Saved During CDs" },
     { OverlayType.ShieldAbsorb, "Tank Shielding" },
     { OverlayType.DamageAvoided, "Damage Avoided" },
+            {OverlayType.BurstDamageTaken, "Burst Damage Taken" },
+            { OverlayType.DamageTaken, "Damage Taken"},
     { OverlayType.ProvidedAbsorb, "Provided Absorb" },
     { OverlayType.APM, "APM" },
     { OverlayType.InterruptCount, "Interrupt Count" },

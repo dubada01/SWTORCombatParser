@@ -1,5 +1,4 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.Phases;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -125,7 +124,7 @@ public static class MetricGetter
     public static double GetTotalforMetric(OverlayType type, List<Combat> combats)
     {
         double value = 0;
-        if (!combats.Any())
+        if (combats.Count == 0)
             return value;
         switch (type)
         {

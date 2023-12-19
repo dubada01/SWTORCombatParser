@@ -1,11 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SWTORCombatParser.Utilities;
-using System;
-using System.IO;
-using System.Net.Http;
-
-namespace SWTORCombatParser.Model.CloudRaiding
+﻿namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class DatabaseIPGetter
     {

@@ -122,11 +122,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => selectedOverlayTab; set
             {
                 selectedOverlayTab = value;
-                if(selectedOverlayTab == 1)
+                if (selectedOverlayTab == 1)
                 {
                     _timersViewModel.RefreshEncounterSelection();
                 }
-                if(selectedOverlayTab == 2)
+                if (selectedOverlayTab == 2)
                 {
                     _challengesViewModel.RefreshEncounterSelection();
                 }

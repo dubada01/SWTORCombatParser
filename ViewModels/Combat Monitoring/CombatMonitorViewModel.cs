@@ -3,7 +3,6 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.HistoricalLogs;
 using SWTORCombatParser.Views.Home_Views;
@@ -12,7 +11,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -432,7 +430,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             UpdateVisibleEncounters();
             if (_allEncounters.Any())
             {
-                _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle(); 
+                _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle();
                 CombatIdentifier.CurrentCombat = _allEncounters.Last().EncounterCombats.First().Combat;
             }
         }
@@ -504,7 +502,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
 
             //Run these in a task so that the UI can update first
-            Task.Run(() => {
+            Task.Run(() =>
+            {
                 CombatSelectionMonitor.SelectCompleteCombat(selectedCombat.Combat);
             });
 
