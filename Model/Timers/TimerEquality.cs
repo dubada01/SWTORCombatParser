@@ -1,5 +1,4 @@
-﻿using SWTORCombatParser.DataStructures;
-using Timer = SWTORCombatParser.DataStructures.Timer;
+﻿using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
 {

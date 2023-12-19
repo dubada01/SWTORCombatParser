@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.Phases
 {
@@ -12,7 +10,7 @@ namespace SWTORCombatParser.Model.Phases
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
 
         private static string _phaseFile = Path.Combine(appDataPath, "phase_info.json");
-       
+
         public static IEnumerable<Phase> GetExisitingPhases()
         {
             TryInit();
@@ -45,7 +43,7 @@ namespace SWTORCombatParser.Model.Phases
         }
         private static void TryInit()
         {
-            if(!File.Exists(_phaseFile))
+            if (!File.Exists(_phaseFile))
             {
                 Directory.CreateDirectory(appDataPath);
                 File.WriteAllText(_phaseFile, "[]");

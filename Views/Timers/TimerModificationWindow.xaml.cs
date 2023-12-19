@@ -1,5 +1,4 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.ViewModels.Timers;
+﻿using SWTORCombatParser.ViewModels.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;

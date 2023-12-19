@@ -1,8 +1,8 @@
-﻿using Npgsql;
-using SWTORCombatParser.Model.CloudRaiding;
+﻿using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -11,46 +11,30 @@ namespace SWTORCombatParser.Model.CloudLogging
 {
     public static class CloudLogging
     {
+        private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
         public static async Task UploadLogAsync(string logMessage, string logCategory)
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return;
             try
             {
-                using (NpgsqlConnection connection = ConnectToDB())
+                var pcName = Dns.GetHostName();
+                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                var Ip = GetLocalIPAddress();
+                using (HttpClient connection = new HttpClient())
                 {
-                    var pcName = Dns.GetHostName();
-                    var ipAddress = GetLocalIPAddress();
-
-                    using (var cmd = new NpgsqlCommand("INSERT INTO public.cloud_logs" +
-                    " (timestamp,computer_name,ip_address,category,log_text,software_version)" +
-                    $" VALUES (" +
-                    $"@time," +
-                    $"@pc," +
-                    $"@ip," +
-                    $"@cat," +
-                    $"@log," +
-                    $"@ver)", connection)
-                    {
-                        Parameters =
-                        {
-                            new("time",GetUTCTimeStamp(DateTime.Now)),
-                            new("pc",pcName),
-                            new("ip",ipAddress),
-                            new("cat",logCategory),
-                            new("log",logMessage),
-                            new("ver",Assembly.GetExecutingAssembly().GetName().Version.ToString()),
-                        }
-                    })
-                    {
-                        await cmd.ExecuteNonQueryAsync();
-                    }
+                    Uri uri = new Uri($"{_apiPath}/logging/add?message={logMessage}&category={logCategory}&hostName={pcName}&ipAddress={Ip}&version={version}");
+                    var response = await connection.GetAsync(uri);
+                    return;
                 }
             }
             catch (Exception e)
             {
-                Logging.LogError("Failed to connect to database: " + e.Message, false);
+                Logging.LogError(e.Message, false);
+                return;
             }
-        }
 
+        }
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -62,29 +46,6 @@ namespace SWTORCombatParser.Model.CloudLogging
                 }
             }
             throw new Exception("No network adapters with an IPv4 address in the system!");
-        }
-        private static DateTime GetUTCTimeStamp(DateTime timeZone)
-        {
-            return timeZone.ToUniversalTime();
-        }
-        private static NpgsqlConnection ConnectToDB()
-        {
-            try
-            {
-                var conn = new NpgsqlConnection(DatabaseIPGetter.GetCurrentConnectionString());
-                conn.Open();
-                return conn;
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Failed to connect to logging database: " + e.Message);
-            }
-        }
-        private static string ReadEncryptedString(string encryptedString)
-        {
-            var secret = "obscureButNotSecure";
-            var decryptedString = Crypto.DecryptStringAES(encryptedString, secret);
-            return decryptedString;
         }
     }
 }

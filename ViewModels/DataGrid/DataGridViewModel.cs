@@ -3,14 +3,12 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.DataGrid;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.DirectoryServices;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -19,8 +17,8 @@ namespace SWTORCombatParser.ViewModels.DataGrid
     public class DataGridViewModel : INotifyPropertyChanged
     {
         private List<OverlayType> _columnOrder = new List<OverlayType> {
-            OverlayType.DPS,OverlayType.Damage,OverlayType.NonEDPS,OverlayType.RawDamage,OverlayType.FocusDPS,OverlayType.BurstDPS,
-            OverlayType.EHPS,OverlayType.EffectiveHealing,OverlayType.HPS,OverlayType.RawHealing, OverlayType.BurstEHPS, OverlayType.HealReactionTime,
+            OverlayType.DPS,OverlayType.Damage,OverlayType.SingleTargetDPS,OverlayType.NonEDPS,OverlayType.RawDamage,OverlayType.FocusDPS,OverlayType.BurstDPS,
+            OverlayType.EHPS,OverlayType.SingleTargetEHPS,OverlayType.EffectiveHealing,OverlayType.HPS,OverlayType.RawHealing, OverlayType.BurstEHPS, OverlayType.HealReactionTime,OverlayType.CleanseCount,OverlayType.CleanseSpeed,
             OverlayType.DamageTaken, OverlayType.BurstDamageTaken, OverlayType.Mitigation, OverlayType.ShieldAbsorb, OverlayType.ProvidedAbsorb, OverlayType.DamageAvoided, OverlayType.ThreatPerSecond,OverlayType.DamageSavedDuringCD,
             OverlayType.InterruptCount, OverlayType.APM};
         private List<Combat> _allSelectedCombats = new List<Combat>();
@@ -40,9 +38,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             CombatLogStreamer.HistoricalLogsFinished += UpdateLocalPlayer;
 
             UpdateHeaders();
-			var firstHeader = HeaderNames.Where(h => !h.IsName).First();
-			firstHeader.ToggleSortingCommand.Execute(null);
-		}
+            var firstHeader = HeaderNames.Where(h => !h.IsName).First();
+            firstHeader.ToggleSortingCommand.Execute(null);
+        }
 
 
         private void UpdateLocalPlayer(DateTime combatEndTime, bool localPlayerIdentified)
@@ -53,7 +51,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             var discipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
             if (player == null || discipline == null)
                 return;
-            _localPlayer = player.Name + "_" + discipline.Discipline;
+            _localPlayer = discipline.Role.ToString();
             RefreshColumns();
         }
 
@@ -126,7 +124,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             UpdateHeaders();
             var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
-            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => App.Current.Dispatcher.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList(); 
+            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => App.Current.Dispatcher.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList();
             App.Current.Dispatcher.Invoke(PartyMembers.Clear);
             var sortedMembers = new List<MemberInfoViewModel>();
             if (_sortDirection == SortingDirection.Ascending)

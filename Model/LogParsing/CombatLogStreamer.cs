@@ -318,7 +318,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (currentCombatState == CombatState.ExitedCombat)
             {
                 EndCombat(parsedLine);
-                
+
             }
             if (currentCombatState == CombatState.ExitCombatDetected)
             {
@@ -343,7 +343,7 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 EncounterTimerTrigger.CurrentEncounter = ("", "", "");
                 CombatStarted();
-                CombatUpdated(updateMessage); 
+                CombatUpdated(updateMessage);
             }
         }
         private void EndCombat(ParsedLogEntry parsedLine = null)

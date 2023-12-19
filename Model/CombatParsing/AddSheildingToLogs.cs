@@ -37,10 +37,6 @@ namespace SWTORCombatParser.Model.CombatParsing
                 foreach (var log in logsForTarget)
                 {
                     var activeAbsorbs = absorbsOnTarget.Where(m => IsModifierActive(m, log)).OrderBy(a => a.StartTime).ToList();
-                    if (activeAbsorbs.Count > 1 && activeAbsorbs.Any(a => a.Name.Contains("Powerbase")))
-                    {
-                        Console.WriteLine("HEre");
-                    }
                     for (var i = 0; i < activeAbsorbs.Count; i++)
                     {
                         var absorb = activeAbsorbs[i];
@@ -48,10 +44,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                         if (ammount <= 0)
                             continue;
                         var source = absorb.Source;
-                        if (!_totalSheildingProvided.ContainsKey(source))
-                        {
-                            _totalSheildingProvided[source] = new List<ShieldingEvent>();
-                        }
+                        _totalSheildingProvided[source] = _totalSheildingProvided.TryGetValue(source,out var val) ? val : new List<ShieldingEvent>();
+
                         var activeAbsorb = _totalSheildingProvided[source].FirstOrDefault(shield => shield.ShieldingTime == absorb.StopTime && shield.SheildName == absorb.Name && shield.Target == target);
                         if (activeAbsorb == null)
                         {

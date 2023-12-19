@@ -66,12 +66,13 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (newCombat.Targets.Any(t => t.LogId == 2857785339412480))
             {
-                newCombat.ParentEncounter = new EncounterInfo() { 
-                    Name = "Parsing", 
-                    LogName = "Parsing", 
-                    Difficutly = "Parsing", 
-                    NumberOfPlayer = "1", 
-                    EncounterType = EncounterType.Parsing, 
+                newCombat.ParentEncounter = new EncounterInfo()
+                {
+                    Name = "Parsing",
+                    LogName = "Parsing",
+                    Difficutly = "Parsing",
+                    NumberOfPlayer = "1",
+                    EncounterType = EncounterType.Parsing,
                     BossIds = new Dictionary<string, Dictionary<string, List<long>>>() { { "Training Dummy", new Dictionary<string, List<long>>() { { "Parsing 1", new List<long> { 2857785339412480 } } } } },
                     RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>() { { "Training Dummy", new Dictionary<string, List<long>>() { { "Parsing 1", new List<long> { 2857785339412480 } } } } },
                 };
@@ -136,7 +137,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 }
             }
             var bossesDetected = GetCurrentBossNames(validLogs, currentEncounter);
-            if (!bossesDetected.Any())
+            if (bossesDetected.Count == 0)
                 return ("", "", "");
             var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetIds.Contains(t)));
             if (boss != null)
@@ -154,7 +155,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             var validLogs = logs.Where(l => !(l.Effect.EffectType == EffectType.TargetChanged && l.Source.IsCharacter) && !string.IsNullOrEmpty(l.Target.Name)).ToList();
 
             var bossesDetected = GetCurrentBossNames(validLogs, currentEncounter);
-            if (!bossesDetected.Any())
+            if (bossesDetected.Count == 0)
                 return new BossInfo();
             var boss = currentEncounter.BossInfos.FirstOrDefault(b => bossesDetected.All(t => b.TargetIds.Contains(t)));
             if (boss != null)

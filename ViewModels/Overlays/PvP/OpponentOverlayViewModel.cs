@@ -1,5 +1,4 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;

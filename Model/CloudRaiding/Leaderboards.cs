@@ -2,8 +2,10 @@
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.ViewModels.Leaderboard;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,22 +20,22 @@ namespace SWTORCombatParser.Model.CloudRaiding
     }
     public static class Leaderboards
     {
-        public static string _leaderboardVersion = "2";
+        public static string _leaderboardVersion = "3";
         public static object _updateLock = new object();
         private static object _getLock = new object();
         public static LeaderboardType CurrentLeaderboardType;
-        public static event Action<Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>> LeaderboardStandingsAvailable = delegate { };
+        public static event Action<Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>> LeaderboardStandingsAvailable = delegate { };
         public static event Action<Dictionary<LeaderboardEntryType, (string, double)>> TopLeaderboardEntriesAvailable = delegate { };
         public static event Action<LeaderboardType> LeaderboardTypeChanged = delegate { };
-        public static Dictionary<LeaderboardEntryType, (string, double)> TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
-        public static Dictionary<LeaderboardEntryType, List<LeaderboardEntry>> CurrentFightLeaderboard = new Dictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
+        public static ConcurrentDictionary<LeaderboardEntryType, (string, double)> TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
+        public static ConcurrentDictionary<LeaderboardEntryType, List<LeaderboardEntry>> CurrentFightLeaderboard = new ConcurrentDictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
         public static Combat CurrentCombat;
         private static List<string> healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> tankDisciplines = new List<string> { "Shield Tech", "Immortal", "Darkness", "Defense", "Shield Specialist", "Kinetic Combat" };
         private static double _maxParseValue = 500000;
         public static void Init()
         {
-            _leaderboardVersion = PostgresConnection.GetCurrentLeaderboardVersion().ToString();
+            _leaderboardVersion = API_Connection.GetCurrentLeaderboardVersion().ToString();
         }
         public static void UpdateLeaderboardType(LeaderboardType type)
         {
@@ -79,8 +81,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 if (CurrentLeaderboardType == LeaderboardType.Off)
                 {
-                    TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
-                    TopLeaderboardEntriesAvailable(TopLeaderboards);
+                    TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
+                    TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
                     return;
                 }
 
@@ -88,7 +90,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 CurrentCombat = newCombat;
                 if (TopLeaderboards.Count > 0)
                 {
-                    TopLeaderboardEntriesAvailable(TopLeaderboards);
+                    TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
                     return;
                 }
 
@@ -102,33 +104,42 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     ? "Unknown"
                     : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
 
-                foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
+                Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), enumVal =>
                 {
                     if (!CurrentFightLeaderboard.ContainsKey(enumVal))
-                        continue;
+                        return;
                     LeaderboardEntry topParse;
                     if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
-                        topParse = CurrentFightLeaderboard[enumVal].Where(v => v.Class == className)
+                        topParse = CurrentFightLeaderboard[enumVal].Where(v => MatchesClass(v.Class, className, enumVal)).Where(v => MatchesRole(enumVal, v.Class))
                             .MaxBy(v => v.Value);
                     else
-                        topParse = CurrentFightLeaderboard[enumVal].MaxBy(v => v.Value);
+                        topParse = CurrentFightLeaderboard[enumVal].Where(v => MatchesRole(enumVal, v.Class)).MaxBy(v => v.Value);
                     if (topParse == null || string.IsNullOrEmpty(topParse.Character))
-                        continue;
+                        return;
                     TopLeaderboards[enumVal] = (topParse.Character, topParse.Value);
-                }
+                });
             }
 
-            TopLeaderboardEntriesAvailable(TopLeaderboards);
+            TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
 
         }
+
+        private static bool MatchesClass(string @class, string className, LeaderboardEntryType type)
+        {
+            var includingMirror = GetMirrorClassesForLeaderboard(type).FirstOrDefault(v => v.Contains(className));
+            if (includingMirror == null)
+                return false;
+            return includingMirror.Contains(@class);
+        }
+
         public static void StartGetPlayerLeaderboardStandings(Combat newCombat)
         {
             lock (_updateLock)
             {
                 if (CurrentLeaderboardType == LeaderboardType.Off)
                 {
-                    CurrentFightLeaderboard = new Dictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
-                    LeaderboardStandingsAvailable(new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>());
+                    CurrentFightLeaderboard = new ConcurrentDictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
+                    LeaderboardStandingsAvailable(new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>());
                     return;
                 }
                 var state = CombatLogStateBuilder.CurrentState;
@@ -137,7 +148,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 if (CurrentFightLeaderboard.Count == 0)
                     GetCurrentLeaderboard(newCombat);
 
-                var returnData = new Dictionary<Entity, Dictionary<LeaderboardEntryType, (double, bool)>>();
+                var returnData = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
                 var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
                 var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
                 foreach (var participant in newCombat.CharacterParticipants)
@@ -152,13 +163,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             continue;
                         }
                     }
-                    returnData[participant] = new Dictionary<LeaderboardEntryType, (double, bool)>();
+                    returnData[participant] = new ConcurrentDictionary<LeaderboardEntryType, (double, bool)>();
 
 
-                    foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
+                    Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), enumVal =>
                     {
                         if (!CurrentFightLeaderboard.ContainsKey(enumVal))
-                            continue;
+                            return;
                         var parses = CurrentFightLeaderboard[enumVal];
                         if (parses == null)
                             returnData[participant][enumVal] = (0, false);
@@ -181,13 +192,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             }
 
                         }
-                    }
+                    });
                 }
                 LeaderboardStandingsAvailable(returnData);
             }
         }
 
-        private static bool MatchesRole(LeaderboardEntryType enumVal, string argClass)
+        public static bool MatchesRole(LeaderboardEntryType enumVal, string argClass)
         {
             var discipline = argClass.Split('/').Last();
             var role = healingDisciplines.Contains(discipline) ? "Healer" :
@@ -209,53 +220,99 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
             return false;
         }
+        public static List<List<string>> GetMirrorClassesForLeaderboard(LeaderboardEntryType enumVal)
+        {
+            if (enumVal == LeaderboardEntryType.Damage || enumVal == LeaderboardEntryType.FocusDPS)
+            {
+                return new List<List<string>> {
+                    new List<string>{ "Powertech/Pyrotech","Vanguard/Plasmatech"},
+                    new List<string>{ "Powertech/Advanced Prototype","Vanguard/Tactics" },
+                    new List<string>{"Sniper/Marksmanship","Gunslinger/Sharpshooter" },
+                    new List<string>{"Sniper/Engineering","Gunslinger/Saboteur" },
+                    new List < string > { "Sniper/Virulence","Gunslinger/Dirty Fighting" },
+                    new List < string > { "Juggernaut/Rage","Guardian/Focus" },
+                    new List < string > { "Juggernaut/Vengeance","Guardian/Vigilance" },
+                    new List < string > { "Assassin/Deception","Shadow/Infiltration" },
+                    new List < string > { "Assassin/Hatred", "Shadow/Serenity" }   ,
+                    new List < string > { "Sorcerer/Lightning","Sage/Telekinetics" },
+                    new List < string > { "Sorcerer/Madness","Sage/Balance" },
+                    new List < string > { "Operative/Concealment","Scoundrel/Scrapper" },
+                    new List < string > { "Operative/Lethality","Scoundrel/Ruffian" },
+                    new List < string > { "Marauder/Carnage","Sentinel/Combat" },
+                    new List < string > { "Marauder/Fury","Sentinel/Concentration" },
+                    new List < string > { "Marauder/Annihilation","Sentinel/Watchman" },
+                    new List < string > { "Mercenary/Arsenal","Commando/Gunnery" },
+                    new List < string > { "Mercenary/Innovative Ordnance", "Commando/Assault Specialist" }
+                };
+            }
 
+            if (enumVal == LeaderboardEntryType.Healing || enumVal == LeaderboardEntryType.EffectiveHealing)
+            {
+                return new List<List<string>> {
+                    new List<string>{"Sorcerer/Corruption","Sage/Seer"},
+                    new List < string > { "Operative/Medicine","Scoundrel/Sawbones"},
+                    new List < string > { "Mercenary/Bodyguard", "Commando/Combat Medic" }
+                };
+            }
+
+            if (enumVal == LeaderboardEntryType.Mitigation)
+            {
+                return new List<List<string>> {
+                    new List < string > { "Powertech/Shield Tech","Vanguard/Shield Specialist" },
+                    new List < string > { "Juggernaut/Immortal","Guardian/Defense" },
+                    new List < string > { "Assassin/Darkness", "Shadow/Kinetic Combat" } };
+            }
+
+            return new List<List<string>>();
+        }
         private static void GetCurrentLeaderboard(Combat newCombat)
         {
             var state = CombatLogStateBuilder.CurrentState;
             var bossName = newCombat.EncounterBossInfo;
+            if (string.IsNullOrEmpty(bossName))
+                return;
             var encounterName = newCombat.ParentEncounter.Name;
             var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
-            foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
+            Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), enumVal =>
             {
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                 {
-                    var results = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
+                    var results = API_Connection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
                     if (bossName.Contains("4 "))
                     {
-                        var oldFPResults = PostgresConnection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
+                        var oldFPResults = API_Connection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
                         results.AddRange(oldFPResults);
                     }
                     CurrentFightLeaderboard[enumVal] = results.Where(r => r.Class == className).ToList();
                 }
                 else
                 {
-                    var allResults = PostgresConnection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
+                    var allResults = API_Connection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
                     if (bossName.Contains("4 "))
                     {
-                        var oldFPResults = PostgresConnection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
+                        var oldFPResults = API_Connection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
                         allResults.AddRange(oldFPResults);
                     }
                     CurrentFightLeaderboard[enumVal] = allResults;
                 }
 
 
-            }
+            });
         }
         public static void Reset()
         {
             lock (_updateLock)
             {
-                TopLeaderboards = new Dictionary<LeaderboardEntryType, (string, double)>();
-                CurrentFightLeaderboard = new Dictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
+                TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
+                CurrentFightLeaderboard = new ConcurrentDictionary<LeaderboardEntryType, List<LeaderboardEntry>>();
             }
         }
 
         public static async void TryAddLeaderboardEntry(Combat combat)
         {
             var state = CombatLogStateBuilder.CurrentState;
-            bool updatedAny = false;
+            List<LeaderboardEntry> boardEntries = new List<LeaderboardEntry>();
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
                 foreach (var player in combat.CharacterParticipants)
@@ -287,11 +344,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     {
                         if (CheckForValidParseUpload(combat) || CheckForValidCombatUpload(combat, player))
                         {
-                            updatedAny = await PostgresConnection.TryAddLeaderboardEntry(leaderboardEntry);
+                            boardEntries.Add(leaderboardEntry);
                         }
                     }
                 }
             }
+            bool updatedAny = await API_Connection.TryAddLeaderboardEntries(boardEntries);
             if (updatedAny)
                 UpdateOverlaysWithNewLeaderboard(combat);
         }

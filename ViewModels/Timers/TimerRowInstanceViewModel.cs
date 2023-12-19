@@ -1,5 +1,4 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.Timers;
+﻿using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;

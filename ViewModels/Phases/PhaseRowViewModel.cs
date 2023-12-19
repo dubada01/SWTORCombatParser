@@ -1,19 +1,14 @@
 ﻿using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Challenges;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseRowViewModel:INotifyPropertyChanged
+    public class PhaseRowViewModel : INotifyPropertyChanged
     {
         private SolidColorBrush _rowBackground;
 

@@ -1,5 +1,4 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.Phases;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,6 +38,8 @@ public static class MetricGetter
             case OverlayType.EffectiveHealing:
                 value = combats.SelectMany(c => c.TotalEffectiveHealing).Where(v => v.Key == participant)
                     .Select(v => v.Value).Average();
+                value += combats.SelectMany(c => c.TotalProvidedSheilding).Where(v => v.Key == participant).Select(v => v.Value)
+    .Average();
                 break;
             case OverlayType.RawHealing:
                 value = combats.SelectMany(c => c.TotalHealing).Where(v => v.Key == participant).Select(v => v.Value)
@@ -102,6 +103,20 @@ public static class MetricGetter
             case OverlayType.CritPercent:
                 value = combats.SelectMany(c => c.CritPercent).Where(c => c.Key == participant).Select(v => v.Value).Average() * 100;
                 break;
+            case OverlayType.SingleTargetDPS:
+                value = combats.SelectMany(c => c.STDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                break;
+            case OverlayType.SingleTargetEHPS:
+                value = combats.SelectMany(c => c.STEHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                break;
+            case OverlayType.CleanseCount:
+                value = combats.SelectMany(c => c.TotalCleanses).Where(v => v.Key == participant).Select(v => v.Value)
+                    .Average();
+                break;
+            case OverlayType.CleanseSpeed:
+                value = combats.SelectMany(c => c.AverageCleanseSpeed).Where(v => v.Key == participant).Select(v => v.Value)
+                    .Average();
+                break;
         }
 
         return value;
@@ -109,7 +124,7 @@ public static class MetricGetter
     public static double GetTotalforMetric(OverlayType type, List<Combat> combats)
     {
         double value = 0;
-        if (!combats.Any())
+        if (combats.Count == 0)
             return value;
         switch (type)
         {
@@ -200,6 +215,26 @@ public static class MetricGetter
             case OverlayType.CritPercent:
                 value = combats.SelectMany(c => c.CritPercent).Select(v => v.Value).Average() * 100;
                 break;
+            case OverlayType.SingleTargetDPS:
+                value = combats.SelectMany(c => c.STDPS).Select(v => v.Value).Average();
+                break;
+            case OverlayType.SingleTargetEHPS:
+                value = combats.SelectMany(c => c.STEHPS).Select(v => v.Value).Average();
+                break;
+            case OverlayType.CleanseCount:
+                value = combats.SelectMany(c => c.TotalCleanses).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.CleanseSpeed:
+                var averageCleanseSpeed = combats
+    .SelectMany(c => c.AverageCleanseSpeed)
+    .Select(v => v.Value)
+    .Where(v => v != 0);
+
+                value = averageCleanseSpeed.Any()
+                    ? averageCleanseSpeed.Average()
+                    : 0.0;
+                break;
         }
 
         return value;
@@ -283,6 +318,18 @@ public static class MetricGetter
                 break;
             case OverlayType.InterruptCount:
                 value = combat.TotalInterrupts[participant];
+                break;
+            case OverlayType.SingleTargetDPS:
+                value = combat.STDPS[participant];
+                break;
+            case OverlayType.SingleTargetEHPS:
+                value = combat.STEHPS[participant];
+                break;
+            case OverlayType.CleanseCount:
+                value = combat.TotalCleanses[participant];
+                break;
+            case OverlayType.CleanseSpeed:
+                value = combat.AverageCleanseSpeed[participant];
                 break;
         }
 

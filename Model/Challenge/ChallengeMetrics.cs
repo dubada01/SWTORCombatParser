@@ -1,16 +1,14 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Phases;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Documents;
 
 namespace SWTORCombatParser.Model.Challenge
 {
     public static class ChallengeMetrics
     {
-        public static double GetValueForChallenege(ChallengeType type, Combat combat, Entity participant, DataStructures.Challenge activeChallenge,Combat phaseCombat)
+        public static double GetValueForChallenege(ChallengeType type, Combat combat, Entity participant, DataStructures.Challenge activeChallenge, Combat phaseCombat)
         {
 
             double value = 0;
@@ -35,14 +33,14 @@ namespace SWTORCombatParser.Model.Challenge
                     value = combat.TotalInterrupts[participant];
                     break;
                 case ChallengeType.AbilityCount:
-                    value = combat.GetLogsInvolvingEntity(participant).Where(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (l.Ability == activeChallenge.Value || l.AbilityId == activeChallenge.Value)).Count();
+                    value = combat.GetLogsInvolvingEntity(participant).Count(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (l.Ability == activeChallenge.Value || l.AbilityId == activeChallenge.Value));
                     break;
                 case ChallengeType.EffectStacks:
                     value = activeChallenge.UseMaxValue ? combat.GetMaxEffectStacks(activeChallenge.Value, participant) : combat.GetCurrentEffectStacks(activeChallenge.Value, participant);
                     break;
                 case ChallengeType.MetricDuringPhase:
-                    if(combat.DurationMS > 0 && phaseCombat.AllEntities.Contains(participant))
-                        value = MetricGetter.GetValueForMetric(activeChallenge.PhaseMetric, new List<Combat> { phaseCombat } , participant);
+                    if (combat.DurationMS > 0 && phaseCombat.AllEntities.Contains(participant))
+                        value = MetricGetter.GetValueForMetric(activeChallenge.PhaseMetric, new List<Combat> { phaseCombat }, participant);
                     break;
             }
             return value;

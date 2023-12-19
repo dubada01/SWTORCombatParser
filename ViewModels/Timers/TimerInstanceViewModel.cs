@@ -2,7 +2,6 @@
 using SWTORCombatParser.Utilities;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -307,14 +306,14 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (SourceTimer.HideUntilSec > 0 && !DisplayTimer && TimerValue <= SourceTimer.HideUntilSec)
                 DisplayTimer = true;
         }
-        public void Complete(bool endedNatrually, bool force=false)
+        public void Complete(bool endedNatrually, bool force = false)
         {
             if (!isActive) return;
             if (SourceTimer.IsHot && !force)
             {
-				DelayRemoval(endedNatrually);
+                DelayRemoval(endedNatrually);
                 return;
-            }    
+            }
             isActive = false;
             TimerValue = 0;
             TimerExpired(this, endedNatrually);
@@ -322,9 +321,9 @@ namespace SWTORCombatParser.ViewModels.Timers
         private async void DelayRemoval(bool endedNatrually)
         {
             await Task.Delay(1500);
-            if(isActive)
-				TimerExpired(this, endedNatrually);
-		}
+            if (isActive)
+                TimerExpired(this, endedNatrually);
+        }
         private string GetTimerName()
         {
             var name = "";

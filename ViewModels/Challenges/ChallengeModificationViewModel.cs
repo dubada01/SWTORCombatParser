@@ -5,7 +5,6 @@ using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -224,9 +223,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
             SelectedChallengeType = AvailableChallengeTypes.FirstOrDefault();
             SelectedColor = Brushes.CornflowerBlue.Color;
             AvailablePhases = DefaultPhaseManager.GetExisitingPhases().Where(p => p.PhaseSource == selectedSource).ToList();
-            if(AvailablePhases.Any())   
+            if (AvailablePhases.Any())
                 SelectedPhase = AvailablePhases.First();
-            AvailableMetrics = (List<string>)new OverlayTypeToReadableNameConverter().Convert(Enum.GetValues<OverlayType>().ToList(),null,null,System.Globalization.CultureInfo.InvariantCulture);
+            AvailableMetrics = (List<string>)new OverlayTypeToReadableNameConverter().Convert(Enum.GetValues<OverlayType>().ToList(), null, null, System.Globalization.CultureInfo.InvariantCulture);
             SelectedMetric = AvailableMetrics.First();
         }
         public void Edit(Challenge challengeToEdit)
@@ -242,7 +241,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             UseMaxValue = challengeToEdit.UseMaxValue;
 
             SelectedPhase = AvailablePhases.FirstOrDefault(p => p.Id == challengeToEdit.PhaseId);
-            if(challengeToEdit.PhaseMetric != OverlayType.None)
+            if (challengeToEdit.PhaseMetric != OverlayType.None)
                 SelectedMetric = (string)new OverlayTypeToReadableNameConverter().Convert(challengeToEdit.PhaseMetric, null, null, System.Globalization.CultureInfo.InvariantCulture);
 
             SelectedColor = challengeToEdit.BackgroundBrush.Color;
@@ -269,7 +268,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 IsEnabled = true,
                 UseRawValues = UseRawValue,
                 UseMaxValue = UseMaxValue,
-                PhaseId = SelectedPhase != null ? SelectedPhase.Id : Guid.Empty, 
+                PhaseId = SelectedPhase != null ? SelectedPhase.Id : Guid.Empty,
                 PhaseMetric = OverlayType
             }, _isEditing);
         }

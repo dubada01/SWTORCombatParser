@@ -40,7 +40,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             GraphView.Configuration.Pan = false;
             GraphView.Configuration.Zoom = false;
             GraphView.Plot.XAxis.Label(label: "Combat Duration (s)", size: 12);
-            GraphView.Plot.Title("Damage Taken",size:13);
+            GraphView.Plot.Title("Damage Taken", size: 13);
             GraphView.Plot.YAxis.Label(label: "Value", size: 12);
             GraphView.Plot.YAxis2.Label(label: "HP", size: 12);
             GraphView.Plot.YAxis2.Ticks(true);
