@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 ValueAlignment = HorizontalAlignment.Center;
                 return;
             }
-            if(name == "Totals")
+            if (name == "Totals")
             {
                 ForegroundColor = System.Windows.Media.Brushes.WhiteSmoke;
                 Value = name;

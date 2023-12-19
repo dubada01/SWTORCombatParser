@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.LogParsing
@@ -142,7 +141,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (log[i] == '[')
                 {
                     numberOfOpens++;
-                    if(numberOfOpens == 1)
+                    if (numberOfOpens == 1)
                         startIndex = i + 1;
                 }
                 else if (log[i] == ']' && startIndex != -1)

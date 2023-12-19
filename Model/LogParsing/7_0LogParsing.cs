@@ -447,7 +447,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return;
             }
 
-            if (name[0] == ':' && name[1]==':')
+            if (name[0] == ':' && name[1] == ':')
             {
                 if (long.TryParse(name.Replace(colonSymbol.ToString(), ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out var starFighterId))
                 {

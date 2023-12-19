@@ -262,7 +262,7 @@ public static class TimerController
             {
                 var timersThatCare = _filteredTimers.Where(t => t.ExperiationTimerId == id);
                 var timerInstances = timersThatCare as TimerInstance[] ?? timersThatCare.ToArray();
-                if (timerInstances.Any())
+                if (timerInstances.Length > 0)
                 {
                     foreach (var timer in timerInstances)
                     {
@@ -316,7 +316,7 @@ public static class TimerController
             _currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(obj.CombatStartTime).Discipline;
         }
         if (obj.Type == UpdateType.Stop)
-        {         
+        {
             CancelAfterCombat();
         }
     }

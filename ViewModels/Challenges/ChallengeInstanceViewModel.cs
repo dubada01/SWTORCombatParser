@@ -2,7 +2,6 @@
 using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

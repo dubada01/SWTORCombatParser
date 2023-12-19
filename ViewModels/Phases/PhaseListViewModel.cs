@@ -1,11 +1,7 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.Challenge;
-using SWTORCombatParser.Model.CombatParsing;
+﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
-using SWTORCombatParser.ViewModels.Challenges;
-using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Phases;
 using System;
 using System.Collections.Generic;
@@ -13,14 +9,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseListViewModel:INotifyPropertyChanged
+    public class PhaseListViewModel : INotifyPropertyChanged
     {
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private string selectedTimerSource;
@@ -30,13 +24,14 @@ namespace SWTORCombatParser.ViewModels.Phases
         public event PropertyChangedEventHandler PropertyChanged;
         public static event Action PhasesUpdated = delegate { };
         public EncounterSelectionView EncounterSelectionView { get; set; }
-        public PhaseListViewModel() {
+        public PhaseListViewModel()
+        {
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
             if (CombatIdentifier.CurrentCombat != null && CombatIdentifier.CurrentCombat.IsCombatWithBoss)
             {
-                _enounterSelectionViewModel.SelectedEncounter = _enounterSelectionViewModel.AvailableEncounters.FirstOrDefault(e=>e.Name == CombatIdentifier.CurrentCombat.ParentEncounter.Name);
+                _enounterSelectionViewModel.SelectedEncounter = _enounterSelectionViewModel.AvailableEncounters.FirstOrDefault(e => e.Name == CombatIdentifier.CurrentCombat.ParentEncounter.Name);
                 _enounterSelectionViewModel.SelectedBoss = CombatIdentifier.CurrentCombat.EncounterBossDifficultyParts.Item1;
             }
             UpdateSelectedEncounter(_enounterSelectionViewModel.SelectedEncounter.Name, _enounterSelectionViewModel.SelectedBoss);
@@ -78,7 +73,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         private void NewPhase(Phase obj)
         {
             DefaultPhaseManager.AddOrUpdatePhase(obj);
-            var newTimer = new PhaseRowViewModel() { SourcePhase = obj};
+            var newTimer = new PhaseRowViewModel() { SourcePhase = obj };
             newTimer.EditRequested += Edit;
             newTimer.DeleteRequested += Delete;
             PhaseRows.Add(newTimer);

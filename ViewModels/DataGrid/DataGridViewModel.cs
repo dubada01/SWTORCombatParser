@@ -3,14 +3,12 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.DataGrid;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.DirectoryServices;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -40,9 +38,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             CombatLogStreamer.HistoricalLogsFinished += UpdateLocalPlayer;
 
             UpdateHeaders();
-			var firstHeader = HeaderNames.Where(h => !h.IsName).First();
-			firstHeader.ToggleSortingCommand.Execute(null);
-		}
+            var firstHeader = HeaderNames.Where(h => !h.IsName).First();
+            firstHeader.ToggleSortingCommand.Execute(null);
+        }
 
 
         private void UpdateLocalPlayer(DateTime combatEndTime, bool localPlayerIdentified)
@@ -126,7 +124,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             UpdateHeaders();
             var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
-            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => App.Current.Dispatcher.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList(); 
+            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => App.Current.Dispatcher.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList();
             App.Current.Dispatcher.Invoke(PartyMembers.Clear);
             var sortedMembers = new List<MemberInfoViewModel>();
             if (_sortDirection == SortingDirection.Ascending)

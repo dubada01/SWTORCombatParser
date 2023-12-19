@@ -1,16 +1,12 @@
 ﻿using Newtonsoft.Json;
-using Npgsql;
-using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net;
-using System.Reflection;
-using Timer = SWTORCombatParser.DataStructures.Timer;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using System.Text;
+using System.Threading.Tasks;
+using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {

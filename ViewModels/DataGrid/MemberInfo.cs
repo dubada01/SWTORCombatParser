@@ -2,7 +2,6 @@
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +22,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             _info = info;
             _entity = e;
-            
-            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i, Colors.WhiteSmoke, entity:_entity) { Value = GetValue(i) }));
-            if(_entity != null)
+
+            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i, Colors.WhiteSmoke, entity: _entity) { Value = GetValue(i) }));
+            if (_entity != null)
             {
                 IsLocalPlayer = e.IsLocalPlayer;
                 var playerClass =

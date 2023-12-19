@@ -1,5 +1,4 @@
 ﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
@@ -9,14 +8,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Xml.Linq;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseModificationViewModel:INotifyPropertyChanged
+    public class PhaseModificationViewModel : INotifyPropertyChanged
     {
         private Phase _editingPhase;
         private string name;
@@ -83,7 +79,9 @@ namespace SWTORCombatParser.ViewModels.Phases
                 OnPropertyChanged();
             }
         }
-        public bool HasMultiValue { get => hasMultiValue; set
+        public bool HasMultiValue
+        {
+            get => hasMultiValue; set
             {
                 hasMultiValue = value;
                 OnPropertyChanged();
@@ -330,7 +328,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         public List<PhaseTrigger> AvailablePhaseTypes => Enum.GetValues<PhaseTrigger>().ToList();
         public void Cancel()
         {
-            if(_editingPhase != null)
+            if (_editingPhase != null)
                 OnCancelEdit(_editingPhase);
         }
         public ICommand SaveCommand => new DelegateCommand(Save);
@@ -338,10 +336,10 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             var args = new PhaseArgs
             {
-                EntityIds = MultiTargetOptions.Any() ? MultiTargetOptions.Select(o=>long.Parse(o.Name)).ToList() : (!string.IsNullOrEmpty(SelectedTarget) ? new List<long> {long.Parse(SelectedTarget)} : new List<long>()),
-                AbilityIds = MultiValueOptions.Select(t=>t.Name).ToList(),
+                EntityIds = MultiTargetOptions.Any() ? MultiTargetOptions.Select(o => long.Parse(o.Name)).ToList() : (!string.IsNullOrEmpty(SelectedTarget) ? new List<long> { long.Parse(SelectedTarget) } : new List<long>()),
+                AbilityIds = MultiValueOptions.Select(t => t.Name).ToList(),
                 EffectIds = MultiValueOptions.Select(t => t.Name).ToList(),
-                HPPercentage = !string.IsNullOrEmpty(Value) ? double.Parse(Value):0,
+                HPPercentage = !string.IsNullOrEmpty(Value) ? double.Parse(Value) : 0,
                 CombatDuration = !string.IsNullOrEmpty(Value) ? double.Parse(Value) : 0
             };
             var endArgs = new PhaseArgs
@@ -358,7 +356,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                 EndTrigger = selectedPhaseEnd,
                 Name = Name,
                 Id = Id,
-                StartArgs = args, 
+                StartArgs = args,
                 EndArgs = endArgs,
                 PhaseSource = selectedSource
             });
@@ -389,12 +387,12 @@ namespace SWTORCombatParser.ViewModels.Phases
                 case PhaseTrigger.EffectLoss:
                     {
                         SelectedTarget = phaseEdited.StartArgs.EntityIds.Any() ? phaseEdited.StartArgs.EntityIds.First().ToString() : "";
-                        MultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.EffectIds.Select(e=> new RefreshOptionViewModel { Name = e}));
+                        MultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.EffectIds.Select(e => new RefreshOptionViewModel { Name = e }));
                         MultiValueOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveRefreshOption);
                         break;
                     }
                 case PhaseTrigger.AbilityUsage:
-                    case PhaseTrigger.AbilityCancel:
+                case PhaseTrigger.AbilityCancel:
                     {
                         SelectedTarget = phaseEdited.StartArgs.EntityIds.Any() ? phaseEdited.StartArgs.EntityIds.First().ToString() : "";
                         MultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.AbilityIds.Select(e => new RefreshOptionViewModel { Name = e }));

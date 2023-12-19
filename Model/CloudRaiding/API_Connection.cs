@@ -1,14 +1,8 @@
 ﻿//using MoreLinq;
 using Newtonsoft.Json;
-using Npgsql;
-using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -28,7 +22,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (HttpClient connection = new HttpClient())
                 {
                     Uri uri = new Uri($"{_apiPath}/leaderboard/version");
-                    var response = connection.GetAsync(uri).Result; 
+                    var response = connection.GetAsync(uri).Result;
                     var body = response.Content.ReadFromJsonAsync<int>().Result;
                     return body;
                 }
@@ -48,7 +42,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (HttpClient connection = new HttpClient())
                 {
                     Uri uri = new Uri($"{_apiPath}/leaderboard/add");
-                    var response = await connection.PostAsJsonAsync(uri,newEntry);
+                    var response = await connection.PostAsJsonAsync(uri, newEntry);
                     var body = await response.Content.ReadFromJsonAsync<bool>();
                     return body;
                 }
@@ -79,9 +73,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 Logging.LogError(e.Message);
                 return entriesFound;
             }
-		}
-		public static async Task<Version> GetMostRecentVersion()
-		{
+        }
+        public static async Task<Version> GetMostRecentVersion()
+        {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
                 return new Version();
             try
@@ -100,7 +94,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new Version();
             }
         }
-		public static async Task<List<string>> GetBossesFromEncounterWithEntries(string encounter)
+        public static async Task<List<string>> GetBossesFromEncounterWithEntries(string encounter)
         {
             List<string> bossesFound = new List<string>();
             if (Settings.ReadSettingOfType<bool>("offline_mode"))

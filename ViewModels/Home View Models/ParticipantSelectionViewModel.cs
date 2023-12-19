@@ -23,7 +23,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             get => rows; set
             {
-                if(rows == value)  return;
+                if (rows == value) return;
                 rows = value;
                 OnPropertyChanged();
             }
@@ -32,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             get => columns; set
             {
-                if(columns == value) return;
+                if (columns == value) return;
                 columns = value;
                 OnPropertyChanged();
             }

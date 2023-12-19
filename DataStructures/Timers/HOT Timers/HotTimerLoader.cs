@@ -4,7 +4,7 @@ using SWTORCombatParser.Model.Timers;
 using System.Collections.Generic;
 using System.IO;
 
-namespace SWTORCombatParser.DataStructures.HOT_Timers
+namespace SWTORCombatParser.DataStructures.Timers.HOT_Timers
 {
     public static class HotTimerLoader
     {

@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Interop;
 
 namespace SWTORCombatParser.Views
@@ -164,7 +163,7 @@ namespace SWTORCombatParser.Views
         private void RegisterHotKey(int hotkeyId, int key)
         {
             // Register the "Ctrl+Alt+L" hotkey
-            if (RegisterHotKey(new WindowInteropHelper(this).Handle, hotkeyId, MOD_ALT|MOD_CONTROL,key))
+            if (RegisterHotKey(new WindowInteropHelper(this).Handle, hotkeyId, MOD_ALT | MOD_CONTROL, key))
             {
                 // Hotkey registered successfully
                 Logging.LogInfo("Registered hotkey with id: " + hotkeyId);
@@ -172,7 +171,7 @@ namespace SWTORCombatParser.Views
             else
             {
                 // Failed to register the hotkey
-                Logging.LogInfo("Failed to register hotkey: " + key +" with id: "+ hotkeyId);
+                Logging.LogInfo("Failed to register hotkey: " + key + " with id: " + hotkeyId);
             }
         }
 
