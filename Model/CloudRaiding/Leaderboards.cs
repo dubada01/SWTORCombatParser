@@ -315,8 +315,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
             List<LeaderboardEntry> boardEntries = new List<LeaderboardEntry>();
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
+                if (!CurrentFightLeaderboard.TryGetValue(enumVal, out var currentLB))
+                    continue;
                 foreach (var player in combat.CharacterParticipants)
                 {
+                    var newValue = GetValueForLeaderboardEntry(enumVal, combat, player);
+                    if (currentLB.Any(lb => lb.Character == player.Name) && currentLB.FirstOrDefault(lb => lb.Character == player.Name).Value >= newValue)
+                        continue;
+
                     SWTORClass playerClass;
                     if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(player))
                     {
@@ -333,9 +339,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         Boss = combat.EncounterBossInfo,
                         Character = player.Name,
                         Class = playerClass == null ? "Unknown" : playerClass.Name + "/" + playerClass.Discipline,
-                        Value = GetValueForLeaderboardEntry(enumVal, combat, player),
+                        Value = newValue,
                         Type = enumVal,
-                        Duration = (int)combat.DurationSeconds,
+                        Duration = combat.DurationSeconds,
                         Version = _leaderboardVersion,
                         VerifiedKill = combat.WasBossKilled,
                         TimeStamp = combat.EndTime,

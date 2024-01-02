@@ -68,6 +68,8 @@ namespace SWTORCombatParser.Utilities
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
             var rawBossNamesForFight = encounterSelected.BossNames.FirstOrDefault(bn =>
                 bn.Contains("~?~") ? bn.Split("~?~")[0] == bossFight : bn == bossFight);
+            if(rawBossNamesForFight
+                == null) return new List<string>();
             if (rawBossNamesForFight.Contains("~?~"))
             {
                 return rawBossNamesForFight.Split("~?~")[1].Split("|").ToList();

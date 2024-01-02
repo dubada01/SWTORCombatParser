@@ -136,7 +136,9 @@ namespace SWTORCombatParser.Model.Timers
         public static void RemoveTimerForCharacter(Timer timer, string character)
         {
             var currentDefaults = GetAllDefaults();
-            var valueToRemove = currentDefaults.SelectMany(s => s.Timers).First(t => TimerEquality.Equals(timer, t));
+            var valueToRemove = currentDefaults.SelectMany(s => s.Timers).FirstOrDefault(t => TimerEquality.Equals(timer, t));
+            if (valueToRemove == null)
+                return;
             foreach (var source in currentDefaults)
             {
                 source.Timers.Remove(valueToRemove);

@@ -6,7 +6,11 @@
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>True</UseWindowsForms>
+<<<<<<< Updated upstream
     <ApplicationIcon>SWTORParsingIcon.ico</ApplicationIcon>
+=======
+    <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
+>>>>>>> Stashed changes
     <AssemblyName>Orbs</AssemblyName>
     <SignAssembly>false</SignAssembly>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -182,6 +186,7 @@
     <None Remove="resources\MinusIcon.png" />
     <None Remove="resources\mutedIcon.png" />
     <None Remove="resources\openParselyIcon.png" />
+    <None Remove="resources\OrbsIcon.ico" />
     <None Remove="resources\PlusIcon.png" />
     <None Remove="resources\question-mark.png" />
     <None Remove="resources\redX.png" />
@@ -573,6 +578,12 @@
     <Content Include="LoggingConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+<<<<<<< Updated upstream
+=======
+    <Content Include="OrbsIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+>>>>>>> Stashed changes
     <Content Include="resources\alert-icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -745,6 +756,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\openParselyIcon.png">
+<<<<<<< Updated upstream
+=======
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\OrbsIcon.ico">
+>>>>>>> Stashed changes
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\PlusIcon.png">
