@@ -431,7 +431,13 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             if (_allEncounters.Any())
             {
                 _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle();
+                var combatSelected = _allEncounters.Last().EncounterCombats.First().Combat;
                 CombatIdentifier.CurrentCombat = _allEncounters.Last().EncounterCombats.First().Combat;
+                //if (combatSelected.IsCombatWithBoss)
+                //{
+                //    Leaderboards.StartGetPlayerLeaderboardStandings(combatSelected);
+                //    Leaderboards.StartGetTopLeaderboardEntries(combatSelected);
+                //}
             }
         }
         private bool TryAddEncounter(DateTime time)

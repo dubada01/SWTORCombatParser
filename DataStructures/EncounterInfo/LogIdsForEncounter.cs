@@ -955,12 +955,19 @@ public static class LogIdFactory
                                 { "Veteran 4", new List<long>() { 425970561449984} },
                                 { "Master 4", new List<long>() { 2509772729352192} }
                             }
-                        },
+                        }
+                        ,
                         {
                             "GXR-5 Sabotage Droid", new Dictionary<string, List<long>>()
                             {
                                 { "Veteran 4", new List<long>() { 430896888938496} },
                                 { "Master 4", new List<long>() { 2509699714908160} }
+                            }
+                        },
+                        {
+                            "GXR-7 Command Droid", new Dictionary<string, List<long>>()
+                            {
+                                { "All", new List<long>() { 2509755549483008 } }
                             }
                         },
                         {
@@ -1018,6 +1025,60 @@ public static class LogIdFactory
                         }
                     };
                     break;
+                case "Directive 7":
+                    encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Detector", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 1626340906237952 } },
+                                { "Master 4", new List<long>() { 2512014702280704 } }
+                            }
+                        },
+                        {
+                            "Mentor Assasin Droids", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 746748783886336 , 746753078853632 , 746757373820928 } },
+                                { "Master 4", new List<long>() { 2511958867705856 , 2511954572738560 , 2511963162673152 } }
+                            }
+                        },
+                        {
+                            "Interrogator", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 1627981583745024 } },
+                                { "Master 4", new List<long>() { 2512053356986368 } }
+                            }
+                        },
+                        {
+                            "Bulwark", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 751348693860352 } },
+                                { "Master 4", new List<long>() { 2511984637509632 } }
+                            }
+                        },
+                        {
+                            "Assembler", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 1628604354002944 } },
+                                { "Master 4", new List<long>() { 2511976047575040 } }
+                            }
+                        },
+                        {
+                            "Replicator", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 1629334498443264 } },
+                                { "Master 4", new List<long>() { 2512109191561216 } }
+                            }
+                        },
+                        {
+                            "Mentor", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 743540443316224 } },
+                                { "Master 4", new List<long>() { 2512100601626624 } }
+                            }
+                        }
+                    };
+                    break;
                 case "Boarding Party":
                     encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
                     {
@@ -1051,6 +1112,46 @@ public static class LogIdFactory
                         }
                     };
                     break;
+                case "The Foundry":
+                    encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Foundry Guardian", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 747710856560640 } },
+                                { "Master 4", new List<long>() { 2514742006513664 } }
+                            }
+                        },
+                        {
+                            "N4-10 Exterminator", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 1169322026205184 } },
+                                { "Master 4", new List<long>() { 2514729121611776 } }
+                            }
+                        },
+                        {
+                            "Burrower Matriarch", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 1148233736781824 } },
+                                { "Master 4", new List<long>() { 2514724826644480 } }
+                            }
+                        },
+                        {
+                            "HK-47", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 739833886539776 } },
+                                { "Master 4", new List<long>() { 2514754891415552 } }
+                            }
+                        },
+                        {
+                            "Revan", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 739846771441664 } },
+                                { "Master 4", new List<long>() { 2514780661219328 } }
+                            }
+                        }
+                    };
+                    break;
                 case "Hammer Station":
                     encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
                     {
@@ -1059,6 +1160,12 @@ public static class LogIdFactory
                             {
                                 { "Veteran 4", new List<long>() { 2276525940408320} },
                                 { "Master 4", new List<long>() { 3152170987814912} }
+                            }
+                        },
+                        {
+                            "Asteroid Beast", new Dictionary<string, List<long>>()
+                            {
+                                { "All", new List<long>() { 3251019660132352 } }
                             }
                         },
                         {
@@ -1471,6 +1578,22 @@ public static class LogIdFactory
                         }
                         ,
                         {
+                            "Republic Commander", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 3493169916280832 } },
+                                { "Master 4", new List<long>() { 3485688083251200 } }
+                            }
+                        }
+                        ,
+                        {
+                            "Imperial Commander", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 3493174211248128 } },
+                                { "Master 4", new List<long>() { 3485696673185792 } }
+                            }
+                        }
+                        ,
+                        {
                             "Lieutenant Kreshin", new Dictionary<string, List<long>>()
                             {
                                 { "Veteran 4", new List<long>() { 3328904597078016} },
@@ -1513,6 +1636,22 @@ public static class LogIdFactory
                                 {"Master 4",new List<long>(){3468899056091136}}
                             }
                         },
+                        {
+                            "Republic Commander", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 3493182801182720 } },
+                                { "Master 4", new List<long>() { 3484803319988224 } }
+                            }
+                        }
+                        ,
+                        {
+                            "Imperial Commander", new Dictionary<string, List<long>>()
+                            {
+                                { "Veteran 4", new List<long>() { 3493187096150016 } },
+                                { "Master 4", new List<long>() { 3484816204890112 } }
+                            }
+                        }
+                        ,
                         {
                             "R-9XR", new Dictionary<string, List<long>>()
                             {

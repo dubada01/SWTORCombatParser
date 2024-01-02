@@ -7,6 +7,7 @@
     "BossNames": [
       "Sergeant Boran",
       "GXR-5 Sabotage Droid",
+      "GXR-7 Command Droid",
       "Commander Ghulil",
       "Yadira Ban"
     ]
@@ -40,6 +41,7 @@
     "Name": "Hammer Station",
     "BossNames": [
       "DN-314 Tunneler",
+      "Asteroid Beast",
       "Vorgan the Volcano~?~2R-CH, \"Torch\"|Sawbones Gjonfs|Vorgan the Volcano",
       "Battlelord Kreshan"
     ]
@@ -86,6 +88,18 @@
       "Lord Kherus",
       "SV-3 Eradicator",
       "Darth Ikoral"
+    ]
+  },
+  {
+    "LogName": "The Foundry",
+    "LogId": "833571547775681",
+    "Name": "The Foundry",
+    "BossNames": [
+      "Foundry Guardian",
+      "HK-47",
+      "N4-10 Exterminator",
+      "Burrorwer Matriarch",
+      "Revan"
     ]
   },
   {
@@ -186,6 +200,8 @@
       "Major Imos",
       "Major Travik",
       "Master Liam Dentiri",
+      "Republic Commander",
+      "Imperial Commander",
       "Lieutenant Kreshin",
       "Master Oric Traless",
       "Lord Goh"
@@ -198,6 +214,8 @@
     "BossNames": [
       "Master Riilna",
       "Lord Renning",
+      "Republic Commander",
+      "Imperial Commander",
       "R-9XR",
       "I5-T1",
       "Commander Jensyn",
