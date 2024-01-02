@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:SWTORCombatParser"
          xmlns:ui="http://schemas.modernwpf.com/2019"
         mc:Ignorable="d"
-        Title="{Binding Title}" Icon="../resources/SWTORParsingIcon.ico" Height="1080" Width="1920" Closing="Window_Closing" MouseLeave="Window_MouseLeave_1" ResizeMode="CanResizeWithGrip"
+        Title="{Binding Title}"  Height="1080" Width="1920" Closing="Window_Closing" MouseLeave="Window_MouseLeave_1" ResizeMode="CanResizeWithGrip"
                   >
     <Grid Background="{StaticResource Gray2Brush}">
         <Grid.ColumnDefinitions>
