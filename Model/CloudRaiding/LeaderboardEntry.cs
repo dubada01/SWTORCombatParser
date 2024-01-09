@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -28,5 +29,15 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public string Version { get; set; }
         public bool VerifiedKill { get; set; }
         public string Logs { get; set; }
+    }
+    public class GameEncounter
+    {
+        public DateTime EncounterTimestamp { get; set; }
+        public string BossName { get; set; }
+        public string Difficulty { get; set; }
+        public string EncounterName { get; set; }
+        public int NumberOfPlayers { get; set; }
+        public List<string> PlayerClasses { get; set; }
+        public int TimeToKill { get; set; }
     }
 }

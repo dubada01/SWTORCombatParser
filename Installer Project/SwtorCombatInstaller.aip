@@ -7,12 +7,12 @@
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="ALLUSERS" Value="1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
-    <ROW Property="ARPPRODUCTICON" Value="SWTORParsingIcon.exe" Type="8"/>
+    <ROW Property="ARPPRODUCTICON" Value="OrbsIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{83604209-19E0-4BF9-861F-BA231F141785} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{25B4A729-318E-43B9-8329-8EC3309184C2} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Parser)"/>
-    <ROW Property="ProductVersion" Value="1.8.7" Options="32"/>
+    <ROW Property="ProductVersion" Value="1.8.8" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{80800124-4453-4786-91FB-F71AA5158404}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -957,7 +957,6 @@
     <ROW File="ZoneSalvo.mp3_1" Component_="Abduct.mp3_1" FileName="ZONESA~1.MP3|ZoneSalvo.mp3" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\sounds\ZoneSalvo.mp3" SelfReg="false"/>
     <ROW File="SwtorLogo.png" Component_="alerticon.png" FileName="SWTORL~1.PNG|SwtorLogo.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\SwtorLogo.png" SelfReg="false"/>
     <ROW File="SwtorLogo_opaque.png" Component_="alerticon.png" FileName="SWTORL~2.PNG|SwtorLogo_opaque.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\SwtorLogo_opaque.png" SelfReg="false"/>
-    <ROW File="SWTORParsingIcon.ico" Component_="alerticon.png" FileName="SWTORP~1.ICO|SWTORParsingIcon.ico" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\SWTORParsingIcon.ico" SelfReg="false"/>
     <ROW File="tankIcon.png" Component_="alerticon.png" FileName="tankIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\tankIcon.png" SelfReg="false"/>
     <ROW File="unlockedIcon.png" Component_="alerticon.png" FileName="UNLOCK~1.PNG|unlockedIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\unlockedIcon.png" SelfReg="false"/>
     <ROW File="uploadToParselyIcon.png" Component_="alerticon.png" FileName="UPLOAD~1.PNG|uploadToParselyIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\uploadToParselyIcon.png" SelfReg="false"/>
@@ -1094,7 +1093,7 @@
     <ROW Feature_="MainFeature" Component_="mp3_7"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
-    <ROW Name="SWTORParsingIcon.exe" SourcePath="..\SWTORParsingIcon.ico" Index="0"/>
+    <ROW Name="OrbsIcon.exe" SourcePath="..\OrbsIcon.ico" Index="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
@@ -1125,9 +1124,9 @@
     <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
-    <ROW Shortcut="Orbs" Directory_="SHORTCUTDIR" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
-    <ROW Shortcut="Orbs_1" Directory_="StartMenuFolder" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
-    <ROW Shortcut="Orbs_2" Directory_="DesktopFolder" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="SWTORParsingIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="Orbs" Directory_="SHORTCUTDIR" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="OrbsIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="Orbs_1" Directory_="StartMenuFolder" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="OrbsIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="Orbs_2" Directory_="DesktopFolder" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="OrbsIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>

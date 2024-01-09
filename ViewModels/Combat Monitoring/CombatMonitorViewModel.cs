@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
@@ -13,12 +14,14 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using static System.Windows.Forms.AxHost;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -398,6 +401,10 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 if (combatInfo.IsCombatWithBoss)
                 {
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
+                }
+                if (combatInfo.WasBossKilled)
+                {
+                    Stats.RecordCombatState(combatInfo);
                 }
             }
 

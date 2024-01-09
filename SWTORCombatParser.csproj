@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.8.7</VersionPrefix>
+    <VersionPrefix>1.8.8</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -108,18 +108,47 @@
     <None Remove="DataStructures\HOT Timers\timers.json" />
     <None Remove="DataStructures\Phases\phase_info.json" />
     <None Remove="DataStructures\RoomOverlay\IPCPT.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\A Traitor Among The Chiss\A Traitor Among The Chiss.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Assault on Tython\Assault on Tython.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Athiss\Athiss.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Battle of Rishi\Battle of Rishi.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Blood Hunt\Blood Hunt.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Boarding Party\Boarding Party.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Cademimu\Cademimu.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Crisis on Umbara\Crisis on Umbara.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Czerka Core Meltdown\Czerka Core Meltdown.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Czerka Corporate Labs\Czerka Corporate Labs.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Depths of Manaan\Depths of Manaan.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Directive 7\Directive 7.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Dxun\Dxun.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Eternity Vault\Eternity Vault.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Explosive Conflict\Explosive Conflict.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Hammer Station\Hammer Station.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Kaon Under Siege\Kaon Under Siege.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Karagga%27s Palace\Karagga%27s Palace.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Korriban Incursion\Korriban Incursion.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Legacy of the Rakata\Legacy of the Rakata.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Lost Island\Lost Island.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Mandalorian Raiders\Mandalorian Raiders.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Objective Meridian\Objective Meridian.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\R4\R4.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Ruins of Nul\Ruins of Nul.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Scum and Villainy\Scum and Villainy.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Secrets of the Enclave\Secrets of the Enclave.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Shrine of Silence\Shrine of Silence.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Spirit of Vengeance\Spirit of Vengeance.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Temple of Sacrifice\Temple of Sacrifice.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Terror From Beyond\Terror From Beyond.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Battle of Ilum\The Battle of Ilum.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Black Talon\The Black Talon.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\The Dread Fortress\The Dread Fortress.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\The Dread Palace\The Dread Palace.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The False Emperor\The False Emperor.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Foundry\The Foundry.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\The Gods from the Machine\The Gods from the Machine.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Nathema Conspiracy\The Nathema Conspiracy.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json" />
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\The Red Reaper\The Red Reaper.json" />
     <None Remove="DataStructures\Timers\Boss Timers\Raids\Toborro%27s Palace\Toborro%27s Palace.json" />
     <None Remove="DataStructures\Timers\Defensive Timers\timers.json" />
     <None Remove="DataStructures\Timers\Offensive Timers\timers.json" />
@@ -554,6 +583,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\RoomOverlay\IPCPT.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\A Traitor Among The Chiss\A Traitor Among The Chiss.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\Timers\Boss Timers\Raids\Temple of Sacrifice\Temple of Sacrifice.json">
@@ -3296,6 +3328,87 @@
     </Content>
     <None Remove="resources\Class Icons\vanguard.png" />
     <Page Remove="Views\Battle Review\MapView.xaml" />
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Athiss\Athiss.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Battle of Rishi\Battle of Rishi.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Blood Hunt\Blood Hunt.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Boarding Party\Boarding Party.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Cademimu\Cademimu.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Crisis on Umbara\Crisis on Umbara.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Czerka Core Meltdown\Czerka Core Meltdown.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Czerka Corporate Labs\Czerka Corporate Labs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Depths of Manaan\Depths of Manaan.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Directive 7\Directive 7.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Hammer Station\Hammer Station.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Kaon Under Siege\Kaon Under Siege.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Korriban Incursion\Korriban Incursion.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Legacy of the Rakata\Legacy of the Rakata.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Lost Island\Lost Island.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Mandalorian Raiders\Mandalorian Raiders.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Objective Meridian\Objective Meridian.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Ruins of Nul\Ruins of Nul.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Secrets of the Enclave\Secrets of the Enclave.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Shrine of Silence\Shrine of Silence.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Spirit of Vengeance\Spirit of Vengeance.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Battle of Ilum\The Battle of Ilum.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Black Talon\The Black Talon.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The False Emperor\The False Emperor.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Foundry\The Foundry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Nathema Conspiracy\The Nathema Conspiracy.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\The Red Reaper\The Red Reaper.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\Class Icons\vanguard.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -3359,6 +3472,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Assault on Tython\Assault on Tython.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
