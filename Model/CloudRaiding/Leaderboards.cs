@@ -63,13 +63,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
             });
         }
 
-        public static void UpdateOverlaysWithNewLeaderboard(Combat combat)
+        public static void UpdateOverlaysWithNewLeaderboard(Combat combat, bool reloadLb)
         {
             if (combat.IsCombatWithBoss)
             {
                 Task.Run(() =>
                 {
-                    Reset();
+                    if(reloadLb)
+                        Reset();
                     StartGetTopLeaderboardEntries(combat);
                     StartGetPlayerLeaderboardStandings(combat);
                 });
@@ -355,9 +356,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     }
                 }
             }
-            bool updatedAny = await API_Connection.TryAddLeaderboardEntries(boardEntries);
-            if (updatedAny)
-                UpdateOverlaysWithNewLeaderboard(combat);
+            bool updatedAny = boardEntries.Count == 0 ? false : await API_Connection.TryAddLeaderboardEntries(boardEntries);
+            UpdateOverlaysWithNewLeaderboard(combat, updatedAny);
         }
         private static bool CheckForValidCombatUpload(Combat combat, Entity player)
         {

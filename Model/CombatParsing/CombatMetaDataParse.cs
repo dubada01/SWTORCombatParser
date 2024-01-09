@@ -12,8 +12,8 @@ namespace SWTORCombatParser.Model.CombatParsing
     {
         private static readonly HashSet<string> _interruptAbilityIds = new HashSet<string> { "963120646324224", "987747988799488", "875086701658112", "997020823191552", "3433285187272704", "812105301229568", "807750204391424", "2204391964672000", "3029313448312832", "3029339218116608", "875060931854336", "2204499338854400" };
         private static HashSet<string> stunAbilityIds = new HashSet<string> { "814214130171904", "814802540691456", "3908961405239296", "1962284658196480", "808244125630464", "807754499358720", "958439131971584", "807178973741056", "1679250608357376", "1261925816074240" };
-
-        private static readonly HashSet<string> _cleanseAbilityIds = new HashSet<string> { "985007799664640", "3413249164836864", "992541172301824", "981455861710848", "3412806783205376", "952181364621312", "992541172302291" };
+        
+        private static readonly HashSet<string> _cleanseAbilityIds = new HashSet<string> { "985007799664640", "3413249164836864", "992541172301824", "981455861710848", "3412806783205376", "952181364621312", "992541172302291", "985007799664916" };
         private static HashSet<string> abilityIdsThatCanInterrupt => new HashSet<string>(_interruptAbilityIds.Concat(stunAbilityIds));
         public static void PopulateMetaData(Combat combatToPopulate)
         {

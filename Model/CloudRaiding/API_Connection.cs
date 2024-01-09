@@ -53,6 +53,26 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return false;
             }
         }
+        public static async Task<bool> TryAddBossEncounter(GameEncounter gameEncounter)
+        {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return false;
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
+                    Uri uri = new Uri($"{_apiPath}/stats/encounter/add");
+                    var response = await connection.PostAsJsonAsync(uri, gameEncounter);
+                    var body = await response.Content.ReadFromJsonAsync<bool>();
+                    return body;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return false;
+            }
+        }
         public static async Task<List<string>> GetEncountersWithEntries()
         {
             List<string> entriesFound = new List<string>();
