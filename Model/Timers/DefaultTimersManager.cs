@@ -239,7 +239,7 @@ namespace SWTORCombatParser.Model.Timers
             }
             catch (JsonSerializationException)
             {
-                File.WriteAllText(infoPath, "");
+                //File.WriteAllText(infoPath, "");
                 return new List<DefaultTimersData>();
             }
         }
