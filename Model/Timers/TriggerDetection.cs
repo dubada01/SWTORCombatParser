@@ -5,6 +5,7 @@ using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Media.Effects;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
@@ -83,29 +84,47 @@ namespace SWTORCombatParser.Model.Timers
                 case TimerKeyType.IsTimerTriggered:
                     return activeTimers.Any(t => t.SourceTimer.Id == SourceTimer.SeletedTimerIsActiveId) ? TriggerType.Start : TriggerType.End;
                 case TimerKeyType.EffectCharges:
-                    return CheckForCharges(log, SourceTimer, timeStamp, currentTarget);
+                    return CheckForCharges(log, SourceTimer, SourceTimer.ChargesSetVariable, SourceTimer.ChargesSetVariableName, currentTarget);
             }
             return TriggerType.None;
         }
 
-        private static TriggerType CheckForCharges(ParsedLogEntry log, Timer sourceTimer, DateTime timeStamp, Entity currentTarget)
+        private static TriggerType CheckForCharges(ParsedLogEntry log, Timer sourceTimer, bool setVariable, string varaibleToSet, Entity currentTarget)
         {
             if (EntityIsValid(log.Target, sourceTimer.Target, currentTarget) && EntityIsValid(log.Source, sourceTimer.Source, currentTarget))
             {
-                if (log.Effect.EffectType == EffectType.ModifyCharges)
-                {
-                    switch (sourceTimer.ComparisonAction)
-                    {
-                        case VariableComparisons.Equals:
-                            return log.Value.DblValue == sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
-                        case VariableComparisons.Less:
-                            return log.Value.DblValue < sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
-                        case VariableComparisons.Greater:
-                            return log.Value.DblValue > sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
-                        case VariableComparisons.Between:
-                            return log.Value.DblValue > sourceTimer.ComparisonValMin && log.Value.DblValue < sourceTimer.ComparisonValMax ? TriggerType.Start : TriggerType.None;
-                    }
+                if (!DoesEffectMatchOrContain(log, sourceTimer.Effect))
                     return TriggerType.None;
+                if (log.Effect.EffectType == EffectType.ModifyCharges || ((log.Effect.EffectType == EffectType.Apply || log.Effect.EffectType == EffectType.Remove) && log.Effect.EffectId != _7_0LogParsing._healEffectId && log.Effect.EffectId != _7_0LogParsing._damageEffectId))
+                {
+                    if (!setVariable)
+                    {
+                        switch (sourceTimer.ComparisonAction)
+                        {
+                            case VariableComparisons.Equals:
+                                return log.Value.DblValue == sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
+                            case VariableComparisons.Less:
+                                return log.Value.DblValue < sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
+                            case VariableComparisons.Greater:
+                                return log.Value.DblValue > sourceTimer.ComparisonVal ? TriggerType.Start : TriggerType.None;
+                            case VariableComparisons.Between:
+                                return log.Value.DblValue > sourceTimer.ComparisonValMin && log.Value.DblValue < sourceTimer.ComparisonValMax ? TriggerType.Start : TriggerType.None;
+                        }
+                        return TriggerType.None;
+
+                    }
+                    else
+                    {
+                        if(log.Effect.EffectType == EffectType.Remove)
+                        {
+                            VariableManager.SetVariable(varaibleToSet, 0);
+                        }
+                        else
+                        {
+                            VariableManager.SetVariable(varaibleToSet, (int)log.Value.DblValue);
+                        }
+                        
+                    }
                 }
             }
             return TriggerType.None;

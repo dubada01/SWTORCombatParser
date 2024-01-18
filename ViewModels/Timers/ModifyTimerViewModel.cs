@@ -327,7 +327,26 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-
+        public bool ShowStackVariableOptions
+        {
+            get => _showStackVariableOptions;
+            set
+            {
+                _showStackVariableOptions = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool SetVariableWithCharge
+        {
+            get => _setVariableWithCharge; set
+            {
+                _setVariableWithCharge = value;
+                OnPropertyChanged();
+                OnPropertyChanged("IsModifyingVariables");
+                OnPropertyChanged("IncludeTimerVisuals");
+            }
+        }
+        public string ChargeVariable { get; set; }
         public string SourceText { get; set; }
         public ObservableCollection<string> AvailableTargets { get; set; } = new ObservableCollection<string>();
         public string SelectedTarget
@@ -421,7 +440,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public bool IsModifyingVariables
         {
-            get => isModifyingVariables; set
+            get => isModifyingVariables && !SetVariableWithCharge; set
             {
                 isModifyingVariables = value;
                 IncludeTimerVisuals = !IsModifyingVariables;
@@ -585,7 +604,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public bool IncludeTimerVisuals
         {
-            get => includeTimerVisuals; set
+            get => includeTimerVisuals && !SetVariableWithCharge; set
             {
                 includeTimerVisuals = value;
                 OnPropertyChanged();
@@ -766,6 +785,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             ResetOnEffectLoss = false;
             IsCheckingVariable = false;
             ShowValueComparisons = false;
+            ShowStackVariableOptions = false;
             if (!IsSubTrigger)
             {
                 ShowColor = true;
@@ -797,6 +817,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private int editRev = 0;
         private bool showValueComparisons;
+        private bool _showStackVariableOptions;
+        private bool _setVariableWithCharge;
 
         public void Edit(Timer timerToEdit)
         {
@@ -858,6 +880,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             VariableModificationValue = timerToEdit.VariableModificationValue;
             SelectedAction = timerToEdit.ModifyVariableAction;
             IsModifyingVariables = timerToEdit.ShouldModifyVariable;
+            ChargeVariable = timerToEdit.ChargesSetVariableName;
+            SetVariableWithCharge = timerToEdit.ChargesSetVariable;
             if (timerToEdit.TimerRev > 0)
                 editRev = timerToEdit.TimerRev;
             if (IsModifyingVariables)
@@ -1021,6 +1045,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                 IsHot = IsHot,
                 IsBuiltInDefensive = _isBuiltInDCD,
                 IsBuiltInOffensive = _isBuiltInOCD,
+                ChargesSetVariable = SetVariableWithCharge,
+                ChargesSetVariableName = ChargeVariable
             };
 
             OnNewTimer(newTimer, isEditing);
@@ -1548,6 +1574,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                         CanChangeCombatTracking = true;
                         ShowEffectOption = true;
                         ShowValueComparisons = true;
+                        ShowStackVariableOptions = true;
                         OnPropertyChanged("ShowDuration");
                         OnPropertyChanged("HasSource");
                         OnPropertyChanged("SourceText");

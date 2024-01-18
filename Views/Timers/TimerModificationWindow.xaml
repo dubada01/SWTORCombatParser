@@ -130,23 +130,46 @@
                         </StackPanel>
                     </Grid>
                 </Viewbox>
-                <Viewbox Grid.Row="4" Margin="0,0,10,0" Visibility="{Binding ShowValueComparisons, Converter={StaticResource BooleanToVisibiityConverter}}">
-                    <Grid >
+                <Viewbox Grid.Row="4"  Margin="0,0,10,0" Visibility="{Binding ShowValueComparisons, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" >
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <StackPanel Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="16" Text="Comparison:" FontFamily="{StaticResource MainFont}"></TextBlock>
-                            <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableComparisons}" SelectedItem="{Binding SelectedComparison}"></ComboBox>
-                        </StackPanel>
-                        <TextBox Margin="0,5,0,0" Grid.Row="1" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding IsCheckingSingleValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontWeight="Normal" Width="50"  Style="{StaticResource RoundedTextBox}" Text="{Binding VariableComparisonVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                        <StackPanel Margin="0,5,0,0" Visibility="{Binding IsCheckingSingleValue, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
-                            <TextBox Margin="0,0,3,0" FontWeight="Normal" Width="50" Style="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" Text="{Binding VariableMinVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                            <TextBox Margin="3,0,0,0" FontWeight="Normal" Width="50" Style="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" Text="{Binding VariableMaxVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                        </StackPanel>
+
                     </Grid>
                 </Viewbox>
+
+                <Grid Grid.Row="4" Margin="0,0,10,0" Visibility="{Binding ShowStackVariableOptions, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Vertical">
+                        <RadioButton Content="Set Variable" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" IsChecked="{Binding SetVariableWithCharge}" GroupName="Options"/>
+                        <RadioButton Content="Trigger on Compare" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" IsChecked="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToInverseConverter}}" GroupName="Options"/>
+                    </StackPanel>
+                    <ComboBox Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}}"  Grid.Row="1" Height="40" Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableVariables}" SelectedItem="{Binding ChargeVariable}"></ComboBox>
+                    <StackPanel Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="2" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <Button Margin="0,0,15,0" Width="60" HorizontalAlignment="Right" Style="{StaticResource RoundCornerButton}" VerticalAlignment="Center" FontSize="16" Content="Add" FontFamily="{StaticResource MainFont}" Command="{Binding AddCustomVariableCommand}"></Button>
+                        <TextBox Width="150" Style="{StaticResource RoundedTextBox}" FontSize="15" FontFamily="{StaticResource MainFont}" Text="{Binding AddedVariable}"></TextBox>
+                    </StackPanel>
+                    <StackPanel Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Grid.Row="1" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="16" Text="Comparison:" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableComparisons}" SelectedItem="{Binding SelectedComparison}"></ComboBox>
+                    </StackPanel>
+                    <Grid Grid.Row="2" Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}">
+                        <TextBox Margin="0,5,0,0" Grid.Row="2" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding IsCheckingSingleValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontWeight="Normal" Width="50" Height="40"  Style="{StaticResource RoundedTextBox}" Text="{Binding VariableComparisonVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        <StackPanel Margin="0,5,0,0" Visibility="{Binding IsCheckingSingleValue, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
+                            <TextBox Margin="0,0,3,0" FontWeight="Normal" Width="50" Height="40" Style="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" Text="{Binding VariableMinVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                            <TextBox Margin="3,0,0,0" FontWeight="Normal" Width="50" Height="40" Style="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" Text="{Binding VariableMaxVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+
+                </Grid>
+
                 <Viewbox Visibility="{Binding ShowAbsorbOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="3" Margin="0,0,10,0">
                     <Grid >
                         <Grid.RowDefinitions>
@@ -279,7 +302,7 @@
                     </StackPanel>
                 </Viewbox>
 
-                <TabControl x:Name="EffectsTabControl" Grid.Row="4" Grid.RowSpan="3" Background="Transparent" BorderThickness="0" Padding="0">
+                <TabControl Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" x:Name="EffectsTabControl" Grid.Row="4" Grid.RowSpan="3" Background="Transparent" BorderThickness="0" Padding="0">
                     <TabItem Style="{StaticResource RoundedTab}" IsEnabled="{Binding IncludeTimerVisuals}">
                         <TabItem.Header>
                             <TextBlock Text="Visuals" Foreground="WhiteSmoke"></TextBlock>
@@ -416,7 +439,7 @@
                 <TextBlock Foreground="WhiteSmoke" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="18" Text="Track outside of combat" TextWrapping="Wrap" Width="120" FontFamily="{StaticResource MainFont}"></TextBlock>
                 <CheckBox VerticalAlignment="Center" IsChecked="{Binding TrackOutsideOfCombat}"></CheckBox>
             </StackPanel>
-            <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
+            <StackPanel Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
                 <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,7" VerticalAlignment="Center" FontSize="15" Text="Modify Variables" TextWrapping="Wrap" Width="120" FontFamily="{StaticResource MainFont}"></TextBlock>
                 <CheckBox x:Name="VariableCheck" Margin="0,0,10,10" VerticalAlignment="Center" IsChecked="{Binding IsModifyingVariables}"></CheckBox>
             </StackPanel>

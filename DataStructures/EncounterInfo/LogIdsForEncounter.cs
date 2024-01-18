@@ -944,6 +944,16 @@ public static class LogIdFactory
                             }
                         }
                     };
+                    encounter.RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Lady Dominique", new Dictionary<string, List<long>>()
+                            {
+                                {"Story 8", new List<long>() { 4466199052156928L}},
+                                {"Veteran 8",new List<long>() { 4608014577303552L}}
+                            }
+                        }
+                    };
                     break;
                 //////////FLASHPOINTS///////////
                 case "The Black Talon":
