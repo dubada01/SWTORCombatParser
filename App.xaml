@@ -52,6 +52,7 @@
             <converters:BooleanToMetricOptionBackgroundConverter x:Key="BooleanToMetricOptionBackgroundConverter"/>
             <converters:HideToHeightConverter x:Key="HideToHeightConverter"/>
             <converters:BooleanToEncounterColorConverter x:Key="BooleanToEncounterColorConverter"/>
+            <converters:BooleanToInverseBooleanConverter x:Key="BooleanToInverseConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

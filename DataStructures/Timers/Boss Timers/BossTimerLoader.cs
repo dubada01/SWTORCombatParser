@@ -27,7 +27,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
             var currentBossTimers = DefaultTimersManager.GetAllDefaults();
             currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
 
-
+            var sourcesToAdd = new List<DefaultTimersData>();
             foreach (var source in bossTimerData)
             {
                 if (source.Timers.Count == 0)
@@ -43,8 +43,9 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
                     }
                     timer.IsMechanic = true;
                 }
-                DefaultTimersManager.AddSource(source);
+                sourcesToAdd.Add(source);
             }
+            DefaultTimersManager.AddSources(sourcesToAdd);
         }
     }
 }

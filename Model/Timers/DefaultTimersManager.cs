@@ -105,7 +105,29 @@ namespace SWTORCombatParser.Model.Timers
                 defaults.Add(source);
             UpdateConfig(JsonConvert.SerializeObject(defaults));
         }
+        public static void AddSources(List<DefaultTimersData> sources)
+        {
+            var defaults = GetAllDefaults();
+            foreach(var source in sources)
+            {
+                if (source.TimerSource == "")
+                    return;
 
+                if (defaults.Any(t => t.TimerSource == source.TimerSource))
+                {
+                    var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
+                    foreach (var timer in source.Timers)
+                    {
+                        if (sourceToUpdate.Timers.Any(t => t.Id == timer.Id) || timer.Id == "")
+                            continue;
+                        sourceToUpdate.Timers.Add(timer);
+                    }
+                }
+                else
+                    defaults.Add(source);
+            }
+            UpdateConfig(JsonConvert.SerializeObject(defaults));
+        }
         public static void ClearBuiltinMechanics(int currentrev)
         {
             var allTimers = GetAllDefaults();

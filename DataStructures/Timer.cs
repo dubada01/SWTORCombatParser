@@ -135,6 +135,8 @@ namespace SWTORCombatParser.DataStructures
         public bool ShouldModifyVariable { get; set; }
         public bool UseVisualsAndModify { get; set; }
         public bool IsCooldownTimer { get; set; }
+        public bool ChargesSetVariable { get; set; }
+        public string ChargesSetVariableName { get; set; }
         public Timer Copy()
         {
             return new Timer()
@@ -201,6 +203,8 @@ namespace SWTORCombatParser.DataStructures
                 UseVisualsAndModify = UseVisualsAndModify,
                 TimerRev = TimerRev,
                 IsCooldownTimer = IsCooldownTimer,
+                ChargesSetVariable = ChargesSetVariable,
+                ChargesSetVariableName = ChargesSetVariableName,
                 SeletedTimerIsActiveId = TriggerType == TimerKeyType.IsTimerTriggered ? SeletedTimerIsActiveId : null,
             };
 
