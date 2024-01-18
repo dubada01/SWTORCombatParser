@@ -75,14 +75,14 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="APPDIR" ComponentId="{3C060C90-3A9C-4F59-A5D5-A7B702AC1C52}" Directory_="APPDIR" Attributes="0"/>
-    <ROW Component="Abduct.mp3" ComponentId="{E097D1C8-15A9-468B-A33D-D3E939C9B3F8}" Directory_="TimerAudio_Dir" Attributes="0" KeyPath="Abduct.mp3" Type="0"/>
-    <ROW Component="Abduct.mp3_1" ComponentId="{6A27D677-7990-4F9B-A4BE-582CF6B77076}" Directory_="sounds_Dir" Attributes="0" KeyPath="Abduct.mp3_1" Type="0"/>
+    <ROW Component="Abduct.mp3" ComponentId="{281817CA-BE37-43E3-99FF-6D65C46EFAC4}" Directory_="TimerAudio_Dir" Attributes="0" KeyPath="Abduct.mp3" Type="0"/>
+    <ROW Component="Abduct.mp3_1" ComponentId="{1D0AF943-62A3-4DB2-9E1C-F0BCE8F8BD4D}" Directory_="sounds_Dir" Attributes="0" KeyPath="Abduct.mp3_1" Type="0"/>
     <ROW Component="BossMechanicSkimmerConfig.json" ComponentId="{FC7463BA-07DC-4B43-9273-EA1C7CF09E9E}" Directory_="APPDIR" Attributes="0" KeyPath="BossMechanicSkimmerConfig.json" Type="0"/>
     <ROW Component="Classes.json" ComponentId="{534D5E97-6459-4B71-A899-AEFCE155C366}" Directory_="ClassInfos_Dir" Attributes="0" KeyPath="Classes.json" Type="0"/>
     <ROW Component="ColorPicker.dll" ComponentId="{FE2D2055-7138-4200-9964-EB52BAEDD8C8}" Directory_="APPDIR" Attributes="0" KeyPath="ColorPicker.dll"/>
-    <ROW Component="DamageMenaceOpponentLocation.png" ComponentId="{7952F3BF-3581-4124-94AE-AC5DBD6989FC}" Directory_="RoomOverlays_Dir" Attributes="0" KeyPath="DamageMenaceOpponentLocation.png" Type="0"/>
+    <ROW Component="DamageMenaceOpponentLocation.png" ComponentId="{9187DBED-0440-4BC5-B46C-AB5E909616F6}" Directory_="RoomOverlays_Dir" Attributes="0" KeyPath="DamageMenaceOpponentLocation.png" Type="0"/>
     <ROW Component="Dxun.json" ComponentId="{1C841D57-1A2E-4DE7-BB5F-9AF3FBD7DF3A}" Directory_="Dxun_Dir" Attributes="0" KeyPath="Dxun.json" Type="0"/>
-    <ROW Component="Empty.png" ComponentId="{6032316B-7C4F-46B6-9AED-C0F2D6E706D1}" Directory_="IPCPT_Dir" Attributes="0" KeyPath="Empty.png" Type="0"/>
+    <ROW Component="Empty.png" ComponentId="{4B0CE8AA-A0F4-492C-BA66-13356416B12E}" Directory_="IPCPT_Dir" Attributes="0" KeyPath="Empty.png" Type="0"/>
     <ROW Component="EternityVault.json" ComponentId="{E076485E-3F19-401B-B1F1-3C4C12194042}" Directory_="EternityVault_Dir" Attributes="0" KeyPath="EternityVault.json" Type="0"/>
     <ROW Component="ExplosiveConflict.json" ComponentId="{9E42B089-05C7-4696-89C7-C6E5678F534C}" Directory_="ExplosiveConflict_Dir" Attributes="0" KeyPath="ExplosiveConflict.json" Type="0"/>
     <ROW Component="FlashpointInfo.json" ComponentId="{41EC54D5-FC54-4960-8352-57608290AE11}" Directory_="EncounterInfo_Dir" Attributes="0" KeyPath="FlashpointInfo.json" Type="0"/>
@@ -114,19 +114,19 @@
     <ROW Component="TheRavagers.json" ComponentId="{8EA8CE3E-2C81-4BDC-BFF6-6ED473610014}" Directory_="TheRavagers_Dir" Attributes="0" KeyPath="TheRavagers.json" Type="0"/>
     <ROW Component="ToborrosPalace.json" ComponentId="{309E80AF-91E2-4F87-8D74-8372E0D6FFC0}" Directory_="ToborrosPalace_Dir" Attributes="0" KeyPath="ToborrosPalace.json" Type="0"/>
     <ROW Component="WpfAnimatedGif.dll" ComponentId="{96479065-276C-4463-B60D-CA3728C0FB25}" Directory_="APPDIR" Attributes="0" KeyPath="WpfAnimatedGif.dll"/>
-    <ROW Component="ZornToth.png" ComponentId="{BDA71F7C-272C-4245-9618-47BAB0938E50}" Directory_="BossMaps_Dir" Attributes="0" KeyPath="ZornToth.png" Type="0"/>
-    <ROW Component="_Sound.wav" ComponentId="{F7EFB198-B762-41BC-B97E-B747ACA942AE}" Directory_="Audio_Dir" Attributes="0" KeyPath="_Sound.wav" Type="0"/>
+    <ROW Component="ZornToth.png" ComponentId="{927E1994-89E3-4BE6-95CA-52DF76F4837D}" Directory_="BossMaps_Dir" Attributes="0" KeyPath="ZornToth.png" Type="0"/>
+    <ROW Component="_Sound.wav" ComponentId="{156B753F-81EF-4D4A-BCC6-65917A1C6135}" Directory_="Audio_Dir" Attributes="0" KeyPath="_Sound.wav" Type="0"/>
     <ROW Component="absorbs.json" ComponentId="{E8B6A46E-FEA4-47C2-BB77-84F436BEF0E3}" Directory_="AbilityInfo_Dir" Attributes="0" KeyPath="absorbs.json" Type="0"/>
-    <ROW Component="alerticon.png" ComponentId="{18C371B4-2A14-4018-8BBB-6418961D4006}" Directory_="resources_Dir" Attributes="0" KeyPath="alerticon.png" Type="0"/>
-    <ROW Component="assassin.png" ComponentId="{A1666C2C-A15D-493D-9627-F809C221CCD8}" Directory_="ClassIcons_Dir" Attributes="0" KeyPath="assassin.png" Type="0"/>
-    <ROW Component="mp3" ComponentId="{DB508152-D270-48D2-9939-7E03665381D3}" Directory_="Amy_Dir" Attributes="0" KeyPath="mp3" Type="0"/>
-    <ROW Component="mp3_1" ComponentId="{8D54DEE1-B624-45AA-9F6A-6C7CC3E676D8}" Directory_="Jim_Dir" Attributes="0" KeyPath="mp3_10" Type="0"/>
-    <ROW Component="mp3_2" ComponentId="{36DFC8D6-9591-4940-A973-C50ED165999A}" Directory_="Nerevar_Dir" Attributes="0" KeyPath="mp3_20" Type="0"/>
-    <ROW Component="mp3_3" ComponentId="{A24CB8A2-DB2B-4B84-A128-E949EFB6E103}" Directory_="Yolo_Dir" Attributes="0" KeyPath="mp3_30" Type="0"/>
-    <ROW Component="mp3_4" ComponentId="{9443A4F5-F3A9-405C-AB30-FEAA96921B71}" Directory_="Amy_1_Dir" Attributes="0" KeyPath="mp3_40" Type="0"/>
-    <ROW Component="mp3_5" ComponentId="{C5BD57F8-81C6-4D58-86F5-985100FD53E8}" Directory_="Jim_1_Dir" Attributes="0" KeyPath="mp3_50" Type="0"/>
-    <ROW Component="mp3_6" ComponentId="{7C2EFB90-19B5-49BE-8E22-1904929B1F2A}" Directory_="Nerevar_1_Dir" Attributes="0" KeyPath="mp3_60" Type="0"/>
-    <ROW Component="mp3_7" ComponentId="{76C0E0D3-2C3E-41BE-AFB2-A6139FAC8FEE}" Directory_="Yolo_1_Dir" Attributes="0" KeyPath="mp3_70" Type="0"/>
+    <ROW Component="alerticon.png" ComponentId="{C29DAFEA-9498-4377-BD87-A074CA46F71C}" Directory_="resources_Dir" Attributes="0" KeyPath="alerticon.png" Type="0"/>
+    <ROW Component="assassin.png" ComponentId="{C22360F3-D69E-43A2-B93E-E922A1BB278F}" Directory_="ClassIcons_Dir" Attributes="0" KeyPath="assassin.png" Type="0"/>
+    <ROW Component="mp3" ComponentId="{1F3C9896-3274-40E1-9B57-E47B6F8EBD57}" Directory_="Amy_Dir" Attributes="0" KeyPath="mp3" Type="0"/>
+    <ROW Component="mp3_1" ComponentId="{FD54676C-5FA3-42C4-A137-C0B5DD3637D9}" Directory_="Jim_Dir" Attributes="0" KeyPath="mp3_10" Type="0"/>
+    <ROW Component="mp3_2" ComponentId="{ECD760D6-128F-4737-B0CC-FC6047C8AF6A}" Directory_="Nerevar_Dir" Attributes="0" KeyPath="mp3_20" Type="0"/>
+    <ROW Component="mp3_3" ComponentId="{5D1209A6-14C5-40E6-87DF-6FA7C02F4EA9}" Directory_="Yolo_Dir" Attributes="0" KeyPath="mp3_30" Type="0"/>
+    <ROW Component="mp3_4" ComponentId="{A7AB3B0A-145C-43ED-A4A5-FF97DB33C825}" Directory_="Amy_1_Dir" Attributes="0" KeyPath="mp3_40" Type="0"/>
+    <ROW Component="mp3_5" ComponentId="{27B633D1-1DDE-4593-8C84-FAF3B78F67D8}" Directory_="Jim_1_Dir" Attributes="0" KeyPath="mp3_50" Type="0"/>
+    <ROW Component="mp3_6" ComponentId="{63C4ACA4-2180-40F4-9282-13DCD521A25B}" Directory_="Nerevar_1_Dir" Attributes="0" KeyPath="mp3_60" Type="0"/>
+    <ROW Component="mp3_7" ComponentId="{2620885F-34A6-4E75-A9FB-2558E13E9053}" Directory_="Yolo_1_Dir" Attributes="0" KeyPath="mp3_70" Type="0"/>
     <ROW Component="phase_info.json" ComponentId="{E3CFAF08-EBD3-42A7-8C5E-1379AD42DD4F}" Directory_="Phases_Dir" Attributes="0" KeyPath="phase_info.json" Type="0"/>
     <ROW Component="timers.json" ComponentId="{814E5FF2-79DE-4904-9AB7-63CD4CBDE78A}" Directory_="DefensiveTimers_Dir" Attributes="0" KeyPath="timers.json" Type="0"/>
     <ROW Component="timers.json_1" ComponentId="{E00354FE-C636-454B-A999-7CBD8AB5FB1D}" Directory_="DOTTimers_Dir" Attributes="0" KeyPath="timers.json_1" Type="0"/>
@@ -612,6 +612,7 @@
     <ROW File="MinusIcon.png" Component_="alerticon.png" FileName="MINUSI~1.PNG|MinusIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\MinusIcon.png" SelfReg="false"/>
     <ROW File="mutedIcon.png" Component_="alerticon.png" FileName="MUTEDI~1.PNG|mutedIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\mutedIcon.png" SelfReg="false"/>
     <ROW File="openParselyIcon.png" Component_="alerticon.png" FileName="OPENPA~1.PNG|openParselyIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\openParselyIcon.png" SelfReg="false"/>
+    <ROW File="OrbsIcon.ico" Component_="alerticon.png" FileName="OrbsIcon.ico" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\OrbsIcon.ico" SelfReg="false"/>
     <ROW File="PlusIcon.png" Component_="alerticon.png" FileName="PlusIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\PlusIcon.png" SelfReg="false"/>
     <ROW File="questionmark.png" Component_="alerticon.png" FileName="QUESTI~1.PNG|question-mark.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\question-mark.png" SelfReg="false"/>
     <ROW File="redX.png" Component_="alerticon.png" FileName="redX.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\redX.png" SelfReg="false"/>
