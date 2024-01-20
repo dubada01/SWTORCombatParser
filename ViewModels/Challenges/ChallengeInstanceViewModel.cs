@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Challenges
@@ -21,6 +22,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private SolidColorBrush challengeColor;
         private double scale = 1;
         private List<PhaseInstance> _phaseOfInterest = new List<PhaseInstance>();
+                private double defaultValueWidth = 60;
         public double Scale
         {
             get => scale; set
