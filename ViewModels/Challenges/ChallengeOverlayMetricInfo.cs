@@ -93,6 +93,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
             get => _value; set
             {
                 _value = value;
+                defaultValueWidth = 70;
+                if (_value > 100000)
+                    defaultValueWidth = 80;
+                if (value > 1000000)
+                    defaultValueWidth = 90;
+                if (value > 10000000)
+                    defaultValueWidth = 100;
                 OnPropertyChanged();
             }
         }

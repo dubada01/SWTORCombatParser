@@ -32,7 +32,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 
                 var parsedLogEntries = outgoingLogs as ParsedLogEntry[] ?? outgoingLogs.ToArray();
                 combat.OutgoingDamageLogs[entity] = parsedLogEntries
-                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._damageEffectId).ToList();
+                    .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._damageEffectId && (l.Source.Name != l.Target.Name)).ToList();
                 combat.OutgoingHealingLogs[entity] = parsedLogEntries
                     .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._healEffectId).ToList();
                 combat.AbilitiesActivated[entity] = parsedLogEntries.Where(l =>
