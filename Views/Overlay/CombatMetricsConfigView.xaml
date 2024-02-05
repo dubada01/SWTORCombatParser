@@ -28,18 +28,24 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="1.5*"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox MaxHeight="30">
+                <Viewbox MaxHeight="15">
                     <TextBlock Text="Damage" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
-                <Viewbox MaxHeight="30" Grid.Column="1">
+                <Viewbox MaxHeight="15" Grid.Column="1">
                     <TextBlock Text="Healing"  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
-                <Viewbox MaxHeight="30" Grid.Column="2">
+                <Viewbox MaxHeight="15" Grid.Column="2">
                     <TextBlock Text="Mitigation" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
-                <Viewbox MaxHeight="30" Grid.Column="3">
+                <Viewbox MaxHeight="15" Grid.Column="3">
                     <TextBlock Text="General" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Rectangle Grid.Row="1" Grid.Column="4" Fill="Gray"></Rectangle>
+                <Viewbox MaxHeight="15" Grid.Column="5">
+                    <TextBlock Text="Utility" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
                 <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding AvailableDamageOverlays}">
@@ -77,26 +83,36 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+                <ScrollViewer Grid.Row="1" Grid.Column="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AvailableUtilityOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:UtilityOverlayOptionView/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
 
             </Grid>
         </Border>
-        <Viewbox Margin="0,2,0,2" MaxHeight="50"  HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">
+        <Viewbox Margin="0,2,0,2" MaxHeight="40"  HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">
             <StackPanel Orientation="Vertical">
-                <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Leaderboard Filter: "/>
+                <TextBlock Foreground="WhiteSmoke" FontWeight="Medium" HorizontalAlignment="Center" FontSize="21" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlay Leaderboard"/>
                 <ComboBox HorizontalAlignment="Center" Height="45" Width="200" HorizontalContentAlignment="Center" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}" Style="{StaticResource NewComboStyle}"></ComboBox>
             </StackPanel>
         </Viewbox>
-        <Viewbox Margin="0,2,0,2" MaxHeight="25" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1">
+        <Viewbox Margin="0,2,0,10" MaxHeight="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1">
             <StackPanel  Orientation="Horizontal">
-                <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Dynamic Layout: "/>
+                <TextBlock Foreground="WhiteSmoke" FontSize="21" FontWeight="DemiBold" FontFamily="{StaticResource MainFont}" Text="Dynamic Layout: "/>
                 <Viewbox MaxHeight="20">
-                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding UseDynamicLayout}"></CheckBox>
+                    <CheckBox IsChecked="{Binding UseDynamicLayout}"></CheckBox>
                 </Viewbox>
             </StackPanel>
         </Viewbox>
-        <Viewbox Margin="10,2,0,2" MaxHeight="50"  HorizontalAlignment="Left" Grid.Column="2" Grid.Row="1" Visibility="{Binding UseDynamicLayout, Converter={StaticResource BooleanToVisibiityConverter}}">
+        <Viewbox Margin="10,2,0,2" MaxHeight="40" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="1" Visibility="{Binding UseDynamicLayout, Converter={StaticResource BooleanToVisibiityConverter}}">
             <StackPanel Orientation="Vertical">
-                <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Layout: "/>
+                <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="21" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Layout: "/>
                 <ComboBox  Height="45" Width="200"  Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding SelectedType}"></ComboBox> 
             </StackPanel>
 

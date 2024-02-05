@@ -29,9 +29,10 @@ namespace SWTORCombatParser
             {
                 ConvertToAppData.ConvertFromProgramDataToAppData();
                 var task = TimeUtility.StartUpdateTask();
-                var mainWindowVM = new MainWindowViewModel();
+                
                 var mainWindow = new MainWindow();
                 Application.Current.MainWindow = mainWindow;
+                var mainWindowVM = new MainWindowViewModel(mainWindow.HotkeyHandler);
                 mainWindow.DataContext = mainWindowVM;
                 mainWindow.Show();
             }

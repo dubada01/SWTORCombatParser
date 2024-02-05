@@ -13,10 +13,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
 {
     class OthersOverlaySetupViewModel : INotifyPropertyChanged
     {
-        private RaidHotsConfigViewModel _raidHotsConfigViewModel;
-        private AllPvPOverlaysViewModel _PvpOverlaysConfigViewModel;
-        private BossFrameConfigViewModel _bossFrameViewModel;
-        private RoomOverlayViewModel _roomOverlayViewModel;
+        public RaidHotsConfigViewModel _raidHotsConfigViewModel;
+        public AllPvPOverlaysViewModel _PvpOverlaysConfigViewModel;
+        public BossFrameConfigViewModel _bossFrameViewModel;
+        public RoomOverlayViewModel _roomOverlayViewModel;
         public BossFrameSetup BossFrameView { get; set; }
         public RoomSetup RoomOverlaySetup { get; set; }
         public PvpOverlaySetup PvpOverlays { get; set; }
@@ -28,8 +28,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
             _roomOverlayViewModel = new RoomOverlayViewModel();
             RoomOverlaySetup = new RoomSetup(_roomOverlayViewModel);
-
-
 
             RaidHotsConfig = new RaidHOTsSteup();
             _raidHotsConfigViewModel = new RaidHotsConfigViewModel();

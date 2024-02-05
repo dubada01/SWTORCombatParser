@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.8.9</VersionPrefix>
+    <VersionPrefix>1.9.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -195,16 +195,21 @@
     <None Remove="resources\Audio\TimerAudio\Yolo\7.mp3" />
     <None Remove="resources\Audio\TimerAudio\Yolo\8.mp3" />
     <None Remove="resources\Audio\TimerAudio\Yolo\9.mp3" />
+    <None Remove="resources\bar-graph.png" />
     <None Remove="resources\BossMaps\ZornToth.png" />
+    <None Remove="resources\chart.png" />
     <None Remove="resources\cogIcon.png" />
     <None Remove="resources\copyIcon.png" />
     <None Remove="resources\crownIcon.png" />
+    <None Remove="resources\detect.png" />
     <None Remove="resources\DoubleArrowIcon.png" />
     <None Remove="resources\dpsIcon.png" />
     <None Remove="resources\editIcon.png" />
     <None Remove="resources\ExpandDown.png" />
     <None Remove="resources\ExpandUp.png" />
     <None Remove="resources\firstPlaceLeaderboardIcon.png" />
+    <None Remove="resources\google-docs.png" />
+    <None Remove="resources\grid.png" />
     <None Remove="resources\healingIcon.png" />
     <None Remove="resources\Loading.gif" />
     <None Remove="resources\LocalPlayerIcon.png" />
@@ -275,7 +280,9 @@
     <None Remove="resources\RoomOverlays\PlayerLocation.png" />
     <None Remove="resources\RoomOverlays\SelectionAdornment.png" />
     <None Remove="resources\RoomOverlays\TargetedOpponentLocation.png" />
+    <None Remove="resources\setting.png" />
     <None Remove="resources\shareIcon.png" />
+    <None Remove="resources\skull.png" />
     <None Remove="resources\skull_Icon.png" />
     <None Remove="resources\sounds\Abduct.mp3" />
     <None Remove="resources\sounds\Acid Deluge.mp3" />
@@ -732,7 +739,13 @@
     <Content Include="resources\Audio\TimerAudio\Yolo\9.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\bar-graph.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\BossMaps\ZornToth.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\chart.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\cogIcon.png">
@@ -742,6 +755,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\crownIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\detect.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\DoubleArrowIcon.png">
@@ -760,6 +776,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\firstPlaceLeaderboardIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\google-docs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\grid.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\healingIcon.png">
@@ -966,7 +988,13 @@
     <Content Include="resources\RoomOverlays\SelectionAdornment.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="resources\setting.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="resources\shareIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\skull.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\skull_Icon.png">
@@ -3489,6 +3517,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Update="Views\Overlay\BossFrame\RaidDotInstance.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Overlay\UtilityOverlayOptionView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Update="Views\Timers\TimerSharePopup.xaml.cs">

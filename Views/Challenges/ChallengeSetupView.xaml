@@ -21,14 +21,6 @@
                 <ColumnDefinition Width="5*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Viewbox Grid.Column="1" HorizontalAlignment="Left" MaxHeight="40" Margin="0,0,0,0">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Margin="0,0,0,10" HorizontalAlignment="Center" Foreground="WhiteSmoke" Text="Challenges Visible" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                    <Viewbox MaxHeight="25">
-                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding ChallengesEnabled}"></CheckBox>
-                    </Viewbox>
-                </StackPanel>
-            </Viewbox>
         </Grid>
 
         <ContentPresenter Grid.ColumnSpan="2" Content="{Binding EncounterSelectionView}" Grid.Row="0" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5"></ContentPresenter>

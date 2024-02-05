@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using static Gma.System.MouseKeyHook.HotKeys.HotKeySet;
 
 namespace SWTORCombatParser.Views
 {
@@ -40,22 +41,12 @@ namespace SWTORCombatParser.Views
     }
     public partial class MainWindow : Window
     {
-        // Constants used for the Windows API
-        private const int MOD_CONTROL = 0x0002;
-        private const int MOD_ALT = 0x0001;
-        private const int WM_HOTKEY = 0x0312;
-
-        // RegisterHotKey and UnregisterHotKey methods from Windows API
-        [DllImport("user32.dll")]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
-
-        [DllImport("user32.dll")]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
         private NotifyIcon _notifyIcon1;
         private bool _actuallyClosing = false;
+        public HotkeyHandler HotkeyHandler;
         public MainWindow()
         {
+            HotkeyHandler  = new HotkeyHandler();
             InitializeComponent();
             LoadingWindowFactory.SetMainWindow(this);
             var windowInfo = OrbsWindowManager.GetWindowSizeAndPosition();
@@ -64,22 +55,13 @@ namespace SWTORCombatParser.Views
             Width = windowInfo.Width;
             Height = windowInfo.Height;
             AddNotificationIcon();
-            Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
         }
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            //register lock hotkey for CTRL+ALT+L
-            RegisterHotKey(1, 0x4c);
-            //register refresh hotkey for CTRL+ALT+R
-            RegisterHotKey(2, 0x52);
-        }
-
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             // Unregister the hotkey when the window is closed to clean up
-            UnregisterHotKey(1);
-            UnregisterHotKey(2);
+            HotkeyHandler.UnregHotKet(1);
+            HotkeyHandler.UnregHotKet(2);
         }
         private void AddNotificationIcon()
         {
@@ -162,51 +144,14 @@ namespace SWTORCombatParser.Views
                 return;
             HeaderSelectionState.UpdateSelectedHeader(tabInstance.HeaderText);
         }
-        private void RegisterHotKey(int hotkeyId, int key)
-        {
-            // Register the "Ctrl+Alt+L" hotkey
-            if (RegisterHotKey(new WindowInteropHelper(this).Handle, hotkeyId, MOD_ALT | MOD_CONTROL, key))
-            {
-                // Hotkey registered successfully
-                Logging.LogInfo("Registered hotkey with id: " + hotkeyId);
-            }
-            else
-            {
-                // Failed to register the hotkey
-                Logging.LogInfo("Failed to register hotkey: " + key + " with id: " + hotkeyId);
-            }
-        }
 
-        private void UnregisterHotKey(int id)
-        {
-            // Unregister the hotkey
-            UnregisterHotKey(new WindowInteropHelper(this).Handle, id);
-        }
 
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-            HwndSource source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
-            source.AddHook(HwndHook);
+            HotkeyHandler.Init(new WindowInteropHelper(this).Handle);
         }
 
-        private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            // Handle the WM_HOTKEY message
-            if (msg == WM_HOTKEY)
-            {
-                if (wParam.ToInt32() == 1)
-                {
-                    HotkeyHandler.FireLockOverlay();
-                    handled = true; // Mark the message as handled
-                }
-                if (wParam.ToInt32() == 2)
-                {
-                    HotkeyHandler.FireRefreshHots();
-                    handled = true; // Mark the message as handled
-                }
-            }
-            return IntPtr.Zero;
-        }
+
     }
 }

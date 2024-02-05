@@ -22,6 +22,5 @@
         <ContentPresenter Grid.Row="0" Grid.Column="0" Content="{Binding RaidHotsConfig}"/>
         <ContentPresenter Grid.Row="0" Grid.Column="2" Content="{Binding BossFrameView}"/>
         <ContentPresenter Grid.Row="2" Grid.Column="0" Content="{Binding RoomOverlaySetup}"/>
-        <ContentPresenter Grid.Row="2" Grid.Column="2" Content="{Binding PvpOverlays}"/>
     </Grid>
 </UserControl>

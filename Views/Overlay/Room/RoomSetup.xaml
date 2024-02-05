@@ -16,13 +16,7 @@
             <Viewbox MaxHeight="35">
                 <TextBlock Foreground="{StaticResource ParticipantHPSBrush}" FontFamily="{StaticResource MainFont}" Text="Room Hazards"/>
             </Viewbox>
-            <Viewbox MaxHeight="40" Grid.Row="1" Grid.Column="0">
-                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Text="Room Overlay"/>
-                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding OverlayEnabled}"></CheckBox>
-                </StackPanel>
-            </Viewbox>
-            <Viewbox MaxHeight="40" Grid.Row="2" Grid.Column="1">
+            <Viewbox MaxHeight="40" Grid.Row="1" Grid.Column="1">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Text="View Extra Data"/>
                     <CheckBox HorizontalAlignment="Center" IsChecked="{Binding ViewExtraInfo}"></CheckBox>

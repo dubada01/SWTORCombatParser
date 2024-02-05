@@ -295,7 +295,7 @@ namespace SWTORCombatParser.Model.Timers
             }
 
             var defaults = new DefaultTimersData() { TimerSource = timerSource, Position = new Point(0, 0), WidtHHeight = new Point(300, 200) };
-            if (timerSource.Contains("|"))
+            if (!string.IsNullOrEmpty(timerSource) && timerSource.Contains("|"))
                 defaults.IsBossSource = true;
             currentDefaults.Add(defaults);
             var classes = ClassLoader.LoadAllClasses();

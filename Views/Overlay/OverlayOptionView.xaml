@@ -10,13 +10,15 @@
         <Button Background="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter}}" 
                 Foreground="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter},
                 ConverterParameter=inverted}" Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" 
-                Height="40" MaxWidth="200" Margin="15,2,15,2" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                BorderBrush="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBorderConverter}}"
+                BorderThickness="1.5"
+                Height="35" MaxWidth="100" Margin="5,1,5,1" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2*"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
-                <Viewbox MaxHeight="15" Margin="0,0,0,2">
+                <Viewbox MaxHeight="12" Margin="0,0,0,2">
                     <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Type, Converter={StaticResource OverlayTypeToReadableNameConverter}}" ></TextBlock>
                 </Viewbox>
                 <Viewbox MaxWidth="75" Grid.Row="1" Margin="0,0,0,0" >

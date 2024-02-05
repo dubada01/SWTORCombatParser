@@ -45,6 +45,28 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+        private double _userControlWidth;
+        public double UserControlWidth
+        {
+            get => _userControlWidth;
+            set
+            {
+                _userControlWidth = value;
+                OnPropertyChanged(nameof(UserControlWidth));
+                UpdateSecondColumnWidth(value);
+            }
+        }
+        private GridLength _secondColumnWidth = _defaultColumnWidth;
+        private static GridLength _defaultColumnWidth = new GridLength(.2, GridUnitType.Star);
+        public GridLength SecondColumnWidth
+        {
+            get => _secondColumnWidth;
+            set
+            {
+                _secondColumnWidth = value;
+                OnPropertyChanged(nameof(SecondColumnWidth)); // Implement INotifyPropertyChanged
+            }
+        }
 
         public PlotViewModel()
         {
@@ -94,6 +116,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 PlotCombat(_currentCombat, obj);
 
             }
+        }
+        private void UpdateSecondColumnWidth(double width)
+        {
+            const double threshold = 500; // Example threshold, adjust as needed
+            SecondColumnWidth = width < threshold ? new GridLength(0) : _defaultColumnWidth;
         }
         public ParticipantSelectionView ParticipantSelectionContent { get; set; }
         public GridLength ParticipantSelectionHeight { get; set; }

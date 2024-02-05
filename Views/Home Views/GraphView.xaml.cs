@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.ViewModels.Home_View_Models;
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -18,7 +19,14 @@ namespace SWTORCombatParser.Views.Home_Views
             DataContext = dataContext;
             _plotViewModel = dataContext;
             InitializeComponent();
+            this.SizeChanged += NotifySizeChanged;
         }
+
+        private void NotifySizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            _plotViewModel.UserControlWidth = this.ActualWidth;
+        }
+
         private void GridView_MouseMove(object sender, MouseEventArgs e)
         {
             if ((DateTime.Now - _lastAnnotationUpdateTime).TotalMilliseconds > _annotationUpdatePeriodMS)
