@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SWTORCombatParser.DataStructures.Hotkeys;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -57,8 +58,41 @@ public static class Settings
         if (!settingList.ContainsKey(settingName) && settingName == "force_log_updates")
             settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "combat_logs_path")
-            settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs"); ;
-        return settingList[settingName].Value<T>();
+            settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+        if (!settingList.ContainsKey(settingName) && settingName == "Hotkeys")
+            settingList[settingName] =JToken.FromObject(new HotkeySettings {
+                HOTRefreshEnabled = true, HOTRefreshHotkeyMod1 = 2,  HOTRefreshHotkeyMod2 = 1, HOTRefreshHotkeyStroke = 0x52,
+                UILockEnabled = true, UILockHotkeyMod1 = 2, UILockHotkeyMod2 = 1, UILockHotkeyStroke = 0x4c});
+        if (settingList.TryGetValue(settingName, out var settingValue))
+        {
+            try
+            {
+                // Check if the type is string and handle directly
+                if (typeof(T) == typeof(string))
+                {
+                    return settingValue.ToObject<T>();
+                }
+                // Handle numeric and other simple types directly
+                else if (settingValue.Type == JTokenType.Integer || settingValue.Type == JTokenType.Float || settingValue.Type == JTokenType.Boolean)
+                {
+                    return settingValue.ToObject<T>();
+                }
+                // Handle complex types or settings stored as strings that need parsing/conversion
+                else
+                {
+                    var serializedValue = settingValue.Type == JTokenType.String ? settingValue.ToString() : settingValue.ToString(Formatting.None);
+                    return JsonConvert.DeserializeObject<T>(serializedValue);
+                }
+            }
+            catch (JsonException ex)
+            {
+                // Log or handle the error appropriately
+                Console.WriteLine($"Error deserializing setting '{settingName}' to type {typeof(T).Name}: {ex.Message}");
+            }
+        }
+
+        return default(T);
+
     }
     public static bool HasSetting(string settingName)
     {

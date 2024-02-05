@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.8*"/>
-            <ColumnDefinition Width="0.2*" MinWidth="200"/>
+            <ColumnDefinition Width="{Binding SecondColumnWidth}"/>
         </Grid.ColumnDefinitions>
         <ContentPresenter Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="0" Content="{Binding ParticipantSelectionContent}"></ContentPresenter>
         <Image Grid.Row="1" Margin="60,45,70,75" Source="../resources/SwtorLogo.png"></Image>

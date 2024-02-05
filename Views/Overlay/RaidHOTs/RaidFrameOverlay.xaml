@@ -7,16 +7,33 @@
         mc:Ignorable="d"
         Title="RaidFrameOverlay" Height="450" Width="500" WindowStyle="None" Background="Transparent" Topmost="True" AllowsTransparency="True" ShowInTaskbar="False" ResizeMode="NoResize">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="50"/>
             <ColumnDefinition/>
             <ColumnDefinition Width="50"/>
         </Grid.ColumnDefinitions>
+        <StackPanel HorizontalAlignment="Right" Grid.Column="1" Orientation="Horizontal" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}">
+            <Border Background="{StaticResource Gray3Brush}" CornerRadius="5" Height="30">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="5,0,2,0" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Columns"></TextBlock>
+                    <TextBox Style="{StaticResource RoundedTextBox}" Text="{Binding Columns, UpdateSourceTrigger=PropertyChanged}" FontSize="10" FontFamily="{StaticResource MainFont}" HorizontalContentAlignment="Center" FontWeight="Normal" Width="30" Height="25" Margin="0,0,15,0"></TextBox>
+                    <TextBlock VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Rows"></TextBlock>
+                    <TextBox Margin="2,0,5,0" Style="{StaticResource RoundedTextBox}" Text="{Binding Rows, UpdateSourceTrigger=PropertyChanged}" FontSize="10" FontFamily="{StaticResource MainFont}" HorizontalContentAlignment="Center" FontWeight="Normal" Width="30" Height="25"></TextBox>
+                </StackPanel>
+            </Border>
+            <Button Margin="15,0,0,0" Command="{Binding RefreshFramesCommand}" IsEnabled="{Binding CanDetect}" Style="{StaticResource RoundCornerButton}" Background="{StaticResource Gray3Brush}" Padding="2" Height="35" Width="35">
+                <Image Source="../../../resources/detect.png"></Image>
+            </Button>
+        </StackPanel>
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="{Binding Editable}" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}"
                 PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" VerticalAlignment="Top" Background="{StaticResource Gray5Brush}" Height="20" Opacity="0.8" CornerRadius="3,3,3,3"></Border>
-        <Border Grid.Column="0" Grid.ColumnSpan="3" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="False" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}"
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" PreviewMouseLeftButtonUp="UpdateDefaults" IsHitTestVisible="False" Visibility="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}"
                 PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" Background="Transparent" Opacity="0.8" BorderThickness="2" BorderBrush="DimGray" CornerRadius="3,3,3,3"></Border>
-        <ItemsControl Grid.Column="0" ItemsSource="{Binding LeftColumnCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+        <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding LeftColumnCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Stretch" IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" >
@@ -49,7 +66,7 @@
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
         </ItemsControl>
-        <ItemsControl Grid.Column="2" ItemsSource="{Binding RightColumnCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+        <ItemsControl Grid.Row="1" Grid.Column="2" ItemsSource="{Binding RightColumnCells}" IsHitTestVisible="{Binding Editable}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid HorizontalAlignment="Stretch" IsHitTestVisible="{Binding DataContext.Editable, RelativeSource={RelativeSource AncestorType=ItemsControl}}" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave" >

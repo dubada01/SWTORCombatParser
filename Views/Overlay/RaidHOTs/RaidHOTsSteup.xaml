@@ -12,48 +12,20 @@
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
-                <RowDefinition/>
+
             </Grid.RowDefinitions>
             <Viewbox MaxHeight="35">
                 <TextBlock Foreground="{StaticResource ParticipantHPSBrush}" FontFamily="{StaticResource MainFont}" Text="Raid HOTs"/>
             </Viewbox>
-            <Viewbox Grid.Row="2" MaxHeight="75">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"></RowDefinition>
-                        <RowDefinition Height="*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="Grid Layout" FontFamily="{StaticResource MainFont}" FontSize="20" Margin="0,0,0,10" HorizontalAlignment="Center"></TextBlock>
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <StackPanel Orientation="Vertical" Margin="0,0,10,0">
-                            <TextBlock HorizontalAlignment="Center" Text="Rows" Foreground="WhiteSmoke"></TextBlock>
-                            <TextBox Height="30" Width="40" IsEnabled="{Binding RaidFrameEditable}" FontSize="13" HorizontalContentAlignment="Center" Style="{StaticResource RoundedTextBox}" Text="{Binding RaidFrameRows, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                        </StackPanel>
-                        <StackPanel Orientation="Vertical" Margin="10,0,0,0">
-                            <TextBlock HorizontalAlignment="Center" Text="Columns" Foreground="WhiteSmoke"></TextBlock>
-                            <TextBox Height="30" Width="40" IsEnabled="{Binding RaidFrameEditable}" FontSize="13" HorizontalContentAlignment="Center" Style="{StaticResource RoundedTextBox}" Text="{Binding RaidFrameColumns, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-
-            </Viewbox>
 
             <Viewbox MaxHeight="40" Grid.Row="1">
                 <StackPanel Orientation="Horizontal">
-                    <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock Foreground="WhiteSmoke" Text="Tracking Enabled"/>
-                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding RaidHotsEnabled}"></CheckBox>
-                    </StackPanel>
-                    <StackPanel Margin="20,0,0,0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock Foreground="WhiteSmoke" Text="Track All"/>
+                    <StackPanel Margin="0,0,0,0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Foreground="WhiteSmoke" Text="Increase Sensitivity"/>
                         <CheckBox HorizontalAlignment="Center" IsChecked="{Binding DecreasedSpecificity}"></CheckBox>
                     </StackPanel>
                 </StackPanel>
 
-            </Viewbox>
-            <Viewbox MaxHeight="60" Grid.Row="3">
-                <Button Margin="0,15,0,10" Style="{StaticResource RoundCornerButton}" Height="75" Width="200" Content="Refresh Players" Background="CornflowerBlue" 
-                        Foreground="WhiteSmoke" FontSize="20" IsEnabled="{Binding CanDetect}" ToolTip="Hotkey: Ctrl+Alt+R" FontWeight="Bold" FontFamily="{StaticResource MainFont}" Command="{Binding ManuallyRefreshPlayersCommand}"></Button>
             </Viewbox>
             
         </Grid>

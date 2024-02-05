@@ -1,6 +1,7 @@
 ﻿using Prism.Commands;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.DataStructures.Hotkeys;
 using SWTORCombatParser.DataStructures.Phases;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
@@ -27,6 +28,7 @@ using SWTORCombatParser.Views.Leaderboard_View;
 using SWTORCombatParser.Views.Overlay;
 using SWTORCombatParser.Views.Overviews;
 using SWTORCombatParser.Views.Phases;
+using SWTORCombatParser.Views.SettingsView;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -41,6 +43,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace SWTORCombatParser.ViewModels
 {
@@ -94,8 +97,9 @@ namespace SWTORCombatParser.ViewModels
         public bool AppIsOutOfDate { get; set; }
         public ICommand AppOutOfDateCommand => new DelegateCommand(VersionChecker.OpenMicrosoftStoreToAppPage);
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(HotkeyHandler hotkeyHandler)
         {
+            HotkeyHandler = hotkeyHandler;
             Leaderboards.Init();
 
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
@@ -144,16 +148,16 @@ namespace SWTORCombatParser.ViewModels
 
             _dataGridViewModel = new DataGridViewModel();
             var dataGridView = new DataGridView(_dataGridViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = dataGridView, HeaderText = "Raid Data" });
+            ContentTabs.Add(new TabInstance() { TabContent = dataGridView, HeaderText = "Raid Data", TabIcon = "../resources/grid.png" });
 
             _plotViewModel = new PlotViewModel();
             var graphView = new GraphView(_plotViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Battle Plot" });
+            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Plot", TabIcon = "../resources/chart.png" });
 
 
             _tableViewModel = new TableViewModel();
             var tableView = new OverviewView(_tableViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Details" });
+            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Details" , TabIcon = "../resources/bar-graph.png" });
 
             _overlayViewModel = new OverlayViewModel();
             var overlayView = new OverlayView(_overlayViewModel);
@@ -163,10 +167,10 @@ namespace SWTORCombatParser.ViewModels
 
             _deathViewModel = new DeathReviewViewModel();
             var deathView = new DeathReviewPage(_deathViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = deathView, HeaderText = "Death Review" });
+            ContentTabs.Add(new TabInstance() { TabContent = deathView, HeaderText = "Death Review", TabIcon = "../resources/skull.png" });
 
             _reviewViewModel = new BattleReviewViewModel();
-            ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log" });
+            ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log", TabIcon = "../resources/google-docs.png" });
 
 
             ContentTabs.Add(overlayTab);
@@ -182,7 +186,6 @@ namespace SWTORCombatParser.ViewModels
             HeaderSelectionState.NewHeaderSelected += UpdateDataForNewTab;
             ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
         }
-
         private void FilterForPhase(List<PhaseInstance> list)
         {
             if (UnfilteredDisplayedCombat == null || CurrentlyDisplayedCombat == null)
@@ -217,6 +220,21 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged();
             }
         }
+        public ICommand OpenSettingsWindowCommand => new CommandHandler(OpenSettingsWindow);
+
+        private void OpenSettingsWindow(object obj)
+        {
+            HotkeyHandler.UnregAll();
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = App.Current.MainWindow;
+            settingsWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            settingsWindow.Closing += (e,s) => 
+            {
+                HotkeyHandler.UpdateKeys();
+            };
+            settingsWindow.ShowDialog();
+        }
+
         public ICommand OpenParselyCommand => new CommandHandler(OpenParsely);
 
 
@@ -241,6 +259,9 @@ namespace SWTORCombatParser.ViewModels
         }
 
         public ICommand UploadToParselyCommand => new CommandHandler(UploadToParsely);
+
+        public HotkeyHandler HotkeyHandler { get; internal set; }
+
         private void HandleParselyUploadComplete(bool status, string link)
         {
             if (status)

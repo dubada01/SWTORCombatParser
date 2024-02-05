@@ -91,6 +91,7 @@
     <SolidColorBrush x:Key="ParticipantDTPSBrush" Color="{StaticResource ParticipantDTPSColor}"/>
     <SolidColorBrush x:Key="HeaderTextBrush" Color="{StaticResource DarkYellowGrayColor}"/>
     <SolidColorBrush x:Key="GreenColorBrush" Color="{StaticResource DarkGreenColor}"></SolidColorBrush>
+    <SolidColorBrush x:Key="BrightGreenColorBrush" Color="{StaticResource GreenColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="GrayGreenColorBrush" Color="{StaticResource LightGrayGreenColor}"></SolidColorBrush>
     <SolidColorBrush x:Key="RedColorBrush" Color="{StaticResource RedColor}"></SolidColorBrush>
     

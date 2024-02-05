@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
@@ -36,6 +37,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private bool _inCombat;
         private bool _usingDecreasedAccuracy;
         private List<long> _validBossIds = new List<long>();
+        private object _cellUpdateLock = new object();
+        private bool canDetect = true;
+
         public bool Editable
         {
             get => editable;
@@ -43,6 +47,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 editable = value;
                 ToggleLocked(!editable);
+                OnPropertyChanged();
+            }
+        }
+        public bool CanDetect
+        {
+            get => canDetect; private set
+            {
+                canDetect = value;
                 OnPropertyChanged();
             }
         }
@@ -101,7 +113,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
 
         }
+        public ICommand RefreshFramesCommand => new CommandHandler(_=>AutoDetection());
+        private void AutoDetection()
+        {
+            if (!CanDetect)
+                return;
+            CanDetect = false;
+            Task.Run(() =>
+            {
+                var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(TopLeft,
+                    Width, Height, Rows);
+                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(TopLeft,
+                    raidFrameBitmap, Rows, Columns, Height, Width).Result;
+                raidFrameBitmap.Dispose();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    UpdateNames(names);
+                });
+                CanDetect = true;
 
+            });
+        }
         private void SetCurrentEncounter(DateTime arg1, bool arg2)
         {
             NewEncounterEntered(CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(arg1));
@@ -360,7 +392,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 UpdateCells();
             }
         }
-        private object _cellUpdateLock = new object();
 
         private void UpdateCells()
         {
@@ -497,7 +528,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public List<RaidHotCell> LeftColumnCells => RaidHotCells.Where(c => c.Column == 0).ToList();
         public List<RaidHotCell> RightColumnCells => RaidHotCells.Where(c => c.Column == Columns - 1).ToList();
         public List<RaidHotCell> RaidHotCells { get; set; } = new List<RaidHotCell>();
-
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {

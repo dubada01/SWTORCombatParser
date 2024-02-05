@@ -50,9 +50,11 @@
             <converters:AbsorbTimerBarVisibilityConverter x:Key="AbsorbTimerBarVisibilityConverter"/>
             <converters:TimerTriggerTypeToNameConverter x:Key="TimerTriggerTypeToNameConverter"/>
             <converters:BooleanToMetricOptionBackgroundConverter x:Key="BooleanToMetricOptionBackgroundConverter"/>
+            <converters:BooleanToMetricOptionBorderConverter x:Key="BooleanToMetricOptionBorderConverter"/>
             <converters:HideToHeightConverter x:Key="HideToHeightConverter"/>
             <converters:BooleanToEncounterColorConverter x:Key="BooleanToEncounterColorConverter"/>
             <converters:BooleanToInverseBooleanConverter x:Key="BooleanToInverseConverter"/>
+            <converters:WidthToVisiblityConverter x:Key="WidthToVisiblityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

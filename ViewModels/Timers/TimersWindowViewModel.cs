@@ -50,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => active;
             set
             {
-                if (active != value)
+                if (active != value && _timerSource != null)
                     DefaultTimersManager.UpdateTimersActive(active, _timerSource);
                 active = value;
                 if (!active)

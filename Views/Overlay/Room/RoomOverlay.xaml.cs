@@ -32,6 +32,9 @@ namespace SWTORCombatParser.Views.Overlay.Room
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             _loaded = true;
+            var imageLocation = GetBoundingBox(RoomImage, ReferenceInfo);
+            CharImage.Height = imageLocation.Width * 0.1;
+            CharImage.Width = imageLocation.Width * 0.1;
             RemoveFromAppWindow();
         }
 

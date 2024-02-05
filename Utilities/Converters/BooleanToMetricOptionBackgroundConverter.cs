@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Utilities.Converters
             }
 
             if ((bool)value)
-                return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("Gray11"));
+                return Brushes.WhiteSmoke;
             return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("Gray4"));
         }
 

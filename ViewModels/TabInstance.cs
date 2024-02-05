@@ -47,6 +47,7 @@ namespace SWTORCombatParser.ViewModels
         public bool IsHistoricalTab { get; set; }
         public bool IsOverlaysTab { get; set; }
         public string OverlayLockIcon { get; set; } = "../resources/lockedIcon.png";
+        public string TabIcon { get; set; }
         public string HeaderText { get; set; }
         public UserControl TabContent { get; set; }
         public event PropertyChangedEventHandler PropertyChanged;

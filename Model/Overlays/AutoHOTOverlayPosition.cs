@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Model.Overlays
                             var test = new ByteArrayContent(raidFrameStream.ToArray());
                             content.Add(test, "file", "orbs_overlay.png");
                             var baseUrl = DatabaseIPGetter.GetCurrentRemoteServerIP();
-                            baseUrl = "orbsapi.hopto.org";
+                            baseUrl = "orbs-stats.com";
                             var fullUrl = $"http://{baseUrl}:{ocr_port}{ocr_url}";
                             using (var message = await client.PostAsync(fullUrl, content))
                             {

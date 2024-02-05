@@ -149,7 +149,9 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(VisibleTimerSelected));
 
-                OnPropertyChanged();
+                _disciplineTimersWindow.SetSource(SelectedTimerSource);
+                DisciplineTimersActive = DefaultTimersManager.GetTimersActive(selectedTimerSource);
+                OnPropertyChanged("DisciplineTimersActive");
                 UpdateTimerRows();
                 OnPropertyChanged("VisibleTimerSelected");
             }
@@ -295,9 +297,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (!string.IsNullOrEmpty(source))
             {
                 SelectedTimerSource = source;
-                _disciplineTimersWindow.SetSource(SelectedTimerSource);
-                DisciplineTimersActive = DefaultTimersManager.GetTimersActive(source);
-                OnPropertyChanged("DisciplineTimersActive");
             }
 
         }

@@ -39,16 +39,16 @@
                         </Setter>
                     </Style>
                 </TabControl.Resources>
-                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Combat Metrics">
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Interface">
                     <overlay:CombatMetricsConfigView Grid.Row="0" />
                 </TabItem>
-                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Timers">
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Timers">
                     <ContentPresenter Grid.Column="1" Content="{Binding TimersView}"></ContentPresenter>
                 </TabItem>
-                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Challenges">
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Challenges">
                     <ContentPresenter Grid.Column="1" Content="{Binding ChallengesView}"></ContentPresenter>
                 </TabItem>
-                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Header="Setup">
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Settings">
                     <ContentPresenter Grid.Column="1" Content="{Binding OthersSetupView}"></ContentPresenter>
                 </TabItem>
             </TabControl>
@@ -58,10 +58,10 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width=".75*"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox HorizontalAlignment="Left" MaxHeight="25" Margin="15,2,10,2">
+                <Viewbox HorizontalAlignment="Left" MaxHeight="15" Margin="15,2,10,2">
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
                         <Viewbox MaxHeight="20">
@@ -69,16 +69,8 @@
                         </Viewbox>
                     </StackPanel>
                 </Viewbox>
-                <Viewbox HorizontalAlignment="Right" MaxHeight="25" Grid.Column="1" Margin="5,2,5,2">
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Personal Overlay: "/>
-                        <Viewbox MaxHeight="20">
-                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding UsePersonalOverlay}"></CheckBox>
-                        </Viewbox>
-                    </StackPanel>
-                </Viewbox>
 
-                <Viewbox Margin="0,2,50,2" MaxHeight="50" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="1">
+                <Viewbox Margin="0,2,25,2" MaxHeight="35" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="1">
                     <StackPanel Orientation="Vertical">
                         <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Bar Scalar: "/>
                         <TextBox HorizontalAlignment="Center" Height="45" Width="100" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBox}"></TextBox>

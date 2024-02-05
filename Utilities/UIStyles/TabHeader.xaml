@@ -10,7 +10,7 @@
                             <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center"
                               HorizontalAlignment="Center"
                               ContentSource="Header" 
-                              RecognizesAccessKey="True" Margin="12,2,12,2">
+                              RecognizesAccessKey="True" Margin="8,2,8,2">
                             </ContentPresenter>
                         </Border>
                     </Grid>

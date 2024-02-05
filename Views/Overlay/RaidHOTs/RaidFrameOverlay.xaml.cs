@@ -210,16 +210,16 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         }
         private int GetHeight()
         {
-            return (int)(RaidGrid.ActualHeight * GetDPI().Item2);
+            return (int)((RaidGrid.ActualHeight) * GetDPI().Item2);
         }
         private int GetWidth()
         {
-            return (int)(RaidGrid.ActualWidth * GetDPI().Item1);
+            return (int)((RaidGrid.ActualWidth) * GetDPI().Item1);
         }
         private System.Drawing.Point GetTopLeft()
         {
             var dpi = GetDPI();
-            var realTop = (int)(Top * dpi.Item2);
+            var realTop = (int)((Top + 50) * dpi.Item2);
             var realLeft = (int)((Left + 50) * dpi.Item1);
             return new System.Drawing.Point(realLeft, realTop);
         }
