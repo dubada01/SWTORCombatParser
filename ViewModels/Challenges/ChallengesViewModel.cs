@@ -1,15 +1,21 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Challenge;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
+using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Challenges;
+using SWTORCombatParser.Views.Timers;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -94,7 +100,28 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             ChallengesEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
         }
+        public string ImportId { get; set; }
+        public ICommand ImportCommand => new CommandHandler(Import);
 
+        private async void Import(object obj)
+        {
+            var challenge = await ChallengeDatabaseAccess.GetChallengeFromId(ImportId);
+            NewChallenge(challenge, false);
+        }
+        private async void Share(ChallengeRowViewModel obj)
+        {
+            var currentIds = await TimerDatabaseAccess.GetAllTimerIds();
+            string id;
+            do
+            {
+                id = AlphanumericsGenerator.RandomString(3);
+            } while (currentIds.Contains(id));
+            obj.SourceChallenge.ShareId = id;
+            var shareWindow = new TimerSharePopup(id);
+            shareWindow.ShowDialog();
+            DefaultChallengeManager.SetIdForChallenge(obj.SourceChallenge, SelectedSource, id);
+            await ChallengeDatabaseAccess.AddChallenge(obj.SourceChallenge);
+        }
         public ICommand AllChallengeCommand => new CommandHandler(CreateNewChallenge);
 
         private void CreateNewChallenge(object obj)
@@ -109,6 +136,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             var addedBack = new ChallengeRowViewModel() { SourceChallenge = editedChallenge, IsEnabled = editedChallenge.IsEnabled };
             addedBack.EditRequested += Edit;
+            addedBack.ShareRequested += Share;
             addedBack.DeleteRequested += Delete;
             ChallengeRows.Add(addedBack);
             UpdateRowColors();
@@ -121,6 +149,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             SaveNewTimer(obj);
             var newTimer = new ChallengeRowViewModel() { SourceChallenge = obj, IsEnabled = obj.IsEnabled };
             newTimer.EditRequested += Edit;
+            newTimer.ShareRequested += Share;
             newTimer.DeleteRequested += Delete;
             ChallengeRows.Add(newTimer);
             UpdateRowColors();
@@ -150,6 +179,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
             timerObjects.ForEach(t => t.EditRequested += Edit);
             timerObjects.ForEach(t => t.DeleteRequested += Delete);
+            timerObjects.ForEach(t => t.ShareRequested += Share);
             timerObjects.ForEach(t => t.ActiveChanged += ActiveChanged);
             App.Current.Dispatcher.Invoke(() =>
             {
@@ -197,7 +227,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             {
                 if (i % 2 == 1)
                 {
-                    ChallengeRows[i].RowBackground = Brushes.Gray;
+                    ChallengeRows[i].RowBackground = Brushes.DimGray;
                 }
                 else
                 {

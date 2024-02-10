@@ -70,6 +70,12 @@
                     <TextBlock Text="Show background warning" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                     
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" ToolTip="View all startup messages even if you've cleared them" Margin="0,5,0,5">
+                    <TextBlock VerticalAlignment="Center" Text="Show Startup Messages" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <Button Name="ResetMessagesButton" Padding="5,3,5,3" Background="{StaticResource GreenColorBrush}" Foreground="PapayaWhip" FontSize="11" Style="{StaticResource RoundCornerButton}" Margin="5,0,0,0">View</Button>
+                    
+
+                </StackPanel>
             </StackPanel>
         </Grid>
     </Border>

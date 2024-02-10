@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays.Personal;
 using System;
 using System.Runtime.InteropServices;
@@ -15,6 +16,7 @@ namespace SWTORCombatParser.Views.Overlay.Personal
     {
         private PersonalOverlayViewModel viewModel;
         private bool _closed;
+        private bool _hidden;
         public PersonalOverlayWindow(PersonalOverlayViewModel vm)
         {
             viewModel = vm;
@@ -27,16 +29,30 @@ namespace SWTORCombatParser.Views.Overlay.Personal
             vm.OnHiding += HideOverlay;
             vm.OnShowing += ShowOverlay;
             vm.CloseRequested += CloseOverlay;
-
+            HotkeyHandler.OnHideOverlaysHotkey += ToggleHide;
             Loaded += OnLoaded;
         }
+        private void ToggleHide()
+        {
+            if (_hidden)
+            {
+                ShowOverlay();
+            }
+            else
+            {
+                HideOverlay();
+            }
 
+        }
         private void ShowOverlay()
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 if (!_closed)
+                { 
                     Show();
+                    _hidden = false;
+                }
             });
 
         }
@@ -46,6 +62,7 @@ namespace SWTORCombatParser.Views.Overlay.Personal
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Hide();
+                _hidden = true;
             });
         }
 

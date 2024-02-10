@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using System;
+using System.Linq;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.DataStructures
@@ -15,11 +16,27 @@ namespace SWTORCombatParser.DataStructures
     }
     public class Challenge
     {
+        private SolidColorBrush backgroundBrush;
+
         public string Source { get; set; }
         public Guid Id { get; set; }
+        public bool IsBuiltIn { get; set; }
+        public int BuiltInRev { get; set; }
+        public string ShareId { get; set; }
         public string Name { get; set; }
         public ChallengeType ChallengeType { get; set; }
-        public SolidColorBrush BackgroundBrush { get; set; }
+        public SolidColorBrush BackgroundBrush
+        {
+            get
+            {
+                if(backgroundBrush != null)
+                    return backgroundBrush;
+                var splitColor = BackgroundColor.Split(',').Select(v=>byte.Parse(v.Trim())).ToList();
+                return new SolidColorBrush(Color.FromRgb(splitColor[0], splitColor[1], splitColor[2]));
+            }
+            set => backgroundBrush = value;
+        }
+        public string BackgroundColor { get; set; }
         public bool IsEnabled { get; set; }
         public string ChallengeSource { get; set; }
         public string ChallengeTarget { get; set; }

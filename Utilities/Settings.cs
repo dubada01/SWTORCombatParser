@@ -32,7 +32,7 @@ public static class Settings
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName))
-            settingList[settingName] = JsonConvert.ToString(new List<string>());
+            settingList[settingName] = JsonConvert.SerializeObject(new List<string>());
         var stringsetting = settingList[settingName].ToString();
         return JsonConvert.DeserializeObject<List<T>>(stringsetting);
     }

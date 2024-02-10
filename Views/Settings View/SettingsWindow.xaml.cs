@@ -1,6 +1,8 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.Hotkeys;
+using SWTORCombatParser.Model.Updates;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Update;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,13 +31,21 @@ namespace SWTORCombatParser.Views.SettingsView
             InitBools();
             InitPath();
             RefreshEnabled.Checked += ToggleHotkeyEnabled;
+            RefreshEnabled.Unchecked += ToggleHotkeyEnabled;
             LockEnabled.Checked += ToggleHotkeyEnabled;
+            LockEnabled.Unchecked += ToggleHotkeyEnabled;
             HideEnabled.Checked += ToggleHotkeyEnabled;
+            HideEnabled.Unchecked += ToggleHotkeyEnabled;
             RunInBackground.Checked += ToggleBackground;
+            RunInBackground.Unchecked += ToggleBackground;
             ForceLogUpdates.Checked += ToggleLogForce;
+            ForceLogUpdates.Unchecked += ToggleLogForce;
             OfflineMode.Checked += ToggleOffline;
+            OfflineMode.Unchecked += ToggleOffline;
             BackgroundWarning.Checked += ToggleWarning;
+            BackgroundWarning.Unchecked += ToggleBackground;
             LogPath.TextChanged += UpdatePath;
+            ResetMessagesButton.Click += ResetMessages;
         }
 
 
@@ -47,7 +57,20 @@ namespace SWTORCombatParser.Views.SettingsView
             ForceLogUpdates.IsChecked = Settings.ReadSettingOfType<bool>("force_log_updates");
             BackgroundWarning.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring");
         }
-
+        private void ResetMessages(object sender, RoutedEventArgs e)
+        {
+            var newMessages = UpdateMessageService.GetAllUpdateMessages();
+            if (newMessages.Count > 0)
+            {
+                var updateWindow = new FeatureUpdateInfoWindow();
+                var updateWindowViewModel = new FeatureUpdatesViewModel(newMessages);
+                updateWindowViewModel.OnEmpty += updateWindow.Close;
+                updateWindow.DataContext = updateWindowViewModel;
+                updateWindow.Owner = this;
+                updateWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                updateWindow.ShowDialog();
+            }
+        }
         private void InitPath()
         {
             var path = Settings.ReadSettingOfType<string>("combat_logs_path");
@@ -60,7 +83,7 @@ namespace SWTORCombatParser.Views.SettingsView
 
         private void ToggleOffline(object sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting<bool>("force_log_updates", OfflineMode.IsChecked.Value);
+            Settings.WriteSetting<bool>("offline_mode", OfflineMode.IsChecked.Value);
         }
 
         private void ToggleLogForce(object sender, RoutedEventArgs e)
@@ -81,11 +104,11 @@ namespace SWTORCombatParser.Views.SettingsView
         {
             var current = Settings.ReadSettingOfType<HotkeySettings>("Hotkeys");
             if(((CheckBox)sender).Name == "RefreshEnabled")
-                current.HOTRefreshEnabled = true;
+                current.HOTRefreshEnabled = !current.HOTRefreshEnabled;
             if (((CheckBox)sender).Name == "LockEnabled")
-                current.UILockEnabled = true;
+                current.UILockEnabled = !current.UILockEnabled;
             if (((CheckBox)sender).Name == "HideEnabled")
-                current.OverlayHideEnabled = true;
+                current.OverlayHideEnabled = !current.OverlayHideEnabled;
 
             Settings.WriteSetting<HotkeySettings>("Hotkeys", current);
         }

@@ -17,6 +17,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public event Action<ChallengeRowViewModel> EditRequested = delegate { };
         public event Action<ChallengeRowViewModel> DeleteRequested = delegate { };
         public event Action<ChallengeRowViewModel> ActiveChanged = delegate { };
+        public event Action<ChallengeRowViewModel> ShareRequested = delegate { };
         public Challenge SourceChallenge { get; set; } = new Challenge();
         public bool IsEnabled
         {
@@ -47,7 +48,11 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             EditRequested(this);
         }
-
+        public ICommand ShareCommand => new CommandHandler(Share);
+        private void Share(object t)
+        {
+            ShareRequested(this);
+        }
         public ICommand DeleteCommand => new CommandHandler(Delete);
         private void Delete(object t)
         {

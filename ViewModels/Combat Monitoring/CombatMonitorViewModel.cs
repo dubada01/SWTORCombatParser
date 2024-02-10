@@ -380,8 +380,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), true);
             if (combatInfo.IsCombatWithBoss)
             {
-                Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
-                Leaderboards.StartGetTopLeaderboardEntries(combatInfo);
+                Task.Run(() =>
+                {
+                    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
+                    Leaderboards.StartGetTopLeaderboardEntries(combatInfo);
+                });
             }
             CombatSelectionMonitor.InProgressCombatSeleted(combatInfo);
             if (CurrentEncounter == null)

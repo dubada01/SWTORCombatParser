@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 using Timer = SWTORCombatParser.DataStructures.Timer;
+using SWTORCombatParser.DataStructures.ChallengeInfo;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -248,6 +249,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             Task.Run(() =>
             {
+                ChallengeLoader.TryLoadChallenges();
                 BossTimerLoader.TryLoadBossTimers();
                 HotTimerLoader.TryLoadHots();
                 DotTimerLoader.TryLoadDots();

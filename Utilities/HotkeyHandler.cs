@@ -41,12 +41,17 @@ namespace SWTORCombatParser.Utilities
             {
                 if (wParam.ToInt32() == 1)
                 {
-                    HotkeyHandler.FireLockOverlay();
+                    FireLockOverlay();
                     handled = true; // Mark the message as handled
                 }
                 if (wParam.ToInt32() == 2)
                 {
-                    HotkeyHandler.FireRefreshHots();
+                    FireRefreshHots();
+                    handled = true; // Mark the message as handled
+                }
+                if (wParam.ToInt32() == 3)
+                {
+                    FireHideOverlays();
                     handled = true; // Mark the message as handled
                 }
             }
@@ -113,6 +118,12 @@ namespace SWTORCombatParser.Utilities
         {
             Debug.WriteLine("Refresh HOTs hotkey fired");
             OnRefreshHOTsHotkey();
+        }
+        public static event Action OnHideOverlaysHotkey = delegate { };
+        public static void FireHideOverlays()
+        {
+            Debug.WriteLine("Hide Overlays hotkey fired");
+            OnHideOverlaysHotkey();
         }
     }
 }
