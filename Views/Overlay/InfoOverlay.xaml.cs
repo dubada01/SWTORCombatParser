@@ -1,4 +1,5 @@
 ﻿using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays;
 using System;
 using System.Runtime.InteropServices;
@@ -17,6 +18,7 @@ namespace SWTORCombatParser.Views.Overlay
         private OverlayInstanceViewModel viewModel;
         private string _currentPlayerName;
         private bool _closed;
+        private bool _hidden;
         public InfoOverlay(OverlayInstanceViewModel vm)
         {
             viewModel = vm;
@@ -30,15 +32,29 @@ namespace SWTORCombatParser.Views.Overlay
             vm.OnShowing += ShowOverlay;
             vm.OnCharacterDetected += SetPlayer;
             vm.CloseRequested += CloseOverlay;
+            HotkeyHandler.OnHideOverlaysHotkey += ToggleHide;
             Loaded += OnLoaded;
         }
-
+        private void ToggleHide()
+        {
+            if(_hidden)
+            {
+                ShowOverlay();
+            }
+            else
+            {
+                HideOverlay();
+            }
+        }
         private void ShowOverlay()
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
                 if (!_closed)
+                {
                     Show();
+                    _hidden = false;
+                }
             });
 
         }
@@ -48,6 +64,7 @@ namespace SWTORCombatParser.Views.Overlay
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Hide();
+                _hidden = true;
             });
         }
 

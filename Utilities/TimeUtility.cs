@@ -28,7 +28,7 @@ namespace SWTORCombatParser.Utilities
                     {
 
                     }
-                    Thread.Sleep(5000);
+                    Thread.Sleep(1800000);
                 }
             });
 

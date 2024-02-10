@@ -6,6 +6,7 @@ using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -23,7 +24,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private string _value;
         private string valuePrompt;
         private bool hasValue;
-        private Color selectedColor;
+        private System.Windows.Media.Color selectedColor;
         private string currentColorHex;
         private string targetText;
         private bool hasTarget;
@@ -221,7 +222,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             SelectedEncounter = selectedSource.Split('|')[0];
             SelectedBoss = selectedSource.Split('|')[1];
             SelectedChallengeType = AvailableChallengeTypes.FirstOrDefault();
-            SelectedColor = Brushes.CornflowerBlue.Color;
+            SelectedColor = System.Windows.Media.Brushes.CornflowerBlue.Color;
             AvailablePhases = DefaultPhaseManager.GetExisitingPhases().Where(p => p.PhaseSource == selectedSource).ToList();
             if (AvailablePhases.Any())
                 SelectedPhase = AvailablePhases.First();
@@ -262,6 +263,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 ChallengeTarget = SelectedTarget,
                 Name = Name,
                 BackgroundBrush = ColorPreview,
+                BackgroundColor = $"{ColorPreview.Color.R},{ColorPreview.Color.G},{ColorPreview.Color.B}",
                 Id = Guid.NewGuid(),
                 Value = Value,
                 Source = selectedSource,
@@ -345,7 +347,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             }
         }
         public SolidColorBrush ColorPreview => new SolidColorBrush(SelectedColor);
-        public Color SelectedColor
+        public System.Windows.Media.Color SelectedColor
         {
             get => selectedColor;
             set
@@ -364,7 +366,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 currentColorHex = value;
                 try
                 {
-                    var newColor = (Color)ColorConverter.ConvertFromString(currentColorHex);
+                    var newColor = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(currentColorHex);
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }

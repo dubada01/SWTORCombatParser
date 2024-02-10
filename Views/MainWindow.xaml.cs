@@ -1,5 +1,7 @@
-﻿using SWTORCombatParser.Utilities;
+﻿using SWTORCombatParser.Model.Updates;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
+using SWTORCombatParser.ViewModels.Update;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -56,7 +58,24 @@ namespace SWTORCombatParser.Views
             Height = windowInfo.Height;
             AddNotificationIcon();
             Closed += MainWindow_Closed;
+            Loaded += CheckForUpdates;
         }
+
+        private void CheckForUpdates(object sender, RoutedEventArgs e)
+        {
+            var newMessages = UpdateMessageService.GetUpdateMessages();
+            if(newMessages.Count > 0)
+            {
+                var updateWindow = new FeatureUpdateInfoWindow();
+                var updateWindowViewModel = new FeatureUpdatesViewModel(newMessages);
+                updateWindowViewModel.OnEmpty += updateWindow.Close;
+                updateWindow.DataContext = updateWindowViewModel;
+                updateWindow.Owner = this;
+                updateWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                updateWindow.ShowDialog();
+            }
+        }
+
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             // Unregister the hotkey when the window is closed to clean up

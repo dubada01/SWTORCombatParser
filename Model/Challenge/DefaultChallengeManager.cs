@@ -47,6 +47,13 @@ namespace SWTORCombatParser.Model.Challenge
         {
             return JsonConvert.DeserializeObject<Dictionary<string, bool>>(File.ReadAllText(activePath));
         }
+        public static void SetIdForChallenge(DataStructures.Challenge timer, string source, string id)
+        {
+            var currentDefaults = GetDefaults(source);
+            var valueToUpdate = currentDefaults.Challenges.First(t => timer.Id == t.Id);
+            valueToUpdate.ShareId = id;
+            SaveResults(source, currentDefaults);
+        }
         public static void Init()
         {
             if (!Directory.Exists(appDataPath))
@@ -74,6 +81,29 @@ namespace SWTORCombatParser.Model.Challenge
             currentDefaults.Challenges = currentChallenges;
             SaveResults(character, currentDefaults);
         }
+        public static void AddSources(List<DefaultChallengeData> sources)
+        {
+            var defaults = GetAllDefaults();
+            foreach (var source in sources)
+            {
+                if (source.ChallengeSource == "")
+                    continue;
+                if (defaults.Any(t => t.ChallengeSource == source.ChallengeSource))
+                {
+                    var sourceToUpdate = defaults.First(t => t.ChallengeSource == source.ChallengeSource);
+                    foreach (var challenge in source.Challenges)
+                    {
+                        if (sourceToUpdate.Challenges.Any(t => t.Id == challenge.Id) || Guid.Empty == challenge.Id)
+                            continue;
+                        sourceToUpdate.Challenges.Add(challenge);
+                    }
+                }
+                else
+                    defaults.Add(source);
+            }
+
+            UpdateConfig(JsonConvert.SerializeObject(defaults));
+        }
         public static void AddSource(DefaultChallengeData source)
         {
             if (source.ChallengeSource == "")
@@ -99,6 +129,15 @@ namespace SWTORCombatParser.Model.Challenge
             var currentDefaults = GetDefaults(source);
             currentDefaults.Challenges.Clear();
             SaveResults(source, currentDefaults);
+        }
+        public static void ClearBuiltInChallenges(int currentRev)
+        {
+            var currentDefaults = GetAllDefaults();
+            foreach(var challengeSource in currentDefaults)
+            {
+                challengeSource.Challenges.RemoveAll(challenge => challenge.BuiltInRev < currentRev && challenge.IsBuiltIn);
+            }
+            SaveAllResults(currentDefaults);
         }
         public static void AddChallengesToSource(List<DataStructures.Challenge> challenges, string source)
         {
@@ -182,6 +221,10 @@ namespace SWTORCombatParser.Model.Challenge
             currentDefaults.Add(data);
 
             UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
+        }
+        private static void SaveAllResults(List<DefaultChallengeData> data)
+        {
+            UpdateConfig(JsonConvert.SerializeObject(data));
         }
         private static void InitializeDefaults(string source)
         {

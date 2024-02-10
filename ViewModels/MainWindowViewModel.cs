@@ -94,8 +94,6 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged();
             }
         }
-        public bool AppIsOutOfDate { get; set; }
-        public ICommand AppOutOfDateCommand => new DelegateCommand(VersionChecker.OpenMicrosoftStoreToAppPage);
 
         public MainWindowViewModel(HotkeyHandler hotkeyHandler)
         {
@@ -112,9 +110,6 @@ namespace SWTORCombatParser.ViewModels
             TimerController.Init();
             VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
-
-            AppIsOutOfDate = !VersionChecker.AppIsUpToDate;
-            VersionChecker.AppVersionInfoReady += UpdateIcon;
 
             PhaseManager.Init();
             PhaseManager.SelectedPhasesUpdated += FilterForPhase;
@@ -185,6 +180,7 @@ namespace SWTORCombatParser.ViewModels
             SelectedTabIndex = 0;
             HeaderSelectionState.NewHeaderSelected += UpdateDataForNewTab;
             ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
+
         }
         private void FilterForPhase(List<PhaseInstance> list)
         {
@@ -205,13 +201,6 @@ namespace SWTORCombatParser.ViewModels
             CombatSelectionMonitor.SelectPhase(newCombat);
             UpdateViewsWithSelectedCombat(newCombat);
         }
-
-        private void UpdateIcon()
-        {
-            AppIsOutOfDate = !VersionChecker.AppIsUpToDate;
-            OnPropertyChanged("AppIsOutOfDate");
-        }
-
         public SolidColorBrush UploadButtonBackground
         {
             get => uploadButtonBackground; set

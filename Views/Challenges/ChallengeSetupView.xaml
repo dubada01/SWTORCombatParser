@@ -86,7 +86,7 @@
                                         <ColumnDefinition Width="1"/>
                                         <ColumnDefinition Width="0.025*" MinWidth="30"/>
                                         <ColumnDefinition Width="1"/>
-                                        <ColumnDefinition Width="0.077*"/>
+                                        <ColumnDefinition Width="0.072*"/>
                                     </Grid.ColumnDefinitions>
                                     <Rectangle Fill="DimGray" Grid.Column="1" ></Rectangle>
                                     <Rectangle Fill="DimGray" Grid.Column="3" ></Rectangle>
@@ -102,7 +102,10 @@
                                     <Button ToolTip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="8" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/editIcon.png"/>
                                     </Button>
-                                    <Button  Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="18" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                    <Button ToolTip="Share" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch">
+                                        <Image Height="20" Source="../../resources/shareIcon.png"/>
+                                    </Button>
+                                    <Button  Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="20" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -110,9 +113,22 @@
                 </ScrollViewer>
             </Grid>
         </Border>
-        
+
         <Grid Grid.Row="3">
-            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Style="{StaticResource RoundCornerButton}" Height="40" Width="100" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Viewbox Grid.Row="3" Grid.Column="0" MaxHeight="50" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal"   >
+                    <StackPanel VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Center" Orientation="Vertical">
+                        <TextBlock Foreground="WhiteSmoke" VerticalAlignment="Center" Margin="15,0,15,0" FontFamily="{StaticResource MainFont}" FontSize="18" Text="Import Challenge"></TextBlock>
+                        <TextBox Text="{Binding ImportId}" Style="{StaticResource RoundedTextBox}" Width="100"/>
+                    </StackPanel>
+                    <Button Background="Gray" Foreground="WhiteSmoke" Command="{Binding ImportCommand}" Style="{StaticResource RoundCornerButton}" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
+                </StackPanel>
+            </Viewbox>
+            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Style="{StaticResource RoundCornerButton}" Height="30" Width="75" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" FontSize="10" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
         </Grid>
     </Grid>
 </UserControl>

@@ -88,6 +88,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CombatLogStreamer.NewLineStreamed += CheckForTargetChanged;
             CombatLogStreamer.HistoricalLogsFinished += SetCurrentEncounter;
             CombatLogStateBuilder.AreaEntered += NewEncounterEntered;
+            HotkeyHandler.OnHideOverlaysHotkey += ToggleHide;
         }
 
 
@@ -270,19 +271,41 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    _conversationActive = true;
-                    _view.Hide();
+                    HideOverlay();
                 });
             }
             if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Remove && Active)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    _conversationActive = false;
-                    _view.Show();
+                    UnhideOverlay();
                 });
             }
         }
+        private void ToggleHide()
+        {
+            if (_conversationActive)
+            {
+                if(Active)
+                    UnhideOverlay();
+            }
+            else
+            {
+                HideOverlay();
+            }
+        }
+        private void UnhideOverlay()
+        {
+            _conversationActive = false;
+            _view.Show();
+        }
+
+        private void HideOverlay()
+        {
+            _conversationActive = true;
+            _view.Hide();
+        }
+
         private void CheckForRaidHOT(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null ||
