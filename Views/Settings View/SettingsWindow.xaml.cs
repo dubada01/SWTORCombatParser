@@ -57,9 +57,9 @@ namespace SWTORCombatParser.Views.SettingsView
             ForceLogUpdates.IsChecked = Settings.ReadSettingOfType<bool>("force_log_updates");
             BackgroundWarning.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring");
         }
-        private void ResetMessages(object sender, RoutedEventArgs e)
+        private async void ResetMessages(object sender, RoutedEventArgs e)
         {
-            var newMessages = UpdateMessageService.GetAllUpdateMessages();
+            var newMessages = await UpdateMessageService.GetAllUpdateMessages();
             if (newMessages.Count > 0)
             {
                 var updateWindow = new FeatureUpdateInfoWindow();

@@ -12,15 +12,15 @@ namespace SWTORCombatParser.Model.Updates
 {
     internal static class UpdateMessageService
     {
-        internal static List<UpdateMessage> GetUpdateMessages()
+        internal static async Task<List<UpdateMessage>> GetUpdateMessages()
         {
-            var allMessages = MessageFetcher.GetMessages();
+            var allMessages = await MessageFetcher.GetMessages();
             var clearedMessages = Settings.GetListSetting<string>("cleared_messages");
             return allMessages.Where(m => !clearedMessages.Contains(m.MessageId.ToString())).ToList();
         }
-        internal static List<UpdateMessage> GetAllUpdateMessages()
+        internal static async Task<List<UpdateMessage>> GetAllUpdateMessages()
         {
-            return MessageFetcher.GetMessages();
+            return await MessageFetcher.GetMessages();
         }
         internal static void Reset()
         {
