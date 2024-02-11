@@ -14,7 +14,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class MessageFetcher
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
-        public static List<UpdateMessage> GetMessages()
+        public static async Task<List<UpdateMessage>> GetMessages()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
                 return new List<UpdateMessage>();
@@ -23,8 +23,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (HttpClient connection = new HttpClient())
                 {
                     Uri uri = new Uri($"{_apiPath}/messages/getActive");
-                    var response = connection.GetAsync(uri).Result;
-                    var body = response.Content.ReadFromJsonAsync<List<UpdateMessage>>().Result;
+                    var response = await connection.GetAsync(uri);
+                    var body = await response.Content.ReadFromJsonAsync<List<UpdateMessage>>();
                     var filteredMessages = body.Where(m => m.ValidForBuild == Assembly.GetExecutingAssembly().GetName().Version.ToString());
                     return body;
                 }

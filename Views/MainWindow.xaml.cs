@@ -61,9 +61,9 @@ namespace SWTORCombatParser.Views
             Loaded += CheckForUpdates;
         }
 
-        private void CheckForUpdates(object sender, RoutedEventArgs e)
+        private async void CheckForUpdates(object sender, RoutedEventArgs e)
         {
-            var newMessages = UpdateMessageService.GetUpdateMessages();
+            var newMessages = await UpdateMessageService.GetUpdateMessages();
             if(newMessages.Count > 0)
             {
                 var updateWindow = new FeatureUpdateInfoWindow();
