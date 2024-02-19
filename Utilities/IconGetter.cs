@@ -19,10 +19,8 @@ namespace SWTORCombatParser.Utilities
     {
         public static ConcurrentDictionary<string, BitmapImage> IconDict = new ConcurrentDictionary<string, BitmapImage>();
         public static Dictionary<string,string> _abilityToIconDict = new Dictionary<string, string>();
-        private static string currentPath;
         public static void Init()
         {
-            currentPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
             var lines = File.ReadAllLines("DataStructures/ability_to_icon.csv");
             _abilityToIconDict = lines.ToDictionary(kvp => kvp.Split(',')[0], kvp =>kvp.Split(',')[1]);
         }
@@ -39,9 +37,10 @@ namespace SWTORCombatParser.Utilities
         }
         public static string GetIconPathForId(string id)
         {
-            if(_abilityToIconDict.TryGetValue(id,out var path))
-                return currentPath + @$"\resources\icons\{path}.png";
-            return currentPath + @$"\resources\icons\.png";
+            string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+            if (_abilityToIconDict.TryGetValue(id,out var path))
+                return appDataPath + @$"\resources\icons\{path}.png";
+            return appDataPath + @$"\resources\icons\.png";
         }
         public static async Task<BitmapImage> InitIcon(string id)
         {

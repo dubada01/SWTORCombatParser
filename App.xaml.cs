@@ -58,7 +58,8 @@ namespace SWTORCombatParser
         }
         private async Task ExtractIconsIfNecessaryAsync()
         {
-            var iconsPath = Path.Combine(Environment.CurrentDirectory, "resources/icons");
+            string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+            var iconsPath = Path.Combine(appDataPath, "resources/icons");
 
             // Check if the icons directory already exists
             if (!Directory.Exists(iconsPath))
