@@ -138,6 +138,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     OnPropertyChanged("EncounterCombats");
                 });
             }
+            OnPropertyChanged("PPHInfo");
             OnPropertyChanged("NumberOfBossBattles");
             OnPropertyChanged("NumberOfTrashBattles");
         }
