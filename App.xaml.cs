@@ -4,6 +4,8 @@ using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.Views;
 using System;
 using System.Diagnostics;
+using System.IO.Compression;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,7 +30,12 @@ namespace SWTORCombatParser
             {
                 ConvertToAppData.ConvertFromProgramDataToAppData();
                 var task = TimeUtility.StartUpdateTask();
-                
+                Task.Run(async () =>
+                {
+                    await ExtractIconsIfNecessaryAsync();
+                    IconGetter.Init();
+                });
+
                 var mainWindow = new MainWindow();
                 Application.Current.MainWindow = mainWindow;
                 var mainWindowVM = new MainWindowViewModel(mainWindow.HotkeyHandler);
@@ -49,7 +56,20 @@ namespace SWTORCombatParser
                 }
             }
         }
+        private async Task ExtractIconsIfNecessaryAsync()
+        {
+            var iconsPath = Path.Combine(Environment.CurrentDirectory, "resources/icons");
 
+            // Check if the icons directory already exists
+            if (!Directory.Exists(iconsPath))
+            {
+                Directory.CreateDirectory(iconsPath);
+                var zipFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources", "packagedIcons.zip");
+
+                // Use System.IO.Compression to extract the files
+                ZipFile.ExtractToDirectory(zipFilePath, iconsPath);
+            }
+        }
         private static void CheckForAppVersion()
         {
             Task.Run(VersionChecker.CheckForMostRecentVersion);

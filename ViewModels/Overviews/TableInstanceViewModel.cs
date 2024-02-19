@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -78,7 +79,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             Update();
         }
-        internal override void Update()
+        internal override async void Update()
         {
             if (_selectedEntity == null || SelectedCombat == null)
                 return;
@@ -86,16 +87,16 @@ namespace SWTORCombatParser.ViewModels.Overviews
             switch (_type)
             {
                 case OverviewDataType.Damage:
-                    DisplayDamageData(SelectedCombat);
+                    await DisplayDamageData(SelectedCombat);
                     break;
                 case OverviewDataType.Healing:
-                    DisplayHealingData(SelectedCombat);
+                    await DisplayHealingData(SelectedCombat);
                     break;
                 case OverviewDataType.DamageTaken:
-                    DisplayDamageTakenData(SelectedCombat);
+                    await DisplayDamageTakenData(SelectedCombat);
                     break;
                 case OverviewDataType.HealingReceived:
-                    DisplayHealingReceived(SelectedCombat);
+                    await DisplayHealingReceived(SelectedCombat);
                     break;
             }
             DataToView = DataToView.OrderByDescending(v => v.PercentOfTotal).ToList();
@@ -137,18 +138,18 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     return "Unknown";
             }
         }
-        private void DisplayDamageTakenData(Combat combat)
+        private async Task DisplayDamageTakenData(Combat combat)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingDamageLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                PoppulateRows(orderedKey);
+                await PoppulateRows(orderedKey);
             }
         }
 
-        private void DisplayHealingData(Combat combat)
+        private async Task DisplayHealingData(Combat combat)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             var healing = combat.OutgoingHealingLogs[defaultEntity];
@@ -158,32 +159,32 @@ namespace SWTORCombatParser.ViewModels.Overviews
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                PoppulateRows(orderedKey);
+                await PoppulateRows(orderedKey);
             }
         }
 
-        private void DisplayDamageData(Combat combat)
+        private async Task DisplayDamageData(Combat combat)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingDamageLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                PoppulateRows(orderedKey);
+                await PoppulateRows(orderedKey);
             }
         }
-        private void DisplayHealingReceived(Combat combat)
+        private async Task DisplayHealingReceived(Combat combat)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingHealingLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                PoppulateRows(orderedKey);
+                await PoppulateRows(orderedKey);
             }
         }
 
-        private void PoppulateRows(KeyValuePair<string, List<ParsedLogEntry>> orderedKey)
+        private async Task PoppulateRows(KeyValuePair<string, List<ParsedLogEntry>> orderedKey)
         {
             DataToView.Add(new CombatInfoInstance
             {
@@ -196,10 +197,10 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 MaxCrit = orderedKey.Value.Any(a => a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue) : 0,
                 Count = (int)orderedKey.Value.Count(),
                 CritPercent = orderedKey.Value.Count(v => v.Value.WasCrit) / (double)orderedKey.Value.Count() * 100d,
-                Icon = GetIconForRow(orderedKey.Value.FirstOrDefault())
+                Icon = await GetIconForRow(orderedKey.Value.FirstOrDefault())
             });
         }
-        private ImageSource GetIconForRow(ParsedLogEntry log)
+        private async Task<ImageSource> GetIconForRow(ParsedLogEntry log)
         {
             if(log == null) return null;
             var sourceClass = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(log.Source, log.TimeStamp);
@@ -207,7 +208,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             switch (sortingOption)
             {
                 case SortingOption.ByAbility:
-                    return IconGetter.GetIconPathForLog(log);
+                    return await IconGetter.GetIconPathForLog(log);
                 case SortingOption.BySource:
                     return IconFactory.GetColoredBitmapImage(sourceClass.Name, GetIconColorFromClass(sourceClass));
                 case SortingOption.ByTarget:

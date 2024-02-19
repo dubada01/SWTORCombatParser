@@ -92,7 +92,7 @@
                             <Rectangle Fill="DimGray" Grid.Column="11"></Rectangle>
                             <Rectangle Fill="DimGray" Grid.Column="13"></Rectangle>
                             <Rectangle Fill="DimGray" Grid.Column="15"></Rectangle>
-                            <Image Width="20" Source="{Binding Icon}" HorizontalAlignment="Left"></Image>
+                            <Image Width="20" Source="{Binding Icon, IsAsync=True}" HorizontalAlignment="Left"></Image>
                             <TextBlock Margin="20,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="12" VerticalAlignment="Center" Text="{Binding SortItem}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                             <Grid Margin="10,3,10,3" Grid.Column="2" VerticalAlignment="Center" >
                                 <Grid.ColumnDefinitions>

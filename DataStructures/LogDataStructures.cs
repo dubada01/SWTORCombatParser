@@ -5,6 +5,7 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -29,13 +30,13 @@ namespace SWTORCombatParser.DataStructures
             Source = source;
             Target = target;
             Ability = ability;
-            AbilityIcon = !string.IsNullOrEmpty(_abilityId) && IconGetter.IconDict.ContainsKey(_abilityId) ? IconGetter.GetIconForId(_abilityId) : null;
+            
             EffectName = effectName;
-            EffectIcon = !string.IsNullOrEmpty(_effectId) && IconGetter.IconDict.ContainsKey(_effectId) ? IconGetter.GetIconForId(_effectId) : null;
+            
             EffectBackground = Brushes.Transparent;
             ValueBackground = Brushes.Transparent;
-            AbilityTextMargin = !string.IsNullOrEmpty(_abilityId) && IconGetter.IconDict.ContainsKey(_abilityId)  ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
-            EffectTextMargin = !string.IsNullOrEmpty(_effectId) && IconGetter.IconDict.ContainsKey(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
+            AbilityTextMargin = !string.IsNullOrEmpty(_abilityId) && IconGetter.HasIcon(_abilityId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
+            EffectTextMargin = !string.IsNullOrEmpty(_effectId) && IconGetter.HasIcon(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
             if (effectId == _7_0LogParsing.DeathCombatId)
             {
                 EffectBackground = Brushes.IndianRed;
@@ -62,15 +63,20 @@ namespace SWTORCombatParser.DataStructures
             ModifierType = modifiertype;
             ModifierValue = modifierValue;
         }
+        public async Task AddIcons()
+        {
+            AbilityIcon = !string.IsNullOrEmpty(_abilityId) && IconGetter.HasIcon(_abilityId) ? await IconGetter.GetIconForId(_abilityId) : null;
+            EffectIcon = !string.IsNullOrEmpty(_effectId) && IconGetter.HasIcon(_effectId) ? await IconGetter.GetIconForId(_effectId) : null;
+        }
         public SolidColorBrush EffectBackground { get; set; }
         public SolidColorBrush ValueBackground { get; set; }
         public string SecondsSinceCombatStart { get; }
         public string Source { get; }
         public string Target { get; }
         public string Ability { get; }
-        public BitmapImage AbilityIcon { get; }
+        public BitmapImage AbilityIcon { get; set; }
         public string EffectName { get; }
-        public BitmapImage EffectIcon { get; }
+        public BitmapImage EffectIcon { get; set; }
         public Thickness EffectTextMargin { get; set; }
         public Thickness AbilityTextMargin { get; set; }
         public string Value { get; }

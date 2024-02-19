@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
@@ -86,7 +87,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             }
             var maxValue = _displayedLogs.Any() ? _displayedLogs.Max(v => v.Value.EffectiveDblValue) : 0;
             var logs = new List<DisplayableLogEntry>(_displayedLogs.OrderBy(l=>l.TimeStamp).Select(
-                l => new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
+                l => 
+                new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
                 l.Source.Name,
                 string.Intern(l.Source.LogId.ToString()),
                 l.Target.Name,
@@ -100,6 +102,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 l.Value.ValueType != DamageType.none ? l.Value.ValueType.ToString() : l.Effect.EffectType.ToString(),
                 l.Value.ModifierType,
                 l.Value.ModifierDisplayValue, maxValue, l.Value.EffectiveDblValue)));
+            Task.Run(() => { logs.ForEach(async l => await l.AddIcons()); });
+            
             LogsToDisplay = logs;
             _distinctEntities = _currentlySelectedCombat.AllLogs.Select(l => l.Source).Distinct().ToList();
             OnPropertyChanged("LogsToDisplay");
