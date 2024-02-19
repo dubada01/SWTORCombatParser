@@ -106,7 +106,7 @@ namespace SWTORCombatParser.ViewModels
 
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
-            IconGetter.Init();
+            //IconGetter.Init();
             TimerController.Init();
             VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;

@@ -72,22 +72,36 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         {
             AbilityInfoList.Clear();
         }
-        private void UpdateList(Combat combat)
+        private async void UpdateList(Combat combat)
         {
             var abilitiesUsedlist = combat.AbilitiesActivated[CombatLogStateBuilder.CurrentState.LocalPlayer].AsEnumerable().Reverse().ToList();
 
-            
+            var tasks = abilitiesUsedlist.Select(async a =>
+            {
+                var icon = await GetIconFromId(a.AbilityId); // Assume this is your async method to get icons
+                return new AbilityInfo
+                {
+                    FontSize = FontSize,
+                    AbilityName = a.Ability,
+                    Icon = icon,
+                    UseTime = $"{((int)(a.TimeStamp - combat.StartTime).TotalMinutes > 0 ? (int)(a.TimeStamp - combat.StartTime).TotalMinutes + "m " : "")}{(a.TimeStamp - combat.StartTime).Seconds}s"
+                };
+            });
+
+            var abilityInfoList = await Task.WhenAll(tasks);
+
             App.Current.Dispatcher.Invoke(() =>
             {
-                AbilityInfoList = abilitiesUsedlist.Select(a => new AbilityInfo {FontSize = FontSize, AbilityName = a.Ability, Icon = GetIconFromId(a.AbilityId), UseTime =$"{((int)(a.TimeStamp - combat.StartTime).TotalMinutes > 0 ?(int)(a.TimeStamp - combat.StartTime).TotalMinutes+"m " : "")}{(a.TimeStamp - combat.StartTime).Seconds}s"}).ToList();
+                // Assuming AbilityInfoList is a property or variable that should be updated on the UI
+                AbilityInfoList = abilityInfoList.ToList();
             });
         }
 
-        private ImageSource GetIconFromId(string abilityId)
+        private async Task<ImageSource> GetIconFromId(string abilityId)
         {
             //TODO Get actual icons
 
-            return IconGetter.GetIconForId(abilityId);
+            return await IconGetter.GetIconForId(abilityId);
 
 
         }

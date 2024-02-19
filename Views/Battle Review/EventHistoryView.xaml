@@ -119,7 +119,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding AbilityIcon}"></Image>
+                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding AbilityIcon, IsAsync=True}"></Image>
                                     <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Ability" ToolTip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="{Binding AbilityTextMargin}" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
                                 </Grid>
@@ -130,7 +130,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid Background="{Binding EffectBackground}">
-                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding EffectIcon}"></Image>
+                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding EffectIcon, IsAsync=True}"></Image>
                                     <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Effect" ToolTip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="{Binding EffectTextMargin}" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
                                 </Grid>
