@@ -174,6 +174,13 @@ namespace SWTORCombatParser.Model.Timers
             timerToModify.IsEnabled = state;
             SaveResults(timerToModify.TimerSource, currentDefaults);
         }
+        public static void SetTimerVisibility(bool state, Timer timer)
+        {
+            var currentDefaults = GetDefaults(timer.TimerSource);
+            var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+            timerToModify.IsSubTimer = state;
+            SaveResults(timerToModify.TimerSource, currentDefaults);
+        }
         public static void SetTimerAudio(bool state, Timer timer)
         {
             var currentDefaults = GetDefaults(timer.TimerSource);
@@ -187,6 +194,17 @@ namespace SWTORCombatParser.Model.Timers
             foreach (var timer in currentDefaults.Timers)
             {
                 timer.UseAudio = timers.First(t => t.Id == timer.Id).UseAudio;
+            }
+            //var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+            //timerToModify.UseAudio = state;
+            SaveResults(source, currentDefaults);
+        }
+        public static void SetTimersVisibilityForSource(List<Timer> timers, string source)
+        {
+            var currentDefaults = GetDefaults(source);
+            foreach (var timer in currentDefaults.Timers)
+            {
+                timer.IsSubTimer = timers.First(t => t.Id == timer.Id).IsSubTimer;
             }
             //var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
             //timerToModify.UseAudio = state;

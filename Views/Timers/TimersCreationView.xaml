@@ -75,15 +75,17 @@
                         </LinearGradientBrush>
                     </Grid.Background>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.1*"/>
-                        <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="0.075*"/>
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="0.05*"/>
                         <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="0.033*" MinWidth="35"/>
+                        <ColumnDefinition Width="0.025*"/>
                         <ColumnDefinition Width="1"/>
-                        <ColumnDefinition Width="0.05*"/>
+                        <ColumnDefinition Width="0.025*" MinWidth="35"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="0.03*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="0.03*"/>
                         <ColumnDefinition Width="1"/>
                         <ColumnDefinition Width="0.025*" MinWidth="30"/>
                         <ColumnDefinition Width="1"/>
@@ -95,6 +97,8 @@
                     <Rectangle Fill="DimGray" Grid.Column="3" Margin="0,2,0,2"></Rectangle>
                     <Rectangle Fill="DimGray" Grid.Column="5" Margin="0,2,0,2"></Rectangle>
                     <Rectangle Fill="DimGray" Grid.Column="7" Margin="0,2,0,2"></Rectangle>
+                    <Rectangle Fill="DimGray" Grid.Column="9" Margin="0,2,0,2"></Rectangle>
+                    <Rectangle Fill="DimGray" Grid.Column="11" Margin="0,2,0,2"></Rectangle>
                     <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold"  FontSize="13" VerticalAlignment="Center" Text="Name" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Color" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
@@ -103,11 +107,13 @@
                         <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Active" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                         <CheckBox Margin="5,0,0,0" VerticalAlignment="Center" IsChecked="{Binding AllActive}"/>
                     </StackPanel>
-                    
+                    <Button IsEnabled="{Binding CanChangeAudio}" ToolTip="Toggle timer visibility" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleVisibilityCommand}" HorizontalAlignment="Stretch">
+                        <Image Height="20" Source="{Binding VisibilityImageSource}"/>
+                    </Button>
                     <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <Button IsEnabled="{Binding CanChangeAudio}" ToolTip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
+                    <Button IsEnabled="{Binding CanChangeAudio}" ToolTip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
                         <Image Height="20" Source="{Binding AudioImageSource}"/>
                     </Button>
                 </Grid>
@@ -117,15 +123,17 @@
                             <DataTemplate>
                                 <Grid Grid.Row="0" Background="{Binding RowBackground}">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="0.1*"/>
-                                        <ColumnDefinition Width="0.3"/>
                                         <ColumnDefinition Width="0.075*"/>
                                         <ColumnDefinition Width="0.3"/>
                                         <ColumnDefinition Width="0.05*"/>
                                         <ColumnDefinition Width="0.3"/>
-                                        <ColumnDefinition Width="0.033*" MinWidth="35"/>
+                                        <ColumnDefinition Width="0.025*"/>
                                         <ColumnDefinition Width="0.3"/>
-                                        <ColumnDefinition Width="0.05*"/>
+                                        <ColumnDefinition Width="0.025*" MinWidth="35"/>
+                                        <ColumnDefinition Width="0.3"/>
+                                        <ColumnDefinition Width="0.03*"/>
+                                        <ColumnDefinition Width="0.3"/>
+                                        <ColumnDefinition Width="0.03*"/>
                                         <ColumnDefinition Width="0.3"/>
                                         <ColumnDefinition Width="0.025*" MinWidth="30"/>
                                         <ColumnDefinition Width="0.3"/>
@@ -153,19 +161,22 @@
                                     </Grid>
                                     <TextBlock Margin="5,0,0,0" Grid.Column="6" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
                                     <CheckBox Margin="0,0,0,0" Grid.Column="8" VerticalAlignment="Center" IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center"/>
-                                    <Button ToolTip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip="Toggle time visiblity" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleVisibilityCommand}" HorizontalAlignment="Stretch">
+                                        <Image Height="20" Source="{Binding VisibilityImageSource}"/>
+                                    </Button>
+                                    <Button ToolTip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="{Binding AudioImageSource}"/>
                                     </Button>
-                                    <Button ToolTip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="14" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/editIcon.png"/>
                                     </Button>
-                                    <Button ToolTip="Share"  Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="14" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding ShareCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip="Share"  Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="16" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding ShareCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/shareIcon.png"/>
                                     </Button>
-                                    <Button ToolTip="Duplicate"  Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="16" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding CopyCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip="Duplicate"  Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="18" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding CopyCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/copyIcon.png"/>
                                     </Button>
-                                    <Button  Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="18" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                    <Button  Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="22" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

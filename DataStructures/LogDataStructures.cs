@@ -1,12 +1,14 @@
 ﻿using Prism.Commands;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -27,9 +29,13 @@ namespace SWTORCombatParser.DataStructures
             Source = source;
             Target = target;
             Ability = ability;
+            AbilityIcon = !string.IsNullOrEmpty(_abilityId) && IconGetter.IconDict.ContainsKey(_abilityId) ? IconGetter.GetIconForId(_abilityId) : null;
             EffectName = effectName;
+            EffectIcon = !string.IsNullOrEmpty(_effectId) && IconGetter.IconDict.ContainsKey(_effectId) ? IconGetter.GetIconForId(_effectId) : null;
             EffectBackground = Brushes.Transparent;
             ValueBackground = Brushes.Transparent;
+            AbilityTextMargin = !string.IsNullOrEmpty(_abilityId) && IconGetter.IconDict.ContainsKey(_abilityId)  ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
+            EffectTextMargin = !string.IsNullOrEmpty(_effectId) && IconGetter.IconDict.ContainsKey(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
             if (effectId == _7_0LogParsing.DeathCombatId)
             {
                 EffectBackground = Brushes.IndianRed;
@@ -62,7 +68,11 @@ namespace SWTORCombatParser.DataStructures
         public string Source { get; }
         public string Target { get; }
         public string Ability { get; }
+        public BitmapImage AbilityIcon { get; }
         public string EffectName { get; }
+        public BitmapImage EffectIcon { get; }
+        public Thickness EffectTextMargin { get; set; }
+        public Thickness AbilityTextMargin { get; set; }
         public string Value { get; }
         public bool WasValueCrit { get; }
         public string ValueType { get; }

@@ -22,6 +22,7 @@ namespace SWTORCombatParser.Model.Challenge
 
         private static string infoPath = Path.Combine(appDataPath, "challengeInfo.json");
         private static string activePath = Path.Combine(appDataPath, "challengeActive.json");
+        private static object _fileLock = new object();
         public static void UpdateChallengeActive(bool challengeActive, string source)
         {
             var currentActives = GetAllChallengeActive();
@@ -56,15 +57,18 @@ namespace SWTORCombatParser.Model.Challenge
         }
         public static void Init()
         {
-            if (!Directory.Exists(appDataPath))
-                Directory.CreateDirectory(appDataPath);
-            if (!File.Exists(infoPath))
+            lock (_fileLock)
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new List<DefaultChallengeData>()));
-            }
-            if (!File.Exists(activePath))
-            {
-                File.WriteAllText(activePath, JsonConvert.SerializeObject(new Dictionary<string, bool>()));
+                if (!Directory.Exists(appDataPath))
+                    Directory.CreateDirectory(appDataPath);
+                if (!File.Exists(infoPath))
+                {
+                    File.WriteAllText(infoPath, JsonConvert.SerializeObject(new List<DefaultChallengeData>()));
+                }
+                if (!File.Exists(activePath))
+                {
+                    File.WriteAllText(activePath, JsonConvert.SerializeObject(new Dictionary<string, bool>()));
+                }
             }
         }
 
@@ -174,53 +178,64 @@ namespace SWTORCombatParser.Model.Challenge
         }
         public static DefaultChallengeData GetDefaults(string source)
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            try
+            lock (_fileLock)
             {
-                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
-                if (!currentDefaults.Any(c => c.ChallengeSource == source))
+                var stringInfo = File.ReadAllText(infoPath);
+                try
+                {
+                    var currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
+                    if (!currentDefaults.Any(c => c.ChallengeSource == source))
+                    {
+                        InitializeDefaults(source);
+                    }
+
+                    var initializedInfo = File.ReadAllText(infoPath);
+                    currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(initializedInfo);
+                    return currentDefaults.First(t => t.ChallengeSource == source);
+                }
+                catch (Exception)
                 {
                     InitializeDefaults(source);
+                    var resetDefaults = File.ReadAllText(infoPath);
+                    return JsonConvert.DeserializeObject<List<DefaultChallengeData>>(resetDefaults).First(t => t.ChallengeSource == source);
                 }
+            }
 
-                var initializedInfo = File.ReadAllText(infoPath);
-                currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(initializedInfo);
-                return currentDefaults.First(t => t.ChallengeSource == source);
-            }
-            catch (Exception)
-            {
-                InitializeDefaults(source);
-                var resetDefaults = File.ReadAllText(infoPath);
-                return JsonConvert.DeserializeObject<List<DefaultChallengeData>>(resetDefaults).First(t => t.ChallengeSource == source);
-            }
         }
         public static List<DefaultChallengeData> GetAllDefaults()
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            if (string.IsNullOrEmpty(stringInfo))
+            lock(_fileLock)
             {
-                return new List<DefaultChallengeData>();
+                var stringInfo = File.ReadAllText(infoPath);
+                if (string.IsNullOrEmpty(stringInfo))
+                {
+                    return new List<DefaultChallengeData>();
+                }
+                try
+                {
+                    var currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
+                    return currentDefaults;
+                }
+                catch (JsonSerializationException)
+                {
+                    File.WriteAllText(infoPath, "");
+                    return new List<DefaultChallengeData>();
+                }
             }
-            try
-            {
-                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
-                return currentDefaults;
-            }
-            catch (JsonSerializationException)
-            {
-                File.WriteAllText(infoPath, "");
-                return new List<DefaultChallengeData>();
-            }
+
         }
         private static void SaveResults(string source, DefaultChallengeData data)
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
+            lock(_fileLock)
+            {
+                var stringInfo = File.ReadAllText(infoPath);
+                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
 
-            currentDefaults.Remove(currentDefaults.First(cd => cd.ChallengeSource == source));
-            currentDefaults.Add(data);
+                currentDefaults.Remove(currentDefaults.First(cd => cd.ChallengeSource == source));
+                currentDefaults.Add(data);
 
-            UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
+                UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
+            }
         }
         private static void SaveAllResults(List<DefaultChallengeData> data)
         {
@@ -228,33 +243,41 @@ namespace SWTORCombatParser.Model.Challenge
         }
         private static void InitializeDefaults(string source)
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = new List<DefaultChallengeData>();
-            if (!string.IsNullOrEmpty(stringInfo))
+            lock (_fileLock)
             {
-                currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
+                var stringInfo = File.ReadAllText(infoPath);
+                var currentDefaults = new List<DefaultChallengeData>();
+                if (!string.IsNullOrEmpty(stringInfo))
+                {
+                    currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
+                }
+
+                var defaults = new DefaultChallengeData() { ChallengeSource = source, Position = new Point(0, 0), WidtHHeight = new Point(300, 200) };
+                currentDefaults.Add(defaults);
+                UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
             }
 
-            var defaults = new DefaultChallengeData() { ChallengeSource = source, Position = new Point(0, 0), WidtHHeight = new Point(300, 200) };
-            currentDefaults.Add(defaults);
-            UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
         }
         private static void UpdateConfig(string textToWrite)
         {
-            string tempFileName = infoPath + ".temp";
-
-            try
+            lock ( _fileLock)
             {
-                File.WriteAllText(tempFileName, textToWrite);
+                string tempFileName = infoPath + ".temp";
 
-                // Replace the original file with the temporary file atomically
-                File.Move(tempFileName, infoPath, true);
+                try
+                {
+                    File.WriteAllText(tempFileName, textToWrite);
+
+                    // Replace the original file with the temporary file atomically
+                    File.Move(tempFileName, infoPath, true);
+                }
+                catch (Exception e)
+                {
+                    // Handle the error, e.g., log it or inform the user
+                    Console.WriteLine($"Error writing config to file: {e.Message}");
+                }
             }
-            catch (Exception e)
-            {
-                // Handle the error, e.g., log it or inform the user
-                Console.WriteLine($"Error writing config to file: {e.Message}");
-            }
+
         }
     }
 }

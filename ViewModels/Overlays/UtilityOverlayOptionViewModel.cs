@@ -15,6 +15,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         PvPHP,
         PvPMap, 
         RoomHazard,
+        AbilityList,
         Other
     }
     public class UtilityOverlayOptionViewModel : INotifyPropertyChanged
@@ -22,7 +23,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool isSelected = false;
         private bool enabled = true;
         private string name;
-
+        public string HelpText => Name;
         public string Name { get => name; set 
             { 
                 name = value;

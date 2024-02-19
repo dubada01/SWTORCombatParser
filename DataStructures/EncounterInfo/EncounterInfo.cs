@@ -169,7 +169,6 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 return Difficutly + " " + NumberOfPlayer.Split(" ")[0];
             return ((Difficutly == "Master" ? "Veteran" : Difficutly) + " " + NumberOfPlayer.Split(" ")[0]);
         }
-
         public bool IsBossEncounter => BossInfos?.Count != 0;
         public bool IsPvpEncounter => (int)EncounterType >= 4;
         public List<BossInfo> BossInfos { get; set; } = new List<BossInfo>();

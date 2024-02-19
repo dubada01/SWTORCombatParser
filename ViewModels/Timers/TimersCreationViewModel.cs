@@ -332,6 +332,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             t.ShowDialog();
         }
         public string AudioImageSource => !allMuted ? Environment.CurrentDirectory + "/resources/audioIcon.png" : Environment.CurrentDirectory + "/resources/mutedIcon.png";
+        public string VisibilityImageSource => !allHidden ? Environment.CurrentDirectory + "/resources/view.png" : Environment.CurrentDirectory + "/resources/hidden.png";
         private bool allMuted = false;
         private EncounterSelectionView _encounterSelectionView;
         private List<TimerType> _timerSourcesTypes = new List<TimerType> { TimerType.Discipline, TimerType.Encounter };
@@ -342,6 +343,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private bool _canChangeAudio = true;
         private string _importId;
         private bool allActive;
+        private bool allHidden;
 
         public bool AllActive
         {
@@ -372,7 +374,28 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
+        public ICommand ToggleVisibilityCommand => new CommandHandler(ToggleVisibility);
 
+        private void SetVisibilityIcon(bool status)
+        {
+            allHidden = status;
+            OnPropertyChanged("VisibilityImageSource");
+        }
+        private void ToggleVisibility(object obj)
+        {
+            SetVisibilityIcon(!allHidden);
+            if (TimerRows.Count == 0)
+                return;
+            Task.Run(() =>
+            {
+                Parallel.ForEach(TimerRows, timer =>
+                {
+                    timer.SetVisibility(allHidden);
+                });
+                DefaultTimersManager.SetTimersVisibilityForSource(TimerRows.Select(t => t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
+                TimerController.RefreshAvailableTimers();
+            });
+        }
         public ICommand ToggleAudioCommand => new CommandHandler(ToggleAudio);
 
         private void SetAudioIcon(bool status)

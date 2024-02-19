@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.9.1</VersionPrefix>
+    <VersionPrefix>1.9.2</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -93,13 +93,19 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
-
+    <ItemGroup>
+        <Content Include="resources\icons\**\*.*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
   <ItemGroup>
     <None Remove=".gitattributes" />
     <None Remove=".gitignore" />
     <None Remove="BossMechanicSkimmerConfig.json" />
     <None Remove="connectionConfig.json" />
     <None Remove="DataStructures\AbilityInfo\absorbs.json" />
+    <None Remove="DataStructures\ability_icon_map.json" />
+    <None Remove="DataStructures\ability_to_icon.csv" />
     <None Remove="DataStructures\Boss Timers\BossTimers.json" />
     <None Remove="DataStructures\Boss Timers\DevTimers.json" />
     <None Remove="DataStructures\ChallengeInfo\BuiltInChallenges.json" />
@@ -212,6 +218,7 @@
     <None Remove="resources\google-docs.png" />
     <None Remove="resources\grid.png" />
     <None Remove="resources\healingIcon.png" />
+    <None Remove="resources\hidden.png" />
     <None Remove="resources\Loading.gif" />
     <None Remove="resources\LocalPlayerIcon.png" />
     <None Remove="resources\MinusIcon.png" />
@@ -566,6 +573,7 @@
     <None Remove="resources\SWTORParsingIcon.ico" />
     <None Remove="resources\tankIcon.png" />
     <None Remove="resources\uploadToParselyIcon.png" />
+    <None Remove="resources\view.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -576,6 +584,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\AbilityInfo\absorbs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataStructures\ability_to_icon.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="DataStructures\ChallengeInfo\BuiltInChallenges.json">
@@ -789,6 +800,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\healingIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\hidden.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\Loading.gif">
@@ -1859,6 +1873,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\uploadToParselyIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\view.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="DataStructures\DOT Timers\timers.json">
@@ -3515,6 +3532,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="DataStructures\ability_icon_map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
@@ -3557,6 +3580,10 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="resources\Icons\" />
   </ItemGroup>
 
 </Project>

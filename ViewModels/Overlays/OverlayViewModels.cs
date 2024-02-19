@@ -9,6 +9,7 @@ using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.Overlays.AbilityList;
 using SWTORCombatParser.ViewModels.Overlays.Personal;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Challenges;
@@ -31,11 +32,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
         private Dictionary<string, OverlayInfo> _overlayDefaults = new Dictionary<string, OverlayInfo>();
         private string _currentCharacterRole = Role.DPS.ToString();
+        private string _currentCharacterDiscipline = "";
         private bool overlaysLocked = true;
         private LeaderboardType selectedLeaderboardType;
         private TimersCreationViewModel _timersViewModel;
         private ChallengeSetupViewModel _challengesViewModel;
         private OthersOverlaySetupViewModel _otherOverlayViewModel;
+        private AbilityListSetupViewModel _abilityListSetup;
         private double maxScalar = 1.5d;
         private double minScalar = 0.1d;
         private double sizeScalar = 1d;
@@ -106,6 +109,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void SetOverlaysScale()
         {
+            _abilityListSetup.SetScalar(sizeScalar);
             _otherOverlayViewModel.SetScalar(sizeScalar);
             _timersViewModel.SetScalar(sizeScalar);
             _challengesViewModel.SetScalar(sizeScalar);
@@ -137,7 +141,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public OverlayViewModel()
         {
-            CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForDiscipline;
+            CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForClass;
             CombatLogStreamer.HistoricalLogsFinished += FinishHistoricalParse;
             CombatLogStreamer.HistoricalLogsStarted += HistoricalLogsStarted;
             sizeScalar = Settings.ReadSettingOfType<double>("overlay_bar_scale");
@@ -172,6 +176,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new UtilityOverlayOptionViewModel{ Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
                 new UtilityOverlayOptionViewModel{ Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
                 new UtilityOverlayOptionViewModel{ Name = "PvP Mini-map", Type = UtilityOverlayType.PvPMap},
+                new UtilityOverlayOptionViewModel{ Name = "Ability List", Type = UtilityOverlayType.AbilityList},
             };
 
             TimersView = new TimersCreationView();
@@ -188,6 +193,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             OthersSetupView = new OtherOverlaySetupView();
             OthersSetupView.DataContext = _otherOverlayViewModel;
 
+            _abilityListSetup = new AbilityListSetupViewModel();
+
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = _otherOverlayViewModel._raidHotsConfigViewModel.RaidHotsEnabled;
             _otherOverlayViewModel._raidHotsConfigViewModel.EnabledChanged += e => {
                 AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = e;
@@ -197,7 +204,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.OverlayEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled;
-
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AbilityList).IsSelected = _abilityListSetup.AbilityListEnabled;
 
             _personalOverlayViewModel = new PersonalOverlayViewModel(sizeScalar);
             usePersonalOverlay = _personalOverlayViewModel.Active;
@@ -209,15 +216,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
             HotkeyHandler.OnLockOverlayHotkey += () => OverlaysLocked = !OverlaysLocked;
         }
 
-        private void UpdateOverlaysForDiscipline(Entity character, SWTORClass arg2)
+        private void UpdateOverlaysForClass(Entity character, SWTORClass arg2)
         {
-            var nextDiscipline = arg2.Role.ToString();
-            if (_currentCharacterRole == nextDiscipline)
-                return;
-            _currentCharacterRole = arg2.Role.ToString();
-            if (historicalParseFinished)
+            var nextDiscipline = arg2.Discipline;
+            if(nextDiscipline != _currentCharacterDiscipline)
             {
-                RefreshOverlays();
+                _currentCharacterDiscipline = nextDiscipline;
                 if (CombatMonitorViewModel.IsLiveParseActive())
                 {
                     var timerToggle = AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer);
@@ -225,6 +229,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     timerToggle.Enabled = true;
                     timerToggle.IsSelected = DefaultTimersManager.GetTimersActive(arg2.Discipline);
                 }
+            }
+            var nextRole = arg2.Role.ToString();
+            if (_currentCharacterRole == nextRole)
+                return;
+            _currentCharacterRole = arg2.Role.ToString();
+            if (historicalParseFinished)
+            {
+                RefreshOverlays();
             }
         }
 
@@ -343,7 +355,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
             if (localPlayer == null)
                 return;
-            UpdateOverlaysForDiscipline(localPlayer, currentDiscipline);
+            UpdateOverlaysForClass(localPlayer, currentDiscipline);
         }
         private void HistoricalLogsStarted()
         {
@@ -381,6 +393,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case UtilityOverlayType.RaidChallenge:
                     _challengesViewModel.ChallengesEnabled = !_challengesViewModel.ChallengesEnabled;
+                    break;
+                case UtilityOverlayType.AbilityList:
+                    _abilityListSetup.AbilityListEnabled = !_abilityListSetup.AbilityListEnabled;
                     break;
                 default:
                     return;
@@ -455,6 +470,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _challengesViewModel.UpdateLock(value);
                 _otherOverlayViewModel.UpdateLock(overlaysLocked);
                 _personalOverlayViewModel.UpdateLock(overlaysLocked);
+                _abilityListSetup.UpdateLock(overlaysLocked);
                 ToggleOverlayLock();
                 OverlayLockStateChanged();
                 OnPropertyChanged();

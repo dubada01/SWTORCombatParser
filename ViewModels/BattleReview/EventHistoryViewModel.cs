@@ -85,7 +85,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 _displayedLogs = _displayedLogs.Where(l => l.TimeStamp > firstDeath).ToList();
             }
             var maxValue = _displayedLogs.Any() ? _displayedLogs.Max(v => v.Value.EffectiveDblValue) : 0;
-            var logs = new List<DisplayableLogEntry>(_displayedLogs.Select(
+            var logs = new List<DisplayableLogEntry>(_displayedLogs.OrderBy(l=>l.TimeStamp).Select(
                 l => new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
                 l.Source.Name,
                 string.Intern(l.Source.LogId.ToString()),
@@ -156,6 +156,10 @@ namespace SWTORCombatParser.ViewModels.BattleReview
     log.Effect.EffectType != EffectType.Remove &&
     !(_viewingEntities.Contains(log.Source) && log.Effect.EffectId == _7_0LogParsing._damageEffectId) &&
     log.Effect.EffectId != _7_0LogParsing.AbilityActivateId;
+                        }
+                    case DisplayType.Abilities:
+                        {
+                            return ((_viewingEntities.Contains(log.Target) || _viewingEntities.Contains(log.Target) || _viewingEntities.Any(e => e.Name == "All")) && log.Effect.EffectType == EffectType.Event);
                         }
                     default:
                         return false;

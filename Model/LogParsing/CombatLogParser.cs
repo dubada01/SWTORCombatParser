@@ -92,6 +92,29 @@ namespace SWTORCombatParser.Model.LogParsing
 
             return hasValidEnd;
         }
+        public static List<string> ExtractSpecificLines(CombatLogFile combatLog, int startLog, int endLog, bool includeAreaEntered = true)
+        {
+            var logLines = new List<string>();
+            var worked = GetAllLines(combatLog.Data, logLines);
+            var areaEnteredId = "836045448953664";
+            var areaEnteredLog = "";
+
+            var validLines = new List<string>();
+            for (int i = startLog; i >= 0; i--)
+            {
+                if (logLines[i].Contains(areaEnteredId))
+                {
+                    areaEnteredLog = logLines[i];
+                    break;
+                }
+            }
+            validLines.Add(areaEnteredLog);
+            for (int i = startLog; i <= endLog; i++)
+            {
+                validLines.Add(logLines[i]);
+            }
+            return validLines;
+        }
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog, bool includeIncomplete = false)
         {
             CombatLogStateBuilder.ClearState();

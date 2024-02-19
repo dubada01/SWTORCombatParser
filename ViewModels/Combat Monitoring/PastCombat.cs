@@ -1,8 +1,13 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using Prism.Commands;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.Parsely;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
@@ -46,6 +51,14 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 OnPropertyChanged();
             }
         }
+        public ICommand UploadToParselyCommand => new DelegateCommand(UploadToParsely);
+
+        private async void UploadToParsely()
+        {
+            var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Where(v=>v.LogLineNumber!=0).MinBy(v=>v.LogLineNumber).LogLineNumber, (int)Combat.AllLogs.MaxBy(v => v.LogLineNumber).LogLineNumber);
+            await ParselyUploader.TryUploadText(lines, Combat.LogFileName);
+        }
+
         public DateTime CombatStartTime { get; set; }
         public void SelectionToggle()
         {

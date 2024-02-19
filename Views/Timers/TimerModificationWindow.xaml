@@ -37,7 +37,7 @@
 
                 <Viewbox Visibility="{Binding ShowAbilityOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Margin="30,0,25,0" HorizontalAlignment="Left" VerticalAlignment="Center">
                     <StackPanel  Orientation="Horizontal">
-                        <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Ability" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" Foreground="WhiteSmoke" FontSize="18" Text="Ability" FontFamily="{StaticResource MainFont}"></TextBlock>
                         <TextBox x:Name="AbilityName" Foreground="WhiteSmoke" FontWeight="Normal" Width="200" Style="{StaticResource RoundedTextBox}" Text="{Binding Ability}"></TextBox>
                     </StackPanel>
                 </Viewbox>
@@ -148,8 +148,8 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <StackPanel Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Vertical">
-                        <RadioButton Content="Set Variable" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" IsChecked="{Binding SetVariableWithCharge}" GroupName="Options"/>
-                        <RadioButton Content="Trigger on Compare" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" IsChecked="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToInverseConverter}}" GroupName="Options"/>
+                        <CheckBox Content="Set Variable" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" IsChecked="{Binding SetVariableWithCharge}"/>
+                        <CheckBox Content="Trigger on Compare" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" IsChecked="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToInverseConverter}}"/>
                     </StackPanel>
                     <ComboBox Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}}"  Grid.Row="1" Height="40" Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableVariables}" SelectedItem="{Binding ChargeVariable}"></ComboBox>
                     <StackPanel Visibility="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="2" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">

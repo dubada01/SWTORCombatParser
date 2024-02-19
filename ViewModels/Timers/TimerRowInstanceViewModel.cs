@@ -33,6 +33,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
         public string AudioImageSource => SourceTimer.UseAudio ? Environment.CurrentDirectory + "/resources/audioIcon.png" : Environment.CurrentDirectory + "/resources/mutedIcon.png";
+        public string VisibilityImageSource => !SourceTimer.IsSubTimer ? Environment.CurrentDirectory + "/resources/view.png" : Environment.CurrentDirectory + "/resources/hidden.png";
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public string DurationSec => SourceTimer.IsAlert ? "Alert" : SourceTimer.DurationSec.ToString();
@@ -56,6 +57,15 @@ namespace SWTORCombatParser.ViewModels.Timers
             DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
             TimerController.RefreshAvailableTimers();
             OnPropertyChanged("AudioImageSource");
+        }
+        public ICommand ToggleVisibilityCommand => new CommandHandler(ToggleVisiblity);
+
+        private void ToggleVisiblity(object obj)
+        {
+            SourceTimer.IsSubTimer = !SourceTimer.IsSubTimer;
+            DefaultTimersManager.SetTimerVisibility(SourceTimer.IsSubTimer, SourceTimer);
+            TimerController.RefreshAvailableTimers();
+            OnPropertyChanged("VisibilityImageSource");
         }
 
         public ICommand EditCommand => new CommandHandler(Edit);
@@ -93,6 +103,19 @@ namespace SWTORCombatParser.ViewModels.Timers
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+        }
+        internal void SetVisibility(bool visible)
+        {
+            if (visible)
+            {
+                SourceTimer.IsSubTimer = !visible;
+            }
+            else
+            {
+                SourceTimer.IsSubTimer = visible;
+            }
+
+            OnPropertyChanged("VisibilityImageSource");
         }
         internal void SetAudio(bool muted)
         {

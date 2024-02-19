@@ -32,6 +32,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private bool _isInCombat = false;
         private bool _isWaitingForExitCombatTimout;
 
+        private int numberOfProcessedLines=0;
         private string _logToMonitor;
         private bool _monitorLog;
         private long numberOfProcessedBytes = 0;
@@ -77,6 +78,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
             CombatLogParser.SetParseDate();
             var currentLogs = CombatLogParser.ParseAllLines(file, true);
+            numberOfProcessedLines = currentLogs.Count;
             Logging.LogInfo("Found " + currentLogs.Count + " log entries in " + _logToMonitor);
             int[] characters = new int[currentLogs.Count];
             Parallel.For(0, currentLogs.Count, i =>
@@ -97,6 +99,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private void ResetMonitoring()
         {
             numberOfProcessedBytes = 0;
+            numberOfProcessedLines = 0;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
         }
@@ -145,7 +148,8 @@ namespace SWTORCombatParser.Model.LogParsing
 
                 for (var line = 0; line < lines.Count; line++)
                 {
-                    var result = ProcessNewLine(lines[line], line, Path.GetFileName(_logToMonitor), logUpdateTime);
+                    numberOfProcessedLines++;
+                    var result = ProcessNewLine(lines[line], numberOfProcessedLines, Path.GetFileName(_logToMonitor), logUpdateTime);
                     if (result == ProcessedLineResult.Incomplete)
                     {
                         Logging.LogInfo("Failed to parse line: " + lines[line]);
