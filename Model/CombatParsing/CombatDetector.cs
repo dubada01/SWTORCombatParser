@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Timer = System.Timers.Timer;
@@ -57,7 +58,17 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             if (_checkLogsForTimtout)
             {
-                if ((line.TimeStamp - _exitCombatDetectedTime).TotalSeconds >= 3)
+                if (line.Effect.EffectId == _7_0LogParsing._damageEffectId && line.Source.IsCharacter)
+                {
+                    if (isRealTime)
+                    {
+                        Debug.WriteLine($"Restarting at: {(_inCombatStartTime - line.TimeStamp).TotalSeconds}");
+                        RestartTimer();
+                    }
+                    else
+                        _exitCombatDetectedTime = line.TimeStamp;
+                }
+                if ((line.TimeStamp - _exitCombatDetectedTime).TotalSeconds >= (_bossCombat ? 3 : 0.5) && !isRealTime)
                 {
                     ExitCombatTimedOut(null, null);
                 }
@@ -134,6 +145,10 @@ namespace SWTORCombatParser.Model.CombatParsing
             {
                 revivedPlayers.Add(CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(line.Source, line.TimeStamp).Entity);
             }
+            if (_bossCombat && _combatResNames.Contains(line.AbilityId) && line.Effect.EffectId == _7_0LogParsing.AbilityCancelId)
+            {
+                revivedPlayers.Remove(CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(line.Source, line.TimeStamp).Entity);
+            }
 
             if (_bossCombat && line.AbilityId == _boonOfSpiritId)
             {
@@ -152,14 +167,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (line.Effect.EffectId == _7_0LogParsing.ExitCombatId && InCombat)
             {
-                if (!_bossCombat)
-                {
-                    return EndCombat();
-                }
-                else
-                {
-                    ExitCombatDetected(line, isRealTime);
-                }
+                ExitCombatDetected(line, isRealTime, _bossCombat ? 3:0.5);
             }
             if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && InCombat)
             {
@@ -193,13 +201,14 @@ namespace SWTORCombatParser.Model.CombatParsing
                 return CombatState.OutOfCombat;
 
         }
-        private static CombatState ExitCombatDetected(ParsedLogEntry log, bool isRealTime)
+        private static CombatState ExitCombatDetected(ParsedLogEntry log, bool isRealTime, double timeOutSec)
         {
             if (isRealTime)
             {
-                _exitCombatDetectedTime = TimeUtility.CorrectedTime;
-                _timeoutTimer.Interval = TimeSpan.FromSeconds(3).TotalMilliseconds;
+                _checkLogsForTimtout = true;
+                _timeoutTimer.Interval = TimeSpan.FromSeconds(timeOutSec).TotalMilliseconds;
                 _timeoutTimer.Elapsed += ExitCombatTimedOut;
+                _timeoutTimer.AutoReset = false;
                 _timeoutTimer.Start();
             }
             else
@@ -208,6 +217,14 @@ namespace SWTORCombatParser.Model.CombatParsing
                 _checkLogsForTimtout = true;
             }
             return CombatState.ExitCombatDetected;
+        }
+        private static void RestartTimer()
+        {
+            if (_timeoutTimer.Enabled)
+            {
+                _timeoutTimer.Stop(); // Stop the timer if it's running
+            }
+            _timeoutTimer.Start(); // Start or restart the timer
         }
         private static void ExitCombatTimedOut(object sender, ElapsedEventArgs args)
         {

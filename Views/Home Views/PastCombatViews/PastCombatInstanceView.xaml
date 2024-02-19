@@ -15,6 +15,11 @@
                 </Style.Triggers>
             </Style>
         </Border.Resources>
+        <Border.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Upload Battle to Parsely" Command="{Binding UploadToParselyCommand}"/>
+            </ContextMenu>
+        </Border.ContextMenu>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>

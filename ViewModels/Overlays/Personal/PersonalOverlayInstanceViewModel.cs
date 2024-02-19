@@ -104,7 +104,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             }
         }
         public CellInfo CurrentCellInfo => new CellInfo { CellType = selectedMetric, CustomVariable = selectedVariable };
-        public string MetricValue => metricValue.ToString("N0");
+        public string MetricValue => SelectedMetric != OverlayType.CombatTimer ? metricValue.ToString("N0") : $"{((int)CombatDuration.TotalMinutes == 0 ? "" : (int)CombatDuration.TotalMinutes+"m")} {CombatDuration.Seconds}s";
+        public TimeSpan CombatDuration { get; set; }
 
         public PersonalOverlayInstanceViewModel(bool currentlyUnlocked, double scalar, CellInfo overlay = null)
         {
@@ -151,9 +152,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             if (newCombat == null || newCombat.StartTime == DateTime.MinValue)
                 return;
             _currentcombat = newCombat;
-            if (string.IsNullOrEmpty(SelectedVariable))
+            if (string.IsNullOrEmpty(SelectedVariable) && SelectedMetric != OverlayType.CombatTimer)
             {
                 UpdateMetricNumber();
+            }
+            if(string.IsNullOrEmpty(SelectedVariable) && SelectedMetric == OverlayType.CombatTimer)
+            {
+                CombatDuration = newCombat.EndTime - newCombat.StartTime;
+                OnPropertyChanged("MetricValue");
             }
         }
 

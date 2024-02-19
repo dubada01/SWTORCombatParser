@@ -10,10 +10,16 @@ using System.Xml;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
+    public class LogUploadResponse
+    {
+        public string ParselyLink { get; set; }
+        public bool WasSuccess { get; set; }
+    }
     public static class ParselyUploader
     {
         private static string parselyURL = "https://parsely.io/api/upload2";
         internal static event Action<bool, string> UploadCompleted = delegate { };
+        internal static event Action UploadStarted = delegate { };  
         internal static async Task UploadCurrentCombat(string currentlySelectedLogName)
         {
             if (string.IsNullOrEmpty(currentlySelectedLogName) || !File.Exists(currentlySelectedLogName))
@@ -21,7 +27,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 UploadCompleted(false, "");
                 return;
             }
-            var zippedData = Zip(ReadAllText(currentlySelectedLogName));
+            var logText = ReadAllText(currentlySelectedLogName);
+            await TryUploadText(logText, currentlySelectedLogName);
+            return;
+        }
+        public static async Task<LogUploadResponse> TryUploadText(string logText, string logFileName)
+        {
+            UploadStarted();
+            var zippedData = Zip(logText);
             var parselyLink = "";
             using (var client = new HttpClient())
             {
@@ -33,7 +46,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     test.Headers.Add("Content-Type", "text/html");
                     test.Headers.Add("Content-Transfer-Encoding", "binary");
 
-                    content.Add(test, "file", currentlySelectedLogName);
+                    content.Add(test, "file", logFileName);
                     if (Settings.HasSetting("username"))
                     {
                         content.Add(new StringContent(Settings.ReadSettingOfType<string>("username").Trim('"')), "username");
@@ -50,22 +63,22 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             if (response.Contains("NOT OK") || response.Contains("error"))
                             {
                                 UploadCompleted(false, "");
-                                return;
+                                return new LogUploadResponse { WasSuccess = false};
                             }
                             XmlDocument xdoc = new XmlDocument();
                             xdoc.LoadXml(response);
                             parselyLink = xdoc.GetElementsByTagName("file")[0].InnerText;
+                            UploadCompleted(true, parselyLink);
+                            return new LogUploadResponse { WasSuccess = true, ParselyLink = parselyLink };
                         }
                     }
                     catch (Exception ex)
                     {
                         UploadCompleted(false, "");
-                        return;
+                        return new LogUploadResponse { WasSuccess = false };
                     }
                 }
             }
-            UploadCompleted(true, parselyLink);
-            return;
         }
         static string ReadAllText(string file)
         {

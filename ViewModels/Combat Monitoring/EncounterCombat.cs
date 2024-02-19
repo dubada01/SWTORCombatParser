@@ -24,6 +24,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private bool viewingTrash = false;
         private object combatAddLock = new object();
         public EncounterInfo Info { get; set; }
+        public string PPHInfo => Info.IsBossEncounter && combats.Count > 1 ? $"PPH {Combats.Count / (combats.Last().StartTime - combats.First().StartTime).TotalHours:N2}" : "";
         public int NumberOfBossBattles => EncounterCombats.Count(c => !c.IsTrash);
         public int NumberOfTrashBattles => EncounterCombats.Count(c => c.IsTrash);
         public GridLength DetailsHeight => Info.IsBossEncounter ? new GridLength(0.5, GridUnitType.Star) : new GridLength(0, GridUnitType.Star);

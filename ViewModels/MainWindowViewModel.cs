@@ -106,7 +106,7 @@ namespace SWTORCombatParser.ViewModels
 
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
-
+            IconGetter.Init();
             TimerController.Init();
             VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
@@ -180,6 +180,7 @@ namespace SWTORCombatParser.ViewModels
             SelectedTabIndex = 0;
             HeaderSelectionState.NewHeaderSelected += UpdateDataForNewTab;
             ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
+            ParselyUploader.UploadStarted += HandleParselyUploadStart;
 
         }
         private void FilterForPhase(List<PhaseInstance> list)
@@ -270,11 +271,13 @@ namespace SWTORCombatParser.ViewModels
                 UploadButtonBackground = Brushes.WhiteSmoke;
             });
         }
+        private void HandleParselyUploadStart()
+        {
+            UploadButtonBackground = Brushes.CornflowerBlue;
+        }
         private void UploadToParsely(object obj)
         {
-            ParselyUploader.UploadCurrentCombat(_combatMonitorViewModel.GetActiveFile());
-
-            UploadButtonBackground = Brushes.CornflowerBlue;
+            ParselyUploader.UploadCurrentCombat(_combatMonitorViewModel.GetActiveFile());            
         }
 
         private void UpdateDataForNewTab()

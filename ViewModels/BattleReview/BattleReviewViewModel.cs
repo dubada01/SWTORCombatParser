@@ -54,7 +54,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         DamageTaken,
         Healing,
         HealingReceived,
-        DeathRecap
+        DeathRecap,
+        Abilities
     }
     public class BattleReviewViewModel : INotifyPropertyChanged
     {

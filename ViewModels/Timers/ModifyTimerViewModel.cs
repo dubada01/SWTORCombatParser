@@ -1586,6 +1586,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     }
                 case TimerKeyType.VariableCheck:
                     {
+                        ShowStackVariableOptions = true;
                         IsCheckingVariable = true;
                         ShowValueComparisons = true;
                         break;

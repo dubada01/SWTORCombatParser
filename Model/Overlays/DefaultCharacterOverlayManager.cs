@@ -41,7 +41,8 @@ namespace SWTORCombatParser.Model.Overlays
         SingleTargetDPS,
         SingleTargetEHPS,
         CleanseCount,
-        CleanseSpeed
+        CleanseSpeed,
+        CombatTimer
     }
     public class OverlayInfo
     {

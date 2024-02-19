@@ -43,7 +43,7 @@ namespace SWTORCombatParser.Views.SettingsView
             OfflineMode.Checked += ToggleOffline;
             OfflineMode.Unchecked += ToggleOffline;
             BackgroundWarning.Checked += ToggleWarning;
-            BackgroundWarning.Unchecked += ToggleBackground;
+            BackgroundWarning.Unchecked += ToggleWarning;
             LogPath.TextChanged += UpdatePath;
             ResetMessagesButton.Click += ResetMessages;
         }

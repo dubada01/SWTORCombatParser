@@ -170,13 +170,7 @@ namespace SWTORCombatParser.Model.Timers
                 _currentEncounter = currentEncounter;
                 if (bossData.Item1 != "")
                     UpdateBossInfo(bossData, log.TimeStamp);
-                //if(bossData.Item1 == "" && SourceTimer.TriggerType == TimerKeyType.CombatStart && _combatStarted != true)
-                //{
-                //    //handle a combat start timer
-                //    _combatStarted = true;
-                //    CreateTimerNoTarget(log.TimeStamp);
-                //    return;
-                //}
+
                 if (SourceTimer.Name.Contains("Other's") &&
                     currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                     return;

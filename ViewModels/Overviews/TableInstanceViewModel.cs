@@ -1,9 +1,13 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -23,6 +27,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public double MaxCrit { get; set; }
         public double Max { get; set; }
         public string Type { get; set; }
+        public ImageSource Icon { get; set; }
     }
     public enum OverviewDataType
     {
@@ -191,9 +196,36 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 MaxCrit = orderedKey.Value.Any(a => a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue) : 0,
                 Count = (int)orderedKey.Value.Count(),
                 CritPercent = orderedKey.Value.Count(v => v.Value.WasCrit) / (double)orderedKey.Value.Count() * 100d,
+                Icon = GetIconForRow(orderedKey.Value.FirstOrDefault())
             });
         }
-
+        private ImageSource GetIconForRow(ParsedLogEntry log)
+        {
+            if(log == null) return null;
+            var sourceClass = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(log.Source, log.TimeStamp);
+            var targetClass = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(log.Target, log.TimeStamp);
+            switch (sortingOption)
+            {
+                case SortingOption.ByAbility:
+                    return IconGetter.GetIconPathForLog(log);
+                case SortingOption.BySource:
+                    return IconFactory.GetColoredBitmapImage(sourceClass.Name, GetIconColorFromClass(sourceClass));
+                case SortingOption.ByTarget:
+                    return IconFactory.GetColoredBitmapImage(targetClass.Name, GetIconColorFromClass(targetClass));
+                default:
+                    return null;
+            }
+        }
+        private Color GetIconColorFromClass(SWTORClass classInfo)
+        {
+            return classInfo.Role switch
+            {
+                Role.Healer => Colors.ForestGreen,
+                Role.Tank => Colors.CornflowerBlue,
+                Role.DPS => Colors.IndianRed,
+                _ => (Color)ResourceFinder.GetColorFromResourceName("Gray4")
+            };
+        }
         private Dictionary<string, List<ParsedLogEntry>> GetDataSplitOut(Combat combat, List<ParsedLogEntry> logsInScope)
         {
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = new Dictionary<string, List<ParsedLogEntry>>();

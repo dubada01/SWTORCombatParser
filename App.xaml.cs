@@ -23,7 +23,6 @@ namespace SWTORCombatParser
         private void App_Startup(StartupEventArgs e)
         {
             CheckForAppVersion();
-
             Process[] processCollection = Process.GetProcesses();
             if (processCollection.Count(pc => pc.ProcessName.ToLower() == "orbs") == 1)
             {
