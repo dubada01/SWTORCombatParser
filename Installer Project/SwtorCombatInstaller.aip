@@ -48,6 +48,7 @@
     <ROW Directory="DataStructures_Dir" Directory_Parent="APPDIR" DefaultDir="DATAST~1|DataStructures"/>
     <ROW Directory="DefensiveTimers_Dir" Directory_Parent="Timers_Dir" DefaultDir="DEFENS~1|Defensive Timers"/>
     <ROW Directory="DepthsofManaan_Dir" Directory_Parent="Raids_Dir" DefaultDir="DEPTHS~1|Depths of Manaan"/>
+    <ROW Directory="DesktopFolder" Directory_Parent="TARGETDIR" DefaultDir="DESKTO~1|DesktopFolder" IsPseudoRoot="1"/>
     <ROW Directory="Directive7_Dir" Directory_Parent="Raids_Dir" DefaultDir="DIRECT~1|Directive 7"/>
     <ROW Directory="Dxun_Dir" Directory_Parent="Raids_Dir" DefaultDir="Dxun"/>
     <ROW Directory="EncounterInfo_Dir" Directory_Parent="DataStructures_Dir" DefaultDir="ENCOUN~1|EncounterInfo"/>
@@ -72,10 +73,12 @@
     <ROW Directory="RoomOverlay_Dir" Directory_Parent="DataStructures_Dir" DefaultDir="ROOMOV~1|RoomOverlay"/>
     <ROW Directory="RoomOverlays_Dir" Directory_Parent="resources_Dir" DefaultDir="ROOMOV~1|RoomOverlays"/>
     <ROW Directory="RuinsofNul_Dir" Directory_Parent="Raids_Dir" DefaultDir="RUINSO~1|Ruins of Nul"/>
+    <ROW Directory="SHORTCUTDIR" Directory_Parent="TARGETDIR" DefaultDir="SHORTC~1|SHORTCUTDIR" IsPseudoRoot="1"/>
     <ROW Directory="ScumandVillainy_Dir" Directory_Parent="Raids_Dir" DefaultDir="SCUMAN~1|Scum and Villainy"/>
     <ROW Directory="SecretsoftheEnclave_Dir" Directory_Parent="Raids_Dir" DefaultDir="SECRET~1|Secrets of the Enclave"/>
     <ROW Directory="ShrineofSilence_Dir" Directory_Parent="Raids_Dir" DefaultDir="SHRINE~1|Shrine of Silence"/>
     <ROW Directory="SpiritofVengeance_Dir" Directory_Parent="Raids_Dir" DefaultDir="SPIRIT~1|Spirit of Vengeance"/>
+    <ROW Directory="StartMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="STARTM~1|StartMenuFolder" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="TempleofSacrifice_Dir" Directory_Parent="Raids_Dir" DefaultDir="TEMPLE~1|Temple of Sacrifice"/>
     <ROW Directory="TerrorFromBeyond_Dir" Directory_Parent="Raids_Dir" DefaultDir="TERROR~1|Terror From Beyond"/>
@@ -144,6 +147,7 @@
     <ROW Component="ProductInformation" ComponentId="{1FCE8749-0DEA-4414-97DC-4A5A8B88C262}" Directory_="APPDIR" Attributes="260" KeyPath="Version"/>
     <ROW Component="R4.json" ComponentId="{E3EF12B6-7A24-4BFA-9B1D-651DC7CAEC69}" Directory_="R4_Dir" Attributes="0" KeyPath="R4.json" Type="0"/>
     <ROW Component="RuinsofNul.json" ComponentId="{54D49B6F-8EB6-4C0B-BBD5-E031BA244355}" Directory_="RuinsofNul_Dir" Attributes="0" KeyPath="RuinsofNul.json" Type="0"/>
+    <ROW Component="SHORTCUTDIR" ComponentId="{9B03C669-614A-4C77-84CC-85AFABA999A0}" Directory_="SHORTCUTDIR" Attributes="0"/>
     <ROW Component="ScottPlot.WPF.dll" ComponentId="{D55FA8FC-6ED9-4084-8DB2-BA21F065DCF3}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.WPF.dll"/>
     <ROW Component="ScottPlot.dll" ComponentId="{8D9EEBE9-BD20-40EF-9F12-2C6B455D11FB}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.dll"/>
     <ROW Component="ScumandVillainy.json" ComponentId="{DC18E0E8-9ED1-4F89-A27F-559846623EB2}" Directory_="ScumandVillainy_Dir" Attributes="0" KeyPath="ScumandVillainy.json" Type="0"/>
@@ -898,6 +902,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="APPDIR" Component_="APPDIR" ManualDelete="true"/>
+    <ROW Directory_="SHORTCUTDIR" Component_="SHORTCUTDIR" ManualDelete="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
@@ -1000,6 +1005,7 @@
     <ROW Feature_="MainFeature" Component_="System.Reactive.dll"/>
     <ROW Feature_="MainFeature" Component_="System.Reactive.Linq.dll"/>
     <ROW Feature_="MainFeature" Component_="WpfAnimatedGif.dll"/>
+    <ROW Feature_="MainFeature" Component_="SHORTCUTDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="OrbsIcon.exe" SourcePath="..\OrbsIcon.ico" Index="0"/>
@@ -1031,6 +1037,11 @@
     <ROW Registry="ProductName" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="\"/>
     <ROW Registry="Software" Root="-1" Key="Software" Name="\"/>
     <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
+    <ROW Shortcut="Orbs" Directory_="SHORTCUTDIR" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="OrbsIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="Orbs_1" Directory_="DesktopFolder" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="OrbsIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="Orbs_2" Directory_="StartMenuFolder" Name="Orbs" Component_="Orbs.exe" Target="[#Orbs.exe]" Hotkey="0" Icon_="OrbsIcon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
