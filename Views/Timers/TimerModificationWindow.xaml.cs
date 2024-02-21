@@ -53,7 +53,7 @@ namespace SWTORCombatParser.Views.Timers
             //else
             //    ValueHelpText.Visibility = Visibility.Visible;
         }
-        private void CloseWindow(Timer throwAway, bool meh)
+        private void CloseWindow(Timer throwAway, bool meh, bool megaMeh)
         {
             Close();
         }

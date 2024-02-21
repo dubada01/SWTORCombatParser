@@ -38,10 +38,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
                 if(abilityListEnabled)
                 {
                     _view.Show();
+                    _viewModel.IsEnabled = true;
                 }
                 else
                 {
                     _view.Hide();
+                    _viewModel.IsEnabled = false;
                 }
                 DefaultGlobalOverlays.SetActive("AbilityList", abilityListEnabled);
             }

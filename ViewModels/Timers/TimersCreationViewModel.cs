@@ -441,7 +441,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 return;
             timer.IsEnabled = true;
             timer.TimerSource = selectedTimerSource;
-            NewTimer(timer, false);
+            NewTimer(timer, false, true);
         }
 
         private void CancelEdit(Timer editedTimer)
@@ -463,16 +463,19 @@ namespace SWTORCombatParser.ViewModels.Timers
             NewTimer(copy, false);
         }
 
-        private void NewTimer(Timer obj, bool wasEdit)
+        private void NewTimer(Timer obj, bool wasEdit, bool wasImport= false)
         {
             if (wasEdit)
                 DefaultTimersManager.RemoveTimerForCharacter(_timerEdited, SelectedTimerSource);
+            if (wasImport)
+                obj.IsUserAddedTimer = true;
             SaveNewTimer(obj);
             var newTimer = new TimerRowInstanceViewModel() { SourceTimer = obj, IsEnabled = obj.IsEnabled };
             newTimer.EditRequested += Edit;
             newTimer.ShareRequested += Share;
             newTimer.DeleteRequested += Delete;
             newTimer.CopyRequested += Copy;
+
             TimerRows.Add(newTimer);
             TimerController.RefreshAvailableTimers();
             UpdateRowColors();

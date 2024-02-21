@@ -206,6 +206,7 @@ namespace SWTORCombatParser.DataStructures
                 ChargesSetVariable = ChargesSetVariable,
                 ChargesSetVariableName = ChargesSetVariableName,
                 SeletedTimerIsActiveId = TriggerType == TimerKeyType.IsTimerTriggered ? SeletedTimerIsActiveId : null,
+                IsUserAddedTimer = IsUserAddedTimer,
             };
 
         }

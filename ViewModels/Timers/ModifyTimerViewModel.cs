@@ -60,7 +60,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string currentColorHex = Colors.CornflowerBlue.ToString();
 
 
-        public event Action<Timer, bool> OnNewTimer = delegate { };
+        public event Action<Timer, bool, bool> OnNewTimer = delegate { };
         public event Action<Timer> OnCancelEdit = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -671,7 +671,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             vm.ShowDurationOrAlert = false;
             vm.IsSubTrigger = true;
             vm.ParentTimerId = Id;
-            vm.OnNewTimer += (timer, editing) =>
+            vm.OnNewTimer += (timer, editing, import) =>
             {
                 NewClauseTimer(timer, 1);
             };
@@ -692,7 +692,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             vm.ShowColor = false;
             vm.ShowDurationOrAlert = false;
             vm.ParentTimerId = Id;
-            vm.OnNewTimer += (timer, editing) =>
+            vm.OnNewTimer += (timer, editing, import) =>
             {
                 NewClauseTimer(timer, 2);
             };
@@ -1049,7 +1049,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ChargesSetVariableName = ChargeVariable
             };
 
-            OnNewTimer(newTimer, isEditing);
+            OnNewTimer(newTimer, isEditing, false);
         }
         private bool Validate()
         {

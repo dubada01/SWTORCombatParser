@@ -121,6 +121,9 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
                 OnPropertyChanged();
             }
         }
+
+        public bool IsEnabled { get; internal set; }
+
         public void LockOverlays()
         {
             OnLocking(true);
@@ -152,7 +155,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
                 OnHiding();
             }
 
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove)
+            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && IsEnabled)
             {
                 OnShowing();
             }
