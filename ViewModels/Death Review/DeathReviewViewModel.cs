@@ -78,6 +78,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         internal void AddCombat(Combat selectedCombat)
         {
             _currentCombat = selectedCombat;
+            _deathLogsViewModel.SelectCombat(selectedCombat, true);
             Reset();
             var playersThatDidNotStuck = selectedCombat.AllLogs.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(l.Source.Name) && l.Target.IsCharacter).Select(l => l.Target).DistinctBy(p => p.LogId).ToList();
             var selectedParticipants = _playerListViewModel.UpdateParticipantsData(selectedCombat, playersThatDidNotStuck);
@@ -85,9 +86,9 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             {
                 _deathLogsViewModel.SetViewableEntities(selectedParticipants);
             }
-            var startTime = _deathLogsViewModel.SelectCombat(selectedCombat, true);
-            _plotViewModel.Reset();
-            _plotViewModel.PlotCombat(_currentCombat, selectedParticipants, startTime);
+            
+           // _plotViewModel.Reset();
+           // _plotViewModel.PlotCombat(_currentCombat, selectedParticipants, startTime);
         }
 
         internal void RemoveCombat(Combat obj)

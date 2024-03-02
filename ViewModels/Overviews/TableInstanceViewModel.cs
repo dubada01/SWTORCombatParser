@@ -35,7 +35,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
         Damage,
         Healing,
         DamageTaken,
-        HealingReceived
+        HealingReceived,
+        Threat
     }
     public enum SortingOption
     {
@@ -97,6 +98,9 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     break;
                 case OverviewDataType.HealingReceived:
                     await DisplayHealingReceived(SelectedCombat);
+                    break;
+                case OverviewDataType.Threat:
+                    await DisplayThreat(SelectedCombat);
                     break;
             }
             DataToView = DataToView.OrderByDescending(v => v.PercentOfTotal).ToList();
@@ -183,7 +187,32 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 await PoppulateRows(orderedKey);
             }
         }
-
+        private async Task DisplayThreat(Combat combat)
+        {
+            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
+            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.LogsInvolvingEntity[defaultEntity].Where(l=>l.Source == defaultEntity && l.Threat != 0).ToList());
+            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Where(v=>v.Threat >=0).Sum(v => v.Threat));
+            foreach (var orderedKey in splitOutdata)
+            {
+                await PoppulateRowsThreat(orderedKey);
+            }
+        }
+        private async Task PoppulateRowsThreat(KeyValuePair<string, List<ParsedLogEntry>> orderedKey)
+        {
+            DataToView.Add(new CombatInfoInstance
+            {
+                SortItem =string.IsNullOrEmpty(orderedKey.Key) ? "Taunt":orderedKey.Key,
+                SumTotal = _sumTotal,
+                Total = (int)orderedKey.Value.Sum(v => v.Threat),
+                RateDouble = orderedKey.Value.Sum(v => v.Threat) / SelectedCombat.DurationSeconds,
+                Average = (int)orderedKey.Value.Average(v => v.Threat),
+                Max = orderedKey.Value.Any(a => !a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => !v.Value.WasCrit).Max(v => v.Threat) : 0,
+                MaxCrit = orderedKey.Value.Any(a => a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Threat) : 0,
+                Count = (int)orderedKey.Value.Count(),
+                CritPercent = orderedKey.Value.Count(v => v.Value.WasCrit) / (double)orderedKey.Value.Count() * 100d,
+                Icon = await GetIconForRow(orderedKey.Value.FirstOrDefault())
+            });
+        }
         private async Task PoppulateRows(KeyValuePair<string, List<ParsedLogEntry>> orderedKey)
         {
             DataToView.Add(new CombatInfoInstance

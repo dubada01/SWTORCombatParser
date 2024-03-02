@@ -1,10 +1,12 @@
 ﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
@@ -21,8 +23,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
     public class AbilityInfo:INotifyPropertyChanged
     {
         private double fontSize;
+        private ImageSource icon;
 
-        public ImageSource Icon { get; set; }
+        public ImageSource Icon { get => icon; set 
+            {
+                icon = value;
+                OnPropertyChanged();
+            } 
+        }
         public string UseTime { get; set; }
         public string AbilityName { get; set; }
         public double FontSize { get => fontSize; set 
@@ -44,14 +52,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
         private double defaultFontSize = 18;
         private double sizeScalar = 1;
         private IDisposable _updateSub;
-        private List<AbilityInfo> abilityInfoList = new List<AbilityInfo>();
+        private ObservableCollection<AbilityInfo> abilityInfoList = new ObservableCollection<AbilityInfo>();
 
         public event Action<AbilityListViewModel> OverlayClosed = delegate { };
         public Action<bool> OnLocking = delegate { };
         public Action OnHiding = delegate { };
         public Action OnShowing = delegate { };
         public Action CloseRequested = delegate { };
-        public List<AbilityInfo> AbilityInfoList
+        public ObservableCollection<AbilityInfo> AbilityInfoList
         {
             get => abilityInfoList; set
             {
@@ -70,37 +78,60 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         }
         private void Reset()
         {
-            AbilityInfoList.Clear();
+            App.Current.Dispatcher.Invoke(() => {
+                AbilityInfoList.Clear();
+            });
+
         }
-        private async void UpdateList(Combat combat)
+        private void UpdateList(Combat combat)
         {
-            var abilitiesUsedlist = combat.AbilitiesActivated[CombatLogStateBuilder.CurrentState.LocalPlayer].AsEnumerable().Reverse().ToList();
-
-            var tasks = abilitiesUsedlist.Select(async a =>
+            if (CombatLogStateBuilder.CurrentState.LocalPlayer == null)
+                return;
+            var abilities = new List<ParsedLogEntry>();
+            if(combat.AbilitiesActivated.TryGetValue(CombatLogStateBuilder.CurrentState.LocalPlayer, out abilities))
             {
-                var icon = await GetIconFromId(a.AbilityId); // Assume this is your async method to get icons
-                return new AbilityInfo
+                var abilitiesUsedlist = abilities.AsEnumerable().Reverse().ToList();
+                var newlyAddedAbilities = abilitiesUsedlist.Take((abilitiesUsedlist.Count - AbilityInfoList.Count));
+                var iconGetTasks = new List<Task>();
+                var newAbilityInfos = new List<AbilityInfo>();
+                foreach (var newAbility in newlyAddedAbilities)
                 {
-                    FontSize = FontSize,
-                    AbilityName = a.Ability,
-                    Icon = icon,
-                    UseTime = $"{((int)(a.TimeStamp - combat.StartTime).TotalMinutes > 0 ? (int)(a.TimeStamp - combat.StartTime).TotalMinutes + "m " : "")}{(a.TimeStamp - combat.StartTime).Seconds}s"
-                };
-            });
+                    var newAbilityInfo = new AbilityInfo
+                    {
+                        FontSize = FontSize,
+                        AbilityName = newAbility.Ability,
+                        UseTime = $"{((int)(newAbility.TimeStamp - combat.StartTime).TotalMinutes > 0 ? (int)(newAbility.TimeStamp - combat.StartTime).TotalMinutes + "m " : "")}{(newAbility.TimeStamp - combat.StartTime).Seconds}s"
+                    };
+                    BitmapImage icon;
+                    if (IconGetter.IconDict.TryGetValue(newAbility.AbilityId, out icon))
+                    {
+                        newAbilityInfo.Icon = icon;
 
-            var abilityInfoList = await Task.WhenAll(tasks);
+                    }
+                    else
+                    {
+                        iconGetTasks.Add(Task.Run(async() =>
+                        { 
+                            var fetchedIcon = await GetIconFromId(newAbility.AbilityId);
+                            newAbilityInfo.Icon = fetchedIcon;
+                        }));
+                    }
+                    newAbilityInfos.Insert(0,newAbilityInfo);
+                }
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    foreach(var newAbility in newAbilityInfos)
+                    {
+                        AbilityInfoList.Insert(0,newAbility);
+                    }
+                });
+            }
 
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                // Assuming AbilityInfoList is a property or variable that should be updated on the UI
-                AbilityInfoList = abilityInfoList.ToList();
-            });
         }
 
-        private async Task<ImageSource> GetIconFromId(string abilityId)
+        private async Task<BitmapImage> GetIconFromId(string abilityId)
         {
             //TODO Get actual icons
-
             return await IconGetter.GetIconForId(abilityId);
 
 
@@ -115,7 +146,10 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
             get => sizeScalar; set
             {
                 sizeScalar = value;
-                AbilityInfoList.ForEach(a => a.FontSize = FontSize);
+                foreach(var ability in AbilityInfoList)
+                {
+                    ability.FontSize = FontSize;
+                }
                 OnPropertyChanged("BarHeight");
                 OnPropertyChanged("FontSize");
                 OnPropertyChanged();
@@ -139,6 +173,11 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         public void OverlayClosing()
         {
             Dispose();
+            OverlayClosed(this);
+        }
+        public void OverlayDisabled()
+        {
+            IsEnabled = false;
             OverlayClosed(this);
         }
         public void RequestClose()

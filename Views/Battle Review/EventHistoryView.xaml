@@ -147,7 +147,7 @@
                     <DataGridTemplateColumn Width="0.025*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Grid Background="{Binding ValueBackground}">
+                                <Grid ToolTip="{Binding Threat}" Background="{Binding ValueBackground}">
                                     <TextBlock  Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" TextDecorations="{Binding WasValueCrit, Converter={StaticResource BooleanToFontStyleConverter}}" VerticalAlignment="Center" Text="{Binding Value}" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>

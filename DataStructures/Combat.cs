@@ -39,10 +39,13 @@ namespace SWTORCombatParser.DataStructures
         public string RequiredAbilityForKill => BossInfo.AbilityRequiredForKill;
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
         public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
+        public bool BossKillOverride { get; set; }
         public bool WasBossKilled
         {
             get
             {
+                if (BossKillOverride)
+                    return true;
                 if (RequiredDeadTargetsForKill.Count > 0)
                 {
                     // Check if all required targets are killed using efficient HashSet lookup

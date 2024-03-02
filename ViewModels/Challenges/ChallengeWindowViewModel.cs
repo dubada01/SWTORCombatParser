@@ -9,6 +9,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
@@ -52,6 +53,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             _challengeUpdater.SetCollection(ActiveChallengeInstances);
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
+            CombatLogStreamer.NewLineStreamed += CheckForConversation;
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
 
             isEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
@@ -66,6 +68,23 @@ namespace SWTORCombatParser.ViewModels.Challenges
             });
         }
 
+        private void CheckForConversation(ParsedLogEntry entry)
+        {
+            App.Current.Dispatcher.Invoke(() => {
+                if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Apply)
+                {
+                    _challengeWindow.Hide();
+                }
+                if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Remove)
+                {
+                    if (Active && inBossRoom)
+                    {
+                        _challengeWindow.Show();
+                    }
+                }
+            });
+
+        }
 
         private void CheckForArea(DateTime arg1, bool arg2)
         {

@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Generic;
@@ -123,6 +124,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             CombatSelectionMonitor.CombatSelected += HandleNewCombatInfo;
             CombatSelectionMonitor.PhaseSelected += HandleNewCombatInfo;
             HandleNewCombatInfo(CombatIdentifier.CurrentCombat);
+            MetricColorLoader.OnOverlayTypeColorUpdated += TryUpdateColor;
+        }
+
+        private void TryUpdateColor(OverlayType type)
+        {
+            if(type == SelectedMetric)
+            {
+                OnPropertyChanged("SelectedMetric");
+            }
         }
 
         private void CheckCombatState(CombatStatusUpdate obj)

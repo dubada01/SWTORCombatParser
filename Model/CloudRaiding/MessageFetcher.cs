@@ -25,8 +25,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     Uri uri = new Uri($"{_apiPath}/messages/getActive");
                     var response = await connection.GetAsync(uri);
                     var body = await response.Content.ReadFromJsonAsync<List<UpdateMessage>>();
-                    var filteredMessages = body.Where(m => m.ValidForBuild == Assembly.GetExecutingAssembly().GetName().Version.ToString());
-                    return body;
+                    var filteredMessages = body.Where(m => m.ValidForBuild == Assembly.GetExecutingAssembly().GetName().Version.ToString()).ToList();
+                    return filteredMessages;
                 }
             }
             catch (Exception e)

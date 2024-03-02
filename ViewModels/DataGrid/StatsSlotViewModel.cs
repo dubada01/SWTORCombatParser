@@ -22,8 +22,10 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public bool IsLocalPlayer { get; set; }
         public bool IsTotal { get; set; }
         public HorizontalAlignment ValueAlignment { get; set; }
+        private OverlayType OverlayType { get; set; }
         public StatsSlotViewModel(OverlayType type, System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false, Entity entity = null)
         {
+            OverlayType = type;
             IsTotal = entity == null || name == "Totals";
             if (!string.IsNullOrEmpty(name) && name != "Totals")
             {
@@ -47,8 +49,19 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 return;
             }
             ValueAlignment = HorizontalAlignment.Right;
-            ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
+            ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(OverlayType, null, null, System.Globalization.CultureInfo.InvariantCulture);
+            MetricColorLoader.OnOverlayTypeColorUpdated += TryUpdateColor;
         }
+
+        private void TryUpdateColor(OverlayType type)
+        {
+            if(OverlayType == type && Value != "Totals" && DisplayIcon == false)
+            {
+                ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(OverlayType, null, null, System.Globalization.CultureInfo.InvariantCulture);
+                OnPropertyChanged("ForegroundColor");
+            }
+        }
+
         public string Value { get; set; }
         public SolidColorBrush BackgroundColor
         {

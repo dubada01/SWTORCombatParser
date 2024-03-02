@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class API_Connection
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
-        public static int GetCurrentLeaderboardVersion()
+        public static async Task<int> GetCurrentLeaderboardVersion()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
                 return 0;
@@ -22,8 +22,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (HttpClient connection = new HttpClient())
                 {
                     Uri uri = new Uri($"{_apiPath}/leaderboard/version");
-                    var response = connection.GetAsync(uri).Result;
-                    var body = response.Content.ReadFromJsonAsync<int>().Result;
+                    var response = await connection.GetAsync(uri);
+                    var body = await response.Content.ReadFromJsonAsync<int>();
                     return body;
                 }
             }

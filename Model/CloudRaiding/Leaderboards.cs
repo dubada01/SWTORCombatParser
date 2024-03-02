@@ -33,9 +33,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
         private static List<string> healingDisciplines = new List<string> { "Corruption", "Medicine", "Bodyguard", "Seer", "Sawbones", "Combat Medic" };
         private static List<string> tankDisciplines = new List<string> { "Shield Tech", "Immortal", "Darkness", "Defense", "Shield Specialist", "Kinetic Combat" };
         private static double _maxParseValue = 500000;
-        public static void Init()
+        public static async void Init()
         {
-            _leaderboardVersion = API_Connection.GetCurrentLeaderboardVersion().ToString();
+            var lbVersion = await API_Connection.GetCurrentLeaderboardVersion();
+            _leaderboardVersion = lbVersion.ToString();
         }
         public static void UpdateLeaderboardType(LeaderboardType type)
         {

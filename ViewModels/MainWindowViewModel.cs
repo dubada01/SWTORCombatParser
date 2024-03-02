@@ -5,6 +5,7 @@ using SWTORCombatParser.DataStructures.Hotkeys;
 using SWTORCombatParser.DataStructures.Phases;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.Notes;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
@@ -106,8 +107,10 @@ namespace SWTORCombatParser.ViewModels
 
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
-            //IconGetter.Init();
+            MetricColorLoader.Init();
+            MetricColorLoader.SetCurrentBrushDict();
             TimerController.Init();
+            RaidNotesReader.Init();
             VariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
 

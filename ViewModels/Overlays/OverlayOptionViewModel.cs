@@ -1,4 +1,6 @@
 ﻿using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -8,6 +10,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
     {
         private bool isSelected = false;
         public string HelpText => GetHelpFromType();
+        public OverlayOptionViewModel()
+        {
+            MetricColorLoader.OnOverlayTypeColorUpdated += UpdateColor;
+        }
+
+        private void UpdateColor(OverlayType type)
+        {
+            if (type == Type)
+                OnPropertyChanged("Type");
+        }
 
         private string GetHelpFromType()
         {

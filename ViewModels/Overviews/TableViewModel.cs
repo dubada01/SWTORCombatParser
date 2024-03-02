@@ -12,6 +12,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public TableViewInstance HealingContent { get; set; }
         public TableViewInstance DamageTakenContent { get; set; }
         public TableViewInstance HealingReceivedContent { get; set; }
+        public TableViewInstance ThreatContent { get; set; }
         public override Visibility SortOptionVisibility => Visibility.Visible;
         public List<SortingOption> AvailableOrderings { get; set; } = new List<SortingOption> { SortingOption.BySource, SortingOption.ByTarget, SortingOption.ByAbility };
 
@@ -24,6 +25,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 DamageTakenVM.SortingOption = selectedOrdering;
                 HealingVM.SortingOption = selectedOrdering;
                 HealingReceivedVM.SortingOption = selectedOrdering;
+                ThreatVM.SortingOption = selectedOrdering;
             }
         }
         public TableViewModel()
@@ -43,6 +45,10 @@ namespace SWTORCombatParser.ViewModels.Overviews
             HealingReceivedContent = new TableViewInstance();
             HealingReceivedVM = new TableInstanceViewModel(OverviewDataType.HealingReceived);
             HealingReceivedContent.DataContext = HealingReceivedVM;
+
+            ThreatContent = new TableViewInstance();
+            ThreatVM = new TableInstanceViewModel(OverviewDataType.Threat);
+            ThreatContent.DataContext = ThreatVM;
         }
 
     }

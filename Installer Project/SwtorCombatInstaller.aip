@@ -9,10 +9,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="OrbsIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{9490FF75-173E-488D-9DE3-4206A8FCEA30} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{27273E5B-EE47-487E-B82C-E7C4F9A4C043} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Parser)"/>
-    <ROW Property="ProductVersion" Value="1.9.3" Options="32"/>
+    <ROW Property="ProductVersion" Value="1.9.4" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{80800124-4453-4786-91FB-F71AA5158404}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -824,7 +824,6 @@
     <ROW File="timers.json_3" Component_="timers.json_3" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Offensive Timers\timers.json" SelfReg="false"/>
     <ROW File="BossMechanicSkimmerConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="BOSSME~1.JSO|BossMechanicSkimmerConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\BossMechanicSkimmerConfig.json" SelfReg="false"/>
     <ROW File="ColorPicker.dll" Component_="ColorPicker.dll" FileName="COLORP~1.DLL|ColorPicker.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ColorPicker.dll" SelfReg="false"/>
-    <ROW File="connectionConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="CONNEC~1.JSO|connectionConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\connectionConfig.json" SelfReg="false"/>
     <ROW File="Gma.System.MouseKeyHook.dll" Component_="Gma.System.MouseKeyHook.dll" FileName="GMASYS~1.DLL|Gma.System.MouseKeyHook.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Gma.System.MouseKeyHook.dll" SelfReg="false"/>
     <ROW File="LoggingConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="LOGGIN~1.JSO|LoggingConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\LoggingConfig.json" SelfReg="false"/>
     <ROW File="MathNet.Numerics.dll" Component_="MathNet.Numerics.dll" FileName="MATHNE~1.DLL|MathNet.Numerics.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MathNet.Numerics.dll" SelfReg="false"/>
