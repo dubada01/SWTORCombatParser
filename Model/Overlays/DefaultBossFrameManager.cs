@@ -27,7 +27,7 @@ namespace SWTORCombatParser.Model.Overlays
                 Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new BossFrameDefaults() { WidtHHeight = new Point(200, 300), Position = new Point(), TrackDOTS = true, PredictMechs = true }));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new BossFrameDefaults() { WidtHHeight = new Point(200, 300), Position = new Point(), TrackDOTS = true, PredictMechs = true, Acive=true }));
             }
         }
         internal static void SetDefaults(Point point1, Point point2)

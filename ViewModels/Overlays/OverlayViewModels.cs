@@ -10,6 +10,7 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.ViewModels.Overlays.AbilityList;
+using SWTORCombatParser.ViewModels.Overlays.Notes;
 using SWTORCombatParser.ViewModels.Overlays.Personal;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Challenges;
@@ -177,6 +178,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new UtilityOverlayOptionViewModel{ Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
                 new UtilityOverlayOptionViewModel{ Name = "PvP Mini-map", Type = UtilityOverlayType.PvPMap},
                 new UtilityOverlayOptionViewModel{ Name = "Ability List", Type = UtilityOverlayType.AbilityList},
+                new UtilityOverlayOptionViewModel{Name= "Raid Notes", Type=UtilityOverlayType.RaidNotes},
             };
 
             TimersView = new TimersCreationView();
@@ -194,6 +196,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
             OthersSetupView.DataContext = _otherOverlayViewModel;
 
             _abilityListSetup = new AbilityListSetupViewModel();
+            _abilityListSetup.OnEnabledChanged += b => {
+                AvailableUtilityOverlays.First(t => t.Type == UtilityOverlayType.AbilityList).IsSelected = b;
+            };
+
+            _raidNotesSetup = new RaidNotesSetupViewModel();
+            _raidNotesSetup.OnEnabledChanged += b => {
+                AvailableUtilityOverlays.First(t => t.Type == UtilityOverlayType.RaidNotes).IsSelected = b;
+            };
 
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = _otherOverlayViewModel._raidHotsConfigViewModel.RaidHotsEnabled;
             _otherOverlayViewModel._raidHotsConfigViewModel.EnabledChanged += e => {
@@ -205,7 +215,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AbilityList).IsSelected = _abilityListSetup.AbilityListEnabled;
-
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidNotes).IsSelected = _raidNotesSetup.RaidNotesEnabled;
             _personalOverlayViewModel = new PersonalOverlayViewModel(sizeScalar);
             usePersonalOverlay = _personalOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Personal).IsSelected = usePersonalOverlay;
@@ -397,6 +407,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case UtilityOverlayType.AbilityList:
                     _abilityListSetup.AbilityListEnabled = !_abilityListSetup.AbilityListEnabled;
                     break;
+                case UtilityOverlayType.RaidNotes:
+                    _raidNotesSetup.RaidNotesEnabled = !_raidNotesSetup.RaidNotesEnabled;
+                    break;
                 default:
                     return;
 
@@ -471,6 +484,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _otherOverlayViewModel.UpdateLock(overlaysLocked);
                 _personalOverlayViewModel.UpdateLock(overlaysLocked);
                 _abilityListSetup.UpdateLock(overlaysLocked);
+                _raidNotesSetup.UpdateLock(overlaysLocked);
                 ToggleOverlayLock();
                 OverlayLockStateChanged();
                 OnPropertyChanged();
@@ -509,6 +523,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private string _previousRole;
         private int selectedOverlayTab;
+        private RaidNotesSetupViewModel _raidNotesSetup;
 
         public bool UseDynamicLayout
         {

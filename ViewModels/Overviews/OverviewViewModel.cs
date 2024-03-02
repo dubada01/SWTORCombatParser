@@ -16,6 +16,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public OverviewInstanceViewModel HealingVM;
         public OverviewInstanceViewModel DamageTakenVM;
         public OverviewInstanceViewModel HealingReceivedVM;
+        public OverviewInstanceViewModel ThreatVM;
         public abstract Visibility SortOptionVisibility { get; }
         public List<Entity> AvailableParticipants { get; set; } = new List<Entity>();
         private Combat _currentCombat;
@@ -48,6 +49,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 HealingVM.UpdateEntity(selectedEntity);
                 DamageTakenVM.UpdateEntity(selectedEntity);
                 HealingReceivedVM.UpdateEntity(selectedEntity);
+                ThreatVM.UpdateEntity(selectedEntity);
                 OnPropertyChanged();
 
             }
@@ -58,6 +60,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             UpdateParticipants();
             DamageVM.UpdateData(combat);
             DamageTakenVM.UpdateData(combat);
+            ThreatVM.UpdateData(combat);
             HealingVM.UpdateData(combat);
             HealingReceivedVM.UpdateData(combat);
         }
@@ -95,6 +98,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             DamageTakenVM.Reset();
             HealingVM.Reset();
             HealingReceivedVM.Reset();
+            ThreatVM.Reset();
             OnPropertyChanged("AvailableParticipants");
         }
     }

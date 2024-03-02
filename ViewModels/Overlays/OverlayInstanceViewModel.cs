@@ -131,9 +131,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged += UpdateLeaderboardType;
             CombatLogStreamer.NewLineStreamed += CheckForConversation;
+            MetricColorLoader.OnOverlayTypeColorUpdated += UpdateColor;
             UpdateLeaderboardType(LeaderboardSettings.ReadLeaderboardSettings());
         }
-
+        private void UpdateColor(OverlayType type)
+        {
+            if (type == Type)
+                OnPropertyChanged("Type");
+            if(type == SecondaryType)
+                OnPropertyChanged("SecondaryType");
+        }
         private bool _conversationActive;
         private IDisposable _updateSub;
 

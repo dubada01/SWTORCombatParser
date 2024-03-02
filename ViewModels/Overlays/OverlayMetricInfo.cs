@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -70,7 +71,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public string PlayerName => Player.Name;
         public bool IsLeaderboardValue { get; set; } = false;
 
-
+        public OverlayMetricInfo()
+        {
+            MetricColorLoader.OnOverlayTypeColorUpdated += UpdateColor;
+        }
         public double RelativeLength
         {
             get => double.IsNaN(relativeLength) ? 0 : relativeLength;
@@ -174,6 +178,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Value = 0;
             SecondaryValue = 0;
             RelativeLength = 0;
+        }
+        private void UpdateColor(OverlayType type)
+        {
+            if (type == Type)
+                OnPropertyChanged("Type");
+            if (type == SecondaryType)
+                OnPropertyChanged("SecondaryType");
         }
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }

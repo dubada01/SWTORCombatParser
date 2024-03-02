@@ -88,14 +88,15 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 }
                 participantViewModel.SetValues(info.EDPS[participant], info.EHPS[participant], info.EDTPS[participant], imagePath);
                 AvailableParticipants.Add(participantViewModel);
-                if (playersDiedNatrually.Contains(participant) || playersDiedNatrually.Count == 0)
-                {
-                    participantViewModel.IsSelected = true;
-                    SelectedParticipants.Add(participant);
-                }
                 participantViewModel.SelectionChanged += SelectParticipant;
             }
             AvailableParticipants = new List<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
+            var initiallySelectedPlayer =  AvailableParticipants.FirstOrDefault(a => playersDiedNatrually.Contains(a.Entity));
+            if (initiallySelectedPlayer != null)
+            {
+                initiallySelectedPlayer.IsSelected = true;
+                SelectParticipant(initiallySelectedPlayer, true);
+            }
             UpdateLayout();
             OnPropertyChanged("AvailableParticipants");
             return SelectedParticipants;

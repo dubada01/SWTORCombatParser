@@ -1,7 +1,10 @@
-﻿using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.BossFrame;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using SWTORCombatParser.ViewModels.Overlays.Room;
+using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Overlay.AbilityList;
 using System;
 using System.Collections.Generic;
@@ -16,10 +19,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
         private AbilityListViewModel _viewModel;
         private AbilityListView _view;
         private bool abilityListEnabled;
-
+        public event Action<bool> OnEnabledChanged = delegate { };
         public AbilityListSetupViewModel()
         {
             _viewModel = new AbilityListViewModel();
+            _viewModel.OverlayClosed += Disable;
             _view = new AbilityListView(_viewModel);
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("AbilityList");
             _view.Top = defaults.Position.Y;
@@ -47,6 +51,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
                 }
                 DefaultGlobalOverlays.SetActive("AbilityList", abilityListEnabled);
             }
+        }
+        private void Disable(AbilityListViewModel model)
+        {
+            AbilityListEnabled = false;
+            OnEnabledChanged(false);
         }
         internal void SetScalar(double sizeScalar)
         {

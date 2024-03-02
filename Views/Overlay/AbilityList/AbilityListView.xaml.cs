@@ -180,8 +180,8 @@ namespace SWTORCombatParser.Views.Overlay.AbilityList
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.OverlayClosing();
-            CloseOverlay();
+            viewModel.OverlayDisabled();
+            HideOverlay();
         }
     }
 }

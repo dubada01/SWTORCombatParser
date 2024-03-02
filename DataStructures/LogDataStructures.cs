@@ -19,7 +19,7 @@ namespace SWTORCombatParser.DataStructures
         private string _targetId;
         private string _abilityId;
         private string _effectId;
-        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue)
+        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, long threat)
         {
             _sourceId = sourceId;
             _targetId = targetId;
@@ -58,6 +58,7 @@ namespace SWTORCombatParser.DataStructures
                 ValueBackground = new SolidColorBrush(GetColorForValue(logValue / maxValue));
             }
             Value = value;
+            Threat = threat.ToString();
             WasValueCrit = wasValueCrit;
             ValueType = type;
             ModifierType = modifiertype;
@@ -80,6 +81,7 @@ namespace SWTORCombatParser.DataStructures
         public Thickness EffectTextMargin { get; set; }
         public Thickness AbilityTextMargin { get; set; }
         public string Value { get; }
+        public string Threat { get; set; }
         public bool WasValueCrit { get; }
         public string ValueType { get; }
         public string ModifierType { get; }
@@ -224,7 +226,8 @@ namespace SWTORCombatParser.DataStructures
         TargetChanged,
         ModifyCharges,
         AbsorbShield,
-        Unknown
+        Unknown,
+        ModifyThreat
     }
     public enum DamageType
     {

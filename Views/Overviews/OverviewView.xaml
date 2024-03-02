@@ -56,7 +56,9 @@
                 <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Healing Received">
                     <ContentPresenter Content="{Binding HealingReceivedContent}"></ContentPresenter>
                 </TabItem>
-                
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Threat">
+                    <ContentPresenter Content="{Binding ThreatContent}"></ContentPresenter>
+                </TabItem>
             </TabControl>
         </DockPanel>
 

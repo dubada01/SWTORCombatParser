@@ -16,6 +16,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         PvPMap, 
         RoomHazard,
         AbilityList,
+        RaidNotes,
         Other
     }
     public class UtilityOverlayOptionViewModel : INotifyPropertyChanged

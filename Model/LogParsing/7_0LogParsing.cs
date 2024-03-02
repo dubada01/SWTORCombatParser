@@ -51,6 +51,8 @@ namespace SWTORCombatParser.Model.LogParsing
         public static string ApplyEffectId = "836045448945477";
         public static string RemoveEffectId = "836045448945478";
         public static string InConversationEffectId = "806968520343876";
+        public static string ModifyThreatId = "836045448945483";
+        public static string TauntId = "836045448945488";
 
         private static Regex valueRegex;
         public static Regex threatRegex;
@@ -133,7 +135,14 @@ namespace SWTORCombatParser.Model.LogParsing
             newEntry.Value = ParseValues(value, newEntry.Effect);
 
             if (!threat.Contains('.'))
-                newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : long.Parse(threat.Replace("<", "").Replace(">", ""));
+            { 
+                newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : long.Parse(threat.Replace("<", "").Replace(">", "")); 
+            }
+            if (newEntry.Effect.EffectType == EffectType.ModifyThreat)
+            {
+                newEntry.Value.DisplayValue = newEntry.Threat.ToString();
+                newEntry.Value.StrValue = newEntry.Threat.ToString();
+            }
 
             return newEntry;
         }
@@ -534,6 +543,14 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (newEffect.EffectId == TargetSetId || newEffect.EffectId == TargetClearedId)
                 {
                     newEffect.EffectType = EffectType.TargetChanged;
+                }
+                if(newEffect.EffectId == ModifyThreatId)
+                {
+                    newEffect.EffectType = EffectType.ModifyThreat;
+                }
+                if(newEffect.EffectId == TauntId)
+                {
+                    newEffect.EffectType = EffectType.ModifyThreat;
                 }
             }
             return newEffect;

@@ -12,7 +12,8 @@
                 ConverterParameter=inverted}" Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" 
                 BorderBrush="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBorderConverter}}"
                 BorderThickness="1.5"
-                Height="35" MaxWidth="100" Margin="5,1,5,1" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                Height="35" MaxWidth="100" Margin="5,1,5,1" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                PreviewMouseRightButtonUp="Button_PreviewMouseRightButtonUp">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2*"></RowDefinition>

@@ -101,7 +101,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 l.Value.WasCrit,
                 l.Value.ValueType != DamageType.none ? l.Value.ValueType.ToString() : l.Effect.EffectType.ToString(),
                 l.Value.ModifierType,
-                l.Value.ModifierDisplayValue, maxValue, l.Value.EffectiveDblValue)));
+                l.Value.ModifierDisplayValue, maxValue, l.Value.EffectiveDblValue,
+                l.Threat)));
             Task.Run(() => { logs.ForEach(async l => await l.AddIcons()); });
             
             LogsToDisplay = logs;

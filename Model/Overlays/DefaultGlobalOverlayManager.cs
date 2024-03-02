@@ -57,7 +57,7 @@ namespace SWTORCombatParser.Model.Overlays
         private static void InitDefaults(string type)
         {
             var currentDefaults = ReadDefaultsFromFile();
-            currentDefaults[type] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 }, Acive = true };
+            currentDefaults[type] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 }, Acive = false };
             SaveDefaults(currentDefaults);
         }
         private static Dictionary<string, OverlayInfo> ReadDefaultsFromFile()

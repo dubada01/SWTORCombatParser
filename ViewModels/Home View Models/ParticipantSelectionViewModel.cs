@@ -111,6 +111,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         public List<Entity> UpdateParticipantsData(Combat info)
         {
+            SelectedCombat = info;
             var entitiesToView = ViewEnemies ? info.AllEntities.Where(e => e.IsBoss || e.IsCharacter).ToList() : info.CharacterParticipants;
             var names = entitiesToView.Select(e => e.Name);
             if (AvailableParticipants.Count() == names.Count() && AvailableParticipants.All(ap => names.Contains(ap.PlayerName))) return entitiesToView;

@@ -1,21 +1,12 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.Hotkeys;
+﻿using SWTORCombatParser.DataStructures.Hotkeys;
 using SWTORCombatParser.Model.Updates;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Update;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace SWTORCombatParser.Views.SettingsView
 {
@@ -46,6 +37,8 @@ namespace SWTORCombatParser.Views.SettingsView
             BackgroundWarning.Unchecked += ToggleWarning;
             LogPath.TextChanged += UpdatePath;
             ResetMessagesButton.Click += ResetMessages;
+
+            EmergencyUIReset.Click += ShowEmergencyDialog;
         }
 
 
@@ -70,6 +63,17 @@ namespace SWTORCombatParser.Views.SettingsView
                 updateWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 updateWindow.ShowDialog();
             }
+        }
+        private void ShowEmergencyDialog(object sender, RoutedEventArgs e)
+        {
+            var warning = System.Windows.MessageBox.Show("This will completely reset all your overlay positions for all roles.\r\nIf so, click yes and restart Orbs","Are you sure?", MessageBoxButton.YesNo);
+            if(warning != MessageBoxResult.Yes)
+            {
+                return;
+            }
+            var currentPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+            var newPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser_Archived");
+            Directory.Move(currentPath, newPath);
         }
         private void InitPath()
         {
