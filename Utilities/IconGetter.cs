@@ -57,17 +57,25 @@ namespace SWTORCombatParser.Utilities
         }
         public static async Task<BitmapImage> LoadImageAsync(string imagePath, string abilityId)
         {
-            return await Task.Run(() =>
+            try
             {
-                var image = new BitmapImage();
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.UriSource = new Uri(imagePath, UriKind.Absolute);
-                image.EndInit();
-                image.Freeze(); // Make it cross-thread accessible
-                IconDict.TryAdd(abilityId, image);
-                return image;
-            });
+                return await Task.Run(() =>
+                {
+                    var image = new BitmapImage();
+                    image.BeginInit();
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.UriSource = new Uri(imagePath, UriKind.Absolute);
+                    image.EndInit();
+                    image.Freeze(); // Make it cross-thread accessible
+                    IconDict.TryAdd(abilityId, image);
+                    return image;
+                });
+            }
+            catch
+            {
+                string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+                return await LoadImageAsync(appDataPath + @$"\resources\icons\.png", abilityId);
+            }
         }
     }
 }

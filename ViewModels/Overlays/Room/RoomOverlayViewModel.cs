@@ -25,15 +25,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
 
         private string _currentBossName;
 
-        private RoomOverlayUpdate _currentUpdate;
+        private RoomHazard _currentHazard;
         private string imagePath;
-        private DispatcherTimer _dTimer;
         private bool _isTriggered;
         private bool viewExtraInfo;
 
         public RoomOverlayViewModel()
         {
-            _dTimer = new DispatcherTimer();
             _roomOverlay = new RoomOverlay(this);
             _roomOverlay.Show();
             _settings = RoomOverlayLoader.GetRoomOverlaySettings();
@@ -56,15 +54,18 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             _currentCombatOverlaySettings = _settings.FirstOrDefault(s => s.EncounterName == _currentBossName || s.EncounterName == "Any");
             if (_currentCombatOverlaySettings != null)
             {
+                if(_currentCombatOverlaySettings.EncounterName == "IP-CPT")
+                {
+                    var hazard = new IPCPT_Hazard(_roomOverlay, _currentCombatOverlaySettings, ViewExtraInfo);
+                    hazard.OnNewImagePath += OnNewImageFromHazard;
+                    _currentHazard = hazard;
+                }
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     IsActive = true;
                     OnPropertyChanged("IsActive");
-                    _dTimer.Start();
-                    _dTimer.Interval = TimeSpan.FromSeconds(0.1);
-                    _dTimer.Tick += CheckForNewState;
                 });
-
+                _currentHazard?.Start();
             }
         }
         public bool ViewExtraInfo
@@ -135,34 +136,19 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     IsActive = false;
-                    _dTimer.Stop();
-                    _dTimer.Tick -= CheckForNewState;
                     OnPropertyChanged("IsActive");
                 });
+                _currentHazard?.Stop();
             }
         }
-
-        private void CheckForNewState(object sender, EventArgs e)
+        private void OnNewImageFromHazard(string newPath)
         {
-            var elapsedTime = (DateTime.Now - _startTime).TotalSeconds;
-            var triggerdUpdate = _currentCombatOverlaySettings.UpateObjects.FirstOrDefault(u => u.DisplayTimeSecondsElapsed <= elapsedTime && u.TriggerTimeSecondeElapsed > elapsedTime);
-            if (triggerdUpdate != null && _currentUpdate != triggerdUpdate)
+            App.Current.Dispatcher.Invoke(() =>
             {
-                _currentUpdate = triggerdUpdate;
-                var imageToUse = ViewExtraInfo && _currentUpdate.ImageOverlayPathExtra != "" ? _currentUpdate.ImageOverlayPathExtra : _currentUpdate.ImageOverlayPath;
-                ImagePath = Path.Combine("../../../resources/RoomOverlays/IP-CPT", imageToUse);
-            }
-            var roomTop = _currentCombatOverlaySettings.Top;
-            var roomLeft = _currentCombatOverlaySettings.Left;
-            var roomWidth = _currentCombatOverlaySettings.Width;
-            var roomHeight = _currentCombatOverlaySettings.Height;
-
-            var location = CombatLogStateBuilder.CurrentState.CurrentLocalCharacterPosition;
-            var xFraction = (location.X - roomLeft) / roomWidth;
-            var yFraction = (location.Y - roomTop) / roomHeight;
-            _roomOverlay.DrawCharacter(xFraction, yFraction, location.Facing);
+                ImagePath = newPath;
+                OnPropertyChanged("ImagePath");
+            });
         }
-
         private void SetInitialPosition()
         {
             var defaults = DefaultRoomOverlayManager.GetDefaults();

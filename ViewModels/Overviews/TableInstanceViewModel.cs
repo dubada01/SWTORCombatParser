@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -85,48 +86,53 @@ namespace SWTORCombatParser.ViewModels.Overviews
             if (_selectedEntity == null || SelectedCombat == null)
                 return;
             DataToView = new List<CombatInfoInstance>();
+            var list = new List<CombatInfoInstance>();
             switch (_type)
             {
                 case OverviewDataType.Damage:
-                    await DisplayDamageData(SelectedCombat);
+                    await DisplayDamageData(SelectedCombat, list);
                     break;
                 case OverviewDataType.Healing:
-                    await DisplayHealingData(SelectedCombat);
+                    await DisplayHealingData(SelectedCombat, list);
                     break;
                 case OverviewDataType.DamageTaken:
-                    await DisplayDamageTakenData(SelectedCombat);
+                    await DisplayDamageTakenData(SelectedCombat, list);
                     break;
                 case OverviewDataType.HealingReceived:
-                    await DisplayHealingReceived(SelectedCombat);
+                    await DisplayHealingReceived(SelectedCombat, list);
                     break;
                 case OverviewDataType.Threat:
-                    await DisplayThreat(SelectedCombat);
+                    await DisplayThreat(SelectedCombat, list);
                     break;
             }
-            DataToView = DataToView.OrderByDescending(v => v.PercentOfTotal).ToList();
-            if (DataToView.Any())
+            list = list.OrderByDescending(v => v.PercentOfTotal).ToList();
+            if (list.Any())
             {
-                DataToView.Add(new CombatInfoInstance
+                list.Add(new CombatInfoInstance
                 {
 
                     SumTotal = _sumTotal,
-                    Total = DataToView.Sum(v => v.Total),
-                    RateDouble = DataToView.Sum(v => v.RateDouble),
-                    Average = DataToView.Average(v => v.Average),
-                    Max = DataToView.Max(v => v.Max),
-                    MaxCrit = DataToView.Max(v => v.MaxCrit),
-                    Count = DataToView.Sum(v => v.Count),
-                    CritPercent = DataToView.Average(v => v.CritPercent)
+                    Total = list.Sum(v => v.Total),
+                    RateDouble = list.Sum(v => v.RateDouble),
+                    Average = list.Average(v => v.Average),
+                    Max = list.Max(v => v.Max),
+                    MaxCrit = list.Max(v => v.MaxCrit),
+                    Count = list.Sum(v => v.Count),
+                    CritPercent = list.Average(v => v.CritPercent)
                 });
             }
-            for (var i = 0; i < DataToView.Count; i++)
+            for (var i = 0; i < list.Count; i++)
             {
                 if (i % 2 == 1)
                 {
-                    DataToView[i].RowBackground = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
+                    list[i].RowBackground = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
                 }
             }
-            OnPropertyChanged("DataToView");
+            App.Current.Dispatcher.Invoke(() => {
+                DataToView = list;
+                OnPropertyChanged("DataToView");
+            });
+            
         }
         private string GetSortNameFromEnum(SortingOption enumValue)
         {
@@ -142,18 +148,18 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     return "Unknown";
             }
         }
-        private async Task DisplayDamageTakenData(Combat combat)
+        private async Task DisplayDamageTakenData(Combat combat, List<CombatInfoInstance> list)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingDamageLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                await PoppulateRows(orderedKey);
+                await PoppulateRows(orderedKey, list);
             }
         }
 
-        private async Task DisplayHealingData(Combat combat)
+        private async Task DisplayHealingData(Combat combat, List<CombatInfoInstance> list)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             var healing = combat.OutgoingHealingLogs[defaultEntity];
@@ -163,43 +169,43 @@ namespace SWTORCombatParser.ViewModels.Overviews
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                await PoppulateRows(orderedKey);
+                await PoppulateRows(orderedKey, list);
             }
         }
 
-        private async Task DisplayDamageData(Combat combat)
+        private async Task DisplayDamageData(Combat combat, List<CombatInfoInstance> list)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingDamageLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                await PoppulateRows(orderedKey);
+                await PoppulateRows(orderedKey, list);
             }
         }
-        private async Task DisplayHealingReceived(Combat combat)
+        private async Task DisplayHealingReceived(Combat combat, List<CombatInfoInstance> list)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingHealingLogs[defaultEntity]);
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                await PoppulateRows(orderedKey);
+                await PoppulateRows(orderedKey, list);
             }
         }
-        private async Task DisplayThreat(Combat combat)
+        private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
         {
             var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
             Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.LogsInvolvingEntity[defaultEntity].Where(l=>l.Source == defaultEntity && l.Threat != 0).ToList());
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Where(v=>v.Threat >=0).Sum(v => v.Threat));
             foreach (var orderedKey in splitOutdata)
             {
-                await PoppulateRowsThreat(orderedKey);
+                await PoppulateRowsThreat(orderedKey, list);
             }
         }
-        private async Task PoppulateRowsThreat(KeyValuePair<string, List<ParsedLogEntry>> orderedKey)
+        private async Task PoppulateRowsThreat(KeyValuePair<string, List<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
         {
-            DataToView.Add(new CombatInfoInstance
+            list.Add(new CombatInfoInstance
             {
                 SortItem =string.IsNullOrEmpty(orderedKey.Key) ? "Taunt":orderedKey.Key,
                 SumTotal = _sumTotal,
@@ -213,9 +219,9 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 Icon = await GetIconForRow(orderedKey.Value.FirstOrDefault())
             });
         }
-        private async Task PoppulateRows(KeyValuePair<string, List<ParsedLogEntry>> orderedKey)
+        private async Task PoppulateRows(KeyValuePair<string, List<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
         {
-            DataToView.Add(new CombatInfoInstance
+            list.Add(new CombatInfoInstance
             {
                 SortItem = orderedKey.Key,
                 SumTotal = _sumTotal,

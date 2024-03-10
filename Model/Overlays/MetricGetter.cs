@@ -129,7 +129,7 @@ public static class MetricGetter
         switch (type)
         {
             case OverlayType.APM:
-                value = combats.SelectMany(c => c.APM).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.APM).Select(v => v.Value).Average();
                 break;
             case OverlayType.DPS:
                 value = combats.SelectMany(c => c.EDPS).Select(v => v.Value).Sum();
@@ -191,22 +191,22 @@ public static class MetricGetter
                 break;
             case OverlayType.BurstDPS:
                 value = combats.SelectMany(c => c.MaxBurstDamage).Select(v => v.Value)
-                    .Sum();
+                    .Average();
                 break;
             case OverlayType.BurstEHPS:
                 value = combats.SelectMany(c => c.MaxBurstHeal).Select(v => v.Value)
-                    .Sum();
+                    .Average();
                 break;
             case OverlayType.BurstDamageTaken:
                 value = combats.SelectMany(c => c.MaxBurstDamageTaken)
-                    .Select(v => v.Value).Sum();
+                    .Select(v => v.Value).Average();
                 break;
             case OverlayType.HealReactionTime:
-                value = combats.SelectMany(c => c.NumberOfHighSpeedReactions).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.NumberOfHighSpeedReactions).Select(v => v.Value).Average();
                 break;
             case OverlayType.TankHealReactionTime:
                 value = combats.SelectMany(c => c.AverageTankDamageRecoveryTimeTotal)
-                    .Select(v => v.Value).Sum();
+                    .Select(v => v.Value).Average();
                 break;
             case OverlayType.InterruptCount:
                 value = combats.SelectMany(c => c.TotalInterrupts).Select(v => v.Value)

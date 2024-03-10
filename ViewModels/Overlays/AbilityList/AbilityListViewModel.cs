@@ -189,12 +189,12 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         {
             if (!obj.Source.IsLocalPlayer)
                 return;
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply)
+            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && obj.Source.IsLocalPlayer)
             {
                 OnHiding();
             }
 
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && IsEnabled)
+            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && IsEnabled && obj.Source.IsLocalPlayer)
             {
                 OnShowing();
             }

@@ -38,11 +38,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         {
             App.Current.Dispatcher.Invoke(() => {
 
-                if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Apply)
+                if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Apply && entry.Source.IsLocalPlayer)
                 {
                     _view.Hide();
                 }
-                if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Remove)
+                if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Remove && entry.Source.IsLocalPlayer)
                 {
                     if (_viewModel.IsEnabled && _viewModel.InInstance)
                     {

@@ -24,6 +24,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 NumberOfPlayers =  int.Parse(combat.EncounterBossDifficultyParts.Item2),
                 TimeToKill = combat.DurationSeconds,
                 PlayerClasses = combat.CharacterParticipants.Select(c=>GetClass(c,combat.StartTime)).ToList(),
+                PlayerNames = combat.CharacterParticipants.Select(c=>c.Name).ToList(),
                 EncounterName = combat.ParentEncounter.Name,
                 EncounterTimestamp = combat.StartTime.ToUniversalTime()
             });
