@@ -16,6 +16,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public DateTime timestamp { get; set; }
         public int leadeboard_version { get; set; }
     }
+    public class LeaderboardValueStats
+    {
+        public double Median { get; set; }
+        public double StandardDev { get; set; }
+        public int EntryCount { get; set; }
+    }
     public class LeaderboardEntry
     {
         public DateTime TimeStamp { get; set; }
@@ -38,6 +44,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public string EncounterName { get; set; }
         public int NumberOfPlayers { get; set; }
         public List<string> PlayerClasses { get; set; }
+        public List<string> PlayerNames { get; set; }
         public int TimeToKill { get; set; }
     }
 }

@@ -278,6 +278,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
             Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), enumVal =>
             {
+                var stats = API_Connection.GetCurrentStatsForBossOfType(bossName, encounterName, enumVal.ToString()).Result;
                 if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                 {
                     var results = API_Connection.GetEntriesForBossOfType(bossName, encounterName, enumVal).Result;
@@ -286,7 +287,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         var oldFPResults = API_Connection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
                         results.AddRange(oldFPResults);
                     }
-                    CurrentFightLeaderboard[enumVal] = results.Where(r => r.Class == className).ToList();
+                    var filteredResults = results.Where(v => !((Math.Abs(stats.Median - v.Value) / stats.StandardDev > 5) && stats.EntryCount > 150));
+                    CurrentFightLeaderboard[enumVal] = filteredResults.Where(r => r.Class == className).ToList();
                 }
                 else
                 {
@@ -296,7 +298,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         var oldFPResults = API_Connection.GetEntriesForBossOfType(newCombat.OldFlashpointBossInfo, encounterName, enumVal).Result;
                         allResults.AddRange(oldFPResults);
                     }
-                    CurrentFightLeaderboard[enumVal] = allResults;
+                    var filteredResults = allResults.Where(v => !((Math.Abs(stats.Median - v.Value) / stats.StandardDev > 5) && stats.EntryCount > 150));
+                    CurrentFightLeaderboard[enumVal] = filteredResults.ToList();
                 }
 
 

@@ -114,6 +114,28 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new Version();
             }
         }
+        public static async Task<LeaderboardValueStats> GetCurrentStatsForBossOfType(string boss, string encounter, string type)
+        {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return new LeaderboardValueStats();
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
+                    var str = JsonConvert.SerializeObject(new List<string> { boss, encounter, type });
+                    var content = new StringContent(str, Encoding.UTF8, "application/json");
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getValueStatsForBossOfType");
+                    var response = await connection.PostAsync(uri, content);
+                    var body = await response.Content.ReadFromJsonAsync<LeaderboardValueStats>();
+                    return body;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return new LeaderboardValueStats();
+            }
+        }
         public static async Task<List<string>> GetBossesFromEncounterWithEntries(string encounter)
         {
             List<string> bossesFound = new List<string>();

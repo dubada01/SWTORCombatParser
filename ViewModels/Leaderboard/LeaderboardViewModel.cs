@@ -20,6 +20,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         private Dictionary<string, long> _parsingLevels = new Dictionary<string, long> { { "1 Million", 1000000 }, { "2 Million", 2000000 }, { "3.25 Million", 3250000 }, { "6.5 Million", 6500000 }, { "10 Million", 10000000 }, { "Story", 0 }, { "Veteran", 0 }, { "Master", 0 } };
         private List<string> _allDifficulties = new List<string> { "Story", "Veteran", "Master" };
         private List<string> _allPlayerCounts = new List<string> { "8", "16" };
+        private List<string> bossesSavedForEncounter;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -127,7 +128,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         }
         private async void SetSelectedEncounter()
         {
-            var bossesSavedForEncounter = await API_Connection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
+            bossesSavedForEncounter = await API_Connection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
             var namesAndDifficulties = bossesSavedForEncounter.Select(s => s.Split('{'));
             var names = namesAndDifficulties.Select(nd => nd[0].Trim()).Distinct();
 
@@ -142,7 +143,6 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         }
         private async void SetSelectedBoss()
         {
-            var bossesSavedForEncounter = await API_Connection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
             var namesAndDifficulties = bossesSavedForEncounter.Where(b => b.Contains(SelectedBoss)).ToList();
             var difficultiesAndPlayers = namesAndDifficulties.Select(s => s.Split('{')).Select(s => s[1]);
             var cleaned = difficultiesAndPlayers.Select(d => d.Replace("}", "").Split(" "));
