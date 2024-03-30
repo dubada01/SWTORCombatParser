@@ -224,21 +224,30 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
 
             }
+            
             if (valueParts.Count == 4) // partially effective damage
             {
-                if (valueParts[3].Contains(_reflectedId)) // damage reflected
+                if (valueParts[3] == "-") // handle weird space pvp stuff
                 {
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.EffectiveDblValue = newValue.DblValue;
-                    return newValue;
+                    newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.ValueTypeId = valueParts[2].Replace("{", "").Replace("}", "").Trim();
+                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
                 }
-                newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-                newValue.MitigatedDblValue = newValue.EffectiveDblValue;
-                newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
-                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-
+                else
+                {
+                    if (valueParts[3].Contains(_reflectedId)) // damage reflected
+                    {
+                        newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                        newValue.EffectiveDblValue = newValue.DblValue;
+                        return newValue;
+                    }
+                    newValue.WasCrit = valueParts[0].Contains("*");
+                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                    newValue.MitigatedDblValue = newValue.EffectiveDblValue;
+                    newValue.ValueTypeId = valueParts[3].Replace("{", "").Replace("}", "").Trim();
+                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                }
             }
             if (valueParts.Count == 5) // partially effective reflected damage
             {

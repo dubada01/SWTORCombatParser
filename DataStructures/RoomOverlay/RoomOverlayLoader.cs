@@ -22,13 +22,21 @@ namespace SWTORCombatParser.DataStructures.RoomOverlay
 
             if (settings == null)
                 settings = new List<RoomOverlaySettings>();
-
+            var modified = false;
             if (!settings.Any(s => s.EncounterName == "IP-CPT"))
             {
                 var ipCPT = JsonConvert.DeserializeObject<RoomOverlaySettings>(File.ReadAllText("DataStructures/RoomOverlay/IPCPT.json"));
                 settings.Add(ipCPT);
-                File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settings));
+                modified = true;
             }
+            if (!settings.Any(s => s.EncounterName == "NAHUT"))
+            {
+                var nahut = JsonConvert.DeserializeObject<RoomOverlaySettings>(File.ReadAllText("DataStructures/RoomOverlay/NAHUT.json"));
+                settings.Add(nahut);
+                modified = true;
+            }
+            if(modified)
+                File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settings));
             return settings;
         }
     }

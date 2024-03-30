@@ -1,8 +1,10 @@
-﻿using SWTORCombatParser.DataStructures.RoomOverlay;
+﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.RoomOverlay;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -60,6 +62,95 @@ namespace SWTORCombatParser.Model.Overlays
             var xFraction = (location.X - roomLeft) / roomWidth;
             var yFraction = (location.Y - roomTop) / roomHeight;
             _roomOverlay.DrawCharacter(xFraction, yFraction, location.Facing);
+        }
+    }
+    public class NAHUT_Hazard : RoomHazard
+    {
+        private RoomOverlaySettings _settings;
+        private RoomOverlay _roomOverlay;
+        private string _pinId = "4122782057103360";
+        private string _nailId = "4124985375326208";
+        private string _reseedId = "4182177159839744";
+        private string _pinDetonationId = "4124100612063621";
+        private string _nailDetonationId = "4125006850163036";
+        private string _prepareTheFieldEffectId = "4181979591344128";
+        private List<string> _currentHazards = new List<string>();
+        public NAHUT_Hazard(RoomOverlay roomView, RoomOverlaySettings settings): base(roomView)
+        {
+            _settings = settings;
+            _roomOverlay = roomView;
+        }
+
+        private void UpdatePositions(ParsedLogEntry entry)
+        {
+            if(entry.Source.IsLocalPlayer || entry.Target.IsLocalPlayer)
+            {
+                UpdateCharacterPosition();
+            }
+            if(entry.Source.LogId.ToString() == _pinId && 
+                !_currentHazards.Any(p=>p == entry.Source.Id.ToString()))
+            {
+                DrawNewHazard(entry.SourceInfo.Position, "PIN", entry.Source.Id.ToString());
+            }
+            if (entry.Source.LogId.ToString() == _nailId &&
+                !_currentHazards.Any(p => p == entry.Source.Id.ToString()))
+            {
+                DrawNewHazard(entry.SourceInfo.Position, "NAIL", entry.Source.Id.ToString());
+            }
+            if(entry.Effect.EffectId == _reseedId || (entry.Effect.EffectId == _prepareTheFieldEffectId && entry.Effect.EffectType == EffectType.Apply))
+            {
+                ClearAllHazards();
+            }
+            if(entry.Effect.EffectId == _pinDetonationId || entry.Effect.EffectId == _nailDetonationId)
+            {
+                RemoveHazard(entry.Source.Id.ToString());
+            }
+        }
+
+        private void DrawNewHazard(PositionData position, string v, string hazardId)
+        {
+            var roomTop = _settings.Top;
+            var roomLeft = _settings.Left;
+            var roomWidth = _settings.Width;
+            var roomHeight = _settings.Height;
+            var location = position;
+            var xFraction = (location.X - roomLeft) / roomWidth;
+            var yFraction = (location.Y - roomTop) / roomHeight;
+            var widthFraction = (v == "PIN" ? 8 : 12)/roomWidth;
+            _currentHazards.Add(hazardId);
+            _roomOverlay.DrawHazard(xFraction, yFraction, widthFraction, hazardId);
+        }
+        private void ClearAllHazards()
+        {
+            _currentHazards.Clear();
+            _roomOverlay.ClearAllHazards();
+        }
+        private void RemoveHazard(string hazardId)
+        {
+            _currentHazards.RemoveAll(p=> p == hazardId);
+            _roomOverlay.ClearSpecificHazard(hazardId);
+        }
+        private void UpdateCharacterPosition()
+        {
+            var roomTop = _settings.Top;
+            var roomLeft = _settings.Left;
+            var roomWidth = _settings.Width;
+            var roomHeight = _settings.Height;
+            var location = CombatLogStateBuilder.CurrentState.CurrentLocalCharacterPosition;
+            var xFraction = (location.X - roomLeft) / roomWidth;
+            var yFraction = (location.Y - roomTop) / roomHeight;
+            _roomOverlay.DrawCharacter(xFraction, yFraction, location.Facing);
+        }
+        public override void Start()
+        {
+            ClearAllHazards();
+            CombatLogStreamer.NewLineStreamed += UpdatePositions;
+        }
+
+        public override void Stop()
+        {
+            CombatLogStreamer.NewLineStreamed -= UpdatePositions;
+
         }
     }
     public abstract class RoomHazard

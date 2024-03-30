@@ -139,11 +139,28 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!string.IsNullOrEmpty(log.Source.Name))
                 CurrentState.CurrentCharacterPositions[log.Source] = log.SourceInfo.Position;
         }
-        private static CombatModifier GetModifierInScope(ConcurrentDictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
+        private static CombatModifier GetModifierInScope(Dictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
         {
-            var incompleteMods = mods.Where(v => !v.Value.Complete);
-            var incompleteWithTarget = incompleteMods.Where(m => m.Value.Target == parsedLine.Target);
-            return incompleteMods.FirstOrDefault(m => m.Value.Target == parsedLine.Target && (m.Value.Source == parsedLine.Source || string.IsNullOrEmpty(parsedLine.Source.Name))).Value;
+            // Store the parsedLine properties in local variables if they are used multiple times.
+            var parsedTarget = parsedLine.Target;
+            var parsedSource = parsedLine.Source;
+            var isSourceNameEmpty = string.IsNullOrEmpty(parsedSource.Name);
+
+            foreach (var kvp in mods)
+            {
+                var mod = kvp.Value;
+
+                // Now we only have one if-statement with all the conditions.
+                if (!mod.Complete &&
+                    mod.Target == parsedTarget &&
+                    (mod.Source == parsedSource || isSourceNameEmpty))
+                {
+                    return mod;
+                }
+            }
+
+            // If no modifier is found that matches the criteria, return null.
+            return null;
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine)
         {
@@ -159,7 +176,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var effectId = parsedLine.Effect.EffectId;
             if (!CurrentState.Modifiers.ContainsKey(effectId))
             {
-                CurrentState.Modifiers[effectId] = new ConcurrentDictionary<Guid, CombatModifier>();
+                CurrentState.Modifiers[effectId] = new Dictionary<Guid, CombatModifier>();
             }
             var mods = CurrentState.Modifiers[effectId];
             var modifierOfInterest = GetModifierInScope(mods, parsedLine);
