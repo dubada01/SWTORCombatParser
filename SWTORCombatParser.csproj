@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.9.5</VersionPrefix>
+    <VersionPrefix>1.9.6</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -127,6 +127,9 @@
     <Content Include="DataStructures\Phases\phase_info.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="DataStructures\RoomOverlay\Nahut.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="DataStructures\RoomOverlay\IPCPT.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -153,6 +156,8 @@
     </Content>
     <None Remove="connectionConfig.json" />
     <None Remove="DataStructures\EncounterInfo\PVPAreaNames.json" />
+    <None Remove="DataStructures\RoomOverlay\Nahut.json" />
+    <None Remove="resources\RoomOverlays\NAHUT\NAHUT_Room.jpg" />
     <Content Include="DataStructures\EncounterInfo\PVPAreaNames.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

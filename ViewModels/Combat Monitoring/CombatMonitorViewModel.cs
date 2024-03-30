@@ -121,6 +121,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _combatLogStreamer.NewLogTimeOffsetMs += UpdateLogOffset;
             _combatLogStreamer.NewTotalTimeOffsetMs += UpdateTotalOffset;
             _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
+            _combatLogStreamer.ReparsingLogs += HandleLogReparse;
             CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
                 manager => CombatLogStreamer.CombatUpdated += manager,
@@ -145,7 +146,10 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             LocalPlayerId(obj);
         }
-
+        public void HandleLogReparse()
+        {
+            _usingHistoricalData = true;
+        }
         public void Reset()
         {
             App.Current.Dispatcher.Invoke(() =>
@@ -378,14 +382,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _totalLogsDuringCombat[combatStartTime] = obj;
             _usingHistoricalData = false;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), true);
-            if (combatInfo.IsCombatWithBoss)
-            {
-                Task.Run(() =>
-                {
-                    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
-                    Leaderboards.StartGetTopLeaderboardEntries(combatInfo);
-                });
-            }
             CombatSelectionMonitor.InProgressCombatSeleted(combatInfo);
             if (CurrentEncounter == null)
                 return;
@@ -394,6 +390,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 OnLiveCombatUpdate(combatInfo);
             }
+            Leaderboards.UpdateOverlaysWithNewLeaderboard(combatInfo, false);
         }
         private void CombatStopped(List<ParsedLogEntry> obj, DateTime combatStartTime)
         {

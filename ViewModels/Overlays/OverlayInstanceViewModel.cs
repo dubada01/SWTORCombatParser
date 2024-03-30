@@ -230,7 +230,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnShowing();
                 _conversationActive = false;
             }
-            Leaderboards.Reset();
             ResetMetrics();
         }
         public void Refresh(Combat comb)

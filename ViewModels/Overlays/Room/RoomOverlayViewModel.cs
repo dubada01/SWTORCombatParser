@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room
@@ -21,6 +22,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         private bool _isActive = false;
         private RoomOverlay _roomOverlay;
         private List<RoomOverlaySettings> _settings;
+        public List<Ellipse> Hazards { get; set; }
         private RoomOverlaySettings _currentCombatOverlaySettings;
 
         private string _currentBossName;
@@ -44,7 +46,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         {
             if (!OverlayEnabled || _isTriggered)
                 return;
-            ImagePath = Path.Combine("../../../resources/RoomOverlays/IP-CPT", "Empty.png"); ;
+            ImagePath = System.IO.Path.Combine("../../../resources/RoomOverlays/IP-CPT", "Empty.png"); ;
             _isTriggered = true;
             _currentBossName = arg2;
 
@@ -58,6 +60,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 {
                     var hazard = new IPCPT_Hazard(_roomOverlay, _currentCombatOverlaySettings, ViewExtraInfo);
                     hazard.OnNewImagePath += OnNewImageFromHazard;
+                    _currentHazard = hazard;
+                }
+                if(_currentCombatOverlaySettings.EncounterName == "NAHUT")
+                {
+                    ImagePath = System.IO.Path.Combine("../../../resources/RoomOverlays/NAHUT", "NAHUT_Room.jpg"); ;
+                    var hazard = new NAHUT_Hazard(_roomOverlay, _currentCombatOverlaySettings);
                     _currentHazard = hazard;
                 }
                 App.Current.Dispatcher.Invoke(() =>

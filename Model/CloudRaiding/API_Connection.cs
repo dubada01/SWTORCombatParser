@@ -157,7 +157,52 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return bossesFound;
             }
         }
+        public static async Task<LeaderboardTop> GetTopBossEntry(string bossName, string encounter, LeaderboardEntryType entryType, string className, bool filterClass)
+        {
+            if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
+                return new LeaderboardTop();
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
 
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getTopEntryForLeaderboard");
+                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), className, filterClass.ToString() });
+                    var content = new StringContent(str, Encoding.UTF8, "application/json");
+                    var response = await connection.PostAsync(uri, content);
+                    var body = await response.Content.ReadFromJsonAsync<LeaderboardTop>();
+                    return body;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return new LeaderboardTop();
+            }
+        }
+        public static async Task<PercentileInfo> GetPercentileForBoss(string bossName, string encounter, LeaderboardEntryType entryType, string playerName, string className, double value, string participantClass, bool filterClass)
+        {
+            if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
+                return new PercentileInfo();
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
+
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getPercentileForBossAndValue");
+                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), playerName, className, participantClass,  value.ToString() , filterClass.ToString()});
+                    var content = new StringContent(str, Encoding.UTF8, "application/json");
+                    var response = await connection.PostAsync(uri, content);
+                    var body = await response.Content.ReadFromJsonAsync<PercentileInfo>();
+                    return body;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return new PercentileInfo();
+            }
+        }
         public static async Task<List<LeaderboardEntry>> GetEntriesForBossOfType(string bossName, string encounter, LeaderboardEntryType entryType)
         {
             List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();

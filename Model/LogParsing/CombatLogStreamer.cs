@@ -21,12 +21,14 @@ namespace SWTORCombatParser.Model.LogParsing
     public class CombatLogStreamer
     {
         public static event Action CombatStarted = delegate { };
+
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
         public static event Action<DateTime, bool> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
         public event Action<Entity> LocalPlayerIdentified = delegate { };
         public event Action<double> NewLogTimeOffsetMs = delegate { };
         public event Action<double> NewTotalTimeOffsetMs = delegate { };
+        public event Action ReparsingLogs = delegate { };
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
 
         private bool _isInCombat = false;
@@ -152,6 +154,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     var result = ProcessNewLine(lines[line], numberOfProcessedLines, Path.GetFileName(_logToMonitor), logUpdateTime);
                     if (result == ProcessedLineResult.Incomplete)
                     {
+                        ReparsingLogs();
                         Logging.LogInfo("Failed to parse line: " + lines[line]);
                         ResetMonitoring();
                         _monitorLog = false;

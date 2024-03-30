@@ -732,6 +732,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 SelectedEncounter = "All";
                 SelectedBoss = "All";
                 IsMechanicTimer = false;
+                IsHot = timerSource == "HOTS";
             }
             var customAudio = Settings.GetListSetting<string>("custom_audio_paths");
             if (customAudio != null && customAudio.Count > 0)
