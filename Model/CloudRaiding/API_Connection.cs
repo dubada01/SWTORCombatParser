@@ -1,5 +1,7 @@
 ﻿//using MoreLinq;
 using Newtonsoft.Json;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -178,6 +180,29 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 Logging.LogError(e.Message);
                 return new LeaderboardTop();
+            }
+        }
+        public static async Task<int[]> GetLeaderboardPercentiles(string bossName, string encounter, LeaderboardEntryType entryType)
+        {
+            if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
+                return new int[100];
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
+
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBoss");
+                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString()});
+                    var content = new StringContent(str, Encoding.UTF8, "application/json");
+                    var response = await connection.PostAsync(uri, content);
+                    var body = await response.Content.ReadFromJsonAsync<int[]>();
+                    return body;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return new int[100];
             }
         }
         public static async Task<PercentileInfo> GetPercentileForBoss(string bossName, string encounter, LeaderboardEntryType entryType, string playerName, string className, double value, string participantClass, bool filterClass)
