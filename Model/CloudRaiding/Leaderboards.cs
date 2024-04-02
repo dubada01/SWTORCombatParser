@@ -35,9 +35,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static event Action<Dictionary<LeaderboardEntryType, (string, double)>> TopLeaderboardEntriesAvailable = delegate { };
         public static event Action<LeaderboardType> LeaderboardTypeChanged = delegate { };
 
+        public static ConcurrentDictionary<LeaderboardEntryType, int[]> LeaderboardPercentiles = new ConcurrentDictionary<LeaderboardEntryType, int[]>();
         public static ConcurrentDictionary<LeaderboardEntryType, (string, double)> TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
         public static Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
-        public static ConcurrentDictionary<Entity, ConcurrentDictionary<LeaderboardEntryType,StandingsUpdateInfo>> LeaderboardStandingsUpdateInfo = new ConcurrentDictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, StandingsUpdateInfo>>();
         public static Combat CurrentCombat;
 
         private static double _maxParseValue = 500000;
@@ -123,7 +123,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 var state = CombatLogStateBuilder.CurrentState;
                 if (newCombat.LocalPlayer == null || !state.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
                     return;
-                
+                if (LeaderboardPercentiles.IsEmpty)
+                {
+                    SetPercentiles(newCombat);
+                }
                 var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
                 var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
                 foreach (var participant in newCombat.CharacterParticipants)
@@ -145,50 +148,23 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), enumVal =>
                     {
                         var currentValue = GetValueForLeaderboardEntry(enumVal, newCombat, participant);
-                        if (!NeedsUpdate(enumVal, participant, currentValue))
-                            return;
-                        var pecentileInfo = GetPercentile(newCombat, participant.Name, enumVal, currentValue, participantClassInfo, CurrentLeaderboardType == LeaderboardType.LocalDicipline);
-                        //Debug.WriteLine("Updated Percentiles: " + (DateTime.Now - startTime).TotalMilliseconds);
-                        LeaderboardStandings[participant][enumVal] =(pecentileInfo.Percentile, pecentileInfo.IsPersonalBest);            
+                        var percentiles = LeaderboardPercentiles[enumVal].ToList();
+                        var percentileForValue = 0;
+                        if (percentiles[0] > currentValue || percentiles[99] <= currentValue)
+                        {
+                            percentileForValue = percentiles[99] <= currentValue ? 100 : 0;
+                        }
+                        else
+                        {
+                            percentileForValue = percentiles[0] > currentValue ? 0 : percentiles.IndexOf(percentiles.First(p => p >= currentValue))+1;
+                        }
+                         
+
+                        LeaderboardStandings[participant][enumVal] =(percentileForValue, false);            
                     });
                 }
                 LeaderboardStandingsAvailable(LeaderboardStandings);
             }
-        }
-
-        private static bool NeedsUpdate(LeaderboardEntryType type, Entity participant, double value)
-        {
-            double minSecondsBetween = 10;
-            double percentRequiredForUpdate = 10;
-            if (!LeaderboardStandingsUpdateInfo.ContainsKey(participant))
-            {
-                LeaderboardStandingsUpdateInfo[participant] = new ConcurrentDictionary<LeaderboardEntryType, StandingsUpdateInfo>();
-                return true;
-            }
-            if (!LeaderboardStandingsUpdateInfo[participant].ContainsKey(type))
-            {
-                LeaderboardStandingsUpdateInfo[participant][type] = new StandingsUpdateInfo { UpdateTime = DateTime.Now, Value = value };
-                return true;
-            }
-            var info = LeaderboardStandingsUpdateInfo[participant][type];
-            if(((Math.Abs(value - info.Value)/info.Value) * 100) >= percentRequiredForUpdate && (DateTime.Now - info.UpdateTime).TotalSeconds > minSecondsBetween)
-            {
-                LeaderboardStandingsUpdateInfo[participant][type] = new StandingsUpdateInfo { UpdateTime = DateTime.Now, Value = value };
-                return true;
-            }
-            return false;
-        }
-
-        private static PercentileInfo GetPercentile(Combat newCombat, string playerName, LeaderboardEntryType type, double value, string parcitipantClass, bool useClass = false)
-        {
-            var state = CombatLogStateBuilder.CurrentState;
-            var bossName = newCombat.EncounterBossInfo;
-            if (string.IsNullOrEmpty(bossName))
-                return new PercentileInfo();
-            var encounterName = newCombat.ParentEncounter.Name;
-            var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
-            var playerClass = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
-            return API_Connection.GetPercentileForBoss(bossName, encounterName, type, playerName, playerClass, value, parcitipantClass, useClass).Result;
         }
         private static LeaderboardTop GetTop(Combat newCombat, LeaderboardEntryType type, bool useClass = false)
         {
@@ -201,11 +177,23 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var playerClass = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
             return API_Connection.GetTopBossEntry(bossName, encounterName, type, playerClass, useClass).Result;
         }
+        private static void SetPercentiles(Combat newCombat)
+        {
+            var state = CombatLogStateBuilder.CurrentState;
+            var bossName = newCombat.EncounterBossInfo;
+            if (string.IsNullOrEmpty(bossName))
+                return;
+            var encounterName = newCombat.ParentEncounter.Name;
+            Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), type =>
+            {
+                LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentiles(bossName, encounterName, type).Result;
+            });
+        }
         public static void Reset()
         {
             lock (_updateLock)
             {
-                LeaderboardStandingsUpdateInfo = new ConcurrentDictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, StandingsUpdateInfo>>();
+                LeaderboardPercentiles = new ConcurrentDictionary<LeaderboardEntryType, int[]>();
                 TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
                 LeaderboardStandings = new Dictionary<Entity,ConcurrentDictionary<LeaderboardEntryType,(double, bool)>>();
             }
