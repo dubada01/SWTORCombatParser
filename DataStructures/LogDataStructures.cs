@@ -30,9 +30,9 @@ namespace SWTORCombatParser.DataStructures
             Source = source;
             Target = target;
             Ability = ability;
-            
+
             EffectName = effectName;
-            
+
             EffectBackground = Brushes.Transparent;
             ValueBackground = Brushes.Transparent;
             AbilityTextMargin = !string.IsNullOrEmpty(_abilityId) && IconGetter.HasIcon(_abilityId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
@@ -153,6 +153,19 @@ namespace SWTORCombatParser.DataStructures
                 return "";
             else
                 return ": " + effectName;
+        }
+
+        public List<string> Strings() {
+            return [
+                Effect.EffectName,
+                Effect.EffectId,
+                Ability,
+                AbilityId,
+                Source.Name,
+                Source.LogId.ToString(),
+                Target.Name,
+                Target.LogId.ToString(),
+            ];
         }
     }
     public class PositionData

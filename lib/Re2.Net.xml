@@ -1,0 +1,1149 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        "Re2.Net"
+    </assembly>
+    <members>
+        <member name="P:Re2.Net.GroupCollection.default(System.Int32)">
+            <summary>
+    Gets an individual member of the collection by index.
+</summary>
+            <param name="groupNumber">Index into the <see cref="T:Re2.Net.Group" /> collection.</param>
+            <value>
+    The member of the collection specified by <paramref name="groupNumber" />, or an empty <see cref="T:Re2.Net.Group" />.
+</value>
+        </member>
+        <member name="P:Re2.Net.GroupCollection.default(System.String)">
+            <summary>
+    Gets an individual member of the collection by name.
+</summary>
+            <param name="groupName">The name of a capturing group.</param>
+            <value>
+    The member of the collection specified by <paramref name="groupName" />, or an empty <see cref="T:Re2.Net.Group" />.
+</value>
+        </member>
+        <member name="M:Re2.Net.GroupCollection.GetEnumerator">
+            <summary>
+    Provides an enumerator that iterates through the collection.
+</summary>
+            <returns>An object that contains all <see cref="T:Re2.Net.Group" /> objects within the <c>GroupCollection</c>.</returns>
+        </member>
+        <member name="M:Re2.Net.GroupCollection.CopyTo(System.Array,System.Int32)">
+            <summary>
+    Copies all the elements of the collection to the given array starting at the given index.
+</summary>
+            <param name="array">The array the collection is to be copied into.</param>
+            <param name="arrayIndex">The position in the array where copying is to begin.</param>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="array" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="arrayIndex" /> is outside the bounds of <paramref name="array" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="arrayIndex" /> plus <see cref="P:Re2.Net.CaptureCollection.Count" /> is outside the bounds of <paramref name="array" />.
+    </para>
+            </exception>
+        </member>
+        <member name="P:Re2.Net.GroupCollection.SyncRoot">
+            <summary>
+    Gets an object that can be used to synchronize access to the collection.
+</summary>
+            <value>
+    A copy of the <see cref="T:Re2.Net.Match" /> object to synchronize.
+</value>
+        </member>
+        <member name="P:Re2.Net.GroupCollection.IsSynchronized">
+            <summary>
+    Gets a value that indicates whether access to the collection is synchronized (thread-safe).
+</summary>
+            <value>
+                <c>false</c> in all cases.
+</value>
+        </member>
+        <member name="P:Re2.Net.GroupCollection.IsReadOnly">
+            <summary>
+    Gets a value that indicates whether the collection is read only.
+</summary>
+            <value>
+                <c>true</c> in all cases.
+</value>
+        </member>
+        <member name="P:Re2.Net.GroupCollection.Count">
+            <summary>
+    Gets the number of groups in the collection.
+</summary>
+            <value>
+    The number of groups in the <see cref="T:Re2.Net.GroupCollection" />.
+</value>
+        </member>
+        <member name="T:Re2.Net.GroupCollection">
+            <summary>
+    Represents the set of captured groups from a single match.
+</summary>
+        </member>
+        <member name="M:Re2.Net.Match.Synchronized(Re2.Net.Match)">
+            <summary>
+    Returns a <see cref="T:Re2.Net.Match" /> instance equivalent to the one supplied that is suitable to share between multiple threads.
+</summary>
+            <param name="inner">A regular expression match equivalent to the one expected.</param>
+            <returns>A regular expression match that is suitable to share between multiple threads.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="inner" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Match.NextMatch">
+            <summary>
+    Returns a new <see cref="T:Re2.Net.Match" /> object with the results for the next match, starting at the position at
+    which the last match ended (at the character after the last matched character).
+</summary>
+            <returns>The next regular expression match.</returns>
+        </member>
+        <member name="P:Re2.Net.Match.Groups">
+            <summary>
+    Gets a collection of the capturing groups in the regular expression.
+</summary>
+            <value>
+    The capturing groups in the regular expression.
+</value>
+        </member>
+        <member name="P:Re2.Net.Match.Empty">
+            <summary>
+    Gets the empty group. All failed matches return this empty match.
+</summary>
+            <value>
+    An empty match.
+</value>
+        </member>
+        <member name="T:Re2.Net.Match">
+            <summary>
+    Represents the results from a single regular expression match.
+</summary>
+        </member>
+        <member name="M:Re2.Net.Regex.#ctor(System.String)">
+            <summary>
+    Initializes a new instance of the <c>Regex</c> class for the specified regular expression.
+</summary>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="pattern" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.#ctor(System.String,Re2.Net.RegexOptions)">
+            <summary>
+    Initializes a new instance of the <c>Regex</c> class for the specified regular expression, with options that modify the pattern.
+</summary>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">http://code.google.com/p/re2/wiki/Syntax</a>
+    for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <param name="options">A bitwise combination of the enumeration values that modify the regular expression.</param>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <para>
+                    <paramref name="pattern" /> is <c>null</c>.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="options" /> is not a valid <c>RegexOptions</c> value.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.#ctor(System.String,Re2.Net.RegexOptions,System.Int32)">
+            <summary>
+    Initializes a new instance of the <c>Regex</c> class for the specified regular expression, with options that
+    modify the pattern and a value that specifies the maximum amount of memory usable by the <c>Regex</c>.
+</summary>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">http://code.google.com/p/re2/wiki/Syntax</a>
+    for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <param name="options">A bitwise combination of the enumeration values that modify the regular expression.</param>
+            <param name="maxMemory">The maximum amount of memory usable by the compiled <c>Regex</c>, in bytes. The default is 8 megabytes.</param>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <para>
+                    <paramref name="pattern" /> is <c>null</c>.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="options" /> is not a valid <c>RegexOptions</c> value.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Matches(System.Byte[],System.String)">
+            <summary>
+    Searches the specified input byte array for all occurrences of the specified regular expression.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <returns>
+    A collection of the <see cref="T:Re2.Net.Match" /> objects found by the search. If no matches are found, the method
+    returns an empty collection object.
+</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Matches(System.String,System.String)">
+            <summary>
+    Searches the specified input string for all occurrences of the specified regular expression.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <returns>
+    A collection of the <see cref="T:Re2.Net.Match" /> objects found by the search. If no matches are found, the method
+    returns an empty collection object.
+</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Matches(System.Byte[],System.String,Re2.Net.RegexOptions)">
+            <summary>
+    Searches the specified input byte array for all occurrences of the specified regular expression, using the
+    specified matching options.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <param name="options">A bitwise combination of the enumeration values that specify options for matching.</param>
+            <returns>
+    A collection of the <see cref="T:Re2.Net.Match" /> objects found by the search. If no matches are found, the method
+    returns an empty collection object.
+</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="options" /> is not a valid <c>RegexOptions</c> value.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Matches(System.String,System.String,Re2.Net.RegexOptions)">
+            <summary>
+    Searches the specified input string for all occurrences of the specified regular expression, using the
+    specified matching options.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <param name="options">A bitwise combination of the enumeration values that specify options for matching.</param>
+            <returns>
+    A collection of the <see cref="T:Re2.Net.Match" /> objects found by the search. If no matches are found, the method
+    returns an empty collection object.
+</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="options" /> is not a valid <c>RegexOptions</c> value.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> or <paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> or <paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Matches(System.Byte[])">
+            <summary>
+    Searches the specified input byte array for all occurrences of a regular expression.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <returns>
+    A collection of the <see cref="T:Re2.Net.Match" /> objects found by the search. If no matches are found, the method
+    returns an empty collection object.
+</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Matches(System.String)">
+            <summary>
+    Searches the specified input string for all occurrences of a regular expression.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <returns>
+    A collection of the <see cref="T:Re2.Net.Match" /> objects found by the search. If no matches are found, the method
+    returns an empty collection object.
+</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="input" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Matches(System.Byte[],System.Int32)">
+            <summary>
+    Searches the specified input byte array for all occurrences of a regular expression, beginning at the specified
+    starting position.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="startIndex">The input index at which to start the search.</param>
+            <returns>
+    A collection of the <see cref="T:Re2.Net.Match" /> objects found by the search. If no matches are found, the method
+    returns an empty collection object.
+</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="startIndex" /> is less than zero or greater than the length of <paramref name="input" />.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Matches(System.String,System.Int32)">
+            <summary>
+    Searches the specified input string for all occurrences of a regular expression, beginning at the specified
+    starting position in the string.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="startIndex">The input index at which to start the search.</param>
+            <returns>
+    A collection of the <see cref="T:Re2.Net.Match" /> objects found by the search. If no matches are found, the method
+    returns an empty collection object.
+</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="startIndex" /> is less than zero or greater than the length of <paramref name="input" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.Byte[],System.String)">
+            <summary>
+    Searches the input byte array for the first occurrence of the specified regular expression.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.String,System.String)">
+            <summary>
+    Searches the input string for the first occurrence of the specified regular expression.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="input" /> or <paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> or <paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.Byte[],System.String,Re2.Net.RegexOptions)">
+            <summary>
+    Searches the input byte array for the first occurrence of the specified regular expression, using the specified matching options.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <param name="options">A bitwise combination of the enumeration values that specify options for matching.</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="options" /> is not a valid <c>RegexOptions</c> value.
+    <para>- or -</para><para><paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para><para>- or -</para><para><paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para></exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.String,System.String,Re2.Net.RegexOptions)">
+            <summary>
+    Searches the input string for the first occurrence of the specified regular expression, using the specified matching options.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <param name="options">A bitwise combination of the enumeration values that specify options for matching.</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="options" /> is not a valid <c>RegexOptions</c> value.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> or <paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> or <paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.Byte[])">
+            <summary>
+    Searches the input byte array for the first occurrence of a regular expression.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.String)">
+            <summary>
+    Searches the input string for the first occurrence of a regular expression.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="input" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.Byte[],System.Int32)">
+            <summary>
+    Searches the input byte array for the first occurrence of a regular expression, beginning at the specified starting
+    position.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="startIndex">The input index at which to start the search.</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="startIndex" /> is less than zero or greater than the length of <paramref name="input" />.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.String,System.Int32)">
+            <summary>
+    Searches the input string for the first occurrence of a regular expression, beginning at the specified starting
+    position in the string.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="startIndex">The zero-based input index at which to start the search.</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="startIndex" /> is less than zero or greater than the length of <paramref name="input" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+    Searches the input byte array for the first occurrence of a regular expression, beginning at the specified starting
+    position and searching only the specified number of bytes.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="startIndex">The input index at which to start the search.</param>
+            <param name="length">The number of bytes in the input to include in the search.</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="startIndex" /> is less than zero or greater than the length of <paramref name="input" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="length" /> is less than zero or greater than the length of <paramref name="input" />.</para>
+                <para>- or -</para>
+                <para>
+                    <c>
+                        <paramref name="startIndex" /> + <paramref name="length" /> – 1</c> identifies a position that is outside the range of <paramref name="input" />.</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.Match(System.String,System.Int32,System.Int32)">
+            <summary>
+    Searches the input string for the first occurrence of a regular expression, beginning at the specified starting
+    position and searching only the specified number of characters.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="startIndex">The input index at which to start the search.</param>
+            <param name="length">The number of characters in the substring to include in the search.</param>
+            <returns>An object that contains information about the match.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="startIndex" /> is less than zero or greater than the length of <paramref name="input" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="length" /> is less than zero or greater than the length of <paramref name="input" />.</para>
+                <para>- or -</para>
+                <para>
+                    <c>
+                        <paramref name="startIndex" /> + <paramref name="length" /> – 1</c> identifies a position that is outside the range of <paramref name="input" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.IsMatch(System.Byte[],System.String)">
+            <summary>
+    Indicates whether the specified regular expression finds a match in the specified input byte array.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <returns>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.IsMatch(System.String,System.String)">
+            <summary>
+    Indicates whether the specified regular expression finds a match in the specified input string.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <returns>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.IsMatch(System.Byte[],System.String,Re2.Net.RegexOptions)">
+            <summary>
+    Indicates whether the specified regular expression finds a match in the specified input byte array,
+    using the specified matching options.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <param name="options">A bitwise combination of the enumeration values that modify the regular expression.</param>
+            <returns>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="options" /> is not a valid <c>RegexOptions</c> value.
+    <para>- or -</para><para><paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para><para>- or -</para><para><paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para></exception>
+        </member>
+        <member name="M:Re2.Net.Regex.IsMatch(System.String,System.String,Re2.Net.RegexOptions)">
+            <summary>
+    Indicates whether the specified regular expression finds a match in the specified input string,
+    using the specified matching options.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="pattern">
+    The regular expression pattern to match. See <a href="http://code.google.com/p/re2/wiki/Syntax">
+    http://code.google.com/p/re2/wiki/Syntax</a> for the list of regular expression syntax accepted by Re2.Net.
+</param>
+            <param name="options">A bitwise combination of the enumeration values that modify the regular expression.</param>
+            <returns>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.</returns>
+            <exception cref="T:System.ArgumentException">
+    A regular expression parsing error occurred.
+</exception>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> or <paramref name="pattern" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="options" /> is not a valid <c>RegexOptions</c> value.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> or <paramref name="pattern" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> or <paramref name="pattern" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.IsMatch(System.Byte[])">
+            <summary>
+    Indicates whether the regular expression specified in the <see cref="T:Re2.Net.Regex" /> constructor finds a match in the specified
+    input byte array.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <returns>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.IsMatch(System.String)">
+            <summary>
+    Indicates whether the regular expression specified in the <c>Regex</c> constructor finds a match in the specified
+    input string.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <returns>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="input" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.IsMatch(System.Byte[],System.Int32)">
+            <summary>
+    Indicates whether the regular expression specified in the <c>Regex</c> constructor finds a match in the specified
+    input byte array, beginning at the specified starting index.
+</summary>
+            <param name="input">The byte array to search for a match.</param>
+            <param name="startIndex">The input index at which to start the search.</param>
+            <returns>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="startIndex" /> is less than zero or greater than the length of <paramref name="input" />.
+</exception>
+        </member>
+        <member name="M:Re2.Net.Regex.IsMatch(System.String,System.Int32)">
+            <summary>
+    Indicates whether the regular expression specified in the <c>Regex</c> constructor finds a match in the specified
+    input string, beginning at the specified starting index in the string.
+</summary>
+            <param name="input">The string to search for a match.</param>
+            <param name="startIndex">The input index at which to start the search.</param>
+            <returns>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="input" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="startIndex" /> is less than zero or greater than the length of <paramref name="input" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="input" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.GroupNumberFromName(System.String)">
+            <summary>
+    Returns the group number that corresponds to the specified group name.
+</summary>
+            <param name="name">The group name to convert to the corresponding group number.</param>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="name" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="name" /> is not a valid Latin-1 string (flag <c>RegexOptions.Latin1</c> is set).</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="name" /> is not a valid ASCII string (flag <c>RegexOptions.ASCII</c> is set).</para>
+            </exception>
+        </member>
+        <member name="M:Re2.Net.Regex.ToString">
+            <summary>
+    Returns the regular expression pattern that was passed into the <c>Regex</c> constructor.
+</summary>
+            <returns>The pattern parameter that was passed into the <c>Regex</c> constructor.</returns>
+        </member>
+        <member name="P:Re2.Net.Regex.MaxMemory">
+            <summary>
+    Gets the maximum memory that can be used by the current instance.
+</summary>
+            <value>
+    The maximum memory, in bytes, that the underlying <c>Regex</c> automata can collectively consume.
+</value>
+        </member>
+        <member name="P:Re2.Net.Regex.Options">
+            <summary>
+    Gets the bitwise set of <see cref="T:Re2.Net.RegexOptions" /> that were passed into the <see cref="T:Re2.Net.Regex" /> constructor.
+</summary>
+            <value>
+    One or more members of the <see cref="T:Re2.Net.RegexOptions" /> enumeration that represent options that were passed to the <see cref="T:Re2.Net.Regex" /> constructor.
+</value>
+        </member>
+        <member name="P:Re2.Net.Regex.Pattern">
+            <summary>
+    Gets the regular expression pattern that was passed into the <c>Regex</c> constructor.
+</summary>
+            <value>
+    The regular expression pattern that was passed into the <c>Regex</c> constructor.
+</value>
+        </member>
+        <member name="P:Re2.Net.Regex.CacheSize">
+            <summary>
+    Gets or sets the maximum number of entries in the current static cache of compiled regular expressions.
+</summary>
+            <value>
+    The maximum number of entries in the static cache.
+</value>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="value" /> is less than zero.
+</exception>
+        </member>
+        <member name="T:Re2.Net.Regex">
+            <summary>
+    Represents an immutable regular expression.
+</summary>
+        </member>
+        <member name="P:Re2.Net.MatchCollection.SyncRoot">
+            <summary>
+    Gets an object that can be used to synchronize access to the collection.
+</summary>
+            <value>
+    An object that can be used to synchronize access to the collection. This property always returns the object itself.
+</value>
+        </member>
+        <member name="P:Re2.Net.MatchCollection.default(System.Int32)">
+            <summary>
+    Gets an individual member of the collection.
+</summary>
+            <param name="i">Index into the <see cref="T:Re2.Net.Match" /> collection.</param>
+            <value>
+    The captured expression at position <paramref name="i" /> in the collection.
+</value>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="i" /> is less than 0 or greater than or equal to <see cref="P:Re2.Net.MatchCollection.Count" />.
+</exception>
+        </member>
+        <member name="P:Re2.Net.MatchCollection.IsSynchronized">
+            <summary>
+    Gets a value indicating whether access to the collection is synchronized (thread-safe).
+</summary>
+            <value>
+                <c>false</c> in all cases.
+</value>
+        </member>
+        <member name="P:Re2.Net.MatchCollection.IsReadOnly">
+            <summary>
+    Gets a value that indicates whether the collection is read only.
+</summary>
+            <value>
+                <c>true</c> in all cases.
+</value>
+        </member>
+        <member name="P:Re2.Net.MatchCollection.Count">
+            <summary>
+    Gets the number of matches.
+</summary>
+            <value>
+    The number of matches.
+</value>
+        </member>
+        <member name="M:Re2.Net.MatchCollection.GetEnumerator">
+            <summary>
+    Provides an enumerator that iterates through the collection.
+</summary>
+            <returns>An object that contains all <see cref="T:Re2.Net.Match" /> objects within the MatchCollection.</returns>
+        </member>
+        <member name="M:Re2.Net.MatchCollection.CopyTo(System.Array,System.Int32)">
+            <summary>
+    Copies all the elements of the collection to the given array starting at the given index.
+</summary>
+            <param name="array">The array the collection is to be copied into.</param>
+            <param name="arrayIndex">The position in the array where copying is to begin.</param>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="array" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="arrayIndex" /> is outside the bounds of <paramref name="array" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="arrayIndex" /> plus <see cref="P:Re2.Net.MatchCollection.Count" /> is outside the bounds of <paramref name="array" />.
+    </para>
+            </exception>
+        </member>
+        <member name="T:Re2.Net.MatchCollection">
+            <summary>
+    Represents the set of successful matches found by iteratively applying a regular expression pattern to the input.
+</summary>
+        </member>
+        <member name="M:Re2.Net.RegexOption.HasAnyFlag(Re2.Net.RegexOptions,Re2.Net.RegexOptions)">
+            <summary>
+    Determines whether a <c>RegexOptions</c> instance contains one or more of the specified flags.
+</summary>
+            <param name="flags">A <c>RegexOptions</c> instance in which to locate additional <c>RegexOptions</c> flags.</param>
+            <param name="options">The <c>RegexOptions</c> flags to locate in the <c>RegexOptions</c> instance.</param>
+            <returns>
+                <c>true</c> if one or more of the bit fields that are set in <paramref name="options" /> are also set in the current instance; otherwise, <c>false</c></returns>
+        </member>
+        <member name="M:Re2.Net.RegexOption.HasAllFlags(Re2.Net.RegexOptions,Re2.Net.RegexOptions)">
+            <summary>
+    Determines whether a <c>RegexOptions</c> instance contains all of the specified flags.
+</summary>
+            <param name="flags">A <c>RegexOptions</c> instance in which to locate additional <c>RegexOptions</c> flags.</param>
+            <param name="options">The <c>RegexOptions</c> flags to locate in the <c>RegexOptions</c> instance.</param>
+            <returns>
+                <c>true</c> if the bit field or bit fields that are set in <paramref name="options" /> are also set in the current instance; otherwise, <c>false</c></returns>
+        </member>
+        <member name="T:Re2.Net.RegexOptions">
+            <summary>
+    Provides enumerated values to use to set regular expression options.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.OneLine">
+            <summary>
+    Specifies one-line mode: '^' and '$' only match the start and end of the input.
+    This option is always enabled and can only be turned off in POSIX mode.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.WordBoundary">
+            <summary>
+    Enables Perl's word boundary operator ('\b'), as well as its negation ('\B').
+    This option is always enabled and can only be turned off in POSIX mode.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.PerlClasses">
+            <summary>
+    Enables Perl's digit ('\d'), whitespace ('\s'), and word ('\w') character
+    classes, as well as their negations ('\D', '\S', and '\W'). This option is
+    always enabled and can only be turned off in POSIX mode.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.POSIX">
+            <summary>
+    Specifies POSIX mode with egrep syntax.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.ASCII">
+            <summary>
+    Specifies ASCII encoding. If the input is a System.String, it is converted from
+    Unicode, with only valid 7-bit ASCII values accepted. This option can be used to
+    search for byte patterns.
+</summary>
+            <remarks>
+    Encodings are mutually exclusive. If both the <c>Latin1</c> and <c>ASCII</c>
+    options are set, <c>Latin1</c> is used. If neither is set, Unicode is used.
+</remarks>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.Latin1">
+            <summary>
+    Specifies Latin-1 (ISO-8859-1) encoding. If the input is a System.String, it is
+    converted from Unicode, with only valid Latin-1 values accepted. This option can
+    be used to search for byte patterns.
+</summary>
+            <remarks>
+    Encodings are mutually exclusive. If both the <c>Latin1</c> and <c>ASCII</c>
+    options are set, <c>Latin1</c> is used. If neither is set, Unicode is used.
+</remarks>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.SingleCapture">
+            <summary>
+    Specifies that only the regular expression as a whole is captured. This significantly
+    increases the speed of the matching engine.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.Literal">
+            <summary>
+    Specifies that the pattern is treated as a string literal rather than a regular
+    expression.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.Ungreedy">
+            <summary>
+    Specifies ungreedy mode: The greediness of repetition operators (e.g. '*' and
+    '*?') is reversed. This option is equivalent to the 'U' flag.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.Singleline">
+            <summary>
+    Specifies single-line mode: '.' matches '\n' in addition to other printable
+    characters. This option is equivalent to the 's' flag.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.IgnoreNewline">
+            <summary>
+    Specifies that '\n' characters are ignored, even if they appear in the regular
+    expression.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.LongestMatch">
+            <summary>
+    Specifies that the longest match is returned, rather than the first match.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.Multiline">
+            <summary>
+    Specifies multiline mode: '^' and '$' match the start and end of any line as
+    well as the start and end of the input. This option is equivalent to the 'm'
+    flag.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.IgnoreCase">
+            <summary>
+    Specifies case-insensitive mode. This option is equivalent to the 'i' flag.
+</summary>
+        </member>
+        <member name="F:Re2.Net.RegexOptions.None">
+            <summary>
+    Specifies no options.
+</summary>
+        </member>
+        <member name="P:Re2.Net.Group.Success">
+            <summary>
+    Gets a value indicating whether the match is successful.
+</summary>
+            <value>
+                <c>true</c> if the regular expression finds a match; otherwise, <c>false</c>.
+</value>
+        </member>
+        <member name="P:Re2.Net.Group.Captures">
+            <summary>
+    Gets a collection of all the captures matched by the capturing group, in innermost-leftmost-first order.
+    The collection may have zero or more items.
+</summary>
+            <value>
+    The collection of subexpressions matched by the group.
+</value>
+        </member>
+        <member name="M:Re2.Net.Group.Synchronized(Re2.Net.Group)">
+            <summary>
+    Returns a <c>Group</c> object equivalent to the one supplied that is safe to share between multiple threads.
+</summary>
+            <param name="inner">The input <see cref="T:Re2.Net.Group" /> object.</param>
+            <returns>A regular expression <c>Group</c> object.</returns>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="inner" /> is <c>null</c>.
+</exception>
+        </member>
+        <member name="T:Re2.Net.Group">
+            <summary>
+    Represents the results from a single capturing group.
+</summary>
+        </member>
+        <member name="M:Re2.Net.CaptureCollection.GetEnumerator">
+            <summary>
+    Provides an enumerator that iterates through the collection.
+</summary>
+            <returns>An object that contains all <see cref="T:Re2.Net.Capture" /> objects within the <c>CaptureCollection</c>.</returns>
+        </member>
+        <member name="M:Re2.Net.CaptureCollection.CopyTo(System.Array,System.Int32)">
+            <summary>
+    Copies all the elements of the collection to the given array starting at the given index.
+</summary>
+            <param name="array">The array the collection is to be copied into.</param>
+            <param name="arrayIndex">The position in the array where copying is to begin.</param>
+            <exception cref="T:System.ArgumentNullException">
+                <paramref name="array" /> is <c>null</c>.
+</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <para>
+                    <paramref name="arrayIndex" /> is outside the bounds of <paramref name="array" />.</para>
+                <para>- or -</para>
+                <para>
+                    <paramref name="arrayIndex" /> plus <see cref="P:Re2.Net.CaptureCollection.Count" /> is outside the bounds of <paramref name="array" />.
+    </para>
+            </exception>
+        </member>
+        <member name="P:Re2.Net.CaptureCollection.SyncRoot">
+            <summary>
+    Gets an object that can be used to synchronize access to the collection.
+</summary>
+            <value>
+    A copy of the <see cref="T:Re2.Net.Group" /> object to synchronize.
+</value>
+        </member>
+        <member name="P:Re2.Net.CaptureCollection.default(System.Int32)">
+            <summary>
+    Gets an individual member of the collection.
+</summary>
+            <param name="i">Index into the <see cref="T:Re2.Net.Capture" /> collection.</param>
+            <value>
+    The captured subexpression at position <paramref name="i" /> in the collection.
+</value>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+                <paramref name="i" /> is less than 0 or greater than or equal to <see cref="P:Re2.Net.CaptureCollection.Count" />.
+</exception>
+        </member>
+        <member name="P:Re2.Net.CaptureCollection.IsSynchronized">
+            <summary>
+    Gets a value that indicates whether access to the collection is synchronized (thread-safe).
+</summary>
+            <value>
+                <c>false</c> in all cases.
+</value>
+        </member>
+        <member name="P:Re2.Net.CaptureCollection.IsReadOnly">
+            <summary>
+    Gets a value that indicates whether the collection is read only.
+</summary>
+            <value>
+                <c>true</c> in all cases.
+</value>
+        </member>
+        <member name="P:Re2.Net.CaptureCollection.Count">
+            <summary>
+    Gets the number of subexpressions captured by the group.
+</summary>
+            <value>
+    The number of items in the <see cref="T:Re2.Net.CaptureCollection" />.
+</value>
+        </member>
+        <member name="T:Re2.Net.CaptureCollection">
+            <summary>
+    Represents the set of captures made by a single capturing group.
+</summary>
+        </member>
+        <member name="M:Re2.Net.Capture.ToString">
+            <summary>
+    Retrieves the captured subexpression from the input as a string by calling the Value property.
+</summary>
+            <value>
+    A string representation of the subexpression captured by the <c>Match</c>.
+</value>
+            <remarks>
+                <c>ToString</c> is actually an internal call to the <see cref="P:Re2.Net.Capture.Value" /> property.
+</remarks>
+        </member>
+        <member name="P:Re2.Net.Capture.Value">
+            <summary>
+    Gets the captured subexpression as a string.
+</summary>
+            <value>
+    A string representation of the subexpression captured by the <c>Match</c>.
+</value>
+            <remarks>
+    If the input is a byte array, <c>Value</c> represents a conversion of the matched bytes to a Unicode
+    string. Where conversion is not possible, the QUESTION MARK character ("?", U+003F) is substituted.
+</remarks>
+        </member>
+        <member name="P:Re2.Net.Capture.Length">
+            <summary>
+    Gets the length of the captured subexpression.
+</summary>
+            <value>
+    The length of the captured subexpression.
+</value>
+            <remarks>
+                <c>Length</c> is given in characters, if the input is a string, or bytes, if the input is a byte array.
+</remarks>
+        </member>
+        <member name="P:Re2.Net.Capture.Index">
+            <summary>
+    Gets the position in the input where the first character of the captured subexpression is found.
+</summary>
+            <value>
+    The zero-based position in the input where the first character of the captured subexpression is found.
+</value>
+        </member>
+        <member name="T:Re2.Net.Capture">
+            <summary>
+    Represents the results from a single successful subexpression capture.
+</summary>
+        </member>
+    </members>
+</doc>
