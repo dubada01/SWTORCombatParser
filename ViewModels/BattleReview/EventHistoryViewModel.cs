@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Re2.Net;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
@@ -87,7 +88,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             }
             var maxValue = _displayedLogs.Any() ? _displayedLogs.Max(v => v.Value.EffectiveDblValue) : 0;
             var logs = new List<DisplayableLogEntry>(_displayedLogs.OrderBy(l=>l.TimeStamp).Select(
-                l => 
+                l =>
                 new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
                 l.Source.Name,
                 string.Intern(l.Source.LogId.ToString()),
@@ -104,73 +105,99 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 l.Value.ModifierDisplayValue, maxValue, l.Value.EffectiveDblValue,
                 l.Threat)));
             Task.Run(() => { logs.ForEach(async l => await l.AddIcons()); });
-            
+
             LogsToDisplay = logs;
             _distinctEntities = _currentlySelectedCombat.AllLogs.Select(l => l.Source).Distinct().ToList();
             OnPropertyChanged("LogsToDisplay");
             return firstDeath;
         }
+
+        private enum MatchField {
+            Source,
+            Target,
+            Either,
+        };
+
         private bool LogFilter(ParsedLogEntry log)
         {
-            if (string.IsNullOrEmpty(_logFilter) ||
-                (log.Effect.EffectName?.ToLower().Contains(_logFilter) ?? false) ||
-                (log.Effect.EffectId?.ToLower().Contains(_logFilter) ?? false) ||
-                (log.Ability?.ToLower().Contains(_logFilter) ?? false) ||
-                (log.AbilityId?.ToLower().Contains(_logFilter) ?? false) ||
-                (log.Source.Name?.ToLower().Contains(_logFilter) ?? false) ||
-                log.Source.LogId.ToString().ToLower().Contains(_logFilter) ||
-                (log.Target.Name?.ToLower().Contains(_logFilter) ?? false) ||
-                log.Target.LogId.ToString().ToLower().Contains(_logFilter) ||
-                log.Value.ValueType.ToString().ToLower().Contains(_logFilter) ||
-                log.Value.DblValue.ToString().Contains(_logFilter) ||
-                log.Value.EffectiveDblValue.ToString().Contains(_logFilter)
-                )
+            MatchField matchField = MatchField.Either;
+            List<EffectType> matchEffectTypes = [];
+            switch (_typeSelected)
             {
-                switch (_typeSelected)
-                {
-                    case DisplayType.All:
-                        {
-                            DisplayOffensiveBuffs = true;
-                            return _viewingEntities.Contains(log.Source) || _viewingEntities.Any(e => e.Name == "All" || _viewingEntities.Contains(log.Target));
-                        }
-                    case DisplayType.Damage:
-                        {
-                            DisplayOffensiveBuffs = true;
-                            return (_viewingEntities.Contains(log.Source) || _viewingEntities.Any(e => e.Name == "All")) && log.Effect.EffectType == EffectType.Apply && log.Effect.EffectId == _7_0LogParsing._damageEffectId;
-                        }
-                    case DisplayType.DamageTaken:
-                        {
-                            DisplayOffensiveBuffs = false;
-                            return (_viewingEntities.Contains(log.Target) || _viewingEntities.Any(e => e.Name == "All")) && log.Effect.EffectType == EffectType.Apply && log.Effect.EffectId == _7_0LogParsing._damageEffectId;
-                        }
-                    case DisplayType.Healing:
-                        {
-                            DisplayOffensiveBuffs = true;
-                            return (_viewingEntities.Contains(log.Source) || _viewingEntities.Any(e => e.Name == "All")) && log.Effect.EffectType == EffectType.Apply && log.Effect.EffectId == _7_0LogParsing._healEffectId;
-                        }
-                    case DisplayType.HealingReceived:
-                        {
-                            DisplayOffensiveBuffs = false;
-                            return (_viewingEntities.Contains(log.Target) || _viewingEntities.Any(e => e.Name == "All")) && log.Effect.EffectType == EffectType.Apply && log.Effect.EffectId == _7_0LogParsing._healEffectId;
-                        }
-                    case DisplayType.DeathRecap:
-                        {
-                            DisplayOffensiveBuffs = false;
-                            return (_viewingEntities.Contains(log.Source) || _viewingEntities.Contains(log.Target)) &&
-    log.Effect.EffectId != _7_0LogParsing._healEffectId &&
-    log.Effect.EffectType != EffectType.Remove &&
-    !(_viewingEntities.Contains(log.Source) && log.Effect.EffectId == _7_0LogParsing._damageEffectId) &&
-    log.Effect.EffectId != _7_0LogParsing.AbilityActivateId;
-                        }
-                    case DisplayType.Abilities:
-                        {
-                            return ((_viewingEntities.Contains(log.Target) || _viewingEntities.Contains(log.Target) || _viewingEntities.Any(e => e.Name == "All")) && log.Effect.EffectType == EffectType.Event);
-                        }
-                    default:
-                        return false;
-                }
+                case DisplayType.All:
+                    DisplayOffensiveBuffs = true;
+                    matchField = MatchField.Either;
+                    break;
+                case DisplayType.Damage:
+                    DisplayOffensiveBuffs = true;
+                    matchField = MatchField.Source;
+                    matchEffectTypes.Add(EffectType.Apply);
+                    break;
+                case DisplayType.DamageTaken:
+                    DisplayOffensiveBuffs = false;
+                    matchField = MatchField.Target;
+                    matchEffectTypes.Add(EffectType.Apply);
+                    break;
+                case DisplayType.Healing:
+                    DisplayOffensiveBuffs = true;
+                    matchField = MatchField.Source;
+                    matchEffectTypes.Add(EffectType.Apply);
+                    break;
+                case DisplayType.HealingReceived:
+                    DisplayOffensiveBuffs = false;
+                    matchField = MatchField.Target;
+                    matchEffectTypes.Add(EffectType.Apply);
+                    break;
+                case DisplayType.Abilities:
+                    matchField = MatchField.Target;  // Should probably be Either
+                    matchEffectTypes.Add(EffectType.Event);
+                    break;
+                case DisplayType.DeathRecap:
+                    DisplayOffensiveBuffs = false;
+                    matchField = MatchField.Either;
+                    break;
+
             }
-            return false;
+
+            bool sourceSelected = _viewingEntities.Contains(log.Source);
+            bool targetSelected = _viewingEntities.Contains(log.Target);
+
+            if (!(
+                _viewingEntities.Any(e => e.Name == "All")
+                || (matchField == MatchField.Source && sourceSelected)
+                || (matchField == MatchField.Target && targetSelected)
+                || (matchField == MatchField.Either && (sourceSelected || targetSelected))
+            )) {
+                return false;
+            }
+            if (string.IsNullOrEmpty(_logFilter)) return true;
+
+            Regex re = new Regex(_logFilter, RegexOptions.IgnoreCase);
+            if (!log.Strings().Any(s => s != null && re.Match(s).Success)) {
+                return false;
+            }
+
+            if (matchEffectTypes.Count > 0 && !matchEffectTypes.Contains(log.Effect.EffectType)) {
+                return false;
+            }
+
+            return _typeSelected switch
+            {
+                DisplayType.All             => true,
+                DisplayType.Damage          => log.Effect.EffectId == _7_0LogParsing._damageEffectId,
+                DisplayType.DamageTaken     => log.Effect.EffectId == _7_0LogParsing._damageEffectId,
+                DisplayType.Healing         => log.Effect.EffectId == _7_0LogParsing._healEffectId,
+                DisplayType.HealingReceived => log.Effect.EffectId == _7_0LogParsing._healEffectId,
+                DisplayType.Abilities       => true,
+                DisplayType.DeathRecap      => (
+                                        log.Effect.EffectId != _7_0LogParsing._healEffectId
+                                        && log.Effect.EffectType != EffectType.Remove
+                                        && !(_viewingEntities.Contains(log.Source)
+                                        && log.Effect.EffectId == _7_0LogParsing._damageEffectId)
+                                        && log.Effect.EffectId != _7_0LogParsing.AbilityActivateId
+                                    ),
+                _ => false,
+            };
         }
 
         internal List<EntityInfo> Seek(double obj)
