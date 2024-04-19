@@ -29,7 +29,6 @@ namespace SWTORCombatParser.Model.Overlays
             _roomOverlay = roomView;
             _overlaySettings = settings;
             _dTimer = new DispatcherTimer();
-            Start();
         }
 
         public override void Start()
