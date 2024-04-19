@@ -178,7 +178,7 @@
     <Content Update="DataStructures\Timers\Boss Timers\Raids\EternityVault\BossTimers.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    
+
     <Page Remove="Views\Battle Review\MapView.xaml" />
     <Content Include="DataStructures\Timers\Boss Timers\Raids\Athiss\Athiss.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -368,6 +368,12 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+     <Reference Include="Re2.Net">
+       <HintPath>lib\Re2.Net.dll</HintPath>
+     </Reference>
   </ItemGroup>
 
 </Project>
