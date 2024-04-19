@@ -9,9 +9,9 @@
         private static string _prodURL = "orbs-stats.com";
 
 
-        private static string _apiURL = _debugLocalURL;
+        private static string _apiURL = _prodURL;
 
-        private static string _currentAPIPort = _debugLocalPort;
+        private static string _currentAPIPort = _prodPort;
         public static string GetCurrentRemoteServerIP()
         {
             return _apiURL;
