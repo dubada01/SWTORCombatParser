@@ -1,6 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.RoomOverlay;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Threading;
+using Timer = System.Timers.Timer;
 
 namespace SWTORCombatParser.Model.Overlays
 {
@@ -17,7 +20,7 @@ namespace SWTORCombatParser.Model.Overlays
     {
         private RoomOverlaySettings _overlaySettings;
         private RoomOverlay _roomOverlay;
-        private DispatcherTimer _dTimer;
+        private Timer _timer;
         private DateTime _startTime;
         private RoomOverlayUpdate _currentUpdate;
         private bool _viewExtraInfo;
@@ -28,23 +31,23 @@ namespace SWTORCombatParser.Model.Overlays
             _viewExtraInfo = useExtraInfo;
             _roomOverlay = roomView;
             _overlaySettings = settings;
-            _dTimer = new DispatcherTimer();
+            _timer = new Timer();
         }
 
         public override void Start()
         {
-            _startTime = DateTime.Now;
-            _dTimer.Start();
-            _dTimer.Interval = TimeSpan.FromSeconds(0.1);
-            _dTimer.Tick += CheckForNewState;
+            _startTime = TimeUtility.CorrectedTime;
+            _timer.Start();
+            _timer.Interval = 100;
+            _timer.Elapsed += CheckForNewState;
         }
         public override void Stop()
         {
-            _dTimer.Start();
+            _timer.Start();
         }
         private void CheckForNewState(object sender, EventArgs e)
         {
-            var elapsedTime = (DateTime.Now - _startTime).TotalSeconds;
+            var elapsedTime = (TimeUtility.CorrectedTime - _startTime).TotalSeconds;
             var triggerdUpdate = _overlaySettings.UpateObjects.FirstOrDefault(u => u.DisplayTimeSecondsElapsed <= elapsedTime && u.TriggerTimeSecondeElapsed > elapsedTime);
             if (triggerdUpdate != null && _currentUpdate != triggerdUpdate)
             {

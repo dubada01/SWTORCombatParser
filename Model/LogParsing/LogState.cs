@@ -52,7 +52,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public LogVersion LogVersion { get; set; } = LogVersion.Legacy;
         public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
         public string CurrentLocation { get; set; }
-        public Dictionary<string, Dictionary<Guid, CombatModifier>> Modifiers { get; set; } = new Dictionary<string, Dictionary<Guid, CombatModifier>>();
+        public ConcurrentDictionary<string, ConcurrentDictionary<Guid, CombatModifier>> Modifiers { get; set; } = new ConcurrentDictionary<string, ConcurrentDictionary<Guid, CombatModifier>>();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
         public PositionData CurrentLocalCharacterPosition => LocalPlayer == null ? new PositionData() : CurrentCharacterPositions[LocalPlayer];
         public Entity LocalPlayer { get; internal set; }
@@ -228,7 +228,6 @@ namespace SWTORCombatParser.Model.LogParsing
                 m.Value.Target.Id.ToString() == entity || m.Value.Target.Name == entity).Select(kvp => kvp.Value).ToList();
             return activeModifiersOnPlayer;
         }
-
         private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, IEnumerable<CombatModifier> inScopeModifiers)
         {
             var correctedModifiers = inScopeModifiers.Select(m =>
@@ -262,6 +261,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return m;
             });
             return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
+
         }
 
         internal void CacheEncounterEnterList()

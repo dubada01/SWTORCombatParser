@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
@@ -63,7 +64,9 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         private EventHistoryViewModel _eventViewModel;
         private DisplayType selectedDisplayType;
         private string logFilter;
-
+        private System.Threading.Timer timer;
+        private bool updatePending = false;
+        private object lockObject = new object();
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
@@ -76,8 +79,32 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 if (value == logFilter)
                     return;
                 logFilter = value;
-                _eventViewModel.SetFilter(logFilter);
+                System.Threading.Tasks.Task.Run(() => {
+                    lock (lockObject)
+                    {
+                        if (!updatePending)
+                        {
+                            // Start or reset the timer
+                            timer.Change(500, Timeout.Infinite);
+                            updatePending = true;
+                        }
+                        _eventViewModel.SetFilter(logFilter);
+                    }
+
+                });
+
             }
+        }
+        private void TimerCallback(object state)
+        {
+
+            // Perform the filter update on the appropriate thread if required
+            _eventViewModel.SetFilter(logFilter);
+            lock (lockObject)
+            {
+                updatePending = false;
+            }
+
         }
         public EventHistoryView EventViewContent { get; set; }
         public List<AvailableEntity> AvailableEntities { get; set; } = new List<AvailableEntity>();
@@ -96,6 +123,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             _eventViewModel = new EventHistoryViewModel();
             EventViewContent = new EventHistoryView(_eventViewModel);
+            // Initialize the timer but don't start it yet
+            timer = new System.Threading.Timer(TimerCallback, null, Timeout.Infinite, Timeout.Infinite);
         }
         public void CombatSelected(Combat combat)
         {
