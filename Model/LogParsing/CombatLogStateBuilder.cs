@@ -139,7 +139,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!string.IsNullOrEmpty(log.Source.Name))
                 CurrentState.CurrentCharacterPositions[log.Source] = log.SourceInfo.Position;
         }
-        private static CombatModifier GetModifierInScope(Dictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
+        private static CombatModifier GetModifierInScope(ConcurrentDictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
         {
             // Store the parsedLine properties in local variables if they are used multiple times.
             var parsedTarget = parsedLine.Target;
@@ -176,7 +176,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var effectId = parsedLine.Effect.EffectId;
             if (!CurrentState.Modifiers.ContainsKey(effectId))
             {
-                CurrentState.Modifiers[effectId] = new Dictionary<Guid, CombatModifier>();
+                CurrentState.Modifiers[effectId] = new ConcurrentDictionary<Guid, CombatModifier>();
             }
             var mods = CurrentState.Modifiers[effectId];
             var modifierOfInterest = GetModifierInScope(mods, parsedLine);

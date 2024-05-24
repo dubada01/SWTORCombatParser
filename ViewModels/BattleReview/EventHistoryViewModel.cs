@@ -79,36 +79,40 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             if (_currentlySelectedCombat == null)
                 return DateTime.MinValue;
             DateTime firstDeath = DateTime.MinValue;
-            _displayedLogs = _currentlySelectedCombat.AllLogs.Where(LogFilter).ToList();
-            if (isDethReview)
+            Regex re = new Regex(_logFilter != null ? _logFilter : "", RegexOptions.IgnoreCase);
+            _displayedLogs = _currentlySelectedCombat.AllLogs.Where(l=>LogFilter(l, re)).ToList();
+            App.Current.Dispatcher.Invoke(() =>
             {
-                var firstDeathLog = _displayedLogs.OrderBy(t => t.TimeStamp).FirstOrDefault(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && l.Target.IsCharacter);
-                firstDeath = firstDeathLog == null ? DateTime.MinValue : firstDeathLog.TimeStamp.AddSeconds(-15);
-                _displayedLogs = _displayedLogs.Where(l => l.TimeStamp > firstDeath).ToList();
-            }
-            var maxValue = _displayedLogs.Any() ? _displayedLogs.Max(v => v.Value.EffectiveDblValue) : 0;
-            var logs = new List<DisplayableLogEntry>(_displayedLogs.OrderBy(l=>l.TimeStamp).Select(
-                l =>
-                new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
-                l.Source.Name,
-                string.Intern(l.Source.LogId.ToString()),
-                l.Target.Name,
-                string.Intern(l.Target.LogId.ToString()),
-                l.Ability,
-                l.AbilityId,
-                l.Effect.EffectName,
-                l.Effect.EffectId,
-                l.Value.DisplayValue,
-                l.Value.WasCrit,
-                l.Value.ValueType != DamageType.none ? l.Value.ValueType.ToString() : l.Effect.EffectType.ToString(),
-                l.Value.ModifierType,
-                l.Value.ModifierDisplayValue, maxValue, l.Value.EffectiveDblValue,
-                l.Threat)));
-            Task.Run(() => { logs.ForEach(async l => await l.AddIcons()); });
+                if (isDethReview)
+                {
+                    var firstDeathLog = _displayedLogs.OrderBy(t => t.TimeStamp).FirstOrDefault(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && l.Target.IsCharacter);
+                    firstDeath = firstDeathLog == null ? DateTime.MinValue : firstDeathLog.TimeStamp.AddSeconds(-15);
+                    _displayedLogs = _displayedLogs.Where(l => l.TimeStamp > firstDeath).ToList();
+                }
+                var maxValue = _displayedLogs.Any() ? _displayedLogs.Max(v => v.Value.EffectiveDblValue) : 0;
+                var logs = new List<DisplayableLogEntry>(_displayedLogs.OrderBy(l => l.TimeStamp).Select(
+                    l =>
+                    new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
+                    l.Source.Name,
+                    string.Intern(l.Source.LogId.ToString()),
+                    l.Target.Name,
+                    string.Intern(l.Target.LogId.ToString()),
+                    l.Ability,
+                    l.AbilityId,
+                    l.Effect.EffectName,
+                    l.Effect.EffectId,
+                    l.Value.DisplayValue,
+                    l.Value.WasCrit,
+                    l.Value.ValueType != DamageType.none ? l.Value.ValueType.ToString() : l.Effect.EffectType.ToString(),
+                    l.Value.ModifierType,
+                    l.Value.ModifierDisplayValue, maxValue, l.Value.EffectiveDblValue,
+                    l.Threat)));
+                Task.Run(() => { logs.ForEach(async l => await l.AddIcons()); });
 
-            LogsToDisplay = logs;
-            _distinctEntities = _currentlySelectedCombat.AllLogs.Select(l => l.Source).Distinct().ToList();
-            OnPropertyChanged("LogsToDisplay");
+                LogsToDisplay = logs;
+                _distinctEntities = _currentlySelectedCombat.AllLogs.Select(l => l.Source).Distinct().ToList();
+                OnPropertyChanged("LogsToDisplay");
+            });
             return firstDeath;
         }
 
@@ -118,7 +122,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             Either,
         };
 
-        private bool LogFilter(ParsedLogEntry log)
+        private bool LogFilter(ParsedLogEntry log, Regex re)
         {
             MatchField matchField = MatchField.Either;
             List<EffectType> matchEffectTypes = [];
@@ -172,7 +176,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             }
             if (string.IsNullOrEmpty(_logFilter)) return true;
 
-            Regex re = new Regex(_logFilter, RegexOptions.IgnoreCase);
+            
             if (!log.Strings().Any(s => s != null && re.Match(s).Success)) {
                 return false;
             }
