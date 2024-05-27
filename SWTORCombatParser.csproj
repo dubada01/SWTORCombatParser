@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.9.9</VersionPrefix>
+    <VersionPrefix>1.9.10</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -368,12 +368,6 @@
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-     <Reference Include="Re2.Net">
-       <HintPath>lib\Re2.Net.dll</HintPath>
-     </Reference>
   </ItemGroup>
 
 </Project>

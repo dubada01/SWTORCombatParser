@@ -9,10 +9,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="OrbsIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{27273E5B-EE47-487E-B82C-E7C4F9A4C043} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{398FCDCC-2A00-40AD-BA78-EB3D42F0A7F3} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Parser)"/>
-    <ROW Property="ProductVersion" Value="1.9.4" Options="32"/>
+    <ROW Property="ProductVersion" Value="1.9.10" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{80800124-4453-4786-91FB-F71AA5158404}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -64,6 +64,7 @@
     <ROW Directory="LegacyoftheRakata_Dir" Directory_Parent="Raids_Dir" DefaultDir="LEGACY~1|Legacy of the Rakata"/>
     <ROW Directory="LostIsland_Dir" Directory_Parent="Raids_Dir" DefaultDir="LOSTIS~1|Lost Island"/>
     <ROW Directory="MandalorianRaiders_Dir" Directory_Parent="Raids_Dir" DefaultDir="MANDAL~1|Mandalorian Raiders"/>
+    <ROW Directory="NAHUT_Dir" Directory_Parent="RoomOverlays_Dir" DefaultDir="NAHUT"/>
     <ROW Directory="Nerevar_Dir" Directory_Parent="TimerAudio_Dir" DefaultDir="Nerevar"/>
     <ROW Directory="ObjectiveMeridian_Dir" Directory_Parent="Raids_Dir" DefaultDir="OBJECT~1|Objective Meridian"/>
     <ROW Directory="OffensiveTimers_Dir" Directory_Parent="Timers_Dir" DefaultDir="OFFENS~1|Offensive Timers"/>
@@ -100,97 +101,178 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="APPDIR" ComponentId="{3C060C90-3A9C-4F59-A5D5-A7B702AC1C52}" Directory_="APPDIR" Attributes="0"/>
-    <ROW Component="ATraitorAmongTheChiss.json" ComponentId="{AA10F5CE-F7A6-4BE9-AAC1-AD4A48CC9245}" Directory_="ATraitorAmongTheChiss_Dir" Attributes="0" KeyPath="ATraitorAmongTheChiss.json" Type="0"/>
-    <ROW Component="Abduct.mp3" ComponentId="{A98D13DD-BA48-462E-B56C-C33C964A62B0}" Directory_="TimerAudio_Dir" Attributes="0" KeyPath="Abduct.mp3" Type="0"/>
-    <ROW Component="AssaultonTython.json" ComponentId="{E879B747-A108-4732-BB1A-C6FB309EBF00}" Directory_="AssaultonTython_Dir" Attributes="0" KeyPath="AssaultonTython.json" Type="0"/>
-    <ROW Component="Athiss.json" ComponentId="{A228A3F4-17C5-454D-B28B-8CB32A8EEE31}" Directory_="Athiss_Dir" Attributes="0" KeyPath="Athiss.json" Type="0"/>
-    <ROW Component="BattleofRishi.json" ComponentId="{FA34ED07-74B5-418C-BA55-CD5A59A4535A}" Directory_="BattleofRishi_Dir" Attributes="0" KeyPath="BattleofRishi.json" Type="0"/>
-    <ROW Component="BloodHunt.json" ComponentId="{E9FD5576-8A60-4732-B0A6-74093599AE07}" Directory_="BloodHunt_Dir" Attributes="0" KeyPath="BloodHunt.json" Type="0"/>
-    <ROW Component="BoardingParty.json" ComponentId="{3C70BECD-CB94-4BC4-815A-244D8E919FE5}" Directory_="BoardingParty_Dir" Attributes="0" KeyPath="BoardingParty.json" Type="0"/>
-    <ROW Component="BossMechanicSkimmerConfig.json" ComponentId="{BCF9E514-2394-49B8-B271-EDD9D9115819}" Directory_="APPDIR" Attributes="0" KeyPath="BossMechanicSkimmerConfig.json" Type="0"/>
-    <ROW Component="BuiltInChallenges.json" ComponentId="{4CB0416A-00A6-49D1-9616-1477601AD5D8}" Directory_="ChallengeInfo_Dir" Attributes="0" KeyPath="BuiltInChallenges.json" Type="0"/>
-    <ROW Component="Cademimu.json" ComponentId="{591A9AC8-340D-47B6-B6E6-A28B4E8814DB}" Directory_="Cademimu_Dir" Attributes="0" KeyPath="Cademimu.json" Type="0"/>
-    <ROW Component="Classes.json" ComponentId="{01361BFA-2A50-4E9F-B615-BF330465F877}" Directory_="ClassInfos_Dir" Attributes="0" KeyPath="Classes.json" Type="0"/>
-    <ROW Component="ColorPicker.dll" ComponentId="{C8AA884B-5CBC-4A89-8EE4-B9DDE57BAE96}" Directory_="APPDIR" Attributes="0" KeyPath="ColorPicker.dll"/>
-    <ROW Component="CrisisonUmbara.json" ComponentId="{9A09BAC8-FCF2-4A1A-B64A-DEBE54A2474E}" Directory_="CrisisonUmbara_Dir" Attributes="0" KeyPath="CrisisonUmbara.json" Type="0"/>
-    <ROW Component="CzerkaCoreMeltdown.json" ComponentId="{DDE5B969-64E7-4FB8-9F87-D21EEFB74996}" Directory_="CzerkaCoreMeltdown_Dir" Attributes="0" KeyPath="CzerkaCoreMeltdown.json" Type="0"/>
-    <ROW Component="CzerkaCorporateLabs.json" ComponentId="{0F4B212F-0551-4A8E-A2FE-9AF00D0E68F1}" Directory_="CzerkaCorporateLabs_Dir" Attributes="0" KeyPath="CzerkaCorporateLabs.json" Type="0"/>
-    <ROW Component="DamageMenaceOpponentLocation.png" ComponentId="{C409177B-C4A8-46E1-AB9F-DC218977E51E}" Directory_="RoomOverlays_Dir" Attributes="0" KeyPath="DamageMenaceOpponentLocation.png" Type="0"/>
-    <ROW Component="DepthsofManaan.json" ComponentId="{09F7C3B0-4986-4D4D-8AEB-BA09A5B66756}" Directory_="DepthsofManaan_Dir" Attributes="0" KeyPath="DepthsofManaan.json" Type="0"/>
-    <ROW Component="Directive7.json" ComponentId="{F9CA561E-F611-42F9-B8B0-C989BF31AF32}" Directory_="Directive7_Dir" Attributes="0" KeyPath="Directive7.json" Type="0"/>
-    <ROW Component="Dxun.json" ComponentId="{84FB7CC3-D050-49F7-8370-4E8196CF1036}" Directory_="Dxun_Dir" Attributes="0" KeyPath="Dxun.json" Type="0"/>
-    <ROW Component="Empty.png" ComponentId="{CA9DE4DF-4FB2-4238-B8AE-C41E695F4E2E}" Directory_="IPCPT_Dir" Attributes="0" KeyPath="Empty.png" Type="0"/>
-    <ROW Component="EternityVault.json" ComponentId="{8CA7E245-9B38-4F5C-8AE8-2F755EA3BF56}" Directory_="EternityVault_Dir" Attributes="0" KeyPath="EternityVault.json" Type="0"/>
-    <ROW Component="ExplosiveConflict.json" ComponentId="{46F875DF-8E11-4C7D-BA70-CEC20A2700F1}" Directory_="ExplosiveConflict_Dir" Attributes="0" KeyPath="ExplosiveConflict.json" Type="0"/>
-    <ROW Component="FlashpointInfo.json" ComponentId="{9CE32EB5-8EF9-424B-8A80-5EE00CEC17A0}" Directory_="EncounterInfo_Dir" Attributes="0" KeyPath="FlashpointInfo.json" Type="0"/>
-    <ROW Component="Gma.System.MouseKeyHook.dll" ComponentId="{A9673C71-DE14-4630-9177-BA216DB5D950}" Directory_="APPDIR" Attributes="0" KeyPath="Gma.System.MouseKeyHook.dll"/>
-    <ROW Component="HammerStation.json" ComponentId="{625F6959-7C80-42A9-B35C-089594B9601F}" Directory_="HammerStation_Dir" Attributes="0" KeyPath="HammerStation.json" Type="0"/>
-    <ROW Component="IPCPT.json" ComponentId="{9727C14E-5E93-43EE-AEF9-BC2CD2CF1A8B}" Directory_="RoomOverlay_Dir" Attributes="0" KeyPath="IPCPT.json" Type="0"/>
-    <ROW Component="KaonUnderSiege.json" ComponentId="{544F607F-0F2E-4035-9B0E-0760C589F494}" Directory_="KaonUnderSiege_Dir" Attributes="0" KeyPath="KaonUnderSiege.json" Type="0"/>
-    <ROW Component="KaraggasPalace.json" ComponentId="{CA3FB64C-1593-4BEA-8448-EDDECB9C3EFC}" Directory_="KaraggasPalace_Dir" Attributes="0" KeyPath="KaraggasPalace.json" Type="0"/>
-    <ROW Component="KorribanIncursion.json" ComponentId="{A451674C-4CBD-4131-BDC8-D8FAC034FE27}" Directory_="KorribanIncursion_Dir" Attributes="0" KeyPath="KorribanIncursion.json" Type="0"/>
-    <ROW Component="LegacyoftheRakata.json" ComponentId="{77BC5EA8-72E6-40F3-835B-DEE7AB8025F5}" Directory_="LegacyoftheRakata_Dir" Attributes="0" KeyPath="LegacyoftheRakata.json" Type="0"/>
-    <ROW Component="LostIsland.json" ComponentId="{B57A9728-75A6-4483-9AF6-56226D32EB7F}" Directory_="LostIsland_Dir" Attributes="0" KeyPath="LostIsland.json" Type="0"/>
-    <ROW Component="MandalorianRaiders.json" ComponentId="{E153A53B-2E5E-4AFF-8D30-1B87C5A75A46}" Directory_="MandalorianRaiders_Dir" Attributes="0" KeyPath="MandalorianRaiders.json" Type="0"/>
-    <ROW Component="MathNet.Numerics.dll" ComponentId="{1B6DE1DF-1784-4469-8426-093B560E9232}" Directory_="APPDIR" Attributes="0" KeyPath="MathNet.Numerics.dll"/>
-    <ROW Component="Microsoft.Extensions.DependencyInjection.Abstractions.dll" ComponentId="{27824EC1-AE69-4A41-BB3B-0E396D74B4FB}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
-    <ROW Component="Microsoft.Extensions.Logging.Abstractions.dll" ComponentId="{6CC43786-9B37-4971-869F-EDC77ABA9E86}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Extensions.Logging.Abstractions.dll"/>
-    <ROW Component="Microsoft.Xaml.Behaviors.dll" ComponentId="{95ECC3C2-65A5-43D2-AED0-FF1211940B7E}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Xaml.Behaviors.dll"/>
-    <ROW Component="MoreLinq.dll" ComponentId="{1576D3C7-4491-4A74-AB11-F914BCAA1A8A}" Directory_="APPDIR" Attributes="0" KeyPath="MoreLinq.dll"/>
-    <ROW Component="MvvmHelpers.dll" ComponentId="{399CF521-EB89-468D-BF2E-72DEE671F532}" Directory_="APPDIR" Attributes="0" KeyPath="MvvmHelpers.dll"/>
-    <ROW Component="Newtonsoft.Json.dll" ComponentId="{87F2769A-7642-404C-97BB-DDEB1B8B48C0}" Directory_="APPDIR" Attributes="0" KeyPath="Newtonsoft.Json.dll"/>
-    <ROW Component="Npgsql.dll" ComponentId="{84FF4FF1-A28E-4AAF-A92B-8AFB44544ACC}" Directory_="APPDIR" Attributes="0" KeyPath="Npgsql.dll"/>
-    <ROW Component="ObjectiveMeridian.json" ComponentId="{C1784F2A-1BFD-494D-BD86-7DD46826BD6A}" Directory_="ObjectiveMeridian_Dir" Attributes="0" KeyPath="ObjectiveMeridian.json" Type="0"/>
-    <ROW Component="Orbs.dll" ComponentId="{495F1A64-74DD-482A-AECC-BE1E417661D7}" Directory_="APPDIR" Attributes="0" KeyPath="Orbs.dll"/>
-    <ROW Component="Orbs.exe" ComponentId="{917179C6-C974-4D94-820A-D3A7547CD3EF}" Directory_="APPDIR" Attributes="256" KeyPath="Orbs.exe"/>
-    <ROW Component="Prism.dll" ComponentId="{3AFBF8A0-E485-4FC8-9C2D-DECCBA86BF63}" Directory_="APPDIR" Attributes="0" KeyPath="Prism.dll"/>
+    <ROW Component="ATraitorAmongTheChiss.json" ComponentId="{43E7CC26-8DD8-4FE1-B5C5-229008B1517D}" Directory_="ATraitorAmongTheChiss_Dir" Attributes="0" KeyPath="ATraitorAmongTheChiss.json" Type="0"/>
+    <ROW Component="Abduct.mp3" ComponentId="{7F080963-8300-43BB-8414-DAB70F67D96E}" Directory_="TimerAudio_Dir" Attributes="0" KeyPath="Abduct.mp3" Type="0"/>
+    <ROW Component="AssaultonTython.json" ComponentId="{939FAB82-DF74-43E5-AFB9-3A36B6016DB9}" Directory_="AssaultonTython_Dir" Attributes="0" KeyPath="AssaultonTython.json" Type="0"/>
+    <ROW Component="Athiss.json" ComponentId="{6B4F770F-C5AA-48D1-BB03-16374D30E163}" Directory_="Athiss_Dir" Attributes="0" KeyPath="Athiss.json" Type="0"/>
+    <ROW Component="BattleofRishi.json" ComponentId="{1BA6820F-5313-4399-9480-0940E58B93FA}" Directory_="BattleofRishi_Dir" Attributes="0" KeyPath="BattleofRishi.json" Type="0"/>
+    <ROW Component="BloodHunt.json" ComponentId="{56AF226C-33C6-4CA6-B1A5-650EC98F816B}" Directory_="BloodHunt_Dir" Attributes="0" KeyPath="BloodHunt.json" Type="0"/>
+    <ROW Component="BoardingParty.json" ComponentId="{D559A4A4-D2EE-46CD-A837-2A8952667C87}" Directory_="BoardingParty_Dir" Attributes="0" KeyPath="BoardingParty.json" Type="0"/>
+    <ROW Component="BossMechanicSkimmerConfig.json" ComponentId="{E39B6F75-3D27-4FC6-8F5A-7B4D2C0F5929}" Directory_="APPDIR" Attributes="0" KeyPath="BossMechanicSkimmerConfig.json" Type="0"/>
+    <ROW Component="BuiltInChallenges.json" ComponentId="{83FE0412-EBB6-45E3-914C-12F7EDEA3748}" Directory_="ChallengeInfo_Dir" Attributes="0" KeyPath="BuiltInChallenges.json" Type="0"/>
+    <ROW Component="Cademimu.json" ComponentId="{E6BE43E9-2D2C-446E-AE53-C1E6692EC4C5}" Directory_="Cademimu_Dir" Attributes="0" KeyPath="Cademimu.json" Type="0"/>
+    <ROW Component="Classes.json" ComponentId="{70C23D8C-5C10-46AB-AAED-4974215F4E26}" Directory_="ClassInfos_Dir" Attributes="0" KeyPath="Classes.json" Type="0"/>
+    <ROW Component="ColorPicker.dll" ComponentId="{B9DC6157-68CB-4485-85F3-9788B0F18A5C}" Directory_="APPDIR" Attributes="0" KeyPath="ColorPicker.dll"/>
+    <ROW Component="CrisisonUmbara.json" ComponentId="{241C717D-E749-4586-B4E8-8EC85DF30172}" Directory_="CrisisonUmbara_Dir" Attributes="0" KeyPath="CrisisonUmbara.json" Type="0"/>
+    <ROW Component="CzerkaCoreMeltdown.json" ComponentId="{88285409-30B9-4966-9A66-7B06F34A3702}" Directory_="CzerkaCoreMeltdown_Dir" Attributes="0" KeyPath="CzerkaCoreMeltdown.json" Type="0"/>
+    <ROW Component="CzerkaCorporateLabs.json" ComponentId="{8FFB0B5B-6456-4634-8DC4-D1EF5CBC61DA}" Directory_="CzerkaCorporateLabs_Dir" Attributes="0" KeyPath="CzerkaCorporateLabs.json" Type="0"/>
+    <ROW Component="DamageMenaceOpponentLocation.png" ComponentId="{6A804B27-5816-45F5-8CF9-BE8FDF29E82A}" Directory_="RoomOverlays_Dir" Attributes="0" KeyPath="DamageMenaceOpponentLocation.png" Type="0"/>
+    <ROW Component="DepthsofManaan.json" ComponentId="{C84F6025-FABF-4A1A-8B2B-FC7EF89C4BC6}" Directory_="DepthsofManaan_Dir" Attributes="0" KeyPath="DepthsofManaan.json" Type="0"/>
+    <ROW Component="Directive7.json" ComponentId="{AFADBCDB-7BBD-4E80-8B62-5024616061FF}" Directory_="Directive7_Dir" Attributes="0" KeyPath="Directive7.json" Type="0"/>
+    <ROW Component="Dxun.json" ComponentId="{75CA47A4-1BC8-4DA2-B997-1F888D8264A7}" Directory_="Dxun_Dir" Attributes="0" KeyPath="Dxun.json" Type="0"/>
+    <ROW Component="Empty.png" ComponentId="{B5FDB401-1323-49FC-8EAF-891D2AC5433C}" Directory_="IPCPT_Dir" Attributes="0" KeyPath="Empty.png" Type="0"/>
+    <ROW Component="EternityVault.json" ComponentId="{C823597B-2862-411A-9BF6-E467ED9605E4}" Directory_="EternityVault_Dir" Attributes="0" KeyPath="EternityVault.json" Type="0"/>
+    <ROW Component="ExplosiveConflict.json" ComponentId="{5CB1362F-C9D5-4D7F-972E-670D235A711B}" Directory_="ExplosiveConflict_Dir" Attributes="0" KeyPath="ExplosiveConflict.json" Type="0"/>
+    <ROW Component="FlashpointInfo.json" ComponentId="{E1B62C31-77B3-47A3-9E0D-523C5C8BAF09}" Directory_="EncounterInfo_Dir" Attributes="0" KeyPath="FlashpointInfo.json" Type="0"/>
+    <ROW Component="Gma.System.MouseKeyHook.dll" ComponentId="{68DA6B95-792C-4DAC-9836-A55534BAD66D}" Directory_="APPDIR" Attributes="0" KeyPath="Gma.System.MouseKeyHook.dll"/>
+    <ROW Component="HammerStation.json" ComponentId="{77FEE5C9-F3D2-4678-846B-2BCA7C84EA9A}" Directory_="HammerStation_Dir" Attributes="0" KeyPath="HammerStation.json" Type="0"/>
+    <ROW Component="IPCPT.json" ComponentId="{739915E4-3860-4214-A4BC-6A096143BDE0}" Directory_="RoomOverlay_Dir" Attributes="0" KeyPath="IPCPT.json" Type="0"/>
+    <ROW Component="KaonUnderSiege.json" ComponentId="{E9A1781B-9931-421C-A8B5-6F27E68005A9}" Directory_="KaonUnderSiege_Dir" Attributes="0" KeyPath="KaonUnderSiege.json" Type="0"/>
+    <ROW Component="KaraggasPalace.json" ComponentId="{98F8B9EB-6FE8-44EF-A922-2E20D7099D76}" Directory_="KaraggasPalace_Dir" Attributes="0" KeyPath="KaraggasPalace.json" Type="0"/>
+    <ROW Component="KorribanIncursion.json" ComponentId="{5BD88D57-9E36-4738-AD33-A51AB741796F}" Directory_="KorribanIncursion_Dir" Attributes="0" KeyPath="KorribanIncursion.json" Type="0"/>
+    <ROW Component="LegacyoftheRakata.json" ComponentId="{99783760-8A49-44E3-9D58-B26E11026269}" Directory_="LegacyoftheRakata_Dir" Attributes="0" KeyPath="LegacyoftheRakata.json" Type="0"/>
+    <ROW Component="LostIsland.json" ComponentId="{FA71B499-B31F-44B6-86DC-A02E11280C4A}" Directory_="LostIsland_Dir" Attributes="0" KeyPath="LostIsland.json" Type="0"/>
+    <ROW Component="MandalorianRaiders.json" ComponentId="{8114E1DF-B611-4896-AD7D-D22A0DC68A71}" Directory_="MandalorianRaiders_Dir" Attributes="0" KeyPath="MandalorianRaiders.json" Type="0"/>
+    <ROW Component="MathNet.Numerics.dll" ComponentId="{34C5DD35-2C78-4402-89D3-763A33B9C90D}" Directory_="APPDIR" Attributes="0" KeyPath="MathNet.Numerics.dll"/>
+    <ROW Component="Microsoft.Extensions.DependencyInjection.Abstractions.dll" ComponentId="{3D07E69A-2965-462F-B069-D0EFB85BB10A}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
+    <ROW Component="Microsoft.Extensions.Logging.Abstractions.dll" ComponentId="{8EEFF89B-89FE-4CBC-BE10-C35959721C56}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Extensions.Logging.Abstractions.dll"/>
+    <ROW Component="Microsoft.Xaml.Behaviors.dll" ComponentId="{97DD66CC-9CAB-468C-851B-12FE987477E9}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Xaml.Behaviors.dll"/>
+    <ROW Component="MoreLinq.dll" ComponentId="{792FE84E-F145-495F-97C9-83F3A115CF9B}" Directory_="APPDIR" Attributes="0" KeyPath="MoreLinq.dll"/>
+    <ROW Component="MvvmHelpers.dll" ComponentId="{C62CBEAF-728F-4B80-8107-D0F8B02CC0A7}" Directory_="APPDIR" Attributes="0" KeyPath="MvvmHelpers.dll"/>
+    <ROW Component="NAHUT_Room.jpg" ComponentId="{076AD138-F2BA-4244-A3DA-CD85F1C36C7C}" Directory_="NAHUT_Dir" Attributes="0" KeyPath="NAHUT_Room.jpg" Type="0"/>
+    <ROW Component="Newtonsoft.Json.dll" ComponentId="{5DA23CCF-916B-4926-9F05-2F517ECCC30B}" Directory_="APPDIR" Attributes="0" KeyPath="Newtonsoft.Json.dll"/>
+    <ROW Component="Npgsql.dll" ComponentId="{10615A8A-A48B-4C52-AD41-E298B0B68BE7}" Directory_="APPDIR" Attributes="0" KeyPath="Npgsql.dll"/>
+    <ROW Component="ObjectiveMeridian.json" ComponentId="{61D9A9A5-C9B6-40C8-9EBB-BC1BFBE44B87}" Directory_="ObjectiveMeridian_Dir" Attributes="0" KeyPath="ObjectiveMeridian.json" Type="0"/>
+    <ROW Component="Orbs.dll" ComponentId="{6F353111-2BB1-42D6-9455-C6862DC718D0}" Directory_="APPDIR" Attributes="0" KeyPath="Orbs.dll"/>
+    <ROW Component="Orbs.exe" ComponentId="{E4725020-E318-4790-B73C-1BEB5A787653}" Directory_="APPDIR" Attributes="256" KeyPath="Orbs.exe"/>
+    <ROW Component="Prism.dll" ComponentId="{F6333166-CADB-4BD8-9F95-CF9A4E6F2CA6}" Directory_="APPDIR" Attributes="0" KeyPath="Prism.dll"/>
     <ROW Component="ProductInformation" ComponentId="{1FCE8749-0DEA-4414-97DC-4A5A8B88C262}" Directory_="APPDIR" Attributes="260" KeyPath="Version"/>
-    <ROW Component="R4.json" ComponentId="{E3EF12B6-7A24-4BFA-9B1D-651DC7CAEC69}" Directory_="R4_Dir" Attributes="0" KeyPath="R4.json" Type="0"/>
-    <ROW Component="RuinsofNul.json" ComponentId="{54D49B6F-8EB6-4C0B-BBD5-E031BA244355}" Directory_="RuinsofNul_Dir" Attributes="0" KeyPath="RuinsofNul.json" Type="0"/>
-    <ROW Component="SHORTCUTDIR" ComponentId="{9B03C669-614A-4C77-84CC-85AFABA999A0}" Directory_="SHORTCUTDIR" Attributes="0"/>
-    <ROW Component="ScottPlot.WPF.dll" ComponentId="{D55FA8FC-6ED9-4084-8DB2-BA21F065DCF3}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.WPF.dll"/>
-    <ROW Component="ScottPlot.dll" ComponentId="{8D9EEBE9-BD20-40EF-9F12-2C6B455D11FB}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.dll"/>
-    <ROW Component="ScumandVillainy.json" ComponentId="{DC18E0E8-9ED1-4F89-A27F-559846623EB2}" Directory_="ScumandVillainy_Dir" Attributes="0" KeyPath="ScumandVillainy.json" Type="0"/>
-    <ROW Component="SecretsoftheEnclave.json" ComponentId="{D8F721D4-DD05-4A0F-9CF7-8C5A9ACEEFFF}" Directory_="SecretsoftheEnclave_Dir" Attributes="0" KeyPath="SecretsoftheEnclave.json" Type="0"/>
-    <ROW Component="ShrineofSilence.json" ComponentId="{37239A91-A384-4BD6-890F-9E3823E37AD1}" Directory_="ShrineofSilence_Dir" Attributes="0" KeyPath="ShrineofSilence.json" Type="0"/>
-    <ROW Component="SpiritofVengeance.json" ComponentId="{0AB48073-662B-4305-B2FE-4A949D507EF7}" Directory_="SpiritofVengeance_Dir" Attributes="0" KeyPath="SpiritofVengeance.json" Type="0"/>
-    <ROW Component="System.Reactive.Linq.dll" ComponentId="{C93B58ED-86FC-4FC3-BE22-0BFAAA025F63}" Directory_="APPDIR" Attributes="0" KeyPath="System.Reactive.Linq.dll"/>
-    <ROW Component="System.Reactive.dll" ComponentId="{FE0DE644-1673-4537-B28E-8FDB85B3AC0A}" Directory_="APPDIR" Attributes="0" KeyPath="System.Reactive.dll"/>
-    <ROW Component="TempleofSacrifice.json" ComponentId="{74009F38-03E9-4928-B284-480E6FBB14A7}" Directory_="TempleofSacrifice_Dir" Attributes="0" KeyPath="TempleofSacrifice.json" Type="0"/>
-    <ROW Component="TerrorFromBeyond.json" ComponentId="{E85EB37D-D801-420F-A059-E97D35CEEB22}" Directory_="TerrorFromBeyond_Dir" Attributes="0" KeyPath="TerrorFromBeyond.json" Type="0"/>
-    <ROW Component="TheBattleofIlum.json" ComponentId="{066C60CB-4764-414D-A8F2-3F6E976CDE9D}" Directory_="TheBattleofIlum_Dir" Attributes="0" KeyPath="TheBattleofIlum.json" Type="0"/>
-    <ROW Component="TheBlackTalon.json" ComponentId="{E3C88E2E-5F75-44C2-A9F0-F578A97E60FC}" Directory_="TheBlackTalon_Dir" Attributes="0" KeyPath="TheBlackTalon.json" Type="0"/>
-    <ROW Component="TheDreadFortress.json" ComponentId="{AB1B17FF-7CBA-4B75-B285-36318A9A9BAE}" Directory_="TheDreadFortress_Dir" Attributes="0" KeyPath="TheDreadFortress.json" Type="0"/>
-    <ROW Component="TheDreadPalace.json" ComponentId="{2A41AF4B-5193-49C3-9094-24E6022A92F1}" Directory_="TheDreadPalace_Dir" Attributes="0" KeyPath="TheDreadPalace.json" Type="0"/>
-    <ROW Component="TheFalseEmperor.json" ComponentId="{A5F03556-72AF-4C08-A73D-A6E2564DB23A}" Directory_="TheFalseEmperor_Dir" Attributes="0" KeyPath="TheFalseEmperor.json" Type="0"/>
-    <ROW Component="TheFoundry.json" ComponentId="{50FE13FB-19D9-493D-8AAC-0CDD4DD787E2}" Directory_="TheFoundry_Dir" Attributes="0" KeyPath="TheFoundry.json" Type="0"/>
-    <ROW Component="TheGodsfromtheMachine.json" ComponentId="{9A9834F0-D369-4B60-AE74-8399432E1BAF}" Directory_="TheGodsfromtheMachine_Dir" Attributes="0" KeyPath="TheGodsfromtheMachine.json" Type="0"/>
-    <ROW Component="TheNathemaConspiracy.json" ComponentId="{F62E959C-2065-4925-B3ED-9C1ABEA308E4}" Directory_="TheNathemaConspiracy_Dir" Attributes="0" KeyPath="TheNathemaConspiracy.json" Type="0"/>
-    <ROW Component="TheRavagers.json" ComponentId="{BB9283BF-9025-4A53-B5F6-E69823B28CE9}" Directory_="TheRavagers_Dir" Attributes="0" KeyPath="TheRavagers.json" Type="0"/>
-    <ROW Component="TheRedReaper.json" ComponentId="{BB4FCAD2-7049-4489-BBE1-AAA88DBE945C}" Directory_="TheRedReaper_Dir" Attributes="0" KeyPath="TheRedReaper.json" Type="0"/>
-    <ROW Component="ToborrosPalace.json" ComponentId="{03CC2EEE-9D30-4AB7-BC21-A5428E9570D3}" Directory_="ToborrosPalace_Dir" Attributes="0" KeyPath="ToborrosPalace.json" Type="0"/>
-    <ROW Component="WpfAnimatedGif.dll" ComponentId="{2D0C60BE-0BD7-4EF5-B1A4-37DC456F4BF8}" Directory_="APPDIR" Attributes="0" KeyPath="WpfAnimatedGif.dll"/>
-    <ROW Component="ZornToth.png" ComponentId="{4A0EFBC6-978C-430F-98DF-D5CB7D2AA030}" Directory_="BossMaps_Dir" Attributes="0" KeyPath="ZornToth.png" Type="0"/>
-    <ROW Component="_Sound.wav" ComponentId="{8AA9E327-49D9-4374-8268-4107289C5529}" Directory_="Audio_Dir" Attributes="0" KeyPath="_Sound.wav" Type="0"/>
-    <ROW Component="ability_to_icon.csv" ComponentId="{01FDDDBD-6FDB-40F0-AA20-B12490161760}" Directory_="DataStructures_Dir" Attributes="0" KeyPath="ability_to_icon.csv" Type="0"/>
-    <ROW Component="absorbs.json" ComponentId="{809AAA94-2B80-4680-896B-C04743E191E3}" Directory_="AbilityInfo_Dir" Attributes="0" KeyPath="absorbs.json" Type="0"/>
-    <ROW Component="alerticon.png" ComponentId="{D5496F51-10B9-4488-BEA3-1F9704429428}" Directory_="resources_Dir" Attributes="0" KeyPath="alerticon.png" Type="0"/>
-    <ROW Component="assassin.png" ComponentId="{CA1EEA72-5CB0-4C92-9C03-DF74CD75A62B}" Directory_="ClassIcons_Dir" Attributes="0" KeyPath="assassin.png" Type="0"/>
-    <ROW Component="mp3" ComponentId="{823E926F-1485-430F-88E9-B6DF19441D33}" Directory_="Amy_Dir" Attributes="0" KeyPath="mp3" Type="0"/>
-    <ROW Component="mp3_1" ComponentId="{22EB142A-9838-40CA-BAF3-C013F2940E53}" Directory_="Jim_Dir" Attributes="0" KeyPath="mp3_10" Type="0"/>
-    <ROW Component="mp3_2" ComponentId="{84528EE4-A78E-4CC1-BA2B-09C5EF45B600}" Directory_="Nerevar_Dir" Attributes="0" KeyPath="mp3_20" Type="0"/>
-    <ROW Component="mp3_3" ComponentId="{488FD206-4787-4242-AF72-24241F62FCFF}" Directory_="Yolo_Dir" Attributes="0" KeyPath="mp3_30" Type="0"/>
-    <ROW Component="phase_info.json" ComponentId="{A5BD4E50-94B7-49BF-8CB2-BD8242AC6825}" Directory_="Phases_Dir" Attributes="0" KeyPath="phase_info.json" Type="0"/>
-    <ROW Component="timers.json" ComponentId="{01264F4A-AA4D-498D-9FC0-C52E0CD0D96B}" Directory_="DefensiveTimers_Dir" Attributes="0" KeyPath="timers.json" Type="0"/>
-    <ROW Component="timers.json_1" ComponentId="{CB679FFD-6202-41E8-803E-F57FBEF2DAA9}" Directory_="DOTTimers_Dir" Attributes="0" KeyPath="timers.json_1" Type="0"/>
-    <ROW Component="timers.json_2" ComponentId="{32AE22B7-E60C-4C6F-858D-CC5CC61EC07F}" Directory_="HOTTimers_Dir" Attributes="0" KeyPath="timers.json_2" Type="0"/>
-    <ROW Component="timers.json_3" ComponentId="{F96CFFA7-C139-4AAA-84C2-789F8C13F365}" Directory_="OffensiveTimers_Dir" Attributes="0" KeyPath="timers.json_3" Type="0"/>
+    <ROW Component="R4.json" ComponentId="{F522C14C-8064-4737-B95D-F087A252CBF6}" Directory_="R4_Dir" Attributes="0" KeyPath="R4.json" Type="0"/>
+    <ROW Component="RuinsofNul.json" ComponentId="{716F2657-6E14-4867-BA34-EA82EA5859E7}" Directory_="RuinsofNul_Dir" Attributes="0" KeyPath="RuinsofNul.json" Type="0"/>
+    <ROW Component="SHORTCUTDIR" ComponentId="{47CA3E78-C58B-4E67-BC7C-C6C2055B5390}" Directory_="SHORTCUTDIR" Attributes="0"/>
+    <ROW Component="ScottPlot.WPF.dll" ComponentId="{29CA3662-50C9-4E4E-B658-6B3B6BF7A777}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.WPF.dll"/>
+    <ROW Component="ScottPlot.dll" ComponentId="{AD5B13D4-2FEA-4E0B-A073-DEECAFBE9BAF}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.dll"/>
+    <ROW Component="ScumandVillainy.json" ComponentId="{5DC26D86-AC67-4AE7-B986-F68D2829AC38}" Directory_="ScumandVillainy_Dir" Attributes="0" KeyPath="ScumandVillainy.json" Type="0"/>
+    <ROW Component="SecretsoftheEnclave.json" ComponentId="{A818C839-6F0F-4DE9-AFA9-32FF0FCF3537}" Directory_="SecretsoftheEnclave_Dir" Attributes="0" KeyPath="SecretsoftheEnclave.json" Type="0"/>
+    <ROW Component="ShrineofSilence.json" ComponentId="{CC8CD2B8-C6D0-4223-91D3-CA2E54B7A3D9}" Directory_="ShrineofSilence_Dir" Attributes="0" KeyPath="ShrineofSilence.json" Type="0"/>
+    <ROW Component="SpiritofVengeance.json" ComponentId="{83F15E94-38FC-417C-8351-CAF6355DCC7B}" Directory_="SpiritofVengeance_Dir" Attributes="0" KeyPath="SpiritofVengeance.json" Type="0"/>
+    <ROW Component="System.Reactive.Linq.dll" ComponentId="{647F20F2-C361-420B-A504-8BE7956F7798}" Directory_="APPDIR" Attributes="0" KeyPath="System.Reactive.Linq.dll"/>
+    <ROW Component="System.Reactive.dll" ComponentId="{A75E5474-9D68-4FEB-9D47-BE243B8C3427}" Directory_="APPDIR" Attributes="0" KeyPath="System.Reactive.dll"/>
+    <ROW Component="TempleofSacrifice.json" ComponentId="{E3EFD921-793D-485C-B4F3-9D8E038389BB}" Directory_="TempleofSacrifice_Dir" Attributes="0" KeyPath="TempleofSacrifice.json" Type="0"/>
+    <ROW Component="TerrorFromBeyond.json" ComponentId="{FD47A1BC-BB2B-46CD-8002-30DC9083F0BC}" Directory_="TerrorFromBeyond_Dir" Attributes="0" KeyPath="TerrorFromBeyond.json" Type="0"/>
+    <ROW Component="TheBattleofIlum.json" ComponentId="{F291B23B-4266-4767-ABAC-2026615481FF}" Directory_="TheBattleofIlum_Dir" Attributes="0" KeyPath="TheBattleofIlum.json" Type="0"/>
+    <ROW Component="TheBlackTalon.json" ComponentId="{1DA062D2-4962-4D95-9DA4-BF5FDE4B0C8D}" Directory_="TheBlackTalon_Dir" Attributes="0" KeyPath="TheBlackTalon.json" Type="0"/>
+    <ROW Component="TheDreadFortress.json" ComponentId="{C1AB4795-D732-4B0A-83E6-58548EA20F0F}" Directory_="TheDreadFortress_Dir" Attributes="0" KeyPath="TheDreadFortress.json" Type="0"/>
+    <ROW Component="TheDreadPalace.json" ComponentId="{EC78B4F3-7C20-4932-8D43-3329438C8B47}" Directory_="TheDreadPalace_Dir" Attributes="0" KeyPath="TheDreadPalace.json" Type="0"/>
+    <ROW Component="TheFalseEmperor.json" ComponentId="{D0295E8F-899E-42B8-9D99-6E228E824640}" Directory_="TheFalseEmperor_Dir" Attributes="0" KeyPath="TheFalseEmperor.json" Type="0"/>
+    <ROW Component="TheFoundry.json" ComponentId="{6F5CA24D-43FB-4167-AB2A-BFB781A50BC2}" Directory_="TheFoundry_Dir" Attributes="0" KeyPath="TheFoundry.json" Type="0"/>
+    <ROW Component="TheGodsfromtheMachine.json" ComponentId="{E85852A3-E66D-4624-9AE6-9EC00F2CAEDA}" Directory_="TheGodsfromtheMachine_Dir" Attributes="0" KeyPath="TheGodsfromtheMachine.json" Type="0"/>
+    <ROW Component="TheNathemaConspiracy.json" ComponentId="{8CEFA261-0FC9-49E5-AC76-3C0AB89E76A2}" Directory_="TheNathemaConspiracy_Dir" Attributes="0" KeyPath="TheNathemaConspiracy.json" Type="0"/>
+    <ROW Component="TheRavagers.json" ComponentId="{65F5263F-0239-4048-B5AF-DFFBDFBD4779}" Directory_="TheRavagers_Dir" Attributes="0" KeyPath="TheRavagers.json" Type="0"/>
+    <ROW Component="TheRedReaper.json" ComponentId="{DFA44925-4B65-45DF-9E78-08F51ACA63E0}" Directory_="TheRedReaper_Dir" Attributes="0" KeyPath="TheRedReaper.json" Type="0"/>
+    <ROW Component="ToborrosPalace.json" ComponentId="{B5922813-16AD-4BBE-A9D2-88D87A46F08F}" Directory_="ToborrosPalace_Dir" Attributes="0" KeyPath="ToborrosPalace.json" Type="0"/>
+    <ROW Component="WpfAnimatedGif.dll" ComponentId="{B49F15B9-6FB0-4B8E-A8EC-9634E8919E68}" Directory_="APPDIR" Attributes="0" KeyPath="WpfAnimatedGif.dll"/>
+    <ROW Component="ZornToth.png" ComponentId="{411CFE05-F622-40C0-99E5-AAC54F3F64BA}" Directory_="BossMaps_Dir" Attributes="0" KeyPath="ZornToth.png" Type="0"/>
+    <ROW Component="_Sound.wav" ComponentId="{5E90BD3D-BCCF-427D-A8ED-C1AC0362643D}" Directory_="Audio_Dir" Attributes="0" KeyPath="_Sound.wav" Type="0"/>
+    <ROW Component="ability_to_icon.csv" ComponentId="{CDDD20D6-CF86-4D62-9DEE-03A4D2363660}" Directory_="DataStructures_Dir" Attributes="0" KeyPath="ability_to_icon.csv" Type="0"/>
+    <ROW Component="absorbs.json" ComponentId="{5A2EF1E5-58B1-4D6D-B631-A8B7F9B3D322}" Directory_="AbilityInfo_Dir" Attributes="0" KeyPath="absorbs.json" Type="0"/>
+    <ROW Component="alerticon.png" ComponentId="{E3E4F647-BBDC-46CC-A187-8833F3D9368A}" Directory_="resources_Dir" Attributes="0" KeyPath="alerticon.png" Type="0"/>
+    <ROW Component="assassin.png" ComponentId="{0C7A59F1-04BF-4541-8E46-B6C991E80754}" Directory_="ClassIcons_Dir" Attributes="0" KeyPath="assassin.png" Type="0"/>
+    <ROW Component="mp3" ComponentId="{476D3B13-8803-4718-9287-5958FD3DFD95}" Directory_="Amy_Dir" Attributes="0" KeyPath="mp3" Type="0"/>
+    <ROW Component="mp3_1" ComponentId="{C409B73A-EB99-422B-AF1D-0FFE367997E8}" Directory_="Jim_Dir" Attributes="0" KeyPath="mp3_10" Type="0"/>
+    <ROW Component="mp3_2" ComponentId="{4664A35B-5209-480F-8EA2-A386C27FD9B2}" Directory_="Nerevar_Dir" Attributes="0" KeyPath="mp3_20" Type="0"/>
+    <ROW Component="mp3_3" ComponentId="{E46320CC-A0C2-412F-9298-CF19C04C45D9}" Directory_="Yolo_Dir" Attributes="0" KeyPath="mp3_30" Type="0"/>
+    <ROW Component="phase_info.json" ComponentId="{E90ACD4E-E90D-4AE3-9AA4-14E8C57A4F8D}" Directory_="Phases_Dir" Attributes="0" KeyPath="phase_info.json" Type="0"/>
+    <ROW Component="timers.json" ComponentId="{050F2493-A272-4BC2-8AFF-2E79B33712DD}" Directory_="DefensiveTimers_Dir" Attributes="0" KeyPath="timers.json" Type="0"/>
+    <ROW Component="timers.json_1" ComponentId="{15221309-8C61-4A3A-A7A6-E27323B4F15C}" Directory_="DOTTimers_Dir" Attributes="0" KeyPath="timers.json_1" Type="0"/>
+    <ROW Component="timers.json_2" ComponentId="{42383100-F0CD-491F-9EC4-DE5A4975C5BC}" Directory_="HOTTimers_Dir" Attributes="0" KeyPath="timers.json_2" Type="0"/>
+    <ROW Component="timers.json_3" ComponentId="{C6B8F017-B60C-481C-8730-E3CE83B3C232}" Directory_="OffensiveTimers_Dir" Attributes="0" KeyPath="timers.json_3" Type="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="BossMechanicSkimmerConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="BOSSME~1.JSO|BossMechanicSkimmerConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\BossMechanicSkimmerConfig.json" SelfReg="false"/>
+    <ROW File="ColorPicker.dll" Component_="ColorPicker.dll" FileName="COLORP~1.DLL|ColorPicker.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ColorPicker.dll" SelfReg="false"/>
+    <ROW File="Gma.System.MouseKeyHook.dll" Component_="Gma.System.MouseKeyHook.dll" FileName="GMASYS~1.DLL|Gma.System.MouseKeyHook.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Gma.System.MouseKeyHook.dll" SelfReg="false"/>
+    <ROW File="LoggingConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="LOGGIN~1.JSO|LoggingConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\LoggingConfig.json" SelfReg="false"/>
+    <ROW File="MathNet.Numerics.dll" Component_="MathNet.Numerics.dll" FileName="MATHNE~1.DLL|MathNet.Numerics.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MathNet.Numerics.dll" SelfReg="false"/>
+    <ROW File="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Component_="Microsoft.Extensions.DependencyInjection.Abstractions.dll" FileName="MICROS~1.DLL|Microsoft.Extensions.DependencyInjection.Abstractions.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" SelfReg="false"/>
+    <ROW File="Microsoft.Extensions.Logging.Abstractions.dll" Component_="Microsoft.Extensions.Logging.Abstractions.dll" FileName="MICROS~2.DLL|Microsoft.Extensions.Logging.Abstractions.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Extensions.Logging.Abstractions.dll" SelfReg="false"/>
+    <ROW File="Microsoft.Xaml.Behaviors.dll" Component_="Microsoft.Xaml.Behaviors.dll" FileName="MICROS~3.DLL|Microsoft.Xaml.Behaviors.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Xaml.Behaviors.dll" SelfReg="false"/>
+    <ROW File="MoreLinq.dll" Component_="MoreLinq.dll" FileName="MoreLinq.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MoreLinq.dll" SelfReg="false"/>
+    <ROW File="MvvmHelpers.dll" Component_="MvvmHelpers.dll" FileName="MVVMHE~1.DLL|MvvmHelpers.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MvvmHelpers.dll" SelfReg="false"/>
+    <ROW File="Newtonsoft.Json.dll" Component_="Newtonsoft.Json.dll" FileName="NEWTON~1.DLL|Newtonsoft.Json.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Newtonsoft.Json.dll" SelfReg="false"/>
+    <ROW File="Npgsql.dll" Component_="Npgsql.dll" FileName="Npgsql.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Npgsql.dll" SelfReg="false"/>
+    <ROW File="Orbs.deps.json" Component_="BossMechanicSkimmerConfig.json" FileName="ORBSDE~1.JSO|Orbs.deps.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.deps.json" SelfReg="false"/>
+    <ROW File="Orbs.dll" Component_="Orbs.dll" FileName="Orbs.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.dll" SelfReg="false"/>
+    <ROW File="Orbs.exe" Component_="Orbs.exe" FileName="Orbs.exe" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="Orbs.pdb" Component_="Orbs.exe" FileName="Orbs.pdb" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.pdb" SelfReg="false"/>
+    <ROW File="Orbs.runtimeconfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="ORBSRU~1.JSO|Orbs.runtimeconfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="OrbsIcon.ico" Component_="BossMechanicSkimmerConfig.json" FileName="OrbsIcon.ico" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\OrbsIcon.ico" SelfReg="false"/>
+    <ROW File="Prism.dll" Component_="Prism.dll" FileName="Prism.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Prism.dll" SelfReg="false"/>
+    <ROW File="ScottPlot.dll" Component_="ScottPlot.dll" FileName="SCOTTP~1.DLL|ScottPlot.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ScottPlot.dll" SelfReg="false"/>
+    <ROW File="ScottPlot.WPF.dll" Component_="ScottPlot.WPF.dll" FileName="SCOTTP~2.DLL|ScottPlot.WPF.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ScottPlot.WPF.dll" SelfReg="false"/>
+    <ROW File="System.Reactive.dll" Component_="System.Reactive.dll" FileName="SYSTEM~1.DLL|System.Reactive.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\System.Reactive.dll" SelfReg="false"/>
+    <ROW File="System.Reactive.Linq.dll" Component_="System.Reactive.Linq.dll" FileName="SYSTEM~2.DLL|System.Reactive.Linq.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\System.Reactive.Linq.dll" SelfReg="false"/>
+    <ROW File="WpfAnimatedGif.dll" Component_="WpfAnimatedGif.dll" FileName="WPFANI~1.DLL|WpfAnimatedGif.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\WpfAnimatedGif.dll" SelfReg="false"/>
+    <ROW File="absorbs.json" Component_="absorbs.json" FileName="ABSORB~1.JSO|absorbs.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\AbilityInfo\absorbs.json" SelfReg="false"/>
+    <ROW File="ability_to_icon.csv" Component_="ability_to_icon.csv" FileName="ABILIT~1.CSV|ability_to_icon.csv" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\ability_to_icon.csv" SelfReg="false"/>
+    <ROW File="BuiltInChallenges.json" Component_="BuiltInChallenges.json" FileName="BUILTI~1.JSO|BuiltInChallenges.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\ChallengeInfo\BuiltInChallenges.json" SelfReg="false"/>
+    <ROW File="Classes.json" Component_="Classes.json" FileName="CLASSE~1.JSO|Classes.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\ClassInfos\Classes.json" SelfReg="false"/>
+    <ROW File="FlashpointInfo.json" Component_="FlashpointInfo.json" FileName="FLASHP~1.JSO|FlashpointInfo.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\EncounterInfo\FlashpointInfo.json" SelfReg="false"/>
+    <ROW File="PVPAreaNames.json" Component_="FlashpointInfo.json" FileName="PVPARE~1.JSO|PVPAreaNames.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\EncounterInfo\PVPAreaNames.json" SelfReg="false"/>
+    <ROW File="RaidNames.json" Component_="FlashpointInfo.json" FileName="RAIDNA~1.JSO|RaidNames.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\EncounterInfo\RaidNames.json" SelfReg="false"/>
+    <ROW File="phase_info.json" Component_="phase_info.json" FileName="PHASE_~1.JSO|phase_info.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Phases\phase_info.json" SelfReg="false"/>
+    <ROW File="IPCPT.json" Component_="IPCPT.json" FileName="IPCPT~1.JSO|IPCPT.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\RoomOverlay\IPCPT.json" SelfReg="false"/>
+    <ROW File="Nahut.json" Component_="IPCPT.json" FileName="NAHUT~1.JSO|Nahut.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\RoomOverlay\Nahut.json" SelfReg="false"/>
+    <ROW File="ATraitorAmongTheChiss.json" Component_="ATraitorAmongTheChiss.json" FileName="ATRAIT~1.JSO|A Traitor Among The Chiss.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\A Traitor Among The Chiss\A Traitor Among The Chiss.json" SelfReg="false"/>
+    <ROW File="AssaultonTython.json" Component_="AssaultonTython.json" FileName="ASSAUL~1.JSO|Assault on Tython.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Assault on Tython\Assault on Tython.json" SelfReg="false"/>
+    <ROW File="Athiss.json" Component_="Athiss.json" FileName="ATHISS~1.JSO|Athiss.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Athiss\Athiss.json" SelfReg="false"/>
+    <ROW File="BattleofRishi.json" Component_="BattleofRishi.json" FileName="BATTLE~1.JSO|Battle of Rishi.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Battle of Rishi\Battle of Rishi.json" SelfReg="false"/>
+    <ROW File="BloodHunt.json" Component_="BloodHunt.json" FileName="BLOODH~1.JSO|Blood Hunt.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Blood Hunt\Blood Hunt.json" SelfReg="false"/>
+    <ROW File="BoardingParty.json" Component_="BoardingParty.json" FileName="BOARDI~1.JSO|Boarding Party.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Boarding Party\Boarding Party.json" SelfReg="false"/>
+    <ROW File="Cademimu.json" Component_="Cademimu.json" FileName="CADEMI~1.JSO|Cademimu.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Cademimu\Cademimu.json" SelfReg="false"/>
+    <ROW File="CrisisonUmbara.json" Component_="CrisisonUmbara.json" FileName="CRISIS~1.JSO|Crisis on Umbara.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Crisis on Umbara\Crisis on Umbara.json" SelfReg="false"/>
+    <ROW File="CzerkaCoreMeltdown.json" Component_="CzerkaCoreMeltdown.json" FileName="CZERKA~1.JSO|Czerka Core Meltdown.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Czerka Core Meltdown\Czerka Core Meltdown.json" SelfReg="false"/>
+    <ROW File="CzerkaCorporateLabs.json" Component_="CzerkaCorporateLabs.json" FileName="CZERKA~1.JSO|Czerka Corporate Labs.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Czerka Corporate Labs\Czerka Corporate Labs.json" SelfReg="false"/>
+    <ROW File="DepthsofManaan.json" Component_="DepthsofManaan.json" FileName="DEPTHS~1.JSO|Depths of Manaan.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Depths of Manaan\Depths of Manaan.json" SelfReg="false"/>
+    <ROW File="Directive7.json" Component_="Directive7.json" FileName="DIRECT~1.JSO|Directive 7.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Directive 7\Directive 7.json" SelfReg="false"/>
+    <ROW File="Dxun.json" Component_="Dxun.json" FileName="DXUN~1.JSO|Dxun.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Dxun\Dxun.json" SelfReg="false"/>
+    <ROW File="EternityVault.json" Component_="EternityVault.json" FileName="ETERNI~1.JSO|Eternity Vault.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Eternity Vault\Eternity Vault.json" SelfReg="false"/>
+    <ROW File="ExplosiveConflict.json" Component_="ExplosiveConflict.json" FileName="EXPLOS~1.JSO|Explosive Conflict.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Explosive Conflict\Explosive Conflict.json" SelfReg="false"/>
+    <ROW File="HammerStation.json" Component_="HammerStation.json" FileName="HAMMER~1.JSO|Hammer Station.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Hammer Station\Hammer Station.json" SelfReg="false"/>
+    <ROW File="KaonUnderSiege.json" Component_="KaonUnderSiege.json" FileName="KAONUN~1.JSO|Kaon Under Siege.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Kaon Under Siege\Kaon Under Siege.json" SelfReg="false"/>
+    <ROW File="KaraggasPalace.json" Component_="KaraggasPalace.json" FileName="KARAGG~1.JSO|Karagga&apos;s Palace.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Karagga&apos;s Palace\Karagga&apos;s Palace.json" SelfReg="false"/>
+    <ROW File="KorribanIncursion.json" Component_="KorribanIncursion.json" FileName="KORRIB~1.JSO|Korriban Incursion.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Korriban Incursion\Korriban Incursion.json" SelfReg="false"/>
+    <ROW File="LegacyoftheRakata.json" Component_="LegacyoftheRakata.json" FileName="LEGACY~1.JSO|Legacy of the Rakata.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Legacy of the Rakata\Legacy of the Rakata.json" SelfReg="false"/>
+    <ROW File="LostIsland.json" Component_="LostIsland.json" FileName="LOSTIS~1.JSO|Lost Island.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Lost Island\Lost Island.json" SelfReg="false"/>
+    <ROW File="MandalorianRaiders.json" Component_="MandalorianRaiders.json" FileName="MANDAL~1.JSO|Mandalorian Raiders.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Mandalorian Raiders\Mandalorian Raiders.json" SelfReg="false"/>
+    <ROW File="ObjectiveMeridian.json" Component_="ObjectiveMeridian.json" FileName="OBJECT~1.JSO|Objective Meridian.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Objective Meridian\Objective Meridian.json" SelfReg="false"/>
+    <ROW File="R4.json" Component_="R4.json" FileName="R4~1.JSO|R4.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\R4\R4.json" SelfReg="false"/>
+    <ROW File="RuinsofNul.json" Component_="RuinsofNul.json" FileName="RUINSO~1.JSO|Ruins of Nul.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Ruins of Nul\Ruins of Nul.json" SelfReg="false"/>
+    <ROW File="ScumandVillainy.json" Component_="ScumandVillainy.json" FileName="SCUMAN~1.JSO|Scum and Villainy.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Scum and Villainy\Scum and Villainy.json" SelfReg="false"/>
+    <ROW File="SecretsoftheEnclave.json" Component_="SecretsoftheEnclave.json" FileName="SECRET~1.JSO|Secrets of the Enclave.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Secrets of the Enclave\Secrets of the Enclave.json" SelfReg="false"/>
+    <ROW File="ShrineofSilence.json" Component_="ShrineofSilence.json" FileName="SHRINE~1.JSO|Shrine of Silence.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Shrine of Silence\Shrine of Silence.json" SelfReg="false"/>
+    <ROW File="SpiritofVengeance.json" Component_="SpiritofVengeance.json" FileName="SPIRIT~1.JSO|Spirit of Vengeance.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Spirit of Vengeance\Spirit of Vengeance.json" SelfReg="false"/>
+    <ROW File="TempleofSacrifice.json" Component_="TempleofSacrifice.json" FileName="TEMPLE~1.JSO|Temple of Sacrifice.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Temple of Sacrifice\Temple of Sacrifice.json" SelfReg="false"/>
+    <ROW File="TerrorFromBeyond.json" Component_="TerrorFromBeyond.json" FileName="TERROR~1.JSO|Terror From Beyond.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Terror From Beyond\Terror From Beyond.json" SelfReg="false"/>
+    <ROW File="TheBattleofIlum.json" Component_="TheBattleofIlum.json" FileName="THEBAT~1.JSO|The Battle of Ilum.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Battle of Ilum\The Battle of Ilum.json" SelfReg="false"/>
+    <ROW File="TheBlackTalon.json" Component_="TheBlackTalon.json" FileName="THEBLA~1.JSO|The Black Talon.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Black Talon\The Black Talon.json" SelfReg="false"/>
+    <ROW File="TheDreadFortress.json" Component_="TheDreadFortress.json" FileName="THEDRE~1.JSO|The Dread Fortress.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Dread Fortress\The Dread Fortress.json" SelfReg="false"/>
+    <ROW File="TheDreadPalace.json" Component_="TheDreadPalace.json" FileName="THEDRE~1.JSO|The Dread Palace.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Dread Palace\The Dread Palace.json" SelfReg="false"/>
+    <ROW File="TheFalseEmperor.json" Component_="TheFalseEmperor.json" FileName="THEFAL~1.JSO|The False Emperor.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The False Emperor\The False Emperor.json" SelfReg="false"/>
+    <ROW File="TheFoundry.json" Component_="TheFoundry.json" FileName="THEFOU~1.JSO|The Foundry.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Foundry\The Foundry.json" SelfReg="false"/>
+    <ROW File="TheGodsfromtheMachine.json" Component_="TheGodsfromtheMachine.json" FileName="THEGOD~1.JSO|The Gods from the Machine.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Gods from the Machine\The Gods from the Machine.json" SelfReg="false"/>
+    <ROW File="TheNathemaConspiracy.json" Component_="TheNathemaConspiracy.json" FileName="THENAT~1.JSO|The Nathema Conspiracy.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Nathema Conspiracy\The Nathema Conspiracy.json" SelfReg="false"/>
+    <ROW File="TheRavagers.json" Component_="TheRavagers.json" FileName="THERAV~1.JSO|The Ravagers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json" SelfReg="false"/>
+    <ROW File="TheRedReaper.json" Component_="TheRedReaper.json" FileName="THERED~1.JSO|The Red Reaper.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Red Reaper\The Red Reaper.json" SelfReg="false"/>
+    <ROW File="ToborrosPalace.json" Component_="ToborrosPalace.json" FileName="TOBORR~1.JSO|Toborro&apos;s Palace.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Toborro&apos;s Palace\Toborro&apos;s Palace.json" SelfReg="false"/>
+    <ROW File="timers.json" Component_="timers.json" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Defensive Timers\timers.json" SelfReg="false"/>
+    <ROW File="timers.json_1" Component_="timers.json_1" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\DOT Timers\timers.json" SelfReg="false"/>
+    <ROW File="timers.json_2" Component_="timers.json_2" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\HOT Timers\timers.json" SelfReg="false"/>
+    <ROW File="timers.json_3" Component_="timers.json_3" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Offensive Timers\timers.json" SelfReg="false"/>
     <ROW File="alerticon.png" Component_="alerticon.png" FileName="ALERT-~1.PNG|alert-icon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\alert-icon.png" SelfReg="false"/>
     <ROW File="_Sound.wav" Component_="_Sound.wav" FileName="3210_S~1.WAV|3210_Sound.wav" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\Audio\3210_Sound.wav" SelfReg="false"/>
     <ROW File="AlertSound.wav" Component_="_Sound.wav" FileName="ALERTS~1.WAV|AlertSound.wav" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\Audio\AlertSound.wav" SelfReg="false"/>
@@ -688,7 +770,7 @@
     <ROW File="MinusIcon.png" Component_="alerticon.png" FileName="MINUSI~1.PNG|MinusIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\MinusIcon.png" SelfReg="false"/>
     <ROW File="mutedIcon.png" Component_="alerticon.png" FileName="MUTEDI~1.PNG|mutedIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\mutedIcon.png" SelfReg="false"/>
     <ROW File="openParselyIcon.png" Component_="alerticon.png" FileName="OPENPA~1.PNG|openParselyIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\openParselyIcon.png" SelfReg="false"/>
-    <ROW File="OrbsIcon.ico" Component_="alerticon.png" FileName="OrbsIcon.ico" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\OrbsIcon.ico" SelfReg="false"/>
+    <ROW File="OrbsIcon.ico_1" Component_="alerticon.png" FileName="OrbsIcon.ico" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\OrbsIcon.ico" SelfReg="false"/>
     <ROW File="packagedIcons.zip" Component_="alerticon.png" FileName="PACKAG~1.ZIP|packagedIcons.zip" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\packagedIcons.zip" SelfReg="false"/>
     <ROW File="PlusIcon.png" Component_="alerticon.png" FileName="PlusIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\PlusIcon.png" SelfReg="false"/>
     <ROW File="questionmark.png" Component_="alerticon.png" FileName="QUESTI~1.PNG|question-mark.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\question-mark.png" SelfReg="false"/>
@@ -750,6 +832,7 @@
     <ROW File="Phase5_8.png" Component_="Empty.png" FileName="Phase5_8.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\RoomOverlays\IP-CPT\Phase5_8.png" SelfReg="false"/>
     <ROW File="Phase5_9.png" Component_="Empty.png" FileName="Phase5_9.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\RoomOverlays\IP-CPT\Phase5_9.png" SelfReg="false"/>
     <ROW File="Phase5_9_plus.png" Component_="Empty.png" FileName="PHASE5~8.PNG|Phase5_9_plus.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\RoomOverlays\IP-CPT\Phase5_9_plus.png" SelfReg="false"/>
+    <ROW File="NAHUT_Room.jpg" Component_="NAHUT_Room.jpg" FileName="NAHUT_~1.JPG|NAHUT_Room.jpg" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\RoomOverlays\NAHUT\NAHUT_Room.jpg" SelfReg="false"/>
     <ROW File="OpponentLocation.png" Component_="DamageMenaceOpponentLocation.png" FileName="OPPONE~1.PNG|OpponentLocation.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\RoomOverlays\OpponentLocation.png" SelfReg="false"/>
     <ROW File="PlayerLocation.png" Component_="DamageMenaceOpponentLocation.png" FileName="PLAYER~1.PNG|PlayerLocation.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\RoomOverlays\PlayerLocation.png" SelfReg="false"/>
     <ROW File="SelectionAdornment.png" Component_="DamageMenaceOpponentLocation.png" FileName="SELECT~1.PNG|SelectionAdornment.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\RoomOverlays\SelectionAdornment.png" SelfReg="false"/>
@@ -767,85 +850,6 @@
     <ROW File="unlockedIcon.png" Component_="alerticon.png" FileName="UNLOCK~1.PNG|unlockedIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\unlockedIcon.png" SelfReg="false"/>
     <ROW File="uploadToParselyIcon.png" Component_="alerticon.png" FileName="UPLOAD~1.PNG|uploadToParselyIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\uploadToParselyIcon.png" SelfReg="false"/>
     <ROW File="view.png" Component_="alerticon.png" FileName="view.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\view.png" SelfReg="false"/>
-    <ROW File="absorbs.json" Component_="absorbs.json" FileName="ABSORB~1.JSO|absorbs.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\AbilityInfo\absorbs.json" SelfReg="false"/>
-    <ROW File="ability_to_icon.csv" Component_="ability_to_icon.csv" FileName="ABILIT~1.CSV|ability_to_icon.csv" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\ability_to_icon.csv" SelfReg="false"/>
-    <ROW File="BuiltInChallenges.json" Component_="BuiltInChallenges.json" FileName="BUILTI~1.JSO|BuiltInChallenges.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\ChallengeInfo\BuiltInChallenges.json" SelfReg="false"/>
-    <ROW File="Classes.json" Component_="Classes.json" FileName="CLASSE~1.JSO|Classes.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\ClassInfos\Classes.json" SelfReg="false"/>
-    <ROW File="FlashpointInfo.json" Component_="FlashpointInfo.json" FileName="FLASHP~1.JSO|FlashpointInfo.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\EncounterInfo\FlashpointInfo.json" SelfReg="false"/>
-    <ROW File="PVPAreaNames.json" Component_="FlashpointInfo.json" FileName="PVPARE~1.JSO|PVPAreaNames.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\EncounterInfo\PVPAreaNames.json" SelfReg="false"/>
-    <ROW File="RaidNames.json" Component_="FlashpointInfo.json" FileName="RAIDNA~1.JSO|RaidNames.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\EncounterInfo\RaidNames.json" SelfReg="false"/>
-    <ROW File="phase_info.json" Component_="phase_info.json" FileName="PHASE_~1.JSO|phase_info.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Phases\phase_info.json" SelfReg="false"/>
-    <ROW File="IPCPT.json" Component_="IPCPT.json" FileName="IPCPT~1.JSO|IPCPT.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\RoomOverlay\IPCPT.json" SelfReg="false"/>
-    <ROW File="ATraitorAmongTheChiss.json" Component_="ATraitorAmongTheChiss.json" FileName="ATRAIT~1.JSO|A Traitor Among The Chiss.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\A Traitor Among The Chiss\A Traitor Among The Chiss.json" SelfReg="false"/>
-    <ROW File="AssaultonTython.json" Component_="AssaultonTython.json" FileName="ASSAUL~1.JSO|Assault on Tython.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Assault on Tython\Assault on Tython.json" SelfReg="false"/>
-    <ROW File="Athiss.json" Component_="Athiss.json" FileName="ATHISS~1.JSO|Athiss.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Athiss\Athiss.json" SelfReg="false"/>
-    <ROW File="BattleofRishi.json" Component_="BattleofRishi.json" FileName="BATTLE~1.JSO|Battle of Rishi.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Battle of Rishi\Battle of Rishi.json" SelfReg="false"/>
-    <ROW File="BloodHunt.json" Component_="BloodHunt.json" FileName="BLOODH~1.JSO|Blood Hunt.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Blood Hunt\Blood Hunt.json" SelfReg="false"/>
-    <ROW File="BoardingParty.json" Component_="BoardingParty.json" FileName="BOARDI~1.JSO|Boarding Party.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Boarding Party\Boarding Party.json" SelfReg="false"/>
-    <ROW File="Cademimu.json" Component_="Cademimu.json" FileName="CADEMI~1.JSO|Cademimu.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Cademimu\Cademimu.json" SelfReg="false"/>
-    <ROW File="CrisisonUmbara.json" Component_="CrisisonUmbara.json" FileName="CRISIS~1.JSO|Crisis on Umbara.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Crisis on Umbara\Crisis on Umbara.json" SelfReg="false"/>
-    <ROW File="CzerkaCoreMeltdown.json" Component_="CzerkaCoreMeltdown.json" FileName="CZERKA~1.JSO|Czerka Core Meltdown.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Czerka Core Meltdown\Czerka Core Meltdown.json" SelfReg="false"/>
-    <ROW File="CzerkaCorporateLabs.json" Component_="CzerkaCorporateLabs.json" FileName="CZERKA~1.JSO|Czerka Corporate Labs.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Czerka Corporate Labs\Czerka Corporate Labs.json" SelfReg="false"/>
-    <ROW File="DepthsofManaan.json" Component_="DepthsofManaan.json" FileName="DEPTHS~1.JSO|Depths of Manaan.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Depths of Manaan\Depths of Manaan.json" SelfReg="false"/>
-    <ROW File="Directive7.json" Component_="Directive7.json" FileName="DIRECT~1.JSO|Directive 7.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Directive 7\Directive 7.json" SelfReg="false"/>
-    <ROW File="Dxun.json" Component_="Dxun.json" FileName="DXUN~1.JSO|Dxun.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Dxun\Dxun.json" SelfReg="false"/>
-    <ROW File="EternityVault.json" Component_="EternityVault.json" FileName="ETERNI~1.JSO|Eternity Vault.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Eternity Vault\Eternity Vault.json" SelfReg="false"/>
-    <ROW File="ExplosiveConflict.json" Component_="ExplosiveConflict.json" FileName="EXPLOS~1.JSO|Explosive Conflict.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Explosive Conflict\Explosive Conflict.json" SelfReg="false"/>
-    <ROW File="HammerStation.json" Component_="HammerStation.json" FileName="HAMMER~1.JSO|Hammer Station.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Hammer Station\Hammer Station.json" SelfReg="false"/>
-    <ROW File="KaonUnderSiege.json" Component_="KaonUnderSiege.json" FileName="KAONUN~1.JSO|Kaon Under Siege.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Kaon Under Siege\Kaon Under Siege.json" SelfReg="false"/>
-    <ROW File="KaraggasPalace.json" Component_="KaraggasPalace.json" FileName="KARAGG~1.JSO|Karagga&apos;s Palace.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Karagga&apos;s Palace\Karagga&apos;s Palace.json" SelfReg="false"/>
-    <ROW File="KorribanIncursion.json" Component_="KorribanIncursion.json" FileName="KORRIB~1.JSO|Korriban Incursion.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Korriban Incursion\Korriban Incursion.json" SelfReg="false"/>
-    <ROW File="LegacyoftheRakata.json" Component_="LegacyoftheRakata.json" FileName="LEGACY~1.JSO|Legacy of the Rakata.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Legacy of the Rakata\Legacy of the Rakata.json" SelfReg="false"/>
-    <ROW File="LostIsland.json" Component_="LostIsland.json" FileName="LOSTIS~1.JSO|Lost Island.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Lost Island\Lost Island.json" SelfReg="false"/>
-    <ROW File="MandalorianRaiders.json" Component_="MandalorianRaiders.json" FileName="MANDAL~1.JSO|Mandalorian Raiders.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Mandalorian Raiders\Mandalorian Raiders.json" SelfReg="false"/>
-    <ROW File="ObjectiveMeridian.json" Component_="ObjectiveMeridian.json" FileName="OBJECT~1.JSO|Objective Meridian.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Objective Meridian\Objective Meridian.json" SelfReg="false"/>
-    <ROW File="R4.json" Component_="R4.json" FileName="R4~1.JSO|R4.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\R4\R4.json" SelfReg="false"/>
-    <ROW File="RuinsofNul.json" Component_="RuinsofNul.json" FileName="RUINSO~1.JSO|Ruins of Nul.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Ruins of Nul\Ruins of Nul.json" SelfReg="false"/>
-    <ROW File="ScumandVillainy.json" Component_="ScumandVillainy.json" FileName="SCUMAN~1.JSO|Scum and Villainy.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Scum and Villainy\Scum and Villainy.json" SelfReg="false"/>
-    <ROW File="SecretsoftheEnclave.json" Component_="SecretsoftheEnclave.json" FileName="SECRET~1.JSO|Secrets of the Enclave.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Secrets of the Enclave\Secrets of the Enclave.json" SelfReg="false"/>
-    <ROW File="ShrineofSilence.json" Component_="ShrineofSilence.json" FileName="SHRINE~1.JSO|Shrine of Silence.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Shrine of Silence\Shrine of Silence.json" SelfReg="false"/>
-    <ROW File="SpiritofVengeance.json" Component_="SpiritofVengeance.json" FileName="SPIRIT~1.JSO|Spirit of Vengeance.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Spirit of Vengeance\Spirit of Vengeance.json" SelfReg="false"/>
-    <ROW File="TempleofSacrifice.json" Component_="TempleofSacrifice.json" FileName="TEMPLE~1.JSO|Temple of Sacrifice.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Temple of Sacrifice\Temple of Sacrifice.json" SelfReg="false"/>
-    <ROW File="TerrorFromBeyond.json" Component_="TerrorFromBeyond.json" FileName="TERROR~1.JSO|Terror From Beyond.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Terror From Beyond\Terror From Beyond.json" SelfReg="false"/>
-    <ROW File="TheBattleofIlum.json" Component_="TheBattleofIlum.json" FileName="THEBAT~1.JSO|The Battle of Ilum.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Battle of Ilum\The Battle of Ilum.json" SelfReg="false"/>
-    <ROW File="TheBlackTalon.json" Component_="TheBlackTalon.json" FileName="THEBLA~1.JSO|The Black Talon.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Black Talon\The Black Talon.json" SelfReg="false"/>
-    <ROW File="TheDreadFortress.json" Component_="TheDreadFortress.json" FileName="THEDRE~1.JSO|The Dread Fortress.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Dread Fortress\The Dread Fortress.json" SelfReg="false"/>
-    <ROW File="TheDreadPalace.json" Component_="TheDreadPalace.json" FileName="THEDRE~1.JSO|The Dread Palace.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Dread Palace\The Dread Palace.json" SelfReg="false"/>
-    <ROW File="TheFalseEmperor.json" Component_="TheFalseEmperor.json" FileName="THEFAL~1.JSO|The False Emperor.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The False Emperor\The False Emperor.json" SelfReg="false"/>
-    <ROW File="TheFoundry.json" Component_="TheFoundry.json" FileName="THEFOU~1.JSO|The Foundry.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Foundry\The Foundry.json" SelfReg="false"/>
-    <ROW File="TheGodsfromtheMachine.json" Component_="TheGodsfromtheMachine.json" FileName="THEGOD~1.JSO|The Gods from the Machine.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Gods from the Machine\The Gods from the Machine.json" SelfReg="false"/>
-    <ROW File="TheNathemaConspiracy.json" Component_="TheNathemaConspiracy.json" FileName="THENAT~1.JSO|The Nathema Conspiracy.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Nathema Conspiracy\The Nathema Conspiracy.json" SelfReg="false"/>
-    <ROW File="TheRavagers.json" Component_="TheRavagers.json" FileName="THERAV~1.JSO|The Ravagers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Ravagers\The Ravagers.json" SelfReg="false"/>
-    <ROW File="TheRedReaper.json" Component_="TheRedReaper.json" FileName="THERED~1.JSO|The Red Reaper.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\The Red Reaper\The Red Reaper.json" SelfReg="false"/>
-    <ROW File="ToborrosPalace.json" Component_="ToborrosPalace.json" FileName="TOBORR~1.JSO|Toborro&apos;s Palace.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Boss Timers\Raids\Toborro&apos;s Palace\Toborro&apos;s Palace.json" SelfReg="false"/>
-    <ROW File="timers.json" Component_="timers.json" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Defensive Timers\timers.json" SelfReg="false"/>
-    <ROW File="timers.json_1" Component_="timers.json_1" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\DOT Timers\timers.json" SelfReg="false"/>
-    <ROW File="timers.json_2" Component_="timers.json_2" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\HOT Timers\timers.json" SelfReg="false"/>
-    <ROW File="timers.json_3" Component_="timers.json_3" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\Timers\Offensive Timers\timers.json" SelfReg="false"/>
-    <ROW File="BossMechanicSkimmerConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="BOSSME~1.JSO|BossMechanicSkimmerConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\BossMechanicSkimmerConfig.json" SelfReg="false"/>
-    <ROW File="ColorPicker.dll" Component_="ColorPicker.dll" FileName="COLORP~1.DLL|ColorPicker.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ColorPicker.dll" SelfReg="false"/>
-    <ROW File="Gma.System.MouseKeyHook.dll" Component_="Gma.System.MouseKeyHook.dll" FileName="GMASYS~1.DLL|Gma.System.MouseKeyHook.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Gma.System.MouseKeyHook.dll" SelfReg="false"/>
-    <ROW File="LoggingConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="LOGGIN~1.JSO|LoggingConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\LoggingConfig.json" SelfReg="false"/>
-    <ROW File="MathNet.Numerics.dll" Component_="MathNet.Numerics.dll" FileName="MATHNE~1.DLL|MathNet.Numerics.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MathNet.Numerics.dll" SelfReg="false"/>
-    <ROW File="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Component_="Microsoft.Extensions.DependencyInjection.Abstractions.dll" FileName="MICROS~1.DLL|Microsoft.Extensions.DependencyInjection.Abstractions.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" SelfReg="false"/>
-    <ROW File="Microsoft.Extensions.Logging.Abstractions.dll" Component_="Microsoft.Extensions.Logging.Abstractions.dll" FileName="MICROS~2.DLL|Microsoft.Extensions.Logging.Abstractions.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Extensions.Logging.Abstractions.dll" SelfReg="false"/>
-    <ROW File="Microsoft.Xaml.Behaviors.dll" Component_="Microsoft.Xaml.Behaviors.dll" FileName="MICROS~3.DLL|Microsoft.Xaml.Behaviors.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Xaml.Behaviors.dll" SelfReg="false"/>
-    <ROW File="MoreLinq.dll" Component_="MoreLinq.dll" FileName="MoreLinq.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MoreLinq.dll" SelfReg="false"/>
-    <ROW File="MvvmHelpers.dll" Component_="MvvmHelpers.dll" FileName="MVVMHE~1.DLL|MvvmHelpers.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MvvmHelpers.dll" SelfReg="false"/>
-    <ROW File="Newtonsoft.Json.dll" Component_="Newtonsoft.Json.dll" FileName="NEWTON~1.DLL|Newtonsoft.Json.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Newtonsoft.Json.dll" SelfReg="false"/>
-    <ROW File="Npgsql.dll" Component_="Npgsql.dll" FileName="Npgsql.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Npgsql.dll" SelfReg="false"/>
-    <ROW File="Orbs.deps.json" Component_="BossMechanicSkimmerConfig.json" FileName="ORBSDE~1.JSO|Orbs.deps.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.deps.json" SelfReg="false"/>
-    <ROW File="Orbs.dll" Component_="Orbs.dll" FileName="Orbs.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.dll" SelfReg="false"/>
-    <ROW File="Orbs.exe" Component_="Orbs.exe" FileName="Orbs.exe" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="Orbs.pdb" Component_="Orbs.exe" FileName="Orbs.pdb" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.pdb" SelfReg="false"/>
-    <ROW File="Orbs.runtimeconfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="ORBSRU~1.JSO|Orbs.runtimeconfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.runtimeconfig.json" SelfReg="false"/>
-    <ROW File="OrbsIcon.ico_1" Component_="BossMechanicSkimmerConfig.json" FileName="OrbsIcon.ico" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\OrbsIcon.ico" SelfReg="false"/>
-    <ROW File="Prism.dll" Component_="Prism.dll" FileName="Prism.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Prism.dll" SelfReg="false"/>
-    <ROW File="ScottPlot.dll" Component_="ScottPlot.dll" FileName="SCOTTP~1.DLL|ScottPlot.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ScottPlot.dll" SelfReg="false"/>
-    <ROW File="ScottPlot.WPF.dll" Component_="ScottPlot.WPF.dll" FileName="SCOTTP~2.DLL|ScottPlot.WPF.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ScottPlot.WPF.dll" SelfReg="false"/>
-    <ROW File="System.Reactive.dll" Component_="System.Reactive.dll" FileName="SYSTEM~1.DLL|System.Reactive.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\System.Reactive.dll" SelfReg="false"/>
-    <ROW File="System.Reactive.Linq.dll" Component_="System.Reactive.Linq.dll" FileName="SYSTEM~2.DLL|System.Reactive.Linq.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\System.Reactive.Linq.dll" SelfReg="false"/>
-    <ROW File="WpfAnimatedGif.dll" Component_="WpfAnimatedGif.dll" FileName="WPFANI~1.DLL|WpfAnimatedGif.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\WpfAnimatedGif.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
@@ -921,17 +925,25 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatCompsComponent">
     <ROW Feature_="MainFeature" Component_="APPDIR"/>
     <ROW Feature_="MainFeature" Component_="ProductInformation"/>
-    <ROW Feature_="MainFeature" Component_="alerticon.png"/>
-    <ROW Feature_="MainFeature" Component_="_Sound.wav"/>
-    <ROW Feature_="MainFeature" Component_="Abduct.mp3"/>
-    <ROW Feature_="MainFeature" Component_="mp3"/>
-    <ROW Feature_="MainFeature" Component_="mp3_1"/>
-    <ROW Feature_="MainFeature" Component_="mp3_2"/>
-    <ROW Feature_="MainFeature" Component_="mp3_3"/>
-    <ROW Feature_="MainFeature" Component_="ZornToth.png"/>
-    <ROW Feature_="MainFeature" Component_="assassin.png"/>
-    <ROW Feature_="MainFeature" Component_="DamageMenaceOpponentLocation.png"/>
-    <ROW Feature_="MainFeature" Component_="Empty.png"/>
+    <ROW Feature_="MainFeature" Component_="BossMechanicSkimmerConfig.json"/>
+    <ROW Feature_="MainFeature" Component_="ColorPicker.dll"/>
+    <ROW Feature_="MainFeature" Component_="Gma.System.MouseKeyHook.dll"/>
+    <ROW Feature_="MainFeature" Component_="MathNet.Numerics.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.Extensions.Logging.Abstractions.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.Xaml.Behaviors.dll"/>
+    <ROW Feature_="MainFeature" Component_="MoreLinq.dll"/>
+    <ROW Feature_="MainFeature" Component_="MvvmHelpers.dll"/>
+    <ROW Feature_="MainFeature" Component_="Newtonsoft.Json.dll"/>
+    <ROW Feature_="MainFeature" Component_="Npgsql.dll"/>
+    <ROW Feature_="MainFeature" Component_="Orbs.dll"/>
+    <ROW Feature_="MainFeature" Component_="Orbs.exe"/>
+    <ROW Feature_="MainFeature" Component_="Prism.dll"/>
+    <ROW Feature_="MainFeature" Component_="ScottPlot.dll"/>
+    <ROW Feature_="MainFeature" Component_="ScottPlot.WPF.dll"/>
+    <ROW Feature_="MainFeature" Component_="System.Reactive.dll"/>
+    <ROW Feature_="MainFeature" Component_="System.Reactive.Linq.dll"/>
+    <ROW Feature_="MainFeature" Component_="WpfAnimatedGif.dll"/>
     <ROW Feature_="MainFeature" Component_="absorbs.json"/>
     <ROW Feature_="MainFeature" Component_="ability_to_icon.csv"/>
     <ROW Feature_="MainFeature" Component_="BuiltInChallenges.json"/>
@@ -985,25 +997,18 @@
     <ROW Feature_="MainFeature" Component_="timers.json_1"/>
     <ROW Feature_="MainFeature" Component_="timers.json_2"/>
     <ROW Feature_="MainFeature" Component_="timers.json_3"/>
-    <ROW Feature_="MainFeature" Component_="BossMechanicSkimmerConfig.json"/>
-    <ROW Feature_="MainFeature" Component_="ColorPicker.dll"/>
-    <ROW Feature_="MainFeature" Component_="Gma.System.MouseKeyHook.dll"/>
-    <ROW Feature_="MainFeature" Component_="MathNet.Numerics.dll"/>
-    <ROW Feature_="MainFeature" Component_="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
-    <ROW Feature_="MainFeature" Component_="Microsoft.Extensions.Logging.Abstractions.dll"/>
-    <ROW Feature_="MainFeature" Component_="Microsoft.Xaml.Behaviors.dll"/>
-    <ROW Feature_="MainFeature" Component_="MoreLinq.dll"/>
-    <ROW Feature_="MainFeature" Component_="MvvmHelpers.dll"/>
-    <ROW Feature_="MainFeature" Component_="Newtonsoft.Json.dll"/>
-    <ROW Feature_="MainFeature" Component_="Npgsql.dll"/>
-    <ROW Feature_="MainFeature" Component_="Orbs.dll"/>
-    <ROW Feature_="MainFeature" Component_="Orbs.exe"/>
-    <ROW Feature_="MainFeature" Component_="Prism.dll"/>
-    <ROW Feature_="MainFeature" Component_="ScottPlot.dll"/>
-    <ROW Feature_="MainFeature" Component_="ScottPlot.WPF.dll"/>
-    <ROW Feature_="MainFeature" Component_="System.Reactive.dll"/>
-    <ROW Feature_="MainFeature" Component_="System.Reactive.Linq.dll"/>
-    <ROW Feature_="MainFeature" Component_="WpfAnimatedGif.dll"/>
+    <ROW Feature_="MainFeature" Component_="alerticon.png"/>
+    <ROW Feature_="MainFeature" Component_="_Sound.wav"/>
+    <ROW Feature_="MainFeature" Component_="Abduct.mp3"/>
+    <ROW Feature_="MainFeature" Component_="mp3"/>
+    <ROW Feature_="MainFeature" Component_="mp3_1"/>
+    <ROW Feature_="MainFeature" Component_="mp3_2"/>
+    <ROW Feature_="MainFeature" Component_="mp3_3"/>
+    <ROW Feature_="MainFeature" Component_="ZornToth.png"/>
+    <ROW Feature_="MainFeature" Component_="assassin.png"/>
+    <ROW Feature_="MainFeature" Component_="DamageMenaceOpponentLocation.png"/>
+    <ROW Feature_="MainFeature" Component_="Empty.png"/>
+    <ROW Feature_="MainFeature" Component_="NAHUT_Room.jpg"/>
     <ROW Feature_="MainFeature" Component_="SHORTCUTDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
