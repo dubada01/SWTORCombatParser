@@ -19,7 +19,7 @@ namespace SWTORCombatParser.DataStructures
         private string _targetId;
         private string _abilityId;
         private string _effectId;
-        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, long threat)
+        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat)
         {
             _sourceId = sourceId;
             _targetId = targetId;
@@ -145,7 +145,7 @@ namespace SWTORCombatParser.DataStructures
         public Effect Effect { get; set; }
         public string ModifierEffectName => string.Intern(Ability + AddSecondHalf(Ability, Effect.EffectName));
         public Value Value { get; set; }
-        public long Threat { get; set; }
+        public double Threat { get; set; }
 
         private static string AddSecondHalf(string firstHalf, string effectName)
         {

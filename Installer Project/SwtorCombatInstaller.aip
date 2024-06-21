@@ -9,10 +9,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="OrbsIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{398FCDCC-2A00-40AD-BA78-EB3D42F0A7F3} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{6FB40786-087F-4004-B3D1-C491FA6F23B3} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Parser)"/>
-    <ROW Property="ProductVersion" Value="1.9.10" Options="32"/>
+    <ROW Property="ProductVersion" Value="1.9.13" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{80800124-4453-4786-91FB-F71AA5158404}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -108,11 +108,11 @@
     <ROW Component="BattleofRishi.json" ComponentId="{1BA6820F-5313-4399-9480-0940E58B93FA}" Directory_="BattleofRishi_Dir" Attributes="0" KeyPath="BattleofRishi.json" Type="0"/>
     <ROW Component="BloodHunt.json" ComponentId="{56AF226C-33C6-4CA6-B1A5-650EC98F816B}" Directory_="BloodHunt_Dir" Attributes="0" KeyPath="BloodHunt.json" Type="0"/>
     <ROW Component="BoardingParty.json" ComponentId="{D559A4A4-D2EE-46CD-A837-2A8952667C87}" Directory_="BoardingParty_Dir" Attributes="0" KeyPath="BoardingParty.json" Type="0"/>
-    <ROW Component="BossMechanicSkimmerConfig.json" ComponentId="{E39B6F75-3D27-4FC6-8F5A-7B4D2C0F5929}" Directory_="APPDIR" Attributes="0" KeyPath="BossMechanicSkimmerConfig.json" Type="0"/>
+    <ROW Component="BossMechanicSkimmerConfig.json" ComponentId="{73B6C494-D86C-46CC-AFCF-3B9C19544A51}" Directory_="APPDIR" Attributes="0" KeyPath="BossMechanicSkimmerConfig.json" Type="0"/>
     <ROW Component="BuiltInChallenges.json" ComponentId="{83FE0412-EBB6-45E3-914C-12F7EDEA3748}" Directory_="ChallengeInfo_Dir" Attributes="0" KeyPath="BuiltInChallenges.json" Type="0"/>
     <ROW Component="Cademimu.json" ComponentId="{E6BE43E9-2D2C-446E-AE53-C1E6692EC4C5}" Directory_="Cademimu_Dir" Attributes="0" KeyPath="Cademimu.json" Type="0"/>
     <ROW Component="Classes.json" ComponentId="{70C23D8C-5C10-46AB-AAED-4974215F4E26}" Directory_="ClassInfos_Dir" Attributes="0" KeyPath="Classes.json" Type="0"/>
-    <ROW Component="ColorPicker.dll" ComponentId="{B9DC6157-68CB-4485-85F3-9788B0F18A5C}" Directory_="APPDIR" Attributes="0" KeyPath="ColorPicker.dll"/>
+    <ROW Component="ColorPicker.dll" ComponentId="{CFCD97DD-CDAB-4866-819A-55A15FC1E7BB}" Directory_="APPDIR" Attributes="0" KeyPath="ColorPicker.dll"/>
     <ROW Component="CrisisonUmbara.json" ComponentId="{241C717D-E749-4586-B4E8-8EC85DF30172}" Directory_="CrisisonUmbara_Dir" Attributes="0" KeyPath="CrisisonUmbara.json" Type="0"/>
     <ROW Component="CzerkaCoreMeltdown.json" ComponentId="{88285409-30B9-4966-9A66-7B06F34A3702}" Directory_="CzerkaCoreMeltdown_Dir" Attributes="0" KeyPath="CzerkaCoreMeltdown.json" Type="0"/>
     <ROW Component="CzerkaCorporateLabs.json" ComponentId="{8FFB0B5B-6456-4634-8DC4-D1EF5CBC61DA}" Directory_="CzerkaCorporateLabs_Dir" Attributes="0" KeyPath="CzerkaCorporateLabs.json" Type="0"/>
@@ -124,7 +124,7 @@
     <ROW Component="EternityVault.json" ComponentId="{C823597B-2862-411A-9BF6-E467ED9605E4}" Directory_="EternityVault_Dir" Attributes="0" KeyPath="EternityVault.json" Type="0"/>
     <ROW Component="ExplosiveConflict.json" ComponentId="{5CB1362F-C9D5-4D7F-972E-670D235A711B}" Directory_="ExplosiveConflict_Dir" Attributes="0" KeyPath="ExplosiveConflict.json" Type="0"/>
     <ROW Component="FlashpointInfo.json" ComponentId="{E1B62C31-77B3-47A3-9E0D-523C5C8BAF09}" Directory_="EncounterInfo_Dir" Attributes="0" KeyPath="FlashpointInfo.json" Type="0"/>
-    <ROW Component="Gma.System.MouseKeyHook.dll" ComponentId="{68DA6B95-792C-4DAC-9836-A55534BAD66D}" Directory_="APPDIR" Attributes="0" KeyPath="Gma.System.MouseKeyHook.dll"/>
+    <ROW Component="Gma.System.MouseKeyHook.dll" ComponentId="{5FBCC987-47B3-473E-BDD1-B2B77AB04B9A}" Directory_="APPDIR" Attributes="0" KeyPath="Gma.System.MouseKeyHook.dll"/>
     <ROW Component="HammerStation.json" ComponentId="{77FEE5C9-F3D2-4678-846B-2BCA7C84EA9A}" Directory_="HammerStation_Dir" Attributes="0" KeyPath="HammerStation.json" Type="0"/>
     <ROW Component="IPCPT.json" ComponentId="{739915E4-3860-4214-A4BC-6A096143BDE0}" Directory_="RoomOverlay_Dir" Attributes="0" KeyPath="IPCPT.json" Type="0"/>
     <ROW Component="KaonUnderSiege.json" ComponentId="{E9A1781B-9931-421C-A8B5-6F27E68005A9}" Directory_="KaonUnderSiege_Dir" Attributes="0" KeyPath="KaonUnderSiege.json" Type="0"/>
@@ -133,31 +133,31 @@
     <ROW Component="LegacyoftheRakata.json" ComponentId="{99783760-8A49-44E3-9D58-B26E11026269}" Directory_="LegacyoftheRakata_Dir" Attributes="0" KeyPath="LegacyoftheRakata.json" Type="0"/>
     <ROW Component="LostIsland.json" ComponentId="{FA71B499-B31F-44B6-86DC-A02E11280C4A}" Directory_="LostIsland_Dir" Attributes="0" KeyPath="LostIsland.json" Type="0"/>
     <ROW Component="MandalorianRaiders.json" ComponentId="{8114E1DF-B611-4896-AD7D-D22A0DC68A71}" Directory_="MandalorianRaiders_Dir" Attributes="0" KeyPath="MandalorianRaiders.json" Type="0"/>
-    <ROW Component="MathNet.Numerics.dll" ComponentId="{34C5DD35-2C78-4402-89D3-763A33B9C90D}" Directory_="APPDIR" Attributes="0" KeyPath="MathNet.Numerics.dll"/>
-    <ROW Component="Microsoft.Extensions.DependencyInjection.Abstractions.dll" ComponentId="{3D07E69A-2965-462F-B069-D0EFB85BB10A}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
-    <ROW Component="Microsoft.Extensions.Logging.Abstractions.dll" ComponentId="{8EEFF89B-89FE-4CBC-BE10-C35959721C56}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Extensions.Logging.Abstractions.dll"/>
-    <ROW Component="Microsoft.Xaml.Behaviors.dll" ComponentId="{97DD66CC-9CAB-468C-851B-12FE987477E9}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Xaml.Behaviors.dll"/>
-    <ROW Component="MoreLinq.dll" ComponentId="{792FE84E-F145-495F-97C9-83F3A115CF9B}" Directory_="APPDIR" Attributes="0" KeyPath="MoreLinq.dll"/>
-    <ROW Component="MvvmHelpers.dll" ComponentId="{C62CBEAF-728F-4B80-8107-D0F8B02CC0A7}" Directory_="APPDIR" Attributes="0" KeyPath="MvvmHelpers.dll"/>
+    <ROW Component="MathNet.Numerics.dll" ComponentId="{AF1BD8C6-B25A-4AF3-9B7B-C908711D5264}" Directory_="APPDIR" Attributes="0" KeyPath="MathNet.Numerics.dll"/>
+    <ROW Component="Microsoft.Extensions.DependencyInjection.Abstractions.dll" ComponentId="{F19E6272-D531-48E6-BEB2-D5BA4513248E}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
+    <ROW Component="Microsoft.Extensions.Logging.Abstractions.dll" ComponentId="{33AD6538-4D0B-4E70-8496-10AC3380EB6B}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Extensions.Logging.Abstractions.dll"/>
+    <ROW Component="Microsoft.Xaml.Behaviors.dll" ComponentId="{16E0B491-951C-4948-8035-2588D0CAFEC3}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.Xaml.Behaviors.dll"/>
+    <ROW Component="MoreLinq.dll" ComponentId="{1D61E908-EFB6-47F0-A27A-83CC1DA0D8E0}" Directory_="APPDIR" Attributes="0" KeyPath="MoreLinq.dll"/>
+    <ROW Component="MvvmHelpers.dll" ComponentId="{2FA5BE04-CA70-48D1-8690-A5F9EC1288FD}" Directory_="APPDIR" Attributes="0" KeyPath="MvvmHelpers.dll"/>
     <ROW Component="NAHUT_Room.jpg" ComponentId="{076AD138-F2BA-4244-A3DA-CD85F1C36C7C}" Directory_="NAHUT_Dir" Attributes="0" KeyPath="NAHUT_Room.jpg" Type="0"/>
-    <ROW Component="Newtonsoft.Json.dll" ComponentId="{5DA23CCF-916B-4926-9F05-2F517ECCC30B}" Directory_="APPDIR" Attributes="0" KeyPath="Newtonsoft.Json.dll"/>
-    <ROW Component="Npgsql.dll" ComponentId="{10615A8A-A48B-4C52-AD41-E298B0B68BE7}" Directory_="APPDIR" Attributes="0" KeyPath="Npgsql.dll"/>
+    <ROW Component="Newtonsoft.Json.dll" ComponentId="{02A6F791-CEB5-4B25-8220-5C48F668852C}" Directory_="APPDIR" Attributes="0" KeyPath="Newtonsoft.Json.dll"/>
+    <ROW Component="Npgsql.dll" ComponentId="{A4E55DD8-99EC-43B8-AD55-07F371FD42E3}" Directory_="APPDIR" Attributes="0" KeyPath="Npgsql.dll"/>
     <ROW Component="ObjectiveMeridian.json" ComponentId="{61D9A9A5-C9B6-40C8-9EBB-BC1BFBE44B87}" Directory_="ObjectiveMeridian_Dir" Attributes="0" KeyPath="ObjectiveMeridian.json" Type="0"/>
-    <ROW Component="Orbs.dll" ComponentId="{6F353111-2BB1-42D6-9455-C6862DC718D0}" Directory_="APPDIR" Attributes="0" KeyPath="Orbs.dll"/>
-    <ROW Component="Orbs.exe" ComponentId="{E4725020-E318-4790-B73C-1BEB5A787653}" Directory_="APPDIR" Attributes="256" KeyPath="Orbs.exe"/>
-    <ROW Component="Prism.dll" ComponentId="{F6333166-CADB-4BD8-9F95-CF9A4E6F2CA6}" Directory_="APPDIR" Attributes="0" KeyPath="Prism.dll"/>
+    <ROW Component="Orbs.dll" ComponentId="{D7080ACA-2EC1-4AE5-AE92-73B6ABC8229B}" Directory_="APPDIR" Attributes="0" KeyPath="Orbs.dll"/>
+    <ROW Component="Orbs.exe" ComponentId="{F3F08509-C5B1-416B-BEA3-E57E342554B7}" Directory_="APPDIR" Attributes="256" KeyPath="Orbs.exe"/>
+    <ROW Component="Prism.dll" ComponentId="{9044EC7E-067A-46CA-A59D-5501D30AFC29}" Directory_="APPDIR" Attributes="0" KeyPath="Prism.dll"/>
     <ROW Component="ProductInformation" ComponentId="{1FCE8749-0DEA-4414-97DC-4A5A8B88C262}" Directory_="APPDIR" Attributes="260" KeyPath="Version"/>
     <ROW Component="R4.json" ComponentId="{F522C14C-8064-4737-B95D-F087A252CBF6}" Directory_="R4_Dir" Attributes="0" KeyPath="R4.json" Type="0"/>
     <ROW Component="RuinsofNul.json" ComponentId="{716F2657-6E14-4867-BA34-EA82EA5859E7}" Directory_="RuinsofNul_Dir" Attributes="0" KeyPath="RuinsofNul.json" Type="0"/>
-    <ROW Component="SHORTCUTDIR" ComponentId="{47CA3E78-C58B-4E67-BC7C-C6C2055B5390}" Directory_="SHORTCUTDIR" Attributes="0"/>
-    <ROW Component="ScottPlot.WPF.dll" ComponentId="{29CA3662-50C9-4E4E-B658-6B3B6BF7A777}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.WPF.dll"/>
-    <ROW Component="ScottPlot.dll" ComponentId="{AD5B13D4-2FEA-4E0B-A073-DEECAFBE9BAF}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.dll"/>
+    <ROW Component="SHORTCUTDIR" ComponentId="{F01AA756-4DAF-4DBA-B132-CAE5AAEF36C8}" Directory_="SHORTCUTDIR" Attributes="0"/>
+    <ROW Component="ScottPlot.WPF.dll" ComponentId="{7E0E3438-D06E-4F83-97F4-7A6CE53E665A}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.WPF.dll"/>
+    <ROW Component="ScottPlot.dll" ComponentId="{223210FD-BAF8-4D9B-8106-E5F0E66EA18F}" Directory_="APPDIR" Attributes="0" KeyPath="ScottPlot.dll"/>
     <ROW Component="ScumandVillainy.json" ComponentId="{5DC26D86-AC67-4AE7-B986-F68D2829AC38}" Directory_="ScumandVillainy_Dir" Attributes="0" KeyPath="ScumandVillainy.json" Type="0"/>
     <ROW Component="SecretsoftheEnclave.json" ComponentId="{A818C839-6F0F-4DE9-AFA9-32FF0FCF3537}" Directory_="SecretsoftheEnclave_Dir" Attributes="0" KeyPath="SecretsoftheEnclave.json" Type="0"/>
     <ROW Component="ShrineofSilence.json" ComponentId="{CC8CD2B8-C6D0-4223-91D3-CA2E54B7A3D9}" Directory_="ShrineofSilence_Dir" Attributes="0" KeyPath="ShrineofSilence.json" Type="0"/>
     <ROW Component="SpiritofVengeance.json" ComponentId="{83F15E94-38FC-417C-8351-CAF6355DCC7B}" Directory_="SpiritofVengeance_Dir" Attributes="0" KeyPath="SpiritofVengeance.json" Type="0"/>
-    <ROW Component="System.Reactive.Linq.dll" ComponentId="{647F20F2-C361-420B-A504-8BE7956F7798}" Directory_="APPDIR" Attributes="0" KeyPath="System.Reactive.Linq.dll"/>
-    <ROW Component="System.Reactive.dll" ComponentId="{A75E5474-9D68-4FEB-9D47-BE243B8C3427}" Directory_="APPDIR" Attributes="0" KeyPath="System.Reactive.dll"/>
+    <ROW Component="System.Reactive.Linq.dll" ComponentId="{C5B2C348-9CA1-43EA-9D0E-93CBDA1AC00B}" Directory_="APPDIR" Attributes="0" KeyPath="System.Reactive.Linq.dll"/>
+    <ROW Component="System.Reactive.dll" ComponentId="{60C6ACC6-2895-4EA3-8FC0-3595F54DE3F0}" Directory_="APPDIR" Attributes="0" KeyPath="System.Reactive.dll"/>
     <ROW Component="TempleofSacrifice.json" ComponentId="{E3EFD921-793D-485C-B4F3-9D8E038389BB}" Directory_="TempleofSacrifice_Dir" Attributes="0" KeyPath="TempleofSacrifice.json" Type="0"/>
     <ROW Component="TerrorFromBeyond.json" ComponentId="{FD47A1BC-BB2B-46CD-8002-30DC9083F0BC}" Directory_="TerrorFromBeyond_Dir" Attributes="0" KeyPath="TerrorFromBeyond.json" Type="0"/>
     <ROW Component="TheBattleofIlum.json" ComponentId="{F291B23B-4266-4767-ABAC-2026615481FF}" Directory_="TheBattleofIlum_Dir" Attributes="0" KeyPath="TheBattleofIlum.json" Type="0"/>
@@ -171,7 +171,7 @@
     <ROW Component="TheRavagers.json" ComponentId="{65F5263F-0239-4048-B5AF-DFFBDFBD4779}" Directory_="TheRavagers_Dir" Attributes="0" KeyPath="TheRavagers.json" Type="0"/>
     <ROW Component="TheRedReaper.json" ComponentId="{DFA44925-4B65-45DF-9E78-08F51ACA63E0}" Directory_="TheRedReaper_Dir" Attributes="0" KeyPath="TheRedReaper.json" Type="0"/>
     <ROW Component="ToborrosPalace.json" ComponentId="{B5922813-16AD-4BBE-A9D2-88D87A46F08F}" Directory_="ToborrosPalace_Dir" Attributes="0" KeyPath="ToborrosPalace.json" Type="0"/>
-    <ROW Component="WpfAnimatedGif.dll" ComponentId="{B49F15B9-6FB0-4B8E-A8EC-9634E8919E68}" Directory_="APPDIR" Attributes="0" KeyPath="WpfAnimatedGif.dll"/>
+    <ROW Component="WpfAnimatedGif.dll" ComponentId="{29025806-73D1-43F7-AF43-885EF1DDC402}" Directory_="APPDIR" Attributes="0" KeyPath="WpfAnimatedGif.dll"/>
     <ROW Component="ZornToth.png" ComponentId="{411CFE05-F622-40C0-99E5-AAC54F3F64BA}" Directory_="BossMaps_Dir" Attributes="0" KeyPath="ZornToth.png" Type="0"/>
     <ROW Component="_Sound.wav" ComponentId="{5E90BD3D-BCCF-427D-A8ED-C1AC0362643D}" Directory_="Audio_Dir" Attributes="0" KeyPath="_Sound.wav" Type="0"/>
     <ROW Component="ability_to_icon.csv" ComponentId="{CDDD20D6-CF86-4D62-9DEE-03A4D2363660}" Directory_="DataStructures_Dir" Attributes="0" KeyPath="ability_to_icon.csv" Type="0"/>
@@ -193,30 +193,6 @@
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="BossMechanicSkimmerConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="BOSSME~1.JSO|BossMechanicSkimmerConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\BossMechanicSkimmerConfig.json" SelfReg="false"/>
-    <ROW File="ColorPicker.dll" Component_="ColorPicker.dll" FileName="COLORP~1.DLL|ColorPicker.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ColorPicker.dll" SelfReg="false"/>
-    <ROW File="Gma.System.MouseKeyHook.dll" Component_="Gma.System.MouseKeyHook.dll" FileName="GMASYS~1.DLL|Gma.System.MouseKeyHook.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Gma.System.MouseKeyHook.dll" SelfReg="false"/>
-    <ROW File="LoggingConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="LOGGIN~1.JSO|LoggingConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\LoggingConfig.json" SelfReg="false"/>
-    <ROW File="MathNet.Numerics.dll" Component_="MathNet.Numerics.dll" FileName="MATHNE~1.DLL|MathNet.Numerics.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MathNet.Numerics.dll" SelfReg="false"/>
-    <ROW File="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Component_="Microsoft.Extensions.DependencyInjection.Abstractions.dll" FileName="MICROS~1.DLL|Microsoft.Extensions.DependencyInjection.Abstractions.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" SelfReg="false"/>
-    <ROW File="Microsoft.Extensions.Logging.Abstractions.dll" Component_="Microsoft.Extensions.Logging.Abstractions.dll" FileName="MICROS~2.DLL|Microsoft.Extensions.Logging.Abstractions.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Extensions.Logging.Abstractions.dll" SelfReg="false"/>
-    <ROW File="Microsoft.Xaml.Behaviors.dll" Component_="Microsoft.Xaml.Behaviors.dll" FileName="MICROS~3.DLL|Microsoft.Xaml.Behaviors.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Xaml.Behaviors.dll" SelfReg="false"/>
-    <ROW File="MoreLinq.dll" Component_="MoreLinq.dll" FileName="MoreLinq.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MoreLinq.dll" SelfReg="false"/>
-    <ROW File="MvvmHelpers.dll" Component_="MvvmHelpers.dll" FileName="MVVMHE~1.DLL|MvvmHelpers.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MvvmHelpers.dll" SelfReg="false"/>
-    <ROW File="Newtonsoft.Json.dll" Component_="Newtonsoft.Json.dll" FileName="NEWTON~1.DLL|Newtonsoft.Json.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Newtonsoft.Json.dll" SelfReg="false"/>
-    <ROW File="Npgsql.dll" Component_="Npgsql.dll" FileName="Npgsql.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Npgsql.dll" SelfReg="false"/>
-    <ROW File="Orbs.deps.json" Component_="BossMechanicSkimmerConfig.json" FileName="ORBSDE~1.JSO|Orbs.deps.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.deps.json" SelfReg="false"/>
-    <ROW File="Orbs.dll" Component_="Orbs.dll" FileName="Orbs.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.dll" SelfReg="false"/>
-    <ROW File="Orbs.exe" Component_="Orbs.exe" FileName="Orbs.exe" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="Orbs.pdb" Component_="Orbs.exe" FileName="Orbs.pdb" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.pdb" SelfReg="false"/>
-    <ROW File="Orbs.runtimeconfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="ORBSRU~1.JSO|Orbs.runtimeconfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.runtimeconfig.json" SelfReg="false"/>
-    <ROW File="OrbsIcon.ico" Component_="BossMechanicSkimmerConfig.json" FileName="OrbsIcon.ico" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\OrbsIcon.ico" SelfReg="false"/>
-    <ROW File="Prism.dll" Component_="Prism.dll" FileName="Prism.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Prism.dll" SelfReg="false"/>
-    <ROW File="ScottPlot.dll" Component_="ScottPlot.dll" FileName="SCOTTP~1.DLL|ScottPlot.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ScottPlot.dll" SelfReg="false"/>
-    <ROW File="ScottPlot.WPF.dll" Component_="ScottPlot.WPF.dll" FileName="SCOTTP~2.DLL|ScottPlot.WPF.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ScottPlot.WPF.dll" SelfReg="false"/>
-    <ROW File="System.Reactive.dll" Component_="System.Reactive.dll" FileName="SYSTEM~1.DLL|System.Reactive.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\System.Reactive.dll" SelfReg="false"/>
-    <ROW File="System.Reactive.Linq.dll" Component_="System.Reactive.Linq.dll" FileName="SYSTEM~2.DLL|System.Reactive.Linq.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\System.Reactive.Linq.dll" SelfReg="false"/>
-    <ROW File="WpfAnimatedGif.dll" Component_="WpfAnimatedGif.dll" FileName="WPFANI~1.DLL|WpfAnimatedGif.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\WpfAnimatedGif.dll" SelfReg="false"/>
     <ROW File="absorbs.json" Component_="absorbs.json" FileName="ABSORB~1.JSO|absorbs.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\AbilityInfo\absorbs.json" SelfReg="false"/>
     <ROW File="ability_to_icon.csv" Component_="ability_to_icon.csv" FileName="ABILIT~1.CSV|ability_to_icon.csv" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\ability_to_icon.csv" SelfReg="false"/>
     <ROW File="BuiltInChallenges.json" Component_="BuiltInChallenges.json" FileName="BUILTI~1.JSO|BuiltInChallenges.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\DataStructures\ChallengeInfo\BuiltInChallenges.json" SelfReg="false"/>
@@ -850,6 +826,30 @@
     <ROW File="unlockedIcon.png" Component_="alerticon.png" FileName="UNLOCK~1.PNG|unlockedIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\unlockedIcon.png" SelfReg="false"/>
     <ROW File="uploadToParselyIcon.png" Component_="alerticon.png" FileName="UPLOAD~1.PNG|uploadToParselyIcon.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\uploadToParselyIcon.png" SelfReg="false"/>
     <ROW File="view.png" Component_="alerticon.png" FileName="view.png" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\resources\view.png" SelfReg="false"/>
+    <ROW File="BossMechanicSkimmerConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="BOSSME~1.JSO|BossMechanicSkimmerConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\BossMechanicSkimmerConfig.json" SelfReg="false"/>
+    <ROW File="ColorPicker.dll" Component_="ColorPicker.dll" FileName="COLORP~1.DLL|ColorPicker.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ColorPicker.dll" SelfReg="false"/>
+    <ROW File="Gma.System.MouseKeyHook.dll" Component_="Gma.System.MouseKeyHook.dll" FileName="GMASYS~1.DLL|Gma.System.MouseKeyHook.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Gma.System.MouseKeyHook.dll" SelfReg="false"/>
+    <ROW File="LoggingConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="LOGGIN~1.JSO|LoggingConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\LoggingConfig.json" SelfReg="false"/>
+    <ROW File="MathNet.Numerics.dll" Component_="MathNet.Numerics.dll" FileName="MATHNE~1.DLL|MathNet.Numerics.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MathNet.Numerics.dll" SelfReg="false"/>
+    <ROW File="Microsoft.Extensions.DependencyInjection.Abstractions.dll" Component_="Microsoft.Extensions.DependencyInjection.Abstractions.dll" FileName="MICROS~1.DLL|Microsoft.Extensions.DependencyInjection.Abstractions.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" SelfReg="false"/>
+    <ROW File="Microsoft.Extensions.Logging.Abstractions.dll" Component_="Microsoft.Extensions.Logging.Abstractions.dll" FileName="MICROS~2.DLL|Microsoft.Extensions.Logging.Abstractions.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Extensions.Logging.Abstractions.dll" SelfReg="false"/>
+    <ROW File="Microsoft.Xaml.Behaviors.dll" Component_="Microsoft.Xaml.Behaviors.dll" FileName="MICROS~3.DLL|Microsoft.Xaml.Behaviors.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Microsoft.Xaml.Behaviors.dll" SelfReg="false"/>
+    <ROW File="MoreLinq.dll" Component_="MoreLinq.dll" FileName="MoreLinq.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MoreLinq.dll" SelfReg="false"/>
+    <ROW File="MvvmHelpers.dll" Component_="MvvmHelpers.dll" FileName="MVVMHE~1.DLL|MvvmHelpers.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\MvvmHelpers.dll" SelfReg="false"/>
+    <ROW File="Newtonsoft.Json.dll" Component_="Newtonsoft.Json.dll" FileName="NEWTON~1.DLL|Newtonsoft.Json.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Newtonsoft.Json.dll" SelfReg="false"/>
+    <ROW File="Npgsql.dll" Component_="Npgsql.dll" FileName="Npgsql.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Npgsql.dll" SelfReg="false"/>
+    <ROW File="Orbs.deps.json" Component_="BossMechanicSkimmerConfig.json" FileName="ORBSDE~1.JSO|Orbs.deps.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.deps.json" SelfReg="false"/>
+    <ROW File="Orbs.dll" Component_="Orbs.dll" FileName="Orbs.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.dll" SelfReg="false"/>
+    <ROW File="Orbs.exe" Component_="Orbs.exe" FileName="Orbs.exe" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="Orbs.pdb" Component_="Orbs.exe" FileName="Orbs.pdb" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.pdb" SelfReg="false"/>
+    <ROW File="Orbs.runtimeconfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="ORBSRU~1.JSO|Orbs.runtimeconfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Orbs.runtimeconfig.json" SelfReg="false"/>
+    <ROW File="OrbsIcon.ico" Component_="BossMechanicSkimmerConfig.json" FileName="OrbsIcon.ico" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\OrbsIcon.ico" SelfReg="false"/>
+    <ROW File="Prism.dll" Component_="Prism.dll" FileName="Prism.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\Prism.dll" SelfReg="false"/>
+    <ROW File="ScottPlot.dll" Component_="ScottPlot.dll" FileName="SCOTTP~1.DLL|ScottPlot.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ScottPlot.dll" SelfReg="false"/>
+    <ROW File="ScottPlot.WPF.dll" Component_="ScottPlot.WPF.dll" FileName="SCOTTP~2.DLL|ScottPlot.WPF.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\ScottPlot.WPF.dll" SelfReg="false"/>
+    <ROW File="System.Reactive.dll" Component_="System.Reactive.dll" FileName="SYSTEM~1.DLL|System.Reactive.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\System.Reactive.dll" SelfReg="false"/>
+    <ROW File="System.Reactive.Linq.dll" Component_="System.Reactive.Linq.dll" FileName="SYSTEM~2.DLL|System.Reactive.Linq.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\System.Reactive.Linq.dll" SelfReg="false"/>
+    <ROW File="WpfAnimatedGif.dll" Component_="WpfAnimatedGif.dll" FileName="WPFANI~1.DLL|WpfAnimatedGif.dll" Attributes="0" SourcePath="..\bin\Release\net8.0-windows7.0\WpfAnimatedGif.dll" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
@@ -925,25 +925,6 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatCompsComponent">
     <ROW Feature_="MainFeature" Component_="APPDIR"/>
     <ROW Feature_="MainFeature" Component_="ProductInformation"/>
-    <ROW Feature_="MainFeature" Component_="BossMechanicSkimmerConfig.json"/>
-    <ROW Feature_="MainFeature" Component_="ColorPicker.dll"/>
-    <ROW Feature_="MainFeature" Component_="Gma.System.MouseKeyHook.dll"/>
-    <ROW Feature_="MainFeature" Component_="MathNet.Numerics.dll"/>
-    <ROW Feature_="MainFeature" Component_="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
-    <ROW Feature_="MainFeature" Component_="Microsoft.Extensions.Logging.Abstractions.dll"/>
-    <ROW Feature_="MainFeature" Component_="Microsoft.Xaml.Behaviors.dll"/>
-    <ROW Feature_="MainFeature" Component_="MoreLinq.dll"/>
-    <ROW Feature_="MainFeature" Component_="MvvmHelpers.dll"/>
-    <ROW Feature_="MainFeature" Component_="Newtonsoft.Json.dll"/>
-    <ROW Feature_="MainFeature" Component_="Npgsql.dll"/>
-    <ROW Feature_="MainFeature" Component_="Orbs.dll"/>
-    <ROW Feature_="MainFeature" Component_="Orbs.exe"/>
-    <ROW Feature_="MainFeature" Component_="Prism.dll"/>
-    <ROW Feature_="MainFeature" Component_="ScottPlot.dll"/>
-    <ROW Feature_="MainFeature" Component_="ScottPlot.WPF.dll"/>
-    <ROW Feature_="MainFeature" Component_="System.Reactive.dll"/>
-    <ROW Feature_="MainFeature" Component_="System.Reactive.Linq.dll"/>
-    <ROW Feature_="MainFeature" Component_="WpfAnimatedGif.dll"/>
     <ROW Feature_="MainFeature" Component_="absorbs.json"/>
     <ROW Feature_="MainFeature" Component_="ability_to_icon.csv"/>
     <ROW Feature_="MainFeature" Component_="BuiltInChallenges.json"/>
@@ -1009,6 +990,25 @@
     <ROW Feature_="MainFeature" Component_="DamageMenaceOpponentLocation.png"/>
     <ROW Feature_="MainFeature" Component_="Empty.png"/>
     <ROW Feature_="MainFeature" Component_="NAHUT_Room.jpg"/>
+    <ROW Feature_="MainFeature" Component_="BossMechanicSkimmerConfig.json"/>
+    <ROW Feature_="MainFeature" Component_="ColorPicker.dll"/>
+    <ROW Feature_="MainFeature" Component_="Gma.System.MouseKeyHook.dll"/>
+    <ROW Feature_="MainFeature" Component_="MathNet.Numerics.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.Extensions.Logging.Abstractions.dll"/>
+    <ROW Feature_="MainFeature" Component_="Microsoft.Xaml.Behaviors.dll"/>
+    <ROW Feature_="MainFeature" Component_="MoreLinq.dll"/>
+    <ROW Feature_="MainFeature" Component_="MvvmHelpers.dll"/>
+    <ROW Feature_="MainFeature" Component_="Newtonsoft.Json.dll"/>
+    <ROW Feature_="MainFeature" Component_="Npgsql.dll"/>
+    <ROW Feature_="MainFeature" Component_="Orbs.dll"/>
+    <ROW Feature_="MainFeature" Component_="Orbs.exe"/>
+    <ROW Feature_="MainFeature" Component_="Prism.dll"/>
+    <ROW Feature_="MainFeature" Component_="ScottPlot.dll"/>
+    <ROW Feature_="MainFeature" Component_="ScottPlot.WPF.dll"/>
+    <ROW Feature_="MainFeature" Component_="System.Reactive.dll"/>
+    <ROW Feature_="MainFeature" Component_="System.Reactive.Linq.dll"/>
+    <ROW Feature_="MainFeature" Component_="WpfAnimatedGif.dll"/>
     <ROW Feature_="MainFeature" Component_="SHORTCUTDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
