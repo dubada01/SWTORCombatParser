@@ -330,7 +330,7 @@ namespace SWTORCombatParser.DataStructures
         }
         public ConcurrentDictionary<Entity, double> AverageDamageSavedDuringCooldown = new ConcurrentDictionary<Entity, double>();
         public ConcurrentDictionary<Entity, double> TotalAbilites = new ConcurrentDictionary<Entity, double>();
-        public ConcurrentDictionary<Entity, long> TotalThreat = new ConcurrentDictionary<Entity, long>();
+        public ConcurrentDictionary<Entity, double> TotalThreat = new ConcurrentDictionary<Entity, double>();
         public Dictionary<Entity, List<Point>> AllBurstDamages { get; set; } = new Dictionary<Entity, List<Point>>();
         public Dictionary<Entity, double> MaxBurstDamage => AllBurstDamages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
         public Dictionary<Entity, double> TotalDamage => TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value + TotalFocusDamage[kvp.Key]);
@@ -475,7 +475,7 @@ namespace SWTORCombatParser.DataStructures
         public Dictionary<Entity, double> MitigationPercent => TotalDamageTaken.ToDictionary(kvp => kvp.Key, kvp => kvp.Value == 0 ? 0 : (EstimatedTotalMitigation[kvp.Key] / kvp.Value) * 100);
         public Dictionary<Entity, double> EstimatedTotalMitigation => TotalSheildAndAbsorb.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value + TotalEstimatedAvoidedDamage[kvp.Key]));
         public Dictionary<Entity, double> PercentageOfFightBelowFullHP => DurationSeconds == 0 ? TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => 0d) : TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value / DurationSeconds) * 100);
-        public Dictionary<Entity, long> TPS => DurationSeconds == 0 ? TotalThreat.ToDictionary(kvp => kvp.Key, kvp => 0L) : TotalThreat.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity, double> TPS => DurationSeconds == 0 ? TotalThreat.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalThreat.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> DPS => DurationSeconds == 0 ? TotalDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> STDPS => DurationSeconds == 0 ? MaxSingleTargetDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : MaxSingleTargetDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> EDPS => DurationSeconds == 0 ? TotalEffectiveDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);

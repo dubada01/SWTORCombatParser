@@ -134,10 +134,9 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             newEntry.Value = ParseValues(value, newEntry.Effect);
 
-            if (!threat.Contains('.'))
-            { 
-                newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : long.Parse(threat.Replace("<", "").Replace(">", "")); 
-            }
+            if(newEntry.Effect.EffectType != EffectType.AreaEntered)
+                newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : double.Parse(threat.Replace("<", "").Replace(">", ""), CultureInfo.InvariantCulture); 
+            
             if (newEntry.Effect.EffectType == EffectType.ModifyThreat)
             {
                 newEntry.Value.DisplayValue = newEntry.Threat.ToString();
