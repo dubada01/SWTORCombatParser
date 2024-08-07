@@ -8,8 +8,8 @@
 
   <Identity
     Name="37053DubaTech.OldRepublicBattleParser"
-    Publisher="CN=duban"
-    Version="1.9.13.0" />
+    Publisher="CN=BA3DD863-3798-48E1-9914-1F93B78F55BD"
+    Version="1.9.14.0" />
 
   <Properties>
     <DisplayName>Old Republic: Battle Parser</DisplayName>

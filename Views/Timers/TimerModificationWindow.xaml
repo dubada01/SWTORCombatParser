@@ -190,7 +190,7 @@
                             <RowDefinition Height=".75*"/>
                         </Grid.RowDefinitions>
                         <StackPanel Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-                            <TextBlock Foreground="WhiteSmoke" Margin="10,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Can be refreshed" TextWrapping="Wrap" Width="80" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <TextBlock Foreground="WhiteSmoke" Margin="10,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Advanced Refresh" TextWrapping="Wrap" Width="80" FontFamily="{StaticResource MainFont}"></TextBlock>
                             <CheckBox ToolTip="Can this effect be refreshed by re-applying or via some other abilitiy?" VerticalAlignment="Center" IsChecked="{Binding CanBeRefreshed}"></CheckBox>
                         </StackPanel>
                         <StackPanel Margin="12,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
@@ -299,6 +299,10 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Cancel On" FontFamily="{StaticResource MainFont}"></TextBlock>
                         <ComboBox Width="200" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTimerNames}" SelectedItem="{Binding SelectedCancelTimer}"></ComboBox>
+                        <StackPanel Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Dont refresh" TextWrapping="Wrap" Width="55" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <CheckBox ToolTip="Dont refresh this timer even if the tigger happens while active" VerticalAlignment="Center" IsChecked="{Binding DontRefresh}"></CheckBox>
+                        </StackPanel>
                     </StackPanel>
                 </Viewbox>
 

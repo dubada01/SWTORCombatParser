@@ -197,6 +197,9 @@ namespace SWTORCombatParser.Model.Timers
 
                 var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered, currentTarget);
 
+                if (_activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id) && SourceTimer.DontRefresh)
+                    return;
+
                 if (SourceTimer.ShouldModifyVariable && (wasTriggered == TriggerType.Start || (wasTriggered == TriggerType.Refresh && _activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id))))
                 {
                     ModifyVariable(SourceTimer);

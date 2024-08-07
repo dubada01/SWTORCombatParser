@@ -20,15 +20,23 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static LeaderboardType ReadLeaderboardSettings()
         {
-            if (!File.Exists(_leaderboardSettingsPath))
+            try
             {
-                var file = File.Create(_leaderboardSettingsPath);
-                file.Close();
-                File.WriteAllText(_leaderboardSettingsPath, JsonConvert.SerializeObject(LeaderboardType.Off));
-            }
+                if (!File.Exists(_leaderboardSettingsPath))
+                {
+                    var file = File.Create(_leaderboardSettingsPath);
+                    file.Close();
+                    File.WriteAllText(_leaderboardSettingsPath, JsonConvert.SerializeObject(LeaderboardType.Off));
+                }
 
-            var currentLeaderboardSetting = JsonConvert.DeserializeObject<LeaderboardType>(File.ReadAllText(_leaderboardSettingsPath));
-            return currentLeaderboardSetting;
+                var currentLeaderboardSetting = JsonConvert.DeserializeObject<LeaderboardType>(File.ReadAllText(_leaderboardSettingsPath));
+                return currentLeaderboardSetting;
+            }
+            catch(Exception e)
+            {
+                File.WriteAllText(_leaderboardSettingsPath, JsonConvert.SerializeObject(LeaderboardType.Off));
+                return LeaderboardType.Off;
+            }
         }
     }
 }

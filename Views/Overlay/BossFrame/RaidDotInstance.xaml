@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="150">
     <Grid HorizontalAlignment="Stretch">
-        <Border x:Name="TimerBar" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" >
+        <Border x:Name="TimerBar" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
             <Border.RenderTransform>
                 <ScaleTransform x:Name="BarScale" ScaleX="{Binding CurrentRatio, Mode=OneTime}" ScaleY="1"></ScaleTransform>
             </Border.RenderTransform>
