@@ -33,7 +33,8 @@
       "TimerColor": "#FF26B551",
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
-      "IsHot": true
+      "IsHot": true,
+      "ChangeBackgroundNearExpiration": true
     },
     {
       "TimerSource": "HOTS",
@@ -68,7 +69,8 @@
       "TimerColor": "#FF26B551",
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
-      "IsHot": true
+      "IsHot": true,
+      "ChangeBackgroundNearExpiration": true
     },
     {
       "TimerSource": "HOTS",

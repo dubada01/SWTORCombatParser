@@ -48,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
 
-        public SolidColorBrush TimerBackground => new SolidColorBrush(SourceTimer.TimerColor);
+        public SolidColorBrush TimerForeground => new SolidColorBrush(SourceTimer.TimerColor);
         public ICommand ToggleAudioCommand => new CommandHandler(ToggleAudio);
 
         private void ToggleAudio(object obj)

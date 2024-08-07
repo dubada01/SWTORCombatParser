@@ -411,6 +411,14 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
+        public bool DontRefresh
+        {
+            get => dontRefresh; set
+            {
+                dontRefresh = value;
+                OnPropertyChanged();
+            }
+        }
         public ObservableCollection<RefreshOptionViewModel> AvailableRefreshOptions { get; set; } = new ObservableCollection<RefreshOptionViewModel>();
 
         public string CustomRefreshOption
@@ -820,6 +828,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private bool showValueComparisons;
         private bool _showStackVariableOptions;
         private bool _setVariableWithCharge;
+        private bool dontRefresh;
 
         public void Edit(Timer timerToEdit)
         {
@@ -869,6 +878,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             ActiveForVeteran = timerToEdit.ActiveForVeteran;
             ActiveForMaster = timerToEdit.ActiveForMaster;
             CanBeRefreshed = timerToEdit.CanBeRefreshed;
+            DontRefresh = timerToEdit.DontRefresh;
             ShowTargetOnTimerUI = timerToEdit.ShowTargetOnTimerUI;
             UseAudio = timerToEdit.UseAudio;
             _clause1 = timerToEdit.Clause1;
@@ -1022,6 +1032,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ActiveForVeteran = ActiveForVeteran,
                 ActiveForMaster = ActiveForMaster,
                 CanBeRefreshed = CanBeRefreshed,
+                DontRefresh = DontRefresh,
                 ShowTargetOnTimerUI = ShowTargetOnTimerUI,
                 UseAudio = UseAudio,
                 Clause1 = _clause1,

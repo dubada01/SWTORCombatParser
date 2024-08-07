@@ -72,8 +72,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         public double CurrentRatio => double.IsNaN(TimerValue / MaxTimerValue) ? 1 : (TimerValue / MaxTimerValue);
         public Duration TimerDuration { get; set; }
         public Color TimerColor => SourceTimer.TimerColor;
-        public SolidColorBrush TimerBackground => new SolidColorBrush(TimerColor);
-
+        public SolidColorBrush TimerForeground => new SolidColorBrush(TimerColor);
+        public bool _isAboutToExpire = false;
+        private static SolidColorBrush _defaultTimerBackground = Brushes.WhiteSmoke;
+        private static SolidColorBrush _aboutToExpireBackground = Brushes.OrangeRed;
+        public SolidColorBrush TimerBackground { get; set; } = _defaultTimerBackground;
         public double TimerValue
         {
             get => timerValue; set
@@ -301,7 +304,24 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     _mediaPlayer.Play();
                 });
-
+            }
+            if(SourceTimer.ChangeBackgroundNearExpiration && TimerValue <= 5 && !_isAboutToExpire)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _isAboutToExpire = true;
+                    TimerBackground = _aboutToExpireBackground;
+                    OnPropertyChanged("TimerBackground");
+                });
+            }
+            if (SourceTimer.ChangeBackgroundNearExpiration && TimerValue > 5 && _isAboutToExpire)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    _isAboutToExpire = false;
+                    TimerBackground = _defaultTimerBackground;
+                    OnPropertyChanged("TimerBackground");
+                });
             }
             if (SourceTimer.HideUntilSec > 0 && !DisplayTimer && TimerValue <= SourceTimer.HideUntilSec)
                 DisplayTimer = true;
@@ -316,6 +336,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             isActive = false;
             TimerValue = 0;
+            TimerBackground = _defaultTimerBackground;
             TimerExpired(this, endedNatrually);
         }
         private async void DelayRemoval(bool endedNatrually)

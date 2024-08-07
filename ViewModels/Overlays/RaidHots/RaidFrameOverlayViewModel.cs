@@ -386,9 +386,24 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         public void UpdateNames(List<PlacedName> orderedNames)
         {
-            CurrentNames = orderedNames;
-
+            CurrentNames = GuessAtPlayerNameFromLog(orderedNames);
+            
             UpdateCells();
+        }
+
+        private List<PlacedName> GuessAtPlayerNameFromLog(List<PlacedName> orderedNames)
+        {
+            var playersInThePast10Minutes = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.Where(kvp => kvp.Value.Any(up => up.Key > DateTime.Now.AddMinutes(-10))).Select(kvp => kvp.Key.Name).Distinct();
+            foreach (var detectedName in orderedNames)
+            {
+                var closestNameInLogs = playersInThePast10Minutes.MinBy(s =>
+    LevenshteinDistance.Compute(s.ToLower(), detectedName.Name.ToLower()));
+                if (AreNamesCloseEnough(detectedName.Name, closestNameInLogs.ToLower(), closestNameInLogs.Count() / 2))
+                {
+                    detectedName.Name = closestNameInLogs;
+                }
+            }
+            return orderedNames;
         }
 
         public void SetTextMatchAccuracy(bool useLowAccuracy)

@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="5,2,5,2" MaxHeight="60" Visibility="{Binding DisplayTimer, Converter={StaticResource BooleanToVisibiityConverter}}">
-        <Border BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerBackground}" ></Border>
+        <Border BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" ></Border>
         <TextBlock x:Name="NameText" Margin="0,0,0,0" FontFamily="{StaticResource MainFont}" FontSize="25" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" Foreground="Beige" Text="{Binding TimerName}" ></TextBlock>
     </Grid>
 </UserControl>

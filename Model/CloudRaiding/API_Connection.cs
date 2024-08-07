@@ -238,7 +238,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (HttpClient connection = new HttpClient())
                 {
 
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getEntriesForBossOfType");
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getEntriesForBossOfTypeLimited");
                     var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString() });
                     var content = new StringContent(str, Encoding.UTF8, "application/json");
                     var response = await connection.PostAsync(uri, content);
