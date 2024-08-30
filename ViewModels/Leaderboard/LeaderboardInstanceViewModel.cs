@@ -50,6 +50,10 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             var extraBossInfo = $"{{{playersString}{difficulty}}}";
             extraBossInfo = isParsing ? $"{{{parsingHP}HP }}" : extraBossInfo;
             var bossWithDifficulty = boss.Trim() + " " + extraBossInfo;
+            if(encounter == "Open World")
+            {
+                encounter =  await API_Connection.GetEncounterForBossName(bossWithDifficulty);
+            }
             var leaderboard = await API_Connection.GetEntriesForBossOfType(bossWithDifficulty, encounter, _leaderboardType);
             if (isFlashpoint)
             {

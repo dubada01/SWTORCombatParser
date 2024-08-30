@@ -1,0 +1,186 @@
+[
+  {
+    "BossName": "SD-0 (Coruscant)",
+    "BossId": 1476433662705664
+  },
+  {
+    "BossName": "The First (Dromund Kaas)",
+    "BossId": 1467216662888448
+  },
+  {
+    "BossName": "Subject Alpha (Taris R)",
+    "BossId": 1514096230924288
+  },
+  {
+    "BossName": "Grandfather (Balmorra)",
+    "BossId": 1486561195589632
+  },
+  {
+    "BossName": "R4-GL (Nar Shaddaa)",
+    "BossId": 1512537157795840
+  },
+  {
+    "BossName": "Trapjaw (Tatooine)",
+    "BossId": 1491212645171200
+  },
+  {
+    "BossName": "Seigebreaker (Alderaan)",
+    "BossId": 1506708887175168
+  },
+  {
+    "BossName": "Ancient One (Taris I)",
+    "BossId": 2455746335735808
+  },
+  {
+    "BossName": "Cartel Warbot (Quesh)",
+    "BossId": 1781380635688960
+  },
+  {
+    "BossName": "Gargath (Hoth)",
+    "BossId": 1514109115826176
+  },
+  {
+    "BossName": "Snowblind (Hoth)",
+    "BossId": 1780723505692672
+  },
+  {
+    "BossName": "Primal Destroyer (Belsavis)",
+    "BossId": 2276465810866176
+  },
+  {
+    "BossName": "Lucky (Corellia)",
+    "BossId": 3207528821293056
+  },
+  {
+    "BossName": "Nightmare Pilgrim (Voss)",
+    "BossId": 2821282412363776
+  },
+  {
+    "BossName": "Dreadtooth (Section X)",
+    "BossId": 2963995585675264
+  },
+  {
+    "BossName": "Lance Command Unit (Yavin 4)",
+    "BossId": 3427461211619328
+  },
+  {
+    "BossName": "Anvient Threat (Yavin 4)",
+    "BossId": 3511870203887616
+  },
+  {
+    "BossName": "Kil'Cik (Ossus)",
+    "BossId": 4208651338252288
+  },
+  {
+    "BossName": "R8-X8 (Ossus)",
+    "BossId": 4208664223154176
+  },
+  {
+    "BossName": "Karvoy (Mek-Sha)",
+    "BossId": 4351227072610304
+  },
+  {
+    "BossName": "Kithrawl (Ruhnuk)",
+    "BossId": 4641141660057600
+  },
+  {
+    "BossName": "Surgok'k (Gree)",
+    "BossId": 3213232537862144
+  },
+  {
+    "BossName": "Gravak'k (Gree)",
+    "BossId": 3211450126434304
+  },
+  {
+    "BossName": "Shellshock (Rakghoul)",
+    "BossId": 3339998497603584
+  },
+  {
+    "BossName": "Toxxun (Rakghoul)",
+    "BossId": 3340011382505472
+  },
+  {
+    "BossName": "Plaguehorn (Rakghoul)",
+    "BossId": 3339968432832512
+  },
+  {
+    "BossName": "Night Stalker Raxine (DvL)",
+    "BossId": 4046713891323904
+  },
+  {
+    "BossName": "Keeper Anais (DvL)",
+    "BossId": 4048023856349184
+  },
+  {
+    "BossName": "Erdi the Relentless (DvL)",
+    "BossId": 4048268669485056
+  },
+  {
+    "BossName": "Gorso the Nightmare King (DvL)",
+    "BossId": 4046718186291200
+  },
+  {
+    "BossName": "Justice Orzmod (DvL)",
+    "BossId": 4048187065106432
+  },
+  {
+    "BossName": "Tulo the Fearless (DvL)",
+    "BossId": 4048199950008320
+  },
+  {
+    "BossName": "Cortella the Righteous (DvL)",
+    "BossId": 4046344524136448
+  },
+  {
+    "BossName": "Guardian Silaraz (DvL)",
+    "BossId": 4038355884965888
+  },
+  {
+    "BossName": "Preeda the Butcher (DvL)",
+    "BossId": 4048251489615872
+  },
+  {
+    "BossName": "Jaadel the Vindicator (DvL)",
+    "BossId": 4046709596356608
+  },
+  {
+    "BossName": "Thundering Bozwed (DvL)",
+    "BossId": 4048212834910208
+  },
+  {
+    "BossName": "Yezzil the Raging Storm (DvL)",
+    "BossId": 4037965042941952
+  },
+  {
+    "BossName": "Aloeek the Voracious (DvL)",
+    "BossId": 4048242899681280
+  },
+  {
+    "BossName": "Chanta the Unforgiving (DvL)",
+    "BossId": 4048255784583168
+  },
+  {
+    "BossName": "Overseer Qezzed (DvL)",
+    "BossId": 4048247194648576
+  },
+  {
+    "BossName": "Warden Nymessa (DvL)",
+    "BossId": 4048230014779392
+  },
+  {
+    "BossName": "Tormentor Urdig (DvL)",
+    "BossId": 4038360179933184
+  },
+  {
+    "BossName": "Malussa the Gleaming Star (DvL)",
+    "BossId": 4048221424844800
+  },
+  {
+    "BossName": "Defender Gilada (DvL)",
+    "BossId": 4038020877516800
+  },
+  {
+    "BossName": "Training Dummy",
+    "BossId": 2857785339412480
+  }
+]

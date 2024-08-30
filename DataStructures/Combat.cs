@@ -48,6 +48,16 @@ namespace SWTORCombatParser.DataStructures
                     return true;
                 if (RequiredDeadTargetsForKill.Count > 0)
                 {
+                    if(BossInfo.IsOpenWorld)
+                    {
+                        // Check if all required targets are killed using efficient HashSet lookup
+                        var openWorldBosses = new HashSet<string>(RequiredDeadTargetsForKill);
+                        if(AllLogs.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId)
+                        .Select(l => l.Target.LogId.ToString()).Any(kill => openWorldBosses.Contains(kill)))
+                        {
+                            return true;
+                        }
+                    }
                     // Check if all required targets are killed using efficient HashSet lookup
                     var killedTargetsSet = new HashSet<string>(RequiredDeadTargetsForKill);
                     if (killedTargetsSet.IsSubsetOf(AllLogs.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId)

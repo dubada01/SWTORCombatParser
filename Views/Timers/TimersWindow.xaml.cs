@@ -132,6 +132,8 @@ namespace SWTORCombatParser.Views.Timers
 
         private void Window_MouseLeave(object sender, MouseEventArgs e)
         {
+            if (_currentPlayerName == null)
+                return;
             if (_currentPlayerName == "Encounter")
                 DefaultGlobalOverlays.SetDefault("Encounter", new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height });
             else

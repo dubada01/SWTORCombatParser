@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -96,6 +97,26 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return entriesFound;
             }
         }
+        public static async Task<string> GetEncounterForBossName(string bossName)
+        {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return "";
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getEncounterForBoss?bossName={HttpUtility.UrlEncode(bossName)}");
+                    var response = await connection.GetAsync(uri);
+                    var body = await response.Content.ReadAsStringAsync();
+                    return body;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return "";
+            }
+        }
         public static async Task<Version> GetMostRecentVersion()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
@@ -147,7 +168,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 using (HttpClient connection = new HttpClient())
                 {
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getBossesFromEncounterWithEntries?encounter={encounter}");
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getBossesFromEncounterWithEntries?encounter={HttpUtility.UrlEncode(encounter)}");
                     var response = await connection.GetAsync(uri);
                     var body = await response.Content.ReadFromJsonAsync<List<string>>();
                     return body;

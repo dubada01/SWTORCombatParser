@@ -3,6 +3,7 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SWTORCombatParser.DataStructures.EncounterInfo
 {
@@ -45,6 +46,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                     return "";
             }
         }
+        public static List<OpenWorldBoss> OpenWorldBosses = new List<OpenWorldBoss>();
         public static List<EncounterInfo> SupportedEncounters = new List<EncounterInfo>();
         public static List<EncounterInfo> PVPEncounters = new List<EncounterInfo>();
 
@@ -61,9 +63,32 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 {
                     match.LogName = match.Name;
                 }
+                var openWorldBosses = JsonConvert.DeserializeObject<List<OpenWorldBoss>>(File.ReadAllText(@"DataStructures/EncounterInfo/OpenWorldBosses.json"));
+
+                OpenWorldBosses = openWorldBosses;
                 SupportedEncounters = pvpMatches;
                 SupportedEncounters.AddRange(raids);
                 SupportedEncounters.AddRange(flashpoints);
+                SupportedEncounters.Add(new EncounterInfo
+                {
+                    EncounterType = EncounterType.OpenWorld,
+                    Name = "Open World",
+                    LogName = "Open World",
+                    BossNames = OpenWorldBosses.Select(owb => owb.BossName).ToList(),
+                    BossIds = OpenWorldBosses.ToDictionary(
+    kvp => kvp.BossName,
+    kvp => new Dictionary<string, List<long>>
+    {
+                        { "Open World", new List<long> { kvp.BossId } }
+    }),
+                    BossInfos = OpenWorldBosses.Select(
+                        owb => new BossInfo {
+                            EncounterName ="Open World", 
+                            IsOpenWorld = true, 
+                            TargetIds = OpenWorldBosses.Select(owbId=>owbId.BossId.ToString()).ToList(),
+                            TargetsRequiredForKill = OpenWorldBosses.Select(owbId => owbId.BossId.ToString()).ToList()
+                        }).ToList(),    
+                });
             }
             catch (Exception e)
             {

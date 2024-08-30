@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.9.14</VersionPrefix>
+    <VersionPrefix>1.9.16</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
@@ -121,6 +121,9 @@
     <Content Include="DataStructures\EncounterInfo\FlashpointInfo.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="DataStructures\EncounterInfo\OpenWorldBosses.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="DataStructures\EncounterInfo\RaidNames.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -155,6 +158,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Remove="connectionConfig.json" />
+    <None Remove="DataStructures\EncounterInfo\OpenWorldBosses.json" />
     <None Remove="DataStructures\EncounterInfo\PVPAreaNames.json" />
     <None Remove="DataStructures\RoomOverlay\Nahut.json" />
     <None Remove="resources\RoomOverlays\NAHUT\NAHUT_Room.jpg" />

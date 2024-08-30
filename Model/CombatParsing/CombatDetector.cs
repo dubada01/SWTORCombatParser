@@ -154,7 +154,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             {
                 revivedPlayers.Add(line.Source);
             }
-            if ((_bossCombat && revivedPlayers.All(c => c != line.Source) && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId) || (!_bossCombat && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId && line.Source.IsLocalPlayer))
+            if ((_bossCombat && revivedPlayers.All(c => c != line.Source) && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId && !_currentEncounter.IsOpenWorld) || (!_bossCombat && line.Effect.EffectId == _7_0LogParsing.RevivedCombatId && line.Source.IsLocalPlayer))
             {
                 revivedPlayers.Clear();
                 return EndCombat();
@@ -175,7 +175,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 if (bossKilled)
                 {
                     _bossesKilledThisCombat.Add(line.Target.LogId.ToString());
-                    if (_currentBossInfo.TargetsRequiredForKill.All(n => _bossesKilledThisCombat.Contains(n)))
+                    if (_currentBossInfo.TargetsRequiredForKill.All(n => _bossesKilledThisCombat.Contains(n)) || (_currentBossInfo.IsOpenWorld && _currentBossInfo.TargetIds.Any(t=>t == line.Target.LogId.ToString())))
                     {
                         return EndCombat();
                     }

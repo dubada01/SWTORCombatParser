@@ -28,6 +28,8 @@ namespace SWTORCombatParser.Utilities
             listOfEncounters.AddRange(lairs);
             listOfEncounters.Add(new EncounterInfo { Name = "--Flashpoints--" });
             listOfEncounters.AddRange(flashpoints);
+            listOfEncounters.Add(new EncounterInfo { Name = "--Open World--"});
+            listOfEncounters.Add(encounters.First(e => e.Name == "Open World"));
             return listOfEncounters;
         }
         private static List<string> GetSortedEncountersByType()
@@ -46,6 +48,8 @@ namespace SWTORCombatParser.Utilities
             listOfEncounters.AddRange(lairNames);
             listOfEncounters.Add("--Flashpoints--");
             listOfEncounters.AddRange(flashpointNames);
+            listOfEncounters.Add("--Open World--");
+            listOfEncounters.Add(encounters.First(e => e.EncounterType == EncounterType.OpenWorld).Name);
             return listOfEncounters;
         }
         public static List<string> GetBossesForEncounter(string encounter)
