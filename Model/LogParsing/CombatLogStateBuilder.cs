@@ -76,9 +76,8 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             else
             {
-                var openWorldLocation = ": " + log.LogLocation;
-
-                var openWorldEncounter = new EncounterInfo { Name = "Open World" + openWorldLocation, LogName = "Open World" };
+                var openWorldEncounter = EncounterInfo.GetCopy(EncounterLoader.SupportedEncounters.First(e=>e.EncounterType == EncounterType.OpenWorld));
+                openWorldEncounter.Name = openWorldEncounter.Name + ": " + log.LogLocation;
                 CurrentState.EncounterEnteredInfo[log.TimeStamp] = openWorldEncounter;
                 CurrentState.CacheEncounterEnterList();
                 if (liveLog)

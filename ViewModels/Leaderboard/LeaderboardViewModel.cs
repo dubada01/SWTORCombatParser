@@ -17,7 +17,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         private List<LeaderboardInstanceViewModel> _viewModels = new List<LeaderboardInstanceViewModel>();
         private string selectedDifficulty;
         private string selectedPlayerCount;
-        private Dictionary<string, long> _parsingLevels = new Dictionary<string, long> { { "1 Million", 1000000 }, { "2 Million", 2000000 }, { "3.25 Million", 3250000 }, { "6.5 Million", 6500000 }, { "10 Million", 10000000 }, { "Story", 0 }, { "Veteran", 0 }, { "Master", 0 } };
+        private Dictionary<string, long> _parsingLevels = new Dictionary<string, long> { { "1 Million", 1000000 }, { "2 Million", 2000000 }, { "3.25 Million", 3250000 }, { "6.5 Million", 6500000 }, { "10 Million", 10000000 }, { "Story", 0 }, { "Veteran", 0 }, { "Master", 0 }, {"Open World",0 } };
         private List<string> _allDifficulties = new List<string> { "Story", "Veteran", "Master" };
         private List<string> _allPlayerCounts = new List<string> { "8", "16" };
         private List<string> bossesSavedForEncounter;
@@ -117,18 +117,32 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
         private async void SetAvailableEncounters()
         {
             var savedEncounters = await API_Connection.GetEncountersWithEntries();
+            var uniqueSavedEncounters = savedEncounters.Distinct();
             var allEncounters = EncounterLister.SortedEncounterInfos;
             allEncounters.Insert(0, new EncounterInfo { Name = "Parsing" });
             App.Current.Dispatcher.Invoke(() =>
             {
-                AvailableEncounters = allEncounters.Where(e => savedEncounters.Contains(e.Name) || e.Name.Contains("--")).ToList();
+                AvailableEncounters = allEncounters.Where(e => uniqueSavedEncounters.Contains(e.Name) || e.IsOpenWorld || e.Name.Contains("--")).ToList();
                 OnPropertyChanged("AvailableEncounters");
                 SelectedEncounter = AvailableEncounters[0];
             });
         }
         private async void SetSelectedEncounter()
         {
-            bossesSavedForEncounter = await API_Connection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
+            if(SelectedEncounter.Name == "Open World")
+            {
+                bossesSavedForEncounter.Clear();
+                var savedEncounters = await API_Connection.GetEncountersWithEntries();
+                var openWorldEncounters = savedEncounters.Where(n => n.Contains("Open World")).Distinct();
+                foreach(var encounter in openWorldEncounters) {
+                    bossesSavedForEncounter.AddRange(await API_Connection.GetBossesFromEncounterWithEntries(encounter));
+                }
+            }
+            else
+            {
+                bossesSavedForEncounter = await API_Connection.GetBossesFromEncounterWithEntries(SelectedEncounter.Name);
+            }
+
             var namesAndDifficulties = bossesSavedForEncounter.Select(s => s.Split('{'));
             var names = namesAndDifficulties.Select(nd => nd[0].Trim()).Distinct();
 
@@ -176,7 +190,18 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             }
             else
                 AvailableDifficulties = new ObservableCollection<string>(_allDifficulties.Where(d => difficulties.Contains(d)));
-            AvailablePlayerCounts = new ObservableCollection<string>(_allPlayerCounts.Where(c => counts.Contains(c)));
+
+
+            if(SelectedEncounter.Name == "Open World")
+            {
+                AvailableDifficulties = new ObservableCollection<string> { "Open World" };
+                AvailablePlayerCounts = new ObservableCollection<string>() { "Open World"};
+            }
+            else
+            {
+                AvailablePlayerCounts = new ObservableCollection<string>(_allPlayerCounts.Where(c => counts.Contains(c)));
+            }
+
             OnPropertyChanged("AvailableDifficulties");
             OnPropertyChanged("AvailablePlayerCounts");
 
@@ -186,7 +211,9 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
                 selectedPlayerCount = AvailablePlayerCounts[0];
             OnPropertyChanged("SelectedDifficulty");
             OnPropertyChanged("SelectedPlayerCount");
-            _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, selectedDifficulty, selectedPlayerCount, SelectedEncounter.Name == "Parsing", _parsingLevels[selectedDifficulty]));
+
+
+            _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, selectedDifficulty == "Open World" ? "" : selectedDifficulty, selectedPlayerCount, SelectedEncounter.Name == "Parsing", _parsingLevels[selectedDifficulty]));
         }
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)

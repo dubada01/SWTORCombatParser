@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SWTORCombatParser.Model.CombatParsing
@@ -124,12 +125,20 @@ namespace SWTORCombatParser.Model.CombatParsing
             var validLogs = logs.Where(l => !(l.Effect.EffectType == EffectType.TargetChanged && l.Source.IsCharacter) && !string.IsNullOrEmpty(l.Target.Name)).ToList();
             if (currentEncounter.Name.Contains("Open World"))
             {
-                if (validLogs.Select(l => l.Target).DistinctBy(t => t.Id).Any(t => t.LogId == 2857785339412480))
+                if (validLogs.Select(l => l.Target).DistinctBy(t => t.LogId).Any(t => EncounterLoader.OpenWorldBosses.Any(owb=>owb.BossId == t.LogId)))
                 {
-                    var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => t.Entity.LogId == 2857785339412480);
-                    var dummyMaxHP = dummyTarget.MaxHP;
-                    currentEncounter.Difficutly = dummyMaxHP.ToString();
-                    return (dummyTarget.Entity.Name, dummyMaxHP + "HP", "");
+                    var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => EncounterLoader.OpenWorldBosses.Any(owb => owb.BossId == t.Entity.LogId));
+                    var owb = EncounterLoader.OpenWorldBosses.First(owb => owb.BossId == dummyTarget.Entity.LogId);
+                    if (owb.BossName == "Training Dummy")
+                    {
+                        var dummyMaxHP = dummyTarget.MaxHP;
+                        currentEncounter.Difficutly = dummyMaxHP.ToString();
+                        return (dummyTarget.Entity.Name, dummyMaxHP + "HP", "");
+                    }
+                    else
+                    {
+                        return (owb.BossName, "Open World", "");
+                    }
                 }
                 else
                 {
@@ -167,7 +176,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         }
         private static List<string> GetCurrentBossNames(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
-            if (currentEncounter == null || currentEncounter.IsOpenWorld)
+            if (currentEncounter == null)
                 return new List<string>();
 
             var bossIds = new HashSet<string>(currentEncounter.BossInfos.SelectMany(b => b.TargetIds));

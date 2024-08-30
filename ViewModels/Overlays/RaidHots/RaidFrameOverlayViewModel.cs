@@ -398,7 +398,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 var closestNameInLogs = playersInThePast10Minutes.MinBy(s =>
     LevenshteinDistance.Compute(s.ToLower(), detectedName.Name.ToLower()));
-                if (AreNamesCloseEnough(detectedName.Name, closestNameInLogs.ToLower(), closestNameInLogs.Count() / 2))
+                if (!string.IsNullOrEmpty(closestNameInLogs) && AreNamesCloseEnough(detectedName.Name, closestNameInLogs.ToLower(), closestNameInLogs.Count() / 2))
                 {
                     detectedName.Name = closestNameInLogs;
                 }

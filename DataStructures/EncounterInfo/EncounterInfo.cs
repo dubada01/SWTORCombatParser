@@ -11,7 +11,8 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         Parsing,
         Warzone,
         Huttball,
-        Arena
+        Arena,
+        OpenWorld
     }
     public class BossInfo
     {
@@ -46,6 +47,11 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         public double MaxX;
         public double MinY;
         public double MaxY;
+    }
+    public class OpenWorldBoss
+    {
+        public string BossName { get; set; }
+        public long BossId { get; set; }
     }
     public class EncounterInfo
     {
@@ -169,8 +175,8 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 return Difficutly + " " + NumberOfPlayer.Split(" ")[0];
             return ((Difficutly == "Master" ? "Veteran" : Difficutly) + " " + NumberOfPlayer.Split(" ")[0]);
         }
-        public bool IsBossEncounter => BossInfos?.Count != 0;
-        public bool IsPvpEncounter => (int)EncounterType >= 4;
+        public bool IsBossEncounter => BossInfos?.Count != 0 && !IsOpenWorld;
+        public bool IsPvpEncounter => (int)EncounterType >= 4 && !IsOpenWorld;
         public List<BossInfo> BossInfos { get; set; } = new List<BossInfo>();
 
         private string GetNamePlus()
