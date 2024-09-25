@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Styling;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -8,11 +9,16 @@ namespace SWTORCombatParser.Utilities
     {
         public static Color GetColorFromResourceName(string keyName)
         {
-            var myResourceDictionary = new ResourceDictionary();
-            myResourceDictionary.Source =
-                new Uri("/Utilities/UIStyles/Colors.xaml",
-                        UriKind.RelativeOrAbsolute);
-            return (Color)myResourceDictionary[keyName];
+            // Assuming that the resources are already loaded in Application.Current.Resources
+            if (Application.Current.Resources.TryGetValue(keyName, out var resource))
+            {
+                if (resource is Color color)
+                {
+                    return color;
+                }
+            }
+
+            throw new ArgumentException($"Color resource with key '{keyName}' not found.");
         }
     }
 }

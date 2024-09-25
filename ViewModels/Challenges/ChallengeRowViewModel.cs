@@ -3,13 +3,14 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeRowViewModel
+    public class ChallengeRowViewModel:ReactiveObject
     {
         private bool _isEnabled;
         private SolidColorBrush _rowBackground;
@@ -43,17 +44,17 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         public SolidColorBrush ChallengeBackground => SourceChallenge.BackgroundBrush;
 
-        public ICommand EditCommand => new CommandHandler(Edit);
+        public ReactiveCommand<object,Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
         private void Edit(object t)
         {
             EditRequested(this);
         }
-        public ICommand ShareCommand => new CommandHandler(Share);
+        public ReactiveCommand<object,Unit> ShareCommand => ReactiveCommand.Create<object>(Share);
         private void Share(object t)
         {
             ShareRequested(this);
         }
-        public ICommand DeleteCommand => new CommandHandler(Delete);
+        public ReactiveCommand<object,Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
         private void Delete(object t)
         {
             DeleteRequested(this);

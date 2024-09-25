@@ -1,20 +1,19 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities.Converters;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeModificationViewModel : INotifyPropertyChanged
+    public class ChallengeModificationViewModel : ReactiveObject,INotifyPropertyChanged
     {
         private string selectedSource;
         private ChallengeType selectedChallengeType;
@@ -24,7 +23,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private string _value;
         private string valuePrompt;
         private bool hasValue;
-        private System.Windows.Media.Color selectedColor;
+        private Color selectedColor;
         private string currentColorHex;
         private string targetText;
         private bool hasTarget;
@@ -222,7 +221,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             SelectedEncounter = selectedSource.Split('|')[0];
             SelectedBoss = selectedSource.Split('|')[1];
             SelectedChallengeType = AvailableChallengeTypes.FirstOrDefault();
-            SelectedColor = System.Windows.Media.Brushes.CornflowerBlue.Color;
+            SelectedColor = Brushes.CornflowerBlue.Color;
             AvailablePhases = DefaultPhaseManager.GetExisitingPhases().Where(p => p.PhaseSource == selectedSource).ToList();
             if (AvailablePhases.Any())
                 SelectedPhase = AvailablePhases.First();
@@ -253,7 +252,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             if (_isEditing)
                 OnCancelEdit(_editedChallenge);
         }
-        public ICommand SaveCommand => new DelegateCommand(Save);
+        public ReactiveCommand<Unit,Unit> SaveCommand => ReactiveCommand.Create(Save);
         private void Save()
         {
             OnNewChallenge(new Challenge()
@@ -347,7 +346,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             }
         }
         public SolidColorBrush ColorPreview => new SolidColorBrush(SelectedColor);
-        public System.Windows.Media.Color SelectedColor
+        public Color SelectedColor
         {
             get => selectedColor;
             set
@@ -366,7 +365,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 currentColorHex = value;
                 try
                 {
-                    var newColor = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(currentColorHex);
+                    var newColor = Color.Parse(currentColorHex);
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }

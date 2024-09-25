@@ -3,25 +3,23 @@ using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
-using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Timers;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeSetupViewModel : INotifyPropertyChanged
+    public class ChallengeSetupViewModel : ReactiveObject, INotifyPropertyChanged
     {
         public static ChallengeWindowViewModel _challengeWindowViewModel;
         private EncounterSelectionViewModel _enounterSelectionViewModel;
@@ -101,7 +99,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             ChallengesEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
         }
         public string ImportId { get; set; }
-        public ICommand ImportCommand => new CommandHandler(Import);
+        public ReactiveCommand<object,Unit> ImportCommand => ReactiveCommand.Create<object>(Import);
 
         private async void Import(object obj)
         {
@@ -227,11 +225,11 @@ namespace SWTORCombatParser.ViewModels.Challenges
             {
                 if (i % 2 == 1)
                 {
-                    ChallengeRows[i].RowBackground = Brushes.DimGray;
+                    ChallengeRows[i].RowBackground = new SolidColorBrush(Brushes.DimGray.Color);
                 }
                 else
                 {
-                    ChallengeRows[i].RowBackground = Brushes.Transparent;
+                    ChallengeRows[i].RowBackground = new SolidColorBrush(Brushes.Transparent.Color);
                 }
             }
         }
