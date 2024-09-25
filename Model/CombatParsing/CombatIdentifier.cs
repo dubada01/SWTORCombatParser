@@ -11,6 +11,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class CombatIdentifier
     {
+        public static event Action<Combat> CombatFinished = delegate { };
         public static Combat CurrentCombat { get; set; }
 
         private static object _modlock = new object();
@@ -86,6 +87,10 @@ namespace SWTORCombatParser.Model.CombatParsing
                 var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8).Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l => l.TimeStamp).ToList());
                 AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
                 AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
+            }
+            if(combatEndUpdate)
+            {
+                CombatFinished(newCombat);
             }
             return newCombat;
         }

@@ -17,6 +17,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         RoomHazard,
         AbilityList,
         RaidNotes,
+        Timeline,
         Other
     }
     public class UtilityOverlayOptionViewModel : INotifyPropertyChanged

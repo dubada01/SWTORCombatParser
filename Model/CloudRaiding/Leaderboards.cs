@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -241,6 +242,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     }
                 }
             }
+            //todo refactor this to be more efficient when the avalonia code is integrated
+            if(combat.WasBossKilled)
+                AvaloniaTimelineBuilder.UploadBossKill(combat.EncounterBossDifficultyParts.Item1, combat.StartTime, combat.EndTime);
+            
             bool updatedAny = boardEntries.Count == 0 ? false : await API_Connection.TryAddLeaderboardEntries(boardEntries);
             UpdateOverlaysWithNewLeaderboard(combat, updatedAny);
         }

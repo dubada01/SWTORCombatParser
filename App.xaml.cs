@@ -9,13 +9,16 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Orbs_Avalonia;
+using Avalonia;
+using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
 namespace SWTORCombatParser
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
 
         protected override void OnStartup(StartupEventArgs e)
@@ -28,6 +31,9 @@ namespace SWTORCombatParser
             Process[] processCollection = Process.GetProcesses();
             if (processCollection.Count(pc => pc.ProcessName.ToLower() == "orbs") == 1)
             {
+                //TODO DELETE THIS ONCE AVALONIA IS EMBEDDED
+                AvaloniaTimelineBuilder.Init();
+                
                 ConvertToAppData.ConvertFromProgramDataToAppData();
                 var task = TimeUtility.StartUpdateTask();
                 Task.Run(async () =>
@@ -37,7 +43,7 @@ namespace SWTORCombatParser
                 });
 
                 var mainWindow = new MainWindow();
-                Application.Current.MainWindow = mainWindow;
+                System.Windows.Application.Current.MainWindow = mainWindow;
                 var mainWindowVM = new MainWindowViewModel(mainWindow.HotkeyHandler);
                 mainWindow.DataContext = mainWindowVM;
                 mainWindow.Show();
@@ -56,6 +62,7 @@ namespace SWTORCombatParser
                 }
             }
         }
+
         private async Task ExtractIconsIfNecessaryAsync()
         {
             string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");

@@ -16,9 +16,9 @@ namespace SWTORCombatParser.Model.LogParsing
     {
         private static Encoding _fileEncoding;
 
-        public static void SetParseDate()
+        public static void SetParseDate(DateTime logDate)
         {
-            _7_0LogParsing.SetStartDate();
+            _7_0LogParsing.SetStartDate(logDate);
             _fileEncoding = Encoding.GetEncoding(1252);
         }
         public static ParsedLogEntry ParseLine(string logEntry, long lineIndex, DateTime previousLogTime, bool realTime = true)
