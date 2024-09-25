@@ -66,9 +66,9 @@ namespace SWTORCombatParser.Model.LogParsing
             threatRegex = new Regex(@"\<.*?\>", RegexOptions.Compiled);
             _fileEncoding = Encoding.GetEncoding(1252);
         }
-        public static void SetStartDate()
+        public static void SetStartDate(DateTime logDate)
         {
-            _dateTime = TimeUtility.CorrectedTime;
+            _dateTime = logDate;
         }
         public static ParsedLogEntry ParseLog(string logEntry, DateTime previousLogTime, long lineIndex, List<string> parsedLineInfo, bool realTime)
         {

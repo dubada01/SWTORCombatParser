@@ -24,6 +24,7 @@ using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -175,6 +176,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new UtilityOverlayOptionViewModel{ Name = "Encounter Timers", Type = UtilityOverlayType.RaidTimer},
                 new UtilityOverlayOptionViewModel{ Name = "Discipline Timers", Type = UtilityOverlayType.DisciplineTimer, Enabled = false},
                 new UtilityOverlayOptionViewModel{ Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
+                new UtilityOverlayOptionViewModel{ Name = "Time Trial", Type = UtilityOverlayType.Timeline},
                 new UtilityOverlayOptionViewModel{ Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
                 new UtilityOverlayOptionViewModel{ Name = "PvP Mini-map", Type = UtilityOverlayType.PvPMap},
                 new UtilityOverlayOptionViewModel{ Name = "Ability List", Type = UtilityOverlayType.AbilityList},
@@ -212,6 +214,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.OverlayEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Timeline).IsSelected = AvaloniaTimelineBuilder.TimelineEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AbilityList).IsSelected = _abilityListSetup.AbilityListEnabled;
@@ -410,6 +413,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case UtilityOverlayType.RaidNotes:
                     _raidNotesSetup.RaidNotesEnabled = !_raidNotesSetup.RaidNotesEnabled;
                     break;
+                case UtilityOverlayType.Timeline:
+                    AvaloniaTimelineBuilder.TimelineEnabled = !AvaloniaTimelineBuilder.TimelineEnabled;
+                    break;
                 default:
                     return;
 
@@ -487,6 +493,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _raidNotesSetup.UpdateLock(overlaysLocked);
                 ToggleOverlayLock();
                 OverlayLockStateChanged();
+                if (value)
+                {
+                    AvaloniaTimelineBuilder.LockOverlay();
+                }         
+                else
+                {
+                    AvaloniaTimelineBuilder.UnlockOverlay();
+                }
                 OnPropertyChanged();
             }
         }

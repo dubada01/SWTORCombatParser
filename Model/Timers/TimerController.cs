@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
+using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers;
@@ -61,6 +62,10 @@ public static class TimerController
         if (bossinfo != _currentBoss && !string.IsNullOrEmpty(bossinfo.Item1))
         {
             _currentBoss = bossinfo;
+            
+            //todo DELETE THIS. Using it to test the avalonia UI and trigger a new combat with a boss starting;
+            AvaloniaTimelineBuilder.StartBoss(_currentBoss.Item1);
+            
             FilterTimers();
         }
     }

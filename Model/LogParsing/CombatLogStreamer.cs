@@ -78,7 +78,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             HistoricalLogsStarted();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
-            CombatLogParser.SetParseDate();
+            CombatLogParser.SetParseDate(file.Time);
             var currentLogs = CombatLogParser.ParseAllLines(file, true);
             numberOfProcessedLines = currentLogs.Count;
             Logging.LogInfo("Found " + currentLogs.Count + " log entries in " + _logToMonitor);

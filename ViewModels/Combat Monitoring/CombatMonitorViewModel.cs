@@ -22,7 +22,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using static System.Windows.Forms.AxHost;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -432,7 +431,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 if (combatLogs.Count == 0)
                     continue;
                 Logging.LogInfo("Processing combat with start time " + combatStartTime + " and " + combatLogs.Count + " log entries");
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs, false, true);
+                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs, false, true, combatEndUpdate:true);
                 Logging.LogInfo("Combat processed!");
                 //LocalCombatLogCaching.SaveCombatLogs(combatInfo, false);
                 var addedNewEncounter = TryAddEncounter(combatInfo.StartTime);

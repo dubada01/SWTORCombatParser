@@ -57,7 +57,7 @@ namespace SWTORCombatParser.ViewModels
         private readonly OverviewViewModel _tableViewModel;
         private readonly DataGridViewModel _dataGridViewModel;
         private readonly DeathReviewViewModel _deathViewModel;
-        private readonly LeaderboardViewModel _leaderboardViewModel;
+        //private readonly LeaderboardViewModel _leaderboardViewModel;
         private readonly PhaseBarViewModel _phaseBarViewModel;
         private Entity localEntity;
         private string parselyLink;
@@ -173,9 +173,9 @@ namespace SWTORCombatParser.ViewModels
 
             ContentTabs.Add(overlayTab);
 
-            _leaderboardViewModel = new LeaderboardViewModel();
-            var leaderboardView = new LeaderboardView(_leaderboardViewModel);
-            ContentTabs.Add(new TabInstance { TabContent = leaderboardView, HeaderText = "Leaderboards" });
+            //_leaderboardViewModel = new LeaderboardViewModel();
+            //var leaderboardView = new LeaderboardView(_leaderboardViewModel);
+            //ContentTabs.Add(new TabInstance { TabContent = leaderboardView, HeaderText = "Leaderboards" });
 
             _phaseBarViewModel = new PhaseBarViewModel();
             PhasesBar = new PhaseBar(_phaseBarViewModel);
