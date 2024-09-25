@@ -7,9 +7,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -29,7 +28,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public double MaxCrit { get; set; }
         public double Max { get; set; }
         public string Type { get; set; }
-        public ImageSource Icon { get; set; }
+        public Bitmap Icon { get; set; }
     }
     public enum OverviewDataType
     {
@@ -235,7 +234,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 Icon = await GetIconForRow(orderedKey.Value.FirstOrDefault())
             });
         }
-        private async Task<ImageSource> GetIconForRow(ParsedLogEntry log)
+        private async Task<Bitmap> GetIconForRow(ParsedLogEntry log)
         {
             if(log == null) return null;
             var sourceClass = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(log.Source, log.TimeStamp);

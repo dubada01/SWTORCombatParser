@@ -1,7 +1,7 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using System;
 using System.Linq;
-using System.Windows.Media;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.DataStructures
 {

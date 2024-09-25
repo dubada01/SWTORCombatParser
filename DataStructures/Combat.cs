@@ -10,7 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using Avalonia;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -128,7 +128,7 @@ namespace SWTORCombatParser.DataStructures
 
             var peaks = PlotMaker.GetPeaksOfMean(twentySecondAverage, 20);
             var validPeaks = peaks.Where(p => p.Item1 > 10);
-            return validPeaks.Select(p => new Point() { X = p.Item1, Y = p.Item2 }).ToList();
+            return validPeaks.Select(p => new Point(p.Item1,p.Item2)).ToList();
 
         }
         public double GetCurrentEffectStacks(string effect, Entity target)

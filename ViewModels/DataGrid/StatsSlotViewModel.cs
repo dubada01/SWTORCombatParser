@@ -1,16 +1,12 @@
-﻿using MvvmHelpers;
+﻿using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using MvvmHelpers;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
-using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
@@ -18,12 +14,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
     {
         private SolidColorBrush backgroundColor;
         public bool DisplayIcon { get; set; }
-        public BitmapSource RoleIcon { get; set; }
+        public Bitmap RoleIcon { get; set; }
         public bool IsLocalPlayer { get; set; }
         public bool IsTotal { get; set; }
         public HorizontalAlignment ValueAlignment { get; set; }
         private OverlayType OverlayType { get; set; }
-        public StatsSlotViewModel(OverlayType type, System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false, Entity entity = null)
+        public StatsSlotViewModel(OverlayType type, Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false, Entity entity = null)
         {
             OverlayType = type;
             IsTotal = entity == null || name == "Totals";
@@ -31,9 +27,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             {
                 IsLocalPlayer = isLocalPlayer;
                 if (isLocalPlayer)
-                    ForegroundColor = System.Windows.Media.Brushes.Goldenrod;
+                    ForegroundColor = new SolidColorBrush(Brushes.Goldenrod.Color);
                 else
-                    ForegroundColor = System.Windows.Media.Brushes.WhiteSmoke;
+                    ForegroundColor =  new SolidColorBrush(Brushes.WhiteSmoke.Color);
                 Value = name;
                 DisplayIcon = true;
                 var coloredIcon = IconFactory.GetColoredBitmapImage(iconName, iconColor);
@@ -43,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             }
             if (name == "Totals")
             {
-                ForegroundColor = System.Windows.Media.Brushes.WhiteSmoke;
+                ForegroundColor =  new SolidColorBrush(Brushes.WhiteSmoke.Color);
                 Value = name;
                 ValueAlignment = HorizontalAlignment.Center;
                 return;

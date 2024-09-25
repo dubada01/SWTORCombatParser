@@ -1,6 +1,4 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
@@ -8,24 +6,21 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia;
+using Avalonia.Media.Imaging;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
 {
     public class AbilityInfo:INotifyPropertyChanged
     {
         private double fontSize;
-        private ImageSource icon;
+        private Bitmap icon;
 
-        public ImageSource Icon { get => icon; set 
+        public Bitmap Icon { get => icon; set 
             {
                 icon = value;
                 OnPropertyChanged();
@@ -102,7 +97,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
                         AbilityName = newAbility.Ability,
                         UseTime = $"{((int)(newAbility.TimeStamp - combat.StartTime).TotalMinutes > 0 ? (int)(newAbility.TimeStamp - combat.StartTime).TotalMinutes + "m " : "")}{(newAbility.TimeStamp - combat.StartTime).Seconds}s"
                     };
-                    BitmapImage icon;
+                    Bitmap icon;
                     if (IconGetter.IconDict.TryGetValue(newAbility.AbilityId, out icon))
                     {
                         newAbilityInfo.Icon = icon;
@@ -129,7 +124,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
 
         }
 
-        private async Task<BitmapImage> GetIconFromId(string abilityId)
+        private async Task<Bitmap> GetIconFromId(string abilityId)
         {
             //TODO Get actual icons
             return await IconGetter.GetIconForId(abilityId);

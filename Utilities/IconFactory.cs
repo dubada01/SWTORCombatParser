@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using System.Runtime.InteropServices;
-using System.Windows.Media.Imaging;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -15,57 +15,54 @@ namespace SWTORCombatParser.Utilities
         {
             _unknownIcon = new Bitmap(Environment.CurrentDirectory + "/resources/question-mark.png");
         }
-        public static BitmapImage GetColoredBitmapImage(string className, System.Windows.Media.Color color)
+
+        public static Bitmap GetColoredBitmapImage(string className, Color color)
         {
             return SetIconColor(GetIcon(className), color);
         }
+
         public static Bitmap GetIcon(string className)
         {
             if (string.IsNullOrEmpty(className) || !File.Exists(Environment.CurrentDirectory + $"/resources/Class Icons/{className.ToLower()}.png"))
                 return _unknownIcon;
+
             return new Bitmap(Environment.CurrentDirectory + $"/resources/Class Icons/{className.ToLower()}.png");
         }
-        private static BitmapImage SetIconColor(Bitmap image, System.Windows.Media.Color color)
+
+        private static WriteableBitmap SetIconColor(Bitmap image, Color color)
         {
-            Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
-            BitmapData bmpData = image.LockBits(rect, ImageLockMode.ReadWrite, image.PixelFormat);
-
-            IntPtr ptr = bmpData.Scan0;
-
-            int bytes = bmpData.Stride * image.Height;
-            byte[] rgbValues = new byte[bytes];
-            Marshal.Copy(ptr, rgbValues, 0, bytes);
-            for (int y = 0; y < bmpData.Height; y++)
+            var writeableBitmap = new WriteableBitmap(image.PixelSize, image.Dpi);
+            using (var lockedBuffer = writeableBitmap.Lock())
             {
-                for (int x = 0; x < bmpData.Width; x++)
+                var stride = lockedBuffer.RowBytes;
+                var buffer = new byte[lockedBuffer.Size.Height * stride];
+
+                Marshal.Copy(lockedBuffer.Address, buffer, 0, buffer.Length);
+
+                for (int y = 0; y < lockedBuffer.Size.Height; y++)
                 {
-                    if (rgbValues[(y * bmpData.Stride) + (x * 4)] != 0)
+                    for (int x = 0; x < lockedBuffer.Size.Width; x++)
                     {
-                        rgbValues[(y * bmpData.Stride) + (x * 4)] = color.B;
-                        rgbValues[(y * bmpData.Stride) + (x * 4) + 1] = color.G;
-                        rgbValues[(y * bmpData.Stride) + (x * 4) + 2] = color.R;
+                        int index = (y * stride) + (x * 4);
+                        if (buffer[index + 3] != 0) // Check alpha channel
+                        {
+                            buffer[index] = color.B;
+                            buffer[index + 1] = color.G;
+                            buffer[index + 2] = color.R;
+                        }
                     }
                 }
-            }
-            Marshal.Copy(rgbValues, 0, bmpData.Scan0, bytes);
-            image.UnlockBits(bmpData);
 
-            return BitmapToImageSource(image);
+                Marshal.Copy(buffer, 0, lockedBuffer.Address, buffer.Length);
+            }
+
+            return writeableBitmap;
         }
-        private static BitmapImage BitmapToImageSource(Bitmap bitmap)
-        {
-            using (MemoryStream memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Png);
-                memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
-                bitmapimage.BeginInit();
-                bitmapimage.StreamSource = memory;
-                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapimage.EndInit();
 
-                return bitmapimage;
-            }
+        private static Bitmap BitmapToImageSource(Bitmap bitmap)
+        {
+            // No need for conversion in Avalonia, return the bitmap directly.
+            return bitmap;
         }
     }
 }

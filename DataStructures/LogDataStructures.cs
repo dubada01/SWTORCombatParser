@@ -5,15 +5,16 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using ReactiveUI;
 
 namespace SWTORCombatParser.DataStructures
 {
-    public class DisplayableLogEntry
+    public class DisplayableLogEntry:ReactiveObject
     {
         private string _sourceId;
         private string _targetId;
@@ -33,25 +34,27 @@ namespace SWTORCombatParser.DataStructures
 
             EffectName = effectName;
 
-            EffectBackground = Brushes.Transparent;
-            ValueBackground = Brushes.Transparent;
+            EffectBackground = new SolidColorBrush(Brushes.Transparent.Color);
+            ValueBackground = new SolidColorBrush(Brushes.Transparent.Color);
+
             AbilityTextMargin = !string.IsNullOrEmpty(_abilityId) && IconGetter.HasIcon(_abilityId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
             EffectTextMargin = !string.IsNullOrEmpty(_effectId) && IconGetter.HasIcon(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
             if (effectId == _7_0LogParsing.DeathCombatId)
             {
-                EffectBackground = Brushes.IndianRed;
+                EffectBackground =  new SolidColorBrush(Brushes.IndianRed.Color);
             }
             if (effectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(source))
             {
-                EffectBackground = Brushes.Crimson;
+                EffectBackground =  new SolidColorBrush(Brushes.Crimson.Color);
             }
             if (effectId == _7_0LogParsing.RevivedCombatId)
             {
-                EffectBackground = Brushes.CornflowerBlue;
+                EffectBackground =  new SolidColorBrush(Brushes.CornflowerBlue.Color);
             }
             if (effectId == _7_0LogParsing._damageEffectId)
             {
-                EffectBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#613b3b"));
+                EffectBackground = new SolidColorBrush(Color.Parse("#613b3b"));
+
             }
             if (double.TryParse(value, out var r))
             {
@@ -75,9 +78,9 @@ namespace SWTORCombatParser.DataStructures
         public string Source { get; }
         public string Target { get; }
         public string Ability { get; }
-        public BitmapImage AbilityIcon { get; set; }
+        public Bitmap AbilityIcon { get; set; }
         public string EffectName { get; }
-        public BitmapImage EffectIcon { get; set; }
+        public Bitmap EffectIcon { get; set; }
         public Thickness EffectTextMargin { get; set; }
         public Thickness AbilityTextMargin { get; set; }
         public string Value { get; }
@@ -86,23 +89,24 @@ namespace SWTORCombatParser.DataStructures
         public string ValueType { get; }
         public string ModifierType { get; }
         public string ModifierValue { get; }
-        public ICommand CellClickedCommand => new DelegateCommand<string>(CellClicked);
+        public ReactiveCommand<string, Unit> CellClickedCommand => ReactiveCommand.Create<string>(CellClicked);
 
         private void CellClicked(string obj)
         {
+            //use the cross platform clipboard class to copy the data to the clipboard
             switch (obj)
             {
                 case "Source":
-                    Clipboard.SetDataObject(_sourceId);
+                    CrossPlatformClipboard.SetText(_sourceId);
                     break;
                 case "Target":
-                    Clipboard.SetDataObject(_targetId);
+                    CrossPlatformClipboard.SetText(_targetId);
                     break;
                 case "Ability":
-                    Clipboard.SetDataObject(_abilityId);
+                    CrossPlatformClipboard.SetText(_abilityId);
                     break;
                 case "Effect":
-                    Clipboard.SetDataObject(_effectId);
+                    CrossPlatformClipboard.SetText(_effectId);
                     break;
 
             }
