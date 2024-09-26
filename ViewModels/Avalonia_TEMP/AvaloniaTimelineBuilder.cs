@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Threading;
 using Orbs_Avalonia.Model;
 using Orbs_Avalonia.ViewModels;
@@ -122,15 +121,18 @@ public static class AvaloniaTimelineBuilder
         }
     }
 
-    public static async Task UploadBossKill(string encounterName, DateTime startTime, DateTime endTime)
+    public static async Task UploadBossKill(string encounterName, string flashpointOrRaidName, string difficulty, string playerCount, DateTime startTime, DateTime endTime)
     {
         var timeTrialInfo = new TimeTrialLeaderboardEntry()
         {
             BossFight = encounterName,
-            Timestamp = DateTime.Now,
+            Timestamp = endTime,
             StartSeconds = (int)startTime.Subtract(_lastEncounterStartTime).TotalSeconds,
             EndSeconds = (int)endTime.Subtract(_lastEncounterStartTime).TotalSeconds,
-            PlayerName = CombatLogStateBuilder.CurrentState.LocalPlayer.Name
+            PlayerName = CombatLogStateBuilder.CurrentState.LocalPlayer.Name,
+            Encounter = flashpointOrRaidName,
+            Difficulty = difficulty,
+            PlayerCount = playerCount
         };
         await API_Connection.AddNewTimeTrialEntry(timeTrialInfo);
         BuildTimelineFromEncounter();
@@ -197,7 +199,7 @@ public static class AvaloniaTimelineBuilder
         _lastEncounterStartTime = CombatLogStateBuilder.CurrentState.EncounterEnteredInfo.FirstOrDefault(kvp=>kvp.Value == _currentEncounter).Key;
         var timeTrialLeaderboardEntries = _currentEncounter.BossInfos.Select(async bi =>
         {
-            var timeTrialInfoForBoss = await API_Connection.GetTimeTrialEntriesForBoss(bi.EncounterName);
+            var timeTrialInfoForBoss = await API_Connection.GetTimeTrialEntriesForBoss(bi.EncounterName, _currentEncounter.Name, _currentEncounter.Difficutly, _currentEncounter.NumberOfPlayer);
             // Calculate the 10th percentile index
             int tenthPercentileObject = (int)Math.Ceiling(timeTrialInfoForBoss.Count * 0.1) - 1;
             tenthPercentileObject = Math.Max(0, tenthPercentileObject); // Ensure the index is not negative

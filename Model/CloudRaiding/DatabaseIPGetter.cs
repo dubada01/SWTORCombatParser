@@ -2,7 +2,7 @@
 {
     public static class DatabaseIPGetter
     {
-        private static string _debugLocalPort = "32771";
+        private static string _debugLocalPort = "32768";
         private static string _prodPort = "36715";
 
         private static string _debugLocalURL = "localhost";

@@ -273,7 +273,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return entriesFound;
             }
         }
-        public static async Task<List<TimeTrialLeaderboardEntry>> GetTimeTrialEntriesForBoss(string bossName)
+        public static async Task<List<TimeTrialLeaderboardEntry>> GetTimeTrialEntriesForBoss(string bossName, string encounterName, string difficulty, string playerCount)
         {
             List<TimeTrialLeaderboardEntry> entriesFound = new List<TimeTrialLeaderboardEntry>();
             if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
@@ -282,8 +282,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 using (HttpClient connection = new HttpClient())
                 {
-
-                    Uri uri = new Uri($"{_apiPath}/trial_leaderboard/getEntriesForBoss?bossfightName={HttpUtility.UrlEncode(bossName)}");
+                    Uri uri = new Uri($"{_apiPath}/trial_leaderboard/getEntriesForBoss?bossfightName={HttpUtility.UrlEncode(bossName)}&encounter={HttpUtility.UrlEncode(encounterName)}&difficulty={HttpUtility.UrlEncode(difficulty)}&playerCount={HttpUtility.UrlEncode(playerCount)}");
                     var response = await connection.GetAsync(uri);
                     var body = await response.Content.ReadFromJsonAsync<List<TimeTrialLeaderboardEntry>>();
                     return body;
