@@ -28,6 +28,9 @@ bld/
 [Ll]og/
 
 */TestLogs/
+Installer Project/SwtorCombatInstaller-cache/
+*.cab
+
 
 connectionConfig.json
 

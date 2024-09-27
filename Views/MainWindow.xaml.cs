@@ -5,6 +5,7 @@ using SWTORCombatParser.ViewModels.Update;
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -100,7 +101,7 @@ namespace SWTORCombatParser.Views
 
             _notifyIcon1 = new NotifyIcon(components);
 
-            _notifyIcon1.Icon = new Icon("resources/OrbsIcon.ico");
+            _notifyIcon1.Icon = new Icon(Path.Combine(AppContext.BaseDirectory, "resources/OrbsIcon.ico"));
 
             _notifyIcon1.ContextMenuStrip = contextMenu1;
             _notifyIcon1.Text = System.Windows.Forms.Application.ProductName;

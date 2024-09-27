@@ -155,6 +155,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             DefaultGlobalOverlays.Init();
             DefaultPersonalOverlaysManager.Init();
             DefaultChallengeManager.Init();
+            
+            //todo THIS WILL BE GONE once avalonia is embedded
+            AvaloniaTimelineBuilder.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {

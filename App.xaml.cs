@@ -31,9 +31,6 @@ namespace SWTORCombatParser
             Process[] processCollection = Process.GetProcesses();
             if (processCollection.Count(pc => pc.ProcessName.ToLower() == "orbs") == 1)
             {
-                //TODO DELETE THIS ONCE AVALONIA IS EMBEDDED
-                AvaloniaTimelineBuilder.Init();
-                
                 ConvertToAppData.ConvertFromProgramDataToAppData();
                 var task = TimeUtility.StartUpdateTask();
                 Task.Run(async () =>
