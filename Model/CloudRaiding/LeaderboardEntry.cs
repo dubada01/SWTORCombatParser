@@ -56,5 +56,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public int StartSeconds { get; set; }
         public int EndSeconds { get; set; }
         public DateTime Timestamp { get; set; }
+        public string Encounter { get; set; }
+        public string Difficulty { get; set; }
+        public string PlayerCount { get; set; }
     }
 }

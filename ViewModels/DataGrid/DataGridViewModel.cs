@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
@@ -124,8 +125,8 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             UpdateHeaders();
             var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
-            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => App.Current.Dispatcher.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList();
-            App.Current.Dispatcher.Invoke(PartyMembers.Clear);
+            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => Dispatcher.UIThread.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList();
+            Dispatcher.UIThread.Invoke(PartyMembers.Clear);
             var sortedMembers = new List<MemberInfoViewModel>();
             if (_sortDirection == SortingDirection.Ascending)
             {
@@ -144,7 +145,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 sortedMembers[i].AssignBackground(i);
             }
             sortedMembers.Add(new MemberInfoViewModel(sortedMembers.Count, null, _allSelectedCombats, orderedSelectedColumns));
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 foreach (var member in sortedMembers)
                 {

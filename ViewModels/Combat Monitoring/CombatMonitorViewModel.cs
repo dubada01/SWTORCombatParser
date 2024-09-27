@@ -22,6 +22,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -151,7 +152,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         public void Reset()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 UnSelectAll();
                 _usingHistoricalData = true;
@@ -351,7 +352,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         private void UpdateVisibleEncounters()
         {
-            App.Current.Dispatcher.Invoke(delegate
+            Dispatcher.UIThread.Invoke(delegate
             {
                 var orderedEncouters = _allEncounters.Where(e => e.EncounterCombats.Any()).OrderByDescending(e => e.EncounterCombats.First().CombatStartTime);
                 if (!orderedEncouters.Any())

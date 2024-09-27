@@ -3,9 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-using System.Windows.Media;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
@@ -93,7 +97,7 @@ namespace SWTORCombatParser.Model.Timers
                 Target = trigger.target == "@Self" ? "LocalPlayer" : trigger.target,
                 Effect = string.IsNullOrEmpty(trigger.effectGuid) ? trigger.effect : trigger.effectGuid,
                 Ability = string.IsNullOrEmpty(trigger.abilityGuid) ? trigger.ability : trigger.abilityGuid,
-                TimerColor = string.IsNullOrEmpty(spTimer.color) ? Colors.Red : (Color)ColorConverter.ConvertFromString("#" + spTimer.color.Split('x')[1]),
+                TimerColor = string.IsNullOrEmpty(spTimer.color) ? Colors.Red : Color.Parse("#" + spTimer.color.Split('x')[1]),
                 DurationSec = string.IsNullOrEmpty(spTimer.interval) ? double.Parse(spTimer.countdownCount) : double.Parse(spTimer.interval),
                 SpecificBoss = trigger.boss,
                 IsImportedFromSP = true,
@@ -126,29 +130,24 @@ namespace SWTORCombatParser.Model.Timers
 
         private static string GetFileText()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(async() =>
             {
-                // Create a new file dialog
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-
-                // Set the default file filter and title
-                openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
-                openFileDialog.Title = "Select a text file";
-
-                // Show the file dialog and get the result
-                DialogResult result = openFileDialog.ShowDialog();
-
-                // Check if the user clicked "OK"
-                if (result == DialogResult.OK)
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
-                    // Get the selected file path
-                    string filePath = openFileDialog.FileName;
-
-                    // Read the contents of the file
-                    string fileContents = File.ReadAllText(filePath);
-
-                    // Pass the file contents to the processing function
-                    return fileContents;
+                    var topLevel = desktop.MainWindow;
+                    var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+                    {
+                        Title = "Select a StarParse Timer file",
+                        AllowMultiple = false,
+                    });
+                    if (files.Count > 1)
+                    {
+                        // Read the contents of the file
+                        Stream fileContents = await files[0].OpenReadAsync();
+                        StreamReader reader = new StreamReader(fileContents);
+                        string text = reader.ReadToEnd();
+                        return text;
+                    }
                 }
                 return "";
             });

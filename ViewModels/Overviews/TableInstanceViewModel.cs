@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -127,7 +129,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     list[i].RowBackground = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
                 }
             }
-            App.Current.Dispatcher.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() => {
                 DataToView = list;
                 OnPropertyChanged("DataToView");
             });

@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
 {
@@ -73,7 +74,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         }
         private void Reset()
         {
-            App.Current.Dispatcher.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() => {
                 AbilityInfoList.Clear();
             });
 
@@ -113,7 +114,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
                     }
                     newAbilityInfos.Insert(0,newAbilityInfo);
                 }
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     foreach(var newAbility in newAbilityInfos)
                     {

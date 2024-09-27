@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
@@ -55,7 +56,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             {
                 log.SecondsSinceCombatStart = (log.TimeStamp - _startTime).TotalSeconds;
             }
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 return UpdateLogs(inverted);
             });
@@ -81,7 +82,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             DateTime firstDeath = DateTime.MinValue;
             Regex re = new Regex(_logFilter != null ? _logFilter : "", RegexOptions.IgnoreCase);
             _displayedLogs = _currentlySelectedCombat.AllLogs.Where(l=>LogFilter(l, re)).ToList();
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 if (isDethReview)
                 {

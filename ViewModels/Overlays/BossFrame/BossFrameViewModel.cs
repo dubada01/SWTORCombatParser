@@ -2,6 +2,7 @@
 using SWTORCombatParser.Views.Overlay.BossFrame;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -21,7 +22,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public BossFrameViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, bool mechTrackingEnabled, bool isDuplicate, double scale)
         {
             _scale = scale;
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 CurrentBoss = bossInfo.Entity;
 

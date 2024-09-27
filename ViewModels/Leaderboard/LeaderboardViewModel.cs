@@ -1,7 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.Views.Leaderboard_View;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.Model.Overlays
 {
@@ -38,7 +39,7 @@ namespace SWTORCombatParser.Model.Overlays
         }
         private static void RemoveOverlayNames(Bitmap bmp, int rowsCount)
         {
-            App.Current.Dispatcher.Invoke(new Action(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 System.Windows.Media.Matrix transformToDevice;
                 using (var source = new HwndSource(new HwndSourceParameters()))
@@ -56,7 +57,7 @@ namespace SWTORCombatParser.Model.Overlays
                         bmp.SetPixel(x, y, Color.Transparent);
                     }
                 }
-            }));
+            });
 
         }
 

@@ -4,14 +4,13 @@
     <VersionPrefix>1.9.17</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <UseWindowsForms>True</UseWindowsForms>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AssemblyName>Orbs</AssemblyName>
-    <SignAssembly>false</SignAssembly>
+    <Nullable>enable</Nullable>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -95,6 +94,12 @@
       <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Remove="Views\Leaderboard View\**" />
+    <EmbeddedResource Remove="Views\Leaderboard View\**" />
+    <None Remove="Views\Leaderboard View\**" />
+    <Compile Remove="ViewModels\Leaderboard\**" />
+    <EmbeddedResource Remove="ViewModels\Leaderboard\**" />
+    <None Remove="ViewModels\Leaderboard\**" />
   </ItemGroup>
     <ItemGroup>
         <Content Include="resources\**\*.*">
@@ -270,6 +275,7 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.1.3" />
     <PackageReference Include="Avalonia.Desktop" Version="11.1.3" />
+    <PackageReference Include="LibVLCSharp" Version="3.9.0" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="morelinq" Version="4.1.0" />
     <PackageReference Include="MouseKeyHook" Version="5.7.1" />
@@ -341,16 +347,16 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Update="Views\Overlay\BossFrame\RaidDotInstance.xaml.cs">
+    <Compile Update="Views\Overlay\BossFrame\RaidDotInstance.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Overlay\UtilityOverlayOptionView.xaml.cs">
+    <Compile Update="Views\Overlay\UtilityOverlayOptionView.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Timers\TimerSharePopup.xaml.cs">
+    <Compile Update="Views\Timers\TimerSharePopup.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\InsanceAlreadyRunningWarning.xaml.cs">
+    <Compile Update="Views\InsanceAlreadyRunningWarning.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -384,6 +390,21 @@
     <Reference Include="ReactiveUI">
       <HintPath>..\bin\Avalonia\net8.0\net8.0\ReactiveUI.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Remove="Views\Leaderboard View\**" />
+    <AvaloniaXaml Remove="ViewModels\Leaderboard\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="Views\Leaderboard View\**" />
+    <AdditionalFiles Remove="ViewModels\Leaderboard\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Remove="Views\Leaderboard View\**" />
+    <AvaloniaResource Remove="ViewModels\Leaderboard\**" />
   </ItemGroup>
 
 </Project>

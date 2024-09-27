@@ -1,14 +1,14 @@
 ﻿using SWTORCombatParser.Model.Phases;
-using SWTORCombatParser.Utilities;
 using System;
 using System.ComponentModel;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseRowViewModel : INotifyPropertyChanged
+    public class PhaseRowViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private SolidColorBrush _rowBackground;
 
@@ -28,13 +28,13 @@ namespace SWTORCombatParser.ViewModels.Phases
                 OnPropertyChanged();
             }
         }
-        public ICommand EditCommand => new CommandHandler(Edit);
+        public ReactiveCommand<object,Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
         private void Edit(object t)
         {
             EditRequested(this);
         }
 
-        public ICommand DeleteCommand => new CommandHandler(Delete);
+        public ReactiveCommand<object,Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
         private void Delete(object t)
         {
             DeleteRequested(this);

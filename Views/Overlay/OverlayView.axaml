@@ -1,0 +1,83 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.OverlayView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="{StaticResource Gray2Brush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.9*"/>
+                <RowDefinition Height="0.1*"/>
+            </Grid.RowDefinitions>
+            <TabControl Margin="5,5,0,5" Background="{StaticResource Gray3Brush}" SelectedIndex="{Binding SelectedOverlayTab}">
+                <TabControl.Resources>
+                    <Style TargetType="{x:Type TabControl}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabControl">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Border BorderThickness="0,0,1,1"  CornerRadius="0,5,5,5" BorderBrush="#D0CEBF" Grid.Row="1">
+                                            <Border CornerRadius="0,5,5,5" BorderThickness="{TemplateBinding BorderThickness}" 
+                BorderBrush="{TemplateBinding BorderBrush}">
+                                                <Border CornerRadius="0,5,5,5"  Background="{TemplateBinding Background}">
+                                                    <ContentPresenter ContentSource="SelectedContent"/>
+                                                </Border>
+                                            </Border>
+                                        </Border>
+                                        
+                                        <TabPanel Background="Transparent" Grid.Row="0" IsItemsHost="true"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Interface">
+                    <overlay:CombatMetricsConfigView Grid.Row="0" />
+                </TabItem>
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Timers">
+                    <ContentPresenter Grid.Column="1" Content="{Binding TimersView}"></ContentPresenter>
+                </TabItem>
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Challenges">
+                    <ContentPresenter Grid.Column="1" Content="{Binding ChallengesView}"></ContentPresenter>
+                </TabItem>
+                <TabItem Style="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Settings">
+                    <ContentPresenter Grid.Column="1" Content="{Binding OthersSetupView}"></ContentPresenter>
+                </TabItem>
+            </TabControl>
+   
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox HorizontalAlignment="Left" MaxHeight="15" Margin="15,2,10,2">
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
+                        <Viewbox MaxHeight="20">
+                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding OverlaysLocked}"></CheckBox>
+                        </Viewbox>
+                    </StackPanel>
+                </Viewbox>
+
+                <Viewbox Margin="0,2,25,2" MaxHeight="35" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="1">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Bar Scalar: "/>
+                        <TextBox HorizontalAlignment="Center" Height="45" Width="100" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource RoundedTextBox}"></TextBox>
+                    </StackPanel>
+                </Viewbox>
+            </Grid>
+        </Grid>
+       
+    </Grid>
+</UserControl>

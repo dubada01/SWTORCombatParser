@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Personal
 {
@@ -60,7 +61,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         }
         private void UpdateMetrics(string defaultName)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 PersonalOverlayInstances.Clear();
                 _currentOwner = defaultName;
@@ -92,7 +93,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
 
         private void RemoveCell(PersonalOverlayInstanceViewModel obj)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 PersonalOverlayInstances.Remove(obj);
                 UpdateDefaults();
@@ -107,7 +108,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         public void UpdateScale(double scale)
         {
             _currentScale = scale;
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 foreach (var cell in PersonalOverlayInstances)
                 {

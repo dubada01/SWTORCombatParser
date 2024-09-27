@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -33,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public void SetScale(double scale)
         {
             _currentScale = scale;
-            App.Current.Dispatcher?.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 foreach (var timer in UpcomingMechanics)
                 {
@@ -48,7 +49,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
             if (obj.SourceTimer.IsMechanic && (obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield) && !obj.SourceTimer.IsSubTimer && _bossInfo.Entity.Id == obj.TargetId)
             {
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     var unorderedUpcomingMechs = UpcomingMechanics.ToList();
                     obj.Scale = _currentScale * 1.25d;
@@ -66,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
 
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 UpcomingMechanics.Remove(obj);
             });

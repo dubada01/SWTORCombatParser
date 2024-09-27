@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
@@ -212,7 +213,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
                 RaidFrameRows = defaults.Rows.ToString();
                 RaidFrameColumns = defaults.Columns.ToString();
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     RaidHotsEnabled = defaults.Acive;
                     _currentOverlayViewModel.FirePlayerChanged(_currentCharacter);
@@ -220,7 +221,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
             else
             {
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     RaidHotsEnabled = false;
                 });

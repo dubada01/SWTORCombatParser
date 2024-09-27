@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -86,7 +87,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             ongoingCombatDisplay.PastCombatSelected += SelectCombat;
             ongoingCombatDisplay.PastCombatUnSelected += UnselectCombat;
             ongoingCombatDisplay.UnselectAll += UnselectAllCombats;
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 EncounterCombats.Add(ongoingCombatDisplay);
                 EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
@@ -96,7 +97,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         public void RemoveOngoing()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 var currentcombat = EncounterCombats.FirstOrDefault(c => c.IsCurrentCombat);
                 if (currentcombat == null)
@@ -131,7 +132,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 pastCombatDisplay.PastCombatSelected += SelectCombat;
                 pastCombatDisplay.PastCombatUnSelected += UnselectCombat;
                 pastCombatDisplay.UnselectAll += UnselectAllCombats;
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     EncounterCombats.Add(pastCombatDisplay);
                     EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));

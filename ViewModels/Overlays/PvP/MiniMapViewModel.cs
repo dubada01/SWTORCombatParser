@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Threading;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -63,7 +63,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _isTriggered = true;
             if (GetCurrentActive())
             {
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     ShowFrame = true;
                     _mostRecentCombat = null;
@@ -86,7 +86,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _mostRecentCombat = null;
             CharacterPositionInfos.Clear();
             _lastUpdatedPlayer.Clear();
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 ShowFrame = false;
                 _dTimer.Stop();

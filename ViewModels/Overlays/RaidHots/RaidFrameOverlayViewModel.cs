@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
@@ -100,7 +101,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 _inCombat = true;
                 if (_conversationActive)
                 {
-                    App.Current.Dispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Invoke(() =>
                     {
                         _view.Show();
                     });

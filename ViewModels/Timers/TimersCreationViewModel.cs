@@ -18,10 +18,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Controls;
+using Avalonia.Media;
+using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 using SWTORCombatParser.DataStructures.ChallengeInfo;
 
@@ -32,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         Encounter,
         Discipline
     }
-    public class TimersCreationViewModel : INotifyPropertyChanged
+    public class TimersCreationViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private ITimerWindowViewModel _disciplineTimersWindow;
         private ITimerWindowViewModel _encounterTimersWindow;
@@ -322,7 +324,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("DisciplineTimersList");
         }
 
-        public ICommand CreateNewTimerCommand => new CommandHandler(CreateNewTimer);
+        public ReactiveCommand<object,Unit> CreateNewTimerCommand => ReactiveCommand.Create<object>(CreateNewTimer);
 
         private void CreateNewTimer(object obj)
         {
@@ -374,7 +376,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ICommand ToggleVisibilityCommand => new CommandHandler(ToggleVisibility);
+        public ReactiveCommand<object,Unit> ToggleVisibilityCommand => ReactiveCommand.Create<object>(ToggleVisibility);
 
         private void SetVisibilityIcon(bool status)
         {
@@ -396,7 +398,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 TimerController.RefreshAvailableTimers();
             });
         }
-        public ICommand ToggleAudioCommand => new CommandHandler(ToggleAudio);
+        public ReactiveCommand<object,Unit> ToggleAudioCommand => ReactiveCommand.Create<object>(ToggleAudio);
 
         private void SetAudioIcon(bool status)
         {
@@ -430,7 +432,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
 
-        public ICommand ImportCommand => new CommandHandler(Import);
+        public ReactiveCommand<object,Unit> ImportCommand => ReactiveCommand.Create<object>(Import);
 
         private async void Import(object obj)
         {

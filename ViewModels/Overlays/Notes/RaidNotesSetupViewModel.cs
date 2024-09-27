@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes
 {
@@ -36,7 +37,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
 
         private void CheckForConverstaion(ParsedLogEntry entry)
         {
-            App.Current.Dispatcher.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() => {
 
                 if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Apply && entry.Source.IsLocalPlayer)
                 {
@@ -61,7 +62,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         }
         private void SetVisibilityForInstanceState()
         {
-            App.Current.Dispatcher.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() => {
                 if (inInstance && RaidNotesEnabled)
                 {
                     _view.Show();

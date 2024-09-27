@@ -10,8 +10,9 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Shapes;
-using System.Windows.Threading;
+using Avalonia.Controls.Shapes;
+using Avalonia.Threading;
+
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room
 {
@@ -68,7 +69,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                     var hazard = new NAHUT_Hazard(_roomOverlay, _currentCombatOverlaySettings);
                     _currentHazard = hazard;
                 }
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     IsActive = true;
                     OnPropertyChanged("IsActive");
@@ -141,7 +142,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             {
                 _isTriggered = false;
                 _currentBossName = "";
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     IsActive = false;
                     OnPropertyChanged("IsActive");
@@ -151,7 +152,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         }
         private void OnNewImageFromHazard(string newPath)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 ImagePath = newPath;
                 OnPropertyChanged("ImagePath");

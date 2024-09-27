@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.Model.Challenge
 {
@@ -71,7 +72,7 @@ namespace SWTORCombatParser.Model.Challenge
                     if (!_activeChallenges.Any(c => c.Id == challenge.Id))
                     {
                         _activeChallenges.Add(challenge);
-                        App.Current.Dispatcher.Invoke(() =>
+                        Dispatcher.UIThread.Invoke(() =>
                         {
                             _challenges.Add(new ChallengeInstanceViewModel(challenge) { Scale = _currentScale });
                         });
@@ -128,7 +129,7 @@ namespace SWTORCombatParser.Model.Challenge
         {
             _activeChallenges.Clear();
             _challenges.ForEach(c => c.Reset());
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 _challenges.Clear();
             });

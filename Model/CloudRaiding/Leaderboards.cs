@@ -2,7 +2,6 @@
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.ViewModels.Leaderboard;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Concurrent;
@@ -243,8 +242,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
             //todo refactor this to be more efficient when the avalonia code is integrated
-            if(combat.WasBossKilled)
-                AvaloniaTimelineBuilder.UploadBossKill(combat.EncounterBossDifficultyParts.Item1, combat.StartTime, combat.EndTime);
+            if(combat.WasBossKilled && !combat.ParentEncounter.IsOpenWorld)
+                AvaloniaTimelineBuilder.UploadBossKill(combat.EncounterBossDifficultyParts.Item1, combat.ParentEncounter.Name, combat.ParentEncounter.Difficutly, combat.ParentEncounter.NumberOfPlayer, combat.StartTime, combat.EndTime);
             
             bool updatedAny = boardEntries.Count == 0 ? false : await API_Connection.TryAddLeaderboardEntries(boardEntries);
             UpdateOverlaysWithNewLeaderboard(combat, updatedAny);

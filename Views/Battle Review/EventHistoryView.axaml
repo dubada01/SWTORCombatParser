@@ -1,0 +1,160 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Battle_Review.EventHistoryView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Battle_Review"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Border BorderBrush="DimGray" Background="{StaticResource Gray3Brush}" BorderThickness="2" CornerRadius="3">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0"
+                                     EndPoint="0,1">
+                        <GradientStop Color="{StaticResource Gray4}"
+                Offset="0" />
+                        <GradientStop Color="{StaticResource Gray3}"
+                Offset="1" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.02*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.025*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.025*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.04*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.04*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.025*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="0.025*"/>
+
+                    <ColumnDefinition Width="10"/>
+                </Grid.ColumnDefinitions>
+                <Rectangle Fill="DimGray" Grid.Column="1" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="3" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="5" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="7" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="9" Margin="0,2,0,2"></Rectangle>
+                <Rectangle Fill="DimGray" Grid.Column="11" Margin="0,2,0,2"></Rectangle>
+                <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="13" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Sec" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Source" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Target" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Ability" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="8" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Effect" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Value" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            </Grid>
+
+            <DataGrid MouseEnter="DataArea_MouseEnter" MouseLeave="DataArea_MouseLeave" AlternationCount="2" x:Name="DataArea" SelectionChanged="Selection1List_SelectionChanged" Background="{StaticResource Gray5Brush}" SelectedIndex="{Binding SelectedIndex, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
+                      HeadersVisibility="None" ItemsSource="{Binding LogsToDisplay}" VerticalScrollBarVisibility="Visible" SelectionMode="Single" GridLinesVisibility="Vertical"  AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+                <DataGrid.RowStyle>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Style.Triggers>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                <Setter Property="Background" Value="{StaticResource Gray3Brush}"></Setter>
+                            </Trigger>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="{StaticResource Gray4Brush}"></Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{StaticResource Gray5Brush}"/>
+                                <Setter Property="BorderBrush" Value="WhiteSmoke"/>
+                                <Setter Property="BorderThickness" Value="0,2,0,2"/>
+                                <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="False">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0,2,0,2"/>
+                                <Setter Property="Foreground" Value="WhiteSmoke"/>
+                            </Trigger>
+                        </Style.Triggers>
+
+                    </Style>
+                </DataGrid.CellStyle>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Width="0.02*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="2,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" VerticalAlignment="Center" Text="{Binding SecondsSinceCombatStart, StringFormat=N2}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn  Width="0.025*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Source" ToolTip="Click To Copy ID"/>
+                                    <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Source}"  HorizontalAlignment="Left"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn  Width="0.025*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Target" ToolTip="Click To Copy ID"/>
+                                    <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Target}" HorizontalAlignment="Left"/>
+                            </Grid>
+                                </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.04*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding AbilityIcon, IsAsync=True}"></Image>
+                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Ability" ToolTip="Click To Copy ID"/>
+                                    <TextBlock IsHitTestVisible="False" Margin="{Binding AbilityTextMargin}" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.04*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid Background="{Binding EffectBackground}">
+                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding EffectIcon, IsAsync=True}"></Image>
+                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Effect" ToolTip="Click To Copy ID"/>
+                                    <TextBlock IsHitTestVisible="False" Margin="{Binding EffectTextMargin}" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.025*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding ValueType}" HorizontalAlignment="Left"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="0.025*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid ToolTip="{Binding Threat}" Background="{Binding ValueBackground}">
+                                    <TextBlock  Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" TextDecorations="{Binding WasValueCrit, Converter={StaticResource BooleanToFontStyleConverter}}" VerticalAlignment="Center" Text="{Binding Value}" HorizontalAlignment="Left"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Border>
+</UserControl>

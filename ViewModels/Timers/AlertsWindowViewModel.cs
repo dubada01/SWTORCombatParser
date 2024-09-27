@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Timers;
 
@@ -50,7 +51,7 @@ public class AlertsWindowViewModel : INotifyPropertyChanged
         _timerWindow = new AlertView(this);
         TimerController.TimerExpired += RefreshTimerVisuals;
         TimerController.TimerTriggered += AddTimerVisual;
-        App.Current.Dispatcher.Invoke(() =>
+        Dispatcher.UIThread.Invoke(() =>
         {
             var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Alerts");
             active = defaultTimersInfo.Acive;
@@ -65,7 +66,7 @@ public class AlertsWindowViewModel : INotifyPropertyChanged
     {
         if (!Active)
             return;
-        App.Current.Dispatcher.Invoke(() =>
+        Dispatcher.UIThread.Invoke(() =>
         {
             _timerWindow.Show();
         });
@@ -73,7 +74,7 @@ public class AlertsWindowViewModel : INotifyPropertyChanged
 
     public void HideTimers()
     {
-        App.Current.Dispatcher.Invoke(() => { _timerWindow.Hide(); });
+        Dispatcher.UIThread.Invoke(() => { _timerWindow.Hide(); });
     }
     private object _timerChangeLock = new object();
     private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)

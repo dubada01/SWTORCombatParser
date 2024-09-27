@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -48,7 +49,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 else
                 {
 
-                    App.Current.Dispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Invoke(() =>
                     {
                         _timerWindow.Show();
                     });
@@ -75,7 +76,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             _timerWindow = new TimersWindow(this);
             _timerWindow.SetIdText("BOSS TIMERS");
             _timerWindow.SetPlayer("Encounter");
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Encounter"); ;
                 _timerWindow.Top = defaultTimersInfo.Position.Y;
@@ -104,7 +105,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void SetScale(double scale)
         {
             _currentScale = scale;
-            App.Current.Dispatcher?.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 foreach (var timer in SwtorTimers)
                 {
@@ -162,7 +163,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (!Active)
                 return;
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 _timerWindow.Show();
                 UpdateLock(isLocked);
@@ -171,7 +172,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void HideTimers()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 _timerWindow.Hide();
             });

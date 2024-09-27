@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.RaidHOTs.RaidDCDInstance"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs"
+             mc:Ignorable="d" 
+             d:DesignHeight="150" d:DesignWidth="50">
+    <Grid Margin="0,0,0,0">
+        <Grid VerticalAlignment="Stretch">
+            <Border VerticalAlignment="Stretch" Margin="1,5,1,10" Opacity="{Binding OverlayOpacity}" BorderBrush="WhiteSmoke" BorderThickness=".75" Background="{StaticResource Gray4Brush}" CornerRadius="2">
+                <Grid VerticalAlignment="Stretch">
+                    <Border x:Name="TimerBar" FlowDirection="LeftToRight" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0,0,0,.5" BorderBrush="{StaticResource Gray9Brush}" Margin="0,0,0,0" Grid.Column="0" CornerRadius="2" Background="{Binding TimerForeground}" >
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="BarScale" ScaleY="{Binding CurrentRatio}" ScaleX="1"></ScaleTransform>
+                        </Border.RenderTransform>
+                        <Border.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="BarScale" Storyboard.TargetProperty="ScaleY" From="{Binding CurrentRatio}" To="0" Duration="{Binding TimerDuration}"></DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Border.Triggers>
+                    </Border>
+                </Grid>
+            </Border>
+
+        </Grid>
+
+
+        <Viewbox Visibility="{Binding ShowCharges, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="25" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="1,1,1,1">
+            <TextBlock x:Name="ChargesText" FontFamily="{StaticResource MainFont}" 
+                       TextWrapping="NoWrap" FontWeight="DemiBold" Foreground="WhiteSmoke" Text="{Binding Charges}" ></TextBlock>
+        </Viewbox>
+
+    </Grid>
+</UserControl>

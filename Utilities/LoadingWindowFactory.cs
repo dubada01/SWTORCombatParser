@@ -1,5 +1,8 @@
-﻿using SWTORCombatParser.Views;
-using System.Windows;
+﻿using System.Windows.Threading;
+using Avalonia;
+using Avalonia.Controls;
+using SWTORCombatParser.Views;
+using Dispatcher = Avalonia.Threading.Dispatcher;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -15,17 +18,16 @@ namespace SWTORCombatParser.Utilities
         }
         public static LoadingSplash ShowLoading(string text = "Loading...")
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
-                var mainTop = _mainWindow.Top;
-                var mainLeft = _mainWindow.Left;
-                var mainWidth = _mainWindow.ActualWidth;
-                var mainHeight = _mainWindow.ActualHeight;
+                var mainTop = _mainWindow.Position.Y;
+                var mainLeft = _mainWindow.Position.X;
+                var mainWidth = _mainWindow.ClientSize.Width;
+                var mainHeight = _mainWindow.ClientSize.Width;
                 (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
 
                 _loadingWindow = new LoadingSplash();
-                _loadingWindow.Top = center.Item2 - 50;
-                _loadingWindow.Left = center.Item1 - 150;
+                _loadingWindow.Position = new PixelPoint((int)center.Item1 - 150, (int)center.Item2 - 50);
                 _loadingWindow.Show();
             });
             return _loadingWindow;
@@ -33,35 +35,34 @@ namespace SWTORCombatParser.Utilities
         public static LoadingSplash ShowInstancedLoading(string text = "Loading...")
         {
             var instancedLoadedSplash = new LoadingSplash();
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
-                var mainTop = _mainWindow.Top;
-                var mainLeft = _mainWindow.Left;
-                var mainWidth = _mainWindow.ActualWidth;
-                var mainHeight = _mainWindow.ActualHeight;
+                var mainTop = _mainWindow.Position.Y;
+                var mainLeft = _mainWindow.Position.X;
+                var mainWidth = _mainWindow.ClientSize.Width;
+                var mainHeight = _mainWindow.ClientSize.Width;
                 (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
 
-                instancedLoadedSplash.Top = center.Item2 - 50;
-                instancedLoadedSplash.Left = center.Item1 - 150;
+                instancedLoadedSplash.Position = new PixelPoint((int)center.Item1 - 150, (int)center.Item2 - 50);
                 instancedLoadedSplash.Show();
             });
             return instancedLoadedSplash;
         }
         public static void HideInstancedLoading(LoadingSplash splash)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 splash.Close();
             });
         }
         public static void ShowBackgroundNotice()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
-                var mainTop = _mainWindow.Top;
-                var mainLeft = _mainWindow.Left;
-                var mainWidth = _mainWindow.ActualWidth;
-                var mainHeight = _mainWindow.ActualHeight;
+                var mainTop = _mainWindow.Position.Y;
+                var mainLeft = _mainWindow.Position.X;
+                var mainWidth = _mainWindow.ClientSize.Width;
+                var mainHeight = _mainWindow.ClientSize.Width;
                 (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
 
                 var warning = new BackgroundMonitoringWarning();
@@ -72,7 +73,7 @@ namespace SWTORCombatParser.Utilities
         }
         public static void HideLoading()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 if (_loadingWindow != null)
                     _loadingWindow.Close();

@@ -5,8 +5,9 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia.Media;
+using Avalonia.Threading;
+using LibVLCSharp.Shared;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
@@ -24,6 +25,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private double timerValue = 1;
         private int _updateIntervalMs;
         private MediaPlayer _mediaPlayer;
+        private LibVLC _libvlc;
         private string _audioPath;
         private double _playAtTime;
         private bool isActive;
@@ -70,12 +72,13 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public double OverlayOpacity { get; set; }
         public double CurrentRatio => double.IsNaN(TimerValue / MaxTimerValue) ? 1 : (TimerValue / MaxTimerValue);
-        public Duration TimerDuration { get; set; }
+        public TimeSpan TimerDuration { get; set; }
         public Color TimerColor => SourceTimer.TimerColor;
         public SolidColorBrush TimerForeground => new SolidColorBrush(TimerColor);
         public bool _isAboutToExpire = false;
-        private static SolidColorBrush _defaultTimerBackground = Brushes.WhiteSmoke;
-        private static SolidColorBrush _aboutToExpireBackground = Brushes.OrangeRed;
+
+        private static SolidColorBrush _defaultTimerBackground = new SolidColorBrush(Colors.WhiteSmoke);
+        private static SolidColorBrush _aboutToExpireBackground = new SolidColorBrush(Colors.OrangeRed);
         public SolidColorBrush TimerBackground { get; set; } = _defaultTimerBackground;
         public double TimerValue
         {
@@ -85,10 +88,10 @@ namespace SWTORCombatParser.ViewModels.Timers
 
                 if (MaxTimerValue == 0 || TimerValue < 0 || TimerValue > MaxTimerValue)
                 {
-                    TimerDuration = new Duration(TimeSpan.FromSeconds(MaxTimerValue));
+                    TimerDuration = TimeSpan.FromSeconds(MaxTimerValue);
                 }
                 else
-                    TimerDuration = new Duration(TimeSpan.FromSeconds(timerValue));
+                    TimerDuration = TimeSpan.FromSeconds(timerValue);
                 OnPropertyChanged("TimerDuration");
                 if (SourceTimer.TriggerType != TimerKeyType.AbsorbShield) return;
                 OnPropertyChanged("CurrentRatio");
@@ -146,10 +149,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                         swtorTimer.IsAlert ? Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav") :
                         Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
                 }
-                Application.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
-                    _mediaPlayer = new MediaPlayer();
-                    _mediaPlayer.Open(new Uri(_audioPath, UriKind.RelativeOrAbsolute));
+                    _libvlc = new LibVLC();
+                    var media = new Media(_libvlc, new Uri(_audioPath, UriKind.RelativeOrAbsolute));
+                    _mediaPlayer = new MediaPlayer(media);
                 });
 
                 if (swtorTimer.AudioStartTime == 0)
@@ -189,7 +193,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             TimerValue = MaxTimerValue + offset;
 
             TimerRefreshed();
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 if (_mediaPlayer != null)
                 {
@@ -233,7 +237,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 if (SourceTimer.UseAudio)
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Invoke(() =>
                     {
                         _mediaPlayer.Play();
                     });
@@ -300,14 +304,14 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("TimerValue");
             if (SourceTimer.UseAudio && TimerValue <= _playAtTime)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     _mediaPlayer.Play();
                 });
             }
             if(SourceTimer.ChangeBackgroundNearExpiration && TimerValue <= 5 && !_isAboutToExpire)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     _isAboutToExpire = true;
                     TimerBackground = _aboutToExpireBackground;
@@ -316,7 +320,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             if (SourceTimer.ChangeBackgroundNearExpiration && TimerValue > 5 && _isAboutToExpire)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     _isAboutToExpire = false;
                     TimerBackground = _defaultTimerBackground;

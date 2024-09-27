@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.Utilities.Encounter_Selection
 {
@@ -73,7 +74,7 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
         private void SetAvailableEncounters()
         {
             var allEncounters = EncounterLister.SortedEncounterInfos;
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 if (!_populatedEncounters.Any())
                     AvailableEncounters = allEncounters.ToList();

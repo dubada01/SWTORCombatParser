@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
@@ -170,7 +171,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                     Duration = durations.Sum(),
                     Count = durations.Count()
                 }).OrderByDescending(effect => effect.Duration).ToList();
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 CombatEffects.Clear();
                 effectsList.ForEach(ef => CombatEffects.Add(ef));

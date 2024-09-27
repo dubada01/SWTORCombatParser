@@ -1,0 +1,82 @@
+﻿<Window x:Class="SWTORCombatParser.Views.SettingsView.SettingsWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.SettingsView"
+        mc:Ignorable="d"
+        Title="Settings Window" Height="400" Width="400" WindowStyle="None" Background="Transparent" AllowsTransparency="True" WindowStartupLocation="Manual">
+    <Border BorderBrush="{StaticResource GreenColorBrush}" BorderThickness="7,3,7,7"  Background="{StaticResource Gray3Brush}" CornerRadius="15,15,20,20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.ColumnSpan="2" Background="{StaticResource Gray9Brush}" PreviewMouseLeftButtonDown="DragWindow" CornerRadius="10,10,0,0">
+                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                    <Rectangle Margin="35,3,35,3" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                </StackPanel>
+            </Border>
+            <Button Width="20"  Height="20" HorizontalAlignment="Right"  VerticalAlignment="Top" Grid.Column="1" Margin="0,5,10,0" Style="{StaticResource RoundCornerButton}" Click="Cancel" Background="{StaticResource RedColorBrush}" Content="X" FontWeight="Bold"></Button>
+            <TextBlock Text="Settings" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="25"></TextBlock>
+            <StackPanel Margin="10,45,0,0" Grid.Row="1" Grid.Column="0" Orientation="Vertical">
+                <StackPanel Orientation="Horizontal" ToolTip="Operate offline. No leaderboard or raid HOT autodetection available" Margin="0,5,0,5">
+                    <CheckBox Name="OfflineMode" Margin="5,0,0,0"></CheckBox>
+                    <TextBlock Text="Offline Mode" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                    <CheckBox Name="ForceLogUpdates" Margin="5,0,0,0"></CheckBox>
+                    <TextBlock Text="Force Log Updates" ToolTip="Orbs no longer waits until the OS has alerted it of a file change. May impact performance" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                    <TextBlock VerticalAlignment="Center" Text="Combat Log Path: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <TextBox Name="LogPath" Height="30" Width="250" FontSize="12" FontWeight="Normal" Style="{StaticResource RoundedTextBox}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0,5,0,5">
+                    <TextBlock Text="Hotkeys" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
+                        <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="LockEnabled"></CheckBox>
+                        <TextBlock VerticalAlignment="Center" Text="Overlay Lock Toggle: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                        <TextBox Margin="11,0,0,0" x:Name="LockHotkey" HorizontalContentAlignment="Center" Tag="Lock" Height="30" Width="115" FontSize="12" FontWeight="Normal" Style="{StaticResource RoundedTextBox}" PreviewKeyDown="TextBox_PreviewKeyDown"/>
+                        
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
+                        <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="RefreshEnabled"></CheckBox>
+                        <TextBlock VerticalAlignment="Center" Text="Auto Raid HOT Detect: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                        <TextBox x:Name="RefreshHotkey" HorizontalContentAlignment="Center" Tag="Refresh" Height="30" Width="115" FontSize="12" FontWeight="Normal" Style="{StaticResource RoundedTextBox}" PreviewKeyDown="TextBox_PreviewKeyDown"/>
+                        
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
+                        <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="HideEnabled"></CheckBox>
+                        <TextBlock VerticalAlignment="Center" Text="Hide Overlays: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                        <TextBox Margin="43,0,0,0" x:Name="HideHotkey" HorizontalContentAlignment="Center" Tag="Hide" Height="30" Width="115" FontSize="12" FontWeight="Normal" Style="{StaticResource RoundedTextBox}" PreviewKeyDown="TextBox_PreviewKeyDown"/>
+                        
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" ToolTip="Orbs minimizes to the system tray and shows when SWTOR launches" Margin="0,20,0,5">
+                    <CheckBox Name="RunInBackground" Margin="5,0,0,0"></CheckBox>
+                    <TextBlock Text="Run in background" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" ToolTip="Orbs minimizes to the system tray and shows when SWTOR launches" Margin="0,5,0,5">
+                    <CheckBox Name="BackgroundWarning" Margin="5,0,0,0"></CheckBox>
+                    <TextBlock Text="Show background warning" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" ToolTip="View all startup messages even if you've cleared them" Margin="0,5,0,5">
+                    <TextBlock VerticalAlignment="Center" Text="Show Startup Messages" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <Button Name="ResetMessagesButton" Padding="5,3,5,3" Background="{StaticResource GreenColorBrush}" Foreground="PapayaWhip" FontSize="11" Style="{StaticResource RoundCornerButton}" Margin="5,0,0,0">View</Button>
+                </StackPanel>
+
+            </StackPanel>
+            <Button Grid.Row="1" Name="EmergencyUIReset" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="5,3,5,3" Background="{StaticResource RedColorBrush}" Foreground="PapayaWhip" FontSize="11" Style="{StaticResource RoundCornerButton}" Margin="0,0,10,10">Emergency UI Reset</Button>
+        </Grid>
+    </Border>
+</Window>

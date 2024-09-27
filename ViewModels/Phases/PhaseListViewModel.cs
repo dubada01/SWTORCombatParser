@@ -8,13 +8,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseListViewModel : INotifyPropertyChanged
+    public class PhaseListViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private string selectedTimerSource;
@@ -52,7 +54,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         }
 
         public ObservableCollection<PhaseRowViewModel> PhaseRows { get; private set; }
-        public ICommand AddPhaseCommand => new CommandHandler(CreateNewPhase);
+        public ReactiveCommand<object,Unit> AddPhaseCommand => ReactiveCommand.Create<object>(CreateNewPhase);
 
         private void CreateNewPhase(object obj)
         {
@@ -95,7 +97,7 @@ namespace SWTORCombatParser.ViewModels.Phases
 
             phaseObjects.ForEach(t => t.EditRequested += Edit);
             phaseObjects.ForEach(t => t.DeleteRequested += Delete);
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 PhaseRows = new ObservableCollection<PhaseRowViewModel>(phaseObjects);
                 OnPropertyChanged("PhaseRows");
@@ -137,11 +139,11 @@ namespace SWTORCombatParser.ViewModels.Phases
             {
                 if (i % 2 == 1)
                 {
-                    PhaseRows[i].RowBackground = Brushes.Gray;
+                    PhaseRows[i].RowBackground = new SolidColorBrush(Brushes.Gray.Color);
                 }
                 else
                 {
-                    PhaseRows[i].RowBackground = Brushes.Transparent;
+                    PhaseRows[i].RowBackground = new SolidColorBrush(Brushes.Transparent.Color);
                 }
             }
         }

@@ -8,9 +8,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
@@ -27,7 +28,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         CurrentTarget,
         Custom
     }
-    public class ModifyTimerViewModel : INotifyPropertyChanged
+    public class ModifyTimerViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private TimerKeyType selectedTriggerType;
         private bool isAlert;
@@ -65,7 +66,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public event PropertyChangedEventHandler PropertyChanged;
 
         public bool TimerNameInError;
-        public SolidColorBrush TimerNameHelpTextColor => TimerNameInError ? Brushes.Red : Brushes.LightGray;
+        public SolidColorBrush TimerNameHelpTextColor => TimerNameInError ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.LightGray);
         public string TriggerValueHelpText { get; set; }
 
         public bool ValueInError = false;
@@ -96,7 +97,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string selectedModifyVariable;
         private bool includeTimerVisuals = true;
 
-        public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
+        public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.LightGray);
         public bool IsMechanicTimer { get; set; }
         public string ParentTimerId { get; set; }
         public bool UseAudio
@@ -118,7 +119,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ICommand LoadAudioCommand => new CommandHandler(LoadAudio);
+        public ReactiveCommand<object,Unit> LoadAudioCommand => ReactiveCommand.Create<object>(LoadAudio);
 
         private void LoadAudio(object obj)
         {
@@ -294,7 +295,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 customSource = value;
             }
         }
-        public ICommand SaveSourceCommand => new CommandHandler(SaveSource);
+        public ReactiveCommand<object,Unit> SaveSourceCommand => ReactiveCommand.Create<object>(SaveSource);
 
         internal void SaveSource(object obj = null)
         {
@@ -378,7 +379,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public bool DisplayTargetToggle => HasTarget;
 
-        public ICommand SaveTargetCommand => new CommandHandler(SaveTarget);
+        public ReactiveCommand<object,Unit> SaveTargetCommand => ReactiveCommand.Create<object>(SaveTarget);
 
         internal void SaveTarget(object obj = null)
         {
@@ -429,7 +430,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ICommand SaveRefreshOptionCommand => new CommandHandler(SaveRefreshCommand);
+        public ReactiveCommand<object,Unit> SaveRefreshOptionCommand => ReactiveCommand.Create<object>(SaveRefreshCommand);
 
         private void SaveRefreshCommand(object obj)
         {
@@ -458,7 +459,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ICommand AddCustomVariableCommand => new CommandHandler(AddCustomVariable);
+        public ReactiveCommand<object,Unit> AddCustomVariableCommand => ReactiveCommand.Create<object>(AddCustomVariable);
 
         private void AddCustomVariable(object obj)
         {
@@ -659,7 +660,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 currentColorHex = value;
                 try
                 {
-                    var newColor = (Color)ColorConverter.ConvertFromString(currentColorHex);
+                    var newColor = Color.Parse(currentColorHex);
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }
@@ -669,7 +670,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
         public bool IsSubTrigger { get; set; }
-        public ICommand AddOrEditACommand => new CommandHandler(AddOrEditA);
+        public ReactiveCommand<object,Unit> AddOrEditACommand => ReactiveCommand.Create<object>(AddOrEditA);
 
         private void AddOrEditA(object obj)
         {
@@ -690,7 +691,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var window = new TimerModificationWindow(vm);
             window.Show();
         }
-        public ICommand AddOrEditBCommand => new CommandHandler(AddOrEditB);
+        public ReactiveCommand<object,Unit> AddOrEditBCommand => ReactiveCommand.Create<object>(AddOrEditB);
 
         private void AddOrEditB(object obj)
         {
@@ -990,7 +991,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnCancelEdit(_editedTimer);
         }
 
-        public ICommand SaveCommand => new CommandHandler(Save);
+        public ReactiveCommand<object,Unit> SaveCommand => ReactiveCommand.Create<object>(Save);
 
         private void Save(object obj)
         {

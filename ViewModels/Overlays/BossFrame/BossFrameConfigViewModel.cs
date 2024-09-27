@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -132,7 +133,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             View.Left = currentDefaults.Position.X;
             View.Top = currentDefaults.Position.Y;
             View.Width = currentDefaults.WidtHHeight.X;
-            View.MainArea.MinHeight = currentDefaults.WidtHHeight.Y;
+            View.MinHeight = currentDefaults.WidtHHeight.Y;
 
             bossFrameEnabled = currentDefaults.Acive;
             DotTrackingEnabled = currentDefaults.TrackDOTS;
@@ -204,7 +205,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 if (BossesDetected.All(b => b.CurrentBoss.LogId != boss.Entity.LogId) && boss.CurrentHP > 0)
                 {
                     bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
-                    App.Current.Dispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Invoke(() =>
                     {
                         BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled, isDuplicate, CurrentScale));
                         OnPropertyChanged("ShowFrame");
@@ -217,7 +218,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                         return;
                     if (boss.CurrentHP == 0 || (log.Effect.EffectId == _7_0LogParsing.DeathCombatId && log.Target.LogId == activeBoss.CurrentBoss.LogId))
                     {
-                        App.Current.Dispatcher.Invoke(() =>
+                        Dispatcher.UIThread.Invoke(() =>
                         {
                             BossesDetected.Remove(activeBoss);
                             OnPropertyChanged("ShowFrame");
@@ -246,7 +247,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
         private void HideFrames()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 BossesDetected.Clear();
                 OnPropertyChanged("ShowFrame");

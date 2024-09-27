@@ -1,7 +1,7 @@
 ﻿using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System.Collections.Generic;
-using System.Windows.Media;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.DataStructures
 {

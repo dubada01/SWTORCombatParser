@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.PvP.OpponentMapIcon"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.PvP"
+             mc:Ignorable="d" 
+             Height="30" Width="30">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.66*"/>
+            <RowDefinition Height="0.33*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Viewbox>
+                <Image Source="../../../resources/RoomOverlays/OpponentLocation.png" x:Name="Icon" RenderTransformOrigin="0.5,0.5"/>
+            </Viewbox>
+            <Viewbox>
+                <Image Source="../../../resources/RoomOverlays/SelectionAdornment.png" x:Name="SelectionAdornment" />
+            </Viewbox>
+            
+        </Grid>
+        <!-- <TextBlock Grid.Row="1" x:Name="PlayerName" Foreground="WhiteSmoke" FontSize="8" Text="Character Name" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" VerticalAlignment="Center"/> -->
+    </Grid>
+
+
+
+</UserControl>

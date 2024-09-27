@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -33,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public void SetScale(double scale)
         {
             _currentScale = scale;
-            App.Current.Dispatcher?.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 foreach (var timer in ActiveDOTS)
                 {
@@ -43,7 +44,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 ActiveDOTS.Remove(obj);
             });
@@ -56,7 +57,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 return;
             if (obj.TargetId == _bossInfo.Entity.Id && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer && obj.TimerValue > 0)
             {
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     obj.Scale = _currentScale;
                     ActiveDOTS.Add(obj);

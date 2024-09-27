@@ -14,8 +14,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Threading;
+using Avalonia.Controls;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
@@ -258,7 +258,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         public void Reset()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 _currentCombat = null;
                 _combatMetaDataViewModel.Reset();
@@ -293,7 +293,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 {
                     foreach (var key in pointSelected.Keys)
                         previousPointSelected[key] = pointSelected[key];
-                    Dispatcher.CurrentDispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Invoke(() =>
                     {
                         GraphView.Render();
                     });
@@ -378,7 +378,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             //need to be sure that xmax is greater that xmin
             GraphView.Plot.SetAxisLimits(xMin: 0, xMax: Math.Max(1, (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds));
             _combatMetaDataViewModel.PopulateEffectsFromCombat(combatToPlot);
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 GraphView.Refresh();
             });
@@ -439,7 +439,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 }
 
             }
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 GraphView.Refresh();
             });
@@ -513,7 +513,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                     GraphView.Plot.YAxis2.Label("");
                     GraphView.Plot.YAxis2.Ticks(false);
                 }
-                Dispatcher.CurrentDispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     GraphView.Plot.AxisAuto();
                     GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);

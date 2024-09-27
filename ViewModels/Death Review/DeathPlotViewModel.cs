@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using Avalonia.Threading;
 using Path = System.IO.Path;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
@@ -70,7 +71,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 GraphView.Plot.RenderUnlock();
                 GraphView.Plot.AxisAuto();
             }
-            App.Current.Dispatcher.Invoke(() => { GraphView.Refresh(); });
+            Dispatcher.UIThread.Invoke(() => { GraphView.Refresh(); });
         }
         public void MousePositionUpdated()
         {
@@ -167,7 +168,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             InitCrosshair(GraphView.Plot.GetAxisLimits(0).XMin);
             GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
             GraphView.Plot.SetAxisLimits(xMax: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
-            App.Current.Dispatcher.Invoke(GraphView.Refresh);
+            Dispatcher.UIThread.Invoke(GraphView.Refresh);
             XValueSelected(GraphView.Plot.GetAxisLimits(0).XMin);
         }
         private double GetXValClosestToMouse()

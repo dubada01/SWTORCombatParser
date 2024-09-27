@@ -5,6 +5,7 @@ using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Controls;
 using Avalonia.Media;
 
 namespace SWTORCombatParser.ViewModels.DataGrid

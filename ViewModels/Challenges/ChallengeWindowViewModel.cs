@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
@@ -58,7 +59,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
             isEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
             _challengeWindow = new ChallengeWindow(this);
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Challenge"); ;
                 _challengeWindow.Top = defaultTimersInfo.Position.Y;
@@ -70,7 +71,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         private void CheckForConversation(ParsedLogEntry entry)
         {
-            App.Current.Dispatcher.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() => {
                 if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Apply && entry.Source.IsLocalPlayer)
                 {
                     _challengeWindow.Hide();
@@ -144,7 +145,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 active = value;
                 if (!active)
                 {
-                    App.Current.Dispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Invoke(() =>
                     {
                         _challengeWindow.Hide();
                     });
@@ -152,7 +153,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 else
                 {
 
-                    App.Current.Dispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Invoke(() =>
                     {
                         _challengeWindow.Show();
                     });
@@ -186,7 +187,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         internal void SetScale(double sizeScalar)
         {
             _challengeUpdater.UpdateScale(sizeScalar);
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 foreach (var challenge in ActiveChallengeInstances)
                 {

@@ -24,6 +24,7 @@ using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Avalonia.Threading;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
 namespace SWTORCombatParser.ViewModels.Overlays
@@ -155,6 +156,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             DefaultGlobalOverlays.Init();
             DefaultPersonalOverlaysManager.Init();
             DefaultChallengeManager.Init();
+            //TODO DELETE THIS ONCE AVALONIA IS EMBEDDED
+            AvaloniaTimelineBuilder.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
@@ -339,7 +342,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateOverlays()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 if (_overlayDefaults.Count == 0)
                     return;

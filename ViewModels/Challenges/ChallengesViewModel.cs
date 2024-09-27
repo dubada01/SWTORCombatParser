@@ -15,6 +15,7 @@ using System.Reactive;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
@@ -179,7 +180,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             timerObjects.ForEach(t => t.DeleteRequested += Delete);
             timerObjects.ForEach(t => t.ShareRequested += Share);
             timerObjects.ForEach(t => t.ActiveChanged += ActiveChanged);
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 ChallengeRows = new ObservableCollection<ChallengeRowViewModel>(timerObjects);
                 UpdateRowColors();

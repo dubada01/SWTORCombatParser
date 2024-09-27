@@ -1,0 +1,130 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views"
+        mc:Ignorable="d"
+        x:Class="SWTORCombatParser.Views.MainWindow"
+        Title="{Binding Title}" MinWidth="500" Height="1080" Width="1920"
+        Closing="Window_Closing"
+        PointerExited="Window_PointerLeave"
+        CanResize="True">
+
+    <Grid Background="{StaticResource Gray2Brush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="175"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="0.3*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.95*"/>
+            <RowDefinition Height="1.5"/>
+            <RowDefinition Height="0.045*" MinHeight="25" MaxHeight="40"/>
+        </Grid.RowDefinitions>
+
+        <!-- PhasesBar Content -->
+        <ContentPresenter Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding PhasesBar}"/>
+
+        <!-- TabControl -->
+        <TabControl SelectedIndex="{Binding SelectedTabIndex}" 
+                    Items="{Binding ContentTabs}" 
+                    BorderThickness="3,2,3,2" 
+                    Margin="0,5,5,5" 
+                    BorderBrush="DimGray" 
+                    Background="{StaticResource Gray5Brush}" 
+                    Grid.RowSpan="{Binding ActiveRowSpan}" 
+                    Grid.Column="1" 
+                    Grid.ColumnSpan="2">
+            <TabControl.Styles>
+                <Style Selector="TabControl">
+                    <Setter Property="Template">
+                        <ControlTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border BorderThickness="0,0,1,1" CornerRadius="0,5,5,5" BorderBrush="#D0CEBF" Grid.Row="1">
+                                    <Border CornerRadius="0,5,5,5" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+                                        <Border CornerRadius="0,5,5,5" Background="{TemplateBinding Background}">
+                                            <ContentPresenter Content="{TemplateBinding SelectedContent}"/>
+                                        </Border>
+                                    </Border>
+                                </Border>
+                                <TabStrip Grid.Row="0"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter>
+                </Style>
+            </TabControl.Styles>
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.85*"/>
+                            <ColumnDefinition Width="0.85*"/>
+                            <ColumnDefinition Width="0.15*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image IsVisible="{Binding IsOverlaysTab, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=inverted}" 
+                               Margin="0,1,2,1" Height="18" Source="{Binding TabIcon}" Grid.Column="0"/>
+                        <TextBlock Grid.Column="1" FontSize="11" VerticalAlignment="Center" 
+                                   Foreground="WhiteSmoke" 
+                                   Text="{Binding HeaderText}"/>
+                        <Button Grid.Column="2" Height="17" Width="17" Background="{StaticResource Gray10Brush}" 
+                                Command="{Binding ToggleLockedCommand}" 
+                                IsVisible="{Binding IsOverlaysTab, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Image Source="{Binding OverlayLockIcon}"/>
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <ContentPresenter Content="{Binding TabContent}"/>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+
+        <!-- Settings Button -->
+        <Button Margin="0,5,8,0"
+                Command="{Binding OpenSettingsWindowCommand}" 
+                ToolTip.Tip="Open app settings window" 
+                VerticalAlignment="Top" 
+                HorizontalAlignment="Right" 
+                Height="25" 
+                Width="70" 
+                Grid.Column="2" 
+                Background="{StaticResource Gray3Brush}">
+            <StackPanel Orientation="Horizontal">
+                <Image Source="../resources/setting.png" Margin="0,2,2,1"/>
+                <TextBlock VerticalAlignment="Center" FontSize="11" Text="Settings" Foreground="WhiteSmoke"/>
+            </StackPanel>
+        </Button>
+
+        <!-- PastCombatsView -->
+        <ContentPresenter Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
+
+        <!-- Rectangle Separator -->
+        <Rectangle Grid.Row="1" Fill="DimGray" Margin="15,0,15,0"/>
+
+        <!-- Bottom Buttons -->
+        <StackPanel HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Orientation="Horizontal">
+            <TextBlock VerticalAlignment="Center" Foreground="{StaticResource Gray10Brush}" Text="Parsely" Margin="0,0,5,0"/>
+            <Button VerticalAlignment="Center" Margin="5,2,5,2" Width="30" Command="{Binding OpenParselyConfigCommand}">
+                <Viewbox MaxHeight="20">
+                    <Image Source="/resources/cogIcon.png"/>
+                </Viewbox>
+            </Button>
+            <Button VerticalAlignment="Center" Margin="5,2,5,2" Width="30" Command="{Binding UploadToParselyCommand}">
+                <Viewbox MaxHeight="20">
+                    <Image Source="/resources/uploadToParselyIcon.png"/>
+                </Viewbox>
+            </Button>
+            <Button VerticalAlignment="Center" Margin="5,2,5,2" Width="30" Background="WhiteSmoke" Command="{Binding OpenParselyCommand}">
+                <Viewbox MaxHeight="20">
+                    <Image Source="/resources/openParselyIcon.png"/>
+                </Viewbox>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>
