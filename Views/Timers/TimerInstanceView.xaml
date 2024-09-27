@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Timers.TimerInstanceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="0,2,0,2" Height="{Binding BarHeight}" Visibility="{Binding DisplayTimer, Converter={StaticResource BooleanToVisibiityConverter}}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="70"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+            <Border Visibility="{Binding SourceTimer.TriggerType, Converter={StaticResource AbsorbTimerBarVisibilityConverter}, ConverterParameter=inverted}" Background="{StaticResource Gray4Brush}" CornerRadius="3" BorderThickness="0.75" BorderBrush="{StaticResource Gray9Brush}">
+                <Border x:Name="TimerBar"  FlowDirection="RightToLeft"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0.5" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
+                    <Border.RenderTransform>
+                        <ScaleTransform x:Name="BarScale" ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
+                    </Border.RenderTransform>
+                    <Border.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="BarScale" Storyboard.TargetProperty="ScaleX" From="{Binding CurrentRatio}" To="0" Duration="{Binding TimerDuration}"></DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Border.Triggers>
+                </Border>
+            </Border>
+
+            <Border x:Name="AbsorbBar" Visibility="{Binding SourceTimer.TriggerType, Converter={StaticResource AbsorbTimerBarVisibilityConverter}}" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
+                <Border.RenderTransform>
+                    <ScaleTransform ScaleX="{Binding CurrentRatio, UpdateSourceTrigger=PropertyChanged}" ScaleY="1"></ScaleTransform>
+                </Border.RenderTransform>
+            </Border>
+        </Grid>
+        <Viewbox Margin="0,0,10,0" Grid.Column="1" MaxHeight="20" HorizontalAlignment="Right">
+            <TextBlock x:Name="ValueText"  FontSize="18" Visibility="{Binding DisplayTimerValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TimerValue, StringFormat=N1}"></TextBlock>
+        </Viewbox>
+
+        <Viewbox MaxHeight="23" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,4">
+            <Grid>
+                <TextBlock x:Name="NameText" Margin="0,5,0,0" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding TimerName}" ></TextBlock>
+            </Grid>
+        </Viewbox>
+
+    </Grid>
+</UserControl>

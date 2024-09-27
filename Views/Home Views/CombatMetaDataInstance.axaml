@@ -1,5 +1,9 @@
 ﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.CombatMetaDataInstance"
+<<<<<<<< HEAD:Views/Home Views/CombatMetaDataInstance.axaml
              xmlns="https://github.com/avaloniaui"
+========
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+>>>>>>>> 5ffc81ae8b2f31feac59b81b5c06e227eb05aa9b:Views/Home Views/CombatMetaDataInstance.xaml
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 

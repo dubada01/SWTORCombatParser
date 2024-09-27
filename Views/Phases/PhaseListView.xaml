@@ -1,0 +1,86 @@
+﻿<Window x:Class="SWTORCombatParser.Views.Phases.PhaseListView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Phases"
+        mc:Ignorable="d"
+        Title="Phase Setup" Height="450" Width="400" Background="{StaticResource Gray5Brush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="0.7*"/>
+            <RowDefinition Height="0.15*"/>
+        </Grid.RowDefinitions>
+
+        <ContentPresenter Grid.ColumnSpan="2" Content="{Binding EncounterSelectionView}" Grid.Row="0" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5"></ContentPresenter>
+
+        <Border Grid.ColumnSpan="2" BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="Transparent">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.Background>
+                        <LinearGradientBrush StartPoint="0,0"
+                                 EndPoint="0,1">
+                            <GradientStop Color="DimGray"
+            Offset="0" />
+                            <GradientStop Color="Gray"
+            Offset="1" />
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.1*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="0.075*"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
+                        <ColumnDefinition Width="1"/>
+                        <ColumnDefinition Width="0.085*"/>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Fill="DimGray" Grid.Column="1" Margin="0,2,0,2"></Rectangle>
+                    <Rectangle Fill="DimGray" Grid.Column="3" Margin="0,2,0,2"></Rectangle>
+                    <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold"  FontSize="13" VerticalAlignment="Center" Text="Name" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Type" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                </Grid>
+                <ScrollViewer Grid.Row="1">
+                    <ItemsControl  ItemsSource="{Binding PhaseRows, UpdateSourceTrigger=PropertyChanged}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Grid.Row="0" Background="{Binding RowBackground}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.1*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.075*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.025*" MinWidth="30"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="0.077*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Rectangle Fill="DimGray" Grid.Column="1" ></Rectangle>
+                                    <Rectangle Fill="DimGray" Grid.Column="3" ></Rectangle>
+                                    <TextBlock Margin="5,0,0,0" Grid.Column="0" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="14" VerticalAlignment="Center" Text="{Binding Name}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Margin="5,0,0,0" Grid.Column="2" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding Type}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                    <Button ToolTip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="6" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
+                                        <Image Height="20" Source="../../resources/editIcon.png"/>
+                                    </Button>
+                                    <Button  Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="8" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3" Grid.ColumnSpan="2">
+            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Style="{StaticResource RoundCornerButton}" Height="40" Width="100" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" Content="Add Phase" Command="{Binding AddPhaseCommand}"></Button>
+        </Grid>
+    </Grid>
+</Window>

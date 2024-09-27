@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.PvP.PvpOverlaySetup"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.PvP"
+             mc:Ignorable="d"
+             d:DesignHeight="200" d:DesignWidth="800">
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <!--<RowDefinition/>-->
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Viewbox MaxHeight="35">
+                <TextBlock Foreground="{StaticResource ParticipantHPSBrush}" FontFamily="{StaticResource MainFont}" Text="PvP"/>
+            </Viewbox>
+            <Viewbox MaxHeight="40" Grid.Row="1">
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Foreground="WhiteSmoke" Text= "Opponent HP" FontFamily="{StaticResource MainFont}"/>
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding OpponentHPEnabled}"></CheckBox>
+                </StackPanel>
+            </Viewbox>
+            <!--<Viewbox MaxHeight="40" Grid.Row="2">
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Foreground="WhiteSmoke" Text="Group Metrics" FontFamily="{StaticResource MainFont}"/>
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding GroupMetricsEnabled}"></CheckBox>
+                </StackPanel>
+            </Viewbox>-->
+            <Viewbox MaxHeight="40" Grid.Row="3">
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Foreground="WhiteSmoke" HorizontalAlignment="Center" Text="Mini Map"  FontFamily="{StaticResource MainFont}"/>
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding MiniMapEnabled}"></CheckBox>
+                </StackPanel>
+            </Viewbox>
+        </Grid>
+    </Grid>
+</UserControl>

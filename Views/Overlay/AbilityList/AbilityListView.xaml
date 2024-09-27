@@ -1,0 +1,46 @@
+﻿<Window x:Class="SWTORCombatParser.Views.Overlay.AbilityList.AbilityListView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.AbilityList"
+        mc:Ignorable="d"
+        Title="AbilityListView" Height="150" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave">
+    <Grid MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
+        <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
+         Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
+        </Border>
+
+        <Viewbox Margin="10,10,10,10" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
+            <TextBlock Text="Ability List" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock>
+        </Viewbox>
+        <Grid IsHitTestVisible="{Binding OverlaysMoveable}" PreviewMouseLeftButtonDown="DragWindow">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" MouseLeftButtonDown="DragWindow" Margin="5,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                <Grid>
+                    <ItemsControl Grid.Column="2" ItemsSource="{Binding AbilityInfoList, UpdateSourceTrigger=PropertyChanged}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:AbilityListInstance Margin="{Binding Path=DataContext.BarMargin, RelativeSource={RelativeSource FindAncestor, AncestorType=ItemsControl}}" Height="{Binding Path=DataContext.BarHeight, RelativeSource={RelativeSource FindAncestor, AncestorType=ItemsControl}}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </Grid>
+
+            </ScrollViewer>
+
+
+        </Grid>
+        <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
+            <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
+                  Width="15" Height="15" Padding="0" Click="Button_Click"/>
+        </Viewbox>
+        <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
+       MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
+
+    </Grid>
+</Window>
