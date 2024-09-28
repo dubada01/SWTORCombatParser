@@ -100,19 +100,13 @@ public static class AvaloniaTimelineBuilder
             if (value)
             {
                 DefaultGlobalOverlays.SetActive("TimelineOverlay", true);
-                if(CombatMonitorViewModel.IsLiveParseActive())
-                    HistoricalLogsParsed(DateTime.Now, false);
-                else
-                {
-                    if(CombatIdentifier.CurrentCombat!=null)
-                        ShowTimelineNonLive(CombatIdentifier.CurrentCombat);
-                }
-
                 if (_unlocked)
                 {                    
                     _timelineWindow.Show();
                     _timelineWindowViewModel.SetClickThrough(false);
                 }
+                if (_inBossInstance)
+                    _timelineWindow.Show();
             }
             else
             {
@@ -154,7 +148,7 @@ public static class AvaloniaTimelineBuilder
     }
     private static void ShowTimelineNonLive(Combat selectedCombat)
     {
-        if(CombatMonitorViewModel.IsLiveParseActive())
+        if(CombatMonitorViewModel.IsLiveParseActive() || !TimelineEnabled)
             return;
         var encounter = selectedCombat.ParentEncounter;
         if (encounter.IsBossEncounter)
@@ -166,9 +160,14 @@ public static class AvaloniaTimelineBuilder
 
             _currentEncounter = encounter;
             BuildTimelineFromEncounter(false);
-            _timelineWindowViewModel.BossKilled(selectedCombat.EncounterBossDifficultyParts.Item1,
+            if(selectedCombat.WasBossKilled)
+                _timelineWindowViewModel.BossKilled(selectedCombat.EncounterBossDifficultyParts.Item1,
                 (selectedCombat.StartTime - _lastEncounterStartTime),
                 (selectedCombat.EndTime - _lastEncounterStartTime));
+            else
+                _timelineWindowViewModel.AddBossWipe(selectedCombat.EncounterBossDifficultyParts.Item1,
+                    (selectedCombat.StartTime - _lastEncounterStartTime),
+                    (selectedCombat.EndTime - _lastEncounterStartTime));
 
         }
         else
@@ -226,9 +225,10 @@ public static class AvaloniaTimelineBuilder
     {
         Dispatcher.UIThread.Invoke(() =>
         {        
-            _timelineWindowViewModel.ConfigureTimeline(maxDuration,previousKills,_currentEncounter.Name);
-            _timelineWindow.Show();
-            Debug.WriteLine("Timeline shown!!");
+            _timelineWindowViewModel.ConfigureTimeline(maxDuration,previousKills,_currentEncounter.Name, _currentEncounter.Difficutly, _currentEncounter.NumberOfPlayer);
+            if(TimelineEnabled)
+                _timelineWindow.Show();
+
             if (showLive)
                 StartEncounterTask();
         });

@@ -282,7 +282,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 using (HttpClient connection = new HttpClient())
                 {
-                    Uri uri = new Uri($"{_apiPath}/trial_leaderboard/getEntriesForBoss?bossfightName={HttpUtility.UrlEncode(bossName)}&encounter={HttpUtility.UrlEncode(encounterName)}&difficulty={HttpUtility.UrlEncode(difficulty)}&playerCount={HttpUtility.UrlEncode(playerCount)}");
+                    Uri uri = new Uri($"{_apiPath}/trial_leaderboard/getEntriesForBossFull?bossfightName={HttpUtility.UrlEncode(bossName)}&encounter={HttpUtility.UrlEncode(encounterName)}&difficulty={HttpUtility.UrlEncode(difficulty)}&playerCount={HttpUtility.UrlEncode(playerCount)}");
                     var response = await connection.GetAsync(uri);
                     var body = await response.Content.ReadFromJsonAsync<List<TimeTrialLeaderboardEntry>>();
                     return body;
