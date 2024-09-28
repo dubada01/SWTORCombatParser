@@ -4,9 +4,13 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Update;
 using System;
 using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 
 namespace SWTORCombatParser.Views.SettingsView
 {
@@ -15,6 +19,9 @@ namespace SWTORCombatParser.Views.SettingsView
     /// </summary>
     public partial class SettingsWindow : Window
     {
+        private bool _isDragging;
+        private Point _startPoint;
+
         public SettingsWindow()
         {
             InitializeComponent();
@@ -59,15 +66,15 @@ namespace SWTORCombatParser.Views.SettingsView
                 var updateWindowViewModel = new FeatureUpdatesViewModel(newMessages);
                 updateWindowViewModel.OnEmpty += updateWindow.Close;
                 updateWindow.DataContext = updateWindowViewModel;
-                updateWindow.Owner = this;
                 updateWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                updateWindow.ShowDialog();
+                await updateWindow.ShowDialog(this);
             }
         }
-        private void ShowEmergencyDialog(object sender, RoutedEventArgs e)
+        private async void ShowEmergencyDialog(object? sender, RoutedEventArgs e)
         {
-            var warning = System.Windows.MessageBox.Show("This will completely reset all your overlay positions for all roles.\r\nIf so, click yes and restart Orbs","Are you sure?", MessageBoxButton.YesNo);
-            if(warning != MessageBoxResult.Yes)
+            var warning = MessageBoxManager.GetMessageBoxStandard("This will completely reset all your overlay positions for all roles.\r\nIf so, click yes and restart Orbs","Are you sure?",ButtonEnum.YesNo);
+            var result = await warning.ShowWindowDialogAsync(this);
+            if(result != ButtonResult.No)
             {
                 return;
             }
@@ -133,9 +140,32 @@ namespace SWTORCombatParser.Views.SettingsView
             Close();
         }
 
-        public void DragWindow(object sender, MouseButtonEventArgs args)
+        public void StartDrag(object sender, PointerPressedEventArgs args)
         {
-            DragMove();
+            _isDragging = true;
+            _startPoint = args.GetPosition(this);
+        }
+        public void DragWindow(object sender, PointerEventArgs args)
+        {
+            if (_isDragging)
+            {
+                // Get the current scaling factor to adjust the movement correctly
+                var scalingFactor = this.VisualRoot.RenderScaling;
+
+                var currentPosition = args.GetPosition(this);
+                var delta = (currentPosition - _startPoint) / scalingFactor;  // Adjust for DPI scaling
+
+                // Move the window (or element) by the delta
+                var currentPositionInScreen = this.Position;
+                this.Position = new PixelPoint(
+                    currentPositionInScreen.X + (int)delta.X,
+                    currentPositionInScreen.Y + (int)delta.Y
+                );
+            }
+        }
+        public void StopDrag(object sender, RoutedEventArgs args)
+        {
+            _isDragging = false;
         }
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
@@ -149,7 +179,7 @@ namespace SWTORCombatParser.Views.SettingsView
             int mod1 = 0, mod2 = 0, keyStroke = 0;
 
             // Check for Ctrl modifier
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
             {
                 if (mod1 == 0)
                     mod1 = 2; // Representing Ctrl
@@ -158,7 +188,7 @@ namespace SWTORCombatParser.Views.SettingsView
             }
 
             // Check for Shift modifier
-            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
                 if (mod1 == 0)
                     mod1 = 4; // Representing Shift
@@ -167,7 +197,7 @@ namespace SWTORCombatParser.Views.SettingsView
             }
 
             // Check for Alt modifier
-            if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Alt))
             {
                 if (mod1 == 0)
                     mod1 = 1; // Representing Alt
@@ -175,20 +205,15 @@ namespace SWTORCombatParser.Views.SettingsView
                     mod2 = 1; // Representing Alt
             }
 
-            // Capture the key stroke if it's not a modifier
+            // Capture the key stroke if it's not a modifier key
             if (e.Key != Key.LeftCtrl && e.Key != Key.RightCtrl &&
                 e.Key != Key.LeftShift && e.Key != Key.RightShift &&
                 e.Key != Key.LeftAlt && e.Key != Key.RightAlt)
             {
-                keyStroke = KeyInterop.VirtualKeyFromKey(e.Key);
+                keyStroke = (int)e.Key;
             }
 
-            // TODO: Store these values in your settings
-            // Example: Update your configuration here based on which TextBox sent the event
-            // You might identify the TextBox by Name or Tag and then update the corresponding hotkey settings
-
-            // For demonstration: Just displaying the captured keys
-            //MessageBox.Show($"Modifiers: {mod1} {mod2}, KeyStroke: {keyStroke}");
+            // Save settings or update display as needed
             SaveSetting(textBox, mod1, mod2, keyStroke);
             UpdateTextBoxDisplay(textBox, mod1, mod2, keyStroke);
         }
@@ -248,14 +273,23 @@ namespace SWTORCombatParser.Views.SettingsView
 
         private string KeyToString(int keyCode)
         {
-            // This converts the keyCode to a Key enum and then to a string
-            // You might want to handle specific cases or provide more user-friendly names
-            var key = KeyInterop.KeyFromVirtualKey(keyCode);
+            // Convert the keyCode to an Avalonia Key enum
+            var key = (Key)keyCode;
 
-            // Special handling for certain keys can go here, if necessary
-            // For example, converting Key.OemPlus to "+"
-
-            return key.ToString();
+            // Special handling for specific keys can go here
+            // For example, converting Key.OemPlus to "+" or other special keys
+            switch (key)
+            {
+                case Key.OemPlus:
+                    return "+";
+                case Key.OemMinus:
+                    return "-";
+                case Key.Space:
+                    return "Space";
+                // Add more cases as necessary for specific key conversions
+                default:
+                    return key.ToString(); // Fallback to the default string representation of the key
+            }
         }
 
     }

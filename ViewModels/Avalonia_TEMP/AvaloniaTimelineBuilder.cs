@@ -43,7 +43,7 @@ public static class AvaloniaTimelineBuilder
         _timelineWindow = new TimelineWindow(_timelineWindowViewModel);
         _timelineWindow.OnStateChanged += (position,size)=>
         {
-            DefaultGlobalOverlays.SetDefault("TimelineOverlay", new System.Windows.Point() { X = position.X, Y = position.Y }, new System.Windows.Point() { X = size.X, Y = size.Y });
+            DefaultGlobalOverlays.SetDefault("TimelineOverlay", new Point(position.X,position.Y), new Point(size.X,size.Y));
         };
         _timelineWindow.OnHideWindow += UserDisabled;
 
@@ -226,7 +226,7 @@ public static class AvaloniaTimelineBuilder
     {
         Dispatcher.UIThread.Invoke(() =>
         {        
-            _timelineWindowViewModel.ConfigureTimeline(maxDuration,previousKills,_currentEncounter.Name);
+            _timelineWindowViewModel.ConfigureTimeline(maxDuration,previousKills,_currentEncounter.Name, _currentEncounter.Difficutly, _currentEncounter.NumberOfPlayer);
             _timelineWindow.Show();
             Debug.WriteLine("Timeline shown!!");
             if (showLive)

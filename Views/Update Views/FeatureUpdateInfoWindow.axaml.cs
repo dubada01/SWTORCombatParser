@@ -1,6 +1,4 @@
-﻿
-
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 
 namespace SWTORCombatParser.Views

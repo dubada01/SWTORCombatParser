@@ -65,17 +65,16 @@ namespace SWTORCombatParser.Views
                 var updateWindowViewModel = new FeatureUpdatesViewModel(newMessages);
                 updateWindowViewModel.OnEmpty += updateWindow.Close;
                 updateWindow.DataContext = updateWindowViewModel;
-                updateWindow.Owner = this;
                 updateWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                updateWindow.ShowDialog();
+                updateWindow.ShowDialog(this);
             }
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             // Unregister the hotkey when the window is closed to clean up
-            HotkeyHandler.UnregHotKet(1);
-            HotkeyHandler.UnregHotKet(2);
+            HotkeyHandler.UnregHotKey(1);
+            HotkeyHandler.UnregHotKey(2);
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -107,13 +106,11 @@ namespace SWTORCombatParser.Views
                 return;
             HeaderSelectionState.UpdateSelectedHeader(tabInstance.HeaderText);
         }
-
-        protected override void OnSourceInitialized(EventArgs e)
+        protected override void OnOpened(EventArgs e)
         {
-            base.OnSourceInitialized(e);
-            HotkeyHandler.Init(new WindowInteropHelper(this).Handle);
+            base.OnOpened(e);
+            HotkeyHandler.Init();
         }
-
 
         private void Window_PointerLeave(object sender, PointerEventArgs e)
         {

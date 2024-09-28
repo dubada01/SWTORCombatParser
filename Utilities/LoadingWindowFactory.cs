@@ -66,8 +66,7 @@ namespace SWTORCombatParser.Utilities
                 (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
 
                 var warning = new BackgroundMonitoringWarning();
-                warning.Top = center.Item2 - 100;
-                warning.Left = center.Item1 - 300;
+                warning.Position = new PixelPoint((int)center.Item1 - 300, (int)center.Item2 - 100);
                 warning.Show();
             });
         }

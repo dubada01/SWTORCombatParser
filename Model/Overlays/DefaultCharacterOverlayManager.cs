@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
+using Avalonia;
 
 namespace SWTORCombatParser.Model.Overlays
 {
@@ -136,7 +136,7 @@ namespace SWTORCombatParser.Model.Overlays
                 foreach (var overlayType in enumVals)
                 {
                     if (!defaultsForToon.ContainsKey(overlayType.ToString()))
-                        defaultsForToon[overlayType.ToString()] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 300 } };
+                        defaultsForToon[overlayType.ToString()] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point(250,300) };
                 }
                 return defaultsForToon;
             }
@@ -176,12 +176,12 @@ namespace SWTORCombatParser.Model.Overlays
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var overlayType in enumVals)
                 {
-                    defaults[overlayType.ToString()] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                    defaults[overlayType.ToString()] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point(250,100) };
                 }
             }
             else
             {
-                defaults["Alerts"] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                defaults["Alerts"] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point(250,100) };
             }
             currentDefaults[characterName] = defaults;
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));

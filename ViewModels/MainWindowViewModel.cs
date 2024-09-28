@@ -34,19 +34,22 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
+using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class MainWindowViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private readonly PlotViewModel _plotViewModel;
         private readonly BattleReviewViewModel _reviewViewModel;
@@ -60,7 +63,7 @@ namespace SWTORCombatParser.ViewModels
         private Entity localEntity;
         private string parselyLink;
         private bool canOpenParsely;
-        private SolidColorBrush uploadButtonBackground = Brushes.WhiteSmoke;
+        private SolidColorBrush uploadButtonBackground = new SolidColorBrush(Colors.WhiteSmoke);
 
         private readonly Dictionary<Guid, HistoricalCombatViewModel> _activeHistoricalCombatOverviews = new Dictionary<Guid, HistoricalCombatViewModel>();
         private int selectedTabIndex;
@@ -211,22 +214,26 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged();
             }
         }
-        public ICommand OpenSettingsWindowCommand => new CommandHandler(OpenSettingsWindow);
+        public ReactiveCommand<Unit,Unit> OpenSettingsWindowCommand => ReactiveCommand.Create(OpenSettingsWindow);
 
-        private void OpenSettingsWindow(object obj)
+        private void OpenSettingsWindow()
         {
             HotkeyHandler.UnregAll();
             var settingsWindow = new SettingsWindow();
-            settingsWindow.Owner = App.Current.MainWindow;
+            //settingsWindow.Owner = App.Current.MainWindow;
             settingsWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             settingsWindow.Closing += (e,s) => 
             {
                 HotkeyHandler.UpdateKeys();
             };
-            settingsWindow.ShowDialog();
+            // Check if we're using the ClassicDesktop style and retrieve the handle
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                settingsWindow.ShowDialog(desktop.MainWindow);
+            }
         }
 
-        public ICommand OpenParselyCommand => new CommandHandler(OpenParsely);
+        public ReactiveCommand<Unit,Unit> OpenParselyCommand => ReactiveCommand.Create(OpenParsely);
 
 
         public bool CanOpenParsely
@@ -237,11 +244,11 @@ namespace SWTORCombatParser.ViewModels
                 OnPropertyChanged();
             }
         }
-        private void OpenParsely(object obj)
+        private void OpenParsely()
         {
             Process.Start(new ProcessStartInfo(parselyLink) { UseShellExecute = true });
         }
-        public ICommand OpenParselyConfigCommand => new DelegateCommand(OpenParselyConfig);
+        public ReactiveCommand<Unit,Unit> OpenParselyConfigCommand => ReactiveCommand.Create(OpenParselyConfig);
 
         private void OpenParselyConfig()
         {
@@ -249,7 +256,7 @@ namespace SWTORCombatParser.ViewModels
             parselySettingsWindow.ShowDialog();
         }
 
-        public ICommand UploadToParselyCommand => new CommandHandler(UploadToParsely);
+        public ReactiveCommand<Unit,Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
 
         public HotkeyHandler HotkeyHandler { get; internal set; }
 
@@ -257,26 +264,26 @@ namespace SWTORCombatParser.ViewModels
         {
             if (status)
             {
-                UploadButtonBackground = Brushes.MediumSeaGreen;
+                UploadButtonBackground = new SolidColorBrush(Colors.MediumSeaGreen);
                 parselyLink = link;
                 CanOpenParsely = true;
             }
             else
             {
-                UploadButtonBackground = Brushes.Salmon;
+                UploadButtonBackground = new SolidColorBrush(Colors.Salmon);
                 CanOpenParsely = false;
             }
             Task.Run(() =>
             {
                 Thread.Sleep(2000);
-                UploadButtonBackground = Brushes.WhiteSmoke;
+                UploadButtonBackground = new SolidColorBrush(Colors.WhiteSmoke);
             });
         }
         private void HandleParselyUploadStart()
         {
-            UploadButtonBackground = Brushes.CornflowerBlue;
+            UploadButtonBackground = new SolidColorBrush(Colors.CornflowerBlue);
         }
-        private void UploadToParsely(object obj)
+        private void UploadToParsely()
         {
             ParselyUploader.UploadCurrentCombat(_combatMonitorViewModel.GetActiveFile());            
         }
@@ -312,7 +319,7 @@ namespace SWTORCombatParser.ViewModels
         {
             if (combats.Count == 0)
                 return;
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 var historyGuid = Guid.NewGuid();
                 var historyView = new HistoricalCombatView();
@@ -335,7 +342,7 @@ namespace SWTORCombatParser.ViewModels
         private void MonitoringStarted(bool state)
         {
             if (state)
-                Application.Current.Dispatcher.Invoke(delegate
+                Dispatcher.UIThread.Invoke(delegate
                 {
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
@@ -364,7 +371,7 @@ namespace SWTORCombatParser.ViewModels
             CurrentlyDisplayedCombat = updatedCombat;
             if (LoadingWindowFactory.MainWindowHidden)
                 return;
-            Application.Current.Dispatcher.Invoke(delegate
+            Dispatcher.UIThread.Invoke(delegate
             {
                 _overlayViewModel.CombatUpdated(updatedCombat);
                 switch (HeaderSelectionState.CurrentlySelectedTabHeader)
@@ -395,7 +402,7 @@ namespace SWTORCombatParser.ViewModels
         private void UpdateViewsWithSelectedCombat(Combat selectedCombat)
         {
 
-            Application.Current.Dispatcher.Invoke(delegate
+            Dispatcher.UIThread.Invoke(delegate
             {
                 CurrentlyDisplayedCombat = selectedCombat;
                 _overlayViewModel.CombatSeleted(selectedCombat);
@@ -414,7 +421,7 @@ namespace SWTORCombatParser.ViewModels
         {
             if (localEntity == obj)
                 return;
-            Application.Current.Dispatcher.Invoke(delegate
+            Dispatcher.UIThread.Invoke(delegate
             {
                 if (localEntity != obj)
                 {

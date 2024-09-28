@@ -3,10 +3,7 @@ using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Interop;
+using Avalonia.Controls;
 
 namespace SWTORCombatParser.Views.Timers
 {

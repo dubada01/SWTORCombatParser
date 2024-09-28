@@ -4,6 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views"
         mc:Ignorable="d"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels"
+        x:DataType="vm:MainWindowViewModel"
         x:Class="SWTORCombatParser.Views.MainWindow"
         Title="{Binding Title}" MinWidth="500" Height="1080" Width="1920"
         Closing="Window_Closing"

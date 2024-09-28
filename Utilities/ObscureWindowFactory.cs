@@ -1,5 +1,6 @@
-﻿using SWTORCombatParser.Views;
-using System.Windows;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.Utilities
 {
@@ -11,10 +12,13 @@ namespace SWTORCombatParser.Utilities
             if (_currentWindow != null)
                 _currentWindow.Close();
             _currentWindow = new ObscuringWindow();
-            _currentWindow.Top = Application.Current.MainWindow.Top;
-            _currentWindow.Left = Application.Current.MainWindow.Left + 7;
-            _currentWindow.Width = Application.Current.MainWindow.Width - 14;
-            _currentWindow.Height = Application.Current.MainWindow.Height - 7;
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var mainWindow = desktop.MainWindow;
+                _currentWindow.Position = new PixelPoint(mainWindow.Position.X + 7, mainWindow.Position.Y);
+                _currentWindow.Width = mainWindow.Width - 14;
+                _currentWindow.Height = mainWindow.Height - 7;
+            }
             _currentWindow.Show();
         }
         public static void CloseObscureWindow()

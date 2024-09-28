@@ -494,9 +494,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             _encounterTimersWindow.UpdateLock(state);
             _isLocked = state;
             if (!_isLocked)
-                _alertTimersWindow.ShowTimers();
+                _alertTimersWindow.ShowOverlayWindow();
             else
-                _alertTimersWindow.HideTimers();
+                _alertTimersWindow.HideOverlayWindow();
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
         {
