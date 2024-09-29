@@ -13,7 +13,7 @@ using System.Timers;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes
 {
-    public class RaidNotesViewModel:INotifyPropertyChanged
+    public class RaidNotesViewModel:BaseOverlayViewModel
     {
         private string raidNote = string.Empty;
         private Dictionary<string, string> _savedRaidNotes = new Dictionary<string, string>();
@@ -21,10 +21,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
 
         public event Action<bool> OnInInstanceChanged = delegate { };
         public event Action OnClosing = delegate { };
-        public event Action OnHiding = delegate { };
-        public event Action<bool> OnLocking  = delegate { };
-        internal event Action OnShowing = delegate { };
-        internal event Action CloseRequested = delegate { };
         private string selectedRaid = string.Empty;
         private bool isEnabled;
 
@@ -38,7 +34,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
                 OnPropertyChanged();
             }
         }
-        public bool OverlaysMoveable { get; internal set; }
         public Dictionary<string, string> RaidNotes { get; internal set; } = new Dictionary<string, string>();
 
         public string RaidNote
@@ -154,21 +149,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
 
             return true;
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
         public void LockOverlays()
         {
-            OnLocking(true);
+            SetLock(true);
             OverlaysMoveable = false;
             OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
+            SetLock(false);
             OverlaysMoveable = true;
             OnPropertyChanged("OverlaysMoveable");
         }

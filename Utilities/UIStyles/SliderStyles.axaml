@@ -1,0 +1,48 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style Selector="RepeatButton">
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="Transparent" />
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="Thumb">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Rectangle Width="2" Height="5000" Fill="Red" />
+                    <Border VerticalAlignment="Bottom"
+                            Padding="3"
+                            BorderBrush="WhiteSmoke"
+                            BorderThickness="1"
+                            Height="50"
+                            Width="30"
+                            Background="DimGray"
+                            CornerRadius="4">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Rectangle Margin="1" Width="2" Height="15" Fill="WhiteSmoke" />
+                            <Rectangle Margin="1" Width="2" Height="18" Fill="WhiteSmoke" />
+                            <Rectangle Margin="1" Width="2" Height="15" Fill="WhiteSmoke" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <!-- Base Slider Style -->
+    <Style Selector="Slider.ResourceScrubber">
+        <Setter Property="MinWidth" Value="104" />
+        <Setter Property="MinHeight" Value="21" />
+    </Style>
+
+    <!-- Slider Style for Horizontal Orientation -->
+    <Style Selector="Slider.ResourceScrubber[Orientation=Horizontal]">
+        <Setter Property="Template" Value="{StaticResource HorizontalSlider}" />
+    </Style>
+</Styles>

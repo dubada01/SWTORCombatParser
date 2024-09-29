@@ -30,7 +30,7 @@
 
             </Viewbox>
             <Viewbox MaxHeight="60" Grid.Row="3">
-                <Button Margin="0,15,0,10" Styles="{StaticResource RoundCornerButton}" Height="75" Width="200" Content="Refresh Players" Background="CornflowerBlue" 
+                <Button Margin="0,15,0,10" Classes="RoundedCorner" Height="75" Width="200" Content="Refresh Players" Background="CornflowerBlue" 
                         Foreground="WhiteSmoke" FontSize="20" IsEnabled="{Binding CanDetect}" ToolTip.Tip="Hotkey: Ctrl+Alt+R" FontWeight="Bold" FontFamily="{StaticResource MainFont}" Command="{Binding ManuallyRefreshPlayersCommand}"></Button>
             </Viewbox>
         </Grid>

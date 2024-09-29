@@ -130,10 +130,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         private void CreateNewChallenge(object obj)
         {
-            var vm = new ChallengeModificationViewModel(SelectedSource);
-            vm.OnNewChallenge += NewChallenge;
-            var t = new ChallengeModificationView(vm);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var vm = new ChallengeModificationViewModel(SelectedSource);
+                vm.OnNewChallenge += NewChallenge;
+                var t = new ChallengeModificationView(vm);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
 
         private void CancelEdit(Challenge editedChallenge)
@@ -216,9 +219,12 @@ namespace SWTORCombatParser.ViewModels.Challenges
             var vm = new ChallengeModificationViewModel(SelectedSource);
             vm.OnNewChallenge += NewChallenge;
             vm.OnCancelEdit += CancelEdit;
-            var t = new ChallengeModificationView(vm);
-            vm.Edit(_challengeEdited);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var t = new ChallengeModificationView(vm);
+                vm.Edit(_challengeEdited);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
         private void ActiveChanged(ChallengeRowViewModel timerRow)
         {

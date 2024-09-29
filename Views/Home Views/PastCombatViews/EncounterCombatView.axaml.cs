@@ -1,6 +1,6 @@
-﻿using SWTORCombatParser.ViewModels.Combat_Monitoring;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using Avalonia.Controls;
+using Avalonia.Input;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 
 namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
 {
@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
         {
             InitializeComponent();
         }
-        private void Border_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Border_PreviewMouseLeftButtonDown(object sender, PointerPressedEventArgs e)
         {
             var viewModel = DataContext as EncounterCombat;
 

@@ -7,15 +7,15 @@
     <Grid>
         <Viewbox HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal">
-                <ComboBox Styles="{StaticResource NewComboStyle}" Items="{Binding AvailableEncounters}" SelectedItem="{Binding SelectedEncounter}" Width="250" HorizontalAlignment="Left" Margin="5">
+                <ComboBox ItemsSource="{Binding AvailableEncounters}" SelectedItem="{Binding SelectedEncounter}" Width="250" HorizontalAlignment="Left" Margin="5">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Name}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <ComboBox Styles="{StaticResource NewComboStyle}" Items="{Binding AvailableBosses}" SelectedItem="{Binding SelectedBoss}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
-                <ComboBox IsVisible="{Binding ShowPlayerCount}" Styles="{StaticResource NewComboStyle}" Items="{Binding AvailablePlayerCounts}" SelectedItem="{Binding SelectedPlayerCount}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+                <ComboBox ItemsSource="{Binding AvailableBosses}" SelectedItem="{Binding SelectedBoss}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+                <ComboBox IsVisible="{Binding ShowPlayerCount}" ItemsSource="{Binding AvailablePlayerCounts}" SelectedItem="{Binding SelectedPlayerCount}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
             </StackPanel>
         </Viewbox>
     </Grid>

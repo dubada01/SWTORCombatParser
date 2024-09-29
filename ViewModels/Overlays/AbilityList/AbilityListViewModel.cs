@@ -42,19 +42,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
-    public class AbilityListViewModel:INotifyPropertyChanged
+    public class AbilityListViewModel:BaseOverlayViewModel
     {
         private double defaultBarHeight = 35;
         private double defaultFontSize = 18;
         private double sizeScalar = 1;
         private IDisposable _updateSub;
         private ObservableCollection<AbilityInfo> abilityInfoList = new ObservableCollection<AbilityInfo>();
-
-        public event Action<AbilityListViewModel> OverlayClosed = delegate { };
-        public Action<bool> OnLocking = delegate { };
-        public Action OnHiding = delegate { };
-        public Action OnShowing = delegate { };
-        public Action CloseRequested = delegate { };
+        
         public ObservableCollection<AbilityInfo> AbilityInfoList
         {
             get => abilityInfoList; set
@@ -156,30 +151,15 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
 
         public void LockOverlays()
         {
-            OnLocking(true);
+            SetLock(true);
             OverlaysMoveable = false;
             OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
+            SetLock(false);
             OverlaysMoveable = true;
             OnPropertyChanged("OverlaysMoveable");
-        }
-        public void OverlayClosing()
-        {
-            Dispose();
-            OverlayClosed(this);
-        }
-        public void OverlayDisabled()
-        {
-            IsEnabled = false;
-            OverlayClosed(this);
-        }
-        public void RequestClose()
-        {
-            Dispose();
-            CloseRequested();
         }
         private void CheckForConversation(ParsedLogEntry obj)
         {
@@ -187,12 +167,12 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
                 return;
             if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && obj.Source.IsLocalPlayer)
             {
-                OnHiding();
+                HideOverlayWindow();
             }
 
             if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && IsEnabled && obj.Source.IsLocalPlayer)
             {
-                OnShowing();
+                ShowOverlayWindow();
             }
         }
         private void Dispose()
@@ -202,11 +182,6 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
             CombatSelectionMonitor.PhaseSelected -= UpdateList;
             CombatLogStreamer.NewLineStreamed -= CheckForConversation;
             _updateSub.Dispose();
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

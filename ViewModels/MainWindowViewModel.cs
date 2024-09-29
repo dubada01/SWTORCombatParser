@@ -252,8 +252,11 @@ namespace SWTORCombatParser.ViewModels
 
         private void OpenParselyConfig()
         {
-            var parselySettingsWindow = new ParselySettings();
-            parselySettingsWindow.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var parselySettingsWindow = new ParselySettings();
+                parselySettingsWindow.ShowDialog(desktop.MainWindow);
+            }
         }
 
         public ReactiveCommand<Unit,Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);

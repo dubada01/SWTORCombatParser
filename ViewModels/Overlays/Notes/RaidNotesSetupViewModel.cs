@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes
@@ -27,10 +28,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
             _view = new RaidNotesView(_viewModel);
             CombatLogStreamer.NewLineStreamed += CheckForConverstaion;
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("RaidNotes");
-            _view.Top = defaults.Position.Y;
-            _view.Left = defaults.Position.X;
-            _view.Width = defaults.WidtHHeight.X;
-            _view.Height = defaults.WidtHHeight.Y;
+            _view.SetSizeAndLocation(new Point(defaults.Position.X,defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
             if (defaults.Acive)
                 RaidNotesEnabled = true;
         }

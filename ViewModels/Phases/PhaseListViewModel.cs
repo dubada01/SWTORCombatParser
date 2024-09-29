@@ -10,6 +10,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
 using System.Runtime.CompilerServices;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Threading;
 using ReactiveUI;
@@ -60,8 +62,11 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             var vm = new PhaseModificationViewModel(SelectedSource);
             vm.OnNewPhase += NewPhase;
-            var t = new PhaseModificationView(vm);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var t = new PhaseModificationView(vm);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
 
         private void CancelEdit(Phase editedChallenge)
@@ -129,9 +134,12 @@ namespace SWTORCombatParser.ViewModels.Phases
             var vm = new PhaseModificationViewModel(SelectedSource);
             vm.OnNewPhase += NewPhase;
             vm.OnCancelEdit += CancelEdit;
-            var t = new PhaseModificationView(vm);
-            vm.Edit(_phaseEdited);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var t = new PhaseModificationView(vm);
+                vm.Edit(_phaseEdited);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
         private void UpdateRowColors()
         {

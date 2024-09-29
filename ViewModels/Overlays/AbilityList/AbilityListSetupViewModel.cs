@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
 {
@@ -23,13 +24,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
         public AbilityListSetupViewModel()
         {
             _viewModel = new AbilityListViewModel();
-            _viewModel.OverlayClosed += Disable;
             _view = new AbilityListView(_viewModel);
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("AbilityList");
-            _view.Top = defaults.Position.Y;
-            _view.Left = defaults.Position.X;
-            _view.Width = defaults.WidtHHeight.X;
-            _view.Height = defaults.WidtHHeight.Y;
+            _view.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
             abilityListEnabled = defaults.Acive;
             if (defaults.Acive)
                 _view.Show();

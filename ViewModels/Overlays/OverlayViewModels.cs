@@ -223,10 +223,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AbilityList).IsSelected = _abilityListSetup.AbilityListEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidNotes).IsSelected = _raidNotesSetup.RaidNotesEnabled;
-            _personalOverlayViewModel = new PersonalOverlayViewModel(sizeScalar);
+            _personalOverlayViewModel = new PersonalOverlayViewModel();
             usePersonalOverlay = _personalOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Personal).IsSelected = usePersonalOverlay;
-            _personalOverlayViewModel.ActiveChanged += UpdatePersonalOverlayActive;
+            //_personalOverlayViewModel.ActiveChanged += UpdatePersonalOverlayActive;
 
             SetOverlaysScale();
             RefreshOverlays();

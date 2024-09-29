@@ -1,7 +1,11 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.ViewModels.Challenges;
-using System.Windows;
-using System.Windows.Input;
+
 
 namespace SWTORCombatParser.Views.Challenges
 {
@@ -11,13 +15,18 @@ namespace SWTORCombatParser.Views.Challenges
     public partial class ChallengeModificationView : Window
     {
         ChallengeModificationViewModel _vm;
+        private bool _isDragging;
+        private Point _startPoint;
+
         public ChallengeModificationView(ChallengeModificationViewModel vm)
         {
             InitializeComponent();
             DataContext = vm;
             _vm = vm;
-            Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth / 2) - (750 / 2d);
-            Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight / 2) - (450 / 2d);
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                Position = new PixelPoint((int)(desktop.MainWindow.Position.X + (desktop.MainWindow.Width / 2) - (750 / 2)), (int)(desktop.MainWindow.Position.Y + (desktop.MainWindow.Height / 2) - (450 / 2)));
+            }
             _vm.OnNewChallenge += CloseWindow;
             CancelButton.Click += Cancel;
         }
@@ -31,9 +40,35 @@ namespace SWTORCombatParser.Views.Challenges
             Close();
         }
 
-        public void DragWindow(object sender, MouseButtonEventArgs args)
+        public void StartDrag(object sender, PointerPressedEventArgs args)
         {
-            DragMove();
+            _isDragging = true;
+            _startPoint = args.GetPosition(this);
+        }
+
+        private void StopDrag(object? sender, PointerReleasedEventArgs e)
+        
+        {
+            _isDragging = false;
+        }
+
+        private void Drag(object? sender, PointerEventArgs args)
+        {
+            if (_isDragging)
+            {
+                // Get the current scaling factor to adjust the movement correctly
+                var scalingFactor = this.VisualRoot.RenderScaling;
+
+                var currentPosition = args.GetPosition(this);
+                var delta = (currentPosition - _startPoint) / scalingFactor;  // Adjust for DPI scaling
+
+                // Move the window (or element) by the delta
+                var currentPositionInScreen = this.Position;
+                this.Position = new PixelPoint(
+                    currentPositionInScreen.X + (int)delta.X,
+                    currentPositionInScreen.Y + (int)delta.Y
+                );
+            }
         }
     }
 }

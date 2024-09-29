@@ -15,7 +15,7 @@
                 <RowDefinition Height="0.1*"/>
             </Grid.RowDefinitions>
             <TabControl Margin="5,5,0,5" Background="{StaticResource Gray3Brush}" SelectedIndex="{Binding SelectedOverlayTab}">
-                <TabControl.Resources>
+                <TabControl.Styles>
                     <Style Selector="TabControl">
                         <Setter Property="Template">
                             <Setter.Value>
@@ -46,17 +46,17 @@
                             </Setter.Value>
                         </Setter>
                     </Style>
-                </TabControl.Resources>
-                <TabItem Styles="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Interface">
+                </TabControl.Styles>
+                <TabItem Classes="RoundedTab" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Interface">
                     <overlay:CombatMetricsConfigView Grid.Row="0" />
                 </TabItem>
-                <TabItem Styles="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Timers">
+                <TabItem Classes="RoundedTab" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Timers">
                     <ContentPresenter Grid.Column="1" Content="{Binding TimersView}"></ContentPresenter>
                 </TabItem>
-                <TabItem Styles="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Challenges">
+                <TabItem Classes="RoundedTab" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Challenges">
                     <ContentPresenter Grid.Column="1" Content="{Binding ChallengesView}"></ContentPresenter>
                 </TabItem>
-                <TabItem Styles="{StaticResource RoundedTab}" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Settings">
+                <TabItem Classes="RoundedTab" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Settings">
                     <ContentPresenter Grid.Column="1" Content="{Binding OthersSetupView}"></ContentPresenter>
                 </TabItem>
             </TabControl>
@@ -81,7 +81,7 @@
                 <Viewbox Margin="0,2,25,2" MaxHeight="35" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="1">
                     <StackPanel Orientation="Vertical">
                         <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Bar Scalar: "/>
-                        <TextBox HorizontalAlignment="Center" Height="45" Width="100" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}" Styles="{StaticResource RoundedTextBox}"></TextBox>
+                        <TextBox HorizontalAlignment="Center" Height="45" Width="100" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}" Classes="RoundedTextBox"></TextBox>
                     </StackPanel>
                 </Viewbox>
             </Grid>

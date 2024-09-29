@@ -11,7 +11,7 @@
     <Grid ToolTip.Tip="{Binding HelpText}">
             <Button Background="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter}}" 
                 Foreground="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter},
-                ConverterParameter=inverted}" Grid.RowSpan="2" Styles="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" 
+                ConverterParameter=inverted}" Grid.RowSpan="2" Classes="RoundedCorner" CommandParameter="{Binding .}" 
                 BorderBrush="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBorderConverter}}"
                 BorderThickness="1.5"
                 Height="35" MaxWidth="100" Margin="5,2,5,2" IsEnabled="{Binding Enabled}"  Command="{Binding $parent[ItemsControl].((vm:OverlayViewModel)DataContext).ToggleUtilityCommand}">

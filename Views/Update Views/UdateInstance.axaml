@@ -20,8 +20,8 @@
                     <TextBlock Text="{Binding ContentText}" Margin="15,15,0,0" TextWrapping="Wrap" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"></TextBlock>
                 </StackPanel>
                 <StackPanel Margin="0,15,0,0" Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal">
-                    <Button Styles="{StaticResource RoundCornerButton}" Command="{Binding ClearCommand}" Width="75" Content="Clear"></Button>
-                    <Button Margin="15,0,0,0" Grid.Row="1" IsVisible="{Binding HasAction}" Styles="{StaticResource RoundCornerButton}" Command="{Binding ActionCommand}" Width="75" Content="{Binding ActionText}"></Button>
+                    <Button Classes="RoundedCorner" Command="{Binding ClearCommand}" Width="75" Content="Clear"></Button>
+                    <Button Margin="15,0,0,0" Grid.Row="1" IsVisible="{Binding HasAction}" Classes="RoundedCorner" Command="{Binding ActionCommand}" Width="75" Content="{Binding ActionText}"></Button>
                 </StackPanel>
                 
             </Grid>

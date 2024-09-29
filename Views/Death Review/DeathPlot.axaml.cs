@@ -1,7 +1,8 @@
 ﻿using SWTORCombatParser.ViewModels.Death_Review;
 using System;
-using System.Windows.Controls;
-using System.Windows.Input;
+using Avalonia.Controls;
+using Avalonia.Input;
+
 
 namespace SWTORCombatParser.Views.Death_Review
 {
@@ -21,7 +22,7 @@ namespace SWTORCombatParser.Views.Death_Review
             DataContext = viewModel;
         }
 
-        private void GridView_MouseMove(object sender, MouseEventArgs e)
+        private void GridView_MouseMove(object sender, PointerEventArgs e)
         {
             if (!_mouseDown)
             { return; }
@@ -35,12 +36,12 @@ namespace SWTORCombatParser.Views.Death_Review
             _plotViewModel.MousePositionUpdated();
         }
 
-        private void GridView_MouseDown(object sender, MouseButtonEventArgs e)
+        private void GridView_MouseDown(object sender, PointerPressedEventArgs e)
         {
             _mouseDown = true;
         }
 
-        private void GridView_MouseUp(object sender, MouseButtonEventArgs e)
+        private void GridView_MouseUp(object sender, PointerReleasedEventArgs e)
         {
             _mouseDown = false;
         }

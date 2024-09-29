@@ -1,5 +1,6 @@
-﻿using SWTORCombatParser.ViewModels.Overlays.BossFrame;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.Overlays.BossFrame;
+
 
 namespace SWTORCombatParser.Views.Overlay.BossFrame
 {

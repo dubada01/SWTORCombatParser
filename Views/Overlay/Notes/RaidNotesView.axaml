@@ -4,25 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.Notes"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.Notes"
+        x:DataType="vm:RaidNotesViewModel"
         mc:Ignorable="d"
-        Title="RaidNotesView" Height="250" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave">
-    <Grid MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
-        <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
-         Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
-        </Border>
-
+        Title="RaidNotesView" Height="250" Width="250" Background="{x:Null}"  Topmost="True">
+    <Grid>
         <Viewbox Margin="10,10,10,10" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
             <TextBlock Text="Raid Notes" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock>
         </Viewbox>
-        <ComboBox ItemsSource="{Binding AvailableRaids}" SelectedItem="{Binding SelectedRaid}" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" VerticalAlignment="Top" Height="29" FontSize="13" Styles="{StaticResource NewComboStyle}" Margin="10,5,35,0"></ComboBox>
-        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Background="{StaticResource Gray3Brush}" BorderBrush="{StaticResource Gray2Brush}" Margin="10,35,10,10" Styles="{StaticResource RaidNotesTextBox}"
+        <ComboBox ItemsSource="{Binding AvailableRaids}" SelectedItem="{Binding SelectedRaid}" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" VerticalAlignment="Top" Height="29" FontSize="13"  Margin="10,5,35,0"></ComboBox>
+        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Background="{StaticResource Gray3Brush}" BorderBrush="{StaticResource Gray2Brush}" Margin="10,35,10,10" Classes="RaidNotesTextBox"
                    FontSize="15" FontFamily="{StaticResource MainFont}" FontWeight="Regular" Text="{Binding RaidNote, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-        <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
-            <Button FontFamily="{StaticResource MainFont}" Styles="{StaticResource RoundCornerButton}" Background="#c96161" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
-                  Width="15" Height="15" Padding="0" Click="Button_Click"/>
-        </Viewbox>
-        <Thumb IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Styles="{StaticResource LampadaThumbStyle}" 
-       MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
-
     </Grid>
 </Window>

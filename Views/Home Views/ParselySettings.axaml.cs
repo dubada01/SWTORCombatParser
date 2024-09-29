@@ -1,7 +1,9 @@
-﻿using SWTORCombatParser.Utilities;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using SWTORCombatParser.Utilities;
+
 
 namespace SWTORCombatParser.Views.Home_Views
 {
@@ -10,13 +12,16 @@ namespace SWTORCombatParser.Views.Home_Views
     /// </summary>
     public partial class ParselySettings : Window
     {
+        private bool _isDragging;
+        private Point _startPoint;
+
         public ParselySettings()
         {
             InitializeComponent();
             if (Settings.HasSetting("username"))
             {
                 UserNameBox.Text = Settings.ReadSettingOfType<string>("username").Trim('"');
-                PasswordBox.Password = Crypto.DecryptStringAES(Settings.ReadSettingOfType<string>("password").Trim('"'), "parselyInfo");
+                PasswordBox.Text = Crypto.DecryptStringAES(Settings.ReadSettingOfType<string>("password").Trim('"'), "parselyInfo");
                 GuildNameBox.Text = Settings.ReadSettingOfType<string>("guild").Trim('"');
             }
             SaveButton.Click += OnSave;
@@ -30,7 +35,7 @@ namespace SWTORCombatParser.Views.Home_Views
 
         private void OnSave(object sender, RoutedEventArgs e)
         {
-            var encryptedPassword = Crypto.EncryptStringAES(PasswordBox.Password, "parselyInfo");
+            var encryptedPassword = Crypto.EncryptStringAES(PasswordBox.Text, "parselyInfo");
             var username = UserNameBox.Text;
             var guild = GuildNameBox.Text;
             Settings.WriteSetting("username", username);
@@ -39,9 +44,32 @@ namespace SWTORCombatParser.Views.Home_Views
 
             Close();
         }
-        public void DragWindow(object sender, MouseButtonEventArgs args)
+        public void StartDragWindow(object sender, PointerPressedEventArgs args)
         {
-            DragMove();
+            _isDragging = true;
+            _startPoint = args.GetPosition(this);
+        }
+        public void DragWindow(object sender, PointerEventArgs args)
+        {
+            if (_isDragging)
+            {
+                // Get the current scaling factor to adjust the movement correctly
+                var scalingFactor = this.VisualRoot.RenderScaling;
+
+                var currentPosition = args.GetPosition(this);
+                var delta = (currentPosition - _startPoint) / scalingFactor;  // Adjust for DPI scaling
+
+                // Move the window (or element) by the delta
+                var currentPositionInScreen = this.Position;
+                this.Position = new PixelPoint(
+                    currentPositionInScreen.X + (int)delta.X,
+                    currentPositionInScreen.Y + (int)delta.Y
+                );
+            }
+        }
+        public void StopDragWindow(object sender, PointerReleasedEventArgs args)
+        {
+            _isDragging = false;
         }
     }
 }

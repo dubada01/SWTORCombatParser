@@ -15,7 +15,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button Background="{StaticResource Gray5Brush}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Styles="{StaticResource RoundCornerButton}" Command="{Binding IncreaseCommand}" Margin="5">
+            <Button Background="{StaticResource Gray5Brush}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Classes="RoundedCorner" Command="{Binding IncreaseCommand}" Margin="5">
                 <Viewbox Margin="5">
                     <Image Source="../../resources/PlusIcon.png" Width="100" Height="100"/>
                 </Viewbox>
@@ -23,7 +23,7 @@
             <Viewbox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock  Foreground="WhiteSmoke" Text="{Binding CurrentScale}" ></TextBlock>
             </Viewbox>
-            <Button Grid.Column="2" Background="{StaticResource Gray5Brush}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding DecreaseCommand}" Styles="{StaticResource RoundCornerButton}" Margin="5">
+            <Button Grid.Column="2" Background="{StaticResource Gray5Brush}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding DecreaseCommand}" Classes="RoundedCorner" Margin="5">
                 <Viewbox Margin="5">
                     <Image Source="../../resources/MinusIcon.png" Width="100" Height="100"/>
                 </Viewbox>

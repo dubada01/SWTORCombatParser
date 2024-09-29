@@ -97,7 +97,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Button Styles="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Source" ToolTip.Tip="Click To Copy ID"/>
+                                    <Button Classes="GridCellButton" Command="{Binding CellClickedCommand}" CommandParameter="Source" ToolTip.Tip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Source}"  HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>
@@ -107,7 +107,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Button Styles="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Target" ToolTip.Tip="Click To Copy ID"/>
+                                    <Button Classes="GridCellButton" Command="{Binding CellClickedCommand}" CommandParameter="Target" ToolTip.Tip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Target}" HorizontalAlignment="Left"/>
                             </Grid>
                                 </DataTemplate>
@@ -118,7 +118,7 @@
                             <DataTemplate>
                                 <Grid>
                                     <Image HorizontalAlignment="Left" Height="18" Source="{Binding AbilityIcon}"></Image>
-                                    <Button Styles="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Ability" ToolTip.Tip="Click To Copy ID"/>
+                                    <Button Classes="GridCellButton" Command="{Binding CellClickedCommand}" CommandParameter="Ability" ToolTip.Tip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="{Binding AbilityTextMargin}" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>
@@ -129,7 +129,7 @@
                             <DataTemplate>
                                 <Grid Background="{Binding EffectBackground}">
                                     <Image HorizontalAlignment="Left" Height="18" Source="{Binding EffectIcon}"></Image>
-                                    <Button Styles="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Effect" ToolTip.Tip="Click To Copy ID"/>
+                                    <Button Classes="GridCellButton" Command="{Binding CellClickedCommand}" CommandParameter="Effect" ToolTip.Tip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="{Binding EffectTextMargin}" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>

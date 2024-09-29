@@ -1,0 +1,128 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style Selector="TextBox.RoundedTextBox">
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Background" Value="{StaticResource Gray7Brush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Gray3Brush}"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="border"
+                        CornerRadius="4"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="2"
+                        Background="{TemplateBinding Background}">
+                    <ScrollViewer x:Name="PART_ContentHost"
+                                  Focusable="False"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Hidden">
+                        <!-- PART_TextPresenter is the key part to include for TextBox functionality -->
+                        <TextPresenter x:Name="PART_TextPresenter"
+                                       Margin="{TemplateBinding Padding}"
+                                       Text="{TemplateBinding Text}"
+                                       Background="{TemplateBinding Background}"/>
+                    </ScrollViewer>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <!-- PointerOver State -->
+    <Style Selector="TextBox.RoundedTextBox:pointerover#border">
+        <Setter Property="BorderBrush" Value="{StaticResource Gray4Brush}"/>
+        <Setter Property="Background" Value="{StaticResource Gray8Brush}"/>
+    </Style>
+    <Style Selector="TextBox.RoundedTextBox:pointerover">
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <!-- Focused State -->
+    <Style Selector="TextBox.RoundedTextBox:focus#border">
+        <Setter Property="Background" Value="{StaticResource Gray9Brush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Gray2Brush}"/>
+    </Style>
+    <Style Selector="TextBox.RoundedTextBox:focus">
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+    </Style>
+    <Style Selector="TextBox.RaidNotesTextBox">
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Background" Value="{StaticResource Gray1Brush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Gray1Brush}"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Border x:Name="border"
+                            CornerRadius="4"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="2"
+                            Background="{TemplateBinding Background}"
+                            Opacity="0.6">
+                    </Border>
+                    <ScrollViewer x:Name="PART_ContentHost"
+                                  Focusable="False"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Hidden">
+                        <!-- PART_TextPresenter is the key part to include for TextBox functionality -->
+                        <TextPresenter x:Name="PART_TextPresenter"
+                                       Margin="{TemplateBinding Padding}"
+                                       Text="{TemplateBinding Text}"
+                                       Background="{TemplateBinding Background}"/>
+                    </ScrollViewer>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="TextBox.RoundedPasswordBox">
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Background" Value="{StaticResource Gray8Brush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Gray3Brush}"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="border"
+                        CornerRadius="4"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="2"
+                        Background="{TemplateBinding Background}">
+                    <!-- PasswordBox does not use PART_ContentHost in Avalonia -->
+                    <ScrollViewer x:Name="PART_ContentHost"
+                                  Focusable="False"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Hidden">
+                        <!-- PART_TextPresenter is the key part to include for TextBox functionality -->
+                        <TextPresenter x:Name="PART_TextPresenter"
+                                       Margin="{TemplateBinding Padding}"
+                                       Text="{TemplateBinding Text}"
+                                       Background="{TemplateBinding Background}"/>
+                    </ScrollViewer>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <!-- PointerOver State -->
+    <Style Selector="TextBox.RoundedPasswordBox:pointerover#border">
+        <Setter Property="BorderBrush" Value="{StaticResource Gray4Brush}"/>
+        <Setter Property="Background" Value="{StaticResource Gray10Brush}"/>
+    </Style>
+    <Style Selector="TextBox.RoundedPasswordBox:pointerover">
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <!-- Focused State -->
+    <Style Selector="TextBox.RoundedPasswordBox:focus#border">
+        <Setter Property="Background" Value="{StaticResource Gray10Brush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Gray2Brush}"/>
+    </Style>
+    <Style Selector="TextBox.RoundedPasswordBox:focus">
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+    </Style>
+</Styles>

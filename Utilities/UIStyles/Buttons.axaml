@@ -1,0 +1,57 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Rounded Button Styles -->
+    <Style Selector="Button.RoundedCorner">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="BorderThickness" Value="0.5"/>
+        <Setter Property="Opacity" Value="1" />
+        <!--<Setter Property="Padding" Value="1"/>-->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid x:Name="grid">
+                    <Border x:Name="border"
+                            CornerRadius="3"
+                            Padding="{TemplateBinding Padding}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          TextElement.FontWeight="SemiBold"/>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Button.RoundedCorner:pressed">
+        <Setter Property="Background" Value="DimGray"></Setter>
+    </Style>
+    <Style Selector="Button.RoundedCorner:pointerover#grid">
+        <Setter Property="Opacity" Value="0.75"></Setter>
+    </Style>
+    <Style Selector="Button.RoundedCorner:disabled#grid">
+        <Setter Property="Opacity" Value="0.25"></Setter>
+    </Style>
+    
+    <!-- GridCellButton -->
+    <!-- GridCellButton Style -->
+    <Style Selector="Button.GridCellButton">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{StaticResource Gray5Brush}"
+                        BorderThickness="1">
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <!-- Pointer Over State for GridCellButton -->
+    <Style Selector="Button.GridCellButton:pointerover#border">
+        <Setter Property="Background" Value="WhiteSmoke"/>
+        <Setter Property="Opacity" Value="0.1"/>
+    </Style>
+</Styles>

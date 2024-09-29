@@ -16,7 +16,6 @@
         <Viewbox HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal">
                 <ComboBox 
-                    Styles="{StaticResource NewComboStyle}" 
                     ItemsSource="{Binding AvailableParticipants}" 
                     SelectedItem="{Binding SelectedEntity}" 
                     Width="250" 
@@ -28,12 +27,12 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
-                <ComboBox  Styles="{StaticResource NewComboStyle}" IsVisible="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+                <ComboBox  IsVisible="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
             </StackPanel>
         </Viewbox>
         <DockPanel Grid.Row="1" LastChildFill="True" HorizontalAlignment="Stretch">
             <TabControl>
-                <TabControl.Resources>
+                <TabControl.Styles>
                     <Style Selector="TabControl">
                         <Setter Property="Template">
                             <Setter.Value>
@@ -64,21 +63,21 @@
                             </Setter.Value>
                         </Setter>
                     </Style>
-                </TabControl.Resources>
+                </TabControl.Styles>
 
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Damage">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Damage">
                     <ContentPresenter Content="{Binding DamageContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Healing">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Healing">
                     <ContentPresenter Content="{Binding HealingContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Damage Taken">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Damage Taken">
                     <ContentPresenter Content="{Binding DamageTakenContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Healing Received">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Healing Received">
                     <ContentPresenter Content="{Binding HealingReceivedContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Threat">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Threat">
                     <ContentPresenter Content="{Binding ThreatContent}"></ContentPresenter>
                 </TabItem>
             </TabControl>

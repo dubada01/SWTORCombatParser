@@ -77,7 +77,7 @@ namespace SWTORCombatParser.Views
             HotkeyHandler.UnregHotKey(2);
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
+        private void Window_Closing(object sender, WindowClosingEventArgs e)
         {
             if (!_actuallyClosing && ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled"))
             {

@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.Personal"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.Personal"
+                x:DataType="vm:PersonalOverlayInstanceViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Border Background="{StaticResource Gray2_75Brush}" BorderBrush="Gray" BorderThickness="2" CornerRadius="3" Margin="5,5,0,0">
@@ -17,17 +19,15 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Viewbox Grid.Column="1" MaxHeight="20" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0">
-                <Button FontFamily="{StaticResource MainFont}" Styles="{StaticResource RoundCornerButton}" Background="#c96161" IsVisible="{Binding ShowX, Converter={StaticResource BooleanToVisibiityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
+                <Button FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Background="#c96161" IsVisible="{Binding ShowX, Converter={StaticResource BooleanToVisibiityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Command="{Binding RemoveCellCommand}"/>
             </Viewbox>
             <Viewbox Margin="10,5,10,5" MaxHeight="35">
                 <StackPanel Orientation="Horizontal">
                     <ComboBox IsVisible="{Binding ShowDropDown, Converter={StaticResource BooleanToVisibiityConverter}}" 
-                          Styles="{StaticResource NewComboStyle}" 
                           ItemsSource="{Binding AvailableMetrics,Converter={StaticResource OverlayTypeToReadableNameConverter}}" 
                           SelectedItem="{Binding SelectedMetric,Converter={StaticResource OverlayTypeToReadableNameConverter}}"></ComboBox>
                     <ComboBox Margin="5,0,0,0" IsVisible="{Binding SelectingCustomVariables, Converter={StaticResource BooleanToVisibiityConverter}}" 
-                          Styles="{StaticResource NewComboStyle}" 
                           ItemsSource="{Binding AvailableVariables}" 
                           SelectedItem="{Binding SelectedVariable}"></ComboBox>
                 </StackPanel>

@@ -4,10 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Home_Views"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Home_View_Models"
+                x:DataType="vm:ParticipantViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="45" d:DesignWidth="200">
 
-    <Border PreviewMouseDown="Border_PreviewMouseDown" Margin="5" Padding="5,5,5,0"
+    <Border PointerPressed="Border_PreviewMouseDown" Margin="5" Padding="5,5,5,0"
                 Background="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBackgroundConverter}, UpdateSourceTrigger=PropertyChanged}" 
                 BorderBrush="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBoarderConverter}, UpdateSourceTrigger=PropertyChanged}" BorderThickness="2" CornerRadius="4">
         <Grid>

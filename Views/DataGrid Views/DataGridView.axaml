@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.DataGrid_Views"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.DataGrid"
+                x:DataType="vm:DataGridViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="{StaticResource Gray3Brush}">
@@ -34,9 +36,9 @@
                                     </TextBlock>
                                     <Rectangle HorizontalAlignment="Right" Width="1" Fill="Gray"></Rectangle>
                                     <Viewbox IsVisible="{Binding IsName, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" MaxHeight="15" MaxWidth="20" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,3,0">
-                                        <Button Styles="{StaticResource RoundCornerButton}" Padding="4,0,4,1" Foreground="IndianRed" Content="X" Background="{StaticResource Gray4Brush}" Command="{Binding HeaderClickedCommand}" BorderBrush="Transparent" ></Button>
+                                        <Button Classes="RoundedCorner" Padding="4,0,4,1" Foreground="IndianRed" Content="X" Background="{StaticResource Gray4Brush}" Command="{Binding HeaderClickedCommand}" BorderBrush="Transparent" ></Button>
                                     </Viewbox>
-                                    <Button Styles="{StaticResource RoundCornerButton}" IsVisible="{Binding CanSort, Converter={StaticResource BooleanToVisibiityConverter}}" Width="30" Height="15" Background="Transparent" BorderBrush="{StaticResource Gray8Brush}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Binding ToggleSortingCommand}">
+                                    <Button Classes="RoundedCorner" IsVisible="{Binding CanSort, Converter={StaticResource BooleanToVisibiityConverter}}" Width="30" Height="15" Background="Transparent" BorderBrush="{StaticResource Gray8Brush}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Binding ToggleSortingCommand}">
 
                                     </Button>
                                     <Viewbox IsHitTestVisible="False" HorizontalAlignment="Center" MaxHeight="18" VerticalAlignment="Bottom">
@@ -48,7 +50,7 @@
 
                                 </Grid>
                                 <Viewbox>
-                                    <ComboBox ItemsSource="{Binding AvailableHeaderNames}" SelectedItem="{Binding SelectedNewHeader}" IsVisible="{Binding IsRealHeader, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" Styles="{StaticResource NewComboStyle}" Margin="10"></ComboBox>
+                                    <ComboBox ItemsSource="{Binding AvailableHeaderNames}" SelectedItem="{Binding SelectedNewHeader}" IsVisible="{Binding IsRealHeader, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" Margin="10"></ComboBox>
                                 </Viewbox>
                             </Grid>
 

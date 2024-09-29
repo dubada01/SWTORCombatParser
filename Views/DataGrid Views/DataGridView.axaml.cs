@@ -1,5 +1,5 @@
-﻿using SWTORCombatParser.ViewModels.DataGrid;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.DataGrid;
 
 namespace SWTORCombatParser.Views.DataGrid_Views
 {

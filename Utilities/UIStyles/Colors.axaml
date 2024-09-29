@@ -1,5 +1,6 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
     <!--Control colors.-->
     <Color x:Key="WindowColor">#FFE8EDF9</Color>
     <Color x:Key="ContentAreaColorLight">#FFC5CBF9</Color>
@@ -41,7 +42,7 @@
     <Color x:Key="GrayGreenColor">#bbc4bd</Color>
     <Color x:Key="RedColor">#FFa53434</Color>
     <Color x:Key="GlyphColor">#FF444444</Color>
-    <Color x:Key="GlyphMouseOver">sc#1, 0.004391443, 0.002428215, 0.242281124</Color>
+    <Color x:Key="GlyphMouseOver">#FFa53434</Color>
 
     <Color x:Key="ParticipantDPSColor">#a35656</Color>
     <Color x:Key="ParticipantHPSColor">#3c7d67</Color>
@@ -110,7 +111,6 @@
                      StartPoint="0,0"
                      EndPoint="1,0">
         <LinearGradientBrush.GradientStops>
-            <GradientStopCollection>
                 <GradientStop Color="#000000FF"
                     Offset="0" />
                 <GradientStop Color="#600000FF"
@@ -119,7 +119,6 @@
                     Offset="0.6" />
                 <GradientStop Color="#000000FF"
                     Offset="1" />
-            </GradientStopCollection>
         </LinearGradientBrush.GradientStops>
     </LinearGradientBrush>
 </ResourceDictionary>

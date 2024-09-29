@@ -61,7 +61,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         public ObservableCollection<EncounterCombat> PastEncounters { get; set; } = new ObservableCollection<EncounterCombat>();
         public EncounterCombat CurrentEncounter;
-        public HistoricalRangeWiget HistoricalRange { get; set; }
         public double CurrentLogOffsetMs
         {
             get => currentLogOffsetMs; set
@@ -112,11 +111,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             _stubLogs = Settings.ReadSettingOfType<bool>("stub_logs");
             _autoParseEnabled = Settings.ReadSettingOfType<bool>("Auto_Parse");
-            HistoricalRange = new HistoricalRangeWiget();
-            _historicalRangeVM = new HistoricalRangeSelectionViewModel();
-            _historicalRangeVM.HistoricalCombatsParsed += OnNewHistoricalCombats;
-            HistoricalRange.DataContext = _historicalRangeVM;
-
+            
             _combatLogStreamer = new CombatLogStreamer();
             _combatLogStreamer.NewLogTimeOffsetMs += UpdateLogOffset;
             _combatLogStreamer.NewTotalTimeOffsetMs += UpdateTotalOffset;

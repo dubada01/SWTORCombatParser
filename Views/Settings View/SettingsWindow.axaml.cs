@@ -163,7 +163,7 @@ namespace SWTORCombatParser.Views.SettingsView
                 );
             }
         }
-        public void StopDrag(object sender, RoutedEventArgs args)
+        public void StopDrag(object sender, PointerReleasedEventArgs args)
         {
             _isDragging = false;
         }

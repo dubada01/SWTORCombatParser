@@ -1,0 +1,116 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Style for ToggleButton with the ComboBoxToggleButton Template -->
+    <Style Selector="ToggleButton">
+        <Setter Property="Template" Value="{StaticResource ComboBoxToggleButton}" />
+    </Style>
+
+    <!-- Style for PointerOver state -->
+    <Style Selector="ToggleButton:pointerover#Border">
+        <Setter Property="Background" Value="Gray" />
+    </Style>
+
+    <!-- Style for Pressed state -->
+    <Style Selector="ToggleButton:pressed#Border">
+        <Setter Property="Background" Value="DarkGray" />
+    </Style>
+
+    <!-- Style for Checked state -->
+    <Style Selector="ToggleButton:checked#Border">
+        <Setter Property="Background" Value="DimGray" />
+    </Style>
+    <!-- ComboBox Style -->
+<Style Selector="ComboBox">
+    <Setter Property="Foreground" Value="WhiteSmoke" />
+    <Setter Property="MinWidth" Value="80" />
+    <Setter Property="MinHeight" Value="20" />
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="Template">
+        <ControlTemplate>
+            <Grid>
+                <!-- Define Columns -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Content Presenter -->
+                <ContentPresenter x:Name="ContentSite"
+                                  Grid.Column="0"
+                                  Margin="3,3,23,3"
+                                  VerticalAlignment="Center"
+                                  HorizontalAlignment="Left"
+                                  IsHitTestVisible="False"
+                                  Content="{TemplateBinding SelectionBoxItem}"
+                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" />
+
+                <!-- ToggleButton -->
+                <ToggleButton x:Name="ToggleButton"
+                              Grid.Column="1"
+                              Focusable="False"
+                              ClickMode="Press"
+                              Template="{StaticResource ComboBoxToggleButton}"
+                              IsChecked="{TemplateBinding IsDropDownOpen}" />
+
+                <!-- Popup for DropDown -->
+                <Popup x:Name="PART_Popup"
+                       IsOpen="{TemplateBinding IsDropDownOpen}"
+                       Placement="Bottom"
+                       Focusable="False">
+                    <Border x:Name="DropDownBorder"
+                            BorderThickness="1"
+                            BorderBrush="{StaticResource Gray3}"
+                            Background="{StaticResource Gray6}"
+                            Margin="0,2,0,0">
+                        <ScrollViewer>
+                            <ItemsPresenter />
+                        </ScrollViewer>
+                    </Border>
+                </Popup>
+            </Grid>
+        </ControlTemplate>
+    </Setter>
+</Style>
+    <!-- Style for Disabled ComboBox -->
+    <Style Selector="ComboBox:disabled">
+        <Setter Property="Foreground" Value="{StaticResource DisabledForegroundColor}" />
+    </Style>
+
+    <!-- Style for Opened ComboBox -->
+    <Style Selector="ComboBox[IsDropDownOpen=True]#DropDownBorder">
+        <Setter Property="BorderBrush" Value="{StaticResource HighlightBorderBrush}" />
+        <Setter Property="Background" Value="{StaticResource HighlightBackground}" />
+    </Style>
+
+    <!-- ComboBoxItem Style -->
+    <Style Selector="ComboBoxItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="Border"
+                        Background="{TemplateBinding Background}"
+                        Padding="{TemplateBinding Padding}">
+                    <ContentPresenter />
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!-- Style for PointerOver state -->
+    <Style Selector="ComboBoxItem:pointerover#Border">
+        <Setter Property="Background" Value="{StaticResource ItemPointerOverBackground}" />
+    </Style>
+
+    <!-- Style for Selected state -->
+    <Style Selector="ComboBoxItem:selected#Border">
+        <Setter Property="Background" Value="{StaticResource ItemSelectedBackground}" />
+    </Style>
+
+    <!-- Style for Selected Unfocused state -->
+    <Style Selector="ComboBoxItem:selected:unfocused#Border">
+        <Setter Property="Background" Value="{StaticResource ItemSelectedUnfocusedBackground}" />
+    </Style>
+
+</Styles>

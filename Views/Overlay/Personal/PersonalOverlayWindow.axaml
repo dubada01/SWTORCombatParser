@@ -4,44 +4,23 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.Personal"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.Personal"
+        x:DataType="vm:PersonalOverlayViewModel"
         mc:Ignorable="d"
-        Title="PersonalOverlayWindow" SizeToContent="Height" MinHeight="75" AllowsTransparency="True" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave">
+        Title="PersonalOverlayWindow" SizeToContent="Height" MinHeight="75"  Background="{x:Null}"  Topmost="True">
 
     <Grid>
-        <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
-                IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
-        </Border>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid Height="30" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}" MouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="30"/>
-                </Grid.ColumnDefinitions>
-                <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0">
-                    <Button FontFamily="{StaticResource MainFont}" Styles="{StaticResource RoundCornerButton}" Background="#c96161" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
-                  Width="15" Height="15" Padding="0" Click="Button_Click"/>
-                </Viewbox>
-            </Grid>
-            <ItemsControl Grid.Row="1" ItemsSource="{Binding PersonalOverlayInstances}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <local:PersonalOverlayInstance/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="2" Rows="{Binding Rows}"></UniformGrid>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-
-            <Thumb IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="2" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Styles="{StaticResource LampadaThumbStyle}" 
-               MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
-
-        </Grid>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding PersonalOverlayInstances}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <local:PersonalOverlayInstance/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="2" Rows="{Binding Rows}"></UniformGrid>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
     </Grid>
 </Window>

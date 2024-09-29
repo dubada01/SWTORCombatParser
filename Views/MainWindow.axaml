@@ -29,7 +29,7 @@
 
         <!-- TabControl -->
         <TabControl SelectedIndex="{Binding SelectedTabIndex}" 
-                    Items="{Binding ContentTabs}" 
+                    ItemsSource="{Binding ContentTabs}" 
                     BorderThickness="3,2,3,2" 
                     Margin="0,5,5,5" 
                     BorderBrush="DimGray" 
@@ -82,7 +82,7 @@
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <ContentPresenter Content="{Binding TabContent}"/>
+                    <ContentPresenter Content="{Binding .}"/>
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>

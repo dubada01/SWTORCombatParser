@@ -3,28 +3,26 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.AbilityList"
+        x:DataType="vm:AbilityListViewModel"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.AbilityList"
         mc:Ignorable="d"
-        Title="AbilityListView" Height="150" Width="250" AllowsTransparency="True" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave">
-    <Grid MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave">
-        <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
-         Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
-        </Border>
-
+        Title="AbilityListView" Height="150" Width="250"  Background="{x:Null}" Topmost="True">
+    <Grid>
         <Viewbox Margin="10,10,10,10" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
             <TextBlock Text="Ability List" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock>
         </Viewbox>
-        <Grid IsHitTestVisible="{Binding OverlaysMoveable}" PreviewMouseLeftButtonDown="DragWindow">
+        <Grid IsHitTestVisible="{Binding OverlaysMoveable}" >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" MouseLeftButtonDown="DragWindow" Margin="5,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" Margin="5,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
                 <Grid>
                     <ItemsControl Grid.Column="2" ItemsSource="{Binding AbilityInfoList, UpdateSourceTrigger=PropertyChanged}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <local:AbilityListInstance Margin="{Binding Path=DataContext.BarMargin, RelativeSource={RelativeSource FindAncestor, AncestorType=ItemsControl}}" Height="{Binding Path=DataContext.BarHeight, RelativeSource={RelativeSource FindAncestor, AncestorType=ItemsControl}}"/>
+                                <local:AbilityListInstance Margin="{Binding Path=$parent[ItemsControl].((vm:AbilityListViewModel)DataContext).BarHeight}" Height="{Binding Path=$parent[ItemsControl].((vm:AbilityListViewModel)DataContext).BarHeight}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -35,12 +33,5 @@
 
 
         </Grid>
-        <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
-            <Button FontFamily="{StaticResource MainFont}" Styles="{StaticResource RoundCornerButton}" Background="#c96161" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
-                  Width="15" Height="15" Padding="0" Click="Button_Click"/>
-        </Viewbox>
-        <Thumb IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Styles="{StaticResource LampadaThumbStyle}" 
-       MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
-
     </Grid>
 </Window>

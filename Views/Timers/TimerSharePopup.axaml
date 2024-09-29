@@ -18,7 +18,7 @@
                 <RowDefinition Height="0.15*"/>
             </Grid.RowDefinitions>
 
-                <TextBox x:Name="ShareCode" Styles="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="25"  Width="100" Height="50"></TextBox>
+                <TextBox x:Name="ShareCode" Classes="RoundedTextBox" HorizontalContentAlignment="Center" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="25"  Width="100" Height="50"></TextBox>
 
             <TextBlock Grid.Column="1" 
                        Grid.Row="1"
@@ -31,7 +31,7 @@
                        Text="Share this code with anyone to allow them to import this timer.&#x0a;&#x0a;It has been automatically copied to your clipboard." 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Bottom" Margin="20,0,20,10"></TextBlock>
-            <Button x:Name="OkButton" Grid.Row="2" Styles="{StaticResource RoundCornerButton}"
+            <Button x:Name="OkButton" Grid.Row="2" Classes="RoundedCorner"
                     Content="Ok" Width="50" Height="25" 
                     VerticalAlignment="Center"
                     ></Button>

@@ -101,7 +101,7 @@
         <Viewbox Margin="0,2,0,2" MaxHeight="40"  HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">
             <StackPanel Orientation="Vertical">
                 <TextBlock Foreground="WhiteSmoke" FontWeight="Medium" HorizontalAlignment="Center" FontSize="21" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlay Leaderboard"/>
-                <ComboBox HorizontalAlignment="Center" Height="45" Width="200" HorizontalContentAlignment="Center" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}" Styles="{StaticResource NewComboStyle}"></ComboBox>
+                <ComboBox HorizontalAlignment="Center" Height="45" Width="200" HorizontalContentAlignment="Center" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}"></ComboBox>
             </StackPanel>
         </Viewbox>
         <Viewbox Margin="0,2,0,10" MaxHeight="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1">
@@ -115,7 +115,7 @@
         <Viewbox Margin="10,2,0,2" MaxHeight="40" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="1" IsVisible="{Binding UseDynamicLayout, Converter={StaticResource BooleanToVisibiityConverter}}">
             <StackPanel Orientation="Vertical">
                 <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="21" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Layout: "/>
-                <ComboBox  Height="45" Width="200"  Styles="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding SelectedType}"></ComboBox> 
+                <ComboBox  Height="45" Width="200" ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding SelectedType}"></ComboBox> 
             </StackPanel>
 
         </Viewbox>

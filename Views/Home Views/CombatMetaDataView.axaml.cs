@@ -1,5 +1,5 @@
-﻿using SWTORCombatParser.ViewModels.CombatMetaData;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.CombatMetaData;
 
 namespace SWTORCombatParser.Views.Home_Views
 {

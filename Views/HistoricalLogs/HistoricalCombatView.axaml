@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.HistoricalLogs"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.HistoricalLogs"
+                x:DataType="vm:HistoricalCombatViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -27,9 +29,21 @@
                     <Viewbox MaxHeight="50">
                         <TextBlock VerticalAlignment="Center" Text="Battle Selection" FontSize="25" Margin="5,15,5,10" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontWeight="DemiBold" FontFamily="{StaticResource MainFont}"></TextBlock>
                     </Viewbox>
-                    <ComboBox Height="45" Grid.Row="1" FontSize="12" ItemsSource="{Binding AllEncounters}" DisplayMemberPath="NamePlus" SelectedItem="{Binding SelectedEncounter}" Margin= "5" Styles="{StaticResource NewComboStyle}"></ComboBox>
-                    <ComboBox Height="45" Grid.Row="2" FontSize="12" ItemsSource="{Binding BossesInSelectedEncounter}" SelectedItem="{Binding SelectedBoss}" Margin= "5" Styles="{StaticResource NewComboStyle}"></ComboBox>
-                    <ComboBox Height="45" Grid.Row="3" FontSize="12" ItemsSource="{Binding LocalPlayersDuringHistory}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedLocalEntity}" Margin= "5" Styles="{StaticResource NewComboStyle}"></ComboBox>
+                    <ComboBox Height="45" Grid.Row="1" FontSize="12" ItemsSource="{Binding AllEncounters}" SelectedItem="{Binding SelectedEncounter}" Margin= "5">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding NamePlus}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <ComboBox Height="45" Grid.Row="2" FontSize="12" ItemsSource="{Binding BossesInSelectedEncounter}" SelectedItem="{Binding SelectedBoss}" Margin= "5"></ComboBox>
+                    <ComboBox Height="45" Grid.Row="3" FontSize="12" ItemsSource="{Binding LocalPlayersDuringHistory}" SelectedItem="{Binding SelectedLocalEntity}" Margin= "5">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
             </Border>
         </Viewbox>
@@ -38,7 +52,7 @@
             <StackPanel Orientation="Vertical" >
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="WhiteSmoke" FontSize="20" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Max Combat Length: "/>
-                    <TextBox FontFamily="{StaticResource MainFont}" Text="{Binding MaxCombatLength, UpdateSourceTrigger=PropertyChanged}" Width="75" FontWeight="Normal" HorizontalContentAlignment="Center"  Styles="{StaticResource RoundedTextBox}"/>
+                    <TextBox FontFamily="{StaticResource MainFont}" Text="{Binding MaxCombatLength, UpdateSourceTrigger=PropertyChanged}" Width="75" FontWeight="Normal" HorizontalContentAlignment="Center"  Classes="RoundedTextBox"/>
                 </StackPanel>
             </StackPanel>
         </Viewbox>

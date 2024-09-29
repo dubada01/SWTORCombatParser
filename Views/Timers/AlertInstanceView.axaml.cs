@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿
+
+using Avalonia.Controls;
 
 namespace SWTORCombatParser.Views.Timers
 {

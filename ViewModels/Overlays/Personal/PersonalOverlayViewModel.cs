@@ -7,36 +7,25 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Personal
 {
-    public class PersonalOverlayViewModel : INotifyPropertyChanged
+    public class PersonalOverlayViewModel : BaseOverlayViewModel
     {
-        private bool active;
         private PersonalOverlayWindow _window;
         private bool overlaysMoveable;
         private double rows;
         private double _currentScale;
-
-        public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
-        public event Action CloseRequested = delegate { };
-        public event Action<bool> OnLocking = delegate { };
-        public event Action OnHiding = delegate { };
-        public event Action OnShowing = delegate { };
-        public event Action<bool> ActiveChanged = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
         private string _currentOwner;
-        public PersonalOverlayViewModel(double currentScale)
+        public PersonalOverlayViewModel()
         {
-            _currentScale = currentScale;
+            _currentScale = 1;
             _window = new PersonalOverlayWindow(this);
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("Personal");
             Active = defaults.Acive;
-            _window.Top = defaults.Position.Y;
-            _window.Left = defaults.Position.X;
-            _window.Width = defaults.WidtHHeight.X;
-            _window.Height = defaults.WidtHHeight.Y;
+            _window.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
 
             DefaultPersonalOverlaysManager.NewDefaultSelected += UpdateMetrics;
             CombatLogStreamer.NewLineStreamed += CheckForConversation;
@@ -50,13 +39,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && Active)
             {
                 _conversationActive = true;
-                OnHiding();
+                HideOverlayWindow();
             }
 
             if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && Active)
             {
                 _conversationActive = false;
-                OnShowing();
+                ShowOverlayWindow();
             }
         }
         private void UpdateMetrics(string defaultName)
@@ -116,7 +105,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                 }
             });
         }
-        public bool OverlaysMoveable
+        public new bool OverlaysMoveable
         {
             get => overlaysMoveable; internal set
             {
@@ -151,41 +140,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                 rows = value;
                 OnPropertyChanged();
             }
-        }
-        internal void UpdateLock(bool value)
-        {
-            OverlaysMoveable = !value;
-            OnLocking(value);
-        }
-        public bool Active
-        {
-            get => active; internal set
-            {
-                if (active != value)
-                {
-                    ActiveChanged(value);
-                }
-                active = value;
-                DefaultGlobalOverlays.SetActive("Personal", active);
-                if (active)
-                {
-                    _window.Show();
-                }
-                else
-                {
-                    _window.Hide();
-                }
-                OnPropertyChanged();
-            }
-        }
-
-        internal void OverlayClosing()
-        {
-            Active = false;
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

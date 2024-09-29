@@ -10,13 +10,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Avalonia;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class BossFrameConfigViewModel : INotifyPropertyChanged
+    public class BossFrameConfigViewModel : BaseOverlayViewModel
     {
-        private bool overlaysMoveable = false;
         private bool bossFrameEnabled;
         private bool dotTrackingEnabled;
         private bool mechPredictionsEnabled;
@@ -25,14 +25,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private bool _inCombat;
 
         public BrossFrameView View { get; set; }
-        public bool OverlaysMoveable
-        {
-            get => overlaysMoveable; set
-            {
-                overlaysMoveable = value;
-                OnPropertyChanged("ShowFrame");
-            }
-        }
         public bool BossFrameEnabled
         {
             get => bossFrameEnabled; set
@@ -99,7 +91,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             }
         }
         public bool ShowFrame => BossesDetected.Any() || OverlaysMoveable;
-        public event Action<bool> OnLocking = delegate { };
         public ObservableCollection<BossFrameViewModel> BossesDetected { get; set; } = new ObservableCollection<BossFrameViewModel>();
         public string CombatDuration
         {
@@ -130,10 +121,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             View = new BrossFrameView(this);
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
             CurrentScale = currentDefaults.Scale == 0 ? 1 : currentDefaults.Scale;
-            View.Left = currentDefaults.Position.X;
-            View.Top = currentDefaults.Position.Y;
-            View.Width = currentDefaults.WidtHHeight.X;
-            View.MinHeight = currentDefaults.WidtHHeight.Y;
+            View.SetSizeAndLocation(new Point(currentDefaults.Position.X, currentDefaults.Position.Y), new Point(currentDefaults.WidtHHeight.X, currentDefaults.WidtHHeight.Y));
 
             bossFrameEnabled = currentDefaults.Acive;
             DotTrackingEnabled = currentDefaults.TrackDOTS;
@@ -148,14 +136,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
         public void LockOverlays()
         {
-            OnLocking(true);
+            SetLock(true);
             OverlaysMoveable = false;
             OnPropertyChanged("OverlaysMoveable");
             OnPropertyChanged("ShowFrame");
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
+            SetLock(false);
             OverlaysMoveable = true;
             OnPropertyChanged("OverlaysMoveable");
             OnPropertyChanged("ShowFrame");
@@ -252,11 +240,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 BossesDetected.Clear();
                 OnPropertyChanged("ShowFrame");
             });
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

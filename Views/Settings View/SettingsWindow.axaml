@@ -26,7 +26,7 @@
                     <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
                 </StackPanel>
             </Border>
-            <Button Width="20"  Height="20" HorizontalAlignment="Right"  VerticalAlignment="Top" Grid.Column="1" Margin="0,5,10,0" Styles="{StaticResource RoundCornerButton}" Click="Cancel" Background="{StaticResource RedColorBrush}" Content="X" FontWeight="Bold"></Button>
+            <Button Width="20"  Height="20" HorizontalAlignment="Right"  VerticalAlignment="Top" Grid.Column="1" Margin="0,5,10,0" Classes="RoundedCorner" Click="Cancel" Background="{StaticResource RedColorBrush}" Content="X" FontWeight="Bold"></Button>
             <TextBlock Text="Settings" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="25"></TextBlock>
             <StackPanel Margin="10,45,0,0" Grid.Row="1" Grid.Column="0" Orientation="Vertical">
                 <StackPanel Orientation="Horizontal" ToolTip.Tip="Operate offline. No leaderboard or raid HOT autodetection available" Margin="0,5,0,5">
@@ -41,26 +41,26 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
                     <TextBlock VerticalAlignment="Center" Text="Combat Log Path: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                    <TextBox Name="LogPath" Height="30" Width="250" FontSize="12" FontWeight="Normal" Styles="{StaticResource RoundedTextBox}"/>
+                    <TextBox Name="LogPath" Height="30" Width="250" FontSize="12" FontWeight="Normal" Classes="RoundedTextBox"/>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0,5,0,5">
                     <TextBlock Text="Hotkeys" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                     <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
                         <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="LockEnabled"></CheckBox>
                         <TextBlock VerticalAlignment="Center" Text="Overlay Lock Toggle: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                        <TextBox Margin="11,0,0,0" x:Name="LockHotkey" HorizontalContentAlignment="Center" Tag="Lock" Height="30" Width="115" FontSize="12" FontWeight="Normal" Styles="{StaticResource RoundedTextBox}" KeyDown="TextBox_PreviewKeyDown"/>
+                        <TextBox Margin="11,0,0,0" x:Name="LockHotkey" HorizontalContentAlignment="Center" Tag="Lock" Height="30" Width="115" FontSize="12" FontWeight="Normal" Classes="RoundedTextBox" KeyDown="TextBox_PreviewKeyDown"/>
                         
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
                         <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="RefreshEnabled"></CheckBox>
                         <TextBlock VerticalAlignment="Center" Text="Auto Raid HOT Detect: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                        <TextBox x:Name="RefreshHotkey" HorizontalContentAlignment="Center" Tag="Refresh" Height="30" Width="115" FontSize="12" FontWeight="Normal" Styles="{StaticResource RoundedTextBox}" KeyDown="TextBox_PreviewKeyDown"/>
+                        <TextBox x:Name="RefreshHotkey" HorizontalContentAlignment="Center" Tag="Refresh" Height="30" Width="115" FontSize="12" FontWeight="Normal" Classes="RoundedTextBox" KeyDown="TextBox_PreviewKeyDown"/>
                         
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
                         <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="HideEnabled"></CheckBox>
                         <TextBlock VerticalAlignment="Center" Text="Hide Overlays: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                        <TextBox Margin="43,0,0,0" x:Name="HideHotkey" HorizontalContentAlignment="Center" Tag="Hide" Height="30" Width="115" FontSize="12" FontWeight="Normal" Styles="{StaticResource RoundedTextBox}" KeyDown="TextBox_PreviewKeyDown"/>
+                        <TextBox Margin="43,0,0,0" x:Name="HideHotkey" HorizontalContentAlignment="Center" Tag="Hide" Height="30" Width="115" FontSize="12" FontWeight="Normal" Classes="RoundedTextBox" KeyDown="TextBox_PreviewKeyDown"/>
                         
                     </StackPanel>
                 </StackPanel>
@@ -76,11 +76,11 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" ToolTip.Tip="View all startup messages even if you've cleared them" Margin="0,5,0,5">
                     <TextBlock VerticalAlignment="Center" Text="Show Startup Messages" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                    <Button Name="ResetMessagesButton" Padding="5,3,5,3" Background="{StaticResource GreenColorBrush}" Foreground="PapayaWhip" FontSize="11" Styles="{StaticResource RoundCornerButton}" Margin="5,0,0,0">View</Button>
+                    <Button Name="ResetMessagesButton" Padding="5,3,5,3" Background="{StaticResource GreenColorBrush}" Foreground="PapayaWhip" FontSize="11" Classes="RoundedCorner" Margin="5,0,0,0">View</Button>
                 </StackPanel>
 
             </StackPanel>
-            <Button Grid.Row="1" Name="EmergencyUIReset" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="5,3,5,3" Background="{StaticResource RedColorBrush}" Foreground="PapayaWhip" FontSize="11" Styles="{StaticResource RoundCornerButton}" Margin="0,0,10,10">Emergency UI Reset</Button>
+            <Button Grid.Row="1" Name="EmergencyUIReset" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="5,3,5,3" Background="{StaticResource RedColorBrush}" Foreground="PapayaWhip" FontSize="11" Classes="RoundedCorner" Margin="0,0,10,10">Emergency UI Reset</Button>
         </Grid>
     </Border>
 </Window>

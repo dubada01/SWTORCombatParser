@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels"
         x:DataType="vm:MetricColorPickerViewModel"
         mc:Ignorable="d"
@@ -21,9 +20,9 @@
         <TextBlock Text="{Binding OverlayType, Converter={StaticResource OverlayTypeToReadableNameConverter}}" 
                    FontSize="15"
                    HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"></TextBlock>
-        <Button  Command="{Binding CloseCommand}" Styles="{StaticResource RoundCornerButton}"  Height="20" Width="20" HorizontalAlignment="Right" VerticalAlignment="Top" Background="IndianRed" Margin="0,5,5,0">X</Button>
-        <colorpicker:SquarePicker Grid.Row="1" SelectedColor="{Binding MetricColor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="10"/>
-        <Button ToolTip.Tip="Reset to default color" Command="{Binding SetDefaultCommand}" Styles="{StaticResource RoundCornerButton}"  Height="20" Width="20" HorizontalAlignment="Left" VerticalAlignment="Top" Background="AliceBlue" FontSize="12" Padding="0,0,0,2" Margin="5,5,0,0">↻</Button>
+        <Button  Command="{Binding CloseCommand}" Classes="RoundedCorner"  Height="20" Width="20" HorizontalAlignment="Right" VerticalAlignment="Top" Background="IndianRed" Margin="0,5,5,0">X</Button>
+        <ColorPicker Grid.Row="1" Color="{Binding MetricColor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="10"/>
+        <Button ToolTip.Tip="Reset to default color" Command="{Binding SetDefaultCommand}" Classes="RoundedCorner"  Height="20" Width="20" HorizontalAlignment="Left" VerticalAlignment="Top" Background="AliceBlue" FontSize="12" Padding="0,0,0,2" Margin="5,5,0,0">↻</Button>
         <Border Grid.Row="1" Background="{Binding MetricBrush}" Margin="0,0,5,5" CornerRadius="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="30" Height="30"></Border>
     </Grid>
 </Window>

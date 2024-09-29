@@ -1,6 +1,6 @@
-﻿using SWTORCombatParser.ViewModels.Combat_Monitoring;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using Avalonia.Controls;
+using Avalonia.Input;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
 
 namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
 {
@@ -12,19 +12,6 @@ namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
         public PastCombatInstanceView()
         {
             InitializeComponent();
-        }
-
-        private void Border_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var viewModel = DataContext as PastCombat;
-            if (Keyboard.Modifiers == ModifierKeys.Control)
-            {
-                viewModel.AdditiveSelectionToggle();
-            }
-            else
-            {
-                viewModel.SelectionToggle();
-            }
         }
     }
 }

@@ -5,39 +5,34 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:pastCombatViews="clr-namespace:SWTORCombatParser.Views.Home_Views.PastCombatViews"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Combat_Monitoring"
+                x:DataType="vm:EncounterCombat"
              mc:Ignorable="d" 
              d:DesignHeight="250" d:DesignWidth="400">
-    <UserControl.Resources>
-        <Style TargetType="ToolTip">
-            <Style.Triggers>
-                <Trigger Property="Content"
-                 Value="{x:Static sys:String.Empty}">
-                    <Setter Property="Visibility"
-                    Value="Collapsed" />
-                </Trigger>
-                <Trigger Property="Content"
-                 Value="{x:Null}">
-                    <Setter Property="Visibility"
-                    Value="Collapsed" />
-                </Trigger>
-            </Style.Triggers>
+    <UserControl.Styles>
+        <!-- Style for the ToolTip -->
+        <Style Selector="ToolTip">
+            <Setter Property="IsVisible" 
+                    Value="{Binding Content, RelativeSource={RelativeSource Self}, ConverterParameter=False, FallbackValue=Collapsed}"/>
         </Style>
-    </UserControl.Resources>
+    </UserControl.Styles>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Border Margin="2,0,2,2" PreviewMouseLeftButtonDown="Border_PreviewMouseLeftButtonDown" BorderBrush="{StaticResource Gray4Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2,2,2,2" CornerRadius="5" Padding="3" >
-            <Border.Resources>
-                <Style TargetType="Border">
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Opacity"  Value="0.85"/>
-                        </Trigger>
-                    </Style.Triggers>
+        <Border Margin="2,0,2,2" PointerPressed="Border_PreviewMouseLeftButtonDown" BorderBrush="{StaticResource Gray4Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2,2,2,2" CornerRadius="5" Padding="3" >
+            <Border.Styles>
+                <!-- Style for the Border -->
+                <Style Selector="Border">
+                    <Setter Property="Opacity" Value="1"/>
+            
+                    <!-- Change opacity when the mouse is over (IsMouseOver equivalent) -->
+                    <Style Selector="Border:pointerover">
+                        <Setter Property="Opacity" Value="0.85"/>
+                    </Style>
                 </Style>
-            </Border.Resources>
+            </Border.Styles>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

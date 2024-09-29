@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Views.Overlay
             InitializeComponent();
         }
 
-        private void Button_PreviewMouseRightButtonUp(object sender, PointerEventArgs e)
+        private void Button_PreviewMouseRightButtonUp(object sender, PointerReleasedEventArgs e)
         {
             var metricViewModel = (OverlayOptionViewModel)DataContext;
             var viewModel = new MetricColorPickerViewModel(metricViewModel.Type);

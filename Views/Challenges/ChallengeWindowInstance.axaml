@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Challenges"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Challenges"
+                x:DataType="vm:ChallengeInstanceViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -13,7 +15,7 @@
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <TextBlock HorizontalAlignment="Center" FontSize="15" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Text="{Binding ChallengeName}" Foreground="Beige" FontFamily="{StaticResource MainFont}"></TextBlock>
-        <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" Margin="10,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView"  Margin="10,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding MetricBars, UpdateSourceTrigger=PropertyChanged}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>

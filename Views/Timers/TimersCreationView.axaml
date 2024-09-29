@@ -26,7 +26,7 @@
             <Viewbox Grid.Column="0" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="Timer Type" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                    <ComboBox Styles="{StaticResource NewComboStyle}" ItemsSource="{Binding TimerSourcesTypes}" SelectedItem="{Binding SelectedTimerSourceType}" Width="250" Height="40"></ComboBox>
+                    <ComboBox  ItemsSource="{Binding TimerSourcesTypes}" SelectedItem="{Binding SelectedTimerSourceType}" Width="250" Height="40"></ComboBox>
                 </StackPanel>
             </Viewbox>
             <Viewbox IsVisible="{Binding VisibleTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Column="1" HorizontalAlignment="Left" MaxHeight="35" Margin="0,0,0,0">
@@ -55,7 +55,7 @@
         <Viewbox Grid.ColumnSpan="2" IsVisible="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5">
             <StackPanel Orientation="Vertical">
                 <TextBlock Text="Ability Timers" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="16"></TextBlock>
-                <ComboBox Styles="{StaticResource NewComboStyle}" ItemsSource="{Binding DisciplineTimersList}" SelectedItem="{Binding SelectedTimerSource}" Width="250" Height="40"></ComboBox>
+                <ComboBox  ItemsSource="{Binding DisciplineTimersList}" SelectedItem="{Binding SelectedTimerSource}" Width="250" Height="40"></ComboBox>
             </StackPanel>
         </Viewbox>
         <ContentPresenter Grid.ColumnSpan="2" Content="{Binding EncounterSelectionView}" IsVisible="{Binding DisciplineTimerSelected, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" Grid.Row="1" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5"></ContentPresenter>
@@ -109,13 +109,13 @@
                         <TextBlock  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text="Active" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                         <CheckBox Margin="5,0,0,0" VerticalAlignment="Center" IsChecked="{Binding AllActive}"/>
                     </StackPanel>
-                    <Button IsEnabled="{Binding CanChangeAudio}" ToolTip.Tip="Toggle timer visibility" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleVisibilityCommand}" HorizontalAlignment="Stretch">
+                    <Button IsEnabled="{Binding CanChangeAudio}" ToolTip.Tip="Toggle timer visibility" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Classes="RoundedCorner" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleVisibilityCommand}" HorizontalAlignment="Stretch">
                         <Image Height="20" Source="{Binding VisibilityImageSource}"/>
                     </Button>
                     <TextBlock Grid.Column="10" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <TextBlock Grid.Column="14" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Text=" " HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                    <Button IsEnabled="{Binding CanChangeAudio}" ToolTip.Tip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
+                    <Button IsEnabled="{Binding CanChangeAudio}" ToolTip.Tip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Classes="RoundedCorner" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
                         <Image Height="20" Source="{Binding AudioImageSource}"/>
                     </Button>
                 </Grid>
@@ -163,22 +163,22 @@
                                     </Grid>
                                     <TextBlock Margin="5,0,0,0" Grid.Column="6" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding DurationSec, StringFormat='#,0.#'}" HorizontalAlignment="Left"/>
                                     <CheckBox Margin="0,0,0,0" Grid.Column="8" VerticalAlignment="Center" IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center"/>
-                                    <Button ToolTip.Tip="Toggle time visiblity" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleVisibilityCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip.Tip="Toggle time visiblity" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Classes="RoundedCorner" Margin="5,0,5,0" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleVisibilityCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="{Binding VisibilityImageSource}"/>
                                     </Button>
-                                    <Button ToolTip.Tip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip.Tip="Mute/Unmute" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Classes="RoundedCorner" Margin="5,0,5,0" Grid.Column="12" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ToggleAudioCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="{Binding AudioImageSource}"/>
                                     </Button>
-                                    <Button ToolTip.Tip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="14" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip.Tip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Classes="RoundedCorner" Margin="5,2,5,2" Grid.Column="14" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/editIcon.png"/>
                                     </Button>
-                                    <Button ToolTip.Tip="Share"  Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="16" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding ShareCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip.Tip="Share"  Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Classes="RoundedCorner" Margin="5,2,5,2" Grid.Column="16" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding ShareCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/shareIcon.png"/>
                                     </Button>
-                                    <Button ToolTip.Tip="Duplicate"  Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="18" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding CopyCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip.Tip="Duplicate"  Background="{StaticResource TransparentGrayBrush}" Padding="3" MaxWidth="30" Classes="RoundedCorner" Margin="5,2,5,2" Grid.Column="18" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"  Command="{Binding CopyCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/copyIcon.png"/>
                                     </Button>
-                                    <Button  Styles="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="22" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                    <Button  Classes="RoundedCorner" Margin="0,0,0,0" Grid.Column="22" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -196,14 +196,14 @@
                 <StackPanel Orientation="Horizontal"   >
                     <StackPanel VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Center" Orientation="Vertical">
                         <TextBlock Foreground="WhiteSmoke" VerticalAlignment="Center" Margin="15,0,15,0" FontFamily="{StaticResource MainFont}" FontSize="18" Text="Import Timer"></TextBlock>
-                        <TextBox Text="{Binding ImportId}" Styles="{StaticResource RoundedTextBox}" Width="100"/>
+                        <TextBox Text="{Binding ImportId}" Classes="RoundedTextBox" Width="100"/>
                     </StackPanel>
-                    <Button Background="Gray" Foreground="WhiteSmoke" Command="{Binding ImportCommand}" Styles="{StaticResource RoundCornerButton}" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
+                    <Button Background="Gray" Foreground="WhiteSmoke" Command="{Binding ImportCommand}" Classes="RoundedCorner" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
                 </StackPanel>
             </Viewbox>
 
 
-            <Button Grid.Column="1" Background="Gray" Foreground="WhiteSmoke" Styles="{StaticResource RoundCornerButton}" Height="40" Width="100" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" Content="Create Timer" Command="{Binding CreateNewTimerCommand}"></Button>
+            <Button Grid.Column="1" Background="Gray" Foreground="WhiteSmoke" Classes="RoundedCorner" Height="40" Width="100" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" Content="Create Timer" Command="{Binding CreateNewTimerCommand}"></Button>
         </Grid>
 
     </Grid>

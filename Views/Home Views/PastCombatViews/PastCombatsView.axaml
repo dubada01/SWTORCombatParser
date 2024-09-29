@@ -4,11 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:pastCombatViews="clr-namespace:SWTORCombatParser.Views.Home_Views.PastCombatViews"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Combat_Monitoring"
+                x:DataType="vm:CombatMonitorViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.Resources>
+    <UserControl.Styles>
         <!-- Style for the ContextMenu -->
-        <Style TargetType="ContextMenu">
+        <Style Selector="ContextMenu">
             <Setter Property="Background" Value="#FF333333"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="Gray"/>
@@ -16,20 +18,19 @@
         </Style>
 
         <!-- Style for the MenuItem -->
-        <Style TargetType="MenuItem">
+        <Style Selector="MenuItem">
             <Setter Property="Background" Value="#FF333333"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10,5"/>
-            <!-- Hover/Selected Background Color -->
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FF555555"/>
-                </Trigger>
-            </Style.Triggers>
+
+            <!-- PointerOver state -->
+            <Style Selector="MenuItem:pointerover">
+                <Setter Property="Background" Value="#FF555555"/>
+            </Style>
         </Style>
-    </UserControl.Resources>
+    </UserControl.Styles>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="200"/>
@@ -54,7 +55,7 @@
                     </Viewbox>
                     <Viewbox Grid.Row="1" VerticalAlignment="Top" MaxHeight="40">
                         <Button FontFamily="{StaticResource MainFont}"
-                                Styles="{StaticResource  RoundCornerButton}"
+                                Classes="RoundedCorner"
                                 Width="50" 
                                 Background="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonColorConverter}}"
                                 Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}"
@@ -96,8 +97,8 @@
                         <ColumnDefinition Width="0.70*"/>
                         <ColumnDefinition Width="0.30*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Styles="{StaticResource RoundedTextBox}" FontSize="10" VerticalContentAlignment="Center" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" Margin="5,12,0,12" IsReadOnly="True"></TextBox>
-                    <Button Grid.Column="1" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" Styles="{StaticResource RoundCornerButton}" Height="20" Width="40" Margin="0,0,2,0" FontSize="12" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
+                    <TextBox Classes="RoundedTextBox" FontSize="10" VerticalContentAlignment="Center" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" Margin="5,12,0,12" IsReadOnly="True"></TextBox>
+                    <Button Grid.Column="1" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Height="20" Width="40" Margin="0,0,2,0" FontSize="12" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
                 </Grid>
                 <!--<ContentPresenter Margin="0,5,0,0" Grid.Row="4" Content="{Binding HistoricalRange}"></ContentPresenter>-->
             </Grid>
@@ -119,7 +120,7 @@
             </Viewbox>
         </Grid>
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-            <ItemsControl  Background="Transparent" BorderBrush="Transparent" HorizontalContentAlignment="Stretch" ItemsSource="{Binding PastEncounters}">
+            <ItemsControl  Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding PastEncounters}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <pastCombatViews:EncounterCombatView/>

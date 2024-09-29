@@ -1,6 +1,7 @@
-﻿using SWTORCombatParser.ViewModels.Home_View_Models;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using Avalonia.Controls;
+using Avalonia.Input;
+using SWTORCombatParser.ViewModels.Home_View_Models;
+
 
 namespace SWTORCombatParser.Views.Home_Views
 {
@@ -16,7 +17,7 @@ namespace SWTORCombatParser.Views.Home_Views
             InitializeComponent();
         }
 
-        private void Border_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void Border_PreviewMouseDown(object sender, PointerPressedEventArgs e)
         {
             _viewModel = DataContext as ParticipantViewModel;
             _isSelected = !_isSelected;

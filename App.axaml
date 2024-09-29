@@ -21,30 +21,17 @@
             </TrayIcon>
         </TrayIcons>
     </TrayIcon.Icons>
-    
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
-    <Application.Styles>
-        <FluentTheme />
-    </Application.Styles>
-    <Application.Styles>
-        <Styles>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.Colors.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.ThumbStyle.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.SliderStyles.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.Buttons.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.TabHeader.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.ComboBox.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.TextBoxStyle.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.CheckBoxStyle.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.DatePickerStyle.axaml"/>
-            <StyleInclude Source="resm:SWTORCombatParser.Utilities.UIStyles.ScrollViewerStyles.axaml"/>
-        </Styles>
-    </Application.Styles>
 
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Utilities/UIStyles/Colors.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Utilities/UIStyles/SliderTemplates.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Utilities/UIStyles/TabTemplates.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="Utilities/UIStyles/ScrollViewerTemplates.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Utilities/UIStyles/DatePickerStyle.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Utilities/UIStyles/ComboBoxTemplates.axaml"></MergeResourceInclude>
+            </ResourceDictionary.MergedDictionaries>
             <FontFamily x:Key="MainFont">Dotum</FontFamily>
             <converters:PastCombatSelectedToBackgroundConverter x:Key="PastCombatSelectedToBackgroundConverter"/>
             <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>
@@ -81,6 +68,24 @@
             <converters:BooleanToEncounterColorConverter x:Key="BooleanToEncounterColorConverter"/>
             <converters:BooleanToInverseBooleanConverter x:Key="BooleanToInverseConverter"/>
             <converters:WidthToVisiblityConverter x:Key="WidthToVisiblityConverter"/>
+            <converters:ContentNullOrEmptyConverter x:Key="ContentNullOrEmptyConverter"/>
         </ResourceDictionary>
     </Application.Resources>
+        
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+    <Application.Styles>
+        <StyleInclude Source="/Utilities/UIStyles/Buttons.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/CheckBoxStyle.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/ComboBox.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/ScrollViewerStyles.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/SliderStyles.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/TabHeader.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/TextBoxStyle.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/ThumbStyle.axaml"></StyleInclude>
+    </Application.Styles>
 </Application>

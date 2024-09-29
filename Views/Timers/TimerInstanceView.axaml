@@ -18,7 +18,7 @@
                 <Border x:Name="TimerBar"  FlowDirection="RightToLeft"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0.5" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
                     <Border.RenderTransform>
-                        <ScaleTransform x:Name="BarScale" ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
+                        <ScaleTransform ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
                     </Border.RenderTransform>
                 </Border>
             </Border>

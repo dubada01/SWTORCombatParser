@@ -10,31 +10,19 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
+using Avalonia;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeWindowViewModel : INotifyPropertyChanged
+    public class ChallengeWindowViewModel : BaseOverlayViewModel
     {
-        private bool overlaysMoveable;
-        private bool active;
         private bool isEnabled;
         private ChallengeWindow _challengeWindow;
         private ChallengeUpdater _challengeUpdater;
         private bool inBossRoom;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event Action CloseRequested = delegate { };
-        public event Action<bool> OnLocking = delegate { };
+        
         public ObservableCollection<ChallengeInstanceViewModel> ActiveChallengeInstances { get; set; } = new ObservableCollection<ChallengeInstanceViewModel>();
-        public bool OverlaysMoveable
-        {
-            get => overlaysMoveable; set
-            {
-                overlaysMoveable = value;
-                OnPropertyChanged();
-            }
-        }
 
         public void RefreshChallenges()
         {
@@ -62,10 +50,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             Dispatcher.UIThread.Invoke(() =>
             {
                 var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Challenge"); ;
-                _challengeWindow.Top = defaultTimersInfo.Position.Y;
-                _challengeWindow.Left = defaultTimersInfo.Position.X;
-                _challengeWindow.Width = defaultTimersInfo.WidtHHeight.X;
-                _challengeWindow.Height = defaultTimersInfo.WidtHHeight.Y;
+                _challengeWindow.SetSizeAndLocation(new Point(defaultTimersInfo.Position.X, defaultTimersInfo.Position.Y), new Point(defaultTimersInfo.WidtHHeight.X, defaultTimersInfo.WidtHHeight.Y));
             });
         }
 
@@ -122,7 +107,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private void UpdateState()
         {
             isEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
-            if (active && !isEnabled)
+            if (_active && !isEnabled)
             {
                 Active = false;
             }
@@ -132,37 +117,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             }
         }
 
-        internal void OverlayClosing()
-        {
-            Active = false;
-            DefaultBossFrameManager.SetRaidChallenges(Active);
-        }
-        public bool Active
-        {
-            get => active;
-            set
-            {
-                active = value;
-                if (!active)
-                {
-                    Dispatcher.UIThread.Invoke(() =>
-                    {
-                        _challengeWindow.Hide();
-                    });
-                }
-                else
-                {
-
-                    Dispatcher.UIThread.Invoke(() =>
-                    {
-                        _challengeWindow.Show();
-                    });
-
-                }
-
-            }
-        }
-        internal void UpdateLock(bool value)
+        internal new void UpdateLock(bool value)
         {
             OverlaysMoveable = !value;
             if (OverlaysMoveable && isEnabled)
@@ -176,14 +131,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     Active = false;
                 }
             }
-            OnLocking(value);
+            SetLock(value);
         }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
+        
         internal void SetScale(double sizeScalar)
         {
             _challengeUpdater.UpdateScale(sizeScalar);

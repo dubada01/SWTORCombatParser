@@ -1,10 +1,15 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Styles go here -->
+</ResourceDictionary>
+<!--<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
     <Style x:Key="DatePickerCalendarStyle"
        TargetType="{x:Type Calendar}"
        BasedOn="{StaticResource {x:Type Calendar}}" />
 
-    <!--The template for the button that displays the calendar.-->
+    ~1~The template for the button that displays the calendar.@1@
     <Style x:Key="DropDownButtonStyle"
        TargetType="Button">
         <Setter Property="Template">
@@ -292,7 +297,7 @@
           Value="1" />
         <Setter Property="HorizontalContentAlignment"
           Value="Stretch" />
-        <!--Set CalendarStyle to DatePickerCalendarStyle.-->
+        ~1~Set CalendarStyle to DatePickerCalendarStyle.@1@
         <Setter Property="CalendarStyle"
           Value="{DynamicResource DatePickerCalendarStyle}" />
         <Setter Property="Template">
@@ -373,4 +378,4 @@
             </Setter.Value>
         </Setter>
     </Style>
-</ResourceDictionary>
+</ResourceDictionary>-->

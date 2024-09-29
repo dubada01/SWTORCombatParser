@@ -21,7 +21,7 @@
             </Grid>
         </Border>
         <Viewbox Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,10,3">
-            <Button Width="50" Height="50" Styles="{StaticResource RoundCornerButton}" Command="{Binding ConfigurePhasesCommand}">
+            <Button Width="50" Height="50" Classes="RoundedCorner" Command="{Binding ConfigurePhasesCommand}">
                 <Image Source="../../resources/cogIcon.png"></Image>
             </Button>
         </Viewbox>

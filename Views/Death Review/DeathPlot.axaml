@@ -4,10 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Death_Review"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Death_Review"
+                x:DataType="vm:DeathPlotViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="{StaticResource Gray3Brush}">
         <Image Margin="60,45,70,75" Source="../../resources/SwtorLogo.png"></Image>
-        <ContentPresenter  Content="{Binding GraphView}" MouseDown="GridView_MouseDown" MouseUp="GridView_MouseUp" MouseMove="GridView_MouseMove" Name="GridView" Grid.RowSpan="1"></ContentPresenter>
+        <ContentPresenter  Content="{Binding GraphView}" PointerPressed="GridView_MouseDown" PointerReleased="GridView_MouseUp" PointerMoved="GridView_MouseMove" Name="GridView" Grid.RowSpan="1"></ContentPresenter>
     </Grid>
 </UserControl>
