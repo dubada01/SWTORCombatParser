@@ -14,6 +14,8 @@ using System.Linq;
 using System.Reactive;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using Avalonia.Threading;
 using ReactiveUI;
@@ -116,10 +118,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 id = AlphanumericsGenerator.RandomString(3);
             } while (currentIds.Contains(id));
             obj.SourceChallenge.ShareId = id;
-            var shareWindow = new TimerSharePopup(id);
-            shareWindow.ShowDialog();
-            DefaultChallengeManager.SetIdForChallenge(obj.SourceChallenge, SelectedSource, id);
-            await ChallengeDatabaseAccess.AddChallenge(obj.SourceChallenge);
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var shareWindow = new TimerSharePopup(id);
+                shareWindow.ShowDialog(desktop.MainWindow);
+                DefaultChallengeManager.SetIdForChallenge(obj.SourceChallenge, SelectedSource, id);
+                await ChallengeDatabaseAccess.AddChallenge(obj.SourceChallenge);
+            }
         }
         public ICommand AllChallengeCommand => new CommandHandler(CreateNewChallenge);
 

@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="BrossFrameView" AllowsTransparency="True" Background="{x:Null}" 
         WindowStyle="None" ResizeMode="NoResize" Topmost="True" MouseLeave="Window_MouseLeave" SizeToContent="Height" ShowInTaskbar="False">
-    <Grid x:Name="MainArea" Visibility="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip="Boss Info Frame">
+    <Grid x:Name="MainArea" IsVisible="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip.Tip="Boss Info Frame">
         <Border x:Name="BackgroundArea" PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="3" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
@@ -17,11 +17,11 @@
                 <TextBlock Text="{Binding CombatDuration}" Foreground="{StaticResource Gray12Brush}"></TextBlock>
             </StackPanel>
         </Viewbox>
-        <Viewbox Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,50,0">
+        <Viewbox IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,50,0">
             <overlay:ScaleControl Opacity="0.6"/>
         </Viewbox>
         <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
-            <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
+            <Button FontFamily="{StaticResource MainFont}" Styles="{StaticResource RoundCornerButton}" Background="#c96161" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
         </Viewbox>
         <ItemsControl Margin="0,30,0,0" ItemsSource="{Binding BossesDetected}">
@@ -40,9 +40,9 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
+        <Thumb IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Styles="{StaticResource LampadaThumbStyle}" 
                MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
-        <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
+        <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
             <TextBlock Text="BOSS FRAME" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
         </Viewbox>
     </Grid>

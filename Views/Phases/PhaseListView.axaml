@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Phases"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Phases"
+        x:DataType="vm:PhaseListViewModel"
         mc:Ignorable="d"
         Title="Phase Setup" Height="450" Width="400" Background="{StaticResource Gray5Brush}">
     <Grid>
@@ -67,10 +69,10 @@
                                     <Rectangle Fill="DimGray" Grid.Column="3" ></Rectangle>
                                     <TextBlock Margin="5,0,0,0" Grid.Column="0" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="14" VerticalAlignment="Center" Text="{Binding Name}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Margin="5,0,0,0" Grid.Column="2" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"  FontSize="14" VerticalAlignment="Center" Text="{Binding Type}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-                                    <Button ToolTip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="6" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip.Tip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="6" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/editIcon.png"/>
                                     </Button>
-                                    <Button  Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="8" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                    <Button  Styles="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="8" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -80,7 +82,7 @@
         </Border>
 
         <Grid Grid.Row="3" Grid.ColumnSpan="2">
-            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Style="{StaticResource RoundCornerButton}" Height="40" Width="100" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" Content="Add Phase" Command="{Binding AddPhaseCommand}"></Button>
+            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Styles="{StaticResource RoundCornerButton}" Height="40" Width="100" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" Content="Add Phase" Command="{Binding AddPhaseCommand}"></Button>
         </Grid>
     </Grid>
 </Window>

@@ -6,17 +6,15 @@ using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Threading;
 
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room
 {
-    public class RoomOverlayViewModel : INotifyPropertyChanged
+    public class RoomOverlayViewModel : BaseOverlayViewModel
     {
         private DateTime _startTime;
 
@@ -114,13 +112,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 OnPropertyChanged();
             }
         }
-        public event Action<bool> OnLocking = delegate { };
-
-
-        public bool OverlaysMoveable { get; set; }
         public void LockOverlays()
         {
-            OnLocking(true);
+            SetLock(true);
             OverlaysMoveable = false;
             IsActive = false;
             OnPropertyChanged("IsActive");
@@ -128,7 +122,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
+            SetLock(false);
             OverlaysMoveable = true;
             IsActive = true;
             OnPropertyChanged("IsActive");
@@ -163,15 +157,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             var defaults = DefaultRoomOverlayManager.GetDefaults();
             OverlayEnabled = defaults.Acive;
             ViewExtraInfo = defaults.ViewExtraData;
-            _roomOverlay.Top = defaults.Position.Y;
-            _roomOverlay.Left = defaults.Position.X;
-            _roomOverlay.Width = defaults.WidtHHeight.X;
-            _roomOverlay.Height = defaults.WidtHHeight.Y;
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            _roomOverlay.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
         }
     }
 }

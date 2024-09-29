@@ -40,7 +40,7 @@
                PointerEntered="Thumb_MouseEnter" PointerExited="Grid_MouseLeave" PointerReleased="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
         </Grid>
         <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding OverlaysMoveable}">
-            <TextBlock Text="ALERT AREA" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
+            <TextBlock x:Name="IdentifierText" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
         </Viewbox>
     </Grid>
 </Window>

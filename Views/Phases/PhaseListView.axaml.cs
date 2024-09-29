@@ -1,5 +1,6 @@
-﻿using SWTORCombatParser.ViewModels.Phases;
-using System.Windows;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.Phases;
+
 
 namespace SWTORCombatParser.Views.Phases
 {

@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace SWTORCombatParser.Views.Timers
 {
@@ -10,11 +12,13 @@ namespace SWTORCombatParser.Views.Timers
         public TimerSharePopup(string id)
         {
             InitializeComponent();
-            this.Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth / 2) - (750 / 2d);
-            this.Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight / 2) - (450 / 2d);
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                Position = new PixelPoint((int)(desktop.MainWindow.Position.X + (desktop.MainWindow.Width / 2) - (750 / 2)), (int)(desktop.MainWindow.Position.Y + (desktop.MainWindow.Height / 2) - (450 / 2)));
+            }
             OkButton.Click += (e, s) => { Close(); };
             ShareCode.Text = id;
-            Clipboard.SetText(id);
+            Clipboard.SetTextAsync(id);
         }
     }
 }

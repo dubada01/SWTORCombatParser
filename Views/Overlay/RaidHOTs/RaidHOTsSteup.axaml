@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.RaidHots"
+                x:DataType="vm:RaidHotsConfigViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="800">
     <Grid>
@@ -28,8 +30,8 @@
 
             </Viewbox>
             <Viewbox MaxHeight="60" Grid.Row="3">
-                <Button Margin="0,15,0,10" Style="{StaticResource RoundCornerButton}" Height="75" Width="200" Content="Refresh Players" Background="CornflowerBlue" 
-                        Foreground="WhiteSmoke" FontSize="20" IsEnabled="{Binding CanDetect}" ToolTip="Hotkey: Ctrl+Alt+R" FontWeight="Bold" FontFamily="{StaticResource MainFont}" Command="{Binding ManuallyRefreshPlayersCommand}"></Button>
+                <Button Margin="0,15,0,10" Styles="{StaticResource RoundCornerButton}" Height="75" Width="200" Content="Refresh Players" Background="CornflowerBlue" 
+                        Foreground="WhiteSmoke" FontSize="20" IsEnabled="{Binding CanDetect}" ToolTip.Tip="Hotkey: Ctrl+Alt+R" FontWeight="Bold" FontFamily="{StaticResource MainFont}" Command="{Binding ManuallyRefreshPlayersCommand}"></Button>
             </Viewbox>
         </Grid>
     </Grid>

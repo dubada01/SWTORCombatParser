@@ -17,7 +17,7 @@
             <ItemsControl ItemsSource="{Binding MetricBars, UpdateSourceTrigger=PropertyChanged}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Grid ToolTip="{Binding InfoText}"  Margin="0,2,2,2" MaxHeight="{Binding BarHeight}">
+                        <Grid ToolTip.Tip="{Binding InfoText}"  Margin="0,2,2,2" MaxHeight="{Binding BarHeight}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="{Binding ValueWidth}"/>

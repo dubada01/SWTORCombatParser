@@ -21,7 +21,9 @@ using System.Linq;
 using System.Reactive;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
@@ -36,8 +38,8 @@ namespace SWTORCombatParser.ViewModels.Timers
     }
     public class TimersCreationViewModel :ReactiveObject, INotifyPropertyChanged
     {
-        private ITimerWindowViewModel _disciplineTimersWindow;
-        private ITimerWindowViewModel _encounterTimersWindow;
+        private TimersWindowViewModel _disciplineTimersWindow;
+        private TimersWindowViewModel _encounterTimersWindow;
         private AlertsWindowViewModel _alertTimersWindow;
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private TimerType selectedTimerSourceType = TimerType.Discipline;
@@ -196,7 +198,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     if (CombatMonitorViewModel.IsLiveParseActive())
                     {
                         _disciplineTimersWindow.SetSource(SelectedTimerSource);
-                        _disciplineTimersWindow.ShowTimers(_isLocked);
+                        _disciplineTimersWindow.ShowOverlayWindow();
                     }
                 }
                 else
@@ -225,11 +227,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void TryShow()
         {
             if (DisciplineTimersActive)
-                _disciplineTimersWindow.ShowTimers(_isLocked);
+                _disciplineTimersWindow.ShowOverlayWindow();
         }
         public void HideTimers()
         {
-            _disciplineTimersWindow.HideTimers();
+            _disciplineTimersWindow.HideOverlayWindow();
         }
 
         public ObservableCollection<TimerRowInstanceViewModel> TimerRows
@@ -276,7 +278,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
-            _disciplineTimersWindow = new TimersWindowViewModel();
+            _disciplineTimersWindow = new DisciplineTimersWindowViewModel();
             _alertTimersWindow = new AlertsWindowViewModel();
             _encounterTimersWindow = new EncounterTimerWindowViewModel();
             alertTimersActive = _alertTimersWindow.Active;
@@ -330,8 +332,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             var vm = new ModifyTimerViewModel(SelectedTimerSource);
             vm.OnNewTimer += NewTimer;
-            var t = new TimerModificationWindow(vm);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var t = new TimerModificationWindow(vm);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
         public string AudioImageSource => !allMuted ? Environment.CurrentDirectory + "/resources/audioIcon.png" : Environment.CurrentDirectory + "/resources/mutedIcon.png";
         public string VisibilityImageSource => !allHidden ? Environment.CurrentDirectory + "/resources/view.png" : Environment.CurrentDirectory + "/resources/hidden.png";
@@ -565,10 +570,13 @@ namespace SWTORCombatParser.ViewModels.Timers
                 id = AlphanumericsGenerator.RandomString(3);
             } while (currentIds.Contains(id));
             obj.SourceTimer.ShareId = id;
-            var shareWindow = new TimerSharePopup(id);
-            shareWindow.ShowDialog();
-            DefaultTimersManager.SetIdForTimer(obj.SourceTimer, SelectedTimerSource, id);
-            await TimerDatabaseAccess.AddTimer(obj.SourceTimer);
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var shareWindow = new TimerSharePopup(id);
+                shareWindow.ShowDialog(desktop.MainWindow);
+                DefaultTimersManager.SetIdForTimer(obj.SourceTimer, SelectedTimerSource, id);
+                await TimerDatabaseAccess.AddTimer(obj.SourceTimer);
+            }
         }
         private void Edit(TimerRowInstanceViewModel obj)
         {
@@ -577,9 +585,12 @@ namespace SWTORCombatParser.ViewModels.Timers
             var vm = new ModifyTimerViewModel(SelectedTimerSource);
             vm.OnNewTimer += NewTimer;
             vm.OnCancelEdit += CancelEdit;
-            var t = new TimerModificationWindow(vm);
-            vm.Edit(_timerEdited.Copy());
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var t = new TimerModificationWindow(vm);
+                vm.Edit(_timerEdited.Copy());
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
         private void ActiveChanged(TimerRowInstanceViewModel timerRow)
         {

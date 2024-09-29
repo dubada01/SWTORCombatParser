@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Battle_Review"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.BattleReview"
+             x:DataType="vm:EventHistoryViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Border BorderBrush="DimGray" Background="{StaticResource Gray3Brush}" BorderThickness="2" CornerRadius="3">
@@ -54,39 +56,35 @@
                 <TextBlock Grid.Column="12" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="13" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Value" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
             </Grid>
 
-            <DataGrid MouseEnter="DataArea_MouseEnter" MouseLeave="DataArea_MouseLeave" AlternationCount="2" x:Name="DataArea" SelectionChanged="Selection1List_SelectionChanged" Background="{StaticResource Gray5Brush}" SelectedIndex="{Binding SelectedIndex, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
-                      HeadersVisibility="None" ItemsSource="{Binding LogsToDisplay}" VerticalScrollBarVisibility="Visible" SelectionMode="Single" GridLinesVisibility="Vertical"  AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
-                <DataGrid.RowStyle>
-                    <Style TargetType="{x:Type DataGridRow}">
-                        <Style.Triggers>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="0">
-                                <Setter Property="Background" Value="{StaticResource Gray3Brush}"></Setter>
-                            </Trigger>
-                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                                <Setter Property="Background" Value="{StaticResource Gray4Brush}"></Setter>
-                            </Trigger>
-                        </Style.Triggers>
+            <DataGrid PointerEntered="DataArea_MouseEnter" PointerExited="DataArea_MouseLeave" x:Name="DataArea" SelectionChanged="Selection1List_SelectionChanged" Background="{StaticResource Gray5Brush}" SelectedIndex="{Binding SelectedIndex, UpdateSourceTrigger=PropertyChanged}" Grid.Row="1"
+                      HeadersVisibility="None" ItemsSource="{Binding LogsToDisplay}" VerticalScrollBarVisibility="Visible" SelectionMode="Single" GridLinesVisibility="Vertical"  AutoGenerateColumns="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <!-- Alternating Row Colors -->
+                <!-- Alternating Row Colors -->
+                <DataGrid.Styles>
+                    <!-- Row styles based on alternation -->
+                    <Style Selector="DataGridRow:nth-child(odd)">
+                        <Setter Property="Background" Value="{StaticResource Gray3Brush}" />
                     </Style>
-                </DataGrid.RowStyle>
-                <DataGrid.CellStyle>
-                    <Style TargetType="{x:Type DataGridCell}">
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{StaticResource Gray5Brush}"/>
-                                <Setter Property="BorderBrush" Value="WhiteSmoke"/>
-                                <Setter Property="BorderThickness" Value="0,2,0,2"/>
-                                <Setter Property="Foreground" Value="WhiteSmoke"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="False">
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderBrush" Value="Transparent"/>
-                                <Setter Property="BorderThickness" Value="0,2,0,2"/>
-                                <Setter Property="Foreground" Value="WhiteSmoke"/>
-                            </Trigger>
-                        </Style.Triggers>
+                    <Style Selector="DataGridRow:nth-child(even)">
+                        <Setter Property="Background" Value="{StaticResource Gray4Brush}" />
+                    </Style>
 
+                    <!-- Selected cell style -->
+                    <Style Selector="DataGridCell:selected">
+                        <Setter Property="Background" Value="{StaticResource Gray5Brush}" />
+                        <Setter Property="BorderBrush" Value="WhiteSmoke" />
+                        <Setter Property="BorderThickness" Value="0,2,0,2" />
+                        <Setter Property="Foreground" Value="WhiteSmoke" />
                     </Style>
-                </DataGrid.CellStyle>
+
+                    <!-- Default cell style -->
+                    <Style Selector="DataGridCell">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0,2,0,2" />
+                        <Setter Property="Foreground" Value="WhiteSmoke" />
+                    </Style>
+                </DataGrid.Styles>
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Width="0.02*">
                         <DataGridTemplateColumn.CellTemplate>
@@ -99,7 +97,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Source" ToolTip="Click To Copy ID"/>
+                                    <Button Styles="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Source" ToolTip.Tip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Source}"  HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>
@@ -109,7 +107,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Target" ToolTip="Click To Copy ID"/>
+                                    <Button Styles="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Target" ToolTip.Tip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Target}" HorizontalAlignment="Left"/>
                             </Grid>
                                 </DataTemplate>
@@ -119,8 +117,8 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding AbilityIcon, IsAsync=True}"></Image>
-                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Ability" ToolTip="Click To Copy ID"/>
+                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding AbilityIcon}"></Image>
+                                    <Button Styles="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Ability" ToolTip.Tip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="{Binding AbilityTextMargin}" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}"  TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding Ability}" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>
@@ -130,8 +128,8 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid Background="{Binding EffectBackground}">
-                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding EffectIcon, IsAsync=True}"></Image>
-                                    <Button Style="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Effect" ToolTip="Click To Copy ID"/>
+                                    <Image HorizontalAlignment="Left" Height="18" Source="{Binding EffectIcon}"></Image>
+                                    <Button Styles="{StaticResource GridCellButton}" Command="{Binding CellClickedCommand}" CommandParameter="Effect" ToolTip.Tip="Click To Copy ID"/>
                                     <TextBlock IsHitTestVisible="False" Margin="{Binding EffectTextMargin}" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Text="{Binding EffectName}" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>
@@ -147,7 +145,7 @@
                     <DataGridTemplateColumn Width="0.025*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Grid ToolTip="{Binding Threat}" Background="{Binding ValueBackground}">
+                                <Grid ToolTip.Tip="{Binding Threat}" Background="{Binding ValueBackground}">
                                     <TextBlock  Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" TextDecorations="{Binding WasValueCrit, Converter={StaticResource BooleanToFontStyleConverter}}" VerticalAlignment="Center" Text="{Binding Value}" HorizontalAlignment="Left"/>
                                 </Grid>
                             </DataTemplate>

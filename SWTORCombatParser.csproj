@@ -100,6 +100,9 @@
     <Compile Remove="ViewModels\Leaderboard\**" />
     <EmbeddedResource Remove="ViewModels\Leaderboard\**" />
     <None Remove="ViewModels\Leaderboard\**" />
+    <Compile Remove="Views\Overviews\HistogramInstanceView.axaml.cs" />
+    <Compile Remove="ViewModels\Overviews\HistogramViewModel.cs" />
+    <Compile Remove="ViewModels\Overviews\HistogramInstanceViewModel.cs" />
   </ItemGroup>
     <ItemGroup>
         <Content Include="resources\**\*.*">
@@ -396,6 +399,8 @@
   <ItemGroup>
     <AvaloniaXaml Remove="Views\Leaderboard View\**" />
     <AvaloniaXaml Remove="ViewModels\Leaderboard\**" />
+    <AvaloniaXaml Remove="Views\Overviews\HistogramInstanceView.axaml" />
+    <AvaloniaXaml Remove="Views\Battle Review\MapView.axaml" />
   </ItemGroup>
 
   <ItemGroup>

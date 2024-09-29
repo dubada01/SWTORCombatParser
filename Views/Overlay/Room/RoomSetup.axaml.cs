@@ -1,6 +1,5 @@
-﻿using SWTORCombatParser.ViewModels.Overlays.Room;
-using System.Windows.Controls;
-
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.Overlays.Room;
 namespace SWTORCombatParser.Views.Overlay.Room
 {
     /// <summary>

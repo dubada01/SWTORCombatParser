@@ -48,7 +48,7 @@
                                     <CheckBox  Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding Checked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
                                     <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="{Binding Name}" Foreground="{Binding LegendColor}"></TextBlock>
 
-                                    <CheckBox Visibility="{Binding ShowEffective}"  Grid.Row="1" Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding EffectiveChecked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                    <CheckBox IsVisible="{Binding ShowEffective}"  Grid.Row="1" Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding EffectiveChecked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
                                     <TextBlock FontFamily="{StaticResource MainFont}" Visibility="{Binding ShowEffective}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="raw" Foreground="WhiteSmoke"></TextBlock>
                                 </Grid>
                             </DataTemplate>
@@ -60,7 +60,7 @@
 
         <Viewbox MaxHeight="75" Margin="5,0,0,10" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="2">
             <StackPanel  Orientation="Vertical">
-                <TextBox Style="{StaticResource RoundedTextBox}" Width="60" Text="{Binding AverageWindowDuration, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Center" FontSize="15" FontFamily="{StaticResource MainFont}"></TextBox>
+                <TextBox Styles="{StaticResource RoundedTextBox}" Width="60" Text="{Binding AverageWindowDuration, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Center" FontSize="15" FontFamily="{StaticResource MainFont}"></TextBox>
                 <TextBlock FontFamily="{StaticResource MainFont}" Foreground="Beige" FontSize="14" FontWeight="DemiBold" HorizontalAlignment="Center" Text="  Rolling Average&#x0a;Window Duration"></TextBlock>
             </StackPanel>
         </Viewbox>

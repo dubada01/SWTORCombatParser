@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overviews"
+             x:DataType="vm:TableViewModel"
              xmlns:local="clr-namespace:SWTORCombatParser.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -13,50 +15,70 @@
         </Grid.RowDefinitions>
         <Viewbox HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal">
-                <ComboBox Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableParticipants}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedEntity}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
-                <ComboBox  Style="{StaticResource NewComboStyle}" Visibility="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+                <ComboBox 
+                    Styles="{StaticResource NewComboStyle}" 
+                    ItemsSource="{Binding AvailableParticipants}" 
+                    SelectedItem="{Binding SelectedEntity}" 
+                    Width="250" 
+                    HorizontalAlignment="Left" 
+                    Margin="5">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <ComboBox  Styles="{StaticResource NewComboStyle}" IsVisible="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
             </StackPanel>
         </Viewbox>
         <DockPanel Grid.Row="1" LastChildFill="True" HorizontalAlignment="Stretch">
             <TabControl>
                 <TabControl.Resources>
-                    <Style TargetType="{x:Type TabControl}">
+                    <Style Selector="TabControl">
                         <Setter Property="Template">
                             <Setter.Value>
-                                <ControlTemplate TargetType="TabControl">
+                                <ControlTemplate>
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
-                                        <Border BorderThickness="0,0,1,1"  CornerRadius="0,5,5,5" BorderBrush="#D0CEBF" Grid.Row="1">
+
+                                        <!-- The Tab Headers -->
+                                        <ItemsPresenter Grid.Row="0" 
+                                                        Name="PART_TabStrip"
+                                                        HorizontalAlignment="Stretch"/>
+
+                                        <!-- The Content Area -->
+                                        <Border BorderThickness="0,0,1,1" CornerRadius="0,5,5,5" 
+                                                BorderBrush="#D0CEBF" Grid.Row="1">
                                             <Border CornerRadius="0,5,5,5" BorderThickness="{TemplateBinding BorderThickness}" 
-                BorderBrush="{TemplateBinding BorderBrush}">
-                                                <Border CornerRadius="0,5,5,5"  Background="{TemplateBinding Background}">
-                                                    <ContentPresenter ContentSource="SelectedContent"/>
+                                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                                <Border CornerRadius="0,5,5,5" Background="{TemplateBinding Background}">
+                                                    <ContentPresenter Content="{TemplateBinding SelectedContent}"/>
                                                 </Border>
                                             </Border>
                                         </Border>
-                                        <TabPanel Background="Transparent" Grid.Row="0" IsItemsHost="true"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
                 </TabControl.Resources>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Damage">
+
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Damage">
                     <ContentPresenter Content="{Binding DamageContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Healing">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Healing">
                     <ContentPresenter Content="{Binding HealingContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Damage Taken">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Damage Taken">
                     <ContentPresenter Content="{Binding DamageTakenContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Healing Received">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Healing Received">
                     <ContentPresenter Content="{Binding HealingReceivedContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Style="{StaticResource RoundedTab}" Header="Threat">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Styles="{StaticResource RoundedTab}" Header="Threat">
                     <ContentPresenter Content="{Binding ThreatContent}"></ContentPresenter>
                 </TabItem>
             </TabControl>

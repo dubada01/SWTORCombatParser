@@ -20,10 +20,10 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <TextBlock FontFamily="{StaticResource MainFont}"  Foreground="CadetBlue" HorizontalAlignment="Left" Text="Effect Type" FontWeight="DemiBold" FontSize="23" Grid.Row="0" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
-                <ComboBox Grid.Row="1" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableEffectTypes}" SelectedItem="{Binding SelectedEffectType}"></ComboBox>
-                <StackPanel Grid.Row="2" Visibility="{Binding OtherSelectionVisible, Converter={StaticResource BooleanToVisibiityConverter}}">
+                <ComboBox Grid.Row="1" Styles="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableEffectTypes}" SelectedItem="{Binding SelectedEffectType}"></ComboBox>
+                <StackPanel Grid.Row="2" IsVisible="{Binding OtherSelectionVisible, Converter={StaticResource BooleanToVisibiityConverter}}">
                     <TextBlock FontFamily="{StaticResource MainFont}"  Foreground="Gray" HorizontalAlignment="Left" Text="Other"  FontSize="16" Grid.Row="1" Margin="10,5,0,0" VerticalAlignment="Top"></TextBlock>
-                    <ComboBox Margin="10,0,10,0" Style="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableOthers}" SelectedItem="{Binding SelectedOther}"></ComboBox>
+                    <ComboBox Margin="10,0,10,0" Styles="{StaticResource NewComboStyle}" ItemsSource="{Binding AvailableOthers}" SelectedItem="{Binding SelectedOther}"></ComboBox>
                 </StackPanel>
                 <Rectangle Grid.Row="2" Height="50"></Rectangle>
             </Grid>
@@ -57,7 +57,7 @@
         </Border>
         <TextBlock FontFamily="{StaticResource MainFont}" Background="{StaticResource Gray3Brush}" Foreground="CadetBlue" Width="71" HorizontalAlignment="Left" Text="Effects" FontWeight="DemiBold" FontSize="23" Grid.Row="1" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
         <Viewbox VerticalAlignment="Center" MaxHeight="30" Margin="0,5,0,5" Grid.Row="2">
-            <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Width="75" FontSize="10" Padding="5" Content="Clear" Command="{Binding ClearCombatEffectsCommand}"/>
+            <Button FontFamily="{StaticResource MainFont}" Styles="{StaticResource RoundCornerButton}" Width="75" FontSize="10" Padding="5" Content="Clear" Command="{Binding ClearCombatEffectsCommand}"/>
         </Viewbox>
         
     </Grid>

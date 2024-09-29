@@ -99,13 +99,13 @@
                                         <Border CornerRadius="3" Background="{Binding ChallengeBackground}" Height="17"></Border>
                                     </Grid>
                                     <CheckBox Margin="0,0,0,0" Grid.Column="6" VerticalAlignment="Center" IsChecked="{Binding IsEnabled}" HorizontalAlignment="Center"/>
-                                    <Button ToolTip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="8" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip.Tip="Edit" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="8" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding EditCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/editIcon.png"/>
                                     </Button>
-                                    <Button ToolTip="Share" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Style="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch">
+                                    <Button ToolTip.Tip="Share" Background="{StaticResource TransparentGrayBrush}"  Padding="3" MaxWidth="30" Styles="{StaticResource RoundCornerButton}" Margin="5,2,5,2" Grid.Column="10" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Command="{Binding ShareCommand}" HorizontalAlignment="Stretch">
                                         <Image Height="20" Source="../../resources/shareIcon.png"/>
                                     </Button>
-                                    <Button  Style="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="20" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
+                                    <Button  Styles="{StaticResource RoundCornerButton}" Margin="0,0,0,0" Grid.Column="20" FontFamily="{StaticResource MainFont}" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="20" Height="20" FontSize="10" VerticalAlignment="Center" Content="X" Command="{Binding DeleteCommand}" HorizontalAlignment="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -123,12 +123,12 @@
                 <StackPanel Orientation="Horizontal"   >
                     <StackPanel VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Center" Orientation="Vertical">
                         <TextBlock Foreground="WhiteSmoke" VerticalAlignment="Center" Margin="15,0,15,0" FontFamily="{StaticResource MainFont}" FontSize="18" Text="Import Challenge"></TextBlock>
-                        <TextBox Text="{Binding ImportId}" Style="{StaticResource RoundedTextBox}" Width="100"/>
+                        <TextBox Text="{Binding ImportId}" Styles="{StaticResource RoundedTextBox}" Width="100"/>
                     </StackPanel>
-                    <Button Background="Gray" Foreground="WhiteSmoke" Command="{Binding ImportCommand}" Style="{StaticResource RoundCornerButton}" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
+                    <Button Background="Gray" Foreground="WhiteSmoke" Command="{Binding ImportCommand}" Styles="{StaticResource RoundCornerButton}" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
                 </StackPanel>
             </Viewbox>
-            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Style="{StaticResource RoundCornerButton}" Height="30" Width="75" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" FontSize="10" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
+            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Styles="{StaticResource RoundCornerButton}" Height="30" Width="75" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" FontSize="10" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
         </Grid>
     </Grid>
 </UserControl>

@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overviews"
+                x:DataType="vm:TableInstanceViewModel"
              d:DesignHeight="450" d:DesignWidth="800">
     <ScrollViewer HorizontalScrollBarVisibility="Auto">
 
@@ -92,7 +94,7 @@
                             <Rectangle Fill="DimGray" Grid.Column="11"></Rectangle>
                             <Rectangle Fill="DimGray" Grid.Column="13"></Rectangle>
                             <Rectangle Fill="DimGray" Grid.Column="15"></Rectangle>
-                            <Image Width="20" Source="{Binding Icon, IsAsync=True}" HorizontalAlignment="Left"></Image>
+                            <Image Width="20" Source="{Binding Icon}" HorizontalAlignment="Left"></Image>
                             <TextBlock Margin="20,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" FontSize="12" VerticalAlignment="Center" Text="{Binding SortItem}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                             <Grid Margin="10,3,10,3" Grid.Column="2" VerticalAlignment="Center" >
                                 <Grid.ColumnDefinitions>

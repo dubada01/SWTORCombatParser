@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
@@ -29,7 +30,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         public PositionData Position { get; set; }
         public bool IsTarget { get; set; }
     }
-    public class MiniMapViewModel : INotifyPropertyChanged
+    public class MiniMapViewModel : BaseOverlayViewModel
     {
         private bool _isActive = false;
         private MiniMapView _miniMapView;
@@ -122,12 +123,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 OnPropertyChanged();
             }
         }
-        public event Action<bool> OnLocking = delegate { };
-        public bool OverlaysMoveable { get; set; }
         public bool ShowFrame { get; set; }
         public void LockOverlays()
         {
-            OnLocking(true);
+            SetLock(true);
             OverlaysMoveable = false;
             if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
@@ -136,7 +135,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
+            SetLock(false);
             OverlaysMoveable = true;
             if (GetCurrentActive())
                 ShowFrame = true;
@@ -248,15 +247,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap");
             OverlayEnabled = defaults.Acive;
-            _miniMapView.Top = defaults.Position.Y;
-            _miniMapView.Left = defaults.Position.X;
-            _miniMapView.Width = defaults.WidtHHeight.X;
-            _miniMapView.Height = defaults.WidtHHeight.Y;
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            _miniMapView.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
         }
     }
 }

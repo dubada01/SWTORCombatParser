@@ -1,5 +1,5 @@
-﻿using SWTORCombatParser.ViewModels.Overviews;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.Overviews;
 
 namespace SWTORCombatParser.Views.Overviews
 {

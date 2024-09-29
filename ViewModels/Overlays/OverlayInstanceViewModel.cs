@@ -8,22 +8,18 @@ using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows;
+using Avalonia.Controls;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
-    public class OverlayInstanceViewModel : INotifyPropertyChanged
+    public class OverlayInstanceViewModel : BaseOverlayViewModel
     {
         private object _refreshLock = new object();
         private double sizeScalar = 1d;
         private string metricTotal;
-
-        public bool OverlaysMoveable { get; set; }
         public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
         public bool UsingLeaderboard { get; set; }
         public double SizeScalar
@@ -61,20 +57,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool AddSecondaryToValue { get; set; } = false;
         public bool FlipSecondaryAndPrimaryBars { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
-        public event Action CloseRequested = delegate { };
-        public event Action<bool> OnLocking = delegate { };
         public event Action OnHiding = delegate { };
         public event Action OnShowing = delegate { };
-        public event Action<string> OnCharacterDetected = delegate { };
         public void OverlayClosing()
         {
             Dispose();
             OverlayClosed(this);
-        }
-        public void RequestClose()
-        {
-            Dispose();
-            CloseRequested();
         }
         private void Dispose()
         {
@@ -220,7 +208,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         internal void CharacterDetected(string name)
         {
-            OnCharacterDetected(name);
+            SetPlayer(name);
         }
 
         public void Reset()
@@ -244,13 +232,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void LockOverlays()
         {
-            OnLocking(true);
+            SetLock(true);
             OverlaysMoveable = false;
             OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
+            SetLock(false);
             OverlaysMoveable = true;
             OnPropertyChanged("OverlaysMoveable");
         }
@@ -416,15 +404,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var value = MetricGetter.GetValueForMetric(type, obj, participant);
             metricToUpdate.Value = value;
             metricToUpdate.Type = type;
-        }
-
-
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

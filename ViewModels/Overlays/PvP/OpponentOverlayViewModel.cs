@@ -9,11 +9,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
-    public class OpponentOverlayViewModel : INotifyPropertyChanged
+    public class OpponentOverlayViewModel : BaseOverlayViewModel
     {
         private bool _isActive = false;
         private readonly OpponentHpOverlay _opponentHPView;
@@ -114,12 +115,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 OnPropertyChanged();
             }
         }
-        public event Action<bool> OnLocking = delegate { };
-        public bool OverlaysMoveable { get; set; }
         public bool ShowFrame { get; set; }
         public void LockOverlays()
         {
-            OnLocking(true);
+            SetLock(true);
             OverlaysMoveable = false;
             if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
@@ -128,7 +127,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
+            SetLock(false);
             OverlaysMoveable = true;
             if (GetCurrentActive())
                 ShowFrame = true;
@@ -249,15 +248,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP");
             OverlayEnabled = defaults.Acive;
-            _opponentHPView.Top = defaults.Position.Y;
-            _opponentHPView.Left = defaults.Position.X;
-            _opponentHPView.Width = defaults.WidtHHeight.X;
-            _opponentHPView.Height = defaults.WidtHHeight.Y;
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            _opponentHPView.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
         }
     }
 }

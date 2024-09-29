@@ -24,6 +24,7 @@ using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Avalonia;
 using Avalonia.Threading;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
@@ -450,10 +451,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var stringType = viewModel.Type.ToString();
             if (_overlayDefaults.ContainsKey(stringType))
             {
-                overlay.Top = _overlayDefaults[stringType].Position.Y;
-                overlay.Left = _overlayDefaults[stringType].Position.X;
-                overlay.Width = _overlayDefaults[stringType].WidtHHeight.X;
-                overlay.Height = _overlayDefaults[stringType].WidtHHeight.Y;
+                overlay.SetSizeAndLocation(
+                    new Point(_overlayDefaults[stringType].Position.X, _overlayDefaults[stringType].Position.Y), 
+                    new Point(_overlayDefaults[stringType].WidtHHeight.X, _overlayDefaults[stringType].WidtHHeight.Y));
             }
             overlay.Show();
             viewModel.Refresh(CombatIdentifier.CurrentCombat);

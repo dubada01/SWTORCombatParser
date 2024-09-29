@@ -1,36 +1,35 @@
 ﻿using Gma.System.MouseKeyHook;
-using Newtonsoft.Json;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Interop;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Threading;
+using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
 
 namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 {
     /// <summary>
     /// Interaction logic for RaidFrameOverlay.xaml
     /// </summary>
-    public partial class RaidFrameOverlay : Window
+    public partial class RaidFrameOverlay : BaseOverlayWindow
     {
-        private const int WS_EX_TRANSPARENT = 0x00000020;
-        private const int GWL_EXSTYLE = (-20);
-        private const int WS_EX_APPWINDOW = 0x00040000, WS_EX_TOOLWINDOW = 0x00000080;
-        private string _currentPlayerName = "no character";
         private IKeyboardMouseEvents _globalHook;
         private bool _inCombat;
-
+        private bool _isSubscribed;
+        private bool _isLocked = true;
+        private readonly RaidFrameOverlayViewModel _viewModel;
         public event Action<double, double> AreaClicked = delegate { };
         public event Action<bool> MouseInArea = delegate { };
-        public RaidFrameOverlay()
+        public RaidFrameOverlay(RaidFrameOverlayViewModel viewModel):base(viewModel)
         {
+            DataContext = viewModel;
+            _viewModel = viewModel;
             InitializeComponent();
 
             Loaded += Hello;
@@ -60,46 +59,25 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             var yFract = relativeY / (double)GetHeight();
             AreaClicked(xFract, yFract);
         }
-
-        private void RemoveFromAppWindow()
-        {
-            IntPtr hwnd = new WindowInteropHelper(this).Handle;
-            int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-            SetWindowLong(hwnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
-        }
-
-        public void SetPlayer(string playerName)
+        
+        public new void SetPlayer(string playerName)
         {
             _currentPlayerName = playerName;
             var defaults = RaidFrameOverlayManager.GetDefaults(_currentPlayerName);
-            Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 Width = defaults.WidtHHeight.X;
                 Height = defaults.WidtHHeight.Y;
-                Top = defaults.Position.Y;
-                Left = defaults.Position.X;
+                Position = new PixelPoint((int)defaults.Position.X, (int)defaults.Position.Y);
             });
             var viewModel = DataContext as RaidFrameOverlayViewModel;
             viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
         }
-        private void Hello(object sender, RoutedEventArgs e)
+        private void Hello(object? sender, RoutedEventArgs routedEventArgs)
         {
-            var viewModel = DataContext as RaidFrameOverlayViewModel;
-            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
-            if (!viewModel.Editable)
-                makeTransparent(true);
-            else
-                makeTransparent(false);
-            viewModel.ToggleLocked += makeTransparent;
-            viewModel.PlayerChanged += SetPlayer;
-
-            RemoveFromAppWindow();
             PollForCursorPos();
         }
-
-        private bool _isSubscribed;
-        private bool _isLocked = true;
-
+        
         private void SubscribeToClicks()
         {
             if (_isSubscribed)
@@ -111,6 +89,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         }
 
         private void UnsubscribeFromClicks()
+        
         {
             if (!_isSubscribed)
                 return;
@@ -119,32 +98,16 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             _globalHook.Dispose();
             MouseInArea(false);
         }
-        public void DragWindow(object sender, MouseButtonEventArgs args)
-        {
-            try
-            {
-                DragMove();
-                var viewModel = DataContext as RaidFrameOverlayViewModel;
-                viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
-                args.Handled = true;
-            }
-            catch (Exception e)
-            {
-                Logging.LogInfo("Failed to drag window: " + JsonConvert.SerializeObject(e));
-            }
-
-        }
-
         private void PollForCursorPos()
         {
             Task.Run(() =>
             {
                 while (true)
                 {
-                    POINT cursorPos = new POINT();
-                    if (GetCursorPos(out cursorPos) && !_inCombat && !_isLocked)
+                    if (!_inCombat && !_isLocked)
                     {
-                        Application.Current.Dispatcher.Invoke(() =>
+                        var cursorPos = GetCursorPosition();
+                        Dispatcher.UIThread.Invoke(() =>
                         {
                             var topLeft = GetTopLeft();
                             var width = GetWidth();
@@ -164,99 +127,71 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 }
             });
         }
-        [DllImport("user32.dll")]
-        static extern bool GetCursorPos(out POINT lpPoint);
+        // Method to get the cursor position cross-platform
+        public static Point GetCursorPosition()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return GetCursorPositionWindows();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return GetCursorPositionMac();
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Unsupported platform");
+            }
+        }
 
+        // Windows-specific function
+        private static Point GetCursorPositionWindows()
+        {
+            GetCursorPos(out POINT point);
+            return new Point(point.X, point.Y);
+        }
+
+        // MacOS-specific function
+        private static Point GetCursorPositionMac()
+        {
+            CGPoint point = CGEventSourceGetCursorPosition();
+            return new Point(point.X, point.Y);
+        }
+        // Structs for Windows and MacOS
         [StructLayout(LayoutKind.Sequential)]
-        public struct POINT
+        private struct POINT
         {
             public int X;
             public int Y;
+        }
 
-            public static implicit operator System.Drawing.Point(POINT point)
-            {
-                return new System.Drawing.Point(point.X, point.Y);
-            }
-        }
-        private void Border_MouseEnter(object sender, MouseEventArgs e)
+        [StructLayout(LayoutKind.Sequential)]
+        private struct CGPoint
         {
+            public double X;
+            public double Y;
+        }
 
-            Mouse.OverrideCursor = Cursors.Hand;
+        // P/Invoke for Windows
+        [DllImport("user32.dll")]
+        private static extern bool GetCursorPos(out POINT lpPoint);
 
-        }
-        public void UpdateDefaults(object sender, MouseButtonEventArgs args)
-        {
-            RaidFrameOverlayManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
-        }
-        private void Grid_MouseLeave(object sender, MouseEventArgs e)
-        {
-            RaidFrameOverlayManager.SetDefaults(new Point() { X = Left, Y = Top }, new Point() { X = Width, Y = Height }, _currentPlayerName);
-            Mouse.OverrideCursor = Cursors.Arrow;
-        }
-        private void Thumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            var yadjust = Height + e.VerticalChange;
-            var xadjust = Width + e.HorizontalChange;
-            if (xadjust > 0)
-                SetValue(WidthProperty, xadjust);
-            if (yadjust > 0)
-                SetValue(HeightProperty, yadjust);
-            var viewModel = DataContext as RaidFrameOverlayViewModel;
-            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
-        }
-        private void Thumb_MouseEnter(object sender, MouseEventArgs e)
-        {
-            Mouse.OverrideCursor = Cursors.SizeNWSE;
-        }
+        // P/Invoke for MacOS
+        [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+        private static extern CGPoint CGEventSourceGetCursorPosition();
         private int GetHeight()
         {
-            return (int)((RaidGrid.ActualHeight) * GetDPI().Item2);
+            return (int)((RaidGrid.Height));
         }
         private int GetWidth()
         {
-            return (int)((RaidGrid.ActualWidth) * GetDPI().Item1);
+            return (int)((RaidGrid.Width));
         }
         private System.Drawing.Point GetTopLeft()
         {
-            var dpi = GetDPI();
-            var realTop = (int)((Top + 50) * dpi.Item2);
-            var realLeft = (int)((Left + 50) * dpi.Item1);
+            var realTop = (int)((Position.Y + 50));
+            var realLeft = (int)((Position.X + 50));
             return new System.Drawing.Point(realLeft, realTop);
-        }
-        private (double, double) GetDPI()
-        {
-            PresentationSource source = PresentationSource.FromVisual(this);
-            var dpiX = source.CompositionTarget.TransformToDevice.M11;
-
-            var dpiY = source.CompositionTarget.TransformToDevice.M22;
-            return (dpiX, dpiY);
-        }
-
-        [DllImport("user32.dll")]
-        public static extern int GetWindowLong(IntPtr hwnd, int index);
-
-        [DllImport("user32.dll")]
-        public static extern int SetWindowLong(IntPtr hwnd, int index, int newStyle);
-
-        public void makeTransparent(bool shouldLock)
-        {
-            _isLocked = shouldLock;
-            Dispatcher.Invoke(() =>
-            {
-                IntPtr hwnd = new WindowInteropHelper(this).Handle;
-                if (shouldLock)
-                {
-                    int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-                    SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_TRANSPARENT);
-                }
-                else
-                {
-                    int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-                    SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);
-
-                }
-            });
-
         }
     }
 }

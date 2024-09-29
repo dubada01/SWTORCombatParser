@@ -1,5 +1,5 @@
-﻿using SWTORCombatParser.ViewModels.BattleReview;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.BattleReview;
 
 namespace SWTORCombatParser.Views.Battle_Review
 {

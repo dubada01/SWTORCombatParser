@@ -5,7 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views"
         mc:Ignorable="d"
-        Title="TimerShareWindow" Height="200" Width="400" AllowsTransparency="True" WindowStyle="None" Background="Transparent" Topmost="True" WindowStartupLocation="CenterScreen">
+        Title="TimerShareWindow" Height="200" Width="400"         
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome" Background="Transparent" Topmost="True" WindowStartupLocation="CenterScreen">
     <Border Background="WhiteSmoke" CornerRadius="10" BorderThickness="2" BorderBrush="LightGray">
         <Grid>
             <Grid.RowDefinitions>
@@ -14,7 +18,7 @@
                 <RowDefinition Height="0.15*"/>
             </Grid.RowDefinitions>
 
-                <TextBox x:Name="ShareCode" Style="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="25"  Width="100" Height="50"></TextBox>
+                <TextBox x:Name="ShareCode" Styles="{StaticResource RoundedTextBox}" HorizontalContentAlignment="Center" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="25"  Width="100" Height="50"></TextBox>
 
             <TextBlock Grid.Column="1" 
                        Grid.Row="1"
@@ -27,7 +31,7 @@
                        Text="Share this code with anyone to allow them to import this timer.&#x0a;&#x0a;It has been automatically copied to your clipboard." 
                        HorizontalAlignment="Center" 
                        VerticalAlignment="Bottom" Margin="20,0,20,10"></TextBlock>
-            <Button x:Name="OkButton" Grid.Row="2" Style="{StaticResource RoundCornerButton}"
+            <Button x:Name="OkButton" Grid.Row="2" Styles="{StaticResource RoundCornerButton}"
                     Content="Ok" Width="50" Height="25" 
                     VerticalAlignment="Center"
                     ></Button>

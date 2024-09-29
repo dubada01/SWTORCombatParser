@@ -14,17 +14,18 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
+using Avalonia;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
-    public class RaidFrameOverlayViewModel : INotifyPropertyChanged
+    public class RaidFrameOverlayViewModel : BaseOverlayViewModel, INotifyPropertyChanged
     {
         private Dictionary<DateTime, Point> _mostRecentlyClickedCell = new Dictionary<DateTime, Point>();
         private object _cellClickLock = new object();
@@ -33,7 +34,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private int columns;
         private bool editable;
         private bool active;
-        private RaidFrameOverlay _view;
         private bool _conversationActive;
         private bool _inCombat;
         private bool _usingDecreasedAccuracy;
@@ -47,7 +47,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             set
             {
                 editable = value;
-                ToggleLocked(!editable);
+                
+                SetLock(!editable);
                 OnPropertyChanged();
             }
         }
@@ -57,13 +58,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 canDetect = value;
                 OnPropertyChanged();
-            }
-        }
-        public bool Active
-        {
-            get => active; set
-            {
-                active = value;
             }
         }
         public System.Drawing.Point TopLeft { get; set; }
@@ -76,13 +70,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         public List<PlacedName> CurrentNames = new List<PlacedName>();
         public bool SizeSet = false;
-        public event Action<bool> ToggleLocked = delegate { };
-        public event Action<string> PlayerChanged = delegate { };
-        public RaidFrameOverlayViewModel(RaidFrameOverlay view)
+
+        public RaidFrameOverlayViewModel()
         {
-            _view = view;
-            _view.AreaClicked += CellClicked;
-            _view.MouseInArea += MouseInArea;
             TimerController.TimerTriggered += CheckForRaidHOT;
             TimerController.TimerTriggered += CheckForDefensive;
             CombatLogStreamer.CombatUpdated += OnStartCombat;
@@ -91,9 +81,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CombatLogStateBuilder.AreaEntered += NewEncounterEntered;
             HotkeyHandler.OnHideOverlaysHotkey += ToggleHide;
         }
-
-
-
+        
         private void OnStartCombat(CombatStatusUpdate update)
         {
             if (update.Type == UpdateType.Start)
@@ -101,10 +89,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 _inCombat = true;
                 if (_conversationActive)
                 {
-                    Dispatcher.UIThread.Invoke(() =>
-                    {
-                        _view.Show();
-                    });
+                    ShowOverlayWindow();
 
                     _conversationActive = false;
                 }
@@ -115,7 +100,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
 
         }
-        public ICommand RefreshFramesCommand => new CommandHandler(_=>AutoDetection());
+        public ReactiveCommand<Unit,Unit> RefreshFramesCommand => ReactiveCommand.Create(AutoDetection);
         private void AutoDetection()
         {
             if (!CanDetect)
@@ -128,7 +113,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(TopLeft,
                     raidFrameBitmap, Rows, Columns, Height, Width).Result;
                 raidFrameBitmap.Dispose();
-                Application.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     UpdateNames(names);
                 });
@@ -270,16 +255,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 return;
             if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Apply && Active)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
-                    HideOverlay();
+                    HideOverlayWindow();
                 });
             }
             if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Remove && Active)
             {
-                Application.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
-                    UnhideOverlay();
+                    ShowOverlayWindow();
                 });
             }
         }
@@ -288,25 +273,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             if (_conversationActive)
             {
                 if(Active)
-                    UnhideOverlay();
+                    ShowOverlayWindow();
             }
             else
             {
-                HideOverlay();
+                HideOverlayWindow();
             }
         }
-        private void UnhideOverlay()
-        {
-            _conversationActive = false;
-            _view.Show();
-        }
-
-        private void HideOverlay()
-        {
-            _conversationActive = true;
-            _view.Hide();
-        }
-
         private void CheckForRaidHOT(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null ||
@@ -588,8 +561,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         internal void FirePlayerChanged(string name)
         {
             SizeSet = false;
-            PlayerChanged(name);
-
+            SetPlayer(name);
         }
     }
 }

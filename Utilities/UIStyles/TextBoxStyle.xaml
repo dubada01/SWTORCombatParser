@@ -18,7 +18,7 @@ Background="{TemplateBinding Background}"
 >
                         <ScrollViewer x:Name="PART_ContentHost"
 Focusable="false"
-HorizontalScrollBarVisibility="Hidden"
+HorizontalScrollBarIsVisible="Hidden"
 VerticalScrollBarVisibility="Hidden"/>
                     </Border>
                     <ControlTemplate.Triggers>

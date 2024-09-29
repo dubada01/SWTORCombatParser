@@ -4,29 +4,30 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
-using System.Windows.Input;
+using Avalonia.Controls;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class TabInstance : INotifyPropertyChanged
+    public class TabInstance :ReactiveObject, INotifyPropertyChanged
     {
         public TabInstance()
         {
 
         }
         public event Action<TabInstance> RequestTabClose = delegate { };
-        public ICommand CloseTabCommand => new CommandHandler(CloseTab);
+        public ReactiveCommand<Unit,Unit> CloseTabCommand => ReactiveCommand.Create(CloseTab);
 
-        private void CloseTab(object obj)
+        private void CloseTab()
         {
             RequestTabClose(this);
         }
 
-        public ICommand ToggleLockedCommand => new CommandHandler(ToggleLocked);
+        public ReactiveCommand<Unit,Unit> ToggleLockedCommand => ReactiveCommand.Create(ToggleLocked);
 
-        private void ToggleLocked(object obj)
+        private void ToggleLocked()
         {
             var tabViewModel = TabContent.DataContext as OverlayViewModel;
             tabViewModel.OverlaysLocked = !tabViewModel.OverlaysLocked;

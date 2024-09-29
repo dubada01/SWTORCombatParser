@@ -4,16 +4,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
+                x:DataType="vm:OverlayOptionViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid ToolTip="{Binding HelpText}">
+    <Grid ToolTip.Tip="{Binding HelpText}">
         <Button Background="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter}}" 
                 Foreground="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter},
-                ConverterParameter=inverted}" Grid.RowSpan="2" Style="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" 
+                ConverterParameter=inverted}" Grid.RowSpan="2" Styles="{StaticResource RoundCornerButton}" CommandParameter="{Binding .}" 
                 BorderBrush="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBorderConverter}}"
                 BorderThickness="1.5"
-                Height="35" MaxWidth="100" Margin="5,1,5,1" Command="{Binding DataContext.GenerateOverlay, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                PreviewMouseRightButtonUp="Button_PreviewMouseRightButtonUp">
+                Height="35" MaxWidth="100" Margin="5,1,5,1" Command="{Binding $parent[ItemsControl].((vm:OverlayViewModel)DataContext).GenerateOverlay}"
+                PointerReleased="Button_PreviewMouseRightButtonUp">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="2*"></RowDefinition>

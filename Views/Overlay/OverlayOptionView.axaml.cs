@@ -1,6 +1,9 @@
-﻿using SWTORCombatParser.ViewModels;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
+using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.ViewModels.Overlays;
-using System.Windows.Controls;
 
 namespace SWTORCombatParser.Views.Overlay
 {
@@ -14,7 +17,7 @@ namespace SWTORCombatParser.Views.Overlay
             InitializeComponent();
         }
 
-        private void Button_PreviewMouseRightButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Button_PreviewMouseRightButtonUp(object sender, PointerEventArgs e)
         {
             var metricViewModel = (OverlayOptionViewModel)DataContext;
             var viewModel = new MetricColorPickerViewModel(metricViewModel.Type);
@@ -23,10 +26,11 @@ namespace SWTORCombatParser.Views.Overlay
             viewModel.CloseRequested += () => {
                 view.Close();
             };
-
-            view.Owner = App.Current.MainWindow;
-            view.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
-            view.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                view.ShowDialog(desktop.MainWindow);
+            }
         }
     }
 }

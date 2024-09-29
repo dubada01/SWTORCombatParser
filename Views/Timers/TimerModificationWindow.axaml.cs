@@ -1,7 +1,10 @@
-﻿using SWTORCombatParser.ViewModels.Timers;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
+using SWTORCombatParser.ViewModels.Timers;
+using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
+using TextChangedEventArgs = Avalonia.Controls.TextChangedEventArgs;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Views.Timers
@@ -12,13 +15,18 @@ namespace SWTORCombatParser.Views.Timers
     public partial class TimerModificationWindow : Window
     {
         private ModifyTimerViewModel _vm;
+        private bool _isDragging;
+        private Point _startPoint;
+
         public TimerModificationWindow(ModifyTimerViewModel vm)
         {
             InitializeComponent();
             _vm = vm;
             DataContext = vm;
-            Left = Application.Current.MainWindow.Left + (Application.Current.MainWindow.ActualWidth / 2) - (750 / 2d);
-            Top = Application.Current.MainWindow.Top + (Application.Current.MainWindow.ActualHeight / 2) - (450 / 2d);
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                Position = new PixelPoint((int)(desktop.MainWindow.Position.X + (desktop.MainWindow.Width / 2) - (750 / 2)), (int)(desktop.MainWindow.Position.Y + (desktop.MainWindow.Height / 2) - (450 / 2)));
+            }
             TimerName.TextChanged += UpdateNameHelpText;
             EffectName.TextChanged += UpdateValueHelpText;
             AbilityName.TextChanged += UpdateValueHelpText;
@@ -27,7 +35,7 @@ namespace SWTORCombatParser.Views.Timers
             VariableCheck.Click += CheckForForceToVisualsTab;
         }
 
-        private void CheckForForceToVisualsTab(object sender, RoutedEventArgs e)
+        private void CheckForForceToVisualsTab(object? sender, RoutedEventArgs routedEventArgs)
         {
             if (!VariableCheck.IsChecked.Value)
             {
@@ -39,14 +47,14 @@ namespace SWTORCombatParser.Views.Timers
             }
         }
 
-        private void UpdateNameHelpText(object sender, TextChangedEventArgs e)
+        private void UpdateNameHelpText(object? sender, Avalonia.Controls.TextChangedEventArgs textChangedEventArgs)
         {
             //if (!string.IsNullOrEmpty(TimerName.Text))
             //    TimerHelpText.Visibility = Visibility.Hidden;
             //else
             //    TimerHelpText.Visibility = Visibility.Visible;
         }
-        private void UpdateValueHelpText(object sender, TextChangedEventArgs e)
+        private void UpdateValueHelpText(object? sender, TextChangedEventArgs textChangedEventArgs)
         {
             //if (!string.IsNullOrEmpty(EffectName.Text) || !string.IsNullOrEmpty(AbilityName.Text))
             //    ValueHelpText.Visibility = Visibility.Hidden;
@@ -57,7 +65,7 @@ namespace SWTORCombatParser.Views.Timers
         {
             Close();
         }
-        private void Cancel(object sender, RoutedEventArgs e)
+        private void Cancel(object? sender, Avalonia.Interactivity.RoutedEventArgs routedEventArgs)
         {
             _vm.Cancel();
             Close();
@@ -77,9 +85,32 @@ namespace SWTORCombatParser.Views.Timers
                 _vm.SaveTarget();
             }
         }
-        public void DragWindow(object sender, MouseButtonEventArgs args)
+        public void StartDrag(object sender, PointerPressedEventArgs args)
         {
-            DragMove();
+            _isDragging = true;
+            _startPoint = args.GetPosition(this);
+        }
+        public void DragWindow(object sender, PointerEventArgs args)
+        {
+            if (_isDragging)
+            {
+                // Get the current scaling factor to adjust the movement correctly
+                var scalingFactor = this.VisualRoot.RenderScaling;
+
+                var currentPosition = args.GetPosition(this);
+                var delta = (currentPosition - _startPoint) / scalingFactor;  // Adjust for DPI scaling
+
+                // Move the window (or element) by the delta
+                var currentPositionInScreen = this.Position;
+                this.Position = new PixelPoint(
+                    currentPositionInScreen.X + (int)delta.X,
+                    currentPositionInScreen.Y + (int)delta.Y
+                );
+            }
+        }
+        public void StopDrag(object sender, PointerReleasedEventArgs args)
+        {
+            _isDragging = false;
         }
     }
 }

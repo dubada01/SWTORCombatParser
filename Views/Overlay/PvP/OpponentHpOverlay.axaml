@@ -4,17 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.PvP"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.PvP"
+        x:DataType="vm:OpponentOverlayViewModel"
         mc:Ignorable="d"
-        Height="150" Width="250" AllowsTransparency="True" Title="PVPHP" ResizeMode="NoResize" Background="{x:Null}" WindowStyle="None" Topmost="True" MouseLeave="Window_MouseLeave" ShowInTaskbar="False">
+        Height="150" Width="250" Title="PVPHP"  Background="{x:Null}" Topmost="True"  ShowInTaskbar="False">
 
-    <Grid x:Name="MainArea" Visibility="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip="PvP Opponent HP">
-        <Border x:Name="BackgroundArea"  PreviewMouseLeftButtonDown="DragWindow" MouseEnter="Border_MouseEnter" MouseLeave="Grid_MouseLeave"
-                IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="3" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
-        </Border>
-        <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
-            <Button FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Background="#c96161" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
-                  Width="15" Height="15" Padding="0" Click="Button_Click"/>
-        </Viewbox>
+    <Grid x:Name="MainArea" IsVisible="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip.Tip="PvP Opponent HP">
         <Viewbox>
             <ItemsControl ItemsSource="{Binding OpponentHpBars}">
                 <ItemsControl.ItemTemplate>
@@ -30,12 +25,5 @@
             </ItemsControl>
         </Viewbox>
 
-
-
-        <Thumb Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom"  Style="{StaticResource LampadaThumbStyle}" 
-               MouseEnter="Thumb_MouseEnter" MouseLeave="Grid_MouseLeave" PreviewMouseLeftButtonUp="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
-        <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
-            <TextBlock Text="PvP Opponent HP" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
-        </Viewbox>
     </Grid>
 </Window>

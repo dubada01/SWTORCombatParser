@@ -266,8 +266,8 @@
                         </Grid.Resources>
                         <Border x:Name="Border" BorderBrush="DimGray" BorderThickness="1" Background="WhiteSmoke" CornerRadius="2" Opacity="1" Padding="{TemplateBinding Padding}">
                             <Grid x:Name="WatermarkContent" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                                <Border x:Name="ContentElement" BorderBrush="#FFFFFFFF" BorderThickness="1" Visibility="Hidden"/>
-                                <Border x:Name="watermark_decorator" BorderBrush="#FFFFFFFF" BorderThickness="1" Visibility="Hidden">
+                                <Border x:Name="ContentElement" BorderBrush="#FFFFFFFF" BorderThickness="1" IsVisible="Hidden"/>
+                                <Border x:Name="watermark_decorator" BorderBrush="#FFFFFFFF" BorderThickness="1" IsVisible="Hidden">
                                     <ContentControl x:Name="PART_Watermark" Focusable="False" IsHitTestVisible="False" Opacity="0" Padding="2"/>
                                 </Border>
                                 <ScrollViewer x:Name="PART_ContentHost" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
@@ -329,7 +329,7 @@
                     HorizontalAlignment="Left"
                     Margin="3,0,3,0"
                     Grid.Row="0"
-                    Style="{StaticResource DropDownButtonStyle}"
+                    Styles="{StaticResource DropDownButtonStyle}"
                     VerticalAlignment="Top" />
                             <DatePickerTextBox  x:Name="PART_TextBox"
                                Grid.Column="0"
@@ -337,7 +337,7 @@
                                Focusable="{TemplateBinding Focusable}"
                                HorizontalContentAlignment="Center"
                                Grid.Row="0" Text="{Binding Path=SelectedDate, StringFormat='dd/MM'}"
-                               VerticalContentAlignment="Center" Style="{StaticResource DatePickerTextBoxStyle1}" />
+                               VerticalContentAlignment="Center" Styles="{StaticResource DatePickerTextBoxStyle1}" />
                             <Grid x:Name="PART_DisabledVisual"
                   Grid.ColumnSpan="2"
                   Grid.Column="0"

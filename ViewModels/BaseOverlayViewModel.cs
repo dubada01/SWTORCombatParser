@@ -2,17 +2,32 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia.Threading;
+using ReactiveUI;
 using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels;
 
-public class BaseOverlayViewModel
+public class BaseOverlayViewModel:ReactiveObject, INotifyPropertyChanged
 {
     internal BaseOverlayWindow _overlayWindow;
     internal bool _active;
     public event Action CloseRequested = delegate { };
+
+    public void RequestClose()
+    {
+        CloseRequested();
+    }
     public event Action<bool> OnLocking = delegate { };
+
+    public void SetLock(bool lockstate)
+    {
+        OnLocking(lockstate);
+    }
     public event Action<string> OnCharacterDetected = delegate { };
+    public void SetPlayer(string playerName)
+    {
+        OnCharacterDetected(playerName);
+    }
     public event PropertyChangedEventHandler PropertyChanged;
     public bool OverlaysMoveable { get; set; }
     public bool Active

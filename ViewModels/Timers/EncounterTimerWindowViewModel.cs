@@ -12,53 +12,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia;
 using Avalonia.Threading;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class EncounterTimerWindowViewModel : INotifyPropertyChanged, ITimerWindowViewModel
+    public class EncounterTimerWindowViewModel : TimersWindowViewModel
     {
-        private ITimerWindow _timerWindow;
-        private bool active;
+        private BaseOverlayWindow _timerWindow;
         private bool inBossRoom;
         private bool isEnabled;
-        public event Action CloseRequested = delegate { };
-        public event Action<bool> OnLocking = delegate { };
-        public event Action<string> OnCharacterDetected = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public bool OverlaysMoveable { get; set; }
-        public List<TimerInstanceViewModel> SwtorTimers { get; set; } = new List<TimerInstanceViewModel>();
-        public List<TimerInstanceViewModel> _visibleTimers = new List<TimerInstanceViewModel>();
-        public string TimerTitle { get; set; }
-
-        public void Closing()
-        {
-            Active = false;
-        }
-        public bool Active
-        {
-            get => active;
-            set
-            {
-                active = value;
-                if (!active)
-                {
-                    HideTimers();
-                }
-                else
-                {
-
-                    Dispatcher.UIThread.Invoke(() =>
-                    {
-                        _timerWindow.Show();
-                    });
-
-                }
-
-            }
-        }
-
         public EncounterTimerWindowViewModel()
         {
             TimerTitle = "Boss Timers";
@@ -78,9 +42,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             _timerWindow.SetPlayer("Encounter");
             Dispatcher.UIThread.Invoke(() =>
             {
-                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Encounter"); ;
-                _timerWindow.Top = defaultTimersInfo.Position.Y;
-                _timerWindow.Left = defaultTimersInfo.Position.X;
+                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Encounter");
+                _timerWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
                 _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
             });
@@ -101,22 +64,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
             }
         }
-
-        public void SetScale(double scale)
-        {
-            _currentScale = scale;
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                foreach (var timer in SwtorTimers)
-                {
-                    timer.Scale = scale;
-                }
-            });
-        }
         private void UpdateState()
         {
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
-            if (active && !isEnabled)
+            if (_active && !isEnabled)
             {
                 Active = false;
             }
@@ -215,38 +166,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
             }
             OnPropertyChanged("SwtorTimers");
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        public void UpdateLock(bool value)
-        {
-            OverlaysMoveable = !value;
-            if (OverlaysMoveable && isEnabled)
-            {
-                Active = true;
-            }
-            else
-            {
-                if (!inBossRoom || !isEnabled)
-                {
-                    Active = false;
-                }
-            }
-            OnPropertyChanged("OverlaysMoveable");
-            OnLocking(value);
-        }
-
-        public void SetPlayer(SWTORClass classInfo)
-        {
-
-        }
-
-        public void SetSource(string source)
-        {
-
         }
     }
 }

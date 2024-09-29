@@ -50,7 +50,7 @@
             <Track Grid.Row="1"
            x:Name="PART_Track">
                 <Track.Thumb>
-                    <Thumb Style="{StaticResource SliderThumbStyle}" />
+                    <Thumb Styles="{StaticResource SliderThumbStyle}" />
                 </Track.Thumb>
             </Track>
         </Grid>

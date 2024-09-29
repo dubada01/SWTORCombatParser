@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Avalonia.Threading;
+using Point = Avalonia.Point;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
@@ -38,7 +39,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             RaidFrameOverlayManager.Init();
             HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
-            _currentOverlay = new RaidFrameOverlay();
+            _currentOverlayViewModel = new RaidFrameOverlayViewModel() { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable };
+            _currentOverlay = new RaidFrameOverlay(_currentOverlayViewModel);
             CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
             {
                 if (!b)
@@ -49,16 +51,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 UpdateVisualsBasedOnRole(classInfo);
             };
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
-            _currentOverlayViewModel = new RaidFrameOverlayViewModel(_currentOverlay) { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable };
-            _currentOverlay.DataContext = _currentOverlayViewModel;
 
             ToggleEditText = _editText;
 
             var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
-            _currentOverlay.Width = defaults.WidtHHeight.X;
-            _currentOverlay.Height = defaults.WidtHHeight.Y;
-            _currentOverlay.Top = defaults.Position.Y;
-            _currentOverlay.Left = defaults.Position.X;
+            _currentOverlay.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
             Task.Run(() =>
             {
                 RaidFrameRows = defaults.Rows.ToString();

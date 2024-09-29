@@ -27,9 +27,9 @@
                     <Viewbox MaxHeight="50">
                         <TextBlock VerticalAlignment="Center" Text="Battle Selection" FontSize="25" Margin="5,15,5,10" Foreground="WhiteSmoke" HorizontalAlignment="Center" FontWeight="DemiBold" FontFamily="{StaticResource MainFont}"></TextBlock>
                     </Viewbox>
-                    <ComboBox Height="45" Grid.Row="1" FontSize="12" ItemsSource="{Binding AllEncounters}" DisplayMemberPath="NamePlus" SelectedItem="{Binding SelectedEncounter}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
-                    <ComboBox Height="45" Grid.Row="2" FontSize="12" ItemsSource="{Binding BossesInSelectedEncounter}" SelectedItem="{Binding SelectedBoss}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
-                    <ComboBox Height="45" Grid.Row="3" FontSize="12" ItemsSource="{Binding LocalPlayersDuringHistory}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedLocalEntity}" Margin= "5" Style="{StaticResource NewComboStyle}"></ComboBox>
+                    <ComboBox Height="45" Grid.Row="1" FontSize="12" ItemsSource="{Binding AllEncounters}" DisplayMemberPath="NamePlus" SelectedItem="{Binding SelectedEncounter}" Margin= "5" Styles="{StaticResource NewComboStyle}"></ComboBox>
+                    <ComboBox Height="45" Grid.Row="2" FontSize="12" ItemsSource="{Binding BossesInSelectedEncounter}" SelectedItem="{Binding SelectedBoss}" Margin= "5" Styles="{StaticResource NewComboStyle}"></ComboBox>
+                    <ComboBox Height="45" Grid.Row="3" FontSize="12" ItemsSource="{Binding LocalPlayersDuringHistory}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedLocalEntity}" Margin= "5" Styles="{StaticResource NewComboStyle}"></ComboBox>
                 </Grid>
             </Border>
         </Viewbox>
@@ -38,7 +38,7 @@
             <StackPanel Orientation="Vertical" >
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Foreground="WhiteSmoke" FontSize="20" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Max Combat Length: "/>
-                    <TextBox FontFamily="{StaticResource MainFont}" Text="{Binding MaxCombatLength, UpdateSourceTrigger=PropertyChanged}" Width="75" FontWeight="Normal" HorizontalContentAlignment="Center"  Style="{StaticResource RoundedTextBox}"/>
+                    <TextBox FontFamily="{StaticResource MainFont}" Text="{Binding MaxCombatLength, UpdateSourceTrigger=PropertyChanged}" Width="75" FontWeight="Normal" HorizontalContentAlignment="Center"  Styles="{StaticResource RoundedTextBox}"/>
                 </StackPanel>
             </StackPanel>
         </Viewbox>

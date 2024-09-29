@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Phases"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Phases"
+                x:DataType="vm:PhaseBarViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="800">
     <Grid Margin="20,0,10,0">
@@ -19,7 +21,7 @@
             </Grid>
         </Border>
         <Viewbox Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,10,3">
-            <Button Width="50" Height="50" Style="{StaticResource RoundCornerButton}" Command="{Binding ConfigurePhasesCommand}">
+            <Button Width="50" Height="50" Styles="{StaticResource RoundCornerButton}" Command="{Binding ConfigurePhasesCommand}">
                 <Image Source="../../resources/cogIcon.png"></Image>
             </Button>
         </Viewbox>

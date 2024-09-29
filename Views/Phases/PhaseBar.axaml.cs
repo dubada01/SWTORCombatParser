@@ -6,9 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Styling;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.Views.Phases
 {
@@ -33,21 +35,21 @@ namespace SWTORCombatParser.Views.Phases
 
         private void UpdateButtonStates(List<PhaseInstance> list)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 ResetButtonBackgrounds();
                 foreach (var phaseInstance in list)
                 {
                     var button = _phaseButtons[phaseInstance];
-                    button.Background = (SolidColorBrush)FindResource("GreenColorBrush");
+                    button.Background = (SolidColorBrush)Application.Current.FindResource("GreenColorBrush");
                 }
                 if (list.Count == 0)
                 {
-                    PartitionBorder.BorderBrush = (SolidColorBrush)FindResource("GreenColorBrush");
+                    PartitionBorder.BorderBrush = (SolidColorBrush)Application.Current.FindResource("GreenColorBrush");
                 }
                 else
                 {
-                    PartitionBorder.BorderBrush = (SolidColorBrush)FindResource("Gray8Brush");
+                    PartitionBorder.BorderBrush = (SolidColorBrush)Application.Current.FindResource("Gray8Brush");
                 }
             });
 
@@ -56,12 +58,12 @@ namespace SWTORCombatParser.Views.Phases
         {
             foreach (var button in _phaseButtons.Values)
             {
-                button.Background = (SolidColorBrush)FindResource("Gray5Brush");
+                button.Background = (SolidColorBrush)Application.Current.FindResource("Gray5Brush");
             }
         }
         private void Reset()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 PartitionsHolder.ColumnDefinitions.Clear();
                 PartitionsHolder.Children.Clear();
@@ -84,7 +86,7 @@ namespace SWTORCombatParser.Views.Phases
             var columnIndex = 0;
             try
             {
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     foreach (var phase in _phases)
                     {
@@ -112,19 +114,25 @@ namespace SWTORCombatParser.Views.Phases
                         }
                         var width = relativeEnd - relativeStart;
                         AddColumnDefinition(width);
-                        var button = new Button()
+                        var button = new Button
                         {
                             Foreground = Brushes.WhiteSmoke,
-                            Background = (SolidColorBrush)FindResource("Gray5Brush"),
+                            Background = (SolidColorBrush)Application.Current.FindResource("Gray5Brush"),
                             Content = new TextBlock
                             {
                                 Text = phase.SourcePhase.Name,
-                                TextTrimming = TextTrimming.CharacterEllipsis, // This sets the text trimming
+                                TextTrimming = TextTrimming.CharacterEllipsis // This sets the text trimming
                             },
-                            CommandParameter = phase,
-                            Style = (Style)FindResource("RoundCornerButton"),
-                            ToolTip = $"{phase.SourcePhase.Name}: {(phase.PhaseStart - startTime).TotalSeconds} - {(phase.PhaseEnd - startTime).TotalSeconds}"
+                            CommandParameter = phase
                         };
+
+// Assign tooltip using ToolTip.SetTip
+                        ToolTip.SetTip(button, $"{phase.SourcePhase.Name}: {(phase.PhaseStart - startTime).TotalSeconds} - {(phase.PhaseEnd - startTime).TotalSeconds}");
+
+// Add style class
+                        button.Classes.Add("RoundCornerButton");
+
+
                         button.Command = (DataContext as PhaseBarViewModel).PhaseSelectionToggled;
                         _phaseButtons[phase] = button;
                         Grid.SetColumn(button, columnIndex);

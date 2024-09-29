@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.BattleReview"
+             x:DataType="vm:BattleReviewViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="{StaticResource Gray2Brush}">
@@ -27,8 +29,8 @@
 
                     <Grid Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,5,5,0" Grid.Row="0" >
                     <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Text="Available Entities" HorizontalAlignment="Center" Margin="0,23,0,0"></TextBlock>
-                    <ListView Background="{StaticResource Gray3Brush}" Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ItemsSource="{Binding AvailableEntities}">
-                        <ListView.ItemTemplate>
+                    <ListBox Background="{StaticResource Gray3Brush}" Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableEntities}">
+                        <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -43,13 +45,13 @@
                                     </Viewbox>
                                 </Grid>
                             </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
                 <Viewbox Grid.Row="1" MaxHeight="50">
                     <StackPanel Orientation="Vertical">
                         <TextBlock FontSize="20" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" TextAlignment="Center" Text="Log Filter: "></TextBlock>
-                        <TextBox Width="150" Style="{StaticResource RoundedTextBox}" Text="{Binding LogFilter, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        <TextBox Width="150" Styles="{StaticResource RoundedTextBox}" Text="{Binding LogFilter, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                     </StackPanel>
                 </Viewbox>
                 <Viewbox  Grid.Row="2" VerticalAlignment="Bottom" MaxHeight="20" Margin="5,0,5,5">
@@ -57,7 +59,7 @@
                 </Viewbox>
                 
                 <Viewbox Grid.Row="4" Grid.Column="1" Margin="10,0,10,0" MaxHeight="30" HorizontalAlignment="Center" VerticalAlignment="Top">
-                    <ComboBox  Style="{StaticResource NewComboStyle}" HorizontalContentAlignment="Center"  ItemsSource="{Binding AvailableDisplayTypes}" SelectedValue="{Binding SelectedDisplayType}" FontSize="15" Height="35"></ComboBox>
+                    <ComboBox  Styles="{StaticResource NewComboStyle}" HorizontalContentAlignment="Center"  ItemsSource="{Binding AvailableDisplayTypes}" SelectedValue="{Binding SelectedDisplayType}" FontSize="15" Height="35"></ComboBox>
                 </Viewbox>
             </Grid>
             <ContentPresenter Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding EventViewContent}"></ContentPresenter>

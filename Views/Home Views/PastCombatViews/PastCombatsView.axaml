@@ -54,12 +54,12 @@
                     </Viewbox>
                     <Viewbox Grid.Row="1" VerticalAlignment="Top" MaxHeight="40">
                         <Button FontFamily="{StaticResource MainFont}"
-                                Style="{StaticResource  RoundCornerButton}"
+                                Styles="{StaticResource  RoundCornerButton}"
                                 Width="50" 
                                 Background="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonColorConverter}}"
                                 Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}"
                                 Foreground="WhiteSmoke"
-                                Command="{Binding  ToggleLiveParseCommand}" ToolTip="Right click to configure auto live parsing">
+                                Command="{Binding  ToggleLiveParseCommand}" ToolTip.Tip="Right click to configure auto live parsing">
                             <Button.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="{Binding AutoLiveParseText}" Command="{Binding AutoLiveParseCommand}"/>
@@ -68,7 +68,7 @@
                         </Button>
                     </Viewbox>
                 </Grid>
-                <Grid Grid.Row="1" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Column="0" HorizontalAlignment="Stretch" Visibility="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
+                <Grid Grid.Row="1" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Column="0" HorizontalAlignment="Stretch" IsVisible="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="65"/>
@@ -96,8 +96,8 @@
                         <ColumnDefinition Width="0.70*"/>
                         <ColumnDefinition Width="0.30*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Style="{StaticResource RoundedTextBox}" FontSize="10" VerticalContentAlignment="Center" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" Margin="5,12,0,12" IsReadOnly="True"></TextBox>
-                    <Button Grid.Column="1" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" Style="{StaticResource RoundCornerButton}" Height="20" Width="40" Margin="0,0,2,0" FontSize="12" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
+                    <TextBox Styles="{StaticResource RoundedTextBox}" FontSize="10" VerticalContentAlignment="Center" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" Margin="5,12,0,12" IsReadOnly="True"></TextBox>
+                    <Button Grid.Column="1" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" Styles="{StaticResource RoundCornerButton}" Height="20" Width="40" Margin="0,0,2,0" FontSize="12" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
                 </Grid>
                 <!--<ContentPresenter Margin="0,5,0,0" Grid.Row="4" Content="{Binding HistoricalRange}"></ContentPresenter>-->
             </Grid>

@@ -1,5 +1,7 @@
-﻿using SWTORCombatParser.ViewModels.BattleReview;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using Avalonia.Input;
+using SWTORCombatParser.ViewModels.BattleReview;
+
 
 namespace SWTORCombatParser.Views.Battle_Review
 {
@@ -18,15 +20,15 @@ namespace SWTORCombatParser.Views.Battle_Review
         private void Selection1List_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (DataArea.SelectedItem != null)
-                DataArea.ScrollIntoView(DataArea.SelectedItem);
+                DataArea.ScrollIntoView(DataArea.SelectedItem,DataArea.Columns[0]);
         }
 
-        private void DataArea_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        private void DataArea_MouseEnter(object sender, PointerEventArgs e)
         {
             _eventViewModel.HasFocus = true;
         }
 
-        private void DataArea_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        private void DataArea_MouseLeave(object sender, PointerEventArgs e)
         {
             _eventViewModel.HasFocus = false;
         }

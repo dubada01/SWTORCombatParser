@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers"
+                x:DataType="vm:TimerInstanceViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="150" d:DesignWidth="50">
     <Grid Margin="0,0,0,0">
@@ -14,23 +16,11 @@
                         <Border.RenderTransform>
                             <ScaleTransform x:Name="BarScale" ScaleY="{Binding CurrentRatio}" ScaleX="1"></ScaleTransform>
                         </Border.RenderTransform>
-                        <Border.Triggers>
-                            <EventTrigger RoutedEvent="Loaded">
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="BarScale" Storyboard.TargetProperty="ScaleY" From="{Binding CurrentRatio}" To="0" Duration="{Binding TimerDuration}"></DoubleAnimation>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </Border.Triggers>
                     </Border>
                 </Grid>
             </Border>
-
         </Grid>
-
-
-        <Viewbox Visibility="{Binding ShowCharges, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="25" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="1,1,1,1">
+        <Viewbox IsVisible="{Binding ShowCharges, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="25" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="1,1,1,1">
             <TextBlock x:Name="ChargesText" FontFamily="{StaticResource MainFont}" 
                        TextWrapping="NoWrap" FontWeight="DemiBold" Foreground="WhiteSmoke" Text="{Binding Charges}" ></TextBlock>
         </Viewbox>

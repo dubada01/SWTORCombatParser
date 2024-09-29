@@ -45,7 +45,7 @@
 
                                 </Border.Background>
                                 <Grid>
-                                    <Path Visibility="Collapsed"
+                                    <Path IsVisible="Collapsed"
                       Width="7"
                       Height="7"
                       x:Name="CheckMark"
@@ -56,7 +56,7 @@
                                             <SolidColorBrush Color="{DynamicResource GlyphColor}" />
                                         </Path.Stroke>
                                     </Path>
-                                    <Path Visibility="Collapsed"
+                                    <Path IsVisible="Collapsed"
                       Width="7"
                       Height="7"
                       x:Name="InderminateMark"

@@ -12,49 +12,20 @@ using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public abstract class TimersWindowViewModel : BaseOverlayViewModel
+    public class DisciplineTimersWindowViewModel : TimersWindowViewModel
     {
         private string _timerSource;
         private BaseOverlayWindow _timerWindow;
         private bool _timersEnabled;
         private List<TimerInstance> _activeTimers = new List<TimerInstance>();
-        public List<TimerInstanceViewModel> SwtorTimers { get; set; } = new List<TimerInstanceViewModel>();
-        public List<TimerInstanceViewModel> _visibleTimers = new List<TimerInstanceViewModel>();
-        public string TimerTitle { get; set; }
-        public void Closing()
-        {
-            Active = false;
-        }
-        public TimersWindowViewModel()
+        public DisciplineTimersWindowViewModel()
         {
             TimerController.TimerExpired += RemoveTimer;
             TimerController.TimerTriggered += AddTimerVisual;
             TimerController.ReorderRequested += ReorderTimers;
-        }
-        public void SetScale(double scale)
-        {
-            _currentScale = scale;
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                foreach (var timer in SwtorTimers)
-                {
-                    timer.Scale = scale;
-                }
-            });
-        }
-        public void SetSource(string sourceName)
-        {
-            if (_timerSource == sourceName)
-                return;
-            _timerSource = sourceName;
-            UpdateSource();
-        }
-        public void SetPlayer(SWTORClass swtorclass)
-        {
-            if (_timerSource == swtorclass.Discipline)
-                return;
-            _timerSource = swtorclass.Discipline;
-            UpdateSource();
+            _timerWindow = new TimersWindow(this);
+            _timerWindow.OverlayName = "Timers";
+            _timerWindow.SetIdText("DISCIPLINE TIMERS");
         }
         private void UpdateSource()
         {

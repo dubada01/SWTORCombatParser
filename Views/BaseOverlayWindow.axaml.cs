@@ -14,11 +14,11 @@ namespace SWTORCombatParser.Views;
 
 public partial class BaseOverlayWindow : Window
 {
-    internal string OverlayName;
+    public string OverlayName;
 
     private bool _isDragging;
     private Point _startPoint;
-    private string _currentPlayerName;
+    internal string _currentPlayerName;
 
     // Windows-specific constants for P/Invoke
     const int GWL_EXSTYLE = -20;
@@ -70,8 +70,16 @@ public partial class BaseOverlayWindow : Window
         ToggleClickThrough(true);
         RemoveFromAppWindow();
     }
-
-    private void ToggleClickThrough(bool canClickThrough)
+    public void SetSizeAndLocation(Point position, Point size)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            Position = new PixelPoint((int)position.X, (int)position.Y);
+            Width = size.X;
+            Height = size.Y;
+        });
+    }
+    public void ToggleClickThrough(bool canClickThrough)
         {
             Dispatcher.UIThread.Invoke(() => {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -254,6 +262,9 @@ public partial class BaseOverlayWindow : Window
         {
             _currentPlayerName = playerName;
         }
-
+        public void SetIdText(string text)
+        {
+            IdentifierText.Text = text;
+        }
 
 }
