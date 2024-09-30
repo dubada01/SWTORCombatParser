@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.LogParsing
@@ -16,7 +17,15 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public static class CombatLogLoader
     {
-        public static string LoggingPath => Settings.ReadSettingOfType<string>("combat_logs_path");
+        public static string LoggingPath
+        {
+            get
+            {
+                string rawPath = Settings.ReadSettingOfType<string>("combat_logs_path");
+                string cleanedPath = Regex.Unescape(rawPath.Trim('"'));
+                return cleanedPath;
+            }
+        }
         public static string GetLogDirectory()
         {
             return LoggingPath;

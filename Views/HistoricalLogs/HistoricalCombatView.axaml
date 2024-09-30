@@ -205,6 +205,5 @@
                 </ScrollViewer>
             </Border>
         </Grid>
-        <ContentPresenter Content="{Binding HistoryPlot}"  Grid.Column="1" Grid.Row="1"></ContentPresenter>
     </Grid>
 </UserControl>

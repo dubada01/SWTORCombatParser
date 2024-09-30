@@ -10,7 +10,7 @@
                         Margin="1"
                         CornerRadius="2"
                         BorderThickness="1"
-                        Background="{StaticResource ControlNormalBackground}"
+                        Background="{StaticResource Gray8}"
                         BorderBrush="{StaticResource BorderMediumColor}">
                     <!-- Arrow Path -->
                     <Path x:Name="Arrow"
@@ -24,7 +24,7 @@
     </Style>
     <!-- Pressed State -->
     <Style Selector="RepeatButton.ScrollBarLineButton:pressed#Border">
-        <Setter Property="Background" Value="{StaticResource ControlPressedBackground}" />
+        <Setter Property="Background" Value="{StaticResource Gray5}" />
     </Style>
     <!-- Disabled State -->
     <Style Selector="RepeatButton.ScrollBarLineButton:disabled#Arrow">

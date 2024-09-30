@@ -26,11 +26,10 @@
                 <!-- Style for the Border -->
                 <Style Selector="Border">
                     <Setter Property="Opacity" Value="1"/>
-            
-                    <!-- Change opacity when the mouse is over (IsMouseOver equivalent) -->
-                    <Style Selector="Border:pointerover">
-                        <Setter Property="Opacity" Value="0.85"/>
-                    </Style>
+                </Style>
+                <!-- Change opacity when the mouse is over (IsMouseOver equivalent) -->
+                <Style Selector="Border:pointerover">
+                    <Setter Property="Opacity" Value="0.85"/>
                 </Style>
             </Border.Styles>
             <Grid>

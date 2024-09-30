@@ -64,7 +64,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            <Grid Height="30" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}" PointerMoved="Border_MouseMoved" PointerPressed="DragWindow" PointerReleased="StopDragWindow">
+            <Grid Height="30" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
@@ -78,10 +78,6 @@
             Text="{Binding SecondaryType, Converter={StaticResource OverlayTypeToReadableNameConverter}}"/>
                     </StackPanel>
 
-                </Viewbox>
-                <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0">
-                    <Button FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Background="#c96161" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
-                  Width="15" Height="15" Padding="0" Click="Button_Click"/>
                 </Viewbox>
             </Grid>
             <Grid Grid.Row="2" IsVisible="{Binding CreatedType, Converter={StaticResource OverlayTypeToShowTotalConverter}}">

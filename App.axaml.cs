@@ -12,19 +12,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Data.Core.Plugins;
+using Avalonia.Markup.Xaml;
 
 namespace SWTORCombatParser
 {
     public partial class App : Application
     {
-        // Entry point for standalone or designer mode
-        [STAThread]
-        public static void Main(string[] args) => BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-        // This method is needed for IDE previewer infrastructure
-        public static AppBuilder BuildAvaloniaApp() 
-            => AppBuilder.Configure<App>().UsePlatformDetect();
+        public override void Initialize()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
         public override void OnFrameworkInitializationCompleted()
         {
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                // Line below is needed to remove Avalonia data validation.
+                // Without this line you will get duplicate validations from both Avalonia and CT
+                BindingPlugins.DataValidators.RemoveAt(0);
+            }
             App_Startup();
             base.OnFrameworkInitializationCompleted();
         }

@@ -22,7 +22,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Offensive_Timers
                 timer.Target = "LocalPlayer";
                 copiedTimers.Add(timer.Copy());
             }
-            DefaultTimersManager.AddTimersForSource(copiedTimers, "OCD");
+            DefaultOrbsTimersManager.AddTimersForSource(copiedTimers, "OCD");
         }
     }
 }

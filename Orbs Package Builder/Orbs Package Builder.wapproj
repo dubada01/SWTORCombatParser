@@ -161,5 +161,8 @@
     <None Include="Orbs Package Builder_TemporaryKey.pfx" />
     <None Include="Package.StoreAssociation.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.8" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\Microsoft.DesktopBridge.targets" />
 </Project>

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -26,6 +27,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private Dictionary<string, double> _currentHps = new Dictionary<string, double>();
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
         private object _combatUpdateLock = new object();
+        private bool _showFrame;
+        private List<OpponentHPBarViewModel> _opponentHpBars = new List<OpponentHPBarViewModel>();
+
         public OpponentOverlayViewModel()
         {
             _dTimer = new DispatcherTimer();
@@ -40,9 +44,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
 
         public event Action<string, bool> OverlayStateChanged = delegate { };
-        public List<OpponentHPBarViewModel> OpponentHpBars { get; set; } = new List<OpponentHPBarViewModel>();
+
+        public List<OpponentHPBarViewModel> OpponentHpBars
+        {
+            get => _opponentHpBars;
+            set => this.RaiseAndSetIfChanged(ref _opponentHpBars, value);
+        }
+
         private void OnPvpCombatStarted()
         {
+            
             if (!OverlayEnabled || _isTriggered)
                 return;
             _isTriggered = true;
@@ -53,7 +64,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     ShowFrame = true;
                     _mostRecentCombat = null;
                     ResetUI();
-                    OnPropertyChanged("ShowFrame");
                     _dTimer.Start();
                     _dTimer.Interval = TimeSpan.FromSeconds(0.1);
                     _dTimer.Tick += CheckForNewState;
@@ -78,7 +88,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 ShowFrame = false;
                 _dTimer.Stop();
                 _dTimer.Tick -= CheckForNewState;
-                OnPropertyChanged("ShowFrame");
             });
 
         }
@@ -95,7 +104,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             set
             {
                 DefaultGlobalOverlays.SetActive("PvP_HP", value);
-                _isActive = value;
+                this.RaiseAndSetIfChanged(ref _isActive, value);
                 if (!_isActive)
                 {
                     _opponentHPView.Hide();
@@ -106,24 +115,26 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     if (OverlaysMoveable || _isTriggered)
                     {
                         ShowFrame = true;
-                        OnPropertyChanged("ShowFrame");
                     }
 
                 }
 
                 OverlayStateChanged("OpponentHP", _isActive);
-                OnPropertyChanged();
             }
         }
-        public bool ShowFrame { get; set; }
+
+        public bool ShowFrame
+        {
+            get => _showFrame;
+            set => this.RaiseAndSetIfChanged(ref _showFrame, value);
+        }
+
         public void LockOverlays()
         {
             SetLock(true);
             OverlaysMoveable = false;
             if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
-            OnPropertyChanged("ShowFrame");
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
@@ -131,8 +142,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             OverlaysMoveable = true;
             if (GetCurrentActive())
                 ShowFrame = true;
-            OnPropertyChanged("ShowFrame");
-            OnPropertyChanged("OverlaysMoveable");
         }
         private void NewCombatInfo(Combat currentCombat)
         {
@@ -189,7 +198,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 bars.Add(newBar);
             }
             OpponentHpBars = bars;
-            OnPropertyChanged("OpponentHpBars");
         }
 
         private bool IsCurrentInfo(string opponentKey)

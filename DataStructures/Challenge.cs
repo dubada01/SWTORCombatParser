@@ -2,6 +2,9 @@
 using System;
 using System.Linq;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
+using Avalonia.Threading;
+using Newtonsoft.Json;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -14,6 +17,28 @@ namespace SWTORCombatParser.DataStructures
         InterruptCount,
         EffectStacks
     }
+    public class SolidColorBrushConverter : JsonConverter<SolidColorBrush>
+    {
+        public override void WriteJson(JsonWriter writer, SolidColorBrush value, JsonSerializer serializer)
+        {
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                // Serialize the color as a string (e.g., "#FF0000FF" for blue)
+                writer.WriteValue(value.Color.ToString());
+            });
+        }
+
+        public override SolidColorBrush ReadJson(JsonReader reader, Type objectType, SolidColorBrush existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            // Deserialize the color from a hex string
+            var colorString = (string)reader.Value;
+            if(colorString == null)
+                return Dispatcher.UIThread.Invoke(() => new SolidColorBrush(Colors.White));
+            var color = Color.Parse(colorString);
+            var colorBrush =  Dispatcher.UIThread.Invoke(() => new SolidColorBrush(color));
+            return colorBrush;
+        }
+    }
     public class Challenge
     {
         private SolidColorBrush backgroundBrush;
@@ -25,18 +50,24 @@ namespace SWTORCombatParser.DataStructures
         public string ShareId { get; set; }
         public string Name { get; set; }
         public ChallengeType ChallengeType { get; set; }
+        [JsonConverter(typeof(SolidColorBrushConverter))]
         public SolidColorBrush BackgroundBrush
         {
             get
             {
-                if(backgroundBrush != null)
-                    return backgroundBrush;
-                var splitColor = BackgroundColor.Split(',').Select(v=>byte.Parse(v.Trim())).ToList();
-                return new SolidColorBrush(Color.FromRgb(splitColor[0], splitColor[1], splitColor[2]));
+                var returnBrush = Dispatcher.UIThread.Invoke(() =>
+                {
+                    if(backgroundBrush != null)
+                        return backgroundBrush;
+                    var splitColor = BackgroundColor.Split(',').Select(v=>byte.Parse(v.Trim())).ToList();
+                    return new SolidColorBrush(Color.FromRgb(splitColor[0], splitColor[1], splitColor[2]));
+                });
+                return returnBrush;
             }
             set => backgroundBrush = value;
         }
-        public string BackgroundColor { get; set; }
+
+        public string BackgroundColor { get; set; } = "245,245,245";
         public bool IsEnabled { get; set; }
         public string ChallengeSource { get; set; }
         public string ChallengeTarget { get; set; }

@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
@@ -72,7 +74,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public void Reset()
         {
             Name = "";
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 RaidHotsOnPlayer.Clear();
                 DCDSOnPlayer.Clear();
@@ -165,13 +167,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public int Columns { get; internal set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public bool AlreadyHasTimer(string timerName) => Application.Current.Dispatcher.Invoke(() =>
+        public bool AlreadyHasTimer(string timerName) => Dispatcher.UIThread.Invoke(() =>
                                                                   {
                                                                       return RaidHotsOnPlayer.Any(t => t.TimerName == timerName);
                                                                   });
         private void RemoveFromList(TimerInstanceViewModel obj, bool endedNatrually)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 RaidHotsOnPlayer.Remove(obj);
                 DCDSOnPlayer.Remove(obj);
@@ -179,7 +181,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void RefreshList()
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 var currentHots = RaidHotsOnPlayer.OrderBy(t => t.TimerValue);
                 RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentHots.Where(h => h.TimerValue > 0));
@@ -191,7 +193,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         internal void AddHOT(TimerInstanceViewModel obj)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 RaidHotsOnPlayer.Add(obj);
             });
@@ -201,7 +203,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         internal void AddDCD(TimerInstanceViewModel obj)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 DCDSOnPlayer.Add(obj);
             });

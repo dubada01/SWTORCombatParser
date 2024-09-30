@@ -1,7 +1,8 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using Avalonia.Controls;
+
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {

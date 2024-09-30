@@ -55,7 +55,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void ToggleAudio(object obj)
         {
             SourceTimer.UseAudio = !SourceTimer.UseAudio;
-            DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
+            DefaultOrbsTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
             TimerController.RefreshAvailableTimers();
             OnPropertyChanged("AudioImageSource");
         }
@@ -64,7 +64,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void ToggleVisiblity(object obj)
         {
             SourceTimer.IsSubTimer = !SourceTimer.IsSubTimer;
-            DefaultTimersManager.SetTimerVisibility(SourceTimer.IsSubTimer, SourceTimer);
+            DefaultOrbsTimersManager.SetTimerVisibility(SourceTimer.IsSubTimer, SourceTimer);
             TimerController.RefreshAvailableTimers();
             OnPropertyChanged("VisibilityImageSource");
         }

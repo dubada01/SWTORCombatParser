@@ -5,7 +5,6 @@ using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media.Effects;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
@@ -117,11 +116,11 @@ namespace SWTORCombatParser.Model.Timers
                     {
                         if(log.Effect.EffectType == EffectType.Remove)
                         {
-                            VariableManager.SetVariable(varaibleToSet, 0);
+                            OrbsVariableManager.SetVariable(varaibleToSet, 0);
                         }
                         else
                         {
-                            VariableManager.SetVariable(varaibleToSet, (int)log.Value.DblValue);
+                            OrbsVariableManager.SetVariable(varaibleToSet, (int)log.Value.DblValue);
                         }
                         
                     }
@@ -132,7 +131,7 @@ namespace SWTORCombatParser.Model.Timers
 
         private static TriggerType CheckForVariable(Timer sourceTimer)
         {
-            var currentValue = VariableManager.GetValue(sourceTimer.VariableName);
+            var currentValue = OrbsVariableManager.GetValue(sourceTimer.VariableName);
             switch (sourceTimer.ComparisonAction)
             {
                 case VariableComparisons.Equals:

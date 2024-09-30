@@ -10,6 +10,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Threading;
+using ReactiveUI;
 
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room
@@ -70,7 +71,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 Dispatcher.UIThread.Invoke(() =>
                 {
                     IsActive = true;
-                    OnPropertyChanged("IsActive");
                 });
                 _currentHazard?.Start();
             }
@@ -80,8 +80,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             get => viewExtraInfo; set
             {
                 DefaultRoomOverlayManager.SetViewExtra(value);
-                viewExtraInfo = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref viewExtraInfo, value);
             }
         }
         public bool OverlayEnabled
@@ -90,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             set
             {
                 DefaultRoomOverlayManager.SetActiveState(value);
-                _isActive = value;
+                this.RaiseAndSetIfChanged(ref _isActive, value);
                 if (!_isActive)
                 {
                     _roomOverlay.Hide();
@@ -99,17 +98,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 {
                     _roomOverlay.Show();
                 }
-                OnPropertyChanged();
             }
         }
-        public bool IsActive { get; set; }
+        public bool IsActive { get => _isActive; set => this.RaiseAndSetIfChanged(ref _isActive, value); }
         public string CharImagePath => "../../../resources/RoomOverlays/PlayerLocation.png";
         public string ImagePath
         {
             get => imagePath; set
             {
-                imagePath = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref imagePath, value);
             }
         }
         public void LockOverlays()
@@ -117,16 +114,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             SetLock(true);
             OverlaysMoveable = false;
             IsActive = false;
-            OnPropertyChanged("IsActive");
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
             SetLock(false);
             OverlaysMoveable = true;
             IsActive = true;
-            OnPropertyChanged("IsActive");
-            OnPropertyChanged("OverlaysMoveable");
         }
         private void NewInCombatLogs(CombatStatusUpdate obj)
         {
@@ -139,7 +132,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 Dispatcher.UIThread.Invoke(() =>
                 {
                     IsActive = false;
-                    OnPropertyChanged("IsActive");
                 });
                 _currentHazard?.Stop();
             }
@@ -149,7 +141,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             Dispatcher.UIThread.Invoke(() =>
             {
                 ImagePath = newPath;
-                OnPropertyChanged("ImagePath");
             });
         }
         private void SetInitialPosition()

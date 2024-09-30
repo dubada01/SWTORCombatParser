@@ -2,12 +2,8 @@
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
-using static System.Windows.Forms.AxHost;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {

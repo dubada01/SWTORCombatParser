@@ -84,7 +84,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             var selectedParticipants = _playerListViewModel.UpdateParticipantsData(selectedCombat, playersThatDidNotStuck);
             if (playersThatDidNotStuck.Any())
             {
-                _deathLogsViewModel.SetViewableEntities(selectedParticipants);
+                _deathLogsViewModel.SetViewableEntities(selectedParticipants.ToList());
             }
             
            // _plotViewModel.Reset();

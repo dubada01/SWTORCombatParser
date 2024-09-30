@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
     public class MetaDataInstance : INotifyPropertyChanged
     {
         public string Category { get; set; }
-        public System.Windows.Media.Brush Color { get; set; }
+        public SolidColorBrush Color { get; set; }
         public string TotalLabel { get; set; }
         public string TotalValue { get; set; }
         public string MaxLabel { get; set; }

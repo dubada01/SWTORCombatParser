@@ -155,7 +155,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged(nameof(VisibleTimerSelected));
 
                 _disciplineTimersWindow.SetSource(SelectedTimerSource);
-                DisciplineTimersActive = DefaultTimersManager.GetTimersActive(selectedTimerSource);
+                DisciplineTimersActive = DefaultOrbsTimersManager.GetTimersActive(selectedTimerSource);
                 OnPropertyChanged("DisciplineTimersActive");
                 UpdateTimerRows();
                 OnPropertyChanged("VisibleTimerSelected");
@@ -205,7 +205,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     _disciplineTimersWindow.Active = false;
                 }
-                DefaultTimersManager.UpdateTimersActive(DisciplineTimersActive, SelectedTimerSource);
+                DefaultOrbsTimersManager.UpdateTimersActive(DisciplineTimersActive, SelectedTimerSource);
                 OnPropertyChanged();
             }
         }
@@ -298,7 +298,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 source = mostRecentDiscipline.Discipline;
                 DisciplineTimersList.Add(source);
-                DefaultTimersManager.UpdateTimersActive(false, source);
+                DefaultOrbsTimersManager.UpdateTimersActive(false, source);
             }
             if (!string.IsNullOrEmpty(source))
             {
@@ -308,11 +308,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void RefreshAvaialbleTriggerOwners()
         {
-            _savedTimersData = DefaultTimersManager.GetAllDefaults();
+            _savedTimersData = DefaultOrbsTimersManager.GetAllDefaults();
             if (_savedTimersData.All(t => t.TimerSource != "Shared"))
             {
                 _savedTimersData.Add(new DefaultTimersData() { TimerSource = "Shared" });
-                DefaultTimersManager.SetSavedTimers(new List<Timer>(), "Shared");
+                DefaultOrbsTimersManager.SetSavedTimers(new List<Timer>(), "Shared");
             }
             var savedTimerSources = new List<string>(_savedTimersData.Where(t => t.TimerSource != null && !t.TimerSource.Contains('|')).Select(t => t.TimerSource));
             savedTimerSources = savedTimerSources.OrderBy(s => s).ToList();
@@ -366,7 +366,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     {
                         timer.SetActive(allActive);
                     });
-                    DefaultTimersManager.SetTimersEnabledForSource(TimerRows.Select(t => t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
+                    DefaultOrbsTimersManager.SetTimersEnabledForSource(TimerRows.Select(t => t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
                     TimerController.RefreshAvailableTimers();
                 });
             }
@@ -399,7 +399,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     timer.SetVisibility(allHidden);
                 });
-                DefaultTimersManager.SetTimersVisibilityForSource(TimerRows.Select(t => t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
+                DefaultOrbsTimersManager.SetTimersVisibilityForSource(TimerRows.Select(t => t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
                 TimerController.RefreshAvailableTimers();
             });
         }
@@ -421,7 +421,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     timer.SetAudio(allMuted);
                 });
-                DefaultTimersManager.SetTimersAudioForSource(TimerRows.Select(t => t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
+                DefaultOrbsTimersManager.SetTimersAudioForSource(TimerRows.Select(t => t.SourceTimer).ToList(), TimerRows.First().SourceTimer.TimerSource);
                 TimerController.RefreshAvailableTimers();
             });
         }
@@ -473,7 +473,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void NewTimer(Timer obj, bool wasEdit, bool wasImport= false)
         {
             if (wasEdit)
-                DefaultTimersManager.RemoveTimerForCharacter(_timerEdited, SelectedTimerSource);
+                DefaultOrbsTimersManager.RemoveTimerForCharacter(_timerEdited, SelectedTimerSource);
             if (wasImport)
                 obj.IsUserAddedTimer = true;
             SaveNewTimer(obj);
@@ -489,7 +489,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void SaveNewTimer(Timer timer)
         {
-            DefaultTimersManager.AddTimersForSource(new List<Timer>() { timer }, SelectedTimerSource);
+            DefaultOrbsTimersManager.AddTimersForSource(new List<Timer>() { timer }, SelectedTimerSource);
 
         }
         public void UpdateLock(bool state)
@@ -517,13 +517,13 @@ namespace SWTORCombatParser.ViewModels.Timers
             SelectedTimerSource = swtorclass.Discipline;
 
             _disciplineTimersWindow.SetSource(SelectedTimerSource);
-            DisciplineTimersActive = DefaultTimersManager.GetTimersActive(SelectedTimerSource);
+            DisciplineTimersActive = DefaultOrbsTimersManager.GetTimersActive(SelectedTimerSource);
 
             RefreshAvaialbleTriggerOwners();
         }
         private void UpdateTimerRows()
         {
-            _savedTimersData = DefaultTimersManager.GetAllDefaults();
+            _savedTimersData = DefaultOrbsTimersManager.GetAllDefaults();
             var allValidTimers = _savedTimersData.Where(t => SelectedTimerSource.Contains('|') ? CompareEncounters(t.TimerSource, SelectedTimerSource) : t.TimerSource == SelectedTimerSource).ToList();
             List<TimerRowInstanceViewModel> timerObjects = new List<TimerRowInstanceViewModel>();
             if (allValidTimers.Count() == 0)
@@ -555,7 +555,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void Delete(TimerRowInstanceViewModel obj)
         {
-            DefaultTimersManager.RemoveTimerForCharacter(obj.SourceTimer, SelectedTimerSource);
+            DefaultOrbsTimersManager.RemoveTimerForCharacter(obj.SourceTimer, SelectedTimerSource);
             TimerRows.Remove(obj);
             TimerController.RefreshAvailableTimers();
             UpdateRowColors();
@@ -574,7 +574,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 var shareWindow = new TimerSharePopup(id);
                 shareWindow.ShowDialog(desktop.MainWindow);
-                DefaultTimersManager.SetIdForTimer(obj.SourceTimer, SelectedTimerSource, id);
+                DefaultOrbsTimersManager.SetIdForTimer(obj.SourceTimer, SelectedTimerSource, id);
                 await TimerDatabaseAccess.AddTimer(obj.SourceTimer);
             }
         }
@@ -594,7 +594,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void ActiveChanged(TimerRowInstanceViewModel timerRow)
         {
-            DefaultTimersManager.SetTimerEnabled(timerRow.IsEnabled, timerRow.SourceTimer);
+            DefaultOrbsTimersManager.SetTimerEnabled(timerRow.IsEnabled, timerRow.SourceTimer);
             TimerController.RefreshAvailableTimers();
         }
         private void UpdateRowColors()

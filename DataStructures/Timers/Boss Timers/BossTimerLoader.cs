@@ -23,8 +23,8 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
 
             var currentRev = bossTimerData.Any() ? bossTimerData.First().Timers.First().TimerRev : 0;
 
-            DefaultTimersManager.ClearBuiltinMechanics(currentRev);
-            var currentBossTimers = DefaultTimersManager.GetAllDefaults();
+            DefaultOrbsTimersManager.ClearBuiltinMechanics(currentRev);
+            var currentBossTimers = DefaultOrbsTimersManager.GetAllDefaults();
             currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
 
             var sourcesToAdd = new List<DefaultTimersData>();
@@ -45,7 +45,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
                 }
                 sourcesToAdd.Add(source);
             }
-            DefaultTimersManager.AddSources(sourcesToAdd);
+            DefaultOrbsTimersManager.AddSources(sourcesToAdd);
         }
     }
 }

@@ -2,7 +2,10 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -21,7 +24,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 AppIsUpToDate = true;
             AppVersionInfoReady();
         }
-        public static void OpenMicrosoftStoreToAppPage()
+        public static async void OpenMicrosoftStoreToAppPage()
         {
             // Construct the app URI
             string appUri = $"ms-windows-store://pdp/?PFN={_appFamilyName}";
@@ -38,7 +41,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occurred while trying to open the Microsoft Store. Make sure the Microsoft Store is installed and the Package Family Name is correct.", "Error");
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var warning = MessageBoxManager.GetMessageBoxStandard("An error occurred while trying to open the Microsoft Store. Make sure the Microsoft Store is installed and the Package Family Name is correct.","Are you sure?");
+                    await warning.ShowAsync();
+                }
             }
         }
     }

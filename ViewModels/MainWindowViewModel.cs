@@ -1,7 +1,5 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
-using SWTORCombatParser.DataStructures.Hotkeys;
 using SWTORCombatParser.DataStructures.Phases;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
@@ -67,8 +65,7 @@ namespace SWTORCombatParser.ViewModels
 
         private readonly Dictionary<Guid, HistoricalCombatViewModel> _activeHistoricalCombatOverviews = new Dictionary<Guid, HistoricalCombatViewModel>();
         private int selectedTabIndex;
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        
         public string Title { get; set; }
         public ObservableCollection<TabInstance> ContentTabs { get; set; } = new ObservableCollection<TabInstance>();
         public PastCombatsView PastCombatsView { get; set; }
@@ -78,23 +75,29 @@ namespace SWTORCombatParser.ViewModels
         public Combat UnfilteredDisplayedCombat { get; set; }
         private bool _allViewsUpToDate;
         private int activeRowSpan;
+        private TabInstance _selectedTab;
+
+        public TabInstance SelectedTab
+        {
+            get => _selectedTab;
+            set => this.RaiseAndSetIfChanged(ref _selectedTab, value);
+        }
 
         public int SelectedTabIndex
         {
             get => selectedTabIndex;
             set
             {
-                selectedTabIndex = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref selectedTabIndex, value);
+                SelectedTab = ContentTabs[value];
             }
         }
+
         public int ActiveRowSpan
         {
-            get => activeRowSpan; set
-            {
-                activeRowSpan = value;
-                OnPropertyChanged();
-            }
+            get => activeRowSpan;
+            set => this.RaiseAndSetIfChanged(ref activeRowSpan, value);
+        
         }
 
         public MainWindowViewModel(HotkeyHandler hotkeyHandler)
@@ -112,7 +115,7 @@ namespace SWTORCombatParser.ViewModels
             MetricColorLoader.SetCurrentBrushDict();
             TimerController.Init();
             RaidNotesReader.Init();
-            VariableManager.RefreshVariables();
+            OrbsVariableManager.RefreshVariables();
             SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
 
             PhaseManager.Init();
@@ -208,11 +211,7 @@ namespace SWTORCombatParser.ViewModels
         }
         public SolidColorBrush UploadButtonBackground
         {
-            get => uploadButtonBackground; set
-            {
-                uploadButtonBackground = value;
-                OnPropertyChanged();
-            }
+            get => uploadButtonBackground; set => this.RaiseAndSetIfChanged(ref uploadButtonBackground, value);
         }
         public ReactiveCommand<Unit,Unit> OpenSettingsWindowCommand => ReactiveCommand.Create(OpenSettingsWindow);
 
@@ -229,7 +228,10 @@ namespace SWTORCombatParser.ViewModels
             // Check if we're using the ClassicDesktop style and retrieve the handle
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                settingsWindow.ShowDialog(desktop.MainWindow);
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    settingsWindow.ShowDialog(desktop.MainWindow);
+                });
             }
         }
 
@@ -238,11 +240,7 @@ namespace SWTORCombatParser.ViewModels
 
         public bool CanOpenParsely
         {
-            get => canOpenParsely; set
-            {
-                canOpenParsely = value;
-                OnPropertyChanged();
-            }
+            get => canOpenParsely; set => this.RaiseAndSetIfChanged(ref canOpenParsely, value);
         }
         private void OpenParsely()
         {
@@ -435,10 +433,6 @@ namespace SWTORCombatParser.ViewModels
                 }
                 localEntity = obj;
             });
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

@@ -12,7 +12,7 @@ namespace SWTORCombatParser_Test
         public void CheckTimerConversion()
         {
             var timers = ImportSPTimers.ConvertXML(File.ReadAllText(@"C:\Users\duban\AppData\Local\StarParse\app\client\app\starparse-timers.xml"));
-            DefaultTimersManager.AddTimersForSource(timers, "StarParse Import");
+            DefaultOrbsTimersManager.AddTimersForSource(timers, "StarParse Import");
         }
     }
 }

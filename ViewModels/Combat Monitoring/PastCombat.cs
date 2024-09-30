@@ -1,18 +1,18 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.Parsely;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
-    public class PastCombat : INotifyPropertyChanged
+    public class PastCombat :ReactiveObject
     {
         private bool isSelected;
         private bool isVisible = false;
@@ -21,16 +21,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public event Action<PastCombat> PastCombatSelected = delegate { };
         public event Action UnselectAll = delegate { };
         public event Action<PastCombat> PastCombatUnSelected = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
         public bool IsCurrentCombat { get; set; }
         public bool IsMostRecentCombat { get; set; } = false;
         public bool IsVisible
         {
-            get => isVisible; set
-            {
-                isVisible = value;
-                OnPropertyChanged();
-            }
+            get => isVisible; set => this.RaiseAndSetIfChanged(ref isVisible, value);
         }
         public EncounterInfo EncounterInfo { get; set; }
         public Combat Combat { get; set; }
@@ -38,20 +33,16 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public bool WasBossKilled => Combat?.WasBossKilled ?? false;
 
         public SolidColorBrush PvPBorderInidcator =>
-            !IsPvPCombat ? Brushes.WhiteSmoke : WasPlayerKilled ? Brushes.IndianRed : Brushes.MediumAquamarine;
+            !IsPvPCombat ? new SolidColorBrush(Colors.WhiteSmoke) : WasPlayerKilled ? new SolidColorBrush(Colors.IndianRed) : new SolidColorBrush(Colors.MediumAquamarine);
         public bool WasPlayerKilled => Combat?.WasPlayerKilled(Combat.LocalPlayer) ?? false;
         public bool IsPvPCombat => Combat?.IsPvPCombat ?? false;
         public (EncounterInfo, bool, SolidColorBrush) TextColorSetter => (EncounterInfo, WasBossKilled, PvPBorderInidcator);
         public string CombatLabel { get; set; }
         public string CombatDuration
         {
-            get => combatDuration; set
-            {
-                combatDuration = value;
-                OnPropertyChanged();
-            }
+            get => combatDuration; set => this.RaiseAndSetIfChanged(ref  combatDuration, value);
         }
-        public ICommand UploadToParselyCommand => new DelegateCommand(UploadToParsely);
+        public ReactiveCommand<Unit,Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
 
         private async void UploadToParsely()
         {
@@ -73,12 +64,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             get => isSelected; set
             {
-                isSelected = value;
+                this.RaiseAndSetIfChanged(ref isSelected, value);
                 if (value)
                     SelectCombat();
                 else
                     UnselectCombat();
-                OnPropertyChanged();
             }
         }
         public void UnselectCombat()
@@ -88,10 +78,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public void SelectCombat()
         {
             PastCombatSelected(this);
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

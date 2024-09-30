@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes
 {
@@ -29,9 +30,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         {
             get => selectedRaid; set
             {
-                selectedRaid = value;
+                this.RaiseAndSetIfChanged(ref selectedRaid, value);
                 UpdateNotes();
-                OnPropertyChanged();
             }
         }
         public Dictionary<string, string> RaidNotes { get; internal set; } = new Dictionary<string, string>();
@@ -40,9 +40,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         {
             get => raidNote; set
             {
-                raidNote = value;
+                this.RaiseAndSetIfChanged(ref raidNote, value);
                 RaidNotes[SelectedRaid] = raidNote;
-                OnPropertyChanged();
             }
         }
         public bool InInstance { get; set; } = false;
@@ -108,7 +107,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
                 RaidNotes[SelectedRaid] = "";
             }
             raidNote = RaidNotes[SelectedRaid];
-            OnPropertyChanged("RaidNote");
+            this.RaisePropertyChanged(nameof(RaidNote));
         }
 
         private void TrySaveRaidNotes(object sender, ElapsedEventArgs e)
@@ -154,13 +153,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         {
             SetLock(true);
             OverlaysMoveable = false;
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
             SetLock(false);
             OverlaysMoveable = true;
-            OnPropertyChanged("OverlaysMoveable");
         }
     }
 }

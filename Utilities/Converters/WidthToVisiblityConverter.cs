@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Data;
+using Avalonia.Data.Converters;
+
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -18,9 +15,10 @@ namespace SWTORCombatParser.Utilities.Converters
             if (value is double width)
             {
                 // Collapse the TextBlock if the window width is below a certain threshold.
-                return width < CollapseBelowWidth ? Visibility.Collapsed : Visibility.Visible;
+                return width < CollapseBelowWidth ? false : true;
             }
-            return Visibility.Visible;
+
+            return true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

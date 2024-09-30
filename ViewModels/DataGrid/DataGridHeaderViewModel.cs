@@ -1,9 +1,9 @@
-﻿using Prism.Commands;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
@@ -13,7 +13,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         Ascending,
         Descending,
     }
-    public class DataGridHeaderViewModel : INotifyPropertyChanged
+    public class DataGridHeaderViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private string selectedNewHeader;
         private SortingDirection sortDirection;
@@ -48,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public bool IsRealHeader { get; set; } = true;
         public string Text { get; set; }
         public bool IsName { get; set; }
-        public ICommand ToggleSortingCommand => new DelegateCommand(ToggleSorting);
+        public ReactiveCommand<Unit,Unit> ToggleSortingCommand => ReactiveCommand.Create(ToggleSorting);
 
         private void ToggleSorting()
         {
@@ -72,7 +72,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             }
         }
 
-        public ICommand HeaderClickedCommand => new DelegateCommand(HeaderClicked);
+        public ReactiveCommand<Unit,Unit> HeaderClickedCommand => ReactiveCommand.Create(HeaderClicked);
 
         private void HeaderClicked()
         {

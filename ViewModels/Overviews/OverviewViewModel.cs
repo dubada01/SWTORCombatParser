@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -17,7 +16,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public OverviewInstanceViewModel DamageTakenVM;
         public OverviewInstanceViewModel HealingReceivedVM;
         public OverviewInstanceViewModel ThreatVM;
-        public abstract Visibility SortOptionVisibility { get; }
+        public abstract bool SortOptionVisibility { get; }
         public List<Entity> AvailableParticipants { get; set; } = new List<Entity>();
         private Combat _currentCombat;
 

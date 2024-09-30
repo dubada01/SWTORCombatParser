@@ -6,7 +6,7 @@
              xmlns:converters="clr-namespace:SWTORCombatParser.Utilities.Converters">
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="/OrbsIcon.ico" 
+            <TrayIcon Icon="OrbsIcon.ico" 
                       ToolTipText="Orbs">
                 <TrayIcon.Menu>
                     <NativeMenu>

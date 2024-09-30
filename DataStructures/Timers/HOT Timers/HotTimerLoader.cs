@@ -22,7 +22,7 @@ namespace SWTORCombatParser.DataStructures.Timers.HOT_Timers
                 copiedTimers.Add(timer);
 
             }
-            DefaultTimersManager.AddTimersForSource(copiedTimers, "HOTS");
+            DefaultOrbsTimersManager.AddTimersForSource(copiedTimers, "HOTS");
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System.Collections.Generic;
-using System.Windows.Media;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
@@ -15,7 +15,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             var metaDatas = new List<MetaDataInstance>();
             var healingMetaData = new MetaDataInstance()
             {
-                Color = Brushes.MediumAquamarine,
+                Color = new SolidColorBrush(Colors.MediumAquamarine),
                 Category = "Healing",
                 TotalLabel = "Total: ",
                 TotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalHealing[currentParticipant].ToString("#,##0"),
@@ -33,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
 
             var healingTaken = new MetaDataInstance()
             {
-                Color = Brushes.LightSkyBlue,
+                Color = new SolidColorBrush(Colors.LightSkyBlue),
                 Category = "Healing Received",
                 TotalLabel = "Total: ",
                 TotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalHealingReceived[currentParticipant].ToString("#,##0"),
@@ -51,7 +51,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
 
             var damageTaken = new MetaDataInstance()
             {
-                Color = Brushes.Peru,
+                Color = new SolidColorBrush(Colors.Peru),
                 Category = "Damage Taken",
                 TotalLabel = "Total: ",
                 TotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalDamageTaken[currentParticipant].ToString("#,##0"),
@@ -69,7 +69,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
 
             var damage = new MetaDataInstance()
             {
-                Color = Brushes.LightCoral,
+                Color = new SolidColorBrush(Colors.LightCoral),
                 Category = "Damage",
                 TotalLabel = "Total: ",
                 TotalValue = string.IsNullOrEmpty(currentParticipant.Name) ? "0" : combat.TotalDamage[currentParticipant].ToString("#,##0"),

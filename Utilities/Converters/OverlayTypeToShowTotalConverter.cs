@@ -1,8 +1,8 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using System;
 using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
+using Avalonia.Data.Converters;
+
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -12,10 +12,11 @@ namespace SWTORCombatParser.Utilities.Converters
         {
             OverlayType overlayType = (OverlayType)value;
             if (overlayType == OverlayType.APM ||
-                overlayType == OverlayType.BurstDamageTaken || overlayType == OverlayType.BurstDPS || overlayType == OverlayType.BurstEHPS ||
+                overlayType == OverlayType.BurstDamageTaken || overlayType == OverlayType.BurstDPS ||
+                overlayType == OverlayType.BurstEHPS ||
                 overlayType == OverlayType.HealReactionTime || overlayType == OverlayType.TankHealReactionTime)
-                return Visibility.Hidden;
-            else return Visibility.Visible;
+                return false;
+            else return true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

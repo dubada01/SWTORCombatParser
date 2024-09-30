@@ -1,10 +1,5 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Overlays.BossFrame;
-using System;
-using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Interop;
+﻿using SWTORCombatParser.ViewModels.Overlays.BossFrame;
+
 
 namespace SWTORCombatParser.Views.Overlay.BossFrame
 {

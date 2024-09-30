@@ -1,11 +1,11 @@
-﻿using ScottPlot.Plottable;
-using SWTORCombatParser.ViewModels.Home_View_Models;
+﻿using SWTORCombatParser.ViewModels.Home_View_Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ScottPlot;
+using ScottPlot.Plottables;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -14,14 +14,14 @@ namespace SWTORCombatParser.DataStructures
         public event Action<bool> TriggerRender = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public LegendItemViewModel Legend { get; set; }
-        public Dictionary<DateTime, Tooltip> Tooltip { get; internal set; } = new Dictionary<DateTime, Tooltip>();
-        public Dictionary<DateTime, Tooltip> EffectiveTooltip { get; internal set; } = new Dictionary<DateTime, Tooltip>();
-        public Dictionary<DateTime, ScatterPlot> Points { get; set; } = new Dictionary<DateTime, ScatterPlot>();
-        public Dictionary<DateTime, ScatterPlot> Line { get; set; } = new Dictionary<DateTime, ScatterPlot>();
-        public Dictionary<string, ScatterPlot> LineByCharacter { get; set; } = new Dictionary<string, ScatterPlot>();
-        public Dictionary<string, ScatterPlot> PointsByCharacter { get; set; } = new Dictionary<string, ScatterPlot>();
-        public Dictionary<DateTime, ScatterPlot> EffectivePoints { get; set; } = new Dictionary<DateTime, ScatterPlot>();
-        public Dictionary<DateTime, ScatterPlot> EffectiveLine { get; set; } = new Dictionary<DateTime, ScatterPlot>();
+        public Dictionary<DateTime, Callout> Tooltip { get; internal set; } = new Dictionary<DateTime, Callout>();
+        public Dictionary<DateTime, Callout> EffectiveTooltip { get; internal set; } = new Dictionary<DateTime, Callout>();
+        public Dictionary<DateTime, Scatter> Points { get; set; } = new Dictionary<DateTime, Scatter>();
+        public Dictionary<DateTime, Scatter> Line { get; set; } = new Dictionary<DateTime, Scatter>();
+        public Dictionary<string, Scatter> LineByCharacter { get; set; } = new Dictionary<string, Scatter>();
+        public Dictionary<string, Scatter> PointsByCharacter { get; set; } = new Dictionary<string, Scatter>();
+        public Dictionary<DateTime, Scatter> EffectivePoints { get; set; } = new Dictionary<DateTime, Scatter>();
+        public Dictionary<DateTime, Scatter> EffectiveLine { get; set; } = new Dictionary<DateTime, Scatter>();
 
         public PlotType Type { get; internal set; }
         public Dictionary<DateTime, List<(string, string)>> Abilities { get; internal set; } = new Dictionary<DateTime, List<(string, string)>>();

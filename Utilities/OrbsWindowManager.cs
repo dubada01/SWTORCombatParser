@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Windows;
+using Avalonia;
+using SWTORCombatParser.Model.Overlays;
 
 namespace SWTORCombatParser.Utilities
 {
     public class OrbsWindowInfo
     {
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point TopLeft { get; set; } = new Point(0, 0);
         public double Width { get; set; } = 960;
         public double Height { get; set; } = 540;

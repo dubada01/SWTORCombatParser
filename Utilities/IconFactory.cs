@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Utilities
 
         public static void Init()
         {
-            _unknownIcon = new Bitmap(Environment.CurrentDirectory + "/resources/question-mark.png");
+            _unknownIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/question-mark.png")));
         }
 
         public static Bitmap GetColoredBitmapImage(string className, Color color)

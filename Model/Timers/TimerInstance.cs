@@ -326,13 +326,13 @@ namespace SWTORCombatParser.Model.Timers
             switch (sourceTimer.ModifyVariableAction)
             {
                 case VariableModifications.Add:
-                    VariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
+                    OrbsVariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
                     break;
                 case VariableModifications.Subtract:
-                    VariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue > 0 ? sourceTimer.VariableModificationValue * -1 : sourceTimer.VariableModificationValue);
+                    OrbsVariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue > 0 ? sourceTimer.VariableModificationValue * -1 : sourceTimer.VariableModificationValue);
                     break;
                 case VariableModifications.Set:
-                    VariableManager.SetVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
+                    OrbsVariableManager.SetVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
                     break;
             }
         }

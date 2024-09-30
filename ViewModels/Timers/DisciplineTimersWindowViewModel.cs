@@ -15,7 +15,6 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class DisciplineTimersWindowViewModel : TimersWindowViewModel
     {
         private string _timerSource;
-        private BaseOverlayWindow _timerWindow;
         private bool _timersEnabled;
         private List<TimerInstance> _activeTimers = new List<TimerInstance>();
         public DisciplineTimersWindowViewModel()
@@ -32,12 +31,11 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (_timerSource.Contains('|') || _timerSource == "Shared" || _timerSource == "HOTS")
                 return;
             TimerTitle = _timerSource + " Timers";
-            OnPropertyChanged("TimerTitle");
             SwtorTimers = new List<TimerInstanceViewModel>();
             _timerWindow.SetPlayer(_timerSource);
             Dispatcher.UIThread.Invoke(() =>
             {
-                var defaultTimersInfo = DefaultTimersManager.GetDefaults(_timerSource);
+                var defaultTimersInfo = DefaultOrbsTimersManager.GetDefaults(_timerSource);
                 _timerWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
                 _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
@@ -84,7 +82,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _visibleTimers.RemoveAll(t => t.TimerValue < 0);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
             }
-            OnPropertyChanged("SwtorTimers");
         }
     }
 }

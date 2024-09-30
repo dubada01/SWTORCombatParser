@@ -13,7 +13,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
@@ -126,9 +125,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 await ChallengeDatabaseAccess.AddChallenge(obj.SourceChallenge);
             }
         }
-        public ICommand AllChallengeCommand => new CommandHandler(CreateNewChallenge);
+        public ReactiveCommand<Unit,Unit> AllChallengeCommand => ReactiveCommand.Create(CreateNewChallenge);
 
-        private void CreateNewChallenge(object obj)
+        private void CreateNewChallenge()
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {

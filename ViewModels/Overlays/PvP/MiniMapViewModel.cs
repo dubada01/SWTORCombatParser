@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -41,6 +42,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private DateTime _lastUpdate;
         private Combat _mostRecentCombat;
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
+        private bool _showFrame;
+
         public MiniMapViewModel()
         {
             _dTimer = new DispatcherTimer();
@@ -70,7 +73,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     _mostRecentCombat = null;
                     CharacterPositionInfos.Clear();
                     _lastUpdatedPlayer.Clear();
-                    OnPropertyChanged("ShowFrame");
                     _dTimer.Start();
                     _dTimer.Interval = TimeSpan.FromSeconds(0.1);
                     _dTimer.Tick += CheckForNewState;
@@ -92,7 +94,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 ShowFrame = false;
                 _dTimer.Stop();
                 _dTimer.Tick -= CheckForNewState;
-                OnPropertyChanged("ShowFrame");
             });
 
         }
@@ -103,7 +104,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             set
             {
                 DefaultGlobalOverlays.SetActive("PvP_MiniMap", value);
-                _isActive = value;
+                this.RaiseAndSetIfChanged(ref _isActive, value);
                 if (!_isActive)
                 {
                     _miniMapView.Hide();
@@ -114,24 +115,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     if (OverlaysMoveable || _isTriggered)
                     {
                         ShowFrame = true;
-                        OnPropertyChanged("ShowFrame");
                     }
 
                 }
 
                 OverlayStateChanged("MiniMap", _isActive);
-                OnPropertyChanged();
+                
             }
         }
-        public bool ShowFrame { get; set; }
+
+        public bool ShowFrame
+        {
+            get => _showFrame;
+            set => this.RaiseAndSetIfChanged(ref _showFrame, value);
+        }
+
         public void LockOverlays()
         {
             SetLock(true);
             OverlaysMoveable = false;
             if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
-            OnPropertyChanged("ShowFrame");
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
@@ -139,8 +143,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             OverlaysMoveable = true;
             if (GetCurrentActive())
                 ShowFrame = true;
-            OnPropertyChanged("ShowFrame");
-            OnPropertyChanged("OverlaysMoveable");
         }
         private void NewStreamedLine(ParsedLogEntry newLine)
         {

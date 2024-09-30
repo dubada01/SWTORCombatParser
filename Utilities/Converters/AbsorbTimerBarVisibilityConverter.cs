@@ -1,8 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System;
 using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
+using Avalonia.Data.Converters;
 
 namespace SWTORCombatParser.Utilities.Converters;
 
@@ -13,9 +12,9 @@ public class AbsorbTimerBarVisibilityConverter : IValueConverter
         TimerKeyType timerTrigger = (TimerKeyType)value;
         if (parameter != null && parameter.ToString()?.ToLower() == "inverted")
         {
-            return timerTrigger == TimerKeyType.AbsorbShield ? Visibility.Collapsed : Visibility.Visible;
+            return timerTrigger != TimerKeyType.AbsorbShield;
         }
-        return timerTrigger == TimerKeyType.AbsorbShield ? Visibility.Visible : Visibility.Collapsed;
+        return timerTrigger == TimerKeyType.AbsorbShield;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

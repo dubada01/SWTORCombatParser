@@ -1,5 +1,4 @@
-﻿using Gma.System.MouseKeyHook;
-using SWTORCombatParser.Model.CombatParsing;
+﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
@@ -10,6 +9,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Threading;
+using SWTORCombatParser.Utilities.MouseHandler;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
 
 namespace SWTORCombatParser.Views.Overlay.RaidHOTs
@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
     /// </summary>
     public partial class RaidFrameOverlay : BaseOverlayWindow
     {
-        private IKeyboardMouseEvents _globalHook;
+        private MouseHookHandler _mouseHookHandler;
         private bool _inCombat;
         private bool _isSubscribed;
         private bool _isLocked = true;
@@ -49,7 +49,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             }
         }
 
-        private void GlobalMouseDown(object sender, MouseEventExtArgs e)
+        private void GlobalMouseDown(Point e)
         {
             if (e.X < GetTopLeft().X || e.X > (GetTopLeft().X + GetWidth()) || e.Y < GetTopLeft().Y || e.Y > (GetTopLeft().Y + GetHeight()))
                 return;
@@ -83,8 +83,9 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             if (_isSubscribed)
                 return;
             _isSubscribed = true;
-            _globalHook = Hook.GlobalEvents();
-            _globalHook.MouseDownExt += GlobalMouseDown;
+            _mouseHookHandler = new MouseHookHandler();
+            _mouseHookHandler.SubscribeToClicks();
+            _mouseHookHandler.MouseClicked += GlobalMouseDown;
             MouseInArea(true);
         }
 
@@ -94,8 +95,9 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             if (!_isSubscribed)
                 return;
             _isSubscribed = false;
-            _globalHook.MouseDownExt -= GlobalMouseDown;
-            _globalHook.Dispose();
+            _mouseHookHandler.UnsubscribeFromClicks();
+            _mouseHookHandler.MouseClicked -= GlobalMouseDown;
+            _mouseHookHandler = null;
             MouseInArea(false);
         }
         private void PollForCursorPos()
@@ -187,11 +189,11 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         {
             return (int)((RaidGrid.Width));
         }
-        private System.Drawing.Point GetTopLeft()
+        private Point GetTopLeft()
         {
             var realTop = (int)((Position.Y + 50));
             var realLeft = (int)((Position.X + 50));
-            return new System.Drawing.Point(realLeft, realTop);
+            return new Point(realLeft, realTop);
         }
     }
 }

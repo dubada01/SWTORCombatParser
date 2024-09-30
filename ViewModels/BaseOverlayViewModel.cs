@@ -7,15 +7,21 @@ using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels;
 
-public class BaseOverlayViewModel:ReactiveObject, INotifyPropertyChanged
+public class BaseOverlayViewModel:ReactiveObject
 {
     internal BaseOverlayWindow _overlayWindow;
     internal bool _active;
+    private bool _overlaysMoveable;
+    private string _timerTitle = "Default Title";
     public event Action CloseRequested = delegate { };
 
     public void RequestClose()
     {
-        CloseRequested();
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            CloseRequested();
+        });
+
     }
     public event Action<bool> OnLocking = delegate { };
 
@@ -28,8 +34,19 @@ public class BaseOverlayViewModel:ReactiveObject, INotifyPropertyChanged
     {
         OnCharacterDetected(playerName);
     }
-    public event PropertyChangedEventHandler PropertyChanged;
-    public bool OverlaysMoveable { get; set; }
+
+    public string TimerTitle
+    {
+        get => _timerTitle;
+        set => this.RaiseAndSetIfChanged(ref _timerTitle, value);
+    }
+
+    public bool OverlaysMoveable
+    {
+        get => _overlaysMoveable;
+        set => this.RaiseAndSetIfChanged(ref _overlaysMoveable, value);
+    }
+
     public bool Active
     {
         get => _active;
@@ -44,7 +61,8 @@ public class BaseOverlayViewModel:ReactiveObject, INotifyPropertyChanged
             {
                 if (OverlaysMoveable)
                 {
-                    _overlayWindow.Show();
+                    if(_overlayWindow!=null)
+                        _overlayWindow.Show();
                 }
             }
 
@@ -55,24 +73,23 @@ public class BaseOverlayViewModel:ReactiveObject, INotifyPropertyChanged
         if (!Active)
             return;
         Dispatcher.UIThread.Invoke(() =>
-        {
-            _overlayWindow.Show();
+        {            
+            if(_overlayWindow!=null)
+                _overlayWindow.Show();
         });
     }
 
     public void HideOverlayWindow()
     {
-        Dispatcher.UIThread.Invoke(() => { _overlayWindow.Hide(); });
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            if(_overlayWindow!=null)
+                _overlayWindow.Hide();
+        });
     }
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    }
-
     internal void UpdateLock(bool value)
     {
         OverlaysMoveable = !value;
-        OnPropertyChanged("OverlaysMoveable");
         OnLocking(value);
     }
 }

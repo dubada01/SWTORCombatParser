@@ -3,29 +3,39 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
-    public class ParticipantSelectionViewModel : INotifyPropertyChanged
+    public class ParticipantSelectionViewModel:ReactiveObject
     {
         private bool viewEnemies;
         private int rows;
         private int columns;
+        private ObservableCollection<ParticipantViewModel> _availableParticipants = new ObservableCollection<ParticipantViewModel>();
+        private Combat _selectedCombat;
+        private Entity _selectedParticipant;
 
         public event Action<Entity> ParticipantSelected = delegate { };
         public event Action<int> ViewEnemiesToggled = delegate { };
-        public List<ParticipantViewModel> AvailableParticipants { get; set; } = new List<ParticipantViewModel>();
+
+        public ObservableCollection<ParticipantViewModel> AvailableParticipants
+        {
+            get => _availableParticipants;
+            set => this.RaiseAndSetIfChanged(ref _availableParticipants, value);
+        }
+
         public int Rows
         {
             get => rows; set
             {
                 if (rows == value) return;
-                rows = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref rows, value);
             }
         }
         public int Columns
@@ -33,14 +43,22 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             get => columns; set
             {
                 if (columns == value) return;
-                columns = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref columns, value);
             }
         }
-        public Combat SelectedCombat { get; set; }
-        public Entity SelectedParticipant { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public Combat SelectedCombat
+        {
+            get => _selectedCombat;
+            set => _selectedCombat = value;
+        }
+
+        public Entity SelectedParticipant
+        {
+            get => _selectedParticipant;
+            set => _selectedParticipant = value;
+        }
+
         public ParticipantSelectionViewModel()
         {
             ParticipantSelectionHandler.SelectionUpdated += SetSelection;
@@ -132,13 +150,12 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 participantViewModel.SetValues(info.EDPS[participant], info.EHPS[participant], info.EDTPS[participant], imagePath);
                 AvailableParticipants.Add(participantViewModel);
             }
-            AvailableParticipants = new List<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
+            AvailableParticipants = new ObservableCollection<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
             UpdateLayout();
             if (ParticipantSelectionHandler.CurrentlySelectedParticpant == null)
             {
                 SelectLocalPlayer();
             }
-            OnPropertyChanged("AvailableParticipants");
             return entitiesToView;
         }
 
@@ -157,11 +174,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 default:
                     return Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
             }
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

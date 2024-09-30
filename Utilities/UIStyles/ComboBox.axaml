@@ -79,8 +79,8 @@
 
     <!-- Style for Opened ComboBox -->
     <Style Selector="ComboBox[IsDropDownOpen=True]#DropDownBorder">
-        <Setter Property="BorderBrush" Value="{StaticResource HighlightBorderBrush}" />
-        <Setter Property="Background" Value="{StaticResource HighlightBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray11}" />
+        <Setter Property="Background" Value="{StaticResource Gray5}" />
     </Style>
 
     <!-- ComboBoxItem Style -->
@@ -100,17 +100,17 @@
 
     <!-- Style for PointerOver state -->
     <Style Selector="ComboBoxItem:pointerover#Border">
-        <Setter Property="Background" Value="{StaticResource ItemPointerOverBackground}" />
+        <Setter Property="Background" Value="{StaticResource Gray9}" />
     </Style>
 
     <!-- Style for Selected state -->
     <Style Selector="ComboBoxItem:selected#Border">
-        <Setter Property="Background" Value="{StaticResource ItemSelectedBackground}" />
+        <Setter Property="Background" Value="{StaticResource Gray9}" />
     </Style>
 
     <!-- Style for Selected Unfocused state -->
     <Style Selector="ComboBoxItem:selected:unfocused#Border">
-        <Setter Property="Background" Value="{StaticResource ItemSelectedUnfocusedBackground}" />
+        <Setter Property="Background" Value="{StaticResource Gray6}" />
     </Style>
 
 </Styles>

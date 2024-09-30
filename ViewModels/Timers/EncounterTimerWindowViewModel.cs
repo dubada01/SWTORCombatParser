@@ -20,13 +20,11 @@ namespace SWTORCombatParser.ViewModels.Timers
 {
     public class EncounterTimerWindowViewModel : TimersWindowViewModel
     {
-        private BaseOverlayWindow _timerWindow;
         private bool inBossRoom;
         private bool isEnabled;
         public EncounterTimerWindowViewModel()
         {
             TimerTitle = "Boss Timers";
-            OnPropertyChanged("TimerTitle");
             SwtorTimers = new List<TimerInstanceViewModel>();
 
             TimerController.TimerExpired += RemoveTimer;
@@ -60,7 +58,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                         timer.Dispose();
                     }
                     SwtorTimers = new List<TimerInstanceViewModel>();
-                    OnPropertyChanged("SwtorTimers");
                 }
             }
         }
@@ -165,7 +162,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _visibleTimers.RemoveAll(t => t.TimerValue <= 0);
                 SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
             }
-            OnPropertyChanged("SwtorTimers");
         }
     }
 }

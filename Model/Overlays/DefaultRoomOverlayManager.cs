@@ -1,13 +1,15 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Windows;
+using Avalonia;
 
 namespace SWTORCombatParser.Model.Overlays
 {
     public class RoomOverlayManager
     {
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point Position;
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point WidtHHeight;
         public bool Acive;
         public bool ViewExtraData;

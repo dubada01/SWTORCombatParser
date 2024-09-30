@@ -13,5 +13,11 @@ namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
         {
             InitializeComponent();
         }
+
+        private void Border_PreviewMouseLeftButtonDown(object sender, PointerPressedEventArgs e)
+        {
+            var viewModel = DataContext as PastCombat;
+            viewModel.SelectionToggle();
+        }
     }
 }

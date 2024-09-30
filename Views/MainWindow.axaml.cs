@@ -114,7 +114,7 @@ namespace SWTORCombatParser.Views
 
         private void Window_PointerLeave(object sender, PointerEventArgs e)
         {
-            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new System.Windows.Point { X = Position.X, Y = Position.Y }, Width = ClientSize.Width, Height = ClientSize.Height });
+            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new Point(Position.X,Position.Y), Width = ClientSize.Width, Height = ClientSize.Height });
         }
     }
 }

@@ -4,18 +4,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Threading;
-using Orbs_Avalonia.Model;
-using Orbs_Avalonia.ViewModels;
-using Orbs_Avalonia.Views;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.DataStructures.Timeline;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.Views.Overlay.Timeline;
 
 namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
@@ -32,12 +30,6 @@ public static class AvaloniaTimelineBuilder
 
     public static void Init()
     {
-        // Initialize Avalonia once, if not already done
-        AppBuilder.Configure<Orbs_Avalonia.AvaloniaApp>()
-            .UsePlatformDetect() // This line detects the platform (Windows, Linux, etc.)
-            .WithInterFont() // If you need a specific font, keep this, otherwise remove it
-            .LogToTrace() // Logging
-            .SetupWithoutStarting(); // Don't start a full Avalonia lifecycle, just setup
         // Create and show the Avalonia window
         _timelineWindowViewModel = new TimelineWindowViewModel();
         _timelineWindow = new TimelineWindow(_timelineWindowViewModel);

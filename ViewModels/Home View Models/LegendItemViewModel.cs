@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using Avalonia.Media;
+using Color = ScottPlot.Color;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
@@ -12,8 +12,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public event PropertyChangedEventHandler PropertyChanged;
         public string Name { get; set; }
         public Color Color { get; set; }
-        public System.Windows.Media.Brush LegendColor => new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(255, Color.R, Color.G, Color.B));
-        public Visibility ShowEffective => HasEffective ? Visibility.Visible : Visibility.Hidden;
+        public SolidColorBrush LegendColor => new(Avalonia.Media.Color.FromArgb(255, Color.R, Color.G, Color.B));
+        public bool ShowEffective => HasEffective ? true : false;
         public bool HasEffective { get; set; }
         private bool _checked = true;
         public bool Checked

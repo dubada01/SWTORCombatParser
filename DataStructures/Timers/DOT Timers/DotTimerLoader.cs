@@ -24,7 +24,7 @@ namespace SWTORCombatParser.DataStructures.Timers.HOT_Timers
                 timer.TrackOutsideOfCombat = false;
                 copiedTimers.Add(timer.Copy());
             }
-            DefaultTimersManager.AddTimersForSource(copiedTimers, "DOTS");
+            DefaultOrbsTimersManager.AddTimersForSource(copiedTimers, "DOTS");
         }
     }
 }

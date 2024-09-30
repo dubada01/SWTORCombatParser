@@ -40,7 +40,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
 
             UpdateHeaders();
             var firstHeader = HeaderNames.Where(h => !h.IsName).First();
-            firstHeader.ToggleSortingCommand.Execute(null);
+            firstHeader.ToggleSortingCommand.Execute();
         }
 
 

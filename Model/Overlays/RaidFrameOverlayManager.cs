@@ -2,13 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows;
+using Avalonia;
 
 namespace SWTORCombatParser.Model.Overlays
 {
     public class RaidFrameOverlayInfo
     {
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point Position;
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point WidtHHeight;
         public double Rows;
         public double Columns;

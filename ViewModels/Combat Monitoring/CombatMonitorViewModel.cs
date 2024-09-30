@@ -1,13 +1,9 @@
-﻿using Microsoft.Win32;
-using SWTORCombatParser.DataStructures;
-using Prism.Commands;
-using SWTORCombatParser.DataStructures.ClassInfos;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.HistoricalLogs;
-using SWTORCombatParser.Views.Home_Views;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,18 +11,21 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Numerics;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
-    public class CombatMonitorViewModel : INotifyPropertyChanged
+    public class CombatMonitorViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private ConcurrentDictionary<DateTime, List<ParsedLogEntry>> _totalLogsDuringCombat = new ConcurrentDictionary<DateTime, List<ParsedLogEntry>>();
         private static bool _liveParseActive;
@@ -90,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             }
         }
         public string AutoLiveParseText => _autoParseEnabled ? "Disable Auto Parse" : "Enable Auto Parse";
-        public ICommand AutoLiveParseCommand => new DelegateCommand(AutoLiveParseToggle);
+        public ReactiveCommand<Unit,Unit> AutoLiveParseCommand => ReactiveCommand.Create(AutoLiveParseToggle);
 
         private void AutoLiveParseToggle()
         {
@@ -159,9 +158,9 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 ClearCombats();
             });
         }
-        public ICommand ToggleLiveParseCommand => new CommandHandler(ToggleLiveParse);
+        public ReactiveCommand<Unit,Unit> ToggleLiveParseCommand => ReactiveCommand.Create(ToggleLiveParse);
 
-        private void ToggleLiveParse(object test)
+        private void ToggleLiveParse()
         {
             if (!LiveParseActive)
             {
@@ -316,33 +315,40 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
 
 
-        public ICommand LoadSpecificLogCommand => new CommandHandler(LoadSpecificLog);
-        private void LoadSpecificLog(object test)
+        public ReactiveCommand<Unit,Task> LoadSpecificLogCommand => ReactiveCommand.Create(LoadSpecificLog);
+        private async Task LoadSpecificLog()
         {
             var openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Combat Logs (*.txt)|*.txt";
+            openFileDialog.Filters = new List<FileDialogFilter>
+            {
+                new FileDialogFilter { Name = "Text Files", Extensions = { "txt" } },
+                new FileDialogFilter { Name = "All Files", Extensions = { "*" } }
+            };
             if (!CombatLogLoader.CheckIfCombatLoggingPresent())
             {
                 OnNewLog("Failed to locate combat log folder: " + CombatLogLoader.GetLogDirectory());
-                openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                openFileDialog.Directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
             else
             {
-                openFileDialog.InitialDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+                openFileDialog.Directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
             }
 
-
-            if (openFileDialog.ShowDialog() == true)
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                OnMonitoringStateChanged(false);
-                CurrentlySelectedLogName = openFileDialog.FileName;
-                OnPropertyChanged("CurrentlySelectedLogName");
-                var logInfo = CombatLogLoader.LoadSpecificLog(CurrentlySelectedLogName);
-                _combatLogStreamer.StopMonitoring();
-                LiveParseActive = false;
-                Reset();
-                LoadingWindowFactory.ShowLoading();
-                _combatLogStreamer.ParseCompleteLog(logInfo.Path);
+                var result = await openFileDialog.ShowAsync(desktop.MainWindow);
+                if (result!= null && result.Length > 0)
+                {
+                    OnMonitoringStateChanged(false);
+                    CurrentlySelectedLogName = result[0];
+                    OnPropertyChanged("CurrentlySelectedLogName");
+                    var logInfo = CombatLogLoader.LoadSpecificLog(CurrentlySelectedLogName);
+                    _combatLogStreamer.StopMonitoring();
+                    LiveParseActive = false;
+                    Reset();
+                    LoadingWindowFactory.ShowLoading();
+                    _combatLogStreamer.ParseCompleteLog(logInfo.Path);
+                }
             }
         }
         private void UpdateVisibleEncounters()

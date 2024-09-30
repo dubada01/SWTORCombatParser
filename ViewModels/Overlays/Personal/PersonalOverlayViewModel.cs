@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Personal
 {
@@ -111,7 +112,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             {
                 if (overlaysMoveable == value)
                     return;
-                overlaysMoveable = value;
+                this.RaiseAndSetIfChanged(ref overlaysMoveable, value);
                 foreach (var instance in PersonalOverlayInstances)
                 {
                     instance.OverlayUnlocked = overlaysMoveable;
@@ -130,15 +131,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                         Rows = Rows + 1;
                     }
                 }
-                OnPropertyChanged();
             }
         }
         public double Rows
         {
             get => rows; set
             {
-                rows = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref rows, value);
             }
         }
     }

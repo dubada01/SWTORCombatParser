@@ -1,16 +1,16 @@
-﻿using SWTORCombatParser.Utilities;
-using System;
-using System.Windows.Input;
+﻿using System;
+using System.Reactive;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class RefreshOptionViewModel
+    public class RefreshOptionViewModel:ReactiveObject
     {
         public event Action<RefreshOptionViewModel> RemoveRequested = delegate { };
         public string Name { get; set; }
-        public ICommand RemoveCommand => new CommandHandler(Remove);
+        public ReactiveCommand<Unit,Unit> RemoveCommand => ReactiveCommand.Create(Remove);
 
-        private void Remove(object obj)
+        private void Remove()
         {
             RemoveRequested(this);
         }

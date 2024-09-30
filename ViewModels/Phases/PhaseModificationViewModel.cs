@@ -1,18 +1,17 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.Model.Phases;
-using SWTORCombatParser.Utilities;
+﻿using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseModificationViewModel : INotifyPropertyChanged
+    public class PhaseModificationViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private Phase _editingPhase;
         private string name;
@@ -97,9 +96,9 @@ namespace SWTORCombatParser.ViewModels.Phases
                 OnPropertyChanged();
             }
         }
-        public ICommand SaveRefreshOptionCommand => new CommandHandler(SaveRefreshCommand);
+        public ReactiveCommand<Unit,Unit> SaveRefreshOptionCommand => ReactiveCommand.Create(SaveRefreshCommand);
 
-        private void SaveRefreshCommand(object obj)
+        private void SaveRefreshCommand()
         {
             if (string.IsNullOrEmpty(MultiValueOption))
                 return;
@@ -132,9 +131,9 @@ namespace SWTORCombatParser.ViewModels.Phases
                 OnPropertyChanged();
             }
         }
-        public ICommand EndSaveRefreshOptionCommand => new CommandHandler(EndSaveRefreshCommand);
+        public ReactiveCommand<Unit,Unit> EndSaveRefreshOptionCommand => ReactiveCommand.Create(EndSaveRefreshCommand);
 
-        private void EndSaveRefreshCommand(object obj)
+        private void EndSaveRefreshCommand()
         {
             if (string.IsNullOrEmpty(EndMultiValueOption))
                 return;
@@ -219,9 +218,9 @@ namespace SWTORCombatParser.ViewModels.Phases
                 OnPropertyChanged();
             }
         }
-        public ICommand SaveMultiTargetOption => new CommandHandler(SaveMultiTargetCommand);
+        public ReactiveCommand<Unit,Unit> SaveMultiTargetOption => ReactiveCommand.Create(SaveMultiTargetCommand);
 
-        private void SaveMultiTargetCommand(object obj)
+        private void SaveMultiTargetCommand()
         {
             if (string.IsNullOrEmpty(MultiTargetOption))
                 return;
@@ -282,9 +281,9 @@ namespace SWTORCombatParser.ViewModels.Phases
                 OnPropertyChanged();
             }
         }
-        public ICommand EndSaveMultiTargetOption => new CommandHandler(EndSaveMultiTargetCommand);
+        public ReactiveCommand<Unit,Unit> EndSaveMultiTargetOption => ReactiveCommand.Create(EndSaveMultiTargetCommand);
 
-        private void EndSaveMultiTargetCommand(object obj)
+        private void EndSaveMultiTargetCommand()
         {
             if (string.IsNullOrEmpty(EndMultiTargetOption))
                 return;
@@ -331,7 +330,7 @@ namespace SWTORCombatParser.ViewModels.Phases
             if (_editingPhase != null)
                 OnCancelEdit(_editingPhase);
         }
-        public ICommand SaveCommand => new DelegateCommand(Save);
+        public ReactiveCommand<Unit,Unit> SaveCommand => ReactiveCommand.Create(Save);
         private void Save()
         {
             var args = new PhaseArgs

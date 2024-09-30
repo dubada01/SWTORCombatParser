@@ -60,7 +60,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 OnPropertyChanged();
             }
         }
-        public System.Drawing.Point TopLeft { get; set; }
+        public Point TopLeft { get; set; }
         public int Width { get; set; }
         public double ScreenWidth { get; set; }
         public double ColumnWidth => ScreenWidth / Columns;
@@ -546,7 +546,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        internal void UpdatePositionAndSize(int actualHeight, int actualWidth, double screenHeight, double screenWidth, System.Drawing.Point topLeft)
+        internal void UpdatePositionAndSize(int actualHeight, int actualWidth, double screenHeight, double screenWidth, Point topLeft)
         {
             TopLeft = topLeft;
             Height = actualHeight;

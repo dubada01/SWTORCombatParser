@@ -1,6 +1,5 @@
 ﻿using SWTORCombatParser.Views.Overviews;
 using System.Collections.Generic;
-using System.Windows;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -13,7 +12,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public TableViewInstance DamageTakenContent { get; set; }
         public TableViewInstance HealingReceivedContent { get; set; }
         public TableViewInstance ThreatContent { get; set; }
-        public override Visibility SortOptionVisibility => Visibility.Visible;
+        public override bool SortOptionVisibility => true;
         public List<SortingOption> AvailableOrderings { get; set; } = new List<SortingOption> { SortingOption.BySource, SortingOption.ByTarget, SortingOption.ByAbility };
 
         public SortingOption SelectedOrdering

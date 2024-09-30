@@ -1,11 +1,4 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Overlays.Personal;
-using System;
-using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Interop;
+﻿using SWTORCombatParser.ViewModels.Overlays.Personal;
 
 namespace SWTORCombatParser.Views.Overlay.Personal
 {

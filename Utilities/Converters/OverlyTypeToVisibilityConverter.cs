@@ -1,8 +1,7 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using System;
 using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
+using Avalonia.Data.Converters;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -13,9 +12,9 @@ namespace SWTORCombatParser.Utilities.Converters
             switch ((OverlayType)value)
             {
                 case OverlayType.None:
-                    return Visibility.Hidden;
+                    return false;
                 default:
-                    return Visibility.Visible;
+                    return true;
             }
         }
 

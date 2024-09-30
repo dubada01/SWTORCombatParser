@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
-using System.Windows.Media;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -11,9 +11,9 @@ namespace SWTORCombatParser.Utilities.Converters
         {
             bool boolVal = (bool)value;
             if (boolVal)
-                return Brushes.DarkGoldenrod;
+                return new SolidColorBrush(Colors.DarkGoldenrod);
             else
-                return Brushes.Gray;
+                return new SolidColorBrush(Colors.Gray);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

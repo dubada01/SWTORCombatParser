@@ -7,17 +7,17 @@ using SWTORCombatParser.Views.Overlay.RaidHOTs;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
 using Avalonia.Threading;
+using ReactiveUI;
 using Point = Avalonia.Point;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
-    public class RaidHotsConfigViewModel : INotifyPropertyChanged
+    public class RaidHotsConfigViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private string raidFrameRows = "4";
         private string raidFrameColumns = "2";
@@ -76,7 +76,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
         }
 
-        public ICommand ManuallyRefreshPlayersCommand => new CommandHandler(_ => { AutoDetection(); });
+        public ReactiveCommand<Unit,Unit> ManuallyRefreshPlayersCommand => ReactiveCommand.Create(AutoDetection);
         public bool RaidFrameEditable => _isRaidFrameEditable;
         public string ToggleEditText
         {
@@ -117,7 +117,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         public void HideRaidHots()
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 _currentOverlay.Hide();
             });
@@ -183,7 +183,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.TopLeft,
                     raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentOverlayViewModel.Height, _currentOverlayViewModel.Width).Result;
                 raidFrameBitmap.Dispose();
-                Application.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     _currentOverlayViewModel.UpdateNames(names);
                 });

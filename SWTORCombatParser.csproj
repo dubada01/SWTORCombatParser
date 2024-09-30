@@ -3,7 +3,7 @@
   <PropertyGroup>
     <VersionPrefix>1.9.17</VersionPrefix>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AssemblyName>Orbs</AssemblyName>
@@ -18,7 +18,26 @@
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<DebugType>full</DebugType>
   </PropertyGroup>
+  <!-- Define 'WINDOWS' symbol when building on Windows -->
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <DefineConstants>WINDOWS;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
 
+  <!-- Define 'MACOS' symbol when building on macOS -->
+  <PropertyGroup Condition="'$(OS)' == 'Unix' AND '$(RuntimeIdentifier)' == 'osx-x64'">
+    <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <!-- Include Windows-specific packages -->
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Unix' AND '$(RuntimeIdentifier)' == 'osx-x64'">
+    <!-- Include Unix-specific packages -->
+    <PackageReference Include="UnixSpecific.Package" Version="1.0.0" />
+  </ItemGroup>
+  
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
@@ -86,12 +105,10 @@
     <Compile Remove="Views\Battle Review\MapView.xaml.cs" />
     <Page Update="Views\Timers\AlertInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Timers\HPTimerInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
     <Compile Remove="Views\Leaderboard View\**" />
@@ -104,11 +121,13 @@
     <Compile Remove="ViewModels\Overviews\HistogramViewModel.cs" />
     <Compile Remove="ViewModels\Overviews\HistogramInstanceViewModel.cs" />
     <Compile Remove="Views\Home Views\HistoricalRangeWiget.axaml.cs" />
+    <Compile Remove="Utilities\OutlinedTextBlock.cs" />
+    <Compile Remove="Utilities\CommandHandler.cs" />
   </ItemGroup>
     <ItemGroup>
-        <Content Include="resources\**\*.*">
+        <AvaloniaResource Include="resources\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+        </AvaloniaResource>
     </ItemGroup>
 
   <ItemGroup>
@@ -280,28 +299,27 @@
     <PackageReference Include="Avalonia" Version="11.1.3" />
     <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.1.3" />
     <PackageReference Include="Avalonia.Desktop" Version="11.1.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.3" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.1.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.3" />
     <PackageReference Include="LibVLCSharp" Version="3.9.0" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="MessageBox.Avalonia" Version="3.1.6" />
     <PackageReference Include="morelinq" Version="4.1.0" />
-    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql" Version="8.0.3" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.1" />
-    <PackageReference Include="Prism.Core" Version="8.1.97" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
-    <PackageReference Include="ScottPlot" Version="4.1.71" />
-    <PackageReference Include="ScottPlot.WPF" Version="4.1.71" />
+    <PackageReference Include="ScottPlot" Version="5.0.39" />
+    <PackageReference Include="ScottPlot.Avalonia" Version="5.0.39" />
     <PackageReference Include="System.Reactive" Version="6.0.1" />
     <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
-    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="OrbsIcon.ico">
+    <AvaloniaResource Include="OrbsIcon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </AvaloniaResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -344,15 +362,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orbs_Avalonia\Orbs_Avalonia.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Update="Views\Overlay\BossFrame\RaidDotInstance.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -365,13 +374,6 @@
     <Compile Update="Views\InsanceAlreadyRunningWarning.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -393,6 +395,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Avalonia.Controls.DataGrid">
+      <HintPath>..\..\..\..\.nuget\packages\avalonia.controls.datagrid\11.1.0\lib\net8.0\Avalonia.Controls.DataGrid.dll</HintPath>
+    </Reference>
     <Reference Include="ReactiveUI">
       <HintPath>..\bin\Avalonia\net8.0\net8.0\ReactiveUI.dll</HintPath>
     </Reference>

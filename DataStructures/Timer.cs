@@ -1,10 +1,27 @@
-﻿using SWTORCombatParser.Model.Timers;
+﻿using System;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System.Collections.Generic;
 using Avalonia.Media;
+using Newtonsoft.Json;
 
 namespace SWTORCombatParser.DataStructures
 {
+    public class ColorConverter : JsonConverter<Color>
+    {
+        public override void WriteJson(JsonWriter writer, Color value, JsonSerializer serializer)
+        {
+            // Serialize color as a hex string (e.g., #FF1A8814)
+            writer.WriteValue(value.ToString());
+        }
+
+        public override Color ReadJson(JsonReader reader, Type objectType, Color existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            // Read the hex string and convert it to an Avalonia Color
+            var colorString = (string)reader.Value;
+            return Color.Parse(colorString);
+        }
+    }
     public enum TimerKeyType
     {
         CombatStart,
@@ -27,6 +44,7 @@ namespace SWTORCombatParser.DataStructures
         VariableCheck,
         EffectCharges
     }
+    
     public class Timer
     {
         private bool isEnabled;
@@ -86,6 +104,7 @@ namespace SWTORCombatParser.DataStructures
         public double AlertDuration { get; set; }
         public double DurationSec { get; set; }
         public double HideUntilSec { get; set; }
+        [JsonConverter(typeof(ColorConverter))]
         public Color TimerColor { get; set; }
         public bool UseAudio { get; set; }
         public string CustomAudioPath { get; set; }

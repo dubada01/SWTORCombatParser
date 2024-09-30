@@ -8,10 +8,12 @@ using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using Avalonia.Controls;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -20,25 +22,38 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private object _refreshLock = new object();
         private double sizeScalar = 1d;
         private string metricTotal;
-        public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
-        public bool UsingLeaderboard { get; set; }
+
+        public string OverlayTypeImage
+        {
+            get => _overlayTypeImage;
+            set => this.RaiseAndSetIfChanged(ref _overlayTypeImage, value);
+        }
+
+        public bool UsingLeaderboard
+        {
+            get => _usingLeaderboard;
+            set => this.RaiseAndSetIfChanged(ref _usingLeaderboard, value);
+        }
+
         public double SizeScalar
         {
             get => sizeScalar; set
             {
-                sizeScalar = value;
+                this.RaiseAndSetIfChanged(ref sizeScalar, value);
                 foreach (var bar in _metricBarsDict)
                 {
                     bar.Value.SizeScalar = sizeScalar;
                 }
-                OnPropertyChanged("LeaderboardSeperationDistance");
-                OnPropertyChanged("TotalRowHeight");
-                OnPropertyChanged("TotalFontSize");
-                OnPropertyChanged();
             }
         }
         public ConcurrentDictionary<(string, bool), OverlayMetricInfo> _metricBarsDict { get; set; } = new ConcurrentDictionary<(string, bool), OverlayMetricInfo>();
-        public List<OverlayMetricInfo> MetricBars { get; set; } = new List<OverlayMetricInfo>();
+
+        public ObservableCollection<OverlayMetricInfo> MetricBars
+        {
+            get => _metricBars;
+            set => this.RaiseAndSetIfChanged(ref _metricBars, value);
+        }
+
         public OverlayType CreatedType { get; set; }
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }
@@ -46,8 +61,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             get => metricTotal; set
             {
-                metricTotal = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref metricTotal, value);
             }
         }
         public bool HasLeaderboard => (Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS || Type == OverlayType.FocusDPS) && UsingLeaderboard;
@@ -121,16 +135,20 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatLogStreamer.NewLineStreamed += CheckForConversation;
             MetricColorLoader.OnOverlayTypeColorUpdated += UpdateColor;
             UpdateLeaderboardType(LeaderboardSettings.ReadLeaderboardSettings());
+            this.WhenAnyValue(x => x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(TotalFontSize)));
         }
         private void UpdateColor(OverlayType type)
         {
             if (type == Type)
-                OnPropertyChanged("Type");
+                this.RaisePropertyChanged(nameof(Type));
             if(type == SecondaryType)
-                OnPropertyChanged("SecondaryType");
+                this.RaisePropertyChanged(nameof(SecondaryType));
         }
         private bool _conversationActive;
         private IDisposable _updateSub;
+        private bool _usingLeaderboard;
+        private string _overlayTypeImage = "../../resources/SwtorLogo_opaque.png";
+        private ObservableCollection<OverlayMetricInfo> _metricBars = new ObservableCollection<OverlayMetricInfo>();
 
         private void CheckForConversation(ParsedLogEntry obj)
         {
@@ -165,8 +183,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 OverlayTypeImage = "../../resources/LocalPlayerIcon.png";
             }
-            OnPropertyChanged("OverlayTypeImage");
-            OnPropertyChanged("HasLeaderboard");
         }
 
         private void UpdateTopEntries(Dictionary<LeaderboardEntryType, (string, double)> obj)
@@ -234,13 +250,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             SetLock(true);
             OverlaysMoveable = false;
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
             SetLock(false);
             OverlaysMoveable = true;
-            OnPropertyChanged("OverlaysMoveable");
         }
         private void AddLeaderboardBar(string characterName, double value)
         {
@@ -363,10 +377,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                         listOfBars.Add(bar);
                 }
 
-                MetricBars = new List<OverlayMetricInfo>(listOfBars.OrderByDescending(mb => mb.TrueValue));
-
-                OnPropertyChanged("MetricBars");
-
+                MetricBars = new ObservableCollection<OverlayMetricInfo>(listOfBars.OrderByDescending(mb => mb.TrueValue));
             }
             catch (Exception ex)
             {

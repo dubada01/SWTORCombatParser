@@ -4,7 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
+using Avalonia;
+using SWTORCombatParser.Model.Overlays;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
@@ -13,12 +14,14 @@ namespace SWTORCombatParser.Model.Timers
     {
         public string TimerSource;
         public bool IsBossSource;
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point Position;
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point WidtHHeight;
 
         public List<Timer> Timers = new List<Timer>();
     }
-    public static class DefaultTimersManager
+    public static class DefaultOrbsTimersManager
     {
         private static string _currentDefaults = "";
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");

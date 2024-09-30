@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Timers;
 
@@ -15,8 +16,12 @@ public class AlertsWindowViewModel : BaseOverlayViewModel, INotifyPropertyChange
 {
 
     private List<TimerInstanceViewModel> _currentTimers = new List<TimerInstanceViewModel>();
-    public List<TimerInstanceViewModel> SwtorTimers { get; set; } =
-        new List<TimerInstanceViewModel>();
+
+    public List<TimerInstanceViewModel> SwtorTimers
+    {
+        get => _swtorTimers;
+        set => this.RaiseAndSetIfChanged(ref _swtorTimers, value);
+    }
 
     public AlertsWindowViewModel()
     {
@@ -34,6 +39,8 @@ public class AlertsWindowViewModel : BaseOverlayViewModel, INotifyPropertyChange
     }
     
     private object _timerChangeLock = new object();
+    private List<TimerInstanceViewModel> _swtorTimers = new List<TimerInstanceViewModel>();
+
     private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
     {
         if (obj.SourceTimer.IsHot || !Active || !obj.SourceTimer.IsAlert || obj.SourceTimer.IsSubTimer)
@@ -49,7 +56,6 @@ public class AlertsWindowViewModel : BaseOverlayViewModel, INotifyPropertyChange
             SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
             callback(obj);
         }
-        OnPropertyChanged("SwtorTimers");
     }
 
     private void RefreshTimerVisuals(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
@@ -62,6 +68,5 @@ public class AlertsWindowViewModel : BaseOverlayViewModel, INotifyPropertyChange
         }
         if (SwtorTimers.Count == 0)
             HideOverlayWindow();
-        OnPropertyChanged("SwtorTimers");
     }
 }

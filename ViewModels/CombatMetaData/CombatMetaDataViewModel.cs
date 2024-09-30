@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
-    public class CombatEfffectViewModel : INotifyPropertyChanged
+    public class CombatEfffectViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private Entity characterName = new Entity();
         private Combat _currentCombat;
@@ -88,9 +89,9 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 OnPropertyChanged();
             }
         }
-        public ICommand ClearCombatEffectsCommand => new CommandHandler(ClearCombatEffects);
+        public ReactiveCommand<Unit,Unit> ClearCombatEffectsCommand => ReactiveCommand.Create(ClearCombatEffects);
 
-        private void ClearCombatEffects(object test)
+        private void ClearCombatEffects()
         {
             foreach (var effect in CombatEffects)
             {
@@ -139,8 +140,8 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
 
             if (_currentCombat == null)
                 return;
-            var minX = newAxisLimits.XMin;
-            var maxX = newAxisLimits.XMax;
+            var minX = newAxisLimits.Left;
+            var maxX = newAxisLimits.Right;
             var combatLogs = _currentCombat.GetLogsInvolvingEntity(SelectedParticipant);
 
             var startTime = _currentCombat.StartTime;

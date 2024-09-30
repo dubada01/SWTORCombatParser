@@ -44,9 +44,33 @@ namespace SWTORCombatParser.Model.Overlays
         CleanseSpeed,
         CombatTimer
     }
+    public class AvaloniaPointConverter : JsonConverter<Point>
+    {
+        public override void WriteJson(JsonWriter writer, Point value, JsonSerializer serializer)
+        {
+            // Serialize as "X, Y"
+            writer.WriteValue($"{value.X}, {value.Y}");
+        }
+
+        public override Point ReadJson(JsonReader reader, Type objectType, Point existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            // Deserialize from "X, Y"
+            var value = (string)reader.Value;
+            var parts = value.Split(',');
+
+            if (parts.Length == 2 && double.TryParse(parts[0], out double x) && double.TryParse(parts[1], out double y))
+            {
+                return new Point(x, y);
+            }
+
+            throw new JsonSerializationException("Invalid format for Avalonia Point");
+        }
+    }
     public class OverlayInfo
     {
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point Position;
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point WidtHHeight;
         public bool Acive;
         public bool Locked;

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Windows.Media;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {

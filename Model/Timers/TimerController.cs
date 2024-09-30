@@ -40,7 +40,7 @@ public static class TimerController
         CombatLogStreamer.CombatUpdated += CombatStateUpdated;
         CombatLogStreamer.NewLineStreamed += NewLogStreamed;
         CombatLogStateBuilder.AreaEntered += AreaChanged;
-        DefaultTimersManager.Init();
+        DefaultOrbsTimersManager.Init();
         RefreshAvailableTimers();
     }
 
@@ -133,7 +133,7 @@ public static class TimerController
         _hideTimerSubs.ForEach(s => s.Dispose());
         _showTimerSubs.ForEach(s => s.Dispose());
         _reorderSubs.ForEach(s => s.Dispose());
-        var allDefaults = DefaultTimersManager.GetAllDefaults();
+        var allDefaults = DefaultOrbsTimersManager.GetAllDefaults();
         var timers = allDefaults.SelectMany(t => t.Timers);
 
         List<Timer> secondaryTimers = new List<Timer>();
@@ -315,7 +315,7 @@ public static class TimerController
         if (obj.Type == UpdateType.Start)
         {
             _currentBoss = ("", "", "");
-            VariableManager.ResetVariables();
+            OrbsVariableManager.ResetVariables();
             _startTime = obj.CombatStartTime;
             UncancellBeforeCombat();
             _currentDiscipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(obj.CombatStartTime).Discipline;

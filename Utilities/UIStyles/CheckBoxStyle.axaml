@@ -21,14 +21,14 @@
                         VerticalAlignment="Center"
                         BorderThickness="1"
                         CornerRadius="2"
-                        Background="{StaticResource UncheckedBackground}"
-                        BorderBrush="{StaticResource UncheckedBorderBrush}">
+                        Background="{StaticResource Gray4}"
+                        BorderBrush="{StaticResource Gray5}">
                     <Grid>
                         <!-- CheckMark -->
                         <Path x:Name="CheckMark"
                               IsVisible="False"
                               Data="M 0 0 L 6 6 M 6 0 L 0 6"
-                              Stroke="{StaticResource CheckMarkBrush}"
+                              Stroke="{StaticResource Gray11}"
                               StrokeThickness="2"
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center"/>
@@ -51,14 +51,14 @@
 
     <!-- PointerOver State -->
     <Style Selector="CheckBox:pointerover#Border">
-        <Setter Property="Background" Value="{StaticResource PointerOverBackground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource PointerOverBorderBrush}" />
+        <Setter Property="Background" Value="{StaticResource Gray4}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray8}" />
     </Style>
 
     <!-- Pressed State -->
     <Style Selector="CheckBox:pressed#Border">
-        <Setter Property="Background" Value="{StaticResource PressedBackground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource PressedBorderBrush}" />
+        <Setter Property="Background" Value="{StaticResource Gray4}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray8}" />
     </Style>
 
     <!-- Disabled State -->
@@ -71,8 +71,8 @@
 
     <!-- Checked State -->
     <Style Selector="CheckBox:checked#Border">
-        <Setter Property="Background" Value="{StaticResource CheckedBackground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource CheckedBorderBrush}" />
+        <Setter Property="Background" Value="{StaticResource GreenColorBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray8}" />
     </Style>
     <Style Selector="CheckBox:checked#CheckMark">
         <Setter Property="IsVisible" Value="True" />
@@ -85,8 +85,8 @@
 
     <!-- Indeterminate State -->
     <Style Selector="CheckBox:indeterminate#Border">
-        <Setter Property="Background" Value="{StaticResource IndeterminateBackground}" />
-        <Setter Property="BorderBrush" Value="{StaticResource IndeterminateBorderBrush}" />
+        <Setter Property="Background" Value="{StaticResource Gray1}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray6}" />
     </Style>
     <Style Selector="CheckBox:indeterminate#CheckMark">
         <Setter Property="IsVisible" Value="False" />

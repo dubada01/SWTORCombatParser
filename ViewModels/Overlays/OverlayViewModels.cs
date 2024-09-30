@@ -20,17 +20,17 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
 using Avalonia;
 using Avalonia.Threading;
+using ReactiveUI;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
-    public class OverlayViewModel : INotifyPropertyChanged
+    public class OverlayViewModel :ReactiveObject, INotifyPropertyChanged
     {
 
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
@@ -244,7 +244,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     var timerToggle = AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer);
                     timerToggle.Name = $"{arg2.Discipline}: Timers";
                     timerToggle.Enabled = true;
-                    timerToggle.IsSelected = DefaultTimersManager.GetTimersActive(arg2.Discipline);
+                    timerToggle.IsSelected = DefaultOrbsTimersManager.GetTimersActive(arg2.Discipline);
                 }
             }
             var nextRole = arg2.Role.ToString();
@@ -378,7 +378,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             historicalParseFinished = false;
         }
-        public ICommand ToggleUtilityCommand => new CommandHandler(v => ToggleUtility(((UtilityOverlayOptionViewModel)v)));
+        public ReactiveCommand<UtilityOverlayOptionViewModel,Unit> ToggleUtilityCommand => ReactiveCommand.Create<UtilityOverlayOptionViewModel>(ToggleUtility);
         private void ToggleUtility(UtilityOverlayOptionViewModel utility)
         {
             utility.IsSelected = !utility.IsSelected;
@@ -425,7 +425,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
             }
         }
-        public ICommand GenerateOverlay => new CommandHandler(v => CreateOverlay((OverlayOptionViewModel)v, true));
+        public ReactiveCommand<OverlayOptionViewModel,Unit> GenerateOverlay => ReactiveCommand.Create<OverlayOptionViewModel>(v => CreateOverlay(v, true));
 
         private void CreateOverlay(OverlayOptionViewModel type, bool canDelete)
         {

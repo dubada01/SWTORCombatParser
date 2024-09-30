@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Timers;
@@ -10,6 +9,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
@@ -119,21 +122,32 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ReactiveCommand<object,Unit> LoadAudioCommand => ReactiveCommand.Create<object>(LoadAudio);
+        public ReactiveCommand<Unit,Task> LoadAudioCommand => ReactiveCommand.Create(LoadAudio);
 
-        private void LoadAudio(object obj)
+        private async Task LoadAudio()
         {
-            var dialogue = new OpenFileDialog();
-            dialogue.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            dialogue.DefaultExt = "wav";
-            dialogue.Filter = "wav files (*.wav)|*.wav|mp3 files (*.mp3)|*.mp3|All files (*.*)|*.*";
-            dialogue.CheckFileExists = true;
-            dialogue.CheckPathExists = true;
-            if (dialogue.ShowDialog().Value)
+            var dialog = new OpenFileDialog
             {
-                AudioTypes.Add(dialogue.FileName);
-                SelectedAudioType = dialogue.FileName;
-                Settings.WriteSetting<List<string>>("custom_audio_paths", AudioTypes);
+                Title = "Select an audio file",
+                Directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                AllowMultiple = false, // If you want to allow selecting multiple files, set this to true
+                Filters = new List<FileDialogFilter>
+                {
+                    new FileDialogFilter { Name = "Wav Files", Extensions = { "wav" } },
+                    new FileDialogFilter { Name = "Mp3 Files", Extensions = { "mp3" } },
+                    new FileDialogFilter { Name = "All Files", Extensions = { "*" } }
+                }
+            };
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var result = await dialog.ShowAsync(desktop.MainWindow); // Assuming 'obj' is a reference to the parent Window
+
+                if (result != null && result.Length > 0)
+                {
+                    AudioTypes.Add(result[0]); // Add the first selected file
+                    SelectedAudioType = result[0];
+                    Settings.WriteSetting<List<string>>("custom_audio_paths", AudioTypes);
+                }
             }
         }
         public int CustomAudioPlayTime { get; set; } = 4;
@@ -465,8 +479,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             if (string.IsNullOrEmpty(AddedVariable) || AvailableVariables.Any(v => v.ToLower() == AddedVariable.ToLower()))
                 return;
-            VariableManager.SetVariable(AddedVariable, 0);
-            AvailableVariables = VariableManager.GetVariables();
+            OrbsVariableManager.SetVariable(AddedVariable, 0);
+            AvailableVariables = OrbsVariableManager.GetVariables();
             SelectedModifyVariable = AddedVariable;
             AddedVariable = "";
             OnPropertyChanged("AvailableVariables");
@@ -750,10 +764,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 AudioTypes = AudioTypes.Distinct().ToList();
             }
 
-            AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
+            AvailableTimersForCharacter = DefaultOrbsTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
             AvailableTriggerTypes = Enum.GetValues<TimerKeyType>().OrderBy(v => v.ToString()).ToList();
             SelectedComparison = AvailableComparisons.First();
-            AvailableVariables = VariableManager.GetVariables();
+            AvailableVariables = OrbsVariableManager.GetVariables();
             if (AvailableVariables.Any())
             {
                 SelectedVariable = AvailableVariables.First();
@@ -953,7 +967,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 SelectedSource = timerToEdit.Source;
             }
-            AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
+            AvailableTimersForCharacter = DefaultOrbsTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
             OnPropertyChanged("AvailableTimerNames");
             OnPropertyChanged("ShowTargetOnTimerUI");
             OnPropertyChanged("AvailableRefreshOptions");

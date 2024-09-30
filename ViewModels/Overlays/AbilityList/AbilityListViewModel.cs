@@ -13,33 +13,26 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
 {
-    public class AbilityInfo:INotifyPropertyChanged
+    public class AbilityInfo:ReactiveObject
     {
         private double fontSize;
         private Bitmap icon;
 
-        public Bitmap Icon { get => icon; set 
+        public Bitmap Icon { get => icon; set
             {
-                icon = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref icon, value);
             } 
         }
         public string UseTime { get; set; }
         public string AbilityName { get; set; }
         public double FontSize { get => fontSize; set 
             { 
-                fontSize = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref fontSize, value);
             }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
     public class AbilityListViewModel:BaseOverlayViewModel
@@ -54,8 +47,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
         {
             get => abilityInfoList; set
             {
-                abilityInfoList = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref abilityInfoList, value);
             }
         }
         public AbilityListViewModel()
@@ -66,6 +58,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
             CombatSelectionMonitor.PhaseSelected += UpdateList;
             _updateSub = Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.CombatSelected += manager,
 manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateList);
+            this.WhenAnyValue(x=>x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(BarHeight)));
+            this.WhenAnyValue(x=>x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(FontSize)));
         }
         private void Reset()
         {
@@ -136,14 +130,11 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         {
             get => sizeScalar; set
             {
-                sizeScalar = value;
+                this.RaiseAndSetIfChanged(ref sizeScalar, value);
                 foreach(var ability in AbilityInfoList)
                 {
                     ability.FontSize = FontSize;
                 }
-                OnPropertyChanged("BarHeight");
-                OnPropertyChanged("FontSize");
-                OnPropertyChanged();
             }
         }
 
@@ -153,13 +144,11 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         {
             SetLock(true);
             OverlaysMoveable = false;
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
             SetLock(false);
             OverlaysMoveable = true;
-            OnPropertyChanged("OverlaysMoveable");
         }
         private void CheckForConversation(ParsedLogEntry obj)
         {

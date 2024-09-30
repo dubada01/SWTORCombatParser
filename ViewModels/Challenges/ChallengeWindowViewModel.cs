@@ -7,9 +7,6 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Challenges;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Forms;
 using Avalonia;
 using Avalonia.Threading;
 

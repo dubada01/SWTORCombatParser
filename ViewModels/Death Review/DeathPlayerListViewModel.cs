@@ -3,23 +3,54 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.ViewModels.Home_View_Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
-    public class DeathPlayerListViewModel : INotifyPropertyChanged
+    public class DeathPlayerListViewModel : ReactiveObject
     {
+        private ObservableCollection<ParticipantViewModel> _availableParticipants = new ObservableCollection<ParticipantViewModel>();
+        private int _rows;
+        private int _columns;
+        private Combat _selectedCombat;
+        private ObservableCollection<Entity> _selectedParticipants = new ObservableCollection<Entity>();
         public event Action<List<Entity>> ParticipantSelected = delegate { };
-        public List<ParticipantViewModel> AvailableParticipants { get; set; } = new List<ParticipantViewModel>();
-        public int Rows { get; set; }
-        public int Columns { get; set; }
-        public Combat SelectedCombat { get; set; }
-        public List<Entity> SelectedParticipants { get; set; } = new List<Entity>();
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public ObservableCollection<ParticipantViewModel> AvailableParticipants
+        {
+            get => _availableParticipants;
+            set => this.RaiseAndSetIfChanged(ref _availableParticipants, value);
+        }
+
+        public int Rows
+        {
+            get => _rows;
+            set => this.RaiseAndSetIfChanged(ref _rows, value);
+        }
+
+        public int Columns
+        {
+            get => _columns;
+            set => this.RaiseAndSetIfChanged(ref _columns, value);
+        }
+
+        public Combat SelectedCombat
+        {
+            get => _selectedCombat;
+            set => _selectedCombat = value;
+        }
+
+        public ObservableCollection<Entity> SelectedParticipants
+        {
+            get => _selectedParticipants;
+            set => this.RaiseAndSetIfChanged(ref _selectedParticipants, value);
+        }
+        
         public DeathPlayerListViewModel()
         {
 
@@ -36,8 +67,6 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 Columns = 8;
                 Rows = 2;
             }
-            OnPropertyChanged("Rows");
-            OnPropertyChanged("Columns");
         }
 
         private void SelectParticipant(ParticipantViewModel obj, bool isSelected)
@@ -52,7 +81,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 SelectedParticipants.Add(obj);
             if (!isSelected && SelectedParticipants.Contains(obj))
                 SelectedParticipants.Remove(obj);
-            ParticipantSelected(SelectedParticipants);
+            ParticipantSelected(SelectedParticipants.ToList());
         }
         private ParticipantViewModel GenerateInstance(Entity e, bool diedNatrually)
         {
@@ -68,7 +97,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         {
             AvailableParticipants.Clear();
         }
-        public List<Entity> UpdateParticipantsData(Combat info, List<Entity> playersDiedNatrually)
+        public ObservableCollection<Entity> UpdateParticipantsData(Combat info, List<Entity> playersDiedNatrually)
         {
             AvailableParticipants.Clear();
             SelectedParticipants.Clear();
@@ -90,7 +119,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 AvailableParticipants.Add(participantViewModel);
                 participantViewModel.SelectionChanged += SelectParticipant;
             }
-            AvailableParticipants = new List<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
+            AvailableParticipants = new ObservableCollection<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
             var initiallySelectedPlayer =  AvailableParticipants.FirstOrDefault(a => playersDiedNatrually.Contains(a.Entity));
             if (initiallySelectedPlayer != null)
             {
@@ -98,7 +127,6 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 SelectParticipant(initiallySelectedPlayer, true);
             }
             UpdateLayout();
-            OnPropertyChanged("AvailableParticipants");
             return SelectedParticipants;
         }
         public void SetEntityHPS(List<EntityInfo> entityInfo)
@@ -127,11 +155,6 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 default:
                     return Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
             }
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

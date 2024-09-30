@@ -24,11 +24,10 @@
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10,5"/>
-
-            <!-- PointerOver state -->
-            <Style Selector="MenuItem:pointerover">
-                <Setter Property="Background" Value="#FF555555"/>
-            </Style>
+        </Style>
+        <!-- PointerOver state -->
+        <Style Selector="MenuItem:pointerover">
+            <Setter Property="Background" Value="#FF555555"/>
         </Style>
     </UserControl.Styles>
     <Grid>

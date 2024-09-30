@@ -1,5 +1,4 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures.ClassInfos;
+﻿using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;

@@ -23,7 +23,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Defensive_Timers
                 timer.Target = "Any";
                 copiedTimers.Add(timer.Copy());
             }
-            DefaultTimersManager.AddTimersForSource(copiedTimers, "DCD");
+            DefaultOrbsTimersManager.AddTimersForSource(copiedTimers, "DCD");
         }
     }
 }

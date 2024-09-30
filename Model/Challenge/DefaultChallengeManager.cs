@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows;
+using Avalonia;
+using SWTORCombatParser.Model.Overlays;
 
 
 namespace SWTORCombatParser.Model.Challenge
@@ -11,7 +12,9 @@ namespace SWTORCombatParser.Model.Challenge
     public class DefaultChallengeData
     {
         public string ChallengeSource;
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point Position;
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point WidtHHeight;
 
         public List<DataStructures.Challenge> Challenges = new List<DataStructures.Challenge>();

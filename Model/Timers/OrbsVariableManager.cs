@@ -16,12 +16,12 @@ namespace SWTORCombatParser.Model.Timers
         Subtract,
         Set
     }
-    public static class VariableManager
+    public static class OrbsVariableManager
     {
         private static Dictionary<string, int> CustomVariables = new Dictionary<string, int>();
         public static void RefreshVariables()
         {
-            var allcurrentvariables = DefaultTimersManager.GetAllDefaults().SelectMany(s => s.Timers).Where(t => !string.IsNullOrEmpty(t.ModifyVariableName)).Select(t => t.ModifyVariableName).Distinct();
+            var allcurrentvariables = DefaultOrbsTimersManager.GetAllDefaults().SelectMany(s => s.Timers).Where(t => !string.IsNullOrEmpty(t.ModifyVariableName)).Select(t => t.ModifyVariableName).Distinct();
 
             CustomVariables = allcurrentvariables.ToDictionary(v => v, v => 0);
         }
