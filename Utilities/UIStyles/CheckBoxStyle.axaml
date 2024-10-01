@@ -2,48 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
 
-<Style Selector="CheckBox">
-    <Setter Property="Template">
-        <ControlTemplate>
-            <!-- Root Grid -->
-            <Grid Margin="{TemplateBinding Padding}"
-                  Background="{TemplateBinding Background}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
 
-                <!-- Bullet (Checkbox mark) -->
-                <Border x:Name="Border"
-                        Width="16"
-                        Height="16"
-                        Margin="0,0,4,0"
-                        VerticalAlignment="Center"
-                        BorderThickness="1"
-                        CornerRadius="2"
-                        Background="{StaticResource Gray4}"
-                        BorderBrush="{StaticResource Gray5}">
-                    <Grid>
-                        <!-- CheckMark -->
-                        <Path x:Name="CheckMark"
-                              IsVisible="False"
-                              Data="M 0 0 L 6 6 M 6 0 L 0 6"
-                              Stroke="{StaticResource Gray11}"
-                              StrokeThickness="2"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
-                    </Grid>
-                </Border>
-
-                <!-- Content Presenter -->
-                <ContentPresenter Grid.Column="1"
-                                  VerticalAlignment="Center"
-                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                  RecognizesAccessKey="True" />
-            </Grid>
-        </ControlTemplate>
-    </Setter>
-</Style>
     <!-- Base CheckBox Style -->
     <Style Selector="CheckBox">
         <!-- Base setters and ControlTemplate as above -->

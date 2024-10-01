@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
@@ -18,13 +19,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             OnSliderUpdated(value);
         }
     }
-    public class AvailableEntity : INotifyPropertyChanged
+    public class AvailableEntity : ReactiveObject
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
         private bool selected;
         public event Action<Entity, bool> EntitiySelectionUpdated = delegate { };
         public void DefaultSeleted()
@@ -34,16 +30,15 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         public void DeselectAll()
         {
             selected = false;
-            OnPropertyChanged("Selected");
+            this.RaisePropertyChanged(nameof(Selected));
         }
         public bool Selected
         {
             get => selected;
             set
             {
-                selected = value;
+                this.RaiseAndSetIfChanged(ref selected, value);
                 EntitiySelectionUpdated(Entity, value);
-                OnPropertyChanged();
             }
         }
         public Entity Entity { get; set; }
@@ -58,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         DeathRecap,
         Abilities
     }
-    public class BattleReviewViewModel : INotifyPropertyChanged
+    public class BattleReviewViewModel : ReactiveObject
     {
         private Combat _currentlySelectedCombats;
         private EventHistoryViewModel _eventViewModel;
@@ -67,11 +62,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         private System.Threading.Timer timer;
         private bool updatePending = false;
         private object lockObject = new object();
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        private List<AvailableEntity> _availableEntities = new List<AvailableEntity>();
+
         public string LogFilter
         {
             get => logFilter; set
@@ -84,6 +76,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                     {
                         if (!updatePending)
                         {
+                            
                             // Start or reset the timer
                             timer.Change(500, Timeout.Infinite);
                             updatePending = true;
@@ -107,7 +100,13 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 
         }
         public EventHistoryView EventViewContent { get; set; }
-        public List<AvailableEntity> AvailableEntities { get; set; } = new List<AvailableEntity>();
+
+        public List<AvailableEntity> AvailableEntities
+        {
+            get => _availableEntities;
+            set => this.RaiseAndSetIfChanged(ref _availableEntities, value);
+        }
+
         public List<DisplayType> AvailableDisplayTypes { get; set; } = Enum.GetValues(typeof(DisplayType)).Cast<DisplayType>().ToList();
         public DisplayType SelectedDisplayType
         {
@@ -133,7 +132,6 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             var entities = combat.AllEntities.Select(e => new AvailableEntity { Entity = e, Selected = false }).ToList();
             entities.ForEach(l => l.EntitiySelectionUpdated += UpdateSelectedEntities);
             ResetEntities(entities);
-            OnPropertyChanged("AvailableEntities");
             UpdateVisuals();
         }
 

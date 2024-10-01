@@ -2,6 +2,7 @@
 using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -9,28 +10,31 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
-    public class EventHistoryViewModel : INotifyPropertyChanged
+    public class EventHistoryViewModel : ReactiveObject
     {
         private Combat _currentlySelectedCombat;
         private DateTime _startTime;
         private List<Entity> _viewingEntities = new List<Entity>();
         private DisplayType _typeSelected;
         private string _logFilter;
-        public event PropertyChangedEventHandler PropertyChanged;
         public IObservable<double> LogsUpdatedObservable;
         private int selectedIndex;
         private List<Entity> _distinctEntities = new List<Entity>();
         private List<ParsedLogEntry> _displayedLogs = new List<ParsedLogEntry>();
+        private ObservableCollection<DisplayableLogEntry> _logsToDisplay = new ObservableCollection<DisplayableLogEntry>();
 
         public event Action<double, List<EntityInfo>> LogPositionChanged = delegate { };
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+
+        public ObservableCollection<DisplayableLogEntry> LogsToDisplay
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            get => _logsToDisplay;
+            set => this.RaiseAndSetIfChanged(ref _logsToDisplay, value);
         }
-        public List<DisplayableLogEntry> LogsToDisplay { get; set; } = new List<DisplayableLogEntry>();
+
         public bool HasFocus { get; set; }
         public int SelectedIndex
         {
@@ -40,9 +44,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 {
                     LogPositionChanged(_displayedLogs[value].SecondsSinceCombatStart, GetInfosNearLog(_displayedLogs[value].SecondsSinceCombatStart));
                 }
-                selectedIndex = value;
+                this.RaiseAndSetIfChanged(ref selectedIndex, value);
 
-                OnPropertyChanged();
             }
         }
         public bool DisplayOffensiveBuffs { get; set; }
@@ -110,9 +113,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                     l.Threat)));
                 Task.Run(() => { logs.ForEach(async l => await l.AddIcons()); });
 
-                LogsToDisplay = logs;
+                LogsToDisplay = new ObservableCollection<DisplayableLogEntry>(logs);
                 _distinctEntities = _currentlySelectedCombat.AllLogs.Select(l => l.Source).Distinct().ToList();
-                OnPropertyChanged("LogsToDisplay");
             });
             return firstDeath;
         }

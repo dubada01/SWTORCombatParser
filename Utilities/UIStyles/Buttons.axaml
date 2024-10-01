@@ -7,22 +7,6 @@
         <Setter Property="BorderThickness" Value="0.5"/>
         <Setter Property="Opacity" Value="1" />
         <!--<Setter Property="Padding" Value="1"/>-->
-        <Setter Property="Template">
-            <ControlTemplate>
-                <Grid x:Name="grid">
-                    <Border x:Name="border"
-                            CornerRadius="3"
-                            Padding="{TemplateBinding Padding}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            Background="{TemplateBinding Background}">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          TextElement.FontWeight="SemiBold"/>
-                    </Border>
-                </Grid>
-            </ControlTemplate>
-        </Setter>
     </Style>
     <Style Selector="Button.RoundedCorner:pressed">
         <Setter Property="Background" Value="DimGray"></Setter>

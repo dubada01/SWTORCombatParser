@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.SettingsView"
         mc:Ignorable="d"
-        Title="Settings Window" Height="400" Width="400"  Background="Transparent"         
+        Title="Settings Window" Height="500" Width="400"  Background="Transparent"         
         TransparencyLevelHint="Transparent"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaTitleBarHeightHint="0"

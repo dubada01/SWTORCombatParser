@@ -104,7 +104,20 @@ public static class Settings
     {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
-        settingList[settingName] = JsonConvert.SerializeObject(value);
+
+        // Check if the value is a string
+        if (value is string stringValue)
+        {
+            // Directly assign the string without serializing again
+            settingList[settingName] = stringValue;
+        }
+        else
+        {
+            // Serialize if it's not a string
+            settingList[settingName] = JsonConvert.SerializeObject(value);
+        }
+
         File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settingList));
     }
+
 }

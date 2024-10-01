@@ -21,9 +21,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             get
             {
-                string rawPath = Settings.ReadSettingOfType<string>("combat_logs_path");
-                string cleanedPath = Regex.Unescape(rawPath.Trim('"'));
-                return cleanedPath;
+                return Settings.ReadSettingOfType<string>("combat_logs_path");
             }
         }
         public static string GetLogDirectory()
