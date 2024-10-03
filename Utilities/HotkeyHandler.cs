@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Platform;
 using SWTORCombatParser.DataStructures.Hotkeys;
 
 namespace SWTORCombatParser.Utilities
@@ -39,6 +35,8 @@ namespace SWTORCombatParser.Utilities
         private IntPtr _hotKeyRef1;
         private IntPtr _hotKeyRef2;
         private IntPtr _hotKeyRef3;
+        private const int MOD_CONTROL = 0x0002;
+        private const int MOD_ALT = 0x0001;
 #endif
 
         public static bool IgnoreHotkeys = false;
@@ -108,6 +106,7 @@ namespace SWTORCombatParser.Utilities
                 }
             }
 #elif MACOS
+            return;
             int macModifiers = ConvertModifiersToMac(combinedModifiers);
             IntPtr eventTarget = IntPtr.Zero; // Use default for global hotkeys
             int result = RegisterEventHotKey(key, macModifiers, IntPtr.Zero, eventTarget, 0, out IntPtr hotKeyRef);

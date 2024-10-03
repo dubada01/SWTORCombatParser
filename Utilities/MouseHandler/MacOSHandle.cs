@@ -1,9 +1,6 @@
 ﻿#if MACOS
 using System;
 using System.Runtime.InteropServices;
-using CoreGraphics; // macOS specific
-using Foundation;   // macOS specific
-using AppKit;       // macOS specific
 using Avalonia;
 
 namespace SWTORCombatParser.Utilities.MouseHandler
@@ -11,10 +8,10 @@ namespace SWTORCombatParser.Utilities.MouseHandler
     public class MouseHookHandler
     {
         // Event to fire when a mouse click occurs
-        public event Action<Point> MouseClicked = delegate{};
+        public event Action<Point> MouseClicked = delegate { };
 
         private IntPtr _eventTap;
-        private CFRunLoopSource _runLoopSource;
+        private IntPtr _runLoopSource;
         private CFMachPortRef _tapPort;
         private bool _isSubscribed = false;
 
@@ -31,7 +28,7 @@ namespace SWTORCombatParser.Utilities.MouseHandler
                 CGEventTapPlacement.kCGHeadInsertEventTap,
                 CGEventTapOptions.kCGEventTapOptionDefault,
                 CGEventMask.kCGEventLeftMouseDown,
-                MouseEventCallback);
+                MouseEventCallback,0);
 
             // Ensure the tap is valid
             if (_eventTap == IntPtr.Zero)
@@ -69,7 +66,7 @@ namespace SWTORCombatParser.Utilities.MouseHandler
             }
         }
 
-        private CGEventRef MouseEventCallback(CGEventTapProxy proxy, CGEventType type, IntPtr eventRef, IntPtr userInfo)
+        private IntPtr MouseEventCallback(CGEventTapProxy proxy, CGEventType type, IntPtr eventRef, IntPtr userInfo)
         {
             if (type == CGEventType.LeftMouseDown)
             {
@@ -145,11 +142,12 @@ namespace SWTORCombatParser.Utilities.MouseHandler
 
         private enum CGEventMask : ulong
         {
-            kCGEventLeftMouseDown = (1UL << (uint)CGEventType.LeftMouseDown),
+            kCGEventLeftMouseDown = (1UL << (int)CGEventType.LeftMouseDown),
+
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate CGEventRef CGEventCallback(CGEventTapProxy proxy, CGEventType type, IntPtr @event, IntPtr refcon);
+        private delegate IntPtr CGEventCallback(CGEventTapProxy proxy, CGEventType type, IntPtr @event, IntPtr refcon);
 
         private struct CGPoint
         {

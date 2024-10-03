@@ -154,10 +154,6 @@ public partial class BaseOverlayWindow : Window
             {
                 RemoveFromWindowsTaskSwitcher();
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                RemoveFromMacDock();
-            }
         }
         private void RemoveFromWindowsTaskSwitcher()
         {
@@ -173,23 +169,7 @@ public partial class BaseOverlayWindow : Window
             int extendedStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
             SetWindowLong(hWnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
         }
-
-        [DllImport("/System/Library/Frameworks/AppKit.framework/AppKit")]
-        public static extern IntPtr NSApplicationSharedApplication();
-
-        [DllImport("/System/Library/Frameworks/AppKit.framework/AppKit")]
-        public static extern void NSApplicationSetActivationPolicy(IntPtr app, int activationPolicy);
-
-        public const int NSApplicationActivationPolicyRegular = 0;
-        public const int NSApplicationActivationPolicyAccessory = 1;
-        public const int NSApplicationActivationPolicyProhibited = 2;
-
-        // Call this method on macOS to hide from the Command+Tab switcher
-        public static void RemoveFromMacDock()
-        {
-            IntPtr app = NSApplicationSharedApplication();
-            NSApplicationSetActivationPolicy(app, NSApplicationActivationPolicyAccessory);
-        }
+        
         private void UpdateState()
         {
             if(string.IsNullOrEmpty(OverlayName))

@@ -24,18 +24,21 @@
   </PropertyGroup>
 
   <!-- Define 'MACOS' symbol when building on macOS -->
-  <PropertyGroup Condition="'$(OS)' == 'Unix' AND '$(RuntimeIdentifier)' == 'osx-x64'">
+  <PropertyGroup Condition="'$(OS)' == 'Unix'">
     <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
   
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <ProjectReference Include="Orbs Package Builder/Orbs Package Builder.wapproj" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <!-- Include Windows-specific packages -->
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(OS)' == 'Unix' AND '$(RuntimeIdentifier)' == 'osx-x64'">
+  <ItemGroup Condition="'$(OS)' == 'Unix'">
     <!-- Include Unix-specific packages -->
-    <PackageReference Include="UnixSpecific.Package" Version="1.0.0" />
   </ItemGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -298,6 +301,7 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.1.3" />
     <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.1.3" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.1.3" />
     <PackageReference Include="Avalonia.Desktop" Version="11.1.3" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.3" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.1.3" />
