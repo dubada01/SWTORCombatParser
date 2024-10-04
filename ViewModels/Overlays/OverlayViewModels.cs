@@ -27,6 +27,7 @@ using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -445,10 +446,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = !OverlaysLocked;
             viewModel.SizeScalar = SizeScalar;
-            _currentOverlays.Add(viewModel);
-            var overlay = new InfoOverlay(viewModel);
-            overlay.SetPlayer(_currentCharacterRole);
             var stringType = viewModel.Type.ToString();
+            viewModel.OverlayName = stringType;
+            viewModel.SettingsType = OverlaySettingsType.Character;
+            _currentOverlays.Add(viewModel);
+            viewModel.MainContent = new InfoOverlay(viewModel);
+            var overlay = new BaseOverlayWindow(viewModel);
+            overlay.SetPlayer(_currentCharacterRole);
+
             if (_overlayDefaults.ContainsKey(stringType))
             {
                 overlay.SetSizeAndLocation(

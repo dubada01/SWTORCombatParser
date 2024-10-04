@@ -22,8 +22,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             TimerController.TimerExpired += RemoveTimer;
             TimerController.TimerTriggered += AddTimerVisual;
             TimerController.ReorderRequested += ReorderTimers;
+            this.OverlayName = "Timers";
             _timerWindow = new TimersWindow(this);
-            _timerWindow.OverlayName = "Timers";
             _timerWindow.SetIdText("DISCIPLINE TIMERS");
         }
         private void UpdateSource()

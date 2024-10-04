@@ -25,12 +25,13 @@ public class AlertsWindowViewModel : BaseOverlayViewModel, INotifyPropertyChange
 
     public AlertsWindowViewModel()
     {
+        OverlayName = "Alerts";
         _overlayWindow = new AlertView(this);
         TimerController.TimerExpired += RefreshTimerVisuals;
         TimerController.TimerTriggered += AddTimerVisual;
         Dispatcher.UIThread.Invoke(() =>
         {
-            var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Alerts");
+            var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
             _active = defaultTimersInfo.Acive;
             _overlayWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
             _overlayWindow.Width = defaultTimersInfo.WidtHHeight.X;

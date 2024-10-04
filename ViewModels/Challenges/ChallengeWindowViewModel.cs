@@ -43,10 +43,11 @@ namespace SWTORCombatParser.ViewModels.Challenges
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
 
             isEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
+            OverlayName = "Challenge";
             _challengeWindow = new ChallengeWindow(this);
             Dispatcher.UIThread.Invoke(() =>
             {
-                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Challenge"); ;
+                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
                 _challengeWindow.SetSizeAndLocation(new Point(defaultTimersInfo.Position.X, defaultTimersInfo.Position.Y), new Point(defaultTimersInfo.WidtHHeight.X, defaultTimersInfo.WidtHHeight.Y));
             });
         }

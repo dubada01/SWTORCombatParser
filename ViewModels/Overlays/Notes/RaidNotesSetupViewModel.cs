@@ -23,11 +23,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         public RaidNotesSetupViewModel()
         {
             _viewModel = new RaidNotesViewModel();
+            _viewModel.OverlayName = "RaidNotes";
             _viewModel.OnClosing += Disable;
             _viewModel.OnInInstanceChanged += InInstanceChanged;
             _view = new RaidNotesView(_viewModel);
             CombatLogStreamer.NewLineStreamed += CheckForConverstaion;
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("RaidNotes");
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_viewModel.OverlayName);
             _view.SetSizeAndLocation(new Point(defaults.Position.X,defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
             if (defaults.Acive)
                 RaidNotesEnabled = true;
@@ -88,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
                     _view.Hide();
                     _viewModel.IsEnabled = false;
                 }
-                DefaultGlobalOverlays.SetActive("RaidNotes", raidNotesEnabled);
+                DefaultGlobalOverlays.SetActive(_viewModel.OverlayName, raidNotesEnabled);
             }
         }
         private void Disable()

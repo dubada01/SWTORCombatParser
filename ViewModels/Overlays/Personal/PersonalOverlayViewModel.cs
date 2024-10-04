@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Personal
 {
@@ -23,8 +24,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         public PersonalOverlayViewModel()
         {
             _currentScale = 1;
+            OverlayName= "Personal";
+            SettingsType = OverlaySettingsType.Character;
             _window = new PersonalOverlayWindow(this);
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("Personal");
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
             Active = defaults.Acive;
             _window.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
 

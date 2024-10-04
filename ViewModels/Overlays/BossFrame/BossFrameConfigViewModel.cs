@@ -107,6 +107,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
             CombatLogStreamer.CombatUpdated += OnNewLog;
             CombatLogStreamer.NewLineStreamed += HandleNewLog;
+            OverlayName = "BossFrame";
             View = new BrossFrameView(this);
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
             CurrentScale = currentDefaults.Scale == 0 ? 1 : currentDefaults.Scale;

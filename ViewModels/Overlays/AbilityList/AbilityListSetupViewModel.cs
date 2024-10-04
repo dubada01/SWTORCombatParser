@@ -24,8 +24,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
         public AbilityListSetupViewModel()
         {
             _viewModel = new AbilityListViewModel();
+            _viewModel.OverlayName = "AbilityList";
             _view = new AbilityListView(_viewModel);
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("AbilityList");
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_viewModel.OverlayName);
             _view.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
             abilityListEnabled = defaults.Acive;
             if (defaults.Acive)
@@ -46,7 +47,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
                     _view.Hide();
                     _viewModel.IsEnabled = false;
                 }
-                DefaultGlobalOverlays.SetActive("AbilityList", abilityListEnabled);
+                DefaultGlobalOverlays.SetActive(_viewModel.OverlayName , abilityListEnabled);
             }
         }
         private void Disable(AbilityListViewModel model)

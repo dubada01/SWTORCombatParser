@@ -47,9 +47,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         public MiniMapViewModel()
         {
             _dTimer = new DispatcherTimer();
+            OverlayName = "PvP_MiniMap";
             _miniMapView = new MiniMapView(this);
             _miniMapView.Show();
-            _settings = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap");
+            _settings = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
 
             EncounterTimerTrigger.PvPEncounterEntered += OnPvpCombatStarted;
             EncounterTimerTrigger.NonPvpEncounterEntered += OnPvpCombatEnded;
@@ -103,7 +104,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             get { return _isActive; }
             set
             {
-                DefaultGlobalOverlays.SetActive("PvP_MiniMap", value);
+                DefaultGlobalOverlays.SetActive(OverlayName, value);
                 this.RaiseAndSetIfChanged(ref _isActive, value);
                 if (!_isActive)
                 {
@@ -241,13 +242,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool GetCurrentActive()
         {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap");
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
             return defaults.Acive;
         }
 
         private void SetInitialPosition()
         {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap");
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
             OverlayEnabled = defaults.Acive;
             _miniMapView.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
         }

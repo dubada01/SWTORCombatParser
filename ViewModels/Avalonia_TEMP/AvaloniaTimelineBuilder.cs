@@ -36,6 +36,7 @@ public static class AvaloniaTimelineBuilder
         _timelineWindow.OnStateChanged += (position,size)=>
         {
             DefaultGlobalOverlays.SetDefault("TimelineOverlay", new Point(position.X,position.Y), new Point(size.X,size.Y));
+            Debug.WriteLine($"{position.X},{position.Y} and {size.X},{size.Y}");
         };
         _timelineWindow.OnHideWindow += UserDisabled;
 
@@ -46,8 +47,6 @@ public static class AvaloniaTimelineBuilder
 
         var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("TimelineOverlay");
         TimelineEnabled = defaults.Acive;
-        _timelineWindow.Position = new Avalonia.PixelPoint((int)defaults.Position.X, (int)defaults.Position.Y);
-        _timelineWindow.SetSize(defaults.WidtHHeight.X, defaults.WidtHHeight.Y);
     }
 
     private static void UserDisabled()

@@ -14,7 +14,9 @@ public class BaseOverlayViewModel:ReactiveObject
     private bool _overlaysMoveable;
     private string _timerTitle = "Default Title";
     public event Action CloseRequested = delegate { };
-
+    public OverlaySettingsType SettingsType { get; set; } = OverlaySettingsType.Global;
+    public string OverlayName { get; set; }
+    public object MainContent { get; set; }
     public void RequestClose()
     {
         Dispatcher.UIThread.Invoke(() =>

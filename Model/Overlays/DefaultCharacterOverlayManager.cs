@@ -66,6 +66,28 @@ namespace SWTORCombatParser.Model.Overlays
             throw new JsonSerializationException("Invalid format for Avalonia Point");
         }
     }
+    public class AvaloniaPixelPointConverter : JsonConverter<PixelPoint>
+    {
+        public override void WriteJson(JsonWriter writer, PixelPoint value, JsonSerializer serializer)
+        {
+            // Serialize as "X, Y"
+            writer.WriteValue($"{value.X}, {value.Y}");
+        }
+
+        public override PixelPoint ReadJson(JsonReader reader, Type objectType, PixelPoint existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            // Deserialize from "X, Y"
+            var value = (string)reader.Value;
+            var parts = value.Split(',');
+
+            if (parts.Length == 2 && int.TryParse(parts[0], out int x) && int.TryParse(parts[1], out int y))
+            {
+                return new PixelPoint(x, y);
+            }
+
+            throw new JsonSerializationException("Invalid format for Avalonia Pixel Point");
+        }
+    }
     public class OverlayInfo
     {
         [JsonConverter(typeof(AvaloniaPointConverter))]

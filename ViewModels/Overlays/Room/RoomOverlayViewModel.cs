@@ -34,6 +34,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
 
         public RoomOverlayViewModel()
         {
+            OverlayName = "RoomHazard"; 
             _roomOverlay = new RoomOverlay(this);
             _roomOverlay.Show();
             _settings = RoomOverlayLoader.GetRoomOverlaySettings();

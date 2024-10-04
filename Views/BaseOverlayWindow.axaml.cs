@@ -12,6 +12,12 @@ using SWTORCombatParser.ViewModels;
 
 namespace SWTORCombatParser.Views;
 
+
+public enum OverlaySettingsType
+{
+    Global,
+    Character
+}
 public partial class BaseOverlayWindow : Window
 {
     public string OverlayName;
@@ -51,9 +57,18 @@ public partial class BaseOverlayWindow : Window
 
     [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_msgSend")]
     public static extern void objc_msgSend_float(IntPtr receiver, IntPtr selector, float value);
+
+    private PixelPoint _tempLocation;
+    private Point _tempSize;
+    private readonly BaseOverlayViewModel _viewModel;
+
     public BaseOverlayWindow(BaseOverlayViewModel viewModel)
     {
         DataContext = viewModel;
+        _viewModel  = viewModel;
+        if(string.IsNullOrEmpty(viewModel.OverlayName))
+            throw new ArgumentNullException(nameof(viewModel.OverlayName));
+        OverlayName = viewModel.OverlayName;
         InitializeComponent();
         Loaded += InitOverlay;
         viewModel.OnLocking += ToggleClickThrough;
@@ -63,6 +78,14 @@ public partial class BaseOverlayWindow : Window
             ToggleClickThrough(false);
         else
             ToggleClickThrough(true);
+        Opened += SetWindowParams;
+    }
+
+    private void SetWindowParams(object? sender, EventArgs e)
+    {
+        Position = _tempLocation;
+        Width = _tempSize.X;
+        Height = _tempSize.Y;
     }
 
     private void InitOverlay(object? sender, RoutedEventArgs e)
@@ -72,6 +95,8 @@ public partial class BaseOverlayWindow : Window
     }
     public void SetSizeAndLocation(Point position, Point size)
     {
+        _tempLocation = new PixelPoint((int)position.X, (int)position.Y);
+        _tempSize = size;
         Dispatcher.UIThread.Invoke(() =>
         {
             Position = new PixelPoint((int)position.X, (int)position.Y);
@@ -174,7 +199,10 @@ public partial class BaseOverlayWindow : Window
         {
             if(string.IsNullOrEmpty(OverlayName))
                 throw new Exception("OverlayName must be set before calling UpdateDefaults");
-            DefaultGlobalOverlays.SetDefault(OverlayName, new Point(Position.X,Position.Y), new Point(Width,Height));
+            if(_viewModel.SettingsType == OverlaySettingsType.Global)
+                DefaultGlobalOverlays.SetDefault(OverlayName, new Point(Position.X,Position.Y), new Point(Width,Height));
+            if(_viewModel.SettingsType == OverlaySettingsType.Character)
+                DefaultCharacterOverlays.SetCharacterDefaults(OverlayName, new Point(Position.X,Position.Y), new Point(Width,Height),_currentPlayerName);
         }
         private void DragWindow(object? sender, PointerPressedEventArgs e)
         {

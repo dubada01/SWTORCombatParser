@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Utilities;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
 
 namespace SWTORCombatParser.Views.Overlay
@@ -6,11 +7,11 @@ namespace SWTORCombatParser.Views.Overlay
     /// <summary>
     /// Interaction logic for InfoOverlay.xaml
     /// </summary>
-    public partial class InfoOverlay : BaseOverlayWindow
+    public partial class InfoOverlay : UserControl
     {
         private BaseOverlayViewModel viewModel;
         private bool _hidden;
-        public InfoOverlay(BaseOverlayViewModel vm):base(vm)
+        public InfoOverlay(BaseOverlayViewModel vm)
         {
             viewModel = vm;
             DataContext = vm;

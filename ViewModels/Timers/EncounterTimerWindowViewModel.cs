@@ -35,12 +35,13 @@ namespace SWTORCombatParser.ViewModels.Timers
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
             CombatLogStreamer.CombatUpdated += CheckForEnd;
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
+            OverlayName = "Encounter";
             _timerWindow = new TimersWindow(this);
             _timerWindow.SetIdText("BOSS TIMERS");
             _timerWindow.SetPlayer("Encounter");
             Dispatcher.UIThread.Invoke(() =>
             {
-                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Encounter");
+                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
                 _timerWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
                 _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;

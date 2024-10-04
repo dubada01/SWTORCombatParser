@@ -4,6 +4,7 @@ using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.ViewModels.Update;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -48,12 +49,19 @@ namespace SWTORCombatParser.Views
             InitializeComponent();
             HotkeyHandler  = new HotkeyHandler();
             LoadingWindowFactory.SetMainWindow(this);
-            var windowInfo = OrbsWindowManager.GetWindowSizeAndPosition();
-            this.Position = new PixelPoint((int)windowInfo.TopLeft.Y, (int)windowInfo.TopLeft.X);
-            Width = windowInfo.Width;
-            Height = windowInfo.Height;
+
             Closed += MainWindow_Closed;
             Loaded += CheckForUpdates;
+            Opened += SetWindowParams;
+        }
+
+        private void SetWindowParams(object? sender, EventArgs e)
+        {
+            var windowInfo = OrbsWindowManager.GetWindowSizeAndPosition();
+            Position = new PixelPoint(windowInfo.TopLeft.X, windowInfo.TopLeft.Y);
+            Width = windowInfo.Width;
+            Height = windowInfo.Height;
+            //base.OnOpened(e);
         }
 
         private async void CheckForUpdates(object sender, RoutedEventArgs e)
@@ -68,6 +76,7 @@ namespace SWTORCombatParser.Views
                 updateWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 updateWindow.ShowDialog(this);
             }
+
         }
 
         private void MainWindow_Closed(object sender, EventArgs e)
@@ -114,7 +123,8 @@ namespace SWTORCombatParser.Views
 
         private void Window_PointerLeave(object sender, PointerEventArgs e)
         {
-            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new Point(Position.X,Position.Y), Width = ClientSize.Width, Height = ClientSize.Height });
+            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new PixelPoint(Position.X,Position.Y), Width = ClientSize.Width, Height = ClientSize.Height });
+            Debug.WriteLine($"Window Position: {Position.X},{Position.Y} Width: {ClientSize.Width} Height: {ClientSize.Height}");
         }
     }
 }

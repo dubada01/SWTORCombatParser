@@ -33,6 +33,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         public OpponentOverlayViewModel()
         {
             _dTimer = new DispatcherTimer();
+            OverlayName = "PvP_HP";
             _opponentHPView = new OpponentHpOverlay(this);
             _opponentHPView.Show();
             EncounterTimerTrigger.NonPvpEncounterEntered += OnPvpCombatEnded;
@@ -249,12 +250,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool GetCurrentActive()
         {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP");
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
             return defaults.Acive;
         }
         private void SetInitialPosition()
         {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP");
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
             OverlayEnabled = defaults.Acive;
             _opponentHPView.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
         }

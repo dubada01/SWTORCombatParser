@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SWTORCombatParser.Model.Timers;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
         public static void TryLoadBossTimers()
         {
             List<DefaultTimersData> bossTimerData = new List<DefaultTimersData>();
-            foreach (var file in Directory.EnumerateFiles(@".\DataStructures\Timers\Boss Timers\Raids", "*", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(Path.Combine(Environment.CurrentDirectory, @"DataStructures/Timers/Boss Timers/Raids"), "*", SearchOption.AllDirectories))
             {
                 var bossTimers = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(file));
                 if (bossTimers == null)

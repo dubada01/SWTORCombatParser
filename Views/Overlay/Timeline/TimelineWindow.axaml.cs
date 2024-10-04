@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
 
@@ -56,6 +57,7 @@ namespace SWTORCombatParser.Views.Overlay.Timeline
         public event Action OnHideWindow = delegate { };
         private Point _position;
         private Point _size;
+        private bool _isOpen = false;
         public TimelineWindow()
         {
             InitializeComponent();
@@ -101,13 +103,22 @@ namespace SWTORCombatParser.Views.Overlay.Timeline
             viewModel.UpdateClickThrough += ToggleClickThrough;
             viewModel.AreaEntered += SetAreaName;
             this.Opened += OnWindowOpened;
+            this.Closed += OnWindowClosed;
             this.Resized += OnWindowResized;
         }
+
+        private void OnWindowClosed(object? sender, EventArgs e)
+        {
+            _isOpen = false;
+        }
+
         private void OnWindowResized(object? sender, WindowResizedEventArgs e)
         {
+            if (!_isOpen)
+                return;
             OnUpdateTimelinePositions();
             _size = new Point(e.ClientSize.Width, e.ClientSize.Height);
-            OnStateChanged(_size,_position);
+            OnStateChanged(_position,_size);
         }
 
         private void ToggleClickThrough(bool canClickThrough)
@@ -132,9 +143,12 @@ namespace SWTORCombatParser.Views.Overlay.Timeline
             {
                 MakeWindowClickThroughWindows(true);
             }
-
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("TimelineOverlay");
+            Position = new PixelPoint((int)defaults.Position.X, (int)defaults.Position.Y);
+            SetSize(defaults.WidtHHeight.X, defaults.WidtHHeight.Y);
             CloseButton.IsVisible = false;
             WindowBackground.Opacity = 0.1;
+            _isOpen = true;
         }
         // Platform-specific method for Windows
         private void MakeWindowClickThroughWindows(bool isClickThrough)
@@ -335,7 +349,7 @@ namespace SWTORCombatParser.Views.Overlay.Timeline
                     currentPositionInScreen.Y + (int)delta.Y
                 );
                 _position = new Point(Position.X, Position.Y);
-                OnStateChanged(_size,_position);
+                OnStateChanged(_position,_size);
             }
         }
 

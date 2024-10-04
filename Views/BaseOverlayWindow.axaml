@@ -20,15 +20,12 @@
                 <RowDefinition Height="0.15*"/>
                 <RowDefinition Height="0.85*"/>
             </Grid.RowDefinitions>
-            <ContentPresenter Grid.Row="1" Margin="20,0" Content="{Binding .}"/>
-            <Grid PointerPressed="DragWindow" PointerEntered="Border_MouseEnter" PointerExited="Grid_MouseLeave">
+            <ContentPresenter  Grid.Row="1" Margin="20,0" Content="{Binding MainContent}"/>
+            <Grid >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox Margin="10,0" HorizontalAlignment="Center" MaxHeight="30">
-                    <TextBlock FontFamily="{StaticResource MainFont}" Text="ALERTS" Foreground="Beige"/>
-                </Viewbox>
                 <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,5,0">
                     <Button x:Name="CloseButton" FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Background="#c96161" IsVisible="{Binding OverlaysMoveable}" FontWeight="Bold" Content="X"  FontSize="7"
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
@@ -36,7 +33,7 @@
 
             </Grid>
 
-            <Thumb IsVisible="{Binding OverlaysMoveable}"  HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+            <Thumb Grid.Row="1" IsVisible="{Binding OverlaysMoveable}"  HorizontalAlignment="Right" VerticalAlignment="Bottom" 
                PointerEntered="Thumb_MouseEnter" PointerExited="Grid_MouseLeave" PointerReleased="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
         </Grid>
         <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding OverlaysMoveable}">
