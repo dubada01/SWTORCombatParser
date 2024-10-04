@@ -12,20 +12,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
 {
     public class AbilityListSetupViewModel
     {
         private AbilityListViewModel _viewModel;
-        private AbilityListView _view;
+        private BaseOverlayWindow _view;
         private bool abilityListEnabled;
         public event Action<bool> OnEnabledChanged = delegate { };
         public AbilityListSetupViewModel()
         {
             _viewModel = new AbilityListViewModel();
             _viewModel.OverlayName = "AbilityList";
-            _view = new AbilityListView(_viewModel);
+            _viewModel.MainContent = new AbilityListView(_viewModel);
+            _view = new BaseOverlayWindow(_viewModel);
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_viewModel.OverlayName);
             _view.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
             abilityListEnabled = defaults.Acive;

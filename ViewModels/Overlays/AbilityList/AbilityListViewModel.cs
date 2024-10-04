@@ -125,7 +125,6 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         public double FontSize => Math.Max(8, defaultFontSize * SizeScalar);
         public double BarHeight => defaultBarHeight * SizeScalar;
         public Thickness BarMargin => new Thickness(0,BarHeight/4,0,0);
-        public bool OverlaysMoveable { get; internal set; } = false;
         public double SizeScalar
         {
             get => sizeScalar; set
