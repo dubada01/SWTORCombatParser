@@ -73,8 +73,8 @@ namespace SWTORCombatParser.Views
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             // Unregister the hotkey when the window is closed to clean up
-            HotkeyHandler.UnregHotKey(1);
-            HotkeyHandler.UnregHotKey(2);
+            HotkeyHandler.UnregisterHotKey(1);
+            HotkeyHandler.UnregisterHotKey(2);
         }
 
         private void Window_Closing(object sender, WindowClosingEventArgs e)

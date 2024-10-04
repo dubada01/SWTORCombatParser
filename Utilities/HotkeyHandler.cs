@@ -1,71 +1,56 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.Reactive.Linq;
+using SharpHook;
+using SharpHook.Reactive;
 using SWTORCombatParser.DataStructures.Hotkeys;
 
 namespace SWTORCombatParser.Utilities
 {
-    public class HotkeyHandler
+    public class HotkeyHandler : IDisposable
     {
-        private IntPtr _handle;
+        private readonly IReactiveGlobalHook _hook;
+        private readonly Dictionary<int, RegisteredHotkey> _registeredHotkeys = new Dictionary<int, RegisteredHotkey>();
         private bool _isInitialized = false;
-
-        // Windows-specific constants
-#if WINDOWS
-        private const int MOD_CONTROL = 0x0002;
-        private const int MOD_ALT = 0x0001;
-        private const int WM_HOTKEY = 0x0312;
-        private const int MOD_NONE = 0x0000;
-
-        [DllImport("user32.dll")]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
-
-        [DllImport("user32.dll")]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-#endif
-
-        // macOS-specific imports and constants
-#if MACOS
-        [DllImport("/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/Carbon")]
-        public static extern int RegisterEventHotKey(int virtualKey, int modifiers, IntPtr hotKeyId, IntPtr eventTarget, int options, out IntPtr hotKeyRef);
-
-        [DllImport("/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/Carbon")]
-        public static extern void UnregisterEventHotKey(IntPtr hotKeyRef);
-
-        private IntPtr _hotKeyRef1;
-        private IntPtr _hotKeyRef2;
-        private IntPtr _hotKeyRef3;
-        private const int MOD_CONTROL = 0x0002;
-        private const int MOD_ALT = 0x0001;
-#endif
 
         public static bool IgnoreHotkeys = false;
 
+        // Track the current state of modifier keys
+        private readonly HashSet<SharpHook.Native.KeyCode> _activeModifiers = new HashSet<SharpHook.Native.KeyCode>();
+
+        // Define which keys are considered modifiers
+        private readonly HashSet<SharpHook.Native.KeyCode> _modifierKeys = new HashSet<SharpHook.Native.KeyCode>
+        {
+            SharpHook.Native.KeyCode.VcLeftShift,
+            SharpHook.Native.KeyCode.VcRightShift,
+            SharpHook.Native.KeyCode.VcLeftControl,
+            SharpHook.Native.KeyCode.VcRightControl,
+            SharpHook.Native.KeyCode.VcLeftAlt,
+            SharpHook.Native.KeyCode.VcRightAlt,
+        };
+
+        public HotkeyHandler()
+        {
+            // Initialize the global hook
+            _hook = new SimpleReactiveGlobalHook();
+        }
+
         public void Init()
         {
-#if WINDOWS
-            // Check if we're using the ClassicDesktop style and retrieve the handle
-            if(Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                var handle = desktop.MainWindow.TryGetPlatformHandle();
-                if (handle.Handle != null)
-                {
-                    _handle = handle.Handle;
-                }
+            if (_isInitialized)
+                return;
 
-                // Ensure we have a valid window handle for Windows
-                if (_handle == IntPtr.Zero)
-                {
-                    throw new InvalidOperationException("Failed to get window handle for hotkey registration.");
-                }
-            }
-#endif
+            // Subscribe to key pressed and released events
+            _hook.KeyPressed.Subscribe(OnKeyPressed);
+            _hook.KeyReleased.Subscribe(OnKeyReleased);
 
-            // Initialize hotkey registration
+            // Start the hook
+            _hook.RunAsync();
+
             _isInitialized = true;
             UpdateKeys();
         }
-
 
         public void UpdateKeys()
         {
@@ -73,86 +58,177 @@ namespace SWTORCombatParser.Utilities
 
             if (hotkeySettings.UILockEnabled)
             {
-                RegHotKey(1, hotkeySettings.UILockHotkeyStroke, hotkeySettings.UILockHotkeyMod1, hotkeySettings.UILockHotkeyMod2);
+                RegisterHotKey(1, hotkeySettings.UILockHotkeyStroke, hotkeySettings.UILockHotkeyMod1, hotkeySettings.UILockHotkeyMod2);
             }
             if (hotkeySettings.HOTRefreshEnabled)
             {
-                RegHotKey(2, hotkeySettings.HOTRefreshHotkeyStroke, hotkeySettings.HOTRefreshHotkeyMod1, hotkeySettings.HOTRefreshHotkeyMod2);
+                RegisterHotKey(2, hotkeySettings.HOTRefreshHotkeyStroke, hotkeySettings.HOTRefreshHotkeyMod1, hotkeySettings.HOTRefreshHotkeyMod2);
             }
             if (hotkeySettings.OverlayHideEnabled)
             {
-                RegHotKey(3, hotkeySettings.OverlayHideHotkeyStroke, hotkeySettings.OverlayHideHotkeyMod1, hotkeySettings.OverlayHideHotkeyMod2);
+                RegisterHotKey(3, hotkeySettings.OverlayHideHotkeyStroke, hotkeySettings.OverlayHideHotkeyMod1, hotkeySettings.OverlayHideHotkeyMod2);
             }
         }
 
-        // Register hotkeys for Windows and macOS
-        public void RegHotKey(int hotkeyId, int key, int modifier1 = 0, int modifier2 = 0)
+        // Register hotkeys using SharpHook
+        public void RegisterHotKey(int hotkeyId, int key, int modifier1 = 0, int modifier2 = 0)
         {
             if (!_isInitialized)
                 return;
 
-            int combinedModifiers = modifier1 | modifier2;
-
-#if WINDOWS
-            if (_handle != IntPtr.Zero)
+            if (_registeredHotkeys.ContainsKey(hotkeyId))
             {
-                if (RegisterHotKey(_handle, hotkeyId, combinedModifiers, key))
-                {
-                    Console.WriteLine("Hotkey registered successfully on Windows.");
-                }
-                else
-                {
-                    Console.WriteLine("Error: Unable to register hotkey on Windows.");
-                }
+                UnregisterHotKey(hotkeyId);
             }
-#elif MACOS
-            return;
-            int macModifiers = ConvertModifiersToMac(combinedModifiers);
-            IntPtr eventTarget = IntPtr.Zero; // Use default for global hotkeys
-            int result = RegisterEventHotKey(key, macModifiers, IntPtr.Zero, eventTarget, 0, out IntPtr hotKeyRef);
 
-            if (hotkeyId == 1) _hotKeyRef1 = hotKeyRef;
-            else if (hotkeyId == 2) _hotKeyRef2 = hotKeyRef;
-            else if (hotkeyId == 3) _hotKeyRef3 = hotKeyRef;
+            var hotkey = new RegisteredHotkey
+            {
+                Id = hotkeyId,
+                Key = (SharpHook.Native.KeyCode)key,
+                Modifiers = ConvertModifiers(modifier1, modifier2)
+            };
 
-            if (result == 0)
-            {
-                Console.WriteLine("Hotkey registered successfully on macOS.");
-            }
-            else
-            {
-                Console.WriteLine("Error: Unable to register hotkey on macOS.");
-            }
-#endif
+            _registeredHotkeys[hotkeyId] = hotkey;
+
+            Console.WriteLine($"Hotkey {hotkeyId} registered: {hotkey}");
         }
 
-        // macOS modifier conversion
-#if MACOS
-        private int ConvertModifiersToMac(int combinedModifiers)
+        // Unregister a specific hotkey
+        public void UnregisterHotKey(int hotkeyId)
         {
-            int result = 0;
-            if ((combinedModifiers & MOD_CONTROL) != 0) result |= (1 << 18); // Cmd key
-            if ((combinedModifiers & MOD_ALT) != 0) result |= (1 << 19); // Option key
-            return result;
+            if (_registeredHotkeys.ContainsKey(hotkeyId))
+            {
+                _registeredHotkeys.Remove(hotkeyId);
+                Console.WriteLine($"Hotkey {hotkeyId} unregistered.");
+            }
         }
-#endif
 
+        // Unregister all hotkeys
         public void UnregAll()
         {
-            UnregHotKey(1);
-            UnregHotKey(2);
-            UnregHotKey(3);
+            _registeredHotkeys.Clear();
+            Console.WriteLine("All hotkeys unregistered.");
         }
 
-        public void UnregHotKey(int id)
+        // Handle key pressed events
+        private void OnKeyPressed(KeyboardHookEventArgs args)
         {
-#if WINDOWS
-            UnregisterHotKey(_handle, id);
-#elif MACOS
-            if (id == 1) UnregisterEventHotKey(_hotKeyRef1);
-            else if (id == 2) UnregisterEventHotKey(_hotKeyRef2);
-            else if (id == 3) UnregisterEventHotKey(_hotKeyRef3);
-#endif
+            if (IgnoreHotkeys)
+                return;
+
+            var key = args.Data.KeyCode;
+
+            // If the pressed key is a modifier, add it to the active modifiers
+            if (_modifierKeys.Contains(key))
+            {
+                _activeModifiers.Add(key);
+                return;
+            }
+
+            // If the key is not a modifier, check against registered hotkeys
+            foreach (var hotkey in _registeredHotkeys.Values)
+            {
+                if (args.Data.KeyCode == hotkey.Key && AreModifiersActive(hotkey.Modifiers))
+                {
+                    FireHotkeyEvent(hotkey.Id);
+                    break; // Assuming one hotkey per key combination
+                }
+            }
+        }
+
+        // Handle key released events
+        private void OnKeyReleased(KeyboardHookEventArgs args)
+        {
+            var key = args.Data.KeyCode;
+
+            // If the released key is a modifier, remove it from the active modifiers
+            if (_modifierKeys.Contains(key))
+            {
+                _activeModifiers.Remove(key);
+            }
+        }
+
+        // Check if the required modifiers for a hotkey are currently active
+        private bool AreModifiersActive(SharpHook.Native.ModifierMask requiredModifiers)
+        {
+            // Convert the requiredModifiers to a set of active modifier keys
+            var requiredKeys = ConvertModifierMaskToKeys(requiredModifiers);
+
+            foreach (var key in requiredKeys)
+            {
+                if (!_activeModifiers.Contains(key))
+                    return false;
+            }
+
+            return true;
+        }
+
+        // Convert ModifierMask to individual modifier keys
+        private IEnumerable<SharpHook.Native.KeyCode> ConvertModifierMaskToKeys(SharpHook.Native.ModifierMask mask)
+        {
+            var keys = new List<SharpHook.Native.KeyCode>();
+
+            if (mask.HasFlag(SharpHook.Native.ModifierMask.Shift))
+            {
+                keys.Add(SharpHook.Native.KeyCode.VcLeftShift);
+                //keys.Add(SharpHook.Native.KeyCode.VcRightShift);
+            }
+            if (mask.HasFlag(SharpHook.Native.ModifierMask.Ctrl))
+            {
+                keys.Add(SharpHook.Native.KeyCode.VcLeftControl);
+               // keys.Add(SharpHook.Native.KeyCode.VcRightControl);
+            }
+            if (mask.HasFlag(SharpHook.Native.ModifierMask.Alt))
+            {
+                keys.Add(SharpHook.Native.KeyCode.VcLeftAlt);
+                //keys.Add(SharpHook.Native.KeyCode.VcRightAlt);
+            }
+
+
+            return keys;
+        }
+
+        // Fire the corresponding event based on hotkey ID
+        private void FireHotkeyEvent(int hotkeyId)
+        {
+            // Ensure UI updates are marshaled to the main thread if necessary
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                switch (hotkeyId)
+                {
+                    case 1:
+                        FireLockOverlay();
+                        break;
+                    case 2:
+                        FireRefreshHots();
+                        break;
+                    case 3:
+                        FireHideOverlays();
+                        break;
+                    default:
+                        Debug.WriteLine($"Unknown hotkey ID: {hotkeyId}");
+                        break;
+                }
+            });
+        }
+
+        // Convert Windows-style modifiers to SharpHook modifiers
+        private SharpHook.Native.ModifierMask ConvertModifiers(int modifier1, int modifier2)
+        {
+            SharpHook.Native.ModifierMask result = 0;
+
+            if (((modifier1 | modifier2) & 0x0002) != 0) // MOD_CONTROL
+                result |= SharpHook.Native.ModifierMask.Ctrl;
+
+            if (((modifier1 | modifier2) & 0x0001) != 0) // MOD_ALT
+                result |= SharpHook.Native.ModifierMask.Alt;
+
+            if (((modifier1 | modifier2) & 0x0004) != 0) // MOD_SHIFT
+                result |= SharpHook.Native.ModifierMask.Shift;
+
+            
+
+            return result;
         }
 
         // Event triggers for hotkeys
@@ -175,6 +251,30 @@ namespace SWTORCombatParser.Utilities
         {
             Debug.WriteLine("Hide Overlays hotkey fired");
             OnHideOverlaysHotkey();
+        }
+
+        // Dispose pattern to clean up the hook
+        public void Dispose()
+        {
+            if (_isInitialized)
+            {
+                _hook.Dispose();
+                _isInitialized = false;
+                Console.WriteLine("Global hook disposed.");
+            }
+        }
+
+        // Inner class to represent a registered hotkey
+        private class RegisteredHotkey
+        {
+            public int Id { get; set; }
+            public SharpHook.Native.KeyCode Key { get; set; }
+            public SharpHook.Native.ModifierMask Modifiers { get; set; }
+
+            public override string ToString()
+            {
+                return $"ID: {Id}, Key: {Key}, Modifiers: {Modifiers}";
+            }
         }
     }
 }

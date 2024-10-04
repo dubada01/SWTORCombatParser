@@ -11,6 +11,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
+using SharpHook.Native;
 
 namespace SWTORCombatParser.Views.SettingsView
 {
@@ -210,13 +211,65 @@ namespace SWTORCombatParser.Views.SettingsView
                 e.Key != Key.LeftShift && e.Key != Key.RightShift &&
                 e.Key != Key.LeftAlt && e.Key != Key.RightAlt)
             {
-                keyStroke = (int)e.Key;
+                keyStroke = ConvertAvaloniaKeyToSharpHookKeyCode(e.Key);
             }
 
             // Save settings or update display as needed
             SaveSetting(textBox, mod1, mod2, keyStroke);
             UpdateTextBoxDisplay(textBox, mod1, mod2, keyStroke);
         }
+
+        private int ConvertAvaloniaKeyToSharpHookKeyCode(Key avaloniaKey)
+        {
+            // Map Avalonia keys to SharpHook KeyCode enum values
+            return avaloniaKey switch
+            {
+                Key.A => (int)KeyCode.VcA,
+                Key.B => (int)KeyCode.VcB,
+                Key.C => (int)KeyCode.VcC,
+                Key.D => (int)KeyCode.VcD,
+                Key.E => (int)KeyCode.VcE,
+                Key.F => (int)KeyCode.VcF,
+                Key.G => (int)KeyCode.VcG,
+                Key.H => (int)KeyCode.VcH,
+                Key.I => (int)KeyCode.VcI,
+                Key.J => (int)KeyCode.VcJ,
+                Key.K => (int)KeyCode.VcK,
+                Key.L => (int)KeyCode.VcL,
+                Key.M => (int)KeyCode.VcM,
+                Key.N => (int)KeyCode.VcN,
+                Key.O => (int)KeyCode.VcO,
+                Key.P => (int)KeyCode.VcP,
+                Key.Q => (int)KeyCode.VcQ,
+                Key.R => (int)KeyCode.VcR,
+                Key.S => (int)KeyCode.VcS,
+                Key.T => (int)KeyCode.VcT,
+                Key.U => (int)KeyCode.VcU,
+                Key.V => (int)KeyCode.VcV,
+                Key.W => (int)KeyCode.VcW,
+                Key.X => (int)KeyCode.VcX,
+                Key.Y => (int)KeyCode.VcY,
+                Key.Z => (int)KeyCode.VcZ,
+                Key.D0 => (int)KeyCode.Vc0,
+                Key.D1 => (int)KeyCode.Vc1,
+                Key.D2 => (int)KeyCode.Vc2,
+                Key.D3 => (int)KeyCode.Vc3,
+                Key.D4 => (int)KeyCode.Vc4,
+                Key.D5 => (int)KeyCode.Vc5,
+                Key.D6 => (int)KeyCode.Vc6,
+                Key.D7 => (int)KeyCode.Vc7,
+                Key.D8 => (int)KeyCode.Vc8,
+                Key.D9 => (int)KeyCode.Vc9,
+                Key.Enter => (int)KeyCode.VcEnter,
+                Key.Space => (int)KeyCode.VcSpace,
+                Key.Back => (int)KeyCode.VcBackspace,
+                Key.Tab => (int)KeyCode.VcTab,
+                Key.Escape => (int)KeyCode.VcEscape,
+                // Add more mappings as needed
+                _ => 0 // Default value if key is not mapped
+            };
+        }
+
         private void SaveSetting(TextBox textBox, int mod1, int mod2, int keyStroke)
         {
             var current = Settings.ReadSettingOfType<HotkeySettings>("Hotkeys");
@@ -274,22 +327,24 @@ namespace SWTORCombatParser.Views.SettingsView
         private string KeyToString(int keyCode)
         {
             // Convert the keyCode to an Avalonia Key enum
-            var key = (Key)keyCode;
+            var key = (KeyCode)keyCode;
 
             // Special handling for specific keys can go here
             // For example, converting Key.OemPlus to "+" or other special keys
             switch (key)
             {
-                case Key.OemPlus:
-                    return "+";
-                case Key.OemMinus:
-                    return "-";
-                case Key.Space:
+                case KeyCode.VcSpace:
                     return "Space";
                 // Add more cases as necessary for specific key conversions
                 default:
-                    return key.ToString(); // Fallback to the default string representation of the key
+                    return ConvertKeyCodeToString(key); // Fallback to the default string representation of the key
             }
+        }
+        private string ConvertKeyCodeToString(KeyCode keyCode)
+        {
+            // Convert KeyCode to string without the "Vc" prefix
+            string keyCodeName = keyCode.ToString();
+            return keyCodeName.StartsWith("Vc") ? keyCodeName.Substring(2) : keyCodeName;
         }
 
     }
