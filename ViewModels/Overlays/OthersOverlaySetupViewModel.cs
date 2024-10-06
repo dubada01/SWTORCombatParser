@@ -6,12 +6,11 @@ using SWTORCombatParser.Views.Overlay.BossFrame;
 using SWTORCombatParser.Views.Overlay.PvP;
 using SWTORCombatParser.Views.Overlay.RaidHOTs;
 using SWTORCombatParser.Views.Overlay.Room;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
-    class OthersOverlaySetupViewModel : INotifyPropertyChanged
+    class OthersOverlaySetupViewModel : ReactiveObject
     {
         public RaidHotsConfigViewModel _raidHotsConfigViewModel;
         public AllPvPOverlaysViewModel _PvpOverlaysConfigViewModel;
@@ -23,10 +22,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public OthersOverlaySetupViewModel()
         {
-            _bossFrameViewModel = new BossFrameConfigViewModel();
+            _bossFrameViewModel = new BossFrameConfigViewModel("BossFrame");
             BossFrameView = new BossFrameSetup(_bossFrameViewModel);
 
-            _roomOverlayViewModel = new RoomOverlayViewModel();
+            _roomOverlayViewModel = new RoomOverlayViewModel("RoomHazard");
             RoomOverlaySetup = new RoomSetup(_roomOverlayViewModel);
 
             RaidHotsConfig = new RaidHOTsSteup();
@@ -37,27 +36,21 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _PvpOverlaysConfigViewModel = new AllPvPOverlaysViewModel();
             PvpOverlays.DataContext = _PvpOverlaysConfigViewModel;
 
-            OnPropertyChanged("RaidHotsConfig");
+            this.RaisePropertyChanged(nameof(RaidHotsConfig));
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         internal void UpdateLock(bool overlaysLocked)
         {
             _raidHotsConfigViewModel.ToggleLock(overlaysLocked);
             if (overlaysLocked)
             {
                 _bossFrameViewModel.LockOverlays();
-                _roomOverlayViewModel.LockOverlays();
+                _roomOverlayViewModel.OverlaysMoveable = false;
                 _PvpOverlaysConfigViewModel.LockOverlays();
             }
             else
             {
                 _bossFrameViewModel.UnlockOverlays();
-                _roomOverlayViewModel.UnlockOverlays();
+                _roomOverlayViewModel.OverlaysMoveable = true;
                 _PvpOverlaysConfigViewModel.UnlockOverlays();
             }
         }

@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;
 using SWTORCombatParser.Utilities.MouseHandler;
@@ -17,7 +18,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
     /// <summary>
     /// Interaction logic for RaidFrameOverlay.xaml
     /// </summary>
-    public partial class RaidFrameOverlay : BaseOverlayWindow
+    public partial class RaidFrameOverlay : UserControl
     {
         private MouseHookHandler _mouseHookHandler;
         private bool _inCombat;
@@ -26,7 +27,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private readonly RaidFrameOverlayViewModel _viewModel;
         public event Action<double, double> AreaClicked = delegate { };
         public event Action<bool> MouseInArea = delegate { };
-        public RaidFrameOverlay(RaidFrameOverlayViewModel viewModel):base(viewModel)
+        public RaidFrameOverlay(RaidFrameOverlayViewModel viewModel)
         {
             DataContext = viewModel;
             _viewModel = viewModel;
@@ -59,19 +60,18 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             var yFract = relativeY / (double)GetHeight();
             AreaClicked(xFract, yFract);
         }
-        
-        public new void SetPlayer(string playerName)
+        //TODO Deal with raid frames
+        public void SetPlayer(string playerName)
         {
-            _currentPlayerName = playerName;
+            /*_currentPlayerName = playerName;
             var defaults = RaidFrameOverlayManager.GetDefaults(_currentPlayerName);
             Dispatcher.UIThread.Invoke(() =>
             {
                 Width = defaults.WidtHHeight.X;
                 Height = defaults.WidtHHeight.Y;
                 Position = new PixelPoint((int)defaults.Position.X, (int)defaults.Position.Y);
-            });
-            var viewModel = DataContext as RaidFrameOverlayViewModel;
-            viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
+            });*/
+            _viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
         }
         private void Hello(object? sender, RoutedEventArgs routedEventArgs)
         {
@@ -190,10 +190,15 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             return (int)((RaidGrid.Width));
         }
         private Point GetTopLeft()
-        {
-            var realTop = (int)((Position.Y + 50));
-            var realLeft = (int)((Position.X + 50));
-            return new Point(realLeft, realTop);
+        {        
+            var parentWindow = VisualRoot as Window;
+            if (parentWindow != null)
+            {
+                var realTop = parentWindow.Position.Y + 50;
+                var realLeft = parentWindow.Position.X + 50;
+                return new Point(realLeft, realTop);
+            }
+            return new Point(0, 0);
         }
     }
 }

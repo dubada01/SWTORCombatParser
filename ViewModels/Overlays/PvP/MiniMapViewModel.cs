@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -35,7 +36,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
     {
         private bool _isActive = false;
         private MiniMapView _miniMapView;
-        private OverlayInfo _settings;
 
         private DispatcherTimer _dTimer;
         private bool _isTriggered;
@@ -44,20 +44,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
         private bool _showFrame;
 
-        public MiniMapViewModel()
+        public MiniMapViewModel(string overlayName) : base(overlayName)
         {
             _dTimer = new DispatcherTimer();
-            OverlayName = "PvP_MiniMap";
             _miniMapView = new MiniMapView(this);
-            _miniMapView.Show();
-            _settings = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
+            MainContent = _miniMapView;
 
             EncounterTimerTrigger.PvPEncounterEntered += OnPvpCombatStarted;
             EncounterTimerTrigger.NonPvpEncounterEntered += OnPvpCombatEnded;
-
             CombatLogStreamer.NewLineStreamed += NewStreamedLine;
             CombatSelectionMonitor.CombatSelected += NewCombatInfo;
-            SetInitialPosition();
         }
         public event Action<string, bool> OverlayStateChanged = delegate { };
         public List<OpponentMapInfo> CharacterPositionInfos { get; set; } = new List<OpponentMapInfo>();
@@ -104,24 +100,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             get { return _isActive; }
             set
             {
-                DefaultGlobalOverlays.SetActive(OverlayName, value);
                 this.RaiseAndSetIfChanged(ref _isActive, value);
-                if (!_isActive)
-                {
-                    _miniMapView.Hide();
-                }
-                else
-                {
-                    _miniMapView.Show();
-                    if (OverlaysMoveable || _isTriggered)
-                    {
-                        ShowFrame = true;
-                    }
-
-                }
-
+                Active = value;
                 OverlayStateChanged("MiniMap", _isActive);
-                
             }
         }
 
@@ -133,14 +114,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         public void LockOverlays()
         {
-            SetLock(true);
             OverlaysMoveable = false;
             if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
         }
         public void UnlockOverlays()
         {
-            SetLock(false);
             OverlaysMoveable = true;
             if (GetCurrentActive())
                 ShowFrame = true;
@@ -242,15 +221,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool GetCurrentActive()
         {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
             return defaults.Acive;
-        }
-
-        private void SetInitialPosition()
-        {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
-            OverlayEnabled = defaults.Acive;
-            _miniMapView.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
         }
     }
 }

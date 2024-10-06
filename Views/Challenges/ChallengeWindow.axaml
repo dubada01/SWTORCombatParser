@@ -1,4 +1,4 @@
-﻿<Window x:Class="SWTORCombatParser.Views.Challenges.ChallengeWindow"
+﻿<UserControl x:Class="SWTORCombatParser.Views.Challenges.ChallengeWindow"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -7,7 +7,7 @@
                 xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Challenges"
                 x:DataType="vm:ChallengeWindowViewModel"
              mc:Ignorable="d" 
-             Height="150" Width="250" Title="ChallengesWindow" Background="{x:Null}"  Topmost="True" ShowInTaskbar="False">
+             Height="150" Width="250" Background="{x:Null}">
     <Grid>
         <Grid>
             <Grid IsVisible="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}">
@@ -18,4 +18,4 @@
             <local:ChallengeControl/>
         </Grid>
     </Grid>
-</Window>
+</UserControl>

@@ -22,7 +22,7 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         private bool inBossRoom;
         private bool isEnabled;
-        public EncounterTimerWindowViewModel()
+        public EncounterTimerWindowViewModel(string overlayName) : base(overlayName)
         {
             TimerTitle = "Boss Timers";
             SwtorTimers = new List<TimerInstanceViewModel>();
@@ -35,13 +35,10 @@ namespace SWTORCombatParser.ViewModels.Timers
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
             CombatLogStreamer.CombatUpdated += CheckForEnd;
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
-            OverlayName = "Encounter";
             _timerWindow = new TimersWindow(this);
-            _timerWindow.SetIdText("BOSS TIMERS");
-            _timerWindow.SetPlayer("Encounter");
             Dispatcher.UIThread.Invoke(() =>
             {
-                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
+                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
                 _timerWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
                 _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
@@ -108,24 +105,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
 
-        public void ShowTimers(bool isLocked)
-        {
-            if (!Active)
-                return;
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                _timerWindow.Show();
-                UpdateLock(isLocked);
-            });
-
-        }
-        public void HideTimers()
-        {
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                _timerWindow.Hide();
-            });
-        }
         private object _timerChangeLock = new object();
         private double _currentScale;
 

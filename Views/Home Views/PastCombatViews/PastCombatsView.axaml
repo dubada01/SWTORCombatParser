@@ -32,7 +32,7 @@
     </UserControl.Styles>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="200"/>
+            <RowDefinition Height="150"/>
             <RowDefinition Height="50"/>
             <RowDefinition Height="0.9*"/>
         </Grid.RowDefinitions>
@@ -40,7 +40,6 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height=".6*"/>
-                    <RowDefinition Height=".25*"/>
                     <RowDefinition Height=".4*"/>
                 </Grid.RowDefinitions>
                 
@@ -89,17 +88,6 @@
                         <TextBlock  Text="{Binding CurrentOrbsOffsetMs}" FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentOrbsOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
                     </StackPanel>
                 </Grid>
-
-                <Grid Grid.Row="2" Height="50">
-
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.70*"/>
-                        <ColumnDefinition Width="0.30*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Classes="RoundedTextBox" FontSize="10" VerticalContentAlignment="Center" Text="{Binding CurrentlySelectedLogName, UpdateSourceTrigger=PropertyChanged}" Margin="5,12,0,12" IsReadOnly="True"></TextBox>
-                    <Button Grid.Column="1" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Height="20" Width="40" Margin="0,0,2,0" FontSize="12" Background="{StaticResource Gray12Brush}" Content="Load" Command="{Binding LoadSpecificLogCommand}"></Button>
-                </Grid>
-                <!--<ContentPresenter Margin="0,5,0,0" Grid.Row="4" Content="{Binding HistoricalRange}"></ContentPresenter>-->
             </Grid>
         </Border>
 

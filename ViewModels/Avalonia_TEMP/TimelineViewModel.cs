@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SWTORCombatParser.DataStructures.Timeline;
+using SWTORCombatParser.Views;
+using SWTORCombatParser.Views.Overlay.Timeline;
 
 namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
@@ -15,7 +17,7 @@ public class TimelineElement
         public bool IsFreshKill { get; set; }
     }
 
-    public class TimelineWindowViewModel : ViewModelBase
+    public class TimelineWindowViewModel : BaseOverlayViewModel
     {
         private object lockObj = new object();
         public event Action<TimeSpan> OnUpdateTimeline = delegate { };
@@ -28,6 +30,17 @@ public class TimelineElement
         // Expose CurrentTime and MaxDuration as properties
         public TimeSpan CurrentTime { get; set; }
         public TimeSpan MaxDuration => _instanceInfo?.MaxDuration ?? TimeSpan.Zero;
+
+        public TimelineWindowViewModel(string overlayName) : base(overlayName)
+        {
+            MainContent = new TimelineWindow(this);
+            _instanceInfo = new InstanceInformation()
+            {
+                MaxDuration = TimeSpan.Zero,
+                PreviousBossKills = new List<BossKillInfo>(),
+                CurrentBossKills = new List<BossKillInfo>()
+            };
+        }
 
         public void ConfigureTimeline(TimeSpan maxDuration, List<BossKillInfo> previousKills, string areaName, string difficulty, string playerCount)
         {

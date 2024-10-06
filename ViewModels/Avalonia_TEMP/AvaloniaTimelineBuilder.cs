@@ -13,6 +13,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Overlay.Timeline;
 
 namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
@@ -20,7 +21,6 @@ namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
 public static class AvaloniaTimelineBuilder
 {
     private static bool _unlocked;
-    private static TimelineWindow _timelineWindow;
     private static TimelineWindowViewModel _timelineWindowViewModel;
     private static bool _inBossInstance = false;
     private static string _currentBossName = "";
@@ -31,14 +31,8 @@ public static class AvaloniaTimelineBuilder
     public static void Init()
     {
         // Create and show the Avalonia window
-        _timelineWindowViewModel = new TimelineWindowViewModel();
-        _timelineWindow = new TimelineWindow(_timelineWindowViewModel);
-        _timelineWindow.OnStateChanged += (position,size)=>
-        {
-            DefaultGlobalOverlays.SetDefault("TimelineOverlay", new Point(position.X,position.Y), new Point(size.X,size.Y));
-            Debug.WriteLine($"{position.X},{position.Y} and {size.X},{size.Y}");
-        };
-        _timelineWindow.OnHideWindow += UserDisabled;
+        _timelineWindowViewModel = new TimelineWindowViewModel("Timeline");
+        _timelineWindowViewModel.MainContent = new TimelineWindow(_timelineWindowViewModel);
 
         CombatLogStateBuilder.AreaEntered += TryBuildTimeline;
         CombatIdentifier.CombatFinished += CombatFinished;
@@ -100,16 +94,16 @@ public static class AvaloniaTimelineBuilder
                 }
 
                 if (_unlocked)
-                {                    
-                    _timelineWindow.Show();
+                {
+                    _timelineWindowViewModel.ShouldBeVisible = true;
                     _timelineWindowViewModel.SetClickThrough(false);
                 }
             }
             else
             {
-                DefaultGlobalOverlays.SetActive("TimelineOverlay", false);
-                _timelineWindow.Hide();
+                _timelineWindowViewModel.ShouldBeVisible = false;
             }
+            _timelineWindowViewModel.Active = value;
         }
     }
 
@@ -218,7 +212,7 @@ public static class AvaloniaTimelineBuilder
         Dispatcher.UIThread.Invoke(() =>
         {        
             _timelineWindowViewModel.ConfigureTimeline(maxDuration,previousKills,_currentEncounter.Name, _currentEncounter.Difficutly, _currentEncounter.NumberOfPlayer);
-            _timelineWindow.Show();
+            _timelineWindowViewModel.ShowOverlayWindow();
             Debug.WriteLine("Timeline shown!!");
             if (showLive)
                 StartEncounterTask();
@@ -229,7 +223,7 @@ public static class AvaloniaTimelineBuilder
     {
         Dispatcher.UIThread.Invoke(() =>
         {
-            _timelineWindow.Hide();
+            _timelineWindowViewModel.HideOverlayWindow();
             Debug.WriteLine("Timeline hidden!");
         });
     }
@@ -238,7 +232,7 @@ public static class AvaloniaTimelineBuilder
     {        
         _unlocked = true;
         if(_timelineEnabled)
-            _timelineWindow.Show();
+            _timelineWindowViewModel.ShowOverlayWindow();
         _timelineWindowViewModel.SetClickThrough(false);
 
     }
@@ -247,7 +241,7 @@ public static class AvaloniaTimelineBuilder
         _unlocked = false;
         _timelineWindowViewModel.SetClickThrough(true);
         if(!_inBossInstance)
-            _timelineWindow.Hide();
+            _timelineWindowViewModel.HideOverlayWindow();
     }
     
     private static void StartEncounterTask()

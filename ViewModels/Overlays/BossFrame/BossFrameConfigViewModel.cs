@@ -10,6 +10,7 @@ using System.Reactive;
 using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -22,16 +23,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private System.Timers.Timer _timer;
         private bool _inCombat;
 
-        public BrossFrameView View { get; set; }
+        public BrossFrameView _bossFrame { get; set; }
         public bool BossFrameEnabled
         {
             get => bossFrameEnabled; set
             {
                 this.RaiseAndSetIfChanged(ref bossFrameEnabled, value);
                 if (!bossFrameEnabled)
-                    View.Hide();
+                    HideOverlayWindow();
                 if (bossFrameEnabled)
-                    View.Show();
+                    ShowOverlayWindow();
                 DefaultBossFrameManager.SetActiveState(bossFrameEnabled);
             }
         }
@@ -94,7 +95,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private double currentScale = 1;
         private bool raidChallengesEnabled;
 
-        public BossFrameConfigViewModel()
+        public BossFrameConfigViewModel(string overlayName) : base(overlayName)
         {
             _timer = new System.Timers.Timer();
             _timer.Interval = TimeSpan.FromSeconds(1).TotalMilliseconds;
@@ -107,11 +108,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
             CombatLogStreamer.CombatUpdated += OnNewLog;
             CombatLogStreamer.NewLineStreamed += HandleNewLog;
-            OverlayName = "BossFrame";
-            View = new BrossFrameView(this);
+            _bossFrame = new BrossFrameView(this);
+            MainContent = _bossFrame;
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
             CurrentScale = currentDefaults.Scale == 0 ? 1 : currentDefaults.Scale;
-            View.SetSizeAndLocation(new Point(currentDefaults.Position.X, currentDefaults.Position.Y), new Point(currentDefaults.WidtHHeight.X, currentDefaults.WidtHHeight.Y));
 
             bossFrameEnabled = currentDefaults.Acive;
             DotTrackingEnabled = currentDefaults.TrackDOTS;
@@ -119,19 +119,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             RaidChallengesEnabled = currentDefaults.RaidChallenges;
             this.WhenAnyValue(x => x.OverlaysMoveable).Subscribe(_ => this.RaisePropertyChanged(nameof(ShowFrame)));
             if (currentDefaults.Acive)
-                View.Show();
+                ShowOverlayWindow();
         }
 
 
 
         public void LockOverlays()
         {
-            SetLock(true);
             OverlaysMoveable = false;
         }
         public void UnlockOverlays()
         {
-            SetLock(false);
             OverlaysMoveable = true;
         }
         private void UpdateBossFrameScale()

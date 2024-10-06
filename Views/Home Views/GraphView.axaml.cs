@@ -9,7 +9,9 @@ using Avalonia.Threading;
 using ScottPlot;
 using ScottPlot.Avalonia;
 using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.Utilities;
 using Colors = Avalonia.Media.Colors;
+using Image = ScottPlot.Image;
 
 
 namespace SWTORCombatParser.Views.Home_Views
@@ -52,11 +54,13 @@ namespace SWTORCombatParser.Views.Home_Views
             legend.FontColor = Color.FromARGB(Colors.WhiteSmoke.ToUInt32());
             legend.FontSize = 10;
             ConfigureSeries(Enum.GetValues(typeof(PlotType)).Cast<PlotType>().ToList());
-            _plot.Plot.DataBackground.Color = new Color(100, 10, 10, 10);
-            _plot.Plot.FigureBackground.Color = new Color(0, 10, 10, 10);
+            _plot.Plot.DataBackground.Color = new Color(20, 20, 20, 100);
+            _plot.Plot.FigureBackground.Color = new Color(10, 10, 10, 255);
             _plot.Plot.Grid.MajorLineColor = new Color(100, 120, 120, 120);
             _plot.Plot.Grid.MinorLineColor = Color.FromARGB(Colors.LightGray.ToUInt32());
             _plot.Plot.Axes.Color(Color.FromARGB(Colors.WhiteSmoke.ToUInt32()));
+            _plot.Plot.FigureBackground.Image = new Image(SKBitmapFromFile.Load("avares://Orbs/resources/SwtorLogo.png"));
+            _plot.Plot.FigureBackground.ImagePosition = ImagePosition.Center;
         }
         // Initialize with current axis limits
         private void InitializeAxisLimits()
@@ -145,7 +149,7 @@ namespace SWTORCombatParser.Views.Home_Views
             else
                 return;
 
-            _plotViewModel.MousePositionUpdated(e.GetPosition(this));
+            _plotViewModel.MousePositionUpdated(e.GetPosition(GraphArea));
             TryUpdateAxes();
         }
 

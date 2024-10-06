@@ -1,13 +1,14 @@
-﻿using SWTORCombatParser.ViewModels.Overlays.PvP;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.Overlays.PvP;
 
 namespace SWTORCombatParser.Views.Overlay.PvP
 {
     /// <summary>
     /// Interaction logic for OpponentHpOverlay.xaml
     /// </summary>
-    public partial class OpponentHpOverlay : BaseOverlayWindow
+    public partial class OpponentHpOverlay : UserControl
     {
-        public OpponentHpOverlay(OpponentOverlayViewModel vm):base(vm)
+        public OpponentHpOverlay(OpponentOverlayViewModel vm)
         {
             DataContext = vm;
             InitializeComponent();

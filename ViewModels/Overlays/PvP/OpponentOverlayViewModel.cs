@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -30,17 +31,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private bool _showFrame;
         private List<OpponentHPBarViewModel> _opponentHpBars = new List<OpponentHPBarViewModel>();
 
-        public OpponentOverlayViewModel()
+        public OpponentOverlayViewModel(string overlayName) : base(overlayName)
         {
             _dTimer = new DispatcherTimer();
-            OverlayName = "PvP_HP";
             _opponentHPView = new OpponentHpOverlay(this);
-            _opponentHPView.Show();
+            MainContent = _opponentHPView;
             EncounterTimerTrigger.NonPvpEncounterEntered += OnPvpCombatEnded;
             EncounterTimerTrigger.PvPEncounterEntered += OnPvpCombatStarted;
             CombatLogStreamer.NewLineStreamed += NewLineStreamed;
             CombatSelectionMonitor.CombatSelected += NewCombatInfo;
-            SetInitialPosition();
         }
 
 
@@ -104,22 +103,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             get { return _isActive; }
             set
             {
-                DefaultGlobalOverlays.SetActive("PvP_HP", value);
                 this.RaiseAndSetIfChanged(ref _isActive, value);
-                if (!_isActive)
-                {
-                    _opponentHPView.Hide();
-                }
-                else
-                {
-                    _opponentHPView.Show();
-                    if (OverlaysMoveable || _isTriggered)
-                    {
-                        ShowFrame = true;
-                    }
-
-                }
-
+                Active = _isActive;
                 OverlayStateChanged("OpponentHP", _isActive);
             }
         }
@@ -132,14 +117,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         public void LockOverlays()
         {
-            SetLock(true);
             OverlaysMoveable = false;
             if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
         }
         public void UnlockOverlays()
         {
-            SetLock(false);
             OverlaysMoveable = true;
             if (GetCurrentActive())
                 ShowFrame = true;
@@ -250,14 +233,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool GetCurrentActive()
         {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
             return defaults.Acive;
-        }
-        private void SetInitialPosition()
-        {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
-            OverlayEnabled = defaults.Acive;
-            _opponentHPView.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
         }
     }
 }

@@ -14,6 +14,8 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Views;
+using SWTORCombatParser.Views.Overlay.AbilityList;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
 {
@@ -50,9 +52,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
                 this.RaiseAndSetIfChanged(ref abilityInfoList, value);
             }
         }
-        public AbilityListViewModel()
+        public AbilityListViewModel(string overlayName):base(overlayName)
         {
-            CombatLogStreamer.NewLineStreamed += CheckForConversation;
+            MainContent = new AbilityListView(this);
             CombatLogStreamer.CombatStarted += Reset;
             CombatSelectionMonitor.OnInProgressCombatSelected += UpdateList;
             CombatSelectionMonitor.PhaseSelected += UpdateList;
@@ -141,34 +143,17 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
 
         public void LockOverlays()
         {
-            SetLock(true);
             OverlaysMoveable = false;
         }
         public void UnlockOverlays()
         {
-            SetLock(false);
             OverlaysMoveable = true;
-        }
-        private void CheckForConversation(ParsedLogEntry obj)
-        {
-            if (!obj.Source.IsLocalPlayer)
-                return;
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && obj.Source.IsLocalPlayer)
-            {
-                HideOverlayWindow();
-            }
-
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && IsEnabled && obj.Source.IsLocalPlayer)
-            {
-                ShowOverlayWindow();
-            }
         }
         private void Dispose()
         {
             CombatLogStreamer.CombatStarted -= Reset;
             CombatSelectionMonitor.CombatSelected -= UpdateList;
             CombatSelectionMonitor.PhaseSelected -= UpdateList;
-            CombatLogStreamer.NewLineStreamed -= CheckForConversation;
             _updateSub.Dispose();
         }
     }

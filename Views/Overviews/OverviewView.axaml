@@ -11,7 +11,7 @@
     <Grid Background="{StaticResource Gray2Brush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
-            <RowDefinition Height="0.85*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Viewbox HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal">
@@ -30,58 +30,35 @@
                 <ComboBox  IsVisible="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
             </StackPanel>
         </Viewbox>
-        <DockPanel Grid.Row="1" LastChildFill="True" HorizontalAlignment="Stretch">
-            <TabControl>
-                <TabControl.Styles>
-                    <Style Selector="TabControl">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate>
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-
-                                        <!-- The Tab Headers -->
-                                        <ItemsPresenter Grid.Row="0" 
-                                                        Name="PART_TabStrip"
-                                                        HorizontalAlignment="Stretch"/>
-
-                                        <!-- The Content Area -->
-                                        <Border BorderThickness="0,0,1,1" CornerRadius="0,5,5,5" 
-                                                BorderBrush="#D0CEBF" Grid.Row="1">
-                                            <Border CornerRadius="0,5,5,5" BorderThickness="{TemplateBinding BorderThickness}" 
-                                                    BorderBrush="{TemplateBinding BorderBrush}">
-                                                <Border CornerRadius="0,5,5,5" Background="{TemplateBinding Background}">
-                                                    <ContentPresenter Content="{TemplateBinding SelectedContent}"/>
-                                                </Border>
-                                            </Border>
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
+        <Grid Grid.Row="1" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TabStrip SelectedIndex="{Binding SelectedTabIndex}">
+                <TabStrip.Styles>
+                    <Style Selector="TabStripItem:pointerover /template/ Border">
+                        <Setter Property="Background" Value="{StaticResource Gray4Brush}"></Setter>
                     </Style>
-                </TabControl.Styles>
-
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Damage">
+                </TabStrip.Styles>
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Damage">
                     <ContentPresenter Content="{Binding DamageContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Healing">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Healing">
                     <ContentPresenter Content="{Binding HealingContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Damage Taken">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Damage Taken">
                     <ContentPresenter Content="{Binding DamageTakenContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Healing Received">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Healing Received">
                     <ContentPresenter Content="{Binding HealingReceivedContent}"></ContentPresenter>
                 </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Classes="RoundedTab" Header="Threat">
+                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Threat">
                     <ContentPresenter Content="{Binding ThreatContent}"></ContentPresenter>
                 </TabItem>
-            </TabControl>
-        </DockPanel>
+            </TabStrip>
+            <ContentPresenter Grid.Row="1" Content="{Binding SelectedDataTypeContent}"></ContentPresenter>
+        </Grid>
 
     </Grid>
 </UserControl>

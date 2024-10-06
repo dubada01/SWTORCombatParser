@@ -12,7 +12,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Timers;
 
-public class AlertsWindowViewModel : BaseOverlayViewModel, INotifyPropertyChanged
+public class AlertsWindowViewModel : BaseOverlayViewModel
 {
 
     private List<TimerInstanceViewModel> _currentTimers = new List<TimerInstanceViewModel>();
@@ -23,20 +23,10 @@ public class AlertsWindowViewModel : BaseOverlayViewModel, INotifyPropertyChange
         set => this.RaiseAndSetIfChanged(ref _swtorTimers, value);
     }
 
-    public AlertsWindowViewModel()
+    public AlertsWindowViewModel(string overlayName) : base(overlayName)
     {
-        OverlayName = "Alerts";
-        _overlayWindow = new AlertView(this);
         TimerController.TimerExpired += RefreshTimerVisuals;
         TimerController.TimerTriggered += AddTimerVisual;
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
-            _active = defaultTimersInfo.Acive;
-            _overlayWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
-            _overlayWindow.Width = defaultTimersInfo.WidtHHeight.X;
-            _overlayWindow.Height = defaultTimersInfo.WidtHHeight.Y;
-        });
     }
     
     private object _timerChangeLock = new object();

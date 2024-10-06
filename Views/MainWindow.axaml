@@ -16,112 +16,123 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="175"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="0.3*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="0.95*"/>
             <RowDefinition Height="1.5"/>
-            <RowDefinition Height="0.045*" MinHeight="25" MaxHeight="40"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-
+        <Menu Grid.ColumnSpan="2" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Load Previous Log..." Command="{Binding OpenPastCombatsCommand}"/>
+                <MenuItem Header="_Preferences" Command="{Binding OpenSettingsWindowCommand}">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="avares://Orbs/resources/setting.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="_Exit" Command="{Binding }"/>
+            </MenuItem>
+            <MenuItem IsEnabled="{Binding LogLoaded}" Header="_Log Info">
+                <MenuItem Header="_Browse Logs" Command="{Binding OpenLogViewWindow}">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/google-docs.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Overlays">
+                <MenuItem Header="_Toggle Lock" Command="{Binding ToggleOverlayLockCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="{Binding OverlayLockIcon}"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Timers" Command="{Binding ShowTimerWindowCommand}">
+                </MenuItem>
+                <MenuItem Header="Challenges" Command="{Binding ShowChallengeWindowCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/dpsIcon.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Layout/Interface">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/grid.png"></Image>
+                    </MenuItem.Icon>
+                    
+                </MenuItem>
+            </MenuItem>
+        </Menu>
         <!-- PhasesBar Content -->
-        <ContentPresenter Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding PhasesBar}"/>
-        <Grid Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2">
+        <ContentPresenter Grid.Row="3" Grid.Column="1" Content="{Binding PhasesBar}"/>
+        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
                     <!-- TabControl -->
-        <TabStrip SelectedIndex="{Binding SelectedTabIndex}" 
-                    ItemsSource="{Binding ContentTabs}" 
-                    BorderThickness="3,2,3,2" 
-                    Margin="0,5,5,5" 
-                    BorderBrush="DimGray" 
-                    Background="{StaticResource Gray5Brush}" >
+        <TabStrip Height="50" SelectedIndex="{Binding SelectedTabIndex}" 
+                    ItemsSource="{Binding ContentTabs}" HorizontalAlignment="Center">
             <TabStrip.Styles>
-                <Style Selector="TabControl">
-                    <Setter Property="Template">
-                        <ControlTemplate>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Border BorderThickness="0,0,1,1" CornerRadius="0,5,5,5" BorderBrush="#D0CEBF" Grid.Row="1">
-                                    <Border CornerRadius="0,5,5,5" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
-                                        <Border CornerRadius="0,5,5,5" Background="{TemplateBinding Background}">
-                                            <ContentPresenter Content="{TemplateBinding SelectedContent}"/>
-                                        </Border>
-                                    </Border>
-                                </Border>
-                                <TabStrip Grid.Row="0"/>
-                            </Grid>
-                        </ControlTemplate>
-                    </Setter>
+                <Style Selector="TabStripItem:pointerover /template/ Border">
+                    <Setter Property="Background" Value="{StaticResource Gray3Brush}"></Setter>
+                </Style>
+                <Style Selector="TabStripItem /template/ Border">
+                    <Setter Property="CornerRadius" Value="4"></Setter>
                 </Style>
             </TabStrip.Styles>
             <TabStrip.ItemTemplate>
                 <DataTemplate>
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.85*"/>
-                            <ColumnDefinition Width="0.85*"/>
-                            <ColumnDefinition Width="0.15*"/>
-                        </Grid.ColumnDefinitions>
-                        <Image IsVisible="{Binding IsOverlaysTab}" 
-                               Margin="0,1,2,1" Height="18" Source="{Binding TabIcon}" Grid.Column="0"/>
-                        <TextBlock Grid.Column="1" FontSize="11" VerticalAlignment="Center" 
-                                   Foreground="WhiteSmoke" 
-                                   Text="{Binding HeaderText}"/>
-                        <Button Grid.Column="2" Height="17" Width="17" Background="{StaticResource Gray10Brush}" 
-                                Command="{Binding ToggleLockedCommand}" 
-                                IsVisible="{Binding IsOverlaysTab}">
-                            <Image Source="{Binding OverlayLockIcon}"/>
-                        </Button>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="35"></RowDefinition>
+                            <RowDefinition Height="3"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.85*"/>
+                                <ColumnDefinition Width="0.85*"/>
+                                <ColumnDefinition Width="0.15*"/>
+                            </Grid.ColumnDefinitions>
+                            <Image IsVisible="{Binding IsNotOverlaysTab}" 
+                                   Margin="0,1,2,1" Height="18" Source="{Binding TabIcon}" Grid.Column="0"/>
+                            <TextBlock Grid.Column="1" FontSize="11" VerticalAlignment="Center" 
+                                       Foreground="WhiteSmoke" 
+                                       Text="{Binding HeaderText}"/>
+                            <Button Grid.Column="2" Background="{StaticResource Gray10Brush}" 
+                                    Command="{Binding ToggleLockedCommand}" 
+                                    IsVisible="{Binding IsOverlaysTab}">
+                                <Image Margin="2,1,0,1" Height="18" Width="18" Source="{Binding OverlayLockIcon}"/>
+                            </Button>
+                        </Grid>
+
                     </Grid>
+
                 </DataTemplate>
             </TabStrip.ItemTemplate>
         </TabStrip>
         <ContentPresenter Grid.Row="1" Content="{Binding SelectedTab.TabContent}"></ContentPresenter>
         </Grid>
 
-        <!-- Settings Button -->
-        <Button Margin="0,5,8,0"
-                Command="{Binding OpenSettingsWindowCommand}" 
-                ToolTip.Tip="Open app settings window" 
-                VerticalAlignment="Top" 
-                HorizontalAlignment="Right" 
-                Height="25" 
-                Width="70" 
-                Grid.Row="0" 
-                Grid.Column="2" 
-                Background="{StaticResource Gray3Brush}">
-            <StackPanel Orientation="Horizontal">
-                <Image Source="avares://Orbs/resources/setting.png" Margin="0,2,2,1"/>
-                <TextBlock VerticalAlignment="Center" FontSize="11" Text="Settings" Foreground="WhiteSmoke"/>
-            </StackPanel>
-        </Button>
-
         <!-- PastCombatsView -->
-        <ContentPresenter Grid.Column="0" Grid.Row="0" Content="{Binding PastCombatsView}"/>
+        <ContentPresenter Grid.Column="0" Grid.Row="1" Content="{Binding PastCombatsView}"/>
 
         <!-- Rectangle Separator -->
-        <Rectangle Grid.Column="0" Grid.Row="1" Fill="DimGray" Margin="15,0,15,0"/>
+        <Rectangle Grid.Column="0" Grid.Row="2" Fill="DimGray" Margin="15,0,15,0"/>
 
         <!-- Bottom Buttons -->
-        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" Orientation="Horizontal">
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" Orientation="Horizontal">
             <TextBlock VerticalAlignment="Center" Foreground="{StaticResource Gray10Brush}" Text="Parsely" Margin="0,0,5,0"/>
-            <Button VerticalAlignment="Center" Margin="5,2,5,2" Width="30" Command="{Binding OpenParselyConfigCommand}">
+            <Button VerticalAlignment="Center" Margin="5,2,5,2" Background="WhiteSmoke" Width="30" Command="{Binding OpenParselyConfigCommand}">
                 <Viewbox MaxHeight="20">
                     <Image Source="avares://Orbs/resources/cogIcon.png"/>
                 </Viewbox>
             </Button>
-            <Button VerticalAlignment="Center" Margin="5,2,5,2" Width="30" Command="{Binding UploadToParselyCommand}">
+            <Button VerticalAlignment="Center" Background="{Binding UploadButtonBackground}" Margin="5,2,5,2" Width="30" Command="{Binding UploadToParselyCommand}">
                 <Viewbox MaxHeight="20">
                     <Image Source="avares://Orbs/resources/uploadToParselyIcon.png"/>
                 </Viewbox>
             </Button>
-            <Button VerticalAlignment="Center" Margin="5,2,5,2" Width="30" Background="WhiteSmoke" Command="{Binding OpenParselyCommand}">
+            <Button VerticalAlignment="Center" IsVisible="{Binding CanOpenParsely}" Margin="5,2,5,2" Width="30" Background="WhiteSmoke" Command="{Binding OpenParselyCommand}">
                 <Viewbox MaxHeight="20">
                     <Image Source="avares://Orbs/resources/openParselyIcon.png"/>
                 </Viewbox>

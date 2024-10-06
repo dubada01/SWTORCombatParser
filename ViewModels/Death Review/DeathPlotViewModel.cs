@@ -84,6 +84,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 {
                     XValueSelected(position);
                 }
+                GraphView.Refresh();
             });
         }
         public void PlotCombat(Combat combatToPlot, List<Entity> viewableEntities, DateTime minVal)
@@ -136,13 +137,13 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 series.LineByCharacter[entity.Name].LineWidth = 2;
                 series.LineByCharacter[entity.Name].Axes.YAxis = GraphView.Plot.Axes.Right;
                 series.LineByCharacter[entity.Name].IsVisible = true;
-
+                GraphView.Plot.Axes.AutoScale();
                 if (deathMarkers.Any())
                 {
                     foreach (var marker in deathMarkers)
                     {
 
-                        GraphView.Plot.Add.ImageMarker(new Coordinates(marker,0),new Image(_skullImage));;
+                        GraphView.Plot.Add.ImageMarker(new Coordinates(marker,GraphView.Plot.Axes.GetLimits().Top/5),new Image(_skullImage),0.05f);;
                     }
                 }
             }

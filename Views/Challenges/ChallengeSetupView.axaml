@@ -1,12 +1,14 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Challenges.ChallengeSetupView"
+﻿<Window x:Class="SWTORCombatParser.Views.Challenges.ChallengeSetupView"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Challenges"
-                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Challenges"
-                x:DataType="vm:ChallengeSetupViewModel"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Challenges"
+             x:DataType="vm:ChallengeSetupViewModel"
+             Title="Challenge Setup"
              mc:Ignorable="d"
+             Width="1200" Height="600"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <Grid.RowDefinitions>
@@ -133,4 +135,4 @@
             <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Classes="RoundedCorner" Height="30" Width="75" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" FontSize="10" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
         </Grid>
     </Grid>
-</UserControl>
+</Window>

@@ -1,14 +1,16 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Avalonia.Controls;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public abstract class OverviewViewModel : INotifyPropertyChanged
+    public abstract class OverviewViewModel : ReactiveObject
     {
+        private Combat _currentCombat;
+        private List<Entity> _availableParticipants = new List<Entity>();
         private Entity selectedEntity;
 
         public OverviewInstanceViewModel DamageVM;
@@ -16,11 +18,18 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public OverviewInstanceViewModel DamageTakenVM;
         public OverviewInstanceViewModel HealingReceivedVM;
         public OverviewInstanceViewModel ThreatVM;
+        private UserControl _selectedDataTypeContent;
+        private int _selectedTabIndex;
         public abstract bool SortOptionVisibility { get; }
-        public List<Entity> AvailableParticipants { get; set; } = new List<Entity>();
-        private Combat _currentCombat;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public List<Entity> AvailableParticipants
+        {
+            get => _availableParticipants;
+            set => this.RaiseAndSetIfChanged(ref _availableParticipants, value);
+        }
+
+
+
         public OverviewViewModel()
         {
             ParticipantSelectionHandler.SelectionUpdated += UpdateSelectedEntity;
@@ -31,16 +40,19 @@ namespace SWTORCombatParser.ViewModels.Overviews
             SelectedEntity = obj;
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public abstract int SelectedTabIndex { get; set; }
+
+        public UserControl SelectedDataTypeContent
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            get => _selectedDataTypeContent;
+            set => this.RaiseAndSetIfChanged(ref _selectedDataTypeContent, value);
         }
 
         public Entity SelectedEntity
         {
             get => selectedEntity; set
             {
-                selectedEntity = value;
+                this.RaiseAndSetIfChanged(ref selectedEntity, value);
                 if (selectedEntity == null)
                     return;
                 ParticipantSelectionHandler.UpdateSelection(SelectedEntity);
@@ -49,8 +61,6 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 DamageTakenVM.UpdateEntity(selectedEntity);
                 HealingReceivedVM.UpdateEntity(selectedEntity);
                 ThreatVM.UpdateEntity(selectedEntity);
-                OnPropertyChanged();
-
             }
         }
         public void AddCombat(Combat combat)
@@ -85,20 +95,18 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     else
                         SelectedEntity = AvailableParticipants.First(p => p.IsLocalPlayer);
                 }
-                OnPropertyChanged("AvailableParticipants");
             }
 
         }
         public void Reset()
         {
             _currentCombat = null;
-            AvailableParticipants.Clear();
+            AvailableParticipants = new List<Entity>();
             DamageVM.Reset();
             DamageTakenVM.Reset();
             HealingVM.Reset();
             HealingReceivedVM.Reset();
             ThreatVM.Reset();
-            OnPropertyChanged("AvailableParticipants");
         }
     }
 }

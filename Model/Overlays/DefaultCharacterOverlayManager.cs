@@ -80,9 +80,9 @@ namespace SWTORCombatParser.Model.Overlays
             var value = (string)reader.Value;
             var parts = value.Split(',');
 
-            if (parts.Length == 2 && int.TryParse(parts[0], out int x) && int.TryParse(parts[1], out int y))
+            if (parts.Length == 2 && double.TryParse(parts[0], out double x) && double.TryParse(parts[1], out double y))
             {
-                return new PixelPoint(x, y);
+                return new PixelPoint((int)x, (int)y);
             }
 
             throw new JsonSerializationException("Invalid format for Avalonia Pixel Point");

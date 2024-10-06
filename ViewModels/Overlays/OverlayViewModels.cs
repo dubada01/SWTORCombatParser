@@ -20,10 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using System.Runtime.CompilerServices;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using ReactiveUI;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
@@ -31,7 +33,7 @@ using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
-    public class OverlayViewModel :ReactiveObject, INotifyPropertyChanged
+    public class OverlayViewModel :ReactiveObject
     {
 
         private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
@@ -40,8 +42,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private string _currentCharacterDiscipline = "";
         private bool overlaysLocked = true;
         private LeaderboardType selectedLeaderboardType;
-        private TimersCreationViewModel _timersViewModel;
-        private ChallengeSetupViewModel _challengesViewModel;
+        public TimersCreationViewModel _timersViewModel;
+        public ChallengeSetupViewModel _challengesViewModel;
         private OthersOverlaySetupViewModel _otherOverlayViewModel;
         private AbilityListSetupViewModel _abilityListSetup;
         private double maxScalar = 1.5d;
@@ -59,6 +61,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public TimersCreationView TimersView { get; set; }
         public ChallengeSetupView ChallengesView { get; set; }
         public OtherOverlaySetupView OthersSetupView { get; set; }
+        public CombatMetricsConfigView ConfigView { get; set; }
 
         public ObservableCollection<OverlayOptionViewModel> AvailableDamageOverlays { get; set; } = new ObservableCollection<OverlayOptionViewModel>();
         public ObservableCollection<OverlayOptionViewModel> AvailableHealOverlays { get; set; } = new ObservableCollection<OverlayOptionViewModel>();
@@ -79,13 +82,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             get => sizeScalarString; set
             {
-                sizeScalarString = value;
+                this.RaiseAndSetIfChanged(ref sizeScalarString, value);
                 var stringVal = 0d;
                 if (double.TryParse(sizeScalarString, out stringVal))
                 {
                     SizeScalar = stringVal;
                 }
-                OnPropertyChanged();
             }
         }
         public double SizeScalar
@@ -93,7 +95,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get { return sizeScalar; }
             set
             {
-                sizeScalar = value;
+                this.RaiseAndSetIfChanged(ref sizeScalar, value);
                 if (sizeScalar > maxScalar)
                 {
                     SizeScalarString = maxScalar.ToString();
@@ -109,7 +111,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SetOverlaysScale();
 
                 Settings.WriteSetting<double>("overlay_bar_scale", sizeScalar);
-                OnPropertyChanged();
             }
         }
         private void SetOverlaysScale()
@@ -129,11 +130,33 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             _challengesViewModel.CombatUpdated(combat);
         }
+
+        public UserControl SelectedOverlayTabContent
+        {
+            get => _selectedOverlayTabContent;
+            set => this.RaiseAndSetIfChanged(ref _selectedOverlayTabContent, value);
+        }
+
         public int SelectedOverlayTab
         {
             get => selectedOverlayTab; set
             {
                 selectedOverlayTab = value;
+                if (selectedOverlayTab == 0)
+                {
+                    SelectedOverlayTabContent = ConfigView;
+                    Debug.WriteLine("ConfigView");
+                }
+                // if (selectedOverlayTab == 1)
+                // {
+                //     SelectedOverlayTabContent = TimersView;
+                //     Debug.WriteLine("TimersView");
+                // }
+                // if (selectedOverlayTab == 2)
+                // {
+                //     SelectedOverlayTabContent = ChallengesView;
+                //     Debug.WriteLine("ChallengesView");
+                // }
                 if (selectedOverlayTab == 1)
                 {
                     _timersViewModel.RefreshEncounterSelection();
@@ -187,14 +210,16 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new UtilityOverlayOptionViewModel{ Name = "Ability List", Type = UtilityOverlayType.AbilityList},
                 new UtilityOverlayOptionViewModel{Name= "Raid Notes", Type=UtilityOverlayType.RaidNotes},
             };
-
-            TimersView = new TimersCreationView();
+            ConfigView = new CombatMetricsConfigView();
+            SelectedOverlayTabContent = ConfigView;
+            
+            // TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
-            TimersView.DataContext = _timersViewModel;
+            // TimersView.DataContext = _timersViewModel;
 
-            ChallengesView = new ChallengeSetupView();
+            //ChallengesView = new ChallengeSetupView();
             _challengesViewModel = new ChallengeSetupViewModel();
-            ChallengesView.DataContext = _challengesViewModel;
+            //ChallengesView.DataContext = _challengesViewModel;
 
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.ChallengesEnabled;
 
@@ -218,13 +243,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             };
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled;
-            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.OverlayEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Timeline).IsSelected = AvaloniaTimelineBuilder.TimelineEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AbilityList).IsSelected = _abilityListSetup.AbilityListEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidNotes).IsSelected = _raidNotesSetup.RaidNotesEnabled;
-            _personalOverlayViewModel = new PersonalOverlayViewModel();
+            _personalOverlayViewModel = new PersonalOverlayViewModel("Personal");
             usePersonalOverlay = _personalOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Personal).IsSelected = usePersonalOverlay;
             //_personalOverlayViewModel.ActiveChanged += UpdatePersonalOverlayActive;
@@ -351,7 +376,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 if (_overlayDefaults.First().Value.Locked)
                 {
                     OverlaysLocked = true;
-                    OnPropertyChanged("OverlaysLocked");
                 }
                 var enumVals = EnumUtil.GetValues<OverlayType>();
                 foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
@@ -361,7 +385,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     if (_overlayDefaults[enumVal.ToString()].Acive)
                         CreateOverlay(GetType(enumVal), false);
                 }
-                _currentOverlays.ForEach(o => o.CharacterDetected(_currentCharacterRole));
+                _currentOverlays.ForEach(o => o.RoleChanged(_currentCharacterRole));
             });
         }
         private void FinishHistoricalParse(DateTime combatEndTime, bool localPlayerIdentified)
@@ -401,7 +425,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     _timersViewModel.DisciplineTimersActive = !_timersViewModel.DisciplineTimersActive;
                     break;
                 case UtilityOverlayType.RoomHazard:
-                    _otherOverlayViewModel._roomOverlayViewModel.OverlayEnabled = !_otherOverlayViewModel._roomOverlayViewModel.OverlayEnabled;
+                    _otherOverlayViewModel._roomOverlayViewModel.Active = !_otherOverlayViewModel._roomOverlayViewModel.Active;
                     break;
                 case UtilityOverlayType.PvPHP:
                     _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled = !_otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
@@ -446,20 +470,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.OverlaysMoveable = !OverlaysLocked;
             viewModel.SizeScalar = SizeScalar;
-            var stringType = viewModel.Type.ToString();
-            viewModel.OverlayName = stringType;
             viewModel.SettingsType = OverlaySettingsType.Character;
             _currentOverlays.Add(viewModel);
             viewModel.MainContent = new InfoOverlay(viewModel);
             var overlay = new BaseOverlayWindow(viewModel);
-            overlay.SetPlayer(_currentCharacterRole);
-
-            if (_overlayDefaults.ContainsKey(stringType))
-            {
-                overlay.SetSizeAndLocation(
-                    new Point(_overlayDefaults[stringType].Position.X, _overlayDefaults[stringType].Position.Y), 
-                    new Point(_overlayDefaults[stringType].WidtHHeight.X, _overlayDefaults[stringType].WidtHHeight.Y));
-            }
             overlay.Show();
             viewModel.Refresh(CombatIdentifier.CurrentCombat);
             if (OverlaysLocked)
@@ -492,11 +506,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => overlaysLocked;
             set
             {
-                overlaysLocked = value;
+                this.RaiseAndSetIfChanged(ref overlaysLocked, value);
                 _timersViewModel.UpdateLock(value);
                 _challengesViewModel.UpdateLock(value);
                 _otherOverlayViewModel.UpdateLock(overlaysLocked);
-                _personalOverlayViewModel.UpdateLock(overlaysLocked);
+                _personalOverlayViewModel.OverlaysMoveable = !OverlaysLocked;
                 _abilityListSetup.UpdateLock(overlaysLocked);
                 _raidNotesSetup.UpdateLock(overlaysLocked);
                 ToggleOverlayLock();
@@ -509,7 +523,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 {
                     AvaloniaTimelineBuilder.UnlockOverlay();
                 }
-                OnPropertyChanged();
             }
         }
         private void UpdatePersonalOverlayActive(bool obj)
@@ -523,11 +536,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 if (selectedType != value)
                 {
-                    selectedType = value;
+                    this.RaiseAndSetIfChanged(ref selectedType, value);
                     _currentCharacterRole = GetRoleFromSelectedType(selectedType).ToString();
                     RefreshOverlays();
                     DefaultPersonalOverlaysManager.SelectNewDefault(selectedType);
-                    OnPropertyChanged();
                 }
 
 
@@ -539,19 +551,19 @@ namespace SWTORCombatParser.ViewModels.Overlays
             get => usePersonalOverlay; set
             {
                 _personalOverlayViewModel.Active = value;
-                usePersonalOverlay = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref usePersonalOverlay, value);
             }
         }
         private string _previousRole;
         private int selectedOverlayTab;
         private RaidNotesSetupViewModel _raidNotesSetup;
+        private UserControl _selectedOverlayTabContent;
 
         public bool UseDynamicLayout
         {
             get => useDynamicLayout; set
             {
-                useDynamicLayout = value;
+                this.RaiseAndSetIfChanged(ref useDynamicLayout, value);
                 if (useDynamicLayout && !string.IsNullOrEmpty(_previousRole))
                 {
                     _currentCharacterRole = _previousRole;
@@ -563,7 +575,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 Settings.WriteSetting<bool>("DynamicLayout", useDynamicLayout);
                 RefreshOverlays();
-                OnPropertyChanged();
             }
         }
         private void SetSelected(bool selected, OverlayType overlay)
@@ -620,12 +631,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             else
                 _currentOverlays.ForEach(o => o.LockOverlays());
             DefaultCharacterOverlays.SetLockedStateCharacter(OverlaysLocked, _currentCharacterRole);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

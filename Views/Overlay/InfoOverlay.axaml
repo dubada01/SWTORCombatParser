@@ -7,10 +7,7 @@
         xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
         x:DataType="vm:OverlayInstanceViewModel"
         mc:Ignorable="d"
-        Height="150" Width="250"         
         Background="{x:Null}">
-
-
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

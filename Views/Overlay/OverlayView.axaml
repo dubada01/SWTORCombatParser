@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
              xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
              x:DataType="vm:OverlayViewModel"
              mc:Ignorable="d" 
@@ -11,56 +10,26 @@
     <Grid Background="{StaticResource Gray2Brush}">
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
                 <RowDefinition Height="0.9*"/>
                 <RowDefinition Height="0.1*"/>
             </Grid.RowDefinitions>
-            <TabControl Margin="5,5,0,5" Background="{StaticResource Gray3Brush}" SelectedIndex="{Binding SelectedOverlayTab}">
-                <TabControl.Styles>
-                    <Style Selector="TabControl">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate>
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                        </Grid.RowDefinitions>
-
-                                        <!-- Tab Headers -->
-                                        <ItemsPresenter Grid.Row="0" 
-                                                        Name="PART_TabStrip"
-                                                        HorizontalAlignment="Stretch"/>
-
-                                        <!-- Content Area -->
-                                        <Border BorderThickness="0,0,1,1" CornerRadius="0,5,5,5" 
-                                                BorderBrush="#D0CEBF" Grid.Row="1">
-                                            <Border CornerRadius="0,5,5,5" BorderThickness="{TemplateBinding BorderThickness}" 
-                                                    BorderBrush="{TemplateBinding BorderBrush}">
-                                                <Border CornerRadius="0,5,5,5" Background="{TemplateBinding Background}">
-                                                    <ContentPresenter Content="{TemplateBinding SelectedContent}"/>
-                                                </Border>
-                                            </Border>
-                                        </Border>
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TabControl.Styles>
-                <TabItem Classes="RoundedTab" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Interface">
-                    <overlay:CombatMetricsConfigView Grid.Row="0" />
-                </TabItem>
-                <TabItem Classes="RoundedTab" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Timers">
-                    <ContentPresenter Grid.Column="1" Content="{Binding TimersView}"></ContentPresenter>
-                </TabItem>
-                <TabItem Classes="RoundedTab" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Challenges">
-                    <ContentPresenter Grid.Column="1" Content="{Binding ChallengesView}"></ContentPresenter>
-                </TabItem>
-                <TabItem Classes="RoundedTab" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Settings">
-                    <ContentPresenter Grid.Column="1" Content="{Binding OthersSetupView}"></ContentPresenter>
-                </TabItem>
-            </TabControl>
-   
+            <!-- <TabStrip Margin="5,5,0,5" Background="{StaticResource Gray3Brush}" SelectedIndex="{Binding SelectedOverlayTab}"> -->
+            <!--     <TabStrip.Styles> -->
+            <!--         <Style Selector="TabStripItem:pointerover /template/ Border"> -->
+            <!--             <Setter Property="Background" Value="{StaticResource Gray6Brush}"></Setter> -->
+            <!--         </Style> -->
+            <!--     </TabStrip.Styles> -->
+            <!--     <TabItem Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Interface"> -->
+            <!--     </TabItem> -->
+            <!--     ~1~ <TabItem Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Timers"> @1@ -->
+            <!--     ~1~ </TabItem> @1@ -->
+            <!--     ~1~ <TabItem Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Challenges"> @1@ -->
+            <!--     ~1~ </TabItem> @1@ -->
+            <!--     <TabItem Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Settings"> -->
+            <!--     </TabItem> -->
+            <!-- </TabStrip> -->
+            <ContentPresenter Grid.Row="1" Content="{Binding ConfigView}"></ContentPresenter>
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>

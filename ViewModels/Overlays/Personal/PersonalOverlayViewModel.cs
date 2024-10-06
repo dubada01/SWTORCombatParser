@@ -16,41 +16,19 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
 {
     public class PersonalOverlayViewModel : BaseOverlayViewModel
     {
-        private PersonalOverlayWindow _window;
+        private PersonalOverlayWindow _personalOverlay;
         private bool overlaysMoveable;
         private double rows;
         private double _currentScale;
         private string _currentOwner;
-        public PersonalOverlayViewModel()
+        public PersonalOverlayViewModel(string overlayName) : base(overlayName)
         {
             _currentScale = 1;
-            OverlayName= "Personal";
             SettingsType = OverlaySettingsType.Character;
-            _window = new PersonalOverlayWindow(this);
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
-            Active = defaults.Acive;
-            _window.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
-
+            _personalOverlay = new PersonalOverlayWindow(this);
+            MainContent = _personalOverlay;
             DefaultPersonalOverlaysManager.NewDefaultSelected += UpdateMetrics;
-            CombatLogStreamer.NewLineStreamed += CheckForConversation;
             UpdateMetrics("Damage");
-        }
-        private bool _conversationActive;
-        private void CheckForConversation(ParsedLogEntry obj)
-        {
-            if (!obj.Source.IsLocalPlayer)
-                return;
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && Active)
-            {
-                _conversationActive = true;
-                HideOverlayWindow();
-            }
-
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && Active)
-            {
-                _conversationActive = false;
-                ShowOverlayWindow();
-            }
         }
         private void UpdateMetrics(string defaultName)
         {

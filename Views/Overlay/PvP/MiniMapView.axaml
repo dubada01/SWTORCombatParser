@@ -1,4 +1,4 @@
-﻿<Window x:Class="SWTORCombatParser.Views.Overlay.PvP.MiniMapView"
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.PvP.MiniMapView"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.PvP"
         x:DataType="vm:MiniMapViewModel"
         mc:Ignorable="d"
-        Height="150" Width="250" Title="PVPMiniMap" Background="{x:Null}" Topmost="True" ShowInTaskbar="False">
+        Background="{x:Null}">
     <Grid x:Name="MainArea" IsVisible="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip.Tip="PvP Minimap">
         <Grid x:Name="MapArea">
             <Canvas IsHitTestVisible="False" x:Name="ImageCanvas"  Margin="2,2,35,10">
@@ -37,4 +37,4 @@
             </Canvas>
         </Grid>
     </Grid>
-</Window>
+</UserControl>

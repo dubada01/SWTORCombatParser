@@ -6,20 +6,29 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.Utilities.Encounter_Selection
 {
-    public class EncounterSelectionViewModel : INotifyPropertyChanged
+    public class EncounterSelectionViewModel : ReactiveObject
     {
         public EncounterInfo selectedEncounter;
         public string selectedBoss;
         private string selectedPlayerCount;
         private List<string> _allPlayerCounts = new List<string> { "8", "16" };
-
+        private List<string> _populatedEncounters = new List<string>();
+        private bool _showPlayerCount;
+        private ObservableCollection<string> _availablePlayerCounts = new ObservableCollection<string>();
+        private List<string> _availableBosses;
+        private List<EncounterInfo> _availableEncounters;
         public event Action<string, string> SelectionUpdated = delegate { };
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public List<EncounterInfo> AvailableEncounters { get; set; }
+        public List<EncounterInfo> AvailableEncounters
+        {
+            get => _availableEncounters;
+            set => this.RaiseAndSetIfChanged(ref _availableEncounters, value);
+        }
+
         public EncounterInfo SelectedEncounter
         {
             get => selectedEncounter;
@@ -27,34 +36,47 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
             {
                 if (value.Name.Contains("--"))
                     return;
-                selectedEncounter = value;
+                this.RaiseAndSetIfChanged(ref selectedEncounter, value);
                 ShowPlayerCount = ShowPlayerCount && selectedEncounter.EncounterType != EncounterType.Flashpoint;
                 if (!ShowPlayerCount)
                     selectedPlayerCount = "";
-                OnPropertyChanged("ShowPlayerCount");
                 SetSelectedEncounter();
-                OnPropertyChanged();
             }
         }
-        public bool ShowPlayerCount { get; set; }
-        public List<string> AvailableBosses { get; set; }
+
+        public bool ShowPlayerCount
+        {
+            get => _showPlayerCount;
+            set => this.RaiseAndSetIfChanged(ref _showPlayerCount, value);
+        }
+
+        public List<string> AvailableBosses
+        {
+            get => _availableBosses;
+            set => this.RaiseAndSetIfChanged(ref _availableBosses, value);
+        }
+
         public string SelectedBoss
         {
             get => selectedBoss;
             set
             {
-                selectedBoss = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref selectedBoss, value);
                 SetSelectedBoss();
             }
         }
-        public ObservableCollection<string> AvailablePlayerCounts { get; set; } = new ObservableCollection<string>();
+
+        public ObservableCollection<string> AvailablePlayerCounts
+        {
+            get => _availablePlayerCounts;
+            set => this.RaiseAndSetIfChanged(ref _availablePlayerCounts, value);
+        }
+
         public string SelectedPlayerCount
         {
             get => selectedPlayerCount; set
             {
-                selectedPlayerCount = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref selectedPlayerCount, value);
                 if (selectedPlayerCount == null)
                     return;
             }
@@ -63,7 +85,6 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
         {
             return (selectedEncounter.Name, selectedBoss);
         }
-        private List<string> _populatedEncounters = new List<string>();
         public EncounterSelectionViewModel(bool showPlayerCount = true, List<string> populatedEncounters = null)
         {
             _populatedEncounters = populatedEncounters ?? new List<string>();
@@ -80,7 +101,6 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
                     AvailableEncounters = allEncounters.ToList();
                 else
                     AvailableEncounters = allEncounters.Where(e => _populatedEncounters.Any(pe => pe.Split("|")[0] == e.Name)).ToList();
-                OnPropertyChanged("AvailableEncounters");
                 SelectedEncounter = AvailableEncounters[1];
             });
         }
@@ -94,21 +114,14 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
 
             if (AvailableBosses.Any())
                 SelectedBoss = AvailableBosses[0];
-            OnPropertyChanged("AvailableBosses");
         }
         private void SetSelectedBoss()
         {
             AvailablePlayerCounts = new ObservableCollection<string>(_allPlayerCounts);
-            OnPropertyChanged("AvailablePlayerCounts");
 
             if (AvailablePlayerCounts.Any() && !AvailablePlayerCounts.Contains(selectedPlayerCount))
                 selectedPlayerCount = AvailablePlayerCounts[0];
-            OnPropertyChanged("SelectedPlayerCount");
             SelectionUpdated(selectedEncounter.Name, selectedBoss);
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

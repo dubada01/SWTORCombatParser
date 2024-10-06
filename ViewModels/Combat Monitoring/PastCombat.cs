@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reactive;
 using System.Runtime.CompilerServices;
 using Avalonia.Media;
+using MsBox.Avalonia;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
@@ -47,7 +48,12 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private async void UploadToParsely()
         {
             var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Where(v=>v.LogLineNumber!=0).MinBy(v=>v.LogLineNumber).LogLineNumber, (int)Combat.AllLogs.MaxBy(v => v.LogLineNumber).LogLineNumber);
-            await ParselyUploader.TryUploadText(lines, Combat.LogFileName);
+            var response = await ParselyUploader.TryUploadText(lines, Combat.LogFileName);
+            if (!response.WasSuccess)
+            {
+                var box = MessageBoxManager.GetMessageBoxStandard("Error", response.ErrorMessage);
+                await box.ShowAsync();
+            }
         }
 
         public DateTime CombatStartTime { get; set; }

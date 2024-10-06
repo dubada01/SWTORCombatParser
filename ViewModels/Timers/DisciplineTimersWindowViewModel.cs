@@ -1,14 +1,10 @@
-﻿using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.Timers;
+﻿using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
-using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -17,14 +13,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string _timerSource;
         private bool _timersEnabled;
         private List<TimerInstance> _activeTimers = new List<TimerInstance>();
-        public DisciplineTimersWindowViewModel()
+        public DisciplineTimersWindowViewModel(string overlayName) : base(overlayName)
         {
             TimerController.TimerExpired += RemoveTimer;
             TimerController.TimerTriggered += AddTimerVisual;
             TimerController.ReorderRequested += ReorderTimers;
-            this.OverlayName = "Timers";
             _timerWindow = new TimersWindow(this);
-            _timerWindow.SetIdText("DISCIPLINE TIMERS");
         }
         private void UpdateSource()
         {
@@ -32,7 +26,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 return;
             TimerTitle = _timerSource + " Timers";
             SwtorTimers = new List<TimerInstanceViewModel>();
-            _timerWindow.SetPlayer(_timerSource);
             Dispatcher.UIThread.Invoke(() =>
             {
                 var defaultTimersInfo = DefaultOrbsTimersManager.GetDefaults(_timerSource);

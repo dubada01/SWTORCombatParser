@@ -10,18 +10,12 @@ namespace SWTORCombatParser.Views.Challenges
     /// <summary>
     /// Interaction logic for ChallengeWindow.xaml
     /// </summary>
-    public partial class ChallengeWindow : BaseOverlayWindow
+    public partial class ChallengeWindow : UserControl
     {
-        private ChallengeWindowViewModel _viewModel;
-        public ChallengeWindow(ChallengeWindowViewModel viewModel):base(viewModel)
+        public ChallengeWindow(ChallengeWindowViewModel viewModel)
         {
             DataContext = viewModel;
-            _viewModel = viewModel;
             InitializeComponent();
-        }
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Hide();
         }
     }
 }

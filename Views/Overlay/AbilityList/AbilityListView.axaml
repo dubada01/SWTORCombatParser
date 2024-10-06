@@ -7,7 +7,7 @@
         x:DataType="vm:AbilityListViewModel"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.AbilityList"
         mc:Ignorable="d"
-        Height="150" Width="250"  Background="{x:Null}">
+        Background="{x:Null}">
     <Grid>
         <Viewbox Margin="10,10,10,10" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}">
             <TextBlock Text="Ability List" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock>

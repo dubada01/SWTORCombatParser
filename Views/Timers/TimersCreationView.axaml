@@ -1,11 +1,13 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Timers.TimersCreationView"
+﻿<Window x:Class="SWTORCombatParser.Views.Timers.TimersCreationView"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers"
              x:DataType="vm:TimersCreationViewModel"
+             Title="Timers Management"
              mc:Ignorable="d" 
+             Width="1200" Height="600"
              d:DesignHeight="1000" d:DesignWidth="700">
     <Grid>
         <Grid.RowDefinitions>
@@ -207,4 +209,4 @@
         </Grid>
 
     </Grid>
-</UserControl>
+</Window>

@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.ViewModels.Overlays.BossFrame;
+﻿using Avalonia.Controls;
+using SWTORCombatParser.ViewModels.Overlays.BossFrame;
 
 
 namespace SWTORCombatParser.Views.Overlay.BossFrame
@@ -6,14 +7,11 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
     /// <summary>
     /// Interaction logic for BrossFrameView.xaml
     /// </summary>
-    public partial class BrossFrameView : BaseOverlayWindow
+    public partial class BrossFrameView : UserControl
     {
-        private BossFrameConfigViewModel viewModel;
-
-        public BrossFrameView(BossFrameConfigViewModel vm):base(vm)
+        public BrossFrameView(BossFrameConfigViewModel vm)
         {
             InitializeComponent();
-            viewModel = vm;
             DataContext = vm;
         }
     }

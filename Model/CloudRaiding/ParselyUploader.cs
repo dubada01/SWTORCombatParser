@@ -14,22 +14,23 @@ namespace SWTORCombatParser.Model.CloudRaiding
     {
         public string ParselyLink { get; set; }
         public bool WasSuccess { get; set; }
+        public string ErrorMessage { get; set; }
     }
     public static class ParselyUploader
     {
         private static string parselyURL = "https://parsely.io/api/upload2";
         internal static event Action<bool, string> UploadCompleted = delegate { };
         internal static event Action UploadStarted = delegate { };  
-        internal static async Task UploadCurrentCombat(string currentlySelectedLogName)
+        internal static async Task<string> UploadCurrentCombat(string currentlySelectedLogName)
         {
             if (string.IsNullOrEmpty(currentlySelectedLogName) || !File.Exists(currentlySelectedLogName))
             {
                 UploadCompleted(false, "");
-                return;
+                return "Error: No log file selected";
             }
             var logText = ReadAllText(currentlySelectedLogName);
-            await TryUploadText(logText, currentlySelectedLogName);
-            return;
+            var response = await TryUploadText(logText, currentlySelectedLogName);
+            return response.WasSuccess ? "" : $"Error: Failed to upload log\r\n {response.ErrorMessage}";
         }
         public static async Task<LogUploadResponse> TryUploadText(string logText, string logFileName)
         {
@@ -63,7 +64,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             if (response.Contains("NOT OK") || response.Contains("error"))
                             {
                                 UploadCompleted(false, "");
-                                return new LogUploadResponse { WasSuccess = false};
+                                return new LogUploadResponse { WasSuccess = false, ErrorMessage = response};
                             }
                             XmlDocument xdoc = new XmlDocument();
                             xdoc.LoadXml(response);
@@ -75,7 +76,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     catch (Exception ex)
                     {
                         UploadCompleted(false, "");
-                        return new LogUploadResponse { WasSuccess = false };
+                        return new LogUploadResponse { WasSuccess = false, ErrorMessage = ex.Message };
                     }
                 }
             }

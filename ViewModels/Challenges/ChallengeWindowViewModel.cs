@@ -9,13 +9,12 @@ using System;
 using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Threading;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
     public class ChallengeWindowViewModel : BaseOverlayViewModel
     {
-        private bool isEnabled;
-        private ChallengeWindow _challengeWindow;
         private ChallengeUpdater _challengeUpdater;
         private bool inBossRoom;
         
@@ -33,56 +32,31 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             _challengeUpdater.UpdateCombats(combat);
         }
-        public ChallengeWindowViewModel()
+        public ChallengeWindowViewModel(string overlayName):base(overlayName)
         {
             _challengeUpdater = new ChallengeUpdater();
             _challengeUpdater.SetCollection(ActiveChallengeInstances);
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
-            CombatLogStreamer.NewLineStreamed += CheckForConversation;
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
 
-            isEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
-            OverlayName = "Challenge";
-            _challengeWindow = new ChallengeWindow(this);
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(OverlayName);
-                _challengeWindow.SetSizeAndLocation(new Point(defaultTimersInfo.Position.X, defaultTimersInfo.Position.Y), new Point(defaultTimersInfo.WidtHHeight.X, defaultTimersInfo.WidtHHeight.Y));
-            });
+            Active = DefaultBossFrameManager.GetDefaults().RaidChallenges;
+            MainContent = new ChallengeWindow(this);
         }
-
-        private void CheckForConversation(ParsedLogEntry entry)
-        {
-            Dispatcher.UIThread.Invoke(() => {
-                if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Apply && entry.Source.IsLocalPlayer)
-                {
-                    _challengeWindow.Hide();
-                }
-                if (entry.Effect.EffectId == _7_0LogParsing.InConversationEffectId && entry.Effect.EffectType == EffectType.Remove && entry.Source.IsLocalPlayer)
-                {
-                    if (Active && inBossRoom)
-                    {
-                        _challengeWindow.Show();
-                    }
-                }
-            });
-
-        }
-
+        
         private void CheckForArea(DateTime arg1, bool arg2)
         {
             var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(TimeUtility.CorrectedTime);
             if (currentArea.IsBossEncounter)
             {
-                if (isEnabled)
-                    Active = true;
+                if (Active)
+                    ShouldBeVisible = true;
                 inBossRoom = true;
             }
             else
             {
                 if (!OverlaysMoveable)
-                    Active = false;
+                    ShouldBeVisible = false;
                 inBossRoom = false;
             }
         }
@@ -91,45 +65,44 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             if (areaInfo.IsBossEncounter)
             {
-                if (isEnabled)
-                    Active = true;
+                if (Active)
+                    ShouldBeVisible = true;
                 inBossRoom = true;
             }
             else
             {
                 if (!OverlaysMoveable)
-                    Active = false;
+                    ShouldBeVisible = false;
                 inBossRoom = false;
             }
         }
         private void UpdateState()
         {
-            isEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
-            if (_active && !isEnabled)
+            Active = DefaultBossFrameManager.GetDefaults().RaidChallenges;
+            if ((inBossRoom || OverlaysMoveable) && Active)
             {
-                Active = false;
-            }
-            if ((inBossRoom || OverlaysMoveable) && isEnabled)
-            {
-                Active = true;
-            }
-        }
-
-        internal new void UpdateLock(bool value)
-        {
-            OverlaysMoveable = !value;
-            if (OverlaysMoveable && isEnabled)
-            {
-                Active = true;
+                ShouldBeVisible = true;
             }
             else
             {
-                if (!inBossRoom || !isEnabled)
+                ShouldBeVisible = false;
+            }
+        }
+
+        internal void UpdateLock(bool value)
+        {
+            OverlaysMoveable = !value;
+            if (OverlaysMoveable && Active)
+            {
+                ShouldBeVisible = true;
+            }
+            else
+            {
+                if (!inBossRoom || !Active)
                 {
-                    Active = false;
+                    ShouldBeVisible = false;
                 }
             }
-            SetLock(value);
         }
         
         internal void SetScale(double sizeScalar)

@@ -11,14 +11,12 @@ namespace SWTORCombatParser.Views.Overlay.Room
     /// <summary>
     /// Interaction logic for RoomOverlay.xaml
     /// </summary>
-    public partial class RoomOverlay : BaseOverlayWindow
+    public partial class RoomOverlay : UserControl
     {
-        private BaseOverlayViewModel viewModel;
         private bool _loaded;
         private Dictionary<string, Ellipse> _currentHazards = new Dictionary<string, Ellipse>();
-        public RoomOverlay(BaseOverlayViewModel viewmodel):base(viewmodel)
+        public RoomOverlay(BaseOverlayViewModel viewmodel)
         {
-            viewModel = viewmodel;
             DataContext = viewmodel;
             InitializeComponent();
         }

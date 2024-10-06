@@ -10,17 +10,19 @@
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaTitleBarHeightHint="0"
         ExtendClientAreaChromeHints="NoChrome"
+        Width="100"
+        Height="100"
         Topmost="True" Background="{x:Null}" ShowInTaskbar="False">
     <Grid>
         <Border x:Name="BackgroundArea" PointerPressed="DragWindow" PointerMoved="Border_MouseMoved" PointerReleased="StopDragWindow" PointerEntered="Border_MouseEnter" PointerExited="Grid_MouseLeave"
                 IsHitTestVisible="{Binding OverlaysMoveable}" Background="Black" Opacity="0.45" Grid.Row="0" Grid.RowSpan="2" CornerRadius="5" BorderBrush="DimGray" BorderThickness="1,1,1,1">
         </Border>
-        <Grid>
+        <Grid PointerPressed="DragWindow" PointerMoved="Border_MouseMoved" PointerReleased="StopDragWindow" PointerEntered="Border_MouseEnter" PointerExited="Grid_MouseLeave">
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.15*"/>
                 <RowDefinition Height="0.85*"/>
             </Grid.RowDefinitions>
-            <Grid PointerPressed="DragWindow" PointerMoved="Border_MouseMoved" PointerReleased="StopDragWindow" PointerEntered="Border_MouseEnter" PointerExited="Grid_MouseLeave" >
+            <Grid >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
@@ -30,12 +32,12 @@
                   Width="15" Height="15" Padding="0" Click="Button_Click"/>
                 </Viewbox>
             </Grid>
-            <ContentPresenter  Grid.Row="1" Margin="20,0" Content="{Binding MainContent}"/>
+            <ContentPresenter Grid.Row="0" Grid.RowSpan="2" Margin="5,0" Content="{Binding MainContent}"/>
             <Thumb Grid.Row="1" IsVisible="{Binding OverlaysMoveable}"  HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-               PointerEntered="Thumb_MouseEnter" PointerExited="Grid_MouseLeave" PointerReleased="UpdateDefaults" DragDelta="Thumb_DragDelta"></Thumb>
+               PointerEntered="Thumb_MouseEnter" PointerExited="Grid_MouseLeave" DragDelta="Thumb_DragDelta"></Thumb>
         </Grid>
-        <Viewbox Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding OverlaysMoveable}">
-            <TextBlock x:Name="IdentifierText" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
+        <Viewbox IsHitTestVisible="False" Margin="10,10,10,10" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding OverlaysMoveable}">
+            <TextBlock IsHitTestVisible="False" Name="IdentifierText" FontFamily="{StaticResource MainFont}" Foreground="Gray"></TextBlock> 
         </Viewbox>
     </Grid>
 </Window>

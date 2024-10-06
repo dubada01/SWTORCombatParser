@@ -11,6 +11,7 @@ using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Views;
 
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room
@@ -21,6 +22,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
 
         private bool _isActive = false;
         private RoomOverlay _roomOverlay;
+        private BaseOverlayWindow _overlayWindow;
         private List<RoomOverlaySettings> _settings;
         public List<Ellipse> Hazards { get; set; }
         private RoomOverlaySettings _currentCombatOverlaySettings;
@@ -32,20 +34,19 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         private bool _isTriggered;
         private bool viewExtraInfo;
 
-        public RoomOverlayViewModel()
+        public RoomOverlayViewModel(string overlayName) : base(overlayName)
         {
-            OverlayName = "RoomHazard"; 
+            _overlayWindow = new BaseOverlayWindow(this);
             _roomOverlay = new RoomOverlay(this);
-            _roomOverlay.Show();
+            MainContent = _roomOverlay;
             _settings = RoomOverlayLoader.GetRoomOverlaySettings();
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
             EncounterTimerTrigger.EncounterDetected += OnBossEncounterDetected;
-            SetInitialPosition();
         }
 
         private void OnBossEncounterDetected(string arg1, string arg2, string arg3)
         {
-            if (!OverlayEnabled || _isTriggered)
+            if (!Active || _isTriggered)
                 return;
             ImagePath = System.IO.Path.Combine("../../../resources/RoomOverlays/IP-CPT", "Empty.png"); ;
             _isTriggered = true;
@@ -84,23 +85,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 this.RaiseAndSetIfChanged(ref viewExtraInfo, value);
             }
         }
-        public bool OverlayEnabled
-        {
-            get { return _isActive; }
-            set
-            {
-                DefaultRoomOverlayManager.SetActiveState(value);
-                this.RaiseAndSetIfChanged(ref _isActive, value);
-                if (!_isActive)
-                {
-                    _roomOverlay.Hide();
-                }
-                else
-                {
-                    _roomOverlay.Show();
-                }
-            }
-        }
         public bool IsActive { get => _isActive; set => this.RaiseAndSetIfChanged(ref _isActive, value); }
         public string CharImagePath => "../../../resources/RoomOverlays/PlayerLocation.png";
         public string ImagePath
@@ -110,21 +94,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 this.RaiseAndSetIfChanged(ref imagePath, value);
             }
         }
-        public void LockOverlays()
-        {
-            SetLock(true);
-            OverlaysMoveable = false;
-            IsActive = false;
-        }
-        public void UnlockOverlays()
-        {
-            SetLock(false);
-            OverlaysMoveable = true;
-            IsActive = true;
-        }
         private void NewInCombatLogs(CombatStatusUpdate obj)
         {
-            if (!OverlayEnabled)
+            if (!Active)
                 return;
             if (obj.Type == UpdateType.Stop)
             {
@@ -143,13 +115,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             {
                 ImagePath = newPath;
             });
-        }
-        private void SetInitialPosition()
-        {
-            var defaults = DefaultRoomOverlayManager.GetDefaults();
-            OverlayEnabled = defaults.Acive;
-            ViewExtraInfo = defaults.ViewExtraData;
-            _roomOverlay.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
         }
     }
 }

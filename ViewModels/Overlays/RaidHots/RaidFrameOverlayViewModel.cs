@@ -25,7 +25,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
-    public class RaidFrameOverlayViewModel : BaseOverlayViewModel, INotifyPropertyChanged
+    public class RaidFrameOverlayViewModel : BaseOverlayViewModel
     {
         private Dictionary<DateTime, Point> _mostRecentlyClickedCell = new Dictionary<DateTime, Point>();
         private object _cellClickLock = new object();
@@ -34,7 +34,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private int columns;
         private bool editable;
         private bool active;
-        private bool _conversationActive;
         private bool _inCombat;
         private bool _usingDecreasedAccuracy;
         private List<long> _validBossIds = new List<long>();
@@ -46,18 +45,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             get => editable;
             set
             {
-                editable = value;
-                
-                SetLock(!editable);
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref editable, value);
+                OverlaysMoveable = editable;
             }
         }
         public bool CanDetect
         {
             get => canDetect; private set
             {
-                canDetect = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref canDetect, value);
             }
         }
         public Point TopLeft { get; set; }
@@ -71,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public List<PlacedName> CurrentNames = new List<PlacedName>();
         public bool SizeSet = false;
 
-        public RaidFrameOverlayViewModel()
+        public RaidFrameOverlayViewModel(string overlayName):base(overlayName)
         {
             TimerController.TimerTriggered += CheckForRaidHOT;
             TimerController.TimerTriggered += CheckForDefensive;
@@ -87,12 +83,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             if (update.Type == UpdateType.Start)
             {
                 _inCombat = true;
-                if (_conversationActive)
-                {
-                    ShowOverlayWindow();
-
-                    _conversationActive = false;
-                }
             }
             if (update.Type == UpdateType.Stop)
             {
@@ -205,7 +195,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     }
                 }
             }
-            CheckForConversation(obj);
             CorrectCellWhenTargeted(obj);
         }
         private void CorrectCellWhenTargeted(ParsedLogEntry obj)
@@ -248,33 +237,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 CurrentNames.Add(new PlacedName { Column = (int)oldestUnhandledCell.X, Row = (int)oldestUnhandledCell.Y, Name = obj.Target.Name });
             }
         }
-
-        private void CheckForConversation(ParsedLogEntry obj)
-        {
-            if (!obj.Source.IsLocalPlayer)
-                return;
-            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Apply && Active)
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    HideOverlayWindow();
-                });
-            }
-            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Remove && Active)
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    ShowOverlayWindow();
-                });
-            }
-        }
         private void ToggleHide()
         {
-            if (_conversationActive)
-            {
-                if(Active)
-                    ShowOverlayWindow();
-            }
+            if(Active)
+                ShowOverlayWindow();
             else
             {
                 HideOverlayWindow();
@@ -388,9 +354,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             get => rows; set
             {
-                rows = value;
-                OnPropertyChanged();
-                OnPropertyChanged("RowHeight");
+                this.RaiseAndSetIfChanged(ref rows, value);
+                this.RaisePropertyChanged(nameof(RowHeight));
                 UpdateCells();
             }
         }
@@ -398,9 +363,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             get => columns; set
             {
-                columns = value;
-                OnPropertyChanged();
-                OnPropertyChanged("ColumnWidth");
+                this.RaiseAndSetIfChanged(ref columns, value);
+                this.RaisePropertyChanged(nameof(ColumnWidth));
                 UpdateCells();
             }
         }
@@ -413,7 +377,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 {
                     InitRaidCells();
                     RaidHotCells = RaidHotCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-                    OnPropertyChanged("RaidHotCells");
+                    this.RaisePropertyChanged(nameof(RaidHotCells));
                 }
                 else
                 {
@@ -495,9 +459,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                         }
                     }
                     RaidHotCells = currentCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-                    OnPropertyChanged("RaidHotCells");
-                    OnPropertyChanged("LeftColumnCells");
-                    OnPropertyChanged("RightColumnCells");
+                    this.RaisePropertyChanged(nameof(RaidHotCells));
+                    this.RaisePropertyChanged(nameof(LeftColumnCells));
+                    this.RaisePropertyChanged(nameof(RightColumnCells));
                 }
             }
         }
@@ -540,11 +504,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public List<RaidHotCell> LeftColumnCells => RaidHotCells.Where(c => c.Column == 0).ToList();
         public List<RaidHotCell> RightColumnCells => RaidHotCells.Where(c => c.Column == Columns - 1).ToList();
         public List<RaidHotCell> RaidHotCells { get; set; } = new List<RaidHotCell>();
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
         internal void UpdatePositionAndSize(int actualHeight, int actualWidth, double screenHeight, double screenWidth, Point topLeft)
         {
@@ -553,15 +512,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             Width = actualWidth;
             ScreenHeight = screenHeight;
             ScreenWidth = screenWidth;
-            OnPropertyChanged("RowHeight");
-            OnPropertyChanged("ColumnWidth");
+            this.RaisePropertyChanged(nameof(RowHeight));
+            this.RaisePropertyChanged(nameof(ColumnWidth));
             SizeSet = true;
         }
 
         internal void FirePlayerChanged(string name)
         {
             SizeSet = false;
-            SetPlayer(name);
+            SetRole(name);
         }
     }
 }

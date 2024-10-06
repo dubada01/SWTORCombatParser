@@ -75,7 +75,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         }
         public void SetFilter(string logFilter)
         {
-            _logFilter = logFilter.ToLower();
+            if(!string.IsNullOrEmpty(logFilter))
+                _logFilter = logFilter.ToLower();
             UpdateLogs();
         }
         public DateTime UpdateLogs(bool isDethReview = false)
@@ -83,7 +84,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             if (_currentlySelectedCombat == null)
                 return DateTime.MinValue;
             DateTime firstDeath = DateTime.MinValue;
-            Regex re = new Regex(_logFilter != null ? _logFilter : "", RegexOptions.IgnoreCase);
+            Regex re = new Regex(!string.IsNullOrEmpty(_logFilter) ? _logFilter : "", RegexOptions.IgnoreCase);
             _displayedLogs = _currentlySelectedCombat.AllLogs.Where(l=>LogFilter(l, re)).ToList();
             Dispatcher.UIThread.Invoke(() =>
             {
@@ -177,13 +178,12 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             )) {
                 return false;
             }
-            if (string.IsNullOrEmpty(_logFilter)) return true;
-
-            
-            if (!log.Strings().Any(s => s != null && re.Match(s).Success)) {
-                return false;
+            if (!string.IsNullOrEmpty(_logFilter))
+            {
+                if (!log.Strings().Any(s => s != null && re.Match(s.ToLower()).Success)) {
+                    return false;
+                }
             }
-
             if (matchEffectTypes.Count > 0 && !matchEffectTypes.Contains(log.Effect.EffectType)) {
                 return false;
             }

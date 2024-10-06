@@ -19,14 +19,12 @@ namespace SWTORCombatParser.Views.Overlay.PvP
     /// <summary>
     /// Interaction logic for MiniMapView.xaml
     /// </summary>
-    public partial class MiniMapView : BaseOverlayWindow
+    public partial class MiniMapView : UserControl
     {
         private MapInfo _currentMapInfo;
         private List<OpponentMapIcon> opponentImages => new List<OpponentMapIcon> { Op1, Op2, Op3, Op4, Op5, Op6, Op7, Op8, Op9, Op10, Op11, Op12, Op13, Op14, Op15, Op16 };
-        private MiniMapViewModel viewModel;
-        public MiniMapView(MiniMapViewModel vm):base(vm)
+        public MiniMapView(MiniMapViewModel vm)
         {
-            viewModel = vm;
             DataContext = vm;
             InitializeComponent();
             HideAllOpponents();

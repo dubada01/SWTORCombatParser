@@ -82,7 +82,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
-            _challengeWindowViewModel = new ChallengeWindowViewModel();
+            _challengeWindowViewModel = new ChallengeWindowViewModel("Challenges");
             RefreshEncounterSelection();
         }
 
@@ -164,7 +164,6 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private void SaveNewTimer(Challenge timer)
         {
             DefaultChallengeManager.AddChallengesToSource(new List<Challenge>() { timer }, SelectedSource);
-
         }
         public void UpdateLock(bool state)
         {

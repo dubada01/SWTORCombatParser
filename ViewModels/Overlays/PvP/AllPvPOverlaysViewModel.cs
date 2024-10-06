@@ -15,11 +15,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         public AllPvPOverlaysViewModel()
         {
-            _opponentOverlayViewModel = new OpponentOverlayViewModel();
+            _opponentOverlayViewModel = new OpponentOverlayViewModel("PvP_HP");
             _opponentOverlayViewModel.OverlayStateChanged += UpdateOverlay;
             opponentHPEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP").Acive;
 
-            _miniMapViewModel = new MiniMapViewModel();
+            _miniMapViewModel = new MiniMapViewModel("PvP_MiniMap");
             _miniMapViewModel.OverlayStateChanged += UpdateOverlay;
             miniMapEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap").Acive;
             MiniMapRangeBuffer = 15;

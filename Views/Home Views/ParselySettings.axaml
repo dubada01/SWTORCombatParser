@@ -31,11 +31,11 @@
                 </StackPanel>
             </Border>
             <TextBlock Foreground="WhiteSmoke" Grid.Row="1" HorizontalAlignment="Right" FontSize="18" Margin="0,0,20,0" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Username:"></TextBlock>
-            <TextBox x:Name="UserNameBox" Grid.Row="1" Grid.Column="1" Classes="RoundedTextBox" Height="40" Margin="5,0,10,0"></TextBox>
+            <TextBox x:Name="UserNameBox" Grid.Row="1" Grid.Column="1" Height="40" Margin="5,0,10,0"></TextBox>
             <TextBlock Foreground="WhiteSmoke" Grid.Row="2" HorizontalAlignment="Right" FontSize="18" Margin="0,0,20,0" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Password:"></TextBlock>
-            <TextBox x:Name="PasswordBox" PasswordChar="•" Grid.Row="2" Grid.Column="1" Classes="RoundedPasswordBox" Height="40" Margin="5,0,10,0"></TextBox>
+            <TextBox x:Name="PasswordBox" PasswordChar="•" Grid.Row="2" Grid.Column="1" Height="40" Margin="5,0,10,0"></TextBox>
             <TextBlock Foreground="WhiteSmoke" Grid.Row="3" HorizontalAlignment="Right" FontSize="18" Margin="0,0,20,0" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Guild:"></TextBlock>
-            <TextBox x:Name="GuildNameBox" Grid.Row="3" Grid.Column="1" Classes="RoundedTextBox" Height="40" Margin="5,0,10,0"></TextBox>
+            <TextBox x:Name="GuildNameBox" Grid.Row="3" Grid.Column="1"  Height="40" Margin="5,0,10,0"></TextBox>
             <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button x:Name="SaveButton" Classes="RoundedCorner" Margin="0,0,10,0" Background="{StaticResource GreenColorBrush}" Content="Save" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="20" Height="40" Width="100"></Button>
                 <Button x:Name="CancelButton"  Classes="RoundedCorner" Margin="10,0,0,0" Background="{StaticResource RedColorBrush}" Content="Cancel" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="20" Height="40" Width="100"></Button>

@@ -14,7 +14,7 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         private string _timerSource;
         internal BaseOverlayWindow _timerWindow;
-        private bool _timersEnabled;
+        private string _timerTitle = "Default Title";
         private List<TimerInstance> _activeTimers = new List<TimerInstance>();
 
         public List<TimerInstanceViewModel> SwtorTimers
@@ -22,13 +22,15 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => _swtorTimers;
             set => this.RaiseAndSetIfChanged(ref _swtorTimers, value);
         }
+        public string TimerTitle
+        {
+            get => _timerTitle;
+            set => this.RaiseAndSetIfChanged(ref _timerTitle, value);
+        }
 
         public List<TimerInstanceViewModel> _visibleTimers = new List<TimerInstanceViewModel>();
-        public void Closing()
-        {
-            Active = false;
-        }
-        public TimersWindowViewModel()
+
+        public TimersWindowViewModel(string overlayName) : base(overlayName)
         {
             TimerController.TimerExpired += RemoveTimer;
             TimerController.TimerTriggered += AddTimerVisual;
@@ -65,7 +67,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 return;
             TimerTitle = _timerSource + " Timers";
             SwtorTimers = new List<TimerInstanceViewModel>();
-            _timerWindow.SetPlayer(_timerSource);
             Dispatcher.UIThread.Invoke(() =>
             {
                 var defaultTimersInfo = DefaultOrbsTimersManager.GetDefaults(_timerSource);

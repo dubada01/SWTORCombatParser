@@ -10,12 +10,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
+using ReactiveUI;
 using ScottPlot.Avalonia;
 using ScottPlot.Plottables;
 using Color = ScottPlot.Color;
@@ -32,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         SheildedDamageTaken,
         HPPercent
     }
-    public class PlotViewModel : INotifyPropertyChanged
+    public class PlotViewModel : ReactiveObject
     {
         private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
@@ -45,31 +47,28 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         private string averageWindowDuration = "10";
         private double _averageWindowDurationDouble = 10;
         private AvaPlot GraphView;
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        private GridLength _secondColumnWidth = _defaultColumnWidth;
+        private static GridLength _defaultColumnWidth = new GridLength(.2, GridUnitType.Star);
         private double _userControlWidth;
+        private GridLength _participantSelectionHeight;
+        private int _minSeletionHeight;
+        private int _maxSeletionHeight;
+
         public double UserControlWidth
         {
             get => _userControlWidth;
             set
             {
-                _userControlWidth = value;
-                OnPropertyChanged(nameof(UserControlWidth));
+                this.RaiseAndSetIfChanged(ref _userControlWidth, value);
                 UpdateSecondColumnWidth(value);
             }
         }
-        private GridLength _secondColumnWidth = _defaultColumnWidth;
-        private static GridLength _defaultColumnWidth = new GridLength(.2, GridUnitType.Star);
-        public GridLength SecondColumnWidth
+       public GridLength SecondColumnWidth
         {
             get => _secondColumnWidth;
             set
             {
-                _secondColumnWidth = value;
-                OnPropertyChanged(nameof(SecondColumnWidth)); // Implement INotifyPropertyChanged
+                this.RaiseAndSetIfChanged(ref _secondColumnWidth, value);
             }
         }
 
@@ -119,9 +118,25 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             SecondColumnWidth = width < threshold ? new GridLength(0) : _defaultColumnWidth;
         }
         public ParticipantSelectionView ParticipantSelectionContent { get; set; }
-        public GridLength ParticipantSelectionHeight { get; set; }
-        public int MinSeletionHeight { get; set; }
-        public int MaxSeletionHeight { get; set; }
+
+        public GridLength ParticipantSelectionHeight
+        {
+            get => _participantSelectionHeight;
+            set => this.RaiseAndSetIfChanged(ref _participantSelectionHeight, value);
+        }
+
+        public int MinSeletionHeight
+        {
+            get => _minSeletionHeight;
+            set => this.RaiseAndSetIfChanged(ref _minSeletionHeight, value);
+        }
+
+        public int MaxSeletionHeight
+        {
+            get => _maxSeletionHeight;
+            set => this.RaiseAndSetIfChanged(ref _maxSeletionHeight, value);
+        }
+
         public CombatMetaDataView CombatMetaDataView { get; set; }
         public string AverageWindowDuration
         {
@@ -136,9 +151,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                     _averageWindowDurationDouble = parsedVal;
                     GraphView.Plot.Clear();
                     PlotCombat(_currentCombat, _selectedParticipant);
-                    OnPropertyChanged("AverageWindowDuration");
                 }
-                averageWindowDuration = value;
+                this.RaiseAndSetIfChanged(ref averageWindowDuration, value);
             }
         }
         public ObservableCollection<LegendItemViewModel> LegendItems { get; set; }
@@ -194,10 +208,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             ParticipantSelectionHeight = viewableEntities > 8 ? new GridLength(0.2, GridUnitType.Star) : new GridLength(0.1, GridUnitType.Star);
             MinSeletionHeight = viewableEntities > 8 ? 100 : 50;
             MaxSeletionHeight = viewableEntities > 8 ? 150 : 75;
-
-            OnPropertyChanged("ParticipantSelectionHeight");
-            OnPropertyChanged("MinSeletionHeight");
-            OnPropertyChanged("MaxSeletionHeight");
         }
         public void AddCombatPlot(Combat combatToPlot)
         {
@@ -265,6 +275,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                     foreach (var key in pointSelected.Keys)
                         previousPointSelected[key] = pointSelected[key];
                 }
+                GraphView.Refresh();
             }
         }
         private void PlotCombat(Combat combatToPlot, Entity selectedEntity)
@@ -391,13 +402,14 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void UpdateSeriesAnnotation(Scatter plot, Callout annotation, string name, List<(string, string)> annotationTexts, bool effective, Point mousePos)
         {
-            annotation.IsVisible = plot.IsVisible;
+            Debug.WriteLine("Mouse Position: " + mousePos);
             if (!plot.IsVisible)
                 return;
-            var coords = GraphView.Plot.GetCoordinates((float)mousePos.X, (float)mousePos.Y);
-            var point = plot.Data.GetNearest(coords, GraphView.Plot.LastRender);
+            var coords = GraphView.Plot.GetCoordinates((float)mousePos.X, (float)mousePos.Y-MinSeletionHeight);
+            var point = plot.Data.GetNearest(coords, GraphView.Plot.LastRender,30);
             if(point.Index == -1)
                 return;
+            annotation.IsVisible = plot.IsVisible;
             var abilities = annotationTexts;
             if (effective)
                 annotation.Text = abilities[point.Index].Item2;
@@ -405,7 +417,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 annotation.Text = abilities[point.Index].Item1;
 
             annotation.TipCoordinates = new Coordinates(point.X,point.Y);
-            annotation.TextCoordinates = coords;
+            annotation.TextCoordinates = GraphView.Plot.GetCoordinates((float)mousePos.X+5, (float)mousePos.Y-MinSeletionHeight);
 
 
             pointSelected[name] = point.Index;
@@ -455,18 +467,24 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 series.EffectiveTooltip[startTime] = GraphView.Plot.Add.Callout("test", new Coordinates(0,0), new Coordinates(0,0));
                 series.EffectiveTooltip[startTime].LabelBorderColor = series.Color;
+                series.EffectiveTooltip[startTime].ArrowFillColor = series.Color;
                 series.EffectiveTooltip[startTime].LabelPadding = 1;
                 series.EffectiveTooltip[startTime].FontSize = 11;
                 series.EffectiveTooltip[startTime].TextBackgroundColor = new Color(backgroundcolor.R, backgroundcolor.G, backgroundcolor.B,backgroundcolor.A);
                 series.EffectiveTooltip[startTime].TextColor = Color.FromARGB(Colors.WhiteSmoke.ToUInt32());
                 series.EffectiveTooltip[startTime].IsVisible = false;
+                series.EffectiveTooltip[startTime].ArrowWidth = 2;
                 series.EffectiveTooltip[startTime].ArrowheadWidth = 5;
+                series.EffectiveTooltip[startTime].ArrowheadLength = 3;
             }
 
             series.Tooltip[startTime] = GraphView.Plot.Add.Callout("test", new Coordinates(0,0), new Coordinates(0,0));
+            series.Tooltip[startTime].ArrowWidth = 2;
             series.Tooltip[startTime].ArrowheadWidth = 5;
+            series.Tooltip[startTime].ArrowheadLength = 3;
             series.Tooltip[startTime].LabelPadding = 1;
             series.Tooltip[startTime].LabelBorderColor = series.Color;
+            series.Tooltip[startTime].ArrowFillColor = series.Color;
             series.Tooltip[startTime].FontSize = 11;
             series.Tooltip[startTime].TextBackgroundColor = new Color( backgroundcolor.R, backgroundcolor.G, backgroundcolor.B,backgroundcolor.A);
             series.Tooltip[startTime].TextColor = Color.FromARGB(Colors.WhiteSmoke.ToUInt32());

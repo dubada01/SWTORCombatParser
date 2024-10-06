@@ -6,7 +6,9 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using ScottPlot;
 using ScottPlot.Avalonia;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Home_View_Models;
+using Image = ScottPlot.Image;
 
 
 namespace SWTORCombatParser.Views.Death_Review
@@ -47,11 +49,15 @@ namespace SWTORCombatParser.Views.Death_Review
             legend.BackgroundColor = new Color(50, 50, 50, 50);
             legend.FontColor = Colors.WhiteSmoke;
             legend.FontSize = 10;
-            _plot.Plot.DataBackground.Color = new Color(100, 10, 10, 10);
-            _plot.Plot.FigureBackground.Color = new Color(0, 10, 10, 10);
+            _plot.Plot.DataBackground.Color = new Color(20, 20, 20, 100);
+            _plot.Plot.FigureBackground.Color = new Color(10, 10, 10, 255);
             _plot.Plot.Grid.MajorLineColor = new Color(100, 120, 120, 120);
             _plot.Plot.Grid.MinorLineColor = Colors.LightGray;
             _plot.Plot.Axes.Color(Colors.WhiteSmoke);
+            var bitmap = SKBitmapFromFile.Load("avares://Orbs/resources/SwtorLogo.png");
+            _plot.Plot.FigureBackground.Image = new Image(bitmap);
+            _plot.Plot.FigureBackground.ImagePosition = ImagePosition.Center;
+            _plot.Interaction.Disable();
         }
         
         

@@ -81,8 +81,10 @@ namespace SWTORCombatParser
             // Check if the icons directory already exists
             if (!Directory.Exists(iconsPath))
             {
+                var zipFilePath = Path.Combine(Environment.CurrentDirectory, "resources", "packagedIcons.zip");
+                if(!File.Exists(zipFilePath))
+                    throw new FileNotFoundException("Could not find the packaged icons zip file");
                 Directory.CreateDirectory(iconsPath);
-                var zipFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources", "packagedIcons.zip");
 
                 // Use System.IO.Compression to extract the files
                 ZipFile.ExtractToDirectory(zipFilePath, iconsPath);

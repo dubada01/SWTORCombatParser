@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using ReactiveUI;
+using SWTORCombatParser.Views;
+using SWTORCombatParser.Views.Overlay.Notes;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes
 {
@@ -55,8 +57,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
             }
         }
 
-        public RaidNotesViewModel()
+        public RaidNotesViewModel(string overlayName) : base(overlayName)
         {
+            MainContent = new RaidNotesView(this);
             CombatLogStateBuilder.AreaEntered += CheckAreaForRaid;
             CombatLogStreamer.HistoricalLogsFinished += CheckForRaidAfterParseStart;
             var raids = EncounterLoader.SupportedEncounters.Where(e => e.EncounterType == EncounterType.Operation).Select(r => r.Name);
@@ -151,12 +154,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
 
         public void LockOverlays()
         {
-            SetLock(true);
             OverlaysMoveable = false;
         }
         public void UnlockOverlays()
         {
-            SetLock(false);
             OverlaysMoveable = true;
         }
     }

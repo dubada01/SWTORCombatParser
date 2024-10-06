@@ -6,7 +6,7 @@ namespace SWTORCombatParser.Views.Battle_Review
     /// <summary>
     /// Interaction logic for BattleReviewView.xaml
     /// </summary>
-    public partial class BattleReviewView : UserControl
+    public partial class BattleReviewView : Window
     {
         public BattleReviewView(BattleReviewViewModel _reviewViewModel)
         {

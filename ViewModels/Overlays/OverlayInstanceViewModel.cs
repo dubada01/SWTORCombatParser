@@ -86,10 +86,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Leaderboards.LeaderboardStandingsAvailable -= UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable -= UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged -= UpdateLeaderboardType;
-            CombatLogStreamer.NewLineStreamed -= CheckForConversation;
             _updateSub.Dispose();
         }
-        public OverlayInstanceViewModel(OverlayType type)
+        public OverlayInstanceViewModel(OverlayType type) : base(type.ToString())
         {
             CreatedType = type;
             Type = type;
@@ -132,7 +131,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged += UpdateLeaderboardType;
-            CombatLogStreamer.NewLineStreamed += CheckForConversation;
             MetricColorLoader.OnOverlayTypeColorUpdated += UpdateColor;
             UpdateLeaderboardType(LeaderboardSettings.ReadLeaderboardSettings());
             this.WhenAnyValue(x => x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(TotalFontSize)));
@@ -144,28 +142,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             if(type == SecondaryType)
                 this.RaisePropertyChanged(nameof(SecondaryType));
         }
-        private bool _conversationActive;
         private IDisposable _updateSub;
         private bool _usingLeaderboard;
         private string _overlayTypeImage = "../../resources/SwtorLogo_opaque.png";
         private ObservableCollection<OverlayMetricInfo> _metricBars = new ObservableCollection<OverlayMetricInfo>();
-
-        private void CheckForConversation(ParsedLogEntry obj)
-        {
-            if (!obj.Source.IsLocalPlayer)
-                return;
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply)
-            {
-                _conversationActive = true;
-                OnHiding();
-            }
-
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove)
-            {
-                _conversationActive = false;
-                OnShowing();
-            }
-        }
 
         private void UpdateLeaderboardType(LeaderboardType obj)
         {
@@ -222,18 +202,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
         }
 
-        internal void CharacterDetected(string name)
+        internal void RoleChanged(string role)
         {
-            SetPlayer(name);
+            SetRole(role);
         }
 
         public void Reset()
         {
-            if (_conversationActive)
-            {
-                OnShowing();
-                _conversationActive = false;
-            }
             ResetMetrics();
         }
         public void Refresh(Combat comb)
@@ -248,12 +223,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void LockOverlays()
         {
-            SetLock(true);
             OverlaysMoveable = false;
         }
         public void UnlockOverlays()
         {
-            SetLock(false);
             OverlaysMoveable = true;
         }
         private void AddLeaderboardBar(string characterName, double value)

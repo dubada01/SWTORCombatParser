@@ -17,7 +17,7 @@ using Point = Avalonia.Point;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
-    public class RaidHotsConfigViewModel :ReactiveObject, INotifyPropertyChanged
+    public class RaidHotsConfigViewModel :ReactiveObject
     {
         private string raidFrameRows = "4";
         private string raidFrameColumns = "2";
@@ -31,15 +31,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private string _currentCharacter = "no character";
         private bool _decreasedSpecificity;
         private bool canDetect = true;
-
-        public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> EnabledChanged = delegate { };
 
         public RaidHotsConfigViewModel()
         {
             RaidFrameOverlayManager.Init();
             HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
-            _currentOverlayViewModel = new RaidFrameOverlayViewModel() { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable, OverlayName = "RaidFrame"};
+            _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame") { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable};
             _currentOverlay = new RaidFrameOverlay(_currentOverlayViewModel);
             CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
             {
@@ -55,7 +53,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             ToggleEditText = _editText;
 
             var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
-            _currentOverlay.SetSizeAndLocation(new Point(defaults.Position.X, defaults.Position.Y), new Point(defaults.WidtHHeight.X, defaults.WidtHHeight.Y));
             Task.Run(() =>
             {
                 RaidFrameRows = defaults.Rows.ToString();
@@ -82,8 +79,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             get => toggleEditText; set
             {
-                toggleEditText = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref toggleEditText, value);
             }
         }
         public string RaidFrameRows
@@ -93,12 +89,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 if (value.Any(v => !char.IsDigit(v)))
                     return;
-                raidFrameRows = value;
+                this.RaiseAndSetIfChanged(ref raidFrameRows,value);
                 if (raidFrameRows == "")
                     return;
                 _currentOverlayViewModel.Rows = int.Parse(RaidFrameRows);
                 RaidFrameOverlayManager.SetRowsColumns(_currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentCharacter);
-                OnPropertyChanged();
             }
         }
         public string RaidFrameColumns
@@ -107,27 +102,24 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 if (value.Any(v => !char.IsDigit(v)))
                     return;
-                raidFrameColumns = value;
+                this.RaiseAndSetIfChanged(ref raidFrameColumns, value);
                 if (raidFrameColumns == "")
                     return;
                 _currentOverlayViewModel.Columns = int.Parse(RaidFrameColumns);
                 RaidFrameOverlayManager.SetRowsColumns(_currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentCharacter);
-                OnPropertyChanged();
             }
         }
+
         public void HideRaidHots()
         {
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                _currentOverlay.Hide();
-            });
+            _currentOverlayViewModel.HideOverlayWindow();
         }
+
         public bool CanDetect
         {
             get => canDetect; set
             {
-                canDetect = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref canDetect, value);
             }
         }
         public bool RaidHotsEnabled
@@ -136,22 +128,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 if (raidHotsEnabled == value)
                     return;
-                raidHotsEnabled = value;
+                _currentOverlayViewModel.Active = value;
+                this.RaiseAndSetIfChanged(ref raidHotsEnabled, value);
 
-                if (raidHotsEnabled)
+                if (!raidHotsEnabled)
                 {
-                    _currentOverlay.Show();
-                }
-                else
-                {
-                    _currentOverlay.Hide();
                     _currentOverlayViewModel.CurrentNames.Clear();
                 }
-
                 EnabledChanged(raidHotsEnabled);
-                _currentOverlayViewModel.Active = raidHotsEnabled;
-                RaidFrameOverlayManager.SetActiveState(RaidHotsEnabled, _currentCharacter);
-                OnPropertyChanged();
             }
         }
         private void StartPositioning(bool isLocked)
@@ -168,7 +152,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 _isRaidFrameEditable = false;
                 _currentOverlayViewModel.Editable = false;
             }
-            OnPropertyChanged("RaidFrameEditable");
+            this.RaisePropertyChanged(nameof(RaidFrameEditable));
         }
 
         private void AutoDetection()
@@ -196,11 +180,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             StartPositioning(overlaysLocked);
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         private void UpdateVisualsBasedOnRole(SWTORClass mostRecentDiscipline)
         {
             if (mostRecentDiscipline == null)

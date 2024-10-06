@@ -42,12 +42,17 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using MsBox.Avalonia;
 using ReactiveUI;
+using SWTORCombatParser.ViewModels.Timers;
+using SWTORCombatParser.Views.Challenges;
+using SWTORCombatParser.Views.Timers;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class MainWindowViewModel :ReactiveObject, INotifyPropertyChanged
+    public class MainWindowViewModel :ReactiveObject
     {
         private readonly PlotViewModel _plotViewModel;
         private readonly BattleReviewViewModel _reviewViewModel;
@@ -76,11 +81,20 @@ namespace SWTORCombatParser.ViewModels
         private bool _allViewsUpToDate;
         private int activeRowSpan;
         private TabInstance _selectedTab;
+        private bool _logLoaded;
 
         public TabInstance SelectedTab
         {
             get => _selectedTab;
-            set => this.RaiseAndSetIfChanged(ref _selectedTab, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedTab, value);
+                foreach (var tabInstance in ContentTabs)
+                {
+                    tabInstance.Unselect();
+                }
+                _selectedTab.Select();
+            }
         }
 
         public int SelectedTabIndex
@@ -91,6 +105,7 @@ namespace SWTORCombatParser.ViewModels
                 this.RaiseAndSetIfChanged(ref selectedTabIndex, value);
                 SelectedTab = ContentTabs[value];
             }
+            
         }
 
         public int ActiveRowSpan
@@ -143,25 +158,24 @@ namespace SWTORCombatParser.ViewModels
                 manager => _combatMonitorViewModel.OnLiveCombatUpdate -= manager).Sample(TimeSpan.FromSeconds(2)).Subscribe(UpdateCombat);
             _combatMonitorViewModel.OnMonitoringStateChanged += MonitoringStarted;
             _combatMonitorViewModel.LocalPlayerId += LocalPlayerChanged;
-            _combatMonitorViewModel.OnHistoricalCombatsParsed += AddHistoricalViewer;
-
 
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
 
             _dataGridViewModel = new DataGridViewModel();
             var dataGridView = new DataGridView(_dataGridViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = dataGridView, HeaderText = "Raid Data", TabIcon = "../resources/grid.png" });
+            ContentTabs.Add(new TabInstance() { TabContent = dataGridView, HeaderText = "Raid Data", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/grid.png") });
 
             _plotViewModel = new PlotViewModel();
             var graphView = new GraphView(_plotViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Plot", TabIcon = "../resources/chart.png" });
+            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Plot", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/chart.png") });
 
 
             _tableViewModel = new TableViewModel();
             var tableView = new OverviewView(_tableViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Details" , TabIcon = "../resources/bar-graph.png" });
+            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Details" , TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/bar-graph.png") });
 
             _overlayViewModel = new OverlayViewModel();
+            _overlayViewModel.OverlayLockStateChanged += () => this.RaisePropertyChanged(nameof(OverlayLockIcon));
             var overlayView = new OverlayView(_overlayViewModel);
             var overlayTab = new TabInstance()
             { TabContent = overlayView, HeaderText = "Overlays", IsOverlaysTab = true };
@@ -169,10 +183,10 @@ namespace SWTORCombatParser.ViewModels
 
             _deathViewModel = new DeathReviewViewModel();
             var deathView = new DeathReviewPage(_deathViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = deathView, HeaderText = "Death Review", TabIcon = "../resources/skull.png" });
+            ContentTabs.Add(new TabInstance() { TabContent = deathView, HeaderText = "Death Review", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/skull.png") });
 
-            _reviewViewModel = new BattleReviewViewModel();
-            ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log", TabIcon = "../resources/google-docs.png" });
+             _reviewViewModel = new BattleReviewViewModel();
+            // ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/google-docs.png") });
 
 
             ContentTabs.Add(overlayTab);
@@ -235,6 +249,60 @@ namespace SWTORCombatParser.ViewModels
             }
         }
 
+        public bool LogLoaded
+        {
+            get => _logLoaded;
+            set => this.RaiseAndSetIfChanged(ref _logLoaded, value);
+        }
+
+        public ReactiveCommand<Unit,Unit> OpenLogViewWindow => ReactiveCommand.Create(OpenLogView);
+
+        private void OpenLogView()
+        {
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var logView = new BattleReviewView(_reviewViewModel);
+                logView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                logView.Show(desktop.MainWindow);
+            }
+        }
+
+        public ReactiveCommand<Unit, Unit> ToggleOverlayLockCommand => ReactiveCommand.Create(ToggleOverlayLock);
+
+        private void ToggleOverlayLock()
+        {
+            _overlayViewModel.OverlaysLocked = !_overlayViewModel.OverlaysLocked;
+        }
+        public ReactiveCommand<Unit,Unit> ShowTimerWindowCommand => ReactiveCommand.Create(ShowTimerWindow);
+
+        private void ShowTimerWindow()
+        {
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var timersView = new TimersCreationView();
+                _overlayViewModel._timersViewModel.RefreshEncounterSelection();
+                timersView.DataContext = _overlayViewModel._timersViewModel;
+                timersView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                timersView.Show(desktop.MainWindow);
+            }
+        }
+        public ReactiveCommand<Unit,Unit> ShowChallengeWindowCommand => ReactiveCommand.Create(ShowChallengeWindow);
+
+        private void ShowChallengeWindow()
+        {
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var challengeView = new ChallengeSetupView();
+                _overlayViewModel._challengesViewModel.RefreshEncounterSelection();
+                challengeView.DataContext = _overlayViewModel._challengesViewModel;
+                challengeView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                challengeView.Show(desktop.MainWindow);
+            }
+        }
+        public Bitmap OverlayLockIcon => _overlayViewModel.OverlaysLocked
+            ? ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png")
+            : ImageHelper.LoadFromResource("avares://Orbs/resources/unlockedIcon.png");
+        public ReactiveCommand<Unit, Task> OpenPastCombatsCommand => _combatMonitorViewModel.LoadSpecificLogCommand;
         public ReactiveCommand<Unit,Unit> OpenParselyCommand => ReactiveCommand.Create(OpenParsely);
 
 
@@ -277,16 +345,24 @@ namespace SWTORCombatParser.ViewModels
             Task.Run(() =>
             {
                 Thread.Sleep(2000);
-                UploadButtonBackground = new SolidColorBrush(Colors.WhiteSmoke);
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    UploadButtonBackground = new SolidColorBrush(Colors.WhiteSmoke);
+                });
             });
         }
         private void HandleParselyUploadStart()
         {
             UploadButtonBackground = new SolidColorBrush(Colors.CornflowerBlue);
         }
-        private void UploadToParsely()
+        private async void UploadToParsely()
         {
-            ParselyUploader.UploadCurrentCombat(_combatMonitorViewModel.GetActiveFile());            
+            var response = await ParselyUploader.UploadCurrentCombat(_combatMonitorViewModel.GetActiveFile());
+            if (!string.IsNullOrEmpty(response))
+            {
+                var box = MessageBoxManager.GetMessageBoxStandard("Error", response);
+                await box.ShowAsync();
+            }
         }
 
         private void UpdateDataForNewTab()
@@ -314,31 +390,6 @@ namespace SWTORCombatParser.ViewModels
                 if (LoadingWindowFactory.MainWindowHidden)
                     _overlayViewModel.HideOverlays();
             }
-        }
-
-        private void AddHistoricalViewer(List<Combat> combats)
-        {
-            if (combats.Count == 0)
-                return;
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                var historyGuid = Guid.NewGuid();
-                var historyView = new HistoricalCombatView();
-                var viewModel = new HistoricalCombatViewModel(combats);
-                historyView.DataContext = viewModel;
-                _activeHistoricalCombatOverviews[historyGuid] = viewModel;
-                var histTab = new TabInstance() { IsHistoricalTab = true, TabContent = historyView, HeaderText = $"{combats.Last().StartTime.ToString("MM/dd")} to {combats.First().StartTime:MM/dd}", HistoryID = historyGuid };
-                histTab.RequestTabClose += CloseHistoricalReview;
-                ContentTabs.Add(histTab);
-                SelectedTabIndex = ContentTabs.Count - 1;
-            });
-
-        }
-        private void CloseHistoricalReview(TabInstance tabToClose)
-        {
-            var historyToRemove = _activeHistoricalCombatOverviews[tabToClose.HistoryID];
-            historyToRemove.Dispose();
-            ContentTabs.Remove(tabToClose);
         }
         private void MonitoringStarted(bool state)
         {
@@ -397,6 +448,7 @@ namespace SWTORCombatParser.ViewModels
         }
         private void SelectCombat(Combat selectedCombat)
         {
+            LogLoaded = true;
             UnfilteredDisplayedCombat = selectedCombat;
             UpdateViewsWithSelectedCombat(selectedCombat);
         }
