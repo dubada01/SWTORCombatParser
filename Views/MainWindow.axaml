@@ -32,7 +32,6 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
-                <MenuItem Header="_Exit" Command="{Binding }"/>
             </MenuItem>
             <MenuItem IsEnabled="{Binding LogLoaded}" Header="_Log Info">
                 <MenuItem Header="_Browse Logs" Command="{Binding OpenLogViewWindow}">
@@ -54,7 +53,7 @@
                         <Image Source="avares://Orbs/resources/dpsIcon.png"></Image>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Layout/Interface">
+                <MenuItem Header="Layout/Interface" Command="{Binding OpenOverlaySettingsCommand}">
                     <MenuItem.Icon>
                         <Image Source="avares://Orbs/resources/grid.png"></Image>
                     </MenuItem.Icon>

@@ -53,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public double BarHeight => defaultBarHeight * SizeScalar;
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
-        public double BorderThickness => 0;
+        public Thickness BorderThickness => new Thickness(0d);
         public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
         public SolidColorBrush BarOutline => new SolidColorBrush(Brushes.Transparent.Color);
         public Entity Player { get; set; }

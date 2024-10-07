@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls.Shapes;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Threading;
 using ReactiveUI;
 using SWTORCombatParser.Views;
@@ -30,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         private string _currentBossName;
 
         private RoomHazard _currentHazard;
-        private string imagePath;
+        private Bitmap imagePath;
         private bool _isTriggered;
         private bool viewExtraInfo;
 
@@ -48,7 +50,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         {
             if (!Active || _isTriggered)
                 return;
-            ImagePath = System.IO.Path.Combine("../../../resources/RoomOverlays/IP-CPT", "Empty.png"); ;
+            ImagePath = new Bitmap(
+                AssetLoader.Open(new Uri("avares://Orbs/resources/resources/RoomOverlays/IP-CPT/Empty.png")));
             _isTriggered = true;
             _currentBossName = arg2;
 
@@ -66,7 +69,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 }
                 if(_currentCombatOverlaySettings.EncounterName == "NAHUT")
                 {
-                    ImagePath = System.IO.Path.Combine("../../../resources/RoomOverlays/NAHUT", "NAHUT_Room.jpg"); ;
+                    ImagePath =new Bitmap(
+                        AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/NAHUT/NAHUT_Room.jpg")));
                     var hazard = new NAHUT_Hazard(_roomOverlay, _currentCombatOverlaySettings);
                     _currentHazard = hazard;
                 }
@@ -86,8 +90,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             }
         }
         public bool IsActive { get => _isActive; set => this.RaiseAndSetIfChanged(ref _isActive, value); }
-        public string CharImagePath => "../../../resources/RoomOverlays/PlayerLocation.png";
-        public string ImagePath
+        public Bitmap CharImagePath => new Bitmap(
+            AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/PlayerLocation.png")));
+        public Bitmap ImagePath
         {
             get => imagePath; set
             {
@@ -109,11 +114,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 _currentHazard?.Stop();
             }
         }
-        private void OnNewImageFromHazard(string newPath)
+        private void OnNewImageFromHazard(Uri newPath)
         {
             Dispatcher.UIThread.Invoke(() =>
             {
-                ImagePath = newPath;
+                ImagePath = new Bitmap(
+                    AssetLoader.Open(newPath));
             });
         }
     }

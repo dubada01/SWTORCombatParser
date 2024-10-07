@@ -30,16 +30,6 @@ namespace SWTORCombatParser.Views
             Hiding();
         }
     }
-    public static class HeaderSelectionState
-    {
-        public static event Action NewHeaderSelected = delegate { };
-        public static string CurrentlySelectedTabHeader = "";
-        public static void UpdateSelectedHeader(string header)
-        {
-            CurrentlySelectedTabHeader = header;
-            NewHeaderSelected();
-        }
-    }
     public partial class MainWindow : Window
     {
         private bool _actuallyClosing = false;
@@ -105,15 +95,6 @@ namespace SWTORCombatParser.Views
                 MainWindowClosing.FireClosing();
                 Environment.Exit(0);
             }
-        }
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count == 0)
-                return;
-            var tabInstance = e.AddedItems[0] as TabInstance;
-            if (tabInstance == null)
-                return;
-            HeaderSelectionState.UpdateSelectedHeader(tabInstance.HeaderText);
         }
         protected override void OnOpened(EventArgs e)
         {

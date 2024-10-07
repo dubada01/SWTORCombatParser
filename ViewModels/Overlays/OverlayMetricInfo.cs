@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -25,7 +27,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private string valueStringFormat = "#,##0";
         private double sizeScalar = 1;
 
-        public string MedalIconPath { get; set; } = "../../resources/redX.png";
+        public Bitmap MedalIconPath { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/redX.png")));
         public string InfoText => $"{Type}: {(int)Value}" + (SecondaryType != OverlayType.None ? $"\n{SecondaryType}: {(int)SecondaryValue}" : "");
         public double SizeScalar
         {
@@ -50,7 +52,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
-        public double BorderThickness => IsLeaderboardValue ? (3 * SizeScalar) : 0;
+        public Thickness BorderThickness => IsLeaderboardValue ? new Thickness(3 * SizeScalar) : new Thickness(0);
         public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
         public CornerRadius BarRadiusSecondary { get; set; } = new CornerRadius(3, 3, 3, 3);
         public SolidColorBrush BarOutline => IsLeaderboardValue ? new SolidColorBrush(Brushes.WhiteSmoke.Color) : new SolidColorBrush(Brushes.Transparent.Color);

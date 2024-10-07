@@ -1,11 +1,14 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.OverlayView"
+﻿<Window x:Class="SWTORCombatParser.Views.Overlay.OverlayView"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
+             xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
              x:DataType="vm:OverlayViewModel"
              mc:Ignorable="d" 
+             Width="800" Height="600"
+             Title="Overlay Settings"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="{StaticResource Gray2Brush}">
         <Grid>
@@ -14,22 +17,7 @@
                 <RowDefinition Height="0.9*"/>
                 <RowDefinition Height="0.1*"/>
             </Grid.RowDefinitions>
-            <!-- <TabStrip Margin="5,5,0,5" Background="{StaticResource Gray3Brush}" SelectedIndex="{Binding SelectedOverlayTab}"> -->
-            <!--     <TabStrip.Styles> -->
-            <!--         <Style Selector="TabStripItem:pointerover /template/ Border"> -->
-            <!--             <Setter Property="Background" Value="{StaticResource Gray6Brush}"></Setter> -->
-            <!--         </Style> -->
-            <!--     </TabStrip.Styles> -->
-            <!--     <TabItem Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Interface"> -->
-            <!--     </TabItem> -->
-            <!--     ~1~ <TabItem Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Timers"> @1@ -->
-            <!--     ~1~ </TabItem> @1@ -->
-            <!--     ~1~ <TabItem Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Challenges"> @1@ -->
-            <!--     ~1~ </TabItem> @1@ -->
-            <!--     <TabItem Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="10" Header="Settings"> -->
-            <!--     </TabItem> -->
-            <!-- </TabStrip> -->
-            <ContentPresenter Grid.Row="1" Content="{Binding ConfigView}"></ContentPresenter>
+            <overlay:CombatMetricsConfigView Grid.Row="1" DataContext="{Binding $self.DataContext}"/>
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -38,10 +26,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox HorizontalAlignment="Left" MaxHeight="15" Margin="15,2,10,2">
+                <Viewbox HorizontalAlignment="Left" MaxHeight="20" Margin="15,2,10,2">
                     <StackPanel  Orientation="Horizontal">
                         <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
-                        <Viewbox MaxHeight="20">
+                        <Viewbox MaxHeight="50">
                             <CheckBox VerticalAlignment="Center" IsChecked="{Binding OverlaysLocked}"></CheckBox>
                         </Viewbox>
                     </StackPanel>
@@ -57,4 +45,4 @@
         </Grid>
        
     </Grid>
-</UserControl>
+</Window>

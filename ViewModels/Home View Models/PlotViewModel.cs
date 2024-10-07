@@ -128,13 +128,21 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public int MinSeletionHeight
         {
             get => _minSeletionHeight;
-            set => this.RaiseAndSetIfChanged(ref _minSeletionHeight, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _minSeletionHeight, value);
+                ParticipantSelectionContent.MinHeight = value;
+            }
         }
 
         public int MaxSeletionHeight
         {
             get => _maxSeletionHeight;
-            set => this.RaiseAndSetIfChanged(ref _maxSeletionHeight, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _maxSeletionHeight, value);
+                ParticipantSelectionContent.MaxHeight = value;
+            }
         }
 
         public CombatMetaDataView CombatMetaDataView { get; set; }
@@ -405,7 +413,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             Debug.WriteLine("Mouse Position: " + mousePos);
             if (!plot.IsVisible)
                 return;
-            var coords = GraphView.Plot.GetCoordinates((float)mousePos.X, (float)mousePos.Y-MinSeletionHeight);
+            var coords = GraphView.Plot.GetCoordinates((float)mousePos.X, (float)mousePos.Y);
             var point = plot.Data.GetNearest(coords, GraphView.Plot.LastRender,30);
             if(point.Index == -1)
                 return;
@@ -417,7 +425,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 annotation.Text = abilities[point.Index].Item1;
 
             annotation.TipCoordinates = new Coordinates(point.X,point.Y);
-            annotation.TextCoordinates = GraphView.Plot.GetCoordinates((float)mousePos.X+5, (float)mousePos.Y-MinSeletionHeight);
+            annotation.TextCoordinates = GraphView.Plot.GetCoordinates((float)mousePos.X+5, (float)mousePos.Y);
 
 
             pointSelected[name] = point.Index;

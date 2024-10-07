@@ -19,6 +19,10 @@ namespace SWTORCombatParser.DataStructures
         private string _targetId;
         private string _abilityId;
         private string _effectId;
+        private readonly static SolidColorBrush _deathBackground = new(Brushes.IndianRed.Color);
+        private readonly static SolidColorBrush _deathBackgroundWithSource = new(Brushes.Crimson.Color);
+        private readonly static SolidColorBrush _revivedBackground = new(Brushes.CornflowerBlue.Color);
+        private readonly static SolidColorBrush _damageBackground = new (Color.Parse("#613b3b"));
         public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat)
         {
             _sourceId = sourceId;
@@ -40,19 +44,19 @@ namespace SWTORCombatParser.DataStructures
             EffectTextMargin = !string.IsNullOrEmpty(_effectId) && IconGetter.HasIcon(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
             if (effectId == _7_0LogParsing.DeathCombatId)
             {
-                EffectBackground =  new SolidColorBrush(Brushes.IndianRed.Color);
+                EffectBackground = _deathBackground;
             }
             if (effectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(source))
             {
-                EffectBackground =  new SolidColorBrush(Brushes.Crimson.Color);
+                EffectBackground = _deathBackgroundWithSource;
             }
             if (effectId == _7_0LogParsing.RevivedCombatId)
             {
-                EffectBackground =  new SolidColorBrush(Brushes.CornflowerBlue.Color);
+                EffectBackground = _revivedBackground;
             }
             if (effectId == _7_0LogParsing._damageEffectId)
             {
-                EffectBackground = new SolidColorBrush(Color.Parse("#613b3b"));
+                EffectBackground = _damageBackground;
 
             }
             if (double.TryParse(value, out var r))

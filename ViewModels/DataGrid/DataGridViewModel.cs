@@ -6,16 +6,64 @@ using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
-    public class DataGridViewModel : INotifyPropertyChanged
+    public class CustomComparer : IComparer<MemberInfoViewModel>, IComparer
+    {
+        private readonly string _sortProperty;
+
+        // Public property to allow dynamic updates of sort direction
+        public ListSortDirection Direction { get; set; }
+
+        public CustomComparer(string sortProperty, ListSortDirection direction)
+        {
+            _sortProperty = sortProperty;
+            Direction = direction;
+        }
+
+        public int Compare(MemberInfoViewModel x, MemberInfoViewModel y)
+        {
+            // Handle nulls if necessary
+            if (x == null && y == null) return 0;
+            if (x == null) return -1;
+            if (y == null) return 1;
+
+            // Ensure "Totals" row is always at the bottom
+            if (x.IsTotalsRow && y.IsTotalsRow)
+                return 0;
+            if (x.IsTotalsRow)
+                return 1;
+            if (y.IsTotalsRow)
+                return -1;
+
+            // Extract the values to compare
+            if (!double.TryParse(x.StatsSlots.FirstOrDefault(s => s.Header == _sortProperty)?.Value, out double xValue))
+                xValue = 0; // or handle as needed
+            if (!double.TryParse(y.StatsSlots.FirstOrDefault(s => s.Header == _sortProperty)?.Value, out double yValue))
+                yValue = 0; // or handle as needed
+
+            // Compare the values
+            int comparisonResult = Comparer<double>.Default.Compare(xValue, yValue);
+
+            // Adjust the comparison result based on the current sort direction
+            return Direction == ListSortDirection.Ascending ? comparisonResult : -comparisonResult;
+        }
+
+        public int Compare(object? x, object? y)
+        {
+            return Compare(x as MemberInfoViewModel, y as MemberInfoViewModel);
+        }
+    }
+
+    public class DataGridViewModel : ReactiveObject
     {
         private List<OverlayType> _columnOrder = new List<OverlayType> {
             OverlayType.DPS,OverlayType.Damage,OverlayType.SingleTargetDPS,OverlayType.NonEDPS,OverlayType.RawDamage,OverlayType.FocusDPS,OverlayType.BurstDPS,
@@ -27,8 +75,6 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private static List<OverlayType> _defaultColumns = new List<OverlayType>() { OverlayType.DPS, OverlayType.Damage, OverlayType.EHPS, OverlayType.EffectiveHealing, OverlayType.DamageTaken, OverlayType.APM };
         private ObservableCollection<MemberInfoViewModel> partyMembers = new ObservableCollection<MemberInfoViewModel>();
         private ObservableCollection<DataGridHeaderViewModel> headerNames;
-        private OverlayType _sortMetric;
-        private SortingDirection _sortDirection;
         private string _localPlayer = "";
 
         public DataGridViewModel()
@@ -37,10 +83,6 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             DataGridDefaults.Init();
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateColumns;
             CombatLogStreamer.HistoricalLogsFinished += UpdateLocalPlayer;
-
-            UpdateHeaders();
-            var firstHeader = HeaderNames.Where(h => !h.IsName).First();
-            firstHeader.ToggleSortingCommand.Execute();
         }
 
 
@@ -63,13 +105,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             _localPlayer = arg1.Name + "_" + arg2.Discipline;
             RefreshColumns();
         }
-
+        public event Action ColumnsRefreshed = delegate { };
         public ObservableCollection<DataGridHeaderViewModel> HeaderNames
         {
             get => headerNames; set
             {
-                headerNames = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref headerNames, value);
             }
         }
         public List<string> AvailableColumns => _columnOrder.Select(c => GetNameFromType(c)).Where(c => !HeaderNames.Any(h => h.Text == c)).ToList();
@@ -77,8 +118,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             get => partyMembers; set
             {
-                partyMembers = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref partyMembers, value);
             }
         }
         public void UpdateCombat(Combat updatedCombat)
@@ -106,59 +146,20 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             else
                 _selectedColumnTypes = _defaultColumns;
         }
-        private void UpdateHeaders()
-        {
-            var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
-            HeaderNames = new ObservableCollection<DataGridHeaderViewModel>(orderedSelectedColumns.Select(c =>
-            new DataGridHeaderViewModel() { Text = GetNameFromType(c), SortDirection = c == _sortMetric ? _sortDirection : SortingDirection.None }));
-            HeaderNames.Insert(0, new DataGridHeaderViewModel() { Text = "Name", IsName = true });
-            if (orderedSelectedColumns.Count < 10)
-                HeaderNames.Add(new DataGridHeaderViewModel { AvailableHeaderNames = AvailableColumns, IsRealHeader = false });
-            foreach (var headerName in HeaderNames)
-            {
-                headerName.RequestRemoveHeader += RemoveHeader;
-                headerName.RequestedNewHeader += AddHeader;
-                headerName.SortingDirectionChanged += Sort;
-            }
-        }
         private void UpdateUI()
         {
-            UpdateHeaders();
             var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
             var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => Dispatcher.UIThread.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList();
             Dispatcher.UIThread.Invoke(PartyMembers.Clear);
-            var sortedMembers = new List<MemberInfoViewModel>();
-            if (_sortDirection == SortingDirection.Ascending)
-            {
-                sortedMembers = newPlayers.OrderBy(v => MetricGetter.GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
-            }
-            if (_sortDirection == SortingDirection.Descending)
-            {
-                sortedMembers = newPlayers.OrderByDescending(v => MetricGetter.GetValueForMetric(_sortMetric, _allSelectedCombats, v._entity)).ToList();
-            }
-            if (_sortDirection == SortingDirection.None)
-            {
-                sortedMembers = newPlayers.ToList();
-            }
-            for (var i = 0; i < sortedMembers.Count; i++)
-            {
-                sortedMembers[i].AssignBackground(i);
-            }
-            sortedMembers.Add(new MemberInfoViewModel(sortedMembers.Count, null, _allSelectedCombats, orderedSelectedColumns));
             Dispatcher.UIThread.Invoke(() =>
             {
-                foreach (var member in sortedMembers)
+                foreach (var member in newPlayers)
                 {
                     PartyMembers.Add(member);
                 }
             });
-        }
-
-        private void Sort(SortingDirection arg1, string arg2)
-        {
-            _sortMetric = _columnOrder.First(v => GetNameFromType(v) == arg2);
-            _sortDirection = arg1;
-            UpdateUI();
+            PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, null, _allSelectedCombats, orderedSelectedColumns));
+            ColumnsRefreshed();
         }
 
         private void AddHeader(string obj)
@@ -174,12 +175,6 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             _selectedColumnTypes.Remove(removedHeader);
             DataGridDefaults.SetDefaults(_selectedColumnTypes, _localPlayer);
             UpdateUI();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         private string GetNameFromType(OverlayType type)
         {

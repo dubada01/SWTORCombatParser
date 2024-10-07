@@ -6,7 +6,7 @@ namespace SWTORCombatParser.Views.Overlay
     /// <summary>
     /// Interaction logic for OverlayView.xaml
     /// </summary>
-    public partial class OverlayView : UserControl
+    public partial class OverlayView : Window
     {
         public OverlayView(OverlayViewModel viewmodel)
         {

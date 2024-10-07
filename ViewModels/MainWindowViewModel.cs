@@ -82,6 +82,7 @@ namespace SWTORCombatParser.ViewModels
         private int activeRowSpan;
         private TabInstance _selectedTab;
         private bool _logLoaded;
+        private bool _viewingLogs;
 
         public TabInstance SelectedTab
         {
@@ -103,6 +104,7 @@ namespace SWTORCombatParser.ViewModels
             set
             {
                 this.RaiseAndSetIfChanged(ref selectedTabIndex, value);
+                UpdateDataForNewTab();
                 SelectedTab = ContentTabs[value];
             }
             
@@ -176,10 +178,10 @@ namespace SWTORCombatParser.ViewModels
 
             _overlayViewModel = new OverlayViewModel();
             _overlayViewModel.OverlayLockStateChanged += () => this.RaisePropertyChanged(nameof(OverlayLockIcon));
-            var overlayView = new OverlayView(_overlayViewModel);
-            var overlayTab = new TabInstance()
-            { TabContent = overlayView, HeaderText = "Overlays", IsOverlaysTab = true };
-            _overlayViewModel.OverlayLockStateChanged += overlayTab.UpdateLockIcon;
+            // var overlayView = new OverlayView(_overlayViewModel);
+            // var overlayTab = new TabInstance()
+            // { TabContent = overlayView, HeaderText = "Overlays", IsOverlaysTab = true };
+            // _overlayViewModel.OverlayLockStateChanged += overlayTab.UpdateLockIcon;
 
             _deathViewModel = new DeathReviewViewModel();
             var deathView = new DeathReviewPage(_deathViewModel);
@@ -189,7 +191,7 @@ namespace SWTORCombatParser.ViewModels
             // ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/google-docs.png") });
 
 
-            ContentTabs.Add(overlayTab);
+            //ContentTabs.Add(overlayTab);
 
             //_leaderboardViewModel = new LeaderboardViewModel();
             //var leaderboardView = new LeaderboardView(_leaderboardViewModel);
@@ -199,7 +201,6 @@ namespace SWTORCombatParser.ViewModels
             PhasesBar = new PhaseBar(_phaseBarViewModel);
 
             SelectedTabIndex = 0;
-            HeaderSelectionState.NewHeaderSelected += UpdateDataForNewTab;
             ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
             ParselyUploader.UploadStarted += HandleParselyUploadStart;
 
@@ -256,17 +257,32 @@ namespace SWTORCombatParser.ViewModels
         }
 
         public ReactiveCommand<Unit,Unit> OpenLogViewWindow => ReactiveCommand.Create(OpenLogView);
-
+        
         private void OpenLogView()
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var logView = new BattleReviewView(_reviewViewModel);
                 logView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                logView.Closing += (e, s) =>
+                {
+                    _viewingLogs = false;
+                };
                 logView.Show(desktop.MainWindow);
+                _viewingLogs = true;
             }
         }
+        public ReactiveCommand<Unit,Unit> OpenOverlaySettingsCommand => ReactiveCommand.Create(OpenOverlaySettings);
 
+        private void OpenOverlaySettings()
+        {
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var overlaySettingsView = new OverlayView(_overlayViewModel);
+                overlaySettingsView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                overlaySettingsView.Show(desktop.MainWindow);
+            }
+        }
         public ReactiveCommand<Unit, Unit> ToggleOverlayLockCommand => ReactiveCommand.Create(ToggleOverlayLock);
 
         private void ToggleOverlayLock()
@@ -367,9 +383,6 @@ namespace SWTORCombatParser.ViewModels
 
         private void UpdateDataForNewTab()
         {
-            ActiveRowSpan = HeaderSelectionState.CurrentlySelectedTabHeader == "Overlays" ||
-                HeaderSelectionState.CurrentlySelectedTabHeader == "Leaderboards" ||
-                HeaderSelectionState.CurrentlySelectedTabHeader == "Death Review" ? 3 : 2;
             if (CurrentlyDisplayedCombat != null && _allViewsUpToDate == false)
                 SelectCombat(CurrentlyDisplayedCombat);
         }
@@ -426,22 +439,21 @@ namespace SWTORCombatParser.ViewModels
             Dispatcher.UIThread.Invoke(delegate
             {
                 _overlayViewModel.CombatUpdated(updatedCombat);
-                switch (HeaderSelectionState.CurrentlySelectedTabHeader)
+                switch (SelectedTabIndex)
                 {
-                    case "Battle Plot":
+                    case 1:
                         _plotViewModel.UpdateParticipants(updatedCombat);
                         _plotViewModel.UpdateLivePlot(updatedCombat);
                         break;
-                    case "Details":
+                    case 2:
                         _tableViewModel.AddCombat(updatedCombat);
                         break;
-                    case "Combat Log":
-                        _reviewViewModel.CombatSelected(updatedCombat);
-                        break;
-                    case "Raid Data":
+                    case 0:
                         _dataGridViewModel.UpdateCombat(updatedCombat);
                         break;
                 }
+                if(_viewingLogs)
+                    _reviewViewModel.CombatSelected(updatedCombat);
             });
 
             _allViewsUpToDate = false;

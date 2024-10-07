@@ -77,8 +77,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         public SolidColorBrush TimerForeground => new SolidColorBrush(TimerColor);
         public bool _isAboutToExpire = false;
 
-        private static SolidColorBrush _defaultTimerBackground = new SolidColorBrush(Colors.WhiteSmoke);
-        private static SolidColorBrush _aboutToExpireBackground = new SolidColorBrush(Colors.OrangeRed);
+        private static SolidColorBrush _defaultTimerBackground = Dispatcher.UIThread.Invoke(() => { return new SolidColorBrush(Colors.WhiteSmoke);}); 
+        private static SolidColorBrush _aboutToExpireBackground = Dispatcher.UIThread.Invoke(() => { return new SolidColorBrush(Colors.OrangeRed);}); 
         public SolidColorBrush TimerBackground { get; set; } = _defaultTimerBackground;
         public double TimerValue
         {

@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using System;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
@@ -7,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
@@ -18,6 +21,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private string floatValueString = "0.00";
         public Entity _entity;
         private List<Combat> _info = new List<Combat>();
+        private readonly SWTORClass _playerClass;
 
         public MemberInfoViewModel(int order, Entity e, List<Combat> info, List<OverlayType> selectedColumns)
         {
@@ -28,25 +32,36 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             if (_entity != null)
             {
                 IsLocalPlayer = e.IsLocalPlayer;
-                var playerClass =
+                _playerClass =
     CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.Last().StartTime);
-                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, GetIconColorFromClass(playerClass), _entity.Name, playerClass.Name, IsLocalPlayer, _entity));
+                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, GetIconColorFromClass(_playerClass), _entity.Name, _playerClass.Name, IsLocalPlayer, _entity));
             }
             else
             {
+                IsTotalsRow = true;
                 StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, Colors.WhiteSmoke, "Totals"));
             }
             if (selectedColumns.Count < 10)
                 StatsSlots.Add(new StatsSlotViewModel(OverlayType.None, Colors.WhiteSmoke) { Value = "" });
         }
+
+        public bool IsTotalsRow { get; set; }
+    
         public bool IsLocalPlayer { get; set; }
-        public void AssignBackground(int position)
+        public string PlayerName => _entity?.Name;
+        public Bitmap ClassIcon
         {
-            foreach (var slot in StatsSlots)
+            get
             {
-                slot.BackgroundColor = position % 2 == 0 ? _evenRow : _oddRow;
+                var classIcon = StatsSlots.FirstOrDefault(s => s.Header == "Name")?.RoleIcon;
+                if (classIcon != null)
+                    return classIcon;
+                return IconFactory._unknownIcon;
             }
         }
+
+        public string ClassName => _playerClass?.Name + "/" + _playerClass?.Discipline;
+
         private string GetValue(OverlayType columnType)
         {
             var formatToUse = columnType == OverlayType.CleanseSpeed ? floatValueString : valueStringFormat;

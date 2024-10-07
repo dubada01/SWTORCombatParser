@@ -20,7 +20,7 @@ namespace SWTORCombatParser.Model.Overlays
         private RoomOverlayUpdate _currentUpdate;
         private bool _viewExtraInfo;
 
-        public event Action<string> OnNewImagePath = delegate { };
+        public event Action<Uri> OnNewImagePath = delegate { };
         public IPCPT_Hazard(RoomOverlay roomView, RoomOverlaySettings settings, bool useExtraInfo = false) : base(roomView)
         {
             _viewExtraInfo = useExtraInfo;
@@ -48,7 +48,7 @@ namespace SWTORCombatParser.Model.Overlays
             {
                 _currentUpdate = triggerdUpdate;
                 var imageToUse = _viewExtraInfo && _currentUpdate.ImageOverlayPathExtra != "" ? _currentUpdate.ImageOverlayPathExtra : _currentUpdate.ImageOverlayPath;
-                OnNewImagePath(Path.Combine("../../../resources/RoomOverlays/IP-CPT", imageToUse));
+                OnNewImagePath(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/" + imageToUse));
             }
             var roomTop = _overlaySettings.Top;
             var roomLeft = _overlaySettings.Left;

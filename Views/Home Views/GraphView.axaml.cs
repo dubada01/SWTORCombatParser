@@ -149,7 +149,7 @@ namespace SWTORCombatParser.Views.Home_Views
             else
                 return;
 
-            _plotViewModel.MousePositionUpdated(e.GetPosition(GraphArea));
+            _plotViewModel.MousePositionUpdated(e.GetPosition(GridView));
             TryUpdateAxes();
         }
 

@@ -108,6 +108,8 @@
     <Compile Remove="Views\Home Views\HistoricalRangeWiget.axaml.cs" />
     <Compile Remove="Utilities\OutlinedTextBlock.cs" />
     <Compile Remove="Utilities\CommandHandler.cs" />
+    <Compile Remove="Views\DataGrid Views\StatSlotView.axaml.cs" />
+    <Compile Remove="Views\DataGrid Views\DataGridRowView.axaml.cs" />
   </ItemGroup>
     <ItemGroup>
         <AvaloniaResource Include="resources\**\*.*">
@@ -402,6 +404,8 @@
     <AvaloniaXaml Remove="Views\Overviews\HistogramInstanceView.axaml" />
     <AvaloniaXaml Remove="Views\Battle Review\MapView.axaml" />
     <AvaloniaXaml Remove="Views\Home Views\HistoricalRangeWiget.axaml" />
+    <AvaloniaXaml Remove="Views\DataGrid Views\StatSlotView.axaml" />
+    <AvaloniaXaml Remove="Views\DataGrid Views\DataGridRowView.axaml" />
   </ItemGroup>
 
   <ItemGroup>

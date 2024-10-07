@@ -3,13 +3,14 @@ using System.IO;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using System.Runtime.InteropServices;
+using SkiaSharp;
+
 
 namespace SWTORCombatParser.Utilities
 {
     public static class IconFactory
     {
-        private static Bitmap _unknownIcon;
+        public static Bitmap _unknownIcon;
 
         public static void Init()
         {
@@ -23,46 +24,47 @@ namespace SWTORCombatParser.Utilities
 
         public static Bitmap GetIcon(string className)
         {
-            if (string.IsNullOrEmpty(className) || !File.Exists(Environment.CurrentDirectory + $"/resources/Class Icons/{className.ToLower()}.png"))
+            if (string.IsNullOrEmpty(className))
                 return _unknownIcon;
-
-            return new Bitmap(Environment.CurrentDirectory + $"/resources/Class Icons/{className.ToLower()}.png");
+            var iconForClass = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/Class Icons/" + className.ToLower() + ".png")));
+            return iconForClass;
         }
 
         private static WriteableBitmap SetIconColor(Bitmap image, Color color)
         {
-            var writeableBitmap = new WriteableBitmap(image.PixelSize, image.Dpi);
-            using (var lockedBuffer = writeableBitmap.Lock())
+            // Convert Avalonia Bitmap to SkiaSharp SKBitmap
+            SKBitmap skBitmap;
+            using (var imageStream = new MemoryStream())
             {
-                var stride = lockedBuffer.RowBytes;
-                var buffer = new byte[lockedBuffer.Size.Height * stride];
-
-                Marshal.Copy(lockedBuffer.Address, buffer, 0, buffer.Length);
-
-                for (int y = 0; y < lockedBuffer.Size.Height; y++)
-                {
-                    for (int x = 0; x < lockedBuffer.Size.Width; x++)
-                    {
-                        int index = (y * stride) + (x * 4);
-                        if (buffer[index + 3] != 0) // Check alpha channel
-                        {
-                            buffer[index] = color.B;
-                            buffer[index + 1] = color.G;
-                            buffer[index + 2] = color.R;
-                        }
-                    }
-                }
-
-                Marshal.Copy(buffer, 0, lockedBuffer.Address, buffer.Length);
+                image.Save(imageStream);
+                imageStream.Seek(0, SeekOrigin.Begin);
+                skBitmap = SKBitmap.Decode(imageStream);
             }
 
-            return writeableBitmap;
+            // Apply the color change using SkiaSharp
+            for (int y = 0; y < skBitmap.Height; y++)
+            {
+                for (int x = 0; x < skBitmap.Width; x++)
+                {
+                    SKColor skColor = skBitmap.GetPixel(x, y);
+                    if (skColor.Alpha != 0) // Check alpha channel
+                    {
+                        var newColor = new SKColor(color.R, color.G, color.B, skColor.Alpha);
+                        skBitmap.SetPixel(x, y, newColor);
+                    }
+                }
+            }
+
+            // Convert SkiaSharp SKBitmap back to Avalonia WriteableBitmap
+            using (var skiaStream = new MemoryStream())
+            {
+                skBitmap.Encode(skiaStream, SKEncodedImageFormat.Png, 100);
+                skiaStream.Seek(0, SeekOrigin.Begin);
+        
+                return WriteableBitmap.Decode(skiaStream);
+            }
         }
 
-        private static Bitmap BitmapToImageSource(Bitmap bitmap)
-        {
-            // No need for conversion in Avalonia, return the bitmap directly.
-            return bitmap;
-        }
+
     }
 }

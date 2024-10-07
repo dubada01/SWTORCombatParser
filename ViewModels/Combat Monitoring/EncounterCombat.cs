@@ -9,27 +9,39 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
-    public class EncounterCombat : INotifyPropertyChanged
+    public class EncounterCombat : ReactiveObject
     {
         public event Action<PastCombat> PastCombatSelected = delegate { };
         public event Action<PastCombat> PastCombatUnselected = delegate { };
         public event Action UnselectAll = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private ObservableCollection<Combat> combats;
         private bool combatsAreVisible = false;
         private bool viewingTrash = false;
         private object combatAddLock = new object();
+        private ObservableCollection<PastCombat> _encounterCombats = new ObservableCollection<PastCombat>();
+        private Bitmap _expandIconSource = collapseIcon;
         public EncounterInfo Info { get; set; }
         public string PPHInfo => Info.IsBossEncounter && combats.Count > 1 ? $"PPH {Combats.Count / (combats.Last().StartTime - combats.First().StartTime).TotalHours:N2}" : "";
         public int NumberOfBossBattles => EncounterCombats.Count(c => !c.IsTrash);
         public int NumberOfTrashBattles => EncounterCombats.Count(c => c.IsTrash);
         public GridLength DetailsHeight => Info.IsBossEncounter ? new GridLength(0.5, GridUnitType.Star) : new GridLength(0, GridUnitType.Star);
-        public string ExpandIconSource { get; set; } = "../../../resources/ExpandUp.png";
+
+        public Bitmap ExpandIconSource
+        {
+            get => _expandIconSource;
+            set => this.RaiseAndSetIfChanged(ref _expandIconSource, value);
+        }
+
+        private static readonly Bitmap collapseIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/ExpandUp.png")));
+        private static readonly Bitmap expandIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/ExpandDown.png")));
         internal void ToggleCombatVisibility()
         {
             if (combatsAreVisible)
@@ -40,7 +52,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 Expand();
             }
-            OnPropertyChanged("ExpandIconSource");
         }
 
         public void Collapse()
@@ -50,7 +61,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 combat.IsVisible = false;
             }
             combatsAreVisible = false;
-            ExpandIconSource = "../../../resources/ExpandUp.png";
+            ExpandIconSource = collapseIcon;
         }
         public void Expand()
         {
@@ -62,17 +73,23 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     combat.IsVisible = true;
             }
             combatsAreVisible = true;
-            ExpandIconSource = "../../../resources/ExpandDown.png";
+            ExpandIconSource = expandIcon;
         }
         public Combat OverallCombat => GetOverallCombat();
         public ObservableCollection<Combat> Combats
         {
             get => combats; set
             {
-                combats = value;
+                this.RaiseAndSetIfChanged(ref combats, value);
             }
         }
-        public ObservableCollection<PastCombat> EncounterCombats { get; set; } = new ObservableCollection<PastCombat>();
+
+        public ObservableCollection<PastCombat> EncounterCombats
+        {
+            get => _encounterCombats;
+            set => this.RaiseAndSetIfChanged(ref _encounterCombats, value);
+        }
+
         public void AddOngoingCombat(string location)
         {
             //UnselectAll();
@@ -91,7 +108,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 EncounterCombats.Add(ongoingCombatDisplay);
                 EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
-                OnPropertyChanged("EncounterCombats");
             });
 
         }
@@ -103,7 +119,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 if (currentcombat == null)
                     return;
                 EncounterCombats.Remove(currentcombat);
-                OnPropertyChanged("EncounterCombats");
             });
         }
         public PastCombat UpdateOngoing(Combat combat)
@@ -136,12 +151,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 {
                     EncounterCombats.Add(pastCombatDisplay);
                     EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
-                    OnPropertyChanged("EncounterCombats");
                 });
             }
-            OnPropertyChanged("PPHInfo");
-            OnPropertyChanged("NumberOfBossBattles");
-            OnPropertyChanged("NumberOfTrashBattles");
+            this.RaisePropertyChanged(nameof(PPHInfo));
+            this.RaisePropertyChanged(nameof(NumberOfBossBattles));
+            this.RaisePropertyChanged(nameof(NumberOfTrashBattles));
         }
 
         private string GetPVPCombatText(Combat combat)
@@ -191,11 +205,5 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             UnselectAll();
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-
     }
 }

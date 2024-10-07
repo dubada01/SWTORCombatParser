@@ -9,8 +9,8 @@
         TransparencyLevelHint="Transparent"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaTitleBarHeightHint="0"
-        ExtendClientAreaChromeHints="NoChrome" Background="Transparent" Topmost="True">
-    <Border Background="WhiteSmoke" CornerRadius="10" BorderThickness="2" BorderBrush="LightGray">
+        ExtendClientAreaChromeHints="NoChrome" Topmost="True">
+    <Border CornerRadius="10" BorderThickness="2">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.85*"/>
@@ -28,13 +28,13 @@
                        VerticalAlignment="Center" Margin="20,0,20,0"></TextBlock>
             <Button x:Name="OkButton" Grid.Row="1" Classes="RoundedCorner"
                     Content="Ok" Width="50" Height="25" 
-                    VerticalAlignment="Center"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
                     ></Button>
             <Button x:Name="ExitButton" Grid.Row="1" Margin="0,0,10,0" Classes="RoundedCorner"
                     Content="Exit" Foreground="IndianRed" Width="50" Height="25" 
                     VerticalAlignment="Center" HorizontalAlignment="Right"
                     ></Button>
-            <StackPanel Margin="10,0,0,0" VerticalAlignment="Bottom" Orientation="Horizontal" Grid.Row="1">
+            <StackPanel Margin="10,0,0,0" VerticalAlignment="Bottom" Orientation="Horizontal" Grid.Row="0">
                 <CheckBox x:Name="ShowAgainCheck" ></CheckBox>
                 <TextBlock Text="Don't show again" FontFamily="{StaticResource MainFont}"></TextBlock>
             </StackPanel>

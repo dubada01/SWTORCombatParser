@@ -9,70 +9,15 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="{StaticResource Gray3Brush}">
-        <Grid>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Border CornerRadius="5,5,0,0">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0"
-                                     EndPoint="0,1">
-                            <GradientStop Color="{StaticResource Gray5}"
-                Offset="0" />
-                            <GradientStop Color="{StaticResource Gray4}"
-                Offset="1" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                </Border>
-                <ItemsControl ItemsSource="{Binding HeaderNames}" Margin="0,0,10,0" >
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid IsVisible="{Binding IsRealHeader, Converter={StaticResource BooleanToVisibiityConverter}}">
-                                    <TextBlock FontFamily="{StaticResource MainFont}" Text="{Binding Text}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FontSize="13" FontWeight="Normal" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                                    </TextBlock>
-                                    <Rectangle HorizontalAlignment="Right" Width="1" Fill="Gray"></Rectangle>
-                                    <Viewbox IsVisible="{Binding IsName, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" MaxHeight="15" MaxWidth="20" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,3,0">
-                                        <Button Classes="RoundedCorner" Padding="4,0,4,1" Foreground="IndianRed" Content="X" Background="{StaticResource Gray4Brush}" Command="{Binding HeaderClickedCommand}" BorderBrush="Transparent" ></Button>
-                                    </Viewbox>
-                                    <Button Classes="RoundedCorner" IsVisible="{Binding CanSort, Converter={StaticResource BooleanToVisibiityConverter}}" Width="30" Height="15" Background="Transparent" BorderBrush="{StaticResource Gray8Brush}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Command="{Binding ToggleSortingCommand}">
-
-                                    </Button>
-                                    <Viewbox IsHitTestVisible="False" HorizontalAlignment="Center" MaxHeight="18" VerticalAlignment="Bottom">
-                                        <Grid>
-                                            <TextBlock IsVisible="{Binding SortedAscending, Converter={StaticResource BooleanToVisibiityConverter}}" Text="ᐱ" Foreground="{StaticResource Gray11Brush}"  ></TextBlock>
-                                            <TextBlock IsVisible="{Binding SortedDescending, Converter={StaticResource BooleanToVisibiityConverter}}" Text="ᐯ" Foreground="{StaticResource Gray11Brush}"  ></TextBlock>
-                                        </Grid>
-                                    </Viewbox>
-
-                                </Grid>
-                                <Viewbox>
-                                    <ComboBox ItemsSource="{Binding AvailableHeaderNames}" SelectedItem="{Binding SelectedNewHeader}" IsVisible="{Binding IsRealHeader, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=Inverted}" Margin="10"></ComboBox>
-                                </Viewbox>
-                            </Grid>
-
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Columns="{Binding HeaderNames.Count}"></UniformGrid>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-                <ScrollViewer Grid.Row="1">
-                    <ItemsControl ItemsSource="{Binding PartyMembers}" >
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <local:DataGridRowView/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-        </Grid>
-
+        <DataGrid Sorting="DynamicDataGrid_OnSorting" x:Name="DynamicDataGrid" IsReadOnly="True" ItemsSource="{Binding PartyMembers}" Margin="0,0,10,0" >
+            <DataGrid.Styles>
+                <Style Selector="DataGridRow:nth-child(odd)">
+                    <Setter Property="Background" Value="Transparent" />
+                </Style>
+                <Style Selector="DataGridRow:nth-child(even)">
+                    <Setter Property="Background" Value="{StaticResource Gray2}" />
+                </Style>
+            </DataGrid.Styles>
+        </DataGrid>
     </Grid>
 </UserControl>

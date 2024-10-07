@@ -3,22 +3,23 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using Avalonia.Media.Imaging;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
-    public class ParticipantViewModel : INotifyPropertyChanged
+    public class ParticipantViewModel : ReactiveObject
     {
         private bool isSelected;
         private bool diedNatrually;
         private string hPPercentText;
         private double hPPercent;
+        private Bitmap _roleImageSource;
+        private string _dps = "0";
+        private string _hps = "0";
+        private string _dtps = "0";
 
         public event Action<ParticipantViewModel, bool> SelectionChanged = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
         public void ToggleSelection()
         {
             IsSelected = !IsSelected;
@@ -30,23 +31,43 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             get => isSelected;
             set
             {
-                isSelected = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref isSelected, value);
             }
         }
         public string PlayerName { get; set; }
         public bool IsLocalPlayer { get; set; }
-        public string RoleImageSource { get; set; }
+
+        public Bitmap RoleImageSource
+        {
+            get => _roleImageSource;
+            set => this.RaiseAndSetIfChanged(ref _roleImageSource, value);
+        }
+
         public int RoleOrdering { get; set; }
-        public string DPS { get; set; } = "0";
-        public string HPS { get; set; } = "0";
-        public string DTPS { get; set; } = "0";
+
+        public string DPS
+        {
+            get => _dps;
+            set => this.RaiseAndSetIfChanged(ref _dps, value);
+        }
+
+        public string HPS
+        {
+            get => _hps;
+            set => this.RaiseAndSetIfChanged(ref _hps, value);
+        }
+
+        public string DTPS
+        {
+            get => _dtps;
+            set => this.RaiseAndSetIfChanged(ref _dtps, value);
+        }
+
         public double HPPercent
         {
             get => hPPercent; set
             {
-                hPPercent = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref hPPercent, value);
 
                 HPPercentText = Math.Round(HPPercent * 100, 2).ToString(CultureInfo.InvariantCulture) + "%";
             }
@@ -55,29 +76,22 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             get => hPPercentText; set
             {
-                hPPercentText = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref hPPercentText, value);
             }
         }
         public bool DiedNatrually
         {
             get => diedNatrually; set
             {
-                diedNatrually = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref diedNatrually, value);
             }
         }
-        public void SetValues(double dps, double hps, double dtps, string roleImage)
+        public void SetValues(double dps, double hps, double dtps, Bitmap roleImage)
         {
-
             DPS = dps == 0 ? "0" : dps.ToString("#,##", CultureInfo.InvariantCulture);
-            OnPropertyChanged("DPS");
             HPS = hps == 0 ? "0" : hps.ToString("#,##", CultureInfo.InvariantCulture);
-            OnPropertyChanged("HPS");
             DTPS = dtps == 0 ? "0" : dtps.ToString("#,##", CultureInfo.InvariantCulture);
-            OnPropertyChanged("DTPS");
             RoleImageSource = roleImage;
-            OnPropertyChanged("RoleImageSource");
         }
     }
 }

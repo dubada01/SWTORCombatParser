@@ -13,6 +13,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays
@@ -23,7 +25,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double sizeScalar = 1d;
         private string metricTotal;
 
-        public string OverlayTypeImage
+        public Bitmap OverlayTypeImage
         {
             get => _overlayTypeImage;
             set => this.RaiseAndSetIfChanged(ref _overlayTypeImage, value);
@@ -144,7 +146,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private IDisposable _updateSub;
         private bool _usingLeaderboard;
-        private string _overlayTypeImage = "../../resources/SwtorLogo_opaque.png";
+        private Bitmap _overlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/SwtorLogo_opaque.png")));
         private ObservableCollection<OverlayMetricInfo> _metricBars = new ObservableCollection<OverlayMetricInfo>();
 
         private void UpdateLeaderboardType(LeaderboardType obj)
@@ -158,10 +160,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 UsingLeaderboard = true;
             }
             if (obj == LeaderboardType.AllDiciplines)
-                OverlayTypeImage = "../../resources/SwtorLogo_opaque.png";
+                OverlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/SwtorLogo_opaque.png")));
             else
             {
-                OverlayTypeImage = "../../resources/LocalPlayerIcon.png";
+                OverlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/LocalPlayerIcon.png")));
             }
         }
 
@@ -246,7 +248,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 IsLeaderboardValue = true,
                 RelativeLength = 1,
                 SizeScalar = SizeScalar,
-                MedalIconPath = "../../resources/crownIcon.png"
+                MedalIconPath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/crownIcon.png")))
             };
             Debug.WriteLine("Leaderboard " + CreatedType.ToString() + " set for overlay");
             _metricBarsDict.TryAdd((characterName, true), metricbar);

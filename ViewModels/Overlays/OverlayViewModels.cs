@@ -36,8 +36,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
     public class OverlayViewModel :ReactiveObject
     {
 
-        private List<OverlayInstanceViewModel> _currentOverlays = new List<OverlayInstanceViewModel>();
-        private Dictionary<string, OverlayInfo> _overlayDefaults = new Dictionary<string, OverlayInfo>();
+        private List<OverlayInstanceViewModel> _currentOverlays = new();
+        private Dictionary<string, OverlayInfo> _overlayDefaults = new();
         private string _currentCharacterRole = Role.DPS.ToString();
         private string _currentCharacterDiscipline = "";
         private bool overlaysLocked = true;
@@ -61,14 +61,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public TimersCreationView TimersView { get; set; }
         public ChallengeSetupView ChallengesView { get; set; }
         public OtherOverlaySetupView OthersSetupView { get; set; }
-        public CombatMetricsConfigView ConfigView { get; set; }
 
-        public ObservableCollection<OverlayOptionViewModel> AvailableDamageOverlays { get; set; } = new ObservableCollection<OverlayOptionViewModel>();
-        public ObservableCollection<OverlayOptionViewModel> AvailableHealOverlays { get; set; } = new ObservableCollection<OverlayOptionViewModel>();
-        public ObservableCollection<OverlayOptionViewModel> AvailableMitigationOverlays { get; set; } = new ObservableCollection<OverlayOptionViewModel>();
-        public ObservableCollection<OverlayOptionViewModel> AvailableGeneralOverlays { get; set; } = new ObservableCollection<OverlayOptionViewModel>();
-        public ObservableCollection<UtilityOverlayOptionViewModel> AvailableUtilityOverlays { get; set; } = new ObservableCollection<UtilityOverlayOptionViewModel>();
-        public List<LeaderboardType> LeaderboardTypes { get; set; } = new List<LeaderboardType>();
+        public ObservableCollection<OverlayOptionViewModel> AvailableDamageOverlays { get; set; } = new();
+        public ObservableCollection<OverlayOptionViewModel> AvailableHealOverlays { get; set; } = new();
+        public ObservableCollection<OverlayOptionViewModel> AvailableMitigationOverlays { get; set; } = new();
+        public ObservableCollection<OverlayOptionViewModel> AvailableGeneralOverlays { get; set; } = new();
+        public ObservableCollection<UtilityOverlayOptionViewModel> AvailableUtilityOverlays { get; set; } = new();
+        public List<LeaderboardType> LeaderboardTypes { get; set; } = new();
         public LeaderboardType SelectedLeaderboardType
         {
             get => selectedLeaderboardType;
@@ -131,42 +130,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _challengesViewModel.CombatUpdated(combat);
         }
 
-        public UserControl SelectedOverlayTabContent
-        {
-            get => _selectedOverlayTabContent;
-            set => this.RaiseAndSetIfChanged(ref _selectedOverlayTabContent, value);
-        }
-
-        public int SelectedOverlayTab
-        {
-            get => selectedOverlayTab; set
-            {
-                selectedOverlayTab = value;
-                if (selectedOverlayTab == 0)
-                {
-                    SelectedOverlayTabContent = ConfigView;
-                    Debug.WriteLine("ConfigView");
-                }
-                // if (selectedOverlayTab == 1)
-                // {
-                //     SelectedOverlayTabContent = TimersView;
-                //     Debug.WriteLine("TimersView");
-                // }
-                // if (selectedOverlayTab == 2)
-                // {
-                //     SelectedOverlayTabContent = ChallengesView;
-                //     Debug.WriteLine("ChallengesView");
-                // }
-                if (selectedOverlayTab == 1)
-                {
-                    _timersViewModel.RefreshEncounterSelection();
-                }
-                if (selectedOverlayTab == 2)
-                {
-                    _challengesViewModel.RefreshEncounterSelection();
-                }
-            }
-        }
         public OverlayViewModel()
         {
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForClass;
@@ -197,29 +160,21 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             AvailableUtilityOverlays = new ObservableCollection<UtilityOverlayOptionViewModel>
             {
-                new UtilityOverlayOptionViewModel{ Name = "Personal Stats", Type = UtilityOverlayType.Personal},
-                new UtilityOverlayOptionViewModel{ Name = "Raid HOTS", Type = UtilityOverlayType.RaidHot},
-                new UtilityOverlayOptionViewModel{ Name = "Boss HP", Type = UtilityOverlayType.RaidBoss},
-                new UtilityOverlayOptionViewModel{ Name = "Challenges", Type = UtilityOverlayType.RaidChallenge},
-                new UtilityOverlayOptionViewModel{ Name = "Encounter Timers", Type = UtilityOverlayType.RaidTimer},
-                new UtilityOverlayOptionViewModel{ Name = "Discipline Timers", Type = UtilityOverlayType.DisciplineTimer, Enabled = false},
-                new UtilityOverlayOptionViewModel{ Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
-                new UtilityOverlayOptionViewModel{ Name = "Time Trial", Type = UtilityOverlayType.Timeline},
-                new UtilityOverlayOptionViewModel{ Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
-                new UtilityOverlayOptionViewModel{ Name = "PvP Mini-map", Type = UtilityOverlayType.PvPMap},
-                new UtilityOverlayOptionViewModel{ Name = "Ability List", Type = UtilityOverlayType.AbilityList},
-                new UtilityOverlayOptionViewModel{Name= "Raid Notes", Type=UtilityOverlayType.RaidNotes},
+                new() { Name = "Personal Stats", Type = UtilityOverlayType.Personal},
+                new() { Name = "Raid HOTS", Type = UtilityOverlayType.RaidHot},
+                new() { Name = "Boss HP", Type = UtilityOverlayType.RaidBoss},
+                new() { Name = "Challenges", Type = UtilityOverlayType.RaidChallenge},
+                new() { Name = "Encounter Timers", Type = UtilityOverlayType.RaidTimer},
+                new() { Name = "Discipline Timers", Type = UtilityOverlayType.DisciplineTimer, Enabled = false},
+                new() { Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
+                new() { Name = "Time Trial", Type = UtilityOverlayType.Timeline},
+                new() { Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
+                new() { Name = "PvP Mini-map", Type = UtilityOverlayType.PvPMap},
+                new() { Name = "Ability List", Type = UtilityOverlayType.AbilityList},
+                new() {Name= "Raid Notes", Type=UtilityOverlayType.RaidNotes},
             };
-            ConfigView = new CombatMetricsConfigView();
-            SelectedOverlayTabContent = ConfigView;
-            
-            // TimersView = new TimersCreationView();
             _timersViewModel = new TimersCreationViewModel();
-            // TimersView.DataContext = _timersViewModel;
-
-            //ChallengesView = new ChallengeSetupView();
             _challengesViewModel = new ChallengeSetupViewModel();
-            //ChallengesView.DataContext = _challengesViewModel;
 
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.ChallengesEnabled;
 
@@ -529,7 +484,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             AvailableUtilityOverlays.First(t=>t.Type == UtilityOverlayType.Personal).IsSelected = obj;
         }
-        public List<string> AvailableTypes { get; private set; } = new List<string> { "Damage", "Heals", "Tank" };
+        public List<string> AvailableTypes { get; private set; } = new() { "Damage", "Heals", "Tank" };
         public string SelectedType
         {
             get => selectedType; set
@@ -558,6 +513,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private int selectedOverlayTab;
         private RaidNotesSetupViewModel _raidNotesSetup;
         private UserControl _selectedOverlayTabContent;
+        private CombatMetricsConfigView _configView;
 
         public bool UseDynamicLayout
         {

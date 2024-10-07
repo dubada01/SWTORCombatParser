@@ -8,7 +8,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
@@ -89,7 +92,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             viewModel.Entity = e;
             viewModel.PlayerName = e.Name;
             viewModel.IsLocalPlayer = e.IsLocalPlayer;
-            viewModel.RoleImageSource = Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
+            viewModel.RoleImageSource = IconFactory._unknownIcon;
             viewModel.DiedNatrually = diedNatrually;
             return viewModel;
         }
@@ -106,9 +109,9 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             {
                 ParticipantViewModel participantViewModel = GenerateInstance(participant, playersDiedNatrually.Contains(participant));
 
-                var imagePath = Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
+                var imagePath = IconFactory._unknownIcon;
                 if (participant.IsCompanion)
-                    imagePath = Path.Combine(Environment.CurrentDirectory, "resources/LocalPlayerIcon.png");
+                    imagePath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/LocalPlayerIcon.png")));
                 if (info.CharacterClases.ContainsKey(participant))
                 {
                     var swtorClass = info.CharacterClases[participant];
@@ -140,20 +143,20 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 }
             }
         }
-        private string GetRoleImage(SWTORClass sWTORClass)
+        private Bitmap GetRoleImage(SWTORClass sWTORClass)
         {
             if (sWTORClass == null)
-                return Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
+                return IconFactory._unknownIcon;
             switch (sWTORClass.Role)
             {
                 case Role.DPS:
-                    return Path.Combine(Environment.CurrentDirectory, "resources/dpsIcon.png");
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/dpsIcon.png")));
                 case Role.Healer:
-                    return Path.Combine(Environment.CurrentDirectory, "resources/healingIcon.png");
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/healingIcon.png")));
                 case Role.Tank:
-                    return Path.Combine(Environment.CurrentDirectory, "resources/tankIcon.png");
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/tankIcon.png")));
                 default:
-                    return Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
+                    return IconFactory._unknownIcon;
             }
         }
     }
