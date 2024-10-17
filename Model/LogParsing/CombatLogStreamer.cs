@@ -200,23 +200,23 @@ namespace SWTORCombatParser.Model.LogParsing
                             {
                                 if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
                                 {
-                                    lines.Add(newLine + Environment.NewLine);
-                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + Environment.NewLine);
+                                    lines.Add(newLine + "\r\n");
+                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
                                     break;
                                 }
                                 else
                                 {
                                     if (newLine.Length == 0)
                                         continue;
-                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + Environment.NewLine);
-                                    lines.Add(newLine + Environment.NewLine);
+                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
+                                    lines.Add(newLine + "\r\n");
                                     newLine.Clear();
                                 }
                             }
                             if (newLine.Length == 0)
                                 continue;
-                            numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + Environment.NewLine);
-                            lines.Add(newLine + Environment.NewLine);
+                            numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
+                            lines.Add(newLine + "\r\n");
                             newLine.Clear();
 
                         }

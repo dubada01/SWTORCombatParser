@@ -99,7 +99,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static string GetMostRecentCombatFile()
         {
-            var files = new DirectoryInfo(LoggingPath).EnumerateFiles();
+            var files = new DirectoryInfo(LoggingPath).EnumerateFiles().Where(l=>l.Extension == ".txt");
             return files.OrderByDescending(f => f.LastWriteTime).ToList()[0].FullName;
         }
         private static CombatLogFile LoadCombatLog(string path)

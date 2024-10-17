@@ -52,9 +52,10 @@ namespace SWTORCombatParser.Utilities
             {
                 _useVerboseLogging = JsonConvert.DeserializeObject<LoggingConfig>(File.ReadAllText(@"LoggingConfig.json")).verbose;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                LogError("Failed to determine logging configuration. Please close and save LoggingConfig.json");
+                Console.WriteLine("ERROR: Could not load logging config.\r\n"+ exception.Message);
+                //LogError("Failed to determine logging configuration. Please close and save LoggingConfig.json");
             }
 
         }

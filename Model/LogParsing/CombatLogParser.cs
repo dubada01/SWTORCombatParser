@@ -65,20 +65,20 @@ namespace SWTORCombatParser.Model.LogParsing
                         {
                             if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
                             {
-                                lines.Add(newLine.ToString() + Environment.NewLine);
+                                lines.Add(newLine.ToString() + "\r\n");
                                 break;
                             }
                             else
                             {
                                 if (newLine.Length == 0)
                                     continue;
-                                lines.Add(newLine.ToString() + Environment.NewLine);
+                                lines.Add(newLine.ToString() + "\r\n");
                                 newLine.Clear();
                             }
                         }
                         if (newLine.Length == 0)
                             continue;
-                        lines.Add(newLine.ToString() + Environment.NewLine);
+                        lines.Add(newLine.ToString() + "\r\n");
                         newLine.Clear();
 
                     }

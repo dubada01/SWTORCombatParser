@@ -277,7 +277,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         private void InitStubbedLog(string testLogPath)
         {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); 
             var encoding = Encoding.GetEncoding(1252);
             var testFilesPath = @"C:\Users\duban\source\dubatech-repos\SWTORCombatParser\SWTORCombatParser_Test\TestLogs";
             var files = Directory.EnumerateFiles(testFilesPath);
@@ -331,7 +331,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             }
             else
             {
-                openFileDialog.Directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+                openFileDialog.Directory = CombatLogLoader.GetLogDirectory();
             }
 
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
