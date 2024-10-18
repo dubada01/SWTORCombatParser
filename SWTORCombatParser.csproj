@@ -4,7 +4,6 @@
     <VersionPrefix>1.9.17</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AssemblyName>Orbs</AssemblyName>
@@ -13,36 +12,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <CFBundleName>Orbs</CFBundleName> <!-- Also defines .app file name -->
-    <CFBundleDisplayName>Orbs</CFBundleDisplayName>
-    <CFBundleIdentifier>com.DubaTech</CFBundleIdentifier>
-    <CFBundleShortVersionString>1.9.17</CFBundleShortVersionString>
-    <CFBundleVersion>1.9.17</CFBundleVersion>
-    <CFBundlePackageType>APPL</CFBundlePackageType>
-    <CFBundleSignature>????</CFBundleSignature>
-    <CFBundleExecutable>Orbs</CFBundleExecutable>
-    <CFBundleIconFile>OrbsIcon.ico</CFBundleIconFile> <!-- Will be copied from output directory -->
-    <NSPrincipalClass>NSApplication</NSPrincipalClass>
-    <NSHighResolutionCapable>true</NSHighResolutionCapable>
-
-    <!-- Optional -->
-    <NSRequiresAquaSystemAppearance>true</NSRequiresAquaSystemAppearance>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- Optional URLTypes.Check TestBundle.csproj for a working example. -->
-    <CFBundleURLTypes Include="dummy"> <!-- The name of this file is irrelevant, it's a MSBuild requirement.-->
-      <CFBundleURLName>TestApp URL</CFBundleURLName>
-      <CFBundleURLSchemes>testappurl;testappurl://</CFBundleURLSchemes> <!-- Note the ";" separator-->
-    </CFBundleURLTypes>
-    <CFBundleURLTypes Include="dummy">
-      <CFBundleURLName>TestApp URL2</CFBundleURLName>
-      <CFBundleURLSchemes>test://</CFBundleURLSchemes>
-    </CFBundleURLTypes>
-  </ItemGroup>
-  
+    
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
@@ -57,6 +27,7 @@
   <!-- Define 'MACOS' symbol when building on macOS -->
   <PropertyGroup Condition="'$(OS)' == 'Unix'">
     <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
