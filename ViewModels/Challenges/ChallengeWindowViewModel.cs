@@ -17,7 +17,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
     {
         private ChallengeUpdater _challengeUpdater;
         private bool inBossRoom;
-        
+        public override bool ShouldBeVisible => inBossRoom;
         public ObservableCollection<ChallengeInstanceViewModel> ActiveChallengeInstances { get; set; } = new ObservableCollection<ChallengeInstanceViewModel>();
 
         public void RefreshChallenges()
@@ -49,14 +49,10 @@ namespace SWTORCombatParser.ViewModels.Challenges
             var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(TimeUtility.CorrectedTime);
             if (currentArea.IsBossEncounter)
             {
-                if (Active)
-                    ShouldBeVisible = true;
                 inBossRoom = true;
             }
             else
             {
-                if (!OverlaysMoveable)
-                    ShouldBeVisible = false;
                 inBossRoom = false;
             }
         }
@@ -65,44 +61,21 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             if (areaInfo.IsBossEncounter)
             {
-                if (Active)
-                    ShouldBeVisible = true;
                 inBossRoom = true;
             }
             else
             {
-                if (!OverlaysMoveable)
-                    ShouldBeVisible = false;
                 inBossRoom = false;
             }
         }
         private void UpdateState()
         {
             Active = DefaultBossFrameManager.GetDefaults().RaidChallenges;
-            if ((inBossRoom || OverlaysMoveable) && Active)
-            {
-                ShouldBeVisible = true;
-            }
-            else
-            {
-                ShouldBeVisible = false;
-            }
         }
 
         internal void UpdateLock(bool value)
         {
             OverlaysMoveable = !value;
-            if (OverlaysMoveable && Active)
-            {
-                ShouldBeVisible = true;
-            }
-            else
-            {
-                if (!inBossRoom || !Active)
-                {
-                    ShouldBeVisible = false;
-                }
-            }
         }
         
         internal void SetScale(double sizeScalar)

@@ -30,6 +30,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private object _combatUpdateLock = new object();
         private bool _showFrame;
         private List<OpponentHPBarViewModel> _opponentHpBars = new List<OpponentHPBarViewModel>();
+        public override bool ShouldBeVisible => _showFrame;
 
         public OpponentOverlayViewModel(string overlayName) : base(overlayName)
         {
@@ -112,7 +113,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         public bool ShowFrame
         {
             get => _showFrame;
-            set => this.RaiseAndSetIfChanged(ref _showFrame, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _showFrame, value);
+                UpdateVisibility();
+            }
         }
 
         public void LockOverlays()

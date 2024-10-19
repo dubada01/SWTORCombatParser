@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.9.17</VersionPrefix>
+    <VersionPrefix>2.0.1</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -12,7 +12,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
-    
+
+
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>false</Prefer32Bit>
@@ -30,6 +31,8 @@
     <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
+  
+  
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <!-- Include Windows-specific packages -->
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
@@ -112,11 +115,15 @@
     <Compile Remove="Utilities\CommandHandler.cs" />
     <Compile Remove="Views\DataGrid Views\StatSlotView.axaml.cs" />
     <Compile Remove="Views\DataGrid Views\DataGridRowView.axaml.cs" />
+    <Compile Remove="MacOSBuilds\**" />
+    <EmbeddedResource Remove="MacOSBuilds\**" />
+    <None Remove="MacOSBuilds\**" />
   </ItemGroup>
     <ItemGroup>
         <AvaloniaResource Include="resources\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AvaloniaResource>
+        <AvaloniaResource Remove="MacOSBuilds\**" />
     </ItemGroup>
 <ItemGroup>
   <Content Include="resources\packagedIcons.zip">
@@ -408,11 +415,13 @@
     <AvaloniaXaml Remove="Views\Home Views\HistoricalRangeWiget.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\StatSlotView.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\DataGridRowView.axaml" />
+    <AvaloniaXaml Remove="MacOSBuilds\**" />
   </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Remove="Views\Leaderboard View\**" />
     <AdditionalFiles Remove="ViewModels\Leaderboard\**" />
+    <AdditionalFiles Remove="MacOSBuilds\**" />
   </ItemGroup>
 
   <ItemGroup>

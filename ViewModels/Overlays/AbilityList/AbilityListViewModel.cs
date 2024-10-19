@@ -44,7 +44,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
         private double sizeScalar = 1;
         private IDisposable _updateSub;
         private ObservableCollection<AbilityInfo> abilityInfoList = new ObservableCollection<AbilityInfo>();
-        
+        public override bool ShouldBeVisible => true;
+
         public ObservableCollection<AbilityInfo> AbilityInfoList
         {
             get => abilityInfoList; set

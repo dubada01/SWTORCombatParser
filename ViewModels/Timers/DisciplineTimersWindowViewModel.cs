@@ -13,6 +13,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string _timerSource;
         private bool _timersEnabled;
         private List<TimerInstance> _activeTimers = new List<TimerInstance>();
+        public override bool ShouldBeVisible => true;
         public DisciplineTimersWindowViewModel(string overlayName) : base(overlayName)
         {
             TimerController.TimerExpired += RemoveTimer;

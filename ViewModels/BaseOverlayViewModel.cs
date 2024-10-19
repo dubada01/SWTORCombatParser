@@ -2,8 +2,10 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
+using MvvmHelpers;
 using ReactiveUI;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
@@ -12,38 +14,51 @@ using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels;
 
-public class BaseOverlayViewModel:ReactiveObject
+public abstract class BaseOverlayViewModel:ReactiveObject
 {
-    private readonly BaseOverlayWindow _overlayWindow;
+    private BaseOverlayWindow _overlayWindow;
     internal bool _active;
     private bool _overlaysMoveable;
     private string _currentRole = "Default";
     private bool _shouldBeVisible;
     private bool _isVisibile;
+    public event Action<bool> ActiveChanged = delegate { };
     public event Action CloseRequested = delegate { };
     public event Action<Point,Point> OnNewPositionAndSize = delegate { }; 
     public event Action<bool> OnLocking = delegate { };
     public OverlaySettingsType SettingsType { get; set; } = OverlaySettingsType.Global;
     internal readonly string _overlayName;
-    public object MainContent { get; set; }
+    private UserControl _mainContent;
 
-    public bool ShouldBeVisible
+    public UserControl MainContent
     {
-        get => _shouldBeVisible;
+        get => _mainContent;
         set
         {
-            _shouldBeVisible = value; 
-            if(ShouldBeVisible && !_isVisibile && Active)
-            {
-                ShowOverlayWindow();
-            }
-            if(!_shouldBeVisible && _isVisibile)
-            {
-                HideOverlayWindow();
-            }
+            this.RaiseAndSetIfChanged(ref _mainContent, value);
+            InitializeOverlayWindow();
+            InitPositionAndSize();
         }
     }
 
+    public void UpdateVisibility()
+    {
+        if (!_active)
+        {
+            HideOverlayWindow();
+        }
+        else
+        {
+            if (ShouldBeVisible || OverlaysMoveable)
+            {
+                ShowOverlayWindow();
+            }
+        }
+    }
+    public abstract bool ShouldBeVisible
+    {
+        get;
+    } 
     public void RequestClose()
     {
         Dispatcher.UIThread.Invoke(() =>
@@ -55,16 +70,20 @@ public class BaseOverlayViewModel:ReactiveObject
     public BaseOverlayViewModel(string overlayName)
     {
         _overlayName = overlayName;
-        _overlayWindow = new BaseOverlayWindow(this);
-        InitPositionAndSize();
+    }
+    // A method to explicitly create the window once the derived class has been constructed
+    public void InitializeOverlayWindow()
+    {
+        if (_overlayWindow == null)
+        {
+            _overlayWindow = new BaseOverlayWindow(this);  // Pass `this`, referring to the fully constructed derived class
+        }
     }
     public void SetRole(string role)
     {
         _currentRole = role;
         InitPositionAndSize();
     }
-
-
     public bool OverlaysMoveable
     {
         get => _overlaysMoveable;
@@ -82,18 +101,8 @@ public class BaseOverlayViewModel:ReactiveObject
         {
             _active = value;
             UpdateActiveState(value);
-            if (!_active)
-            {
-                HideOverlayWindow();
-            }
-            else
-            {
-                if (ShouldBeVisible || OverlaysMoveable)
-                {
-                    ShowOverlayWindow();
-                }
-            }
-
+            UpdateVisibility();
+            ActiveChanged(_active);
         }
     }
     public void ShowOverlayWindow()
@@ -127,7 +136,8 @@ public class BaseOverlayViewModel:ReactiveObject
         if (SettingsType == OverlaySettingsType.Character)
         {
             var allDefaults = DefaultCharacterOverlays.GetCharacterDefaults(_currentRole);
-            var thisDefault = allDefaults[_overlayName];
+            if (!allDefaults.TryGetValue(_overlayName, out var thisDefault))
+                return;
             Active = thisDefault.Acive;
             OnNewPositionAndSize(thisDefault.Position, thisDefault.WidtHHeight);
         }

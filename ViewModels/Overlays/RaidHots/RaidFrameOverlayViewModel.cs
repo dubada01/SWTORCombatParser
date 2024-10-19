@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private List<long> _validBossIds = new List<long>();
         private object _cellUpdateLock = new object();
         private bool canDetect = true;
-
+        public override bool ShouldBeVisible => true;
         public bool Editable
         {
             get => editable;

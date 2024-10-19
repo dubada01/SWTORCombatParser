@@ -95,13 +95,13 @@ public static class AvaloniaTimelineBuilder
 
                 if (_unlocked)
                 {
-                    _timelineWindowViewModel.ShouldBeVisible = true;
+                    _timelineWindowViewModel.InBossInstance = true;
                     _timelineWindowViewModel.SetClickThrough(false);
                 }
             }
             else
             {
-                _timelineWindowViewModel.ShouldBeVisible = false;
+                _timelineWindowViewModel.InBossInstance = false;
             }
             _timelineWindowViewModel.Active = value;
         }

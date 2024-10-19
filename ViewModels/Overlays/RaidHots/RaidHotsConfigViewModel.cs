@@ -32,7 +32,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private bool _decreasedSpecificity;
         private bool canDetect = true;
         public event Action<bool> EnabledChanged = delegate { };
-
         public RaidHotsConfigViewModel()
         {
             RaidFrameOverlayManager.Init();

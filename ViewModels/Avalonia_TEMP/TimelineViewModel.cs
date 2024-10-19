@@ -25,11 +25,23 @@ public class TimelineElement
         public event Action<TimeSpan> OnInit = delegate { };
         public event Action<string,string,string> AreaEntered = delegate { };
         private InstanceInformation _instanceInfo;
+        private bool _inBossInstance;
         public ObservableCollection<TimelineElement> AllTimelineElements { get; } = new ObservableCollection<TimelineElement>();
 
         // Expose CurrentTime and MaxDuration as properties
         public TimeSpan CurrentTime { get; set; }
         public TimeSpan MaxDuration => _instanceInfo?.MaxDuration ?? TimeSpan.Zero;
+        public override bool ShouldBeVisible => InBossInstance;
+
+        public bool InBossInstance
+        {
+            get => _inBossInstance;
+            set
+            {
+                _inBossInstance = value;
+                UpdateVisibility();
+            }
+        }
 
         public TimelineWindowViewModel(string overlayName) : base(overlayName)
         {
@@ -42,6 +54,7 @@ public class TimelineElement
             };
         }
 
+        
         public void ConfigureTimeline(TimeSpan maxDuration, List<BossKillInfo> previousKills, string areaName, string difficulty, string playerCount)
         {
             lock (lockObj)

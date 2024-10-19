@@ -207,7 +207,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _personalOverlayViewModel = new PersonalOverlayViewModel("Personal");
             usePersonalOverlay = _personalOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Personal).IsSelected = usePersonalOverlay;
-            //_personalOverlayViewModel.ActiveChanged += UpdatePersonalOverlayActive;
+            _personalOverlayViewModel.ActiveChanged += UpdatePersonalOverlayActive;
 
             SetOverlaysScale();
             RefreshOverlays();
@@ -421,18 +421,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             overlayType.IsSelected = true;
             var viewModel = new OverlayInstanceViewModel(overlayType.Type);
-            DefaultCharacterOverlays.SetActiveStateCharacter(viewModel.Type.ToString(), true, _currentCharacterRole);
+            //viewModel.SetWindow();
+            viewModel.SetRole(_currentCharacterRole);
             viewModel.OverlayClosed += RemoveOverlay;
-            viewModel.OverlaysMoveable = !OverlaysLocked;
             viewModel.SizeScalar = SizeScalar;
-            viewModel.SettingsType = OverlaySettingsType.Character;
-            _currentOverlays.Add(viewModel);
-            viewModel.MainContent = new InfoOverlay(viewModel);
-            var overlay = new BaseOverlayWindow(viewModel);
-            overlay.Show();
             viewModel.Refresh(CombatIdentifier.CurrentCombat);
-            if (OverlaysLocked)
-                viewModel.LockOverlays();
+            viewModel.OverlaysMoveable = !OverlaysLocked;
+            _currentOverlays.Add(viewModel);
+            viewModel.Active = true;
         }
 
         private void RemoveOverlay(OverlayInstanceViewModel obj)

@@ -16,7 +16,7 @@ public class AlertsWindowViewModel : BaseOverlayViewModel
 {
 
     private List<TimerInstanceViewModel> _currentTimers = new List<TimerInstanceViewModel>();
-
+    public override bool ShouldBeVisible => true;
     public List<TimerInstanceViewModel> SwtorTimers
     {
         get => _swtorTimers;

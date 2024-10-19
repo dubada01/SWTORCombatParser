@@ -22,6 +22,7 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         private bool inBossRoom;
         private bool isEnabled;
+        public override bool ShouldBeVisible => inBossRoom;
         public EncounterTimerWindowViewModel(string overlayName) : base(overlayName)
         {
             TimerTitle = "Boss Timers";

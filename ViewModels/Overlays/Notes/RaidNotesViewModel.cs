@@ -24,8 +24,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
 
         public event Action<bool> OnInInstanceChanged = delegate { };
         public event Action OnClosing = delegate { };
+        public override bool ShouldBeVisible => InInstance;
         private string selectedRaid = string.Empty;
         private bool isEnabled;
+        private bool _inInstance = false;
 
         public List<string> AvailableRaids { get; internal set; } = new List<string>();
         public string SelectedRaid
@@ -46,7 +48,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
                 RaidNotes[SelectedRaid] = raidNote;
             }
         }
-        public bool InInstance { get; set; } = false;
+
+        public bool InInstance
+        {
+            get => _inInstance;
+            set
+            {
+                _inInstance = value;
+                UpdateVisibility();
+            }
+        }
+
         public bool IsEnabled
         {
             get => isEnabled; internal set

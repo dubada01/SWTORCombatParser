@@ -27,6 +27,10 @@ bld/
 [Oo]bj/
 [Ll]og/
 
+*.app/
+*.dmg
+MacOSBuilds/*.zip
+
 */TestLogs/
 Installer Project/SwtorCombatInstaller-cache/
 *.cab

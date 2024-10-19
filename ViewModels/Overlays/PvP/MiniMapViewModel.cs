@@ -44,6 +44,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
         private bool _showFrame;
 
+        public override bool ShouldBeVisible => _showFrame;
+
         public MiniMapViewModel(string overlayName) : base(overlayName)
         {
             _dTimer = new DispatcherTimer();
@@ -109,7 +111,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         public bool ShowFrame
         {
             get => _showFrame;
-            set => this.RaiseAndSetIfChanged(ref _showFrame, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _showFrame, value);
+                UpdateVisibility();
+            }
         }
 
         public void LockOverlays()

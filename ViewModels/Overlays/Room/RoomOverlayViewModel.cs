@@ -35,7 +35,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         private Bitmap imagePath;
         private bool _isTriggered;
         private bool viewExtraInfo;
-
+        public override bool ShouldBeVisible => _isTriggered;
         public RoomOverlayViewModel(string overlayName) : base(overlayName)
         {
             _overlayWindow = new BaseOverlayWindow(this);
@@ -53,6 +53,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             ImagePath = new Bitmap(
                 AssetLoader.Open(new Uri("avares://Orbs/resources/resources/RoomOverlays/IP-CPT/Empty.png")));
             _isTriggered = true;
+            UpdateVisibility();
             _currentBossName = arg2;
 
             _startTime = DateTime.Now;

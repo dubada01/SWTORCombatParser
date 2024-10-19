@@ -21,6 +21,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         private double rows;
         private double _currentScale;
         private string _currentOwner;
+        public override bool ShouldBeVisible => true;
+
         public PersonalOverlayViewModel(string overlayName) : base(overlayName)
         {
             _currentScale = 1;

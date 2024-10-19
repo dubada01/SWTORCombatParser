@@ -22,7 +22,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private string combatDuration;
         private System.Timers.Timer _timer;
         private bool _inCombat;
-
+        public override bool ShouldBeVisible => ShowFrame;
         public BrossFrameView _bossFrame { get; set; }
         public bool BossFrameEnabled
         {

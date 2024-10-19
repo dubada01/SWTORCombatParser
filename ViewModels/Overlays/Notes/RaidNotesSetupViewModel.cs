@@ -45,7 +45,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
                 raidNotesEnabled = value; 
                 if (raidNotesEnabled)
                 {
-                    _viewModel.ShouldBeVisible = inInstance;
                     _viewModel.IsEnabled = true;
                     _viewModel.Active = true;
                 }

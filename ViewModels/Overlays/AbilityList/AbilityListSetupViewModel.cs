@@ -13,7 +13,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
         public AbilityListSetupViewModel()
         {
             _viewModel = new AbilityListViewModel("AbilityList");
-            _viewModel.MainContent = new AbilityListView(_viewModel);
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_viewModel._overlayName);
             abilityListEnabled = defaults.Acive;
             if (defaults.Acive)

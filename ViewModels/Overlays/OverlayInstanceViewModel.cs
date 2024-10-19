@@ -16,6 +16,8 @@ using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using ReactiveUI;
+using SWTORCombatParser.Views;
+using SWTORCombatParser.Views.Overlay;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -24,6 +26,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private object _refreshLock = new object();
         private double sizeScalar = 1d;
         private string metricTotal;
+        public override bool ShouldBeVisible => true;
 
         public Bitmap OverlayTypeImage
         {
@@ -57,7 +60,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
 
         public OverlayType CreatedType { get; set; }
-        public OverlayType Type { get; set; }
+
+        public OverlayType Type
+        {
+            get => _type;
+            set => this.RaiseAndSetIfChanged(ref _type, value);
+        }
+
         public OverlayType SecondaryType { get; set; }
         public string MetricTotal
         {
@@ -73,8 +82,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool AddSecondaryToValue { get; set; } = false;
         public bool FlipSecondaryAndPrimaryBars { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
-        public event Action OnHiding = delegate { };
-        public event Action OnShowing = delegate { };
         public void OverlayClosing()
         {
             Dispose();
@@ -92,6 +99,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public OverlayInstanceViewModel(OverlayType type) : base(type.ToString())
         {
+            MainContent = new InfoOverlay(this);
+            CloseRequested += OverlayClosing;
+            SettingsType = OverlaySettingsType.Character;
             CreatedType = type;
             Type = type;
             if (type == OverlayType.EHPS)
@@ -137,6 +147,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             UpdateLeaderboardType(LeaderboardSettings.ReadLeaderboardSettings());
             this.WhenAnyValue(x => x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(TotalFontSize)));
         }
+
+
         private void UpdateColor(OverlayType type)
         {
             if (type == Type)
@@ -148,6 +160,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool _usingLeaderboard;
         private Bitmap _overlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/SwtorLogo_opaque.png")));
         private ObservableCollection<OverlayMetricInfo> _metricBars = new ObservableCollection<OverlayMetricInfo>();
+        private OverlayType _type;
 
         private void UpdateLeaderboardType(LeaderboardType obj)
         {
