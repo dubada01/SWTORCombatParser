@@ -28,6 +28,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             get => bossFrameEnabled; set
             {
+                Active = value;
                 this.RaiseAndSetIfChanged(ref bossFrameEnabled, value);
                 if (!bossFrameEnabled)
                     HideOverlayWindow();
@@ -180,6 +181,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     Dispatcher.UIThread.Invoke(() =>
                     {
                         BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled, isDuplicate, CurrentScale));
+                        this.RaisePropertyChanged(nameof(ShowFrame));
+                        UpdateVisibility();
                     });
                 }
                 else
@@ -192,6 +195,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                         Dispatcher.UIThread.Invoke(() =>
                         {
                             BossesDetected.Remove(activeBoss);
+                            this.RaisePropertyChanged(nameof(ShowFrame));
+                            UpdateVisibility();
                         });
 
                     }
@@ -220,6 +225,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             Dispatcher.UIThread.Invoke(() =>
             {
                 BossesDetected.Clear();
+                this.RaisePropertyChanged(nameof(ShowFrame));
+                UpdateVisibility();
             });
         }
     }

@@ -21,7 +21,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeSetupViewModel : ReactiveObject, INotifyPropertyChanged
+    public class ChallengeSetupViewModel : ReactiveObject
     {
         public static ChallengeWindowViewModel _challengeWindowViewModel;
         private EncounterSelectionViewModel _enounterSelectionViewModel;
@@ -32,8 +32,6 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private ObservableCollection<ChallengeRowViewModel> challengeRows = new ObservableCollection<ChallengeRowViewModel>();
         private bool challengesEnabled;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public EncounterSelectionView EncounterSelectionView { get; set; }
         public void UpdateSelectedEncounter(string encounterName, string bossName)
         {
@@ -43,29 +41,21 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             get => selectedTimerSource; set
             {
-                selectedTimerSource = value;
-
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref selectedTimerSource, value);
                 UpdateChallengeRows();
-                OnPropertyChanged("VisibleTimerSelected");
             }
         }
         public bool ChallengesEnabled
         {
             get => challengesEnabled; set
             {
-                challengesEnabled = value;
+                this.RaiseAndSetIfChanged(ref challengesEnabled, value);
                 DefaultBossFrameManager.SetRaidChallenges(challengesEnabled);
-                OnPropertyChanged();
             }
         }
         public ObservableCollection<ChallengeRowViewModel> ChallengeRows
         {
-            get => challengeRows; set
-            {
-                challengeRows = value;
-                OnPropertyChanged();
-            }
+            get => challengeRows; set => this.RaiseAndSetIfChanged(ref challengeRows, value);
         }
         public void CombatSelected(Combat selectedCombat)
         {
@@ -243,11 +233,6 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 }
             }
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         internal void SetScalar(double sizeScalar)
         {
             _challengeWindowViewModel.SetScale(sizeScalar);

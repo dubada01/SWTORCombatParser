@@ -43,6 +43,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
 
     public void UpdateVisibility()
     {
+        this.RaisePropertyChanged(nameof(ShouldBeVisible));
         if (!_active)
         {
             HideOverlayWindow();
@@ -90,6 +91,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         set
         {
             this.RaiseAndSetIfChanged(ref _overlaysMoveable, value);
+            UpdateVisibility();
             OnLocking(!_overlaysMoveable);
         }
     }

@@ -30,9 +30,7 @@ public static class AvaloniaTimelineBuilder
 
     public static void Init()
     {
-        // Create and show the Avalonia window
         _timelineWindowViewModel = new TimelineWindowViewModel("Timeline");
-        _timelineWindowViewModel.MainContent = new TimelineWindow(_timelineWindowViewModel);
 
         CombatLogStateBuilder.AreaEntered += TryBuildTimeline;
         CombatIdentifier.CombatFinished += CombatFinished;
@@ -84,7 +82,6 @@ public static class AvaloniaTimelineBuilder
             _timelineEnabled = value;
             if (value)
             {
-                DefaultGlobalOverlays.SetActive("TimelineOverlay", true);
                 if(CombatMonitorViewModel.IsLiveParseActive())
                     HistoricalLogsParsed(DateTime.Now, false);
                 else

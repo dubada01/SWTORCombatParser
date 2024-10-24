@@ -11,10 +11,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Avalonia.Media;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeInstanceViewModel : INotifyPropertyChanged
+    public class ChallengeInstanceViewModel : ReactiveObject
     {
         private string metricTotal;
 
@@ -26,12 +27,11 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             get => scale; set
             {
-                scale = value;
+                this.RaiseAndSetIfChanged(ref scale, value);
                 foreach (var bar in MetricBars)
                 {
                     bar.SizeScalar = scale;
                 }
-                OnPropertyChanged();
             }
         }
         public Challenge SourceChallenge { get; set; }
@@ -44,8 +44,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             get => metricTotal; set
             {
-                metricTotal = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref metricTotal, value);
             }
         }
         public string ChallengeName { get; set; }
@@ -59,10 +58,6 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public void UpdatePhase(List<PhaseInstance> phases)
         {
             _phaseOfInterest = phases;
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         private void UpdateMetric(ChallengeType type, ChallengeOverlayMetricInfo metricToUpdate, Combat obj, Entity participant, Challenge sourceChallenge, Combat phaseCombat)
         {
@@ -135,7 +130,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
                 MetricBars = new List<ChallengeOverlayMetricInfo>(listOfBars.Where(b => b.Value != 0).OrderByDescending(mb => mb.RelativeLength));
 
-                OnPropertyChanged("MetricBars");
+                this.RaisePropertyChanged(nameof(MetricBars));
 
             }
             catch (Exception ex)

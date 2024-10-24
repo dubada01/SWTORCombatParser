@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
 using SWTORCombatParser.ViewModels.Timers;
@@ -17,9 +18,9 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
         public RaidDotInstance()
         {
             InitializeComponent();
-            AttachedToVisualTree += TimerBarControl_AttachedToVisualTree;
+            Loaded += TimerBarControl_AttachedToVisualTree;
         }
-        private async void TimerBarControl_AttachedToVisualTree(object sender, VisualTreeAttachmentEventArgs e)
+        private async void TimerBarControl_AttachedToVisualTree(object? sender, RoutedEventArgs routedEventArgs)
         {
             var timerBar = this.FindControl<Border>("TimerBar");
             if (timerBar?.RenderTransform is ScaleTransform barScale)
@@ -55,7 +56,7 @@ namespace SWTORCombatParser.Views.Overlay.BossFrame
                         }
                     };
 
-                    await animation.RunAsync(barScale);
+                    await animation.RunAsync(timerBar);
                 }
             }
         }

@@ -21,7 +21,6 @@ public class TimelineElement
     {
         private object lockObj = new object();
         public event Action<TimeSpan> OnUpdateTimeline = delegate { };
-        public event Action<bool> UpdateClickThrough = delegate { }; 
         public event Action<TimeSpan> OnInit = delegate { };
         public event Action<string,string,string> AreaEntered = delegate { };
         private InstanceInformation _instanceInfo;
@@ -98,7 +97,7 @@ public class TimelineElement
 
         public void SetClickThrough(bool canClickThrough)
         {
-            UpdateClickThrough(canClickThrough);
+            OverlaysMoveable = !canClickThrough;
         }
         // Call this method whenever the data updates in real-time
         public void UpdateTimeline(TimeSpan  currentTime)

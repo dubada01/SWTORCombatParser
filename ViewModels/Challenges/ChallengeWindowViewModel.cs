@@ -9,6 +9,7 @@ using System;
 using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Threading;
+using ReactiveUI;
 using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Challenges
@@ -55,6 +56,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             {
                 inBossRoom = false;
             }
+            UpdateVisibility();
         }
 
         private void AreaEntered(EncounterInfo areaInfo)
@@ -67,6 +69,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             {
                 inBossRoom = false;
             }
+            UpdateVisibility();
         }
         private void UpdateState()
         {

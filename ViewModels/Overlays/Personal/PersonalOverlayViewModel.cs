@@ -114,6 +114,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
                         Rows = Rows + 1;
                     }
                 }
+                base.OverlaysMoveable = value;
             }
         }
         public double Rows

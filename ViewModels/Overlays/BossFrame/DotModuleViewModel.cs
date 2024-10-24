@@ -7,16 +7,22 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class DotModuleViewModel : INotifyPropertyChanged
+    public class DotModuleViewModel : ReactiveObject
     {
         private EntityInfo _bossInfo;
         private bool isActive;
         private double _currentScale;
+        private ObservableCollection<TimerInstanceViewModel> _activeDots = new ObservableCollection<TimerInstanceViewModel>();
 
-        public ObservableCollection<TimerInstanceViewModel> ActiveDOTS { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
+        public ObservableCollection<TimerInstanceViewModel> ActiveDOTS
+        {
+            get => _activeDots;
+            set => this.RaiseAndSetIfChanged(ref _activeDots, value);
+        }
 
         public DotModuleViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, double scale)
         {
@@ -70,12 +76,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             var currentTimers = ActiveDOTS.OrderBy(v => v.TimerValue);
             ActiveDOTS = new ObservableCollection<TimerInstanceViewModel>(currentTimers);
-            OnPropertyChanged("ActiveDOTS");
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

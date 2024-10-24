@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private bool _stubLogs;
         // private readonly int _linesPerWriteMin = 5560;
-        private readonly int _linesPerWriteMin = 1560;
+        private readonly int _linesPerWriteMin = 356;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
@@ -238,16 +238,16 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             }
         }
         //TEST CODE
-        private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+        private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic/CombatLogs");
         private double currentLogOffsetMs;
         private double currentTotalOffsetMs;
         private void TransferLogData(string testLogPath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var encoding = Encoding.GetEncoding(1252);
-            var testFilesPath = @"C:\Users\duban\Desktop\TestLogs";
+            var testFilesPath = Path.Combine("/Users/davidduba/Documents/SWTORCombatParser/TestCombatLogs");
             var files = Directory.EnumerateFiles(testFilesPath);
-            foreach (var file in files)
+            foreach (var file in files.Where(f=>f.EndsWith(".txt")))
             {
                 using (var reader = new StreamReader(file, encoding))
                 {
@@ -279,7 +279,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); 
             var encoding = Encoding.GetEncoding(1252);
-            var testFilesPath = @"C:\Users\duban\source\dubatech-repos\SWTORCombatParser\SWTORCombatParser_Test\TestLogs";
+            var testFilesPath = Path.Combine(Environment.CurrentDirectory, @"\SWTORCombatParser_Test\TestLogs");
             var files = Directory.EnumerateFiles(testFilesPath);
             var file = files.First();
             using (var reader = new StreamReader(file, encoding))
