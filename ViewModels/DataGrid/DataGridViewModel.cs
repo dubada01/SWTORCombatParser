@@ -106,6 +106,8 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             RefreshColumns();
         }
         public event Action ColumnsRefreshed = delegate { };
+        public event Action ColumnsChanged = delegate { };
+
         public ObservableCollection<DataGridHeaderViewModel> HeaderNames
         {
             get => headerNames; set
@@ -121,6 +123,8 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 this.RaiseAndSetIfChanged(ref partyMembers, value);
             }
         }
+        
+
         public void UpdateCombat(Combat updatedCombat)
         {
             _allSelectedCombats.Clear();
@@ -137,6 +141,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             _localPlayer = "";
             _allSelectedCombats.Clear();
+            ColumnsChanged();
             UpdateUI();
         }
         private void RefreshColumns()

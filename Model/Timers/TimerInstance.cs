@@ -6,6 +6,7 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using Timer = SWTORCombatParser.DataStructures.Timer;
@@ -384,6 +385,12 @@ namespace SWTORCombatParser.Model.Timers
             {
                 var sourceTarget =
                     CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp).Entity;
+                if(string.IsNullOrEmpty(currentTarget.Name))
+                    return new TimerTargetInfo()
+                    {
+                        Name = sourceTarget.Name,
+                        Id = sourceTarget.Id
+                    };
                 return new TimerTargetInfo()
                 {
                     Name = currentTarget.Name,

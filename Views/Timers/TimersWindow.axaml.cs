@@ -8,13 +8,10 @@ using SWTORCombatParser.ViewModels;
 
 namespace SWTORCombatParser.Views.Timers
 {
-    public partial class TimersWindow : BaseOverlayWindow
+    public partial class TimersWindow : UserControl
     {
-        private BaseOverlayViewModel viewModel;
-        private string _currentPlayerName;
-        public TimersWindow(BaseOverlayViewModel vm):base(vm)
+        public TimersWindow(BaseOverlayViewModel vm)
         {
-            viewModel = vm;
             DataContext = vm;
             InitializeComponent();
         }

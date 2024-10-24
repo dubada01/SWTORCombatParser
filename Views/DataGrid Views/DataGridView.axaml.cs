@@ -64,7 +64,11 @@ namespace SWTORCombatParser.Views.DataGrid_Views
     /// </summary>
     public partial class DataGridView : UserControl
     {
+        // Determine the new sort direction
+        private ListSortDirection sortDirection = ListSortDirection.Ascending;
         private readonly DataGridViewModel _viewModel;
+        private string sortProperty = "Name";
+        private DataGridTextColumn columnToAddSortIconTo;
 
         public DataGridView(DataGridViewModel vm)
         {
@@ -152,6 +156,8 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                             FontSize = 12
                         };
                         DynamicDataGrid.Columns.Add(column);
+                        if (statSlot.Header == sortProperty)
+                            columnToAddSortIconTo = column;
                     }
                 }
             }
@@ -163,7 +169,12 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                     column.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
                 }
             });
-
+            ForceSort();
+            if(columnToAddSortIconTo != null)
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    UpdateColumnForSort(columnToAddSortIconTo);
+                });
         }
 
         private void DynamicDataGrid_OnSorting(object? sender, DataGridColumnEventArgs e)
@@ -173,76 +184,80 @@ namespace SWTORCombatParser.Views.DataGrid_Views
             {
                 if (e.Column is DataGridTextColumn textColumn)
                 {
-                    // Retrieve the header Control
-                    if (textColumn.Header is Control headerControl)
+                    if ((textColumn.Header as TextBlock).Text == "Name")
                     {
-                        if((textColumn.Header as TextBlock).Text == "Name")
-                        {
-                            return;
-                        }
-                        var parentGrid = VisualTreeHelpers.GetParent<Grid>(headerControl, 2);
-                        // Find the SortIcon Path within the parent Grid
-                        var sortIcon = VisualTreeHelpers.FindChildByName<Path>(parentGrid, "SortIcon");
-
-                        // Determine the new sort direction
-                        ListSortDirection newDirection = ListSortDirection.Ascending;
-
-                        if (textColumn.Tag is ListSortDirection existingDirection)
-                        {
-                            newDirection = existingDirection == ListSortDirection.Ascending
-                                ? ListSortDirection.Descending
-                                : ListSortDirection.Ascending;
-                        }
-
-                        // Update the Tag to store the current sort direction
-                        textColumn.Tag = newDirection;
-
-                        // Clear sort indicators on other columns
-                        foreach (var col in DynamicDataGrid.Columns)
-                        {
-                            if (col != textColumn && col.Header is Control otherHeaderControl)
-                            {
-                                var otherParentGrid = VisualTreeHelpers.GetParent<Grid>(otherHeaderControl, 2);
-                                // Find the SortIcon Path within the parent Grid
-                                var otherSortIcon =
-                                    VisualTreeHelpers.FindChildByName<Path>(otherParentGrid, "SortIcon");
-                                if (otherSortIcon != null)
-                                {
-                                    otherSortIcon.Data = null;
-                                    otherSortIcon.IsVisible = false;
-                                }
-                            }
-                        }
-
-                        // Update the SortIcon for the clicked column
-                        if (sortIcon != null)
-                        {
-                            sortIcon.Data = newDirection == ListSortDirection.Ascending
-                                ? SortIconGeometries.AscendingGeometry
-                                : SortIconGeometries.DescendingGeometry;
-
-                            sortIcon.IsVisible = true;
-                        }
-
-                        // Retrieve the sort property based on the binding
-// Retrieve the sort property based on the binding
-                        string sortProperty = ((textColumn.Header as TextBlock)?.Tag as StatsSlotViewModel).Header;
-
-                        // Instantiate the CustomComparer with the new direction
-                        CustomComparer comparer = new CustomComparer(sortProperty, newDirection);
-
-                        // Sort the items
-                        var items = DynamicDataGrid.ItemsSource as IEnumerable<MemberInfoViewModel>;
-                        if (items != null)
-                        {
-                            var sortedItems = new List<MemberInfoViewModel>(items);
-                            sortedItems.Sort(comparer);
-                            DynamicDataGrid.ItemsSource = new AvaloniaList<MemberInfoViewModel>(sortedItems);
-                        }
+                        return;
                     }
+                    UpdateColumnForSort(textColumn);
+                    ForceSort();
                 }
             });
         }
 
+        private void UpdateColumnForSort(DataGridTextColumn textColumn)
+        {
+            if (textColumn.Header is Control headerControl)
+            {
+                var parentGrid = VisualTreeHelpers.GetParent<Grid>(headerControl, 2);
+                // Find the SortIcon Path within the parent Grid
+                var sortIcon = VisualTreeHelpers.FindChildByName<Path>(parentGrid, "SortIcon");
+
+                if (textColumn.Tag is ListSortDirection existingDirection)
+                {
+                    sortDirection = existingDirection == ListSortDirection.Ascending
+                        ? ListSortDirection.Descending
+                        : ListSortDirection.Ascending;
+                }
+
+                // Update the Tag to store the current sort direction
+                textColumn.Tag = sortDirection;
+
+                // Clear sort indicators on other columns
+                foreach (var col in DynamicDataGrid.Columns)
+                {
+                    if (col != textColumn && col.Header is Control otherHeaderControl)
+                    {
+                        var otherParentGrid = VisualTreeHelpers.GetParent<Grid>(otherHeaderControl, 2);
+                        // Find the SortIcon Path within the parent Grid
+                        var otherSortIcon =
+                            VisualTreeHelpers.FindChildByName<Path>(otherParentGrid, "SortIcon");
+                        if (otherSortIcon != null)
+                        {
+                            otherSortIcon.Data = null;
+                            otherSortIcon.IsVisible = false;
+                        }
+                    }
+                }
+
+                // Update the SortIcon for the clicked column
+                if (sortIcon != null)
+                {
+                    sortIcon.Data = sortDirection == ListSortDirection.Ascending
+                        ? SortIconGeometries.AscendingGeometry
+                        : SortIconGeometries.DescendingGeometry;
+
+                    sortIcon.IsVisible = true;
+                }
+
+                // Retrieve the sort property based on the binding
+// Retrieve the sort property based on the binding
+                sortProperty = ((textColumn.Header as TextBlock)?.Tag as StatsSlotViewModel).Header;
+            }
+        }
+
+        private void ForceSort()
+        {
+            // Instantiate the CustomComparer with the new direction
+            CustomComparer comparer = new CustomComparer(sortProperty, sortDirection);
+
+            // Sort the items
+            var items = DynamicDataGrid.ItemsSource as IEnumerable<MemberInfoViewModel>;
+            if (items != null)
+            {
+                var sortedItems = new List<MemberInfoViewModel>(items);
+                sortedItems.Sort(comparer);
+                DynamicDataGrid.ItemsSource = new AvaloniaList<MemberInfoViewModel>(sortedItems);
+            }
+        }
     }
 }

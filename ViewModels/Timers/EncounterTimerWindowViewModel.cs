@@ -1,5 +1,4 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
@@ -9,9 +8,7 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Threading;
 using SWTORCombatParser.Views;
@@ -25,18 +22,14 @@ namespace SWTORCombatParser.ViewModels.Timers
         public override bool ShouldBeVisible => inBossRoom;
         public EncounterTimerWindowViewModel(string overlayName) : base(overlayName)
         {
-            TimerTitle = "Boss Timers";
             SwtorTimers = new List<TimerInstanceViewModel>();
-
-            TimerController.TimerExpired += RemoveTimer;
-            TimerController.TimerTriggered += AddTimerVisual;
-            TimerController.ReorderRequested += ReorderTimers;
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
             CombatLogStreamer.CombatUpdated += CheckForEnd;
             isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
-            _timerWindow = new TimersWindow(this);
+            MainContent = new TimersWindow(this);
+            _timerWindow = new BaseOverlayWindow(this);
             Dispatcher.UIThread.Invoke(() =>
             {
                 var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
@@ -109,7 +102,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private object _timerChangeLock = new object();
         private double _currentScale;
 
-        private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
+        protected override void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert ||
                 obj.SourceTimer.TriggerType == TimerKeyType.EntityHP || obj.SourceTimer.TriggerType == TimerKeyType.AbsorbShield || obj.TimerValue <= 0)
@@ -126,7 +119,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             callback(obj);
         }
 
-        private void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
+        protected override void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
         {
             lock (_timerChangeLock)
             {
@@ -136,7 +129,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             callback(removedTimer);
         }
 
-        private void ReorderTimers()
+        protected override void ReorderTimers()
         {
             lock (_timerChangeLock)
             {

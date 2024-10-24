@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Threading;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -12,39 +13,17 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         private string _timerSource;
         private bool _timersEnabled;
-        private List<TimerInstance> _activeTimers = new List<TimerInstance>();
         public override bool ShouldBeVisible => true;
         public DisciplineTimersWindowViewModel(string overlayName) : base(overlayName)
         {
-            TimerController.TimerExpired += RemoveTimer;
-            TimerController.TimerTriggered += AddTimerVisual;
-            TimerController.ReorderRequested += ReorderTimers;
-            _timerWindow = new TimersWindow(this);
+            MainContent = new TimersWindow(this);
+            _timerWindow = new BaseOverlayWindow(this);
         }
-        private void UpdateSource()
-        {
-            if (_timerSource.Contains('|') || _timerSource == "Shared" || _timerSource == "HOTS")
-                return;
-            TimerTitle = _timerSource + " Timers";
-            SwtorTimers = new List<TimerInstanceViewModel>();
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                var defaultTimersInfo = DefaultOrbsTimersManager.GetDefaults(_timerSource);
-                _timerWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
-                _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
-                _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
-                if(OverlaysMoveable)
-                    ShowOverlayWindow();
-                else
-                {
-                    HideOverlayWindow();
-                }
-            });
-        }
+
         private object _timerChangeLock = new object();
         private double _currentScale;
 
-        private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
+        protected override void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (obj.SourceTimer.IsHot || !Active || obj.SourceTimer.IsMechanic || obj.SourceTimer.IsAlert || obj.SourceTimer.IsBuiltInDefensive || obj.TimerValue <= 0)
             {
@@ -60,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             callback(obj);
         }
 
-        private void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
+        protected override void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
         {
             lock (_timerChangeLock)
             {
@@ -69,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             ReorderTimers();
             callback(removedTimer);
         }
-        private void ReorderTimers()
+        protected override void ReorderTimers()
         {
             lock (_timerChangeLock)
             {

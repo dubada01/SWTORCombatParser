@@ -34,6 +34,8 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
             get => selectedEncounter;
             set
             {
+                if(value == null)
+                    return;
                 if (value.Name.Contains("--"))
                     return;
                 this.RaiseAndSetIfChanged(ref selectedEncounter, value);

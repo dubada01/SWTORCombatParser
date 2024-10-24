@@ -16,7 +16,7 @@
         <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
             <Border IsVisible="{Binding SourceTimer.TriggerType, Converter={StaticResource AbsorbTimerBarVisibilityConverter}, ConverterParameter=inverted}" Background="{StaticResource Gray4Brush}" CornerRadius="3" BorderThickness="0.75" BorderBrush="{StaticResource Gray9Brush}">
                 <Border x:Name="TimerBar"  FlowDirection="RightToLeft"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0.5" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0.5" BorderBrush="DimGray" RenderTransformOrigin="1,0" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
                     <Border.RenderTransform>
                         <ScaleTransform ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
                     </Border.RenderTransform>
