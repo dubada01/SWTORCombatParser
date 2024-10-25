@@ -24,6 +24,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     private bool _isVisibile;
     public event Action<bool> ActiveChanged = delegate { };
     public event Action CloseRequested = delegate { };
+    public event Action<Point, Point> WindowPropertiesUpdated = delegate { };
     public event Action<Point,Point> OnNewPositionAndSize = delegate { }; 
     public event Action<bool> OnLocking = delegate { };
     public OverlaySettingsType SettingsType { get; set; } = OverlaySettingsType.Global;
@@ -44,7 +45,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     public void UpdateVisibility()
     {
         this.RaisePropertyChanged(nameof(ShouldBeVisible));
-        if (!_active)
+        if (!_active || (!OverlaysMoveable && !ShouldBeVisible))
         {
             HideOverlayWindow();
         }
@@ -53,6 +54,8 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             if (ShouldBeVisible || OverlaysMoveable)
             {
                 ShowOverlayWindow();
+                if (OverlaysMoveable)
+                    OnLocking(false);
             }
         }
     }
@@ -150,6 +153,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             DefaultGlobalOverlays.SetDefault(_overlayName, position, size);
         if(SettingsType == OverlaySettingsType.Character)
             DefaultCharacterOverlays.SetCharacterDefaults(_overlayName, position, size,_currentRole);
+        WindowPropertiesUpdated(position, size);
     }
     public void UpdateActiveState(bool state)
     {

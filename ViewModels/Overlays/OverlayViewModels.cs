@@ -458,8 +458,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             set
             {
                 this.RaiseAndSetIfChanged(ref overlaysLocked, value);
-                _timersViewModel.UpdateLock(value);
-                _challengesViewModel.UpdateLock(value);
+                _timersViewModel.UpdateLock(overlaysLocked);
+                _challengesViewModel.UpdateLock(overlaysLocked);
                 _otherOverlayViewModel.UpdateLock(overlaysLocked);
                 _personalOverlayViewModel.OverlaysMoveable = !OverlaysLocked;
                 _abilityListSetup.UpdateLock(overlaysLocked);

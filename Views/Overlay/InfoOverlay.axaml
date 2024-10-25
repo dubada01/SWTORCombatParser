@@ -38,7 +38,7 @@
                                     <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Grid.Column="0" CornerRadius="{Binding BarRadiusSecondary}" Background="{Binding SecondaryType, Converter={StaticResource OverlayMetricTypeToColorConverter}}" ></Border>
                                 </Grid>
                                 
-                                <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="{Binding FontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TotalValue}"></TextBlock>
+                                <TextBlock Margin="0,0,10,2" Grid.Column="1" FontSize="{Binding FontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TotalValue}"></TextBlock>
    
                                 <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,2,0">
                                     <Grid.ColumnDefinitions>
@@ -48,7 +48,7 @@
                                     <Image Grid.Column="0" IsVisible="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" MaxWidth="25" VerticalAlignment="Center" Margin="1,3,3,4" Source="{Binding MedalIconPath}"></Image>
                                     <TextBlock Margin="0,0,3,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="{Binding RankFontSize}" Foreground="Beige" TextDecorations="{Binding RankDecoration}" Text="{Binding LeaderboardRank}" >
                                     </TextBlock>
-                                    <TextBlock Margin="0,0,0,0" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding PlayerName}" ></TextBlock>
+                                    <TextBlock Margin="0,0,0,2" Grid.Column="2" FontFamily="{StaticResource MainFont}" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding PlayerName}" ></TextBlock>
                                 </Grid>
                                 <Rectangle Grid.Row="1" IsVisible="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.ColumnSpan="2" Fill="Transparent" Height="{Binding LeaderboardSeperationDistance}"></Rectangle>
                             </Grid>

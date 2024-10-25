@@ -68,12 +68,8 @@ public partial class BaseOverlayWindow : Window
         InitializeComponent();
         Loaded += InitOverlay;
         viewModel.OnLocking += ToggleClickThrough;
-        viewModel.CloseRequested += Close;
+        viewModel.CloseRequested += Hide;
         viewModel.OnNewPositionAndSize += SetSizeAndLocation;
-        if (viewModel.OverlaysMoveable)
-            ToggleClickThrough(false);
-        else
-            ToggleClickThrough(true);
         Opened += SetWindowParams;
     }
 
@@ -89,7 +85,7 @@ public partial class BaseOverlayWindow : Window
 
     private void InitOverlay(object? sender, RoutedEventArgs e)
     {
-        ToggleClickThrough(true);
+        ToggleClickThrough(!_viewModel.OverlaysMoveable);
         RemoveFromAppWindow();
         IdentifierText.Text = _viewModel._overlayName;
     }
@@ -112,7 +108,7 @@ public partial class BaseOverlayWindow : Window
     }
     public void ToggleClickThrough(bool canClickThrough)
     {
-        Dispatcher.UIThread.Invoke(() =>
+        Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 MakeWindowClickThroughMac(canClickThrough);

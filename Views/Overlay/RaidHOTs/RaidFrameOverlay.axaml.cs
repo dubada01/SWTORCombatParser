@@ -60,17 +60,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             var yFract = relativeY / (double)GetHeight();
             AreaClicked(xFract, yFract);
         }
-        //TODO Deal with raid frames
         public void SetPlayer(string playerName)
         {
-            /*_currentPlayerName = playerName;
-            var defaults = RaidFrameOverlayManager.GetDefaults(_currentPlayerName);
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                Width = defaults.WidtHHeight.X;
-                Height = defaults.WidtHHeight.Y;
-                Position = new PixelPoint((int)defaults.Position.X, (int)defaults.Position.Y);
-            });*/
             _viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
         }
         private void Hello(object? sender, RoutedEventArgs routedEventArgs)

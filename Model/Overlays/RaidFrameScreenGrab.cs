@@ -27,56 +27,101 @@ namespace SWTORCombatParser.Model.Overlays
         public static MemoryStream GetRaidFrameBitmapStream(Point topLeft, int width, int height, int rowsCount)
         {
             CurrentCompressionFactor = Math.Min((300d / height), 1f);
-
-            SKBitmap bmp = screenCapturer.CaptureScreenArea((int)topLeft.X, (int)topLeft.Y, width, height);
-            RemoveOverlayNames(bmp, rowsCount);
-            return CompressByReducingPixelsToStream(bmp);
-        }
-
-        private static void RemoveOverlayNames(SKBitmap bmp, int rowsCount)
-        {
-            Dispatcher.UIThread.Invoke(() =>
+            return Dispatcher.UIThread.Invoke(() =>
             {
-                var ratio = Math.Ceiling(bmp.Height / (double)rowsCount);
-                var breakPositions = Enumerable.Range(0, rowsCount).Select(r => r * ratio).ToList();
-                var pixelsToMask = (int)Math.Ceiling(16.5); // Adjust as needed
-
-                foreach (var y in breakPositions)
+                SKBitmap bmp =  screenCapturer.CaptureScreenArea((int)topLeft.X, (int)topLeft.Y, width, height);
+                if (bmp == null || bmp.Width == 0 || bmp.Height == 0)
                 {
-                    for (int i = 0; i < pixelsToMask; i++)
-                    {
-                        int currentY = (int)y + i;
-                        if (currentY >= bmp.Height)
-                            continue;
-
-                        for (int x = 0; x < bmp.Width; x++)
-                        {
-                            bmp.SetPixel(x, currentY, SKColors.Transparent);
-                        }
-                    }
+                    throw new Exception("Failed to capture screen area or invalid bitmap dimensions.");
                 }
+                RemoveOverlayNames(bmp, rowsCount);
+                return CompressByReducingPixelsToStream(bmp);
+                
             });
         }
 
+        public static void RemoveOverlayNames(SKBitmap bmp, int rowsCount)
+        {
+            // Calculate the height of each row segment based on the total height and number of rows
+            var ratio = Math.Ceiling(bmp.Height / (double)rowsCount);
+            var breakPositions = Enumerable.Range(0, rowsCount).Select(r => (int)(r * ratio)).ToList();
+            var pixelsToMask = (int)Math.Ceiling(16.5); // Number of rows to make transparent
+
+            // Get the bitmap's pixels array
+            SKColor[] pixels = bmp.Pixels;
+
+            foreach (var y in breakPositions)
+            {
+                for (int i = 0; i < pixelsToMask; i++)
+                {
+                    int currentY = y + i;
+                    if (currentY >= bmp.Height || currentY < 0)
+                        continue;
+
+                    // Loop through the width of the bitmap for each target row
+                    for (int x = 0; x < bmp.Width; x++)
+                    {
+                        // Calculate the pixel's 1D index in the pixels array
+                        int index = currentY * bmp.Width + x;
+                    
+                        // Set the pixel to transparent
+                        pixels[index] = SKColors.Transparent;
+                    }
+                }
+            }
+
+            // Apply the modified pixel array back to the bitmap
+            bmp.Pixels = pixels;
+        }
+
+
+
         private static MemoryStream CompressByReducingPixelsToStream(SKBitmap source)
         {
-            // Calculate the new width and height
+            // Calculate the new width and height based on compression factor
             int newWidth = (int)(source.Width * CurrentCompressionFactor);
             int newHeight = (int)(source.Height * CurrentCompressionFactor);
 
+            // Check if dimensions are valid
+            if (newWidth <= 0 || newHeight <= 0)
+            {
+                throw new ArgumentException("Invalid dimensions after resizing. Check compression factor.");
+            }
+
             // Resize the image
             SKImageInfo resizeInfo = new SKImageInfo(newWidth, newHeight);
-            SKBitmap resizedBitmap = new SKBitmap(resizeInfo);
-            source.ScalePixels(resizedBitmap, SKFilterQuality.High);
-
-            // Encode the image to a stream
-            var ms = new MemoryStream();
-            using (var image = SKImage.FromBitmap(resizedBitmap))
+            using (SKBitmap resizedBitmap = new SKBitmap(resizeInfo))
             {
-                image.Encode(SKEncodedImageFormat.Bmp, 100).SaveTo(ms);
+                bool scaled = source.ScalePixels(resizedBitmap, SKFilterQuality.High);
+                if (!scaled)
+                {
+                    throw new Exception("Failed to scale pixels in SKBitmap.");
+                }
+                // Encode the resized bitmap to a stream
+                using (var image = SKImage.FromBitmap(resizedBitmap))
+                {
+                    if (image == null)
+                    {
+                        throw new Exception("Failed to create SKImage from resized bitmap.");
+                    }
+                    var encodedData = image.Encode(SKEncodedImageFormat.Png, 100);
+                    if (encodedData == null)
+                    {
+                        throw new Exception("Failed to encode image.");
+                    }
+
+                    var ms = new MemoryStream();
+                    encodedData.SaveTo(ms);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    using (FileStream fs = new FileStream("test.png", FileMode.Create))
+                    {
+                        ms.CopyTo(fs);
+                        fs.Flush();
+                    }
+                    return ms;
+                }
             }
-            ms.Seek(0, SeekOrigin.Begin);
-            return ms;
         }
+
     }
 }

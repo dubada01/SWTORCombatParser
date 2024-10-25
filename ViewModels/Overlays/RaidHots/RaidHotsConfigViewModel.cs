@@ -21,7 +21,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
     {
         private string raidFrameRows = "4";
         private string raidFrameColumns = "2";
-        private RaidFrameOverlay _currentOverlay;
         private RaidFrameOverlayViewModel _currentOverlayViewModel;
         private bool _isRaidFrameEditable = false;
         private bool raidHotsEnabled = false;
@@ -37,7 +36,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             RaidFrameOverlayManager.Init();
             HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
             _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame") { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable};
-            _currentOverlay = new RaidFrameOverlay(_currentOverlayViewModel);
             CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
             {
                 if (!b)
