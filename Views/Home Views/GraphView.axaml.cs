@@ -33,6 +33,7 @@ namespace SWTORCombatParser.Views.Home_Views
             DataContext = dataContext;
             _plotViewModel = dataContext;
             InitializeComponent();
+            ConfigureSeries(Enum.GetValues(typeof(PlotType)).Cast<PlotType>().ToList());
             this.SizeChanged += NotifySizeChanged;
             _plot = this.FindControl<AvaPlot>("GridView");
             _plotViewModel.SetPlotForViewModel(_plot);
@@ -53,7 +54,6 @@ namespace SWTORCombatParser.Views.Home_Views
             legend.BackgroundColor = new Color(50, 50, 50, 50);
             legend.FontColor = Color.FromARGB(Colors.WhiteSmoke.ToUInt32());
             legend.FontSize = 10;
-            ConfigureSeries(Enum.GetValues(typeof(PlotType)).Cast<PlotType>().ToList());
             _plot.Plot.DataBackground.Color = new Color(20, 20, 20, 100);
             _plot.Plot.FigureBackground.Color = new Color(10, 10, 10, 255);
             _plot.Plot.Grid.MajorLineColor = new Color(100, 120, 120, 120);

@@ -166,6 +166,15 @@
     ]
   },
   {
+    "LogName": "Space",
+    "LogId": "945872057663605",
+    "Name": "New Lair Boss",
+    "EncounterType": 2,
+    "BossNames": [
+      "Propagator Core XR-53"
+    ]
+  },
+  {
     "LogName": "Valley of the Machine Gods",
     "LogId": "833571547775765",
     "Name": "The Gods from the Machine",

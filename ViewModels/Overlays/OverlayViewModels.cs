@@ -144,7 +144,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             DefaultGlobalOverlays.Init();
             DefaultPersonalOverlaysManager.Init();
             DefaultChallengeManager.Init();
-            //TODO DELETE THIS ONCE AVALONIA IS EMBEDDED
             AvaloniaTimelineBuilder.Init();
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
@@ -165,7 +164,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new() { Name = "Boss HP", Type = UtilityOverlayType.RaidBoss},
                 new() { Name = "Challenges", Type = UtilityOverlayType.RaidChallenge},
                 new() { Name = "Encounter Timers", Type = UtilityOverlayType.RaidTimer},
-                new() { Name = "Discipline Timers", Type = UtilityOverlayType.DisciplineTimer, Enabled = false},
+                new() { Name = "Discipline Timers", Type = UtilityOverlayType.DisciplineTimer},
                 new() { Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
                 new() { Name = "Time Trial", Type = UtilityOverlayType.Timeline},
                 new() { Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
@@ -198,6 +197,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             };
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer).IsSelected = _timersViewModel.DisciplineTimersActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Timeline).IsSelected = AvaloniaTimelineBuilder.TimelineEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
@@ -224,8 +224,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 {
                     var timerToggle = AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer);
                     timerToggle.Name = $"{arg2.Discipline}: Timers";
-                    timerToggle.Enabled = true;
-                    timerToggle.IsSelected = DefaultOrbsTimersManager.GetTimersActive(arg2.Discipline);
                 }
             }
             var nextRole = arg2.Role.ToString();
@@ -375,6 +373,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case UtilityOverlayType.RaidTimer:
                     _otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled = !_otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled;
+                    _timersViewModel.EncounterTimersActive = !_timersViewModel.EncounterTimersActive;
                     break;
                 case UtilityOverlayType.DisciplineTimer:
                     _timersViewModel.DisciplineTimersActive = !_timersViewModel.DisciplineTimersActive;

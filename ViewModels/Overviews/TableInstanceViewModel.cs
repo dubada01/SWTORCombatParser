@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -22,7 +24,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public double Rate => Math.Round(RateDouble);
         public double RateDouble { get; set; }
         public double Total { get; set; }
-        public double PercentOfTotal => Total / SumTotal;
+        public double PercentOfTotal => (Total / SumTotal)*100;
         public string PercentOfTotalStr => Math.Round((PercentOfTotal * 100)).ToString() + "%";
         public double Average { get; set; }
         public int Count { get; set; }
@@ -46,21 +48,34 @@ namespace SWTORCombatParser.ViewModels.Overviews
         BySource,
         ByTarget
     }
-    public class TableInstanceViewModel : OverviewInstanceViewModel, INotifyPropertyChanged
+    public class TableInstanceViewModel : OverviewInstanceViewModel
     {
         private SortingOption sortingOption;
         private double _sumTotal = 0;
+        private ObservableCollection<CombatInfoInstance> _dataToView;
+        private ObservableCollection<CombatInfoInstance> _totals;
+
         public override SortingOption SortingOption
         {
             get => sortingOption; set
             {
-                sortingOption = value;
-                OnPropertyChanged("SelectedSortName");
+                this.RaiseAndSetIfChanged(ref sortingOption, value);
                 Update();
             }
         }
         public string SelectedSortName => GetSortNameFromEnum(SortingOption);
-        public List<CombatInfoInstance> DataToView { get; set; }
+
+        public ObservableCollection<CombatInfoInstance> DataToView
+        {
+            get => _dataToView;
+            set => this.RaiseAndSetIfChanged(ref _dataToView, value);
+        }
+
+        public ObservableCollection<CombatInfoInstance> Totals
+        {
+            get => _totals;
+            set => this.RaiseAndSetIfChanged(ref _totals, value);
+        }
 
         public TableInstanceViewModel(OverviewDataType type) : base(type)
         {
@@ -75,8 +90,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             _selectedEntity = null;
             SelectedCombat = null;
-            DataToView = new List<CombatInfoInstance>();
-            OnPropertyChanged("DataToView");
+            DataToView = new ObservableCollection<CombatInfoInstance>();
+            Totals = new ObservableCollection<CombatInfoInstance>();
         }
         internal override void UpdateParticipant()
         {
@@ -86,7 +101,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             if (_selectedEntity == null || SelectedCombat == null)
                 return;
-            DataToView = new List<CombatInfoInstance>();
+            DataToView = new ObservableCollection<CombatInfoInstance>();
             var list = new List<CombatInfoInstance>();
             switch (_type)
             {
@@ -109,7 +124,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
             list = list.OrderByDescending(v => v.PercentOfTotal).ToList();
             if (list.Any())
             {
-                list.Add(new CombatInfoInstance
+                Totals = new ObservableCollection<CombatInfoInstance>();
+                Totals.Add(new CombatInfoInstance
                 {
 
                     SumTotal = _sumTotal,
@@ -122,16 +138,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     CritPercent = list.Average(v => v.CritPercent)
                 });
             }
-            for (var i = 0; i < list.Count; i++)
-            {
-                if (i % 2 == 1)
-                {
-                    list[i].RowBackground = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
-                }
-            }
             Dispatcher.UIThread.Invoke(() => {
-                DataToView = list;
-                OnPropertyChanged("DataToView");
+                DataToView = new ObservableCollection<CombatInfoInstance>(list);
             });
             
         }

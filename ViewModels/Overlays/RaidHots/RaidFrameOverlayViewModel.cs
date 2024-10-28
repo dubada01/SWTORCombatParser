@@ -60,13 +60,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 this.RaiseAndSetIfChanged(ref canDetect, value);
             }
         }
-        public Point TopLeft { get; set; }
-        public int Width { get; set; }
-        public double ScreenWidth { get; set; }
-        public double ColumnWidth => ScreenWidth / Columns;
-        public int Height { get; set; }
-        public double ScreenHeight { get; set; }
-        public double RowHeight => ScreenHeight / Rows;
+        public double ColumnWidth => OverlayScaledSize.X / Columns;
+        public double RowHeight => OverlayScaledSize.Y / Rows;
 
         public List<PlacedName> CurrentNames = new List<PlacedName>();
         public bool SizeSet = false;
@@ -81,7 +76,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CombatLogStateBuilder.AreaEntered += NewEncounterEntered;
             HotkeyHandler.OnHideOverlaysHotkey += ToggleHide;
             MainContent = new RaidFrameOverlay(this);
-            this.WindowPropertiesUpdated += (position,size) => UpdatePositionAndSize((int)size.Y, (int)size.X, size.Y, size.X, position);
+            KeepBackgroundHidden = true;
         }
         
         private void OnStartCombat(CombatStatusUpdate update)
@@ -104,10 +99,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CanDetect = false;
             Task.Run(() =>
             {
-                var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(TopLeft,
-                    Width, Height, Rows);
-                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(TopLeft,
-                    raidFrameBitmap, Rows, Columns, Height, Width).Result;
+                var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(OverlayPosition,
+                    (int)OverlayScaledSize.X, (int)OverlayScaledSize.Y, Rows);
+                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(OverlayPosition,
+                    raidFrameBitmap, Rows, Columns, (int)OverlayScaledSize.Y, (int)OverlayScaledSize.X).Result;
                 raidFrameBitmap.Dispose();
                 Dispatcher.UIThread.Invoke(() =>
                 {
@@ -512,19 +507,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             get => _raidHotCells;
             set => this.RaiseAndSetIfChanged(ref _raidHotCells, value);
         }
-
-        internal void UpdatePositionAndSize(int actualHeight, int actualWidth, double screenHeight, double screenWidth, Point topLeft)
-        {
-            TopLeft = topLeft;
-            Height = actualHeight;
-            Width = actualWidth;
-            ScreenHeight = screenHeight;
-            ScreenWidth = screenWidth;
-            this.RaisePropertyChanged(nameof(RowHeight));
-            this.RaisePropertyChanged(nameof(ColumnWidth));
-            SizeSet = true;
-        }
-
+        
         internal void FirePlayerChanged(string name)
         {
             SizeSet = false;

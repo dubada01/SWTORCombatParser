@@ -60,10 +60,6 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             var yFract = relativeY / (double)GetHeight();
             AreaClicked(xFract, yFract);
         }
-        public void SetPlayer(string playerName)
-        {
-            _viewModel.UpdatePositionAndSize(GetHeight(), GetWidth(), Height, Width, GetTopLeft());
-        }
         private void Hello(object? sender, RoutedEventArgs routedEventArgs)
         {
             PollForCursorPos();

@@ -1,11 +1,15 @@
 ﻿
+using System;
+using System.Diagnostics;
 using Avalonia;
+using System.Reactive.Linq;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
+using ReactiveUI;
 using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Views.Overlay.RaidHOTs
@@ -18,9 +22,19 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         public RaidHotInstance()
         {
             InitializeComponent();
-            this.Loaded += TimerBarControl_AttachedToVisualTree;
+            DataContextChanged += ConfigureSubscritoin;
         }
-        private async void TimerBarControl_AttachedToVisualTree(object? sender, RoutedEventArgs routedEventArgs)
+
+        private void ConfigureSubscritoin(object? sender, EventArgs e)
+        {
+            if(DataContext is TimerInstanceViewModel vm)
+            {
+                vm.TimerStarted += RestartAnimation;
+                Debug.WriteLine("Subscription Made");
+            }
+        }
+
+        private async void RestartAnimation()
         {
             var timerBar = this.FindControl<Border>("TimerBar");
             if (timerBar?.RenderTransform is ScaleTransform barScale)
@@ -55,7 +69,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                             }
                         }
                     };
-
+                    Debug.WriteLine($"{DateTime.Now}: Starting HOT animation: "+vm.TimerName);
                     await animation.RunAsync(timerBar);
                 }
             }

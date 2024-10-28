@@ -24,12 +24,14 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     private bool _isVisibile;
     public event Action<bool> ActiveChanged = delegate { };
     public event Action CloseRequested = delegate { };
-    public event Action<Point, Point> WindowPropertiesUpdated = delegate { };
     public event Action<Point,Point> OnNewPositionAndSize = delegate { }; 
     public event Action<bool> OnLocking = delegate { };
+    public Point OverlayScaledSize { get; set; }
+    public Point OverlayPosition { get; set; }
     public OverlaySettingsType SettingsType { get; set; } = OverlaySettingsType.Global;
     internal readonly string _overlayName;
     private UserControl _mainContent;
+    private bool _displayingContent;
 
     public UserControl MainContent
     {
@@ -51,7 +53,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         }
         else
         {
-            if (ShouldBeVisible || OverlaysMoveable)
+            if ((ShouldBeVisible || OverlaysMoveable) && DisplayingContent)
             {
                 ShowOverlayWindow();
                 if (OverlaysMoveable)
@@ -59,10 +61,22 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             }
         }
     }
+    public bool KeepBackgroundHidden { get; set; }
     public abstract bool ShouldBeVisible
     {
         get;
-    } 
+    }
+    public bool HideUnlessDisplayingContent { get; set; }
+    public bool DisplayingContent
+    {
+        get => _displayingContent || !HideUnlessDisplayingContent;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _displayingContent, value);
+            UpdateVisibility();
+        }
+    }
+
     public void RequestClose()
     {
         Dispatcher.UIThread.Invoke(() =>
@@ -112,13 +126,16 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     }
     public void ShowOverlayWindow()
     {
-        if (!Active)
-            return;
-        Dispatcher.UIThread.Invoke(() =>
+        if ((ShouldBeVisible || OverlaysMoveable) && DisplayingContent)
         {
-            _overlayWindow?.Show();
-            _isVisibile = true;
-        });
+            if (!Active)
+                return;
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                _overlayWindow?.Show();
+                _isVisibile = true;
+            });
+        }
     }
 
     public void HideOverlayWindow()
@@ -153,7 +170,13 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             DefaultGlobalOverlays.SetDefault(_overlayName, position, size);
         if(SettingsType == OverlaySettingsType.Character)
             DefaultCharacterOverlays.SetCharacterDefaults(_overlayName, position, size,_currentRole);
-        WindowPropertiesUpdated(position, size);
+        
+    }
+
+    public void UpdateWindowSizeWithScale(Point position, Point size)
+    {
+        OverlayScaledSize = size;
+        OverlayPosition = position;
     }
     public void UpdateActiveState(bool state)
     {

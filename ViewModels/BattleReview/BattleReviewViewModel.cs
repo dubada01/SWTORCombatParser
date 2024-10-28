@@ -63,6 +63,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         private bool updatePending = false;
         private object lockObject = new object();
         private List<AvailableEntity> _availableEntities = new List<AvailableEntity>();
+        private EventHistoryView _eventViewContent;
 
         public string LogFilter
         {
@@ -99,7 +100,12 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             }
 
         }
-        public EventHistoryView EventViewContent { get; set; }
+
+        public EventHistoryView EventViewContent
+        {
+            get => _eventViewContent;
+            set => this.RaiseAndSetIfChanged(ref _eventViewContent,value);
+        }
 
         public List<AvailableEntity> AvailableEntities
         {

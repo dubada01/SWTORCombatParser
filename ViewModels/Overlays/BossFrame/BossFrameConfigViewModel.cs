@@ -51,7 +51,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             get => mechPredictionsEnabled; set
             {
                 this.RaiseAndSetIfChanged(ref mechPredictionsEnabled, value);
-                DefaultBossFrameManager.SetPredictMechs(mechPredictionsEnabled);
+                DefaultGlobalOverlays.SetActive("Encounter",mechPredictionsEnabled);
+                //DefaultBossFrameManager.SetPredictMechs(mechPredictionsEnabled);
                 UpdateBossFrameStates();
             }
         }
@@ -116,7 +117,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
             bossFrameEnabled = currentDefaults.Acive;
             DotTrackingEnabled = currentDefaults.TrackDOTS;
-            MechPredictionsEnabled = currentDefaults.PredictMechs;
+            MechPredictionsEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("Encounter").Acive;
             RaidChallengesEnabled = currentDefaults.RaidChallenges;
             this.WhenAnyValue(x => x.OverlaysMoveable).Subscribe(_ => this.RaisePropertyChanged(nameof(ShowFrame)));
             if (currentDefaults.Acive)

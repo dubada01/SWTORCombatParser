@@ -1,19 +1,15 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public abstract class OverviewInstanceViewModel : INotifyPropertyChanged
+    public abstract class OverviewInstanceViewModel : ReactiveObject
     {
         internal OverviewDataType _type;
         internal Entity _selectedEntity;
-        public event PropertyChangedEventHandler PropertyChanged;
         public abstract SortingOption SortingOption { get; set; }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
         public OverviewInstanceViewModel(OverviewDataType type)
         {
             _type = type;

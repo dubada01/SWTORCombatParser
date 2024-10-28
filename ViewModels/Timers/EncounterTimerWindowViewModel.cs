@@ -8,6 +8,7 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
 using Avalonia.Threading;
@@ -19,20 +20,20 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         private bool inBossRoom;
         private bool isEnabled;
-        public override bool ShouldBeVisible => inBossRoom;
+        public override bool ShouldBeVisible => inBossRoom && isEnabled;
         public EncounterTimerWindowViewModel(string overlayName) : base(overlayName)
         {
-            SwtorTimers = new List<TimerInstanceViewModel>();
+            SwtorTimers = new ObservableCollection<TimerInstanceViewModel>();
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
             CombatLogStreamer.CombatUpdated += CheckForEnd;
-            isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
             MainContent = new TimersWindow(this);
             _timerWindow = new BaseOverlayWindow(this);
             Dispatcher.UIThread.Invoke(() =>
             {
                 var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
+                isEnabled = defaultTimersInfo.Acive;
                 _timerWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
                 _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
                 _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
@@ -49,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     {
                         timer.Dispose();
                     }
-                    SwtorTimers = new List<TimerInstanceViewModel>();
+                    SwtorTimers = new ObservableCollection<TimerInstanceViewModel>();
                 }
             }
         }
@@ -69,34 +70,13 @@ namespace SWTORCombatParser.ViewModels.Timers
         private void CheckForArea(DateTime arg1, bool arg2)
         {
             var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(TimeUtility.CorrectedTime);
-            if (currentArea.IsBossEncounter)
-            {
-                if (isEnabled)
-                    Active = true;
-                inBossRoom = true;
-            }
-            else
-            {
-                if (!OverlaysMoveable)
-                    Active = false;
-                inBossRoom = false;
-            }
+            AreaEntered(currentArea);
         }
 
         private void AreaEntered(EncounterInfo areaInfo)
         {
-            if (areaInfo.IsBossEncounter)
-            {
-                if (isEnabled)
-                    Active = true;
-                inBossRoom = true;
-            }
-            else
-            {
-                if (!OverlaysMoveable)
-                    Active = false;
-                inBossRoom = false;
-            }
+            inBossRoom = areaInfo.IsBossEncounter;
+            UpdateVisibility();
         }
 
         private object _timerChangeLock = new object();
@@ -134,7 +114,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             lock (_timerChangeLock)
             {
                 _visibleTimers.RemoveAll(t => t.TimerValue <= 0);
-                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+                SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
             }
         }
     }

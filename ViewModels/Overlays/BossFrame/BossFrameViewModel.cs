@@ -6,18 +6,13 @@ using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class BossFrameViewModel : INotifyPropertyChanged
+    public class BossFrameViewModel
     {
         private DotModuleViewModel dotModuleViewModel;
         private HPModuleViewModel _hpVM;
         private MechanicsTimersModuleViewModel _mechsVM;
         private double _scale;
         public Entity CurrentBoss { get; set; }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
         public BossFrameViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, bool mechTrackingEnabled, bool isDuplicate, double scale)
         {

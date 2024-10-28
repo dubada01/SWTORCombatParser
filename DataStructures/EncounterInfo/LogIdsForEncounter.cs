@@ -699,6 +699,18 @@ public static class LogIdFactory
                         }
                     };
                     break;
+                case "New Lair Boss":
+                    encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
+                    {
+                        {
+                            "Propagator Core XR-53", new Dictionary<string, List<long>>()
+                            {
+                                { "Story 8", new List<long>() { 4824927605620736L } },
+                                { "Veteran 8", new List<long>() { 4204764392849408L } },
+                            }
+                        }
+                    };
+                    break;
                 case "Colossal Monolith":
                     encounter.BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
                     {

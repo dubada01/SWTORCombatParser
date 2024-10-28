@@ -2697,7 +2697,7 @@
     "PhaseSource": "The Gods from the Machine|SCYVA",
     "Name": "Omega Droid",
     "StartTrigger": 1,
-    "EndTrigger": 2,
+    "EndTrigger": 0,
     "StartArgs": {
       "EntityIds": [ 4126527268585472 ],
       "AbilityIds": [],

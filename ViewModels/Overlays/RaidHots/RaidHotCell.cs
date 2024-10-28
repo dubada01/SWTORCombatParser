@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
@@ -197,7 +198,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 RaidHotsOnPlayer.Add(obj);
             });
-
+            obj.FireTimerStarted();
+            Debug.WriteLine("Started Animation!");
             obj.TimerExpired += RemoveFromList;
             obj.TimerRefreshed += RefreshList;
         }

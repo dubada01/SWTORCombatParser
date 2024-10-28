@@ -35,7 +35,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             RaidFrameOverlayManager.Init();
             HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
-            _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame") { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Width = 500, Height = 450, Editable = _isRaidFrameEditable};
+            _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame") { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Editable = _isRaidFrameEditable};
             CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
             {
                 if (!b)
@@ -159,10 +159,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CanDetect = false;
             Task.Run(() =>
             {
-                var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(_currentOverlayViewModel.TopLeft,
-                    _currentOverlayViewModel.Width, _currentOverlayViewModel.Height, _currentOverlayViewModel.Rows);
-                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.TopLeft,
-                    raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentOverlayViewModel.Height, _currentOverlayViewModel.Width).Result;
+                var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(_currentOverlayViewModel.OverlayPosition,
+                    (int)_currentOverlayViewModel.OverlayScaledSize.X, (int)_currentOverlayViewModel.OverlayScaledSize.Y, _currentOverlayViewModel.Rows);
+                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.OverlayPosition,
+                    raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns,(int)_currentOverlayViewModel.OverlayScaledSize.Y, (int)_currentOverlayViewModel.OverlayScaledSize.X).Result;
                 raidFrameBitmap.Dispose();
                 Dispatcher.UIThread.Invoke(() =>
                 {

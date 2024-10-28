@@ -2,6 +2,7 @@
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
 using Avalonia.Threading;
@@ -17,6 +18,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public DisciplineTimersWindowViewModel(string overlayName) : base(overlayName)
         {
             MainContent = new TimersWindow(this);
+            HideUnlessDisplayingContent = true;
             _timerWindow = new BaseOverlayWindow(this);
         }
 
@@ -53,7 +55,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             lock (_timerChangeLock)
             {
                 _visibleTimers.RemoveAll(t => t.TimerValue < 0);
-                SwtorTimers = new List<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
+                SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
             }
         }
     }

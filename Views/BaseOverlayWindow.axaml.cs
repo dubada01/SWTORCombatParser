@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
 
 namespace SWTORCombatParser.Views;
@@ -30,6 +33,7 @@ public partial class BaseOverlayWindow : Window
     const int WS_EX_TRANSPARENT = 0x00000020;
     const int WS_EX_TOOLWINDOW = 0x00000080;
     const int WS_EX_APPWINDOW = 0x00040000;
+    
 
     [DllImport("user32.dll", SetLastError = true)]
     static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -39,6 +43,17 @@ public partial class BaseOverlayWindow : Window
 
     [DllImport("user32.dll", SetLastError = true)]
     static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+    private const uint SWP_NOSIZE = 0x0001;
+    private const uint SWP_NOMOVE = 0x0002;
+    private const uint SWP_NOZORDER = 0x0004;
+    private const uint SWP_NOACTIVATE = 0x0010;
+    private const uint SWP_FRAMECHANGED = 0x0020;
+    private const uint SWP_NOOWNERZORDER = 0x0200;
+
+    private static readonly IntPtr HWND_TOP = new IntPtr(0);
 
     // P/Invoke to interact with Objective-C runtime and Cocoa APIs
     [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "sel_registerName")]
@@ -62,9 +77,13 @@ public partial class BaseOverlayWindow : Window
 
     public BaseOverlayWindow(BaseOverlayViewModel viewModel)
     {
+        ShowActivated = false;
         DataContext = viewModel;
         _viewModel = viewModel;
-
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            RemoveShadowAndBorderMac();
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            RemoveShadowAndBorderWindows();
         InitializeComponent();
         Loaded += InitOverlay;
         viewModel.OnLocking += ToggleClickThrough;
@@ -88,6 +107,7 @@ public partial class BaseOverlayWindow : Window
         ToggleClickThrough(!_viewModel.OverlaysMoveable);
         RemoveFromAppWindow();
         IdentifierText.Text = _viewModel._overlayName;
+        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * RenderScaling), Position.Y + (53 * RenderScaling)), new Point((Width - 100) * RenderScaling, (Height - 53 ) * RenderScaling));
     }
 
     private void SetSizeAndLocation(Point position, Point size)
@@ -106,7 +126,7 @@ public partial class BaseOverlayWindow : Window
         _tempLocation = new PixelPoint((int)position.X, (int)position.Y);
         _tempSize = size;
     }
-    public void ToggleClickThrough(bool canClickThrough)
+    private void ToggleClickThrough(bool canClickThrough)
     {
         Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -114,7 +134,15 @@ public partial class BaseOverlayWindow : Window
                 MakeWindowClickThroughMac(canClickThrough);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 MakeWindowClickThroughWindows(canClickThrough);
-            BackgroundArea.Opacity = canClickThrough ? 0.1 : 0.75;
+            if(!_viewModel.KeepBackgroundHidden)
+                BackgroundArea.Opacity = canClickThrough ? 0.066 : 0.75;
+            if (_viewModel.KeepBackgroundHidden)
+            {
+                BackgroundArea.Opacity = 0;
+                OverlayIdText.IsVisible = false;
+            }
+            else
+                OverlayIdText.IsVisible = !canClickThrough;
             CloseButton.IsVisible = !canClickThrough;
         });
 
@@ -165,7 +193,31 @@ public partial class BaseOverlayWindow : Window
         // Call the 'setIgnoresMouseEvents' method with the boolean argument
         objc_msgSend(nsWindowHandle, setIgnoresMouseEventsSelector, isClickThrough);
     }
+// Final attempt to remove shadows and borders using SetWindowPos
+    private void RemoveShadowAndBorderWindows()
+    {
+        var platformHandle = this.TryGetPlatformHandle();
+        if (platformHandle == null) return;
 
+        var hWnd = platformHandle.Handle;
+    
+        // This style update removes borders and forces a frame change without shadow
+        int windowStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+        SetWindowLong(hWnd, GWL_EXSTYLE, windowStyle | WS_EX_TOOLWINDOW & ~WS_EX_APPWINDOW);
+
+        SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0,
+            SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+
+    private void RemoveShadowAndBorderMac()
+    {
+        var platformHandle = this.TryGetPlatformHandle();
+        if (platformHandle == null) return;
+
+        IntPtr nsWindowHandle = platformHandle.Handle;
+        var setHasShadowSelector = sel_registerName("setHasShadow:");
+        objc_msgSend(nsWindowHandle, setHasShadowSelector, false);
+    }
     private void RemoveFromAppWindow()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -193,6 +245,7 @@ public partial class BaseOverlayWindow : Window
     private void UpdateState()
     {
         _viewModel.UpdateWindowProperties(new Point(Position.X, Position.Y), new Point(Width, Height));
+        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * RenderScaling), Position.Y + (53* RenderScaling)), new Point((Width - 100) * RenderScaling, (Height - 53 ) * RenderScaling));
         CacheTempPositions(new Point(Position.X, Position.Y), new Point(Width, Height));
     }
 

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using SkiaSharp;
 
@@ -42,10 +43,16 @@ namespace SWTORCombatParser.Model.Overlays
 
         public static void RemoveOverlayNames(SKBitmap bmp, int rowsCount)
         {
+            var scalingFactor = 1d;
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                scalingFactor = desktop.MainWindow.RenderScaling;
+            }
             // Calculate the height of each row segment based on the total height and number of rows
             var ratio = Math.Ceiling(bmp.Height / (double)rowsCount);
             var breakPositions = Enumerable.Range(0, rowsCount).Select(r => (int)(r * ratio)).ToList();
-            var pixelsToMask = (int)Math.Ceiling(16.5); // Number of rows to make transparent
+
+            var pixelsToMask = (int)Math.Ceiling(16.5d * scalingFactor); // Number of rows to make transparent
 
             // Get the bitmap's pixels array
             SKColor[] pixels = bmp.Pixels;

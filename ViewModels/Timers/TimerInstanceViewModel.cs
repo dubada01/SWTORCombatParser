@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
+using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class TimerInstanceViewModel : INotifyPropertyChanged, IDisposable
+    public class TimerInstanceViewModel : ReactiveObject, IDisposable
     {
         private DateTime _lastUpdateTime;
         private double _maxTimerValue = 1;
@@ -36,15 +37,19 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public event Action<TimerInstanceViewModel, bool> TimerExpired = delegate { };
         public event Action TimerRefreshed = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event Action TimerStarted = delegate { };
+
+        public void FireTimerStarted()
+        {
+            TimerStarted();
+        }
         public event Action<int> ChargesUpdated = delegate { };
         public int Charges
         {
             get => charges; set
             {
-                charges = value;
-                OnPropertyChanged();
-                OnPropertyChanged("ShowCharges");
+                this.RaiseAndSetIfChanged(ref charges, value);
+                this.RaisePropertyChanged(nameof(ShowCharges));
                 ChargesUpdated(Charges);
             }
         }
@@ -66,8 +71,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             set
             {
                 _maxTimerValue = value;
-
-                OnPropertyChanged("TimerDuration");
+                this.RaisePropertyChanged(nameof(TimerDuration));
             }
         }
         public double OverlayOpacity { get; set; }
@@ -92,26 +96,24 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 else
                     TimerDuration = TimeSpan.FromSeconds(timerValue);
-                OnPropertyChanged("TimerDuration");
+                this.RaisePropertyChanged(nameof(TimerDuration));
                 if (SourceTimer.TriggerType != TimerKeyType.AbsorbShield) return;
-                OnPropertyChanged("CurrentRatio");
-                OnPropertyChanged("TimerName");
+                this.RaisePropertyChanged(nameof(CurrentRatio));
+                this.RaisePropertyChanged(nameof(TimerName));
             }
         }
         public bool DisplayTimer
         {
             get => displayTimer; set
             {
-                displayTimer = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref displayTimer, value);
             }
         }
         public bool DisplayTimerValue
         {
             get => displayTimerValue; set
             {
-                displayTimerValue = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref displayTimerValue, value);
             }
         }
 
@@ -119,12 +121,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             get => scale; set
             {
-                scale = value;
-                OnPropertyChanged("BarHeight");
-                OnPropertyChanged();
+                if (value == 0)
+                    return;
+                this.RaiseAndSetIfChanged(ref scale, value);
+                this.RaisePropertyChanged(nameof(BarHeight));
             }
         }
-
         public TimerInstanceViewModel(Timer swtorTimer)
         {
             _stubTimer = Settings.ReadSettingOfType<bool>("stub_logs");
@@ -166,7 +168,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             SourceTimer = swtorTimer;
             MaxTimerValue = swtorTimer.DurationSec;
             TimerValue = swtorTimer.DurationSec;
-            OnPropertyChanged("CurrentRatio");
+            this.RaisePropertyChanged(nameof(CurrentRatio));
 
             if (!swtorTimer.IsAlert)
             {
@@ -202,11 +204,8 @@ namespace SWTORCombatParser.ViewModels.Timers
 
                 }
             });
-
-            OnPropertyChanged("TimerDuration");
-            OnPropertyChanged("TimerValue");
-            OnPropertyChanged("BarWidth");
-            OnPropertyChanged("RemainderWidth");
+            this.RaisePropertyChanged(nameof(TimerDuration));
+            this.RaisePropertyChanged(nameof(TimerValue));
         }
         public async void TriggerTimeTimer(DateTime timeStampWhenTrigged)
         {
@@ -222,9 +221,10 @@ namespace SWTORCombatParser.ViewModels.Timers
 
                 TimerValue = MaxTimerValue + offset;
                 _lastUpdateTime = TimeUtility.CorrectedTime;
-                OnPropertyChanged("CurrentRatio");
-                OnPropertyChanged("TimerValue");
+                this.RaisePropertyChanged(nameof(CurrentRatio));
+                this.RaisePropertyChanged(nameof(TimerValue));
                 isActive = true;
+                TimerStarted();
                 while (TimerValue > 0 && isActive)
                 {
                     UpdateTimeBasedTimer();
@@ -262,7 +262,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             CurrentMonitoredHP = currentHP;
             _hpTimerMonitor = currentHP;
             TimerValue = SourceTimer.HPPercentage;
-            OnPropertyChanged("TimerValue");
+            this.RaisePropertyChanged(nameof(TimerValue));
             isActive = true;
             while (_hpTimerMonitor > SourceTimer.HPPercentage && isActive)
             {
@@ -280,7 +280,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             DisplayTimerValue = false;
             MaxTimerValue = 1d;
             TimerValue = 1d;
-            OnPropertyChanged("TimerValue");
+            this.RaisePropertyChanged(nameof(TimerValue));
             DamageDoneToAbsorb = 0;
             _absorbRemaining = maxAbsorb;
             _maxAbsorb = maxAbsorb;
@@ -289,7 +289,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 _absorbRemaining = _maxAbsorb - DamageDoneToAbsorb;
                 TimerValue = _absorbRemaining / _maxAbsorb;
-                OnPropertyChanged("TimerValue");
+                this.RaisePropertyChanged(nameof(TimerValue));
                 await Task.Delay(_updateIntervalMs);
             }
             if (isActive)
@@ -301,7 +301,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var deltaTime = (TimeUtility.CorrectedTime - _lastUpdateTime).TotalSeconds;
             _lastUpdateTime = TimeUtility.CorrectedTime;
             TimerValue -= deltaTime;
-            OnPropertyChanged("TimerValue");
+            this.RaisePropertyChanged(nameof(TimerValue));
             if (SourceTimer.UseAudio && TimerValue <= _playAtTime)
             {
                 Dispatcher.UIThread.Invoke(() =>
@@ -315,7 +315,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     _isAboutToExpire = true;
                     TimerBackground = _aboutToExpireBackground;
-                    OnPropertyChanged("TimerBackground");
+                    this.RaisePropertyChanged(nameof(TimerBackground));
                 });
             }
             if (SourceTimer.ChangeBackgroundNearExpiration && TimerValue > 5 && _isAboutToExpire)
@@ -324,7 +324,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     _isAboutToExpire = false;
                     TimerBackground = _defaultTimerBackground;
-                    OnPropertyChanged("TimerBackground");
+                    this.RaisePropertyChanged(nameof(TimerBackground));
                 });
             }
             if (SourceTimer.HideUntilSec > 0 && !DisplayTimer && TimerValue <= SourceTimer.HideUntilSec)
@@ -375,11 +375,6 @@ namespace SWTORCombatParser.ViewModels.Timers
 
             return name;
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         public void Dispose()
         {
             TimerValue = 0;

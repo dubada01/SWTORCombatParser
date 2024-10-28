@@ -83,6 +83,7 @@ namespace SWTORCombatParser.ViewModels
         private TabInstance _selectedTab;
         private bool _logLoaded;
         private bool _viewingLogs;
+        private readonly BattleReviewView logView;
 
         public TabInstance SelectedTab
         {
@@ -188,6 +189,7 @@ namespace SWTORCombatParser.ViewModels
             ContentTabs.Add(new TabInstance() { TabContent = deathView, HeaderText = "Death Review", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/skull.png") });
 
              _reviewViewModel = new BattleReviewViewModel();
+             logView = new BattleReviewView(_reviewViewModel);
             // ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/google-docs.png") });
 
 
@@ -262,11 +264,12 @@ namespace SWTORCombatParser.ViewModels
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var logView = new BattleReviewView(_reviewViewModel);
                 logView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 logView.Closing += (e, s) =>
                 {
+                    s.Cancel = true;
                     _viewingLogs = false;
+                    logView.Hide();
                 };
                 logView.Show(desktop.MainWindow);
                 _viewingLogs = true;
