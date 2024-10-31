@@ -72,8 +72,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             callback(obj);
         }
 
-        private void ReorderTimers()
+        private void ReorderTimers(string id)
         {
+            if(ActiveDOTS.All(t => t.SourceTimer.Id != id))
+                return;
             var currentTimers = ActiveDOTS.OrderBy(v => v.TimerValue);
             ActiveDOTS = new ObservableCollection<TimerInstanceViewModel>(currentTimers);
         }

@@ -51,6 +51,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         protected abstract void RemoveTimer(TimerInstanceViewModel removedTimer,
             Action<TimerInstanceViewModel> callback);
 
-        protected abstract void ReorderTimers();
+        protected abstract void ReorderTimers(string id);
     }
 }

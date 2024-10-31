@@ -32,7 +32,7 @@ public static class TimerController
     private static List<IDisposable> _reorderSubs = new List<IDisposable>();
     public static event Action<TimerInstanceViewModel, Action<TimerInstanceViewModel>> TimerExpired = delegate { };
     public static event Action<TimerInstanceViewModel, Action<TimerInstanceViewModel>> TimerTriggered = delegate { };
-    public static event Action ReorderRequested = delegate { };
+    public static event Action<string> ReorderRequested = delegate { };
     public static void Init()
     {
         CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
@@ -192,8 +192,8 @@ public static class TimerController
             Observable.FromEvent<TimerInstanceViewModel>(handler => t.NewTimerInstance += handler,
                 handler => t.NewTimerInstance -= handler).Subscribe(AddTimerVisual)).ToList();
         _reorderSubs = _availableTimers.Select(t =>
-            Observable.FromEvent(handler => t.ReorderRequested += handler,
-                handler => t.ReorderRequested -= handler).Throttle(TimeSpan.FromMilliseconds(250)).Subscribe(_ => ReorderRequest())).ToList();
+            Observable.FromEvent<string>(handler => t.ReorderRequested += handler,
+                handler => t.ReorderRequested -= handler).Throttle(TimeSpan.FromMilliseconds(250)).Subscribe(ReorderRequest)).ToList();
         FilterTimers();
     }
 
@@ -233,9 +233,9 @@ public static class TimerController
         return _currentlyActiveTimers;
     }
 
-    private static void ReorderRequest()
+    private static void ReorderRequest(string id)
     {
-        ReorderRequested();
+        ReorderRequested(id);
     }
     private static void AddTimerVisual(TimerInstanceViewModel t)
     {

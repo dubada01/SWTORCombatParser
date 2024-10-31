@@ -95,7 +95,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 _visibleTimers.Add(obj);
             }
-            ReorderTimers();
+            ReorderTimers("Any");
             callback(obj);
         }
 
@@ -105,14 +105,16 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 _visibleTimers.Remove(removedTimer);
             }
-            ReorderTimers();
+            ReorderTimers("Any");
             callback(removedTimer);
         }
 
-        protected override void ReorderTimers()
+        protected override void ReorderTimers(string id)
         {
             lock (_timerChangeLock)
-            {
+            {                
+                if(_visibleTimers.All(t => t.SourceTimer.Id != id) && id != "Any")
+                    return;
                 _visibleTimers.RemoveAll(t => t.TimerValue <= 0);
                 SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
             }

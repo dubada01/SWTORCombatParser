@@ -3,6 +3,7 @@ using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.Threading;
@@ -36,7 +37,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 _visibleTimers.Add(obj);
             }
-            ReorderTimers();
+            ReorderTimers("Any");
             callback(obj);
         }
 
@@ -46,14 +47,17 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 _visibleTimers.Remove(removedTimer);
             }
-            ReorderTimers();
+            ReorderTimers("Any");
             callback(removedTimer);
         }
-        protected override void ReorderTimers()
+        protected override void ReorderTimers(string id)
         {
             lock (_timerChangeLock)
             {
+                if(_visibleTimers.All(t => t.SourceTimer.Id != id) && id != "Any")
+                    return;
                 _visibleTimers.RemoveAll(t => t.TimerValue < 0);
+                Debug.WriteLine("+++++"+Environment.StackTrace);
                 SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
             }
         }

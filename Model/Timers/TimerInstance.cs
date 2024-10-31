@@ -29,7 +29,7 @@ namespace SWTORCombatParser.Model.Timers
         private IDisposable _expirationSub;
         public event Action<TimerInstanceViewModel> NewTimerInstance = delegate { };
         public event Action Triggered = delegate { };
-        public event Action ReorderRequested = delegate { };
+        public event Action<string> ReorderRequested = delegate { };
         public event Action<TimerInstanceViewModel, bool> TimerOfTypeExpired = delegate { };
         public Timer SourceTimer;
         private readonly Dictionary<Guid, TimerInstanceViewModel> _activeTimerInstancesForTimer = new Dictionary<Guid, TimerInstanceViewModel>();
@@ -136,7 +136,7 @@ namespace SWTORCombatParser.Model.Timers
             _currentBossInfo = ("", "", "");
             _combatStarted = false;
         }
-        public void Cancel()
+        public void Cancel(string id = "")
         {
             if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
                 _singleUseTriggerUsed = true;
@@ -221,7 +221,8 @@ namespace SWTORCombatParser.Model.Timers
                 {
                     var timerToRefresh = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id).Value;
                     timerToRefresh.Reset(log.TimeStamp);
-                    ReorderRequested();
+                    Debug.WriteLine("Requested reorder from refresh of "+SourceTimer.Name);
+                    ReorderRequested(SourceTimer.Id);
                 }
 
                 if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
@@ -234,7 +235,8 @@ namespace SWTORCombatParser.Model.Timers
                         if (log.TimeStamp - timerToRestart.StartTime < TimeSpan.FromSeconds(1))
                             return;
                         timerToRestart.Reset(log.TimeStamp);
-                        ReorderRequested();
+                        Debug.WriteLine("Requested reorder from refresh of "+SourceTimer.Name);
+                        ReorderRequested(SourceTimer.Id);
                     }
                     if (!_activeTimerInstancesForTimer.Any())
                     {
