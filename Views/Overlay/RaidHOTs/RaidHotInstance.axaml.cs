@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using Avalonia;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
@@ -22,19 +23,10 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         public RaidHotInstance()
         {
             InitializeComponent();
-            DataContextChanged += ConfigureSubscritoin;
+            Loaded += RestartAnimation;
         }
 
-        private void ConfigureSubscritoin(object? sender, EventArgs e)
-        {
-            if(DataContext is TimerInstanceViewModel vm)
-            {
-                vm.TimerStarted += RestartAnimation;
-                Debug.WriteLine("Subscription Made");
-            }
-        }
-
-        private async void RestartAnimation()
+        private async void RestartAnimation(object? sender, RoutedEventArgs routedEventArgs)
         {
             var timerBar = this.FindControl<Border>("TimerBar");
             if (timerBar?.RenderTransform is ScaleTransform barScale)

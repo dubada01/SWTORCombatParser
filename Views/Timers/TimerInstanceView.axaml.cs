@@ -22,16 +22,9 @@ namespace SWTORCombatParser.Views.Timers
         public TimerInstanceView()
         {
             InitializeComponent();
-            // This will fire whenever TriggerAnimation changes
-            this.WhenAnyValue(x => x.DataContext)
-                .Where(x => x is TimerInstanceViewModel)
-                .Subscribe(context =>
-                {
-                    var viewModel = (TimerInstanceViewModel)context;
-                    viewModel.TimerStarted += RestartAnimation;
-                });
+            Loaded += RestartAnimation;
         }
-        private async void RestartAnimation()
+        private async void RestartAnimation(object? sender, RoutedEventArgs routedEventArgs)
         {
             var timerBar = this.FindControl<Border>("TimerBar");
             if (timerBar?.RenderTransform is ScaleTransform barScale)

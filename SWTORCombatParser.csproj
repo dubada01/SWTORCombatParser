@@ -3,7 +3,7 @@
   <PropertyGroup>
     <VersionPrefix>2.0.2</VersionPrefix>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AssemblyName>Orbs</AssemblyName>
@@ -429,5 +429,4 @@
     <AvaloniaResource Remove="Views\Leaderboard View\**" />
     <AvaloniaResource Remove="ViewModels\Leaderboard\**" />
   </ItemGroup>
-
 </Project>

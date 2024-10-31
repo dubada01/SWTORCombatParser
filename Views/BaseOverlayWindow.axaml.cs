@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Platform;
@@ -26,7 +29,7 @@ public partial class BaseOverlayWindow : Window
 {
     private bool _isDragging;
     private Point _startPoint;
-
+    
     // Windows-specific constants for P/Invoke
     const int GWL_EXSTYLE = -20;
     const int WS_EX_LAYERED = 0x00080000;
@@ -41,19 +44,7 @@ public partial class BaseOverlayWindow : Window
     [DllImport("user32.dll", SetLastError = true)]
     static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-
-    private const uint SWP_NOSIZE = 0x0001;
-    private const uint SWP_NOMOVE = 0x0002;
-    private const uint SWP_NOZORDER = 0x0004;
-    private const uint SWP_NOACTIVATE = 0x0010;
-    private const uint SWP_FRAMECHANGED = 0x0020;
-    private const uint SWP_NOOWNERZORDER = 0x0200;
-
-    private static readonly IntPtr HWND_TOP = new IntPtr(0);
+   
 
     // P/Invoke to interact with Objective-C runtime and Cocoa APIs
     [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "sel_registerName")]
@@ -74,6 +65,7 @@ public partial class BaseOverlayWindow : Window
     private PixelPoint _tempLocation;
     private Point _tempSize;
     private readonly BaseOverlayViewModel _viewModel;
+    private bool _canClickThrough;
 
     public BaseOverlayWindow(BaseOverlayViewModel viewModel)
     {
@@ -82,8 +74,7 @@ public partial class BaseOverlayWindow : Window
         _viewModel = viewModel;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             RemoveShadowAndBorderMac();
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            RemoveShadowAndBorderWindows();
+        
         InitializeComponent();
         Loaded += InitOverlay;
         viewModel.OnLocking += ToggleClickThrough;
@@ -105,9 +96,10 @@ public partial class BaseOverlayWindow : Window
     private void InitOverlay(object? sender, RoutedEventArgs e)
     {
         ToggleClickThrough(!_viewModel.OverlaysMoveable);
-        RemoveFromAppWindow();
+        //RemoveFromAppWindow();
         IdentifierText.Text = _viewModel._overlayName;
         _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * RenderScaling), Position.Y + (53 * RenderScaling)), new Point((Width - 100) * RenderScaling, (Height - 53 ) * RenderScaling));
+        _myScreen = GetCurrentScreen(this);
     }
 
     private void SetSizeAndLocation(Point position, Point size)
@@ -118,6 +110,11 @@ public partial class BaseOverlayWindow : Window
             Position = new PixelPoint((int)position.X, (int)position.Y);
             Width = size.X;
             Height = size.Y;
+            if ((_viewModel.MainContent is UserControl userControl))
+            {
+                userControl.Width = Width;
+                userControl.Height = Height;
+            }
         });
     }
 
@@ -126,10 +123,105 @@ public partial class BaseOverlayWindow : Window
         _tempLocation = new PixelPoint((int)position.X, (int)position.Y);
         _tempSize = size;
     }
+    
+    public Screen? GetCurrentScreen(Window window)
+    {
+        // Get the window bounds in screen coordinates
+        var windowBounds = window.Bounds;
+
+        // Iterate over all screens and find the one with the most overlap
+        Screen? targetScreen = null;
+        double maxOverlapArea = 0;
+
+        foreach (var screen in window.Screens.All)
+        {
+            // Convert PixelRect to Rect
+            var screenBounds = new Rect(screen.Bounds.Position.ToPoint(1), screen.Bounds.Size.ToSize(1));
+
+
+            // Calculate the intersection area between the window and the screen
+            var intersection = windowBounds.Intersect(screenBounds);
+            var overlapArea = intersection.Width * intersection.Height;
+
+            // Check if this screen has the most overlap with the window
+            if (overlapArea > maxOverlapArea)
+            {
+                maxOverlapArea = overlapArea;
+                targetScreen = screen;
+            }
+        }
+
+        return targetScreen;
+    }
+
+    private PixelPoint savedPosition;
+    private Point savedSize;
+    private Point savedObjectSize;
+    private Screen? _myScreen;
+
     private void ToggleClickThrough(bool canClickThrough)
     {
+        if(_canClickThrough == canClickThrough)
+            return;
+        _canClickThrough = canClickThrough;
         Dispatcher.UIThread.InvokeAsync(() =>
         {
+            if (_viewModel.KeepBackgroundHidden)
+            {
+                if ((_viewModel.MainContent is UserControl userControl) )
+                {
+                    if (canClickThrough)
+                    {
+                        var scalingFactor = _myScreen.Scaling;
+                        ContentCanvas.IsVisible = true;
+                        ContentGrid.IsVisible = false;
+                        ContentGrid.Children.Remove(ContentObject);
+                        ContentCanvas.Children.Add(ContentObject);
+                        ContentObject.Content = userControl;
+
+                        savedPosition = Position;
+                        savedSize = new Point(Width, Height);
+                        savedObjectSize = new Point(userControl.Bounds.Width * scalingFactor, userControl.Bounds.Height * scalingFactor);
+                        Position = new PixelPoint(0, 0);
+                        Width = _myScreen.Bounds.Width / scalingFactor;
+                        Height = _myScreen.Bounds.Height / scalingFactor;
+                        ContentCanvas.Width = _myScreen.Bounds.Width /scalingFactor;
+                        ContentCanvas.Height = _myScreen.Bounds.Height /scalingFactor;
+                        userControl.Width = savedObjectSize.X / scalingFactor;
+                        userControl.Height = savedObjectSize.Y / scalingFactor;
+                        Canvas.SetLeft(ContentObject, savedPosition.X / scalingFactor + 5);
+                        Canvas.SetTop(ContentObject, (savedPosition.Y / scalingFactor) +  2);
+                    }
+                    else
+                    {
+                        ContentCanvas.IsVisible = false;
+                        ContentGrid.IsVisible = true;
+                        ContentCanvas.Children.Remove(ContentObject);
+                        ContentGrid.Children.Add(ContentObject);
+                        ContentObject.Content = userControl;
+
+                        Position = savedPosition;
+                        Width = savedSize.X;
+                        Height = savedSize.Y;
+                        
+                        
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(100);
+                            Dispatcher.UIThread.Invoke(() =>
+                            {
+                                userControl.Width = double.NaN;
+                                userControl.Height = double.NaN;
+                            });
+                        });
+
+
+                    }
+                }
+
+
+                
+            }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 MakeWindowClickThroughMac(canClickThrough);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -145,7 +237,6 @@ public partial class BaseOverlayWindow : Window
                 OverlayIdText.IsVisible = !canClickThrough;
             CloseButton.IsVisible = !canClickThrough;
         });
-
     }
     // Platform-specific method for Windows
     private void MakeWindowClickThroughWindows(bool isClickThrough)
@@ -193,21 +284,6 @@ public partial class BaseOverlayWindow : Window
         // Call the 'setIgnoresMouseEvents' method with the boolean argument
         objc_msgSend(nsWindowHandle, setIgnoresMouseEventsSelector, isClickThrough);
     }
-// Final attempt to remove shadows and borders using SetWindowPos
-    private void RemoveShadowAndBorderWindows()
-    {
-        var platformHandle = this.TryGetPlatformHandle();
-        if (platformHandle == null) return;
-
-        var hWnd = platformHandle.Handle;
-    
-        // This style update removes borders and forces a frame change without shadow
-        int windowStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
-        SetWindowLong(hWnd, GWL_EXSTYLE, windowStyle | WS_EX_TOOLWINDOW & ~WS_EX_APPWINDOW);
-
-        SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0,
-            SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
-    }
 
     private void RemoveShadowAndBorderMac()
     {
@@ -218,29 +294,7 @@ public partial class BaseOverlayWindow : Window
         var setHasShadowSelector = sel_registerName("setHasShadow:");
         objc_msgSend(nsWindowHandle, setHasShadowSelector, false);
     }
-    private void RemoveFromAppWindow()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            RemoveFromWindowsTaskSwitcher();
-        }
-    }
 
-    private void RemoveFromWindowsTaskSwitcher()
-    {
-        // Get the native window handle using Avalonia's GetPlatformHandle method
-        var platformHandle = this.TryGetPlatformHandle();
-        if (platformHandle == null)
-        {
-            Console.WriteLine("Unable to retrieve platform handle.");
-            return;
-        }
-
-        var hWnd = platformHandle.Handle;
-
-        int extendedStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
-        SetWindowLong(hWnd, GWL_EXSTYLE, (extendedStyle | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
-    }
 
     private void UpdateState()
     {
