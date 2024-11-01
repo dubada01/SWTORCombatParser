@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿#if WINDOWS
+using System.Drawing;
 using System.Drawing.Imaging;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
@@ -22,3 +23,4 @@ namespace SWTORCombatParser.Model.Overlays
         }
     }
 }
+#endif

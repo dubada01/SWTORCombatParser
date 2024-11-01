@@ -81,6 +81,7 @@ public partial class BaseOverlayWindow : Window
         viewModel.CloseRequested += Hide;
         viewModel.OnNewPositionAndSize += SetSizeAndLocation;
         Opened += SetWindowParams;
+        _myScreen = GetCurrentScreen(this) ?? Screens.Primary;
     }
 
     private void SetWindowParams(object? sender, EventArgs e)
@@ -96,10 +97,9 @@ public partial class BaseOverlayWindow : Window
     private void InitOverlay(object? sender, RoutedEventArgs e)
     {
         ToggleClickThrough(!_viewModel.OverlaysMoveable);
-        //RemoveFromAppWindow();
         IdentifierText.Text = _viewModel._overlayName;
         _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * RenderScaling), Position.Y + (53 * RenderScaling)), new Point((Width - 100) * RenderScaling, (Height - 53 ) * RenderScaling));
-        _myScreen = GetCurrentScreen(this);
+        _myScreen = GetCurrentScreen(this) ?? Screens.Primary;
     }
 
     private void SetSizeAndLocation(Point position, Point size)
@@ -218,9 +218,6 @@ public partial class BaseOverlayWindow : Window
 
                     }
                 }
-
-
-                
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 MakeWindowClickThroughMac(canClickThrough);

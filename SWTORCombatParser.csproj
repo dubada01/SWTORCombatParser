@@ -3,7 +3,7 @@
   <PropertyGroup>
     <VersionPrefix>2.0.2</VersionPrefix>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AssemblyName>Orbs</AssemblyName>
@@ -119,12 +119,20 @@
     <Compile Remove="MacOSBuilds\**" />
     <EmbeddedResource Remove="MacOSBuilds\**" />
     <None Remove="MacOSBuilds\**" />
+    <Compile Remove="Orbs.dmgcanvas\**" />
+    <EmbeddedResource Remove="Orbs.dmgcanvas\**" />
+    <None Remove="Orbs.dmgcanvas\**" />
+    <Compile Remove="TestCombatLogs\**" />
+    <EmbeddedResource Remove="TestCombatLogs\**" />
+    <None Remove="TestCombatLogs\**" />
   </ItemGroup>
     <ItemGroup>
         <AvaloniaResource Include="resources\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AvaloniaResource>
         <AvaloniaResource Remove="MacOSBuilds\**" />
+        <AvaloniaResource Remove="Orbs.dmgcanvas\**" />
+        <AvaloniaResource Remove="TestCombatLogs\**" />
     </ItemGroup>
 <ItemGroup>
   <Content Include="resources\packagedIcons.zip">
@@ -417,12 +425,16 @@
     <AvaloniaXaml Remove="Views\DataGrid Views\StatSlotView.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\DataGridRowView.axaml" />
     <AvaloniaXaml Remove="MacOSBuilds\**" />
+    <AvaloniaXaml Remove="Orbs.dmgcanvas\**" />
+    <AvaloniaXaml Remove="TestCombatLogs\**" />
   </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Remove="Views\Leaderboard View\**" />
     <AdditionalFiles Remove="ViewModels\Leaderboard\**" />
     <AdditionalFiles Remove="MacOSBuilds\**" />
+    <AdditionalFiles Remove="Orbs.dmgcanvas\**" />
+    <AdditionalFiles Remove="TestCombatLogs\**" />
   </ItemGroup>
 
   <ItemGroup>
