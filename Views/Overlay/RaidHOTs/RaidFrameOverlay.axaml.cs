@@ -127,6 +127,10 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             {
                 return GetCursorPositionMac();
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return LinuxHandler.GetCursorPositionUbuntu();
+            }
             else
             {
                 throw new PlatformNotSupportedException("Unsupported platform");

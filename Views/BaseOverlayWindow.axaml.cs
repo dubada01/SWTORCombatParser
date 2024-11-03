@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
@@ -45,6 +46,26 @@ public partial class BaseOverlayWindow : Window
     [DllImport("user32.dll", SetLastError = true)]
     static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
+    
+    
+    
+    
+    // P/Invoke for Ubuntu X11 library
+    [DllImport("libX11.so")]
+    private static extern IntPtr XOpenDisplay(IntPtr display);
+
+    [DllImport("libX11.so")]
+    private static extern int XCloseDisplay(IntPtr display);
+
+    [DllImport("libX11.so")]
+    private static extern IntPtr XInternAtom(IntPtr display, string atomName, bool onlyIfExists);
+
+    [DllImport("libX11.so")]
+    private static extern void XChangeProperty(IntPtr display, IntPtr w, IntPtr property, int type, int format,
+        int mode, ref IntPtr data, int nelements);
+
+    private const int PropModeReplace = 0;
+    
    
 
     // P/Invoke to interact with Objective-C runtime and Cocoa APIs
@@ -219,6 +240,9 @@ public partial class BaseOverlayWindow : Window
                 MakeWindowClickThroughMac(canClickThrough);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 MakeWindowClickThroughWindows(canClickThrough);
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                MakeWindowClickThroughUbuntu(canClickThrough);
+            
             if(!_viewModel.KeepBackgroundHidden)
                 BackgroundArea.Opacity = canClickThrough ? 0.066 : 0.75;
             if (_viewModel.KeepBackgroundHidden)
@@ -276,6 +300,35 @@ public partial class BaseOverlayWindow : Window
 
         // Call the 'setIgnoresMouseEvents' method with the boolean argument
         objc_msgSend(nsWindowHandle, setIgnoresMouseEventsSelector, isClickThrough);
+    }
+    // Platform-specific method for Ubuntu
+    public void MakeWindowClickThroughUbuntu(bool isClickThrough)
+    {
+        // Get the native window handle using Avalonia's GetPlatformHandle method
+        var platformHandle = this.TryGetPlatformHandle();
+        if (platformHandle == null)
+        {
+            Console.WriteLine("Unable to retrieve platform handle.");
+            return;
+        }
+
+        IntPtr x11WindowHandle = platformHandle.Handle;
+
+        IntPtr display = XOpenDisplay(IntPtr.Zero);
+        if (display == IntPtr.Zero)
+        {
+            throw new Exception("Unable to open X11 display.");
+        }
+
+        // Set the window to be click-through
+        var prop = XInternAtom(display, "_NET_WM_WINDOW_TYPE", false);
+        var type = isClickThrough
+            ? XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", false)
+            : XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", false);
+
+        XChangeProperty(display, x11WindowHandle, prop, 4, 32, PropModeReplace, ref type, 1);
+
+        XCloseDisplay(display);
     }
 
     private void RemoveShadowAndBorderMac()
