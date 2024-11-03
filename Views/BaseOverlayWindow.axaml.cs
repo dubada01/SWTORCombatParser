@@ -327,7 +327,6 @@ public partial class BaseOverlayWindow : Window
             : XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", false);
 
         XChangeProperty(display, x11WindowHandle, prop, 4, 32, PropModeReplace, ref type, 1);
-
         XCloseDisplay(display);
     }
 
