@@ -129,7 +129,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return LinuxHandler.GetCursorPositionUbuntu();
+                return MouseHookHandler.GetCursorPosition();
             }
             else
             {

@@ -24,6 +24,10 @@ public class MouseHookHandler
         UnhookWindowsHookEx(_hookID);
     }
 
+    public static Point GetCursorPosition()
+    {
+        return new Point();
+    }
     private IntPtr SetHook(LowLevelMouseProc proc)
     {
         using var curProcess = Process.GetCurrentProcess();

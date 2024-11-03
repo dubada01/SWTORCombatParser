@@ -42,7 +42,10 @@ namespace SWTORCombatParser.Utilities.MouseHandler
             CFRunLoopAddSource(CFRunLoopGetCurrent(), _runLoopSource, CFRunLoopMode.kCFRunLoopCommonModes);
             CFRunLoopRun();
         }
-
+        public static Point GetCursorPosition()
+        {
+            return new Point();
+        }
         public void UnsubscribeFromClicks()
         {
             if (!_isSubscribed)
