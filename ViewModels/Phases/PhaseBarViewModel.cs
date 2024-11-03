@@ -3,6 +3,8 @@ using SWTORCombatParser.Views.Phases;
 using System;
 using System.Collections.Generic;
 using System.Reactive;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
@@ -32,9 +34,13 @@ namespace SWTORCombatParser.ViewModels.Phases
 
         private void ConfigurePhases()
         {
-            var vm = new PhaseListViewModel();
-            var window = new PhaseListView(vm);
-            window.Show();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var vm = new PhaseListViewModel();
+                var window = new PhaseListView(vm);
+                window.WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterOwner;
+                window.Show(desktop.MainWindow);
+            }
         }
     }
 }

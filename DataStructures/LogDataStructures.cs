@@ -187,7 +187,7 @@ namespace SWTORCombatParser.DataStructures
         None,
         IncompleteLine
     }
-    public class Entity
+    public class Entity:IEquatable<Entity>
     {
         public static Entity EmptyEntity = new Entity();
         public string Name { get; set; }
@@ -197,6 +197,10 @@ namespace SWTORCombatParser.DataStructures
         public bool IsLocalPlayer;
         public bool IsCompanion;
         public bool IsBoss;
+        public bool Equals(Entity? other)
+        {
+            return LogId == other.LogId;
+        }
     }
     public class EntityInfo
     {

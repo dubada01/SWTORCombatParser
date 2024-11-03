@@ -13,6 +13,7 @@ internal sealed class Program
         string executablePath = AppContext.BaseDirectory;
         Environment.CurrentDirectory = executablePath;
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        
     }
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()

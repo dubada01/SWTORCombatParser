@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls.ColorPicker"
         xmlns:local="clr-namespace:SWTORCombatParser.Views"
         xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels"
         x:DataType="vm:MetricColorPickerViewModel"
@@ -21,8 +22,8 @@
                    FontSize="15"
                    HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}"></TextBlock>
         <Button  Command="{Binding CloseCommand}" Classes="RoundedCorner"  Height="20" Width="20" HorizontalAlignment="Right" VerticalAlignment="Top" Background="IndianRed" Margin="0,5,5,0">X</Button>
-        <ColorPicker Grid.Row="1" Color="{Binding MetricColor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="10"/>
-        <Button ToolTip.Tip="Reset to default color" Command="{Binding SetDefaultCommand}" Classes="RoundedCorner"  Height="20" Width="20" HorizontalAlignment="Left" VerticalAlignment="Top" Background="AliceBlue" FontSize="12" Padding="0,0,0,2" Margin="5,5,0,0">↻</Button>
+        <controls:ColorPicker HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1" Color="{Binding MetricColor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="10"/>
+        <Button ToolTip.Tip="Reset to default color" Command="{Binding SetDefaultCommand}" Foreground="Black" Classes="RoundedCorner"  Height="20" Width="20" HorizontalAlignment="Left" VerticalAlignment="Top" Background="AliceBlue" FontSize="12" Padding="0,0,0,2" Margin="5,5,0,0">↻</Button>
         <Border Grid.Row="1" Background="{Binding MetricBrush}" Margin="0,0,5,5" CornerRadius="6" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="30" Height="30"></Border>
     </Grid>
 </Window>

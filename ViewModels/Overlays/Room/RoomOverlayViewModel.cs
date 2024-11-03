@@ -24,7 +24,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
 
         private bool _isActive = false;
         private RoomOverlay _roomOverlay;
-        private BaseOverlayWindow _overlayWindow;
         private List<RoomOverlaySettings> _settings;
         public List<Ellipse> Hazards { get; set; }
         private RoomOverlaySettings _currentCombatOverlaySettings;
@@ -38,7 +37,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         public override bool ShouldBeVisible => _isTriggered;
         public RoomOverlayViewModel(string overlayName) : base(overlayName)
         {
-            _overlayWindow = new BaseOverlayWindow(this);
             _roomOverlay = new RoomOverlay(this);
             MainContent = _roomOverlay;
             _settings = RoomOverlayLoader.GetRoomOverlaySettings();

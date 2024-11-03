@@ -56,8 +56,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             if ((ShouldBeVisible || OverlaysMoveable) && DisplayingContent)
             {
                 ShowOverlayWindow();
-                if (OverlaysMoveable)
-                    OnLocking(false);
+                OnLocking(!OverlaysMoveable);
             }
         }
     }

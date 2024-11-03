@@ -32,6 +32,11 @@
                     <Setter Property="Opacity" Value="0.85"/>
                 </Style>
             </Border.Styles>
+            <Border.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Open Orbs Leaderboard" Command="{Binding OpenOrbsLeaderboardCommand}"/>
+                </ContextMenu>
+            </Border.ContextMenu>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

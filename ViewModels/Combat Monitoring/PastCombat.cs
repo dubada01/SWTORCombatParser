@@ -47,7 +47,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
         private async void UploadToParsely()
         {
-            var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Where(v=>v.LogLineNumber!=0).MinBy(v=>v.LogLineNumber).LogLineNumber, (int)Combat.AllLogs.MaxBy(v => v.LogLineNumber).LogLineNumber);
+            var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Where(v=>v.LogLineNumber!=0).MinBy(v=>v.LogLineNumber).LogLineNumber, (int)Combat.AllLogs.MaxBy(v => v.LogLineNumber).LogLineNumber,Combat.LogFileName);
             var response = await ParselyUploader.TryUploadText(lines, Combat.LogFileName);
             if (!response.WasSuccess)
             {

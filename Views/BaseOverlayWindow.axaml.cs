@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,7 +66,7 @@ public partial class BaseOverlayWindow : Window
     private PixelPoint _tempLocation;
     private Point _tempSize;
     private readonly BaseOverlayViewModel _viewModel;
-    private bool _canClickThrough;
+    private bool _canClickThrough = false;
 
     public BaseOverlayWindow(BaseOverlayViewModel viewModel)
     {
@@ -86,6 +87,8 @@ public partial class BaseOverlayWindow : Window
 
     private void SetWindowParams(object? sender, EventArgs e)
     {
+        if(_canClickThrough && _viewModel.KeepBackgroundHidden)
+            return;
         Dispatcher.UIThread.Invoke(() =>
         {
             Position = _tempLocation;
@@ -110,11 +113,6 @@ public partial class BaseOverlayWindow : Window
             Position = new PixelPoint((int)position.X, (int)position.Y);
             Width = size.X;
             Height = size.Y;
-            if ((_viewModel.MainContent is UserControl userControl))
-            {
-                userControl.Width = Width;
-                userControl.Height = Height;
-            }
         });
     }
 
@@ -161,8 +159,6 @@ public partial class BaseOverlayWindow : Window
 
     private void ToggleClickThrough(bool canClickThrough)
     {
-        if(_canClickThrough == canClickThrough)
-            return;
         _canClickThrough = canClickThrough;
         Dispatcher.UIThread.InvokeAsync(() =>
         {
@@ -170,7 +166,7 @@ public partial class BaseOverlayWindow : Window
             {
                 if ((_viewModel.MainContent is UserControl userControl) )
                 {
-                    if (canClickThrough)
+                    if (canClickThrough && !ContentCanvas.Children.Any())
                     {
                         var scalingFactor = _myScreen.Scaling;
                         ContentCanvas.IsVisible = true;
@@ -192,7 +188,7 @@ public partial class BaseOverlayWindow : Window
                         Canvas.SetLeft(ContentObject, savedPosition.X / scalingFactor + 5);
                         Canvas.SetTop(ContentObject, (savedPosition.Y / scalingFactor) +  2);
                     }
-                    else
+                    if(!canClickThrough && !ContentGrid.Children.Any())
                     {
                         ContentCanvas.IsVisible = false;
                         ContentGrid.IsVisible = true;

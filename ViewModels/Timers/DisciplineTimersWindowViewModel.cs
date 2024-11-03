@@ -19,7 +19,6 @@ namespace SWTORCombatParser.ViewModels.Timers
         public DisciplineTimersWindowViewModel(string overlayName) : base(overlayName)
         {
             MainContent = new TimersWindow(this);
-            _timerWindow = new BaseOverlayWindow(this);
         }
 
         private object _timerChangeLock = new object();

@@ -1,6 +1,8 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia.Controls;
 using ReactiveUI;
@@ -10,7 +12,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
     public abstract class OverviewViewModel : ReactiveObject
     {
         private Combat _currentCombat;
-        private List<Entity> _availableParticipants = new List<Entity>();
+        private ObservableCollection<Entity> _availableParticipants = new ObservableCollection<Entity>();
         private Entity selectedEntity;
 
         public OverviewInstanceViewModel DamageVM;
@@ -22,7 +24,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         private int _selectedTabIndex;
         public abstract bool SortOptionVisibility { get; }
 
-        public List<Entity> AvailableParticipants
+        public ObservableCollection<Entity> AvailableParticipants
         {
             get => _availableParticipants;
             set => this.RaiseAndSetIfChanged(ref _availableParticipants, value);
@@ -47,12 +49,16 @@ namespace SWTORCombatParser.ViewModels.Overviews
             get => _selectedDataTypeContent;
             set => this.RaiseAndSetIfChanged(ref _selectedDataTypeContent, value);
         }
-
         public Entity SelectedEntity
         {
             get => selectedEntity; set
             {
+                if(value == null)
+                    return;
+                if(AvailableParticipants.All(e => e.LogId != value.LogId))
+                    return;
                 this.RaiseAndSetIfChanged(ref selectedEntity, value);
+                Debug.WriteLine("Selected "+selectedEntity?.Name);
                 if (selectedEntity == null)
                     return;
                 ParticipantSelectionHandler.UpdateSelection(SelectedEntity);
@@ -63,6 +69,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 ThreatVM.UpdateEntity(selectedEntity);
             }
         }
+
         public void AddCombat(Combat combat)
         {
             _currentCombat = combat;
@@ -77,11 +84,11 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             if (_currentCombat == null)
             {
-                AvailableParticipants = new List<Entity>();
+                AvailableParticipants = new ObservableCollection<Entity>();
             }
             else
             {
-                AvailableParticipants = _currentCombat.AllEntities.Distinct().ToList();
+                AvailableParticipants = new ObservableCollection<Entity>(_currentCombat.AllEntities.Distinct());
                 if (!AvailableParticipants.Any(p => p.IsLocalPlayer))
                 {
                     SelectedEntity = AvailableParticipants.FirstOrDefault();
@@ -91,6 +98,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     if (SelectedEntity != null && AvailableParticipants.Any(p => p.LogId == SelectedEntity.LogId))
                     {
                         SelectedEntity = AvailableParticipants.First(p => p.LogId == SelectedEntity.LogId);
+                        this.RaisePropertyChanged(nameof(SelectedEntity));
                     }
                     else
                         SelectedEntity = AvailableParticipants.First(p => p.IsLocalPlayer);
@@ -101,7 +109,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public void Reset()
         {
             _currentCombat = null;
-            AvailableParticipants = new List<Entity>();
+            AvailableParticipants = new ObservableCollection<Entity>();
             DamageVM.Reset();
             DamageTakenVM.Reset();
             HealingVM.Reset();

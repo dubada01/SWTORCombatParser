@@ -90,13 +90,13 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         public void PlotCombat(Combat combatToPlot, List<Entity> viewableEntities, DateTime minVal)
         {
             _currentPlayers = viewableEntities;
-
+            var pallete = new ScottPlot.Palettes.Nord();
             foreach (var entity in _currentPlayers)
             {
                 CombatMetaDataSeries series = new CombatMetaDataSeries
                 {
                     Name = entity.Name,
-                    Color = Palette.GetPalettes().First().GetColor(_currentPlayers.IndexOf(entity)),
+                    Color = pallete.GetColor(_currentPlayers.IndexOf(entity)),
                     Type = PlotType.DamageTaken
                 };
                 _seriesToPlot.Add(series);
@@ -125,6 +125,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                     plotYvals,
                     color: series.Color);
                 series.PointsByCharacter[entity.Name].MarkerSize = 3;
+                series.PointsByCharacter[entity.Name].LineStyle = LineStyle.None;
                 series.PointsByCharacter[entity.Name].LegendText = seriesName;
                 series.PointsByCharacter[entity.Name].MarkerShape = MarkerShape.FilledCircle;
                 series.PointsByCharacter[entity.Name].IsVisible = true;

@@ -3,9 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:SWTORCombatParser.Utilities.Encounter_Selection"
              x:DataType="vm:EncounterSelectionViewModel"
-             Width="800" Height="450">
+             >
     <Grid>
-        <Viewbox HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal">
                 <ComboBox ItemsSource="{Binding AvailableEncounters}" SelectedItem="{Binding SelectedEncounter}" Width="250" HorizontalAlignment="Left" Margin="5">
                     <ComboBox.ItemTemplate>
@@ -17,6 +16,5 @@
                 <ComboBox ItemsSource="{Binding AvailableBosses}" SelectedItem="{Binding SelectedBoss}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
                 <ComboBox IsVisible="{Binding ShowPlayerCount}" ItemsSource="{Binding AvailablePlayerCounts}" SelectedItem="{Binding SelectedPlayerCount}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
             </StackPanel>
-        </Viewbox>
     </Grid>
 </UserControl>

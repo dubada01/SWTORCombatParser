@@ -6,8 +6,11 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
+using System.Web;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -52,6 +55,12 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 Expand();
             }
+        }
+        public ReactiveCommand<Unit, Unit> OpenOrbsLeaderboardCommand => ReactiveCommand.Create(OpenOrbsLeaderboard);
+
+        private void OpenOrbsLeaderboard()
+        {
+            Process.Start(new ProcessStartInfo{FileName = $"https://orbs-stats.com/encounterView/{Uri.EscapeDataString(Info.Name)}", UseShellExecute = true});
         }
 
         public void Collapse()

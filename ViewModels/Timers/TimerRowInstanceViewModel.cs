@@ -6,6 +6,8 @@ using System.ComponentModel;
 using System.Reactive;
 using System.Runtime.CompilerServices;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
@@ -33,8 +35,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ActiveChanged(this);
             }
         }
-        public string AudioImageSource => SourceTimer.UseAudio ? Environment.CurrentDirectory + "/resources/audioIcon.png" : Environment.CurrentDirectory + "/resources/mutedIcon.png";
-        public string VisibilityImageSource => !SourceTimer.IsSubTimer ? Environment.CurrentDirectory + "/resources/view.png" : Environment.CurrentDirectory + "/resources/hidden.png";
+        public Bitmap AudioImageSource => SourceTimer.UseAudio ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/audioIcon.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/mutedIcon.png")));
+        public Bitmap VisibilityImageSource => !SourceTimer.IsSubTimer ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/view.png"))) :new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/hidden.png")));
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public string DurationSec => SourceTimer.IsAlert ? "Alert" : SourceTimer.DurationSec.ToString();

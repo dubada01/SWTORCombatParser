@@ -142,7 +142,7 @@
                     <RowDefinition Height="3*"/>
                     <RowDefinition Height=".79*"/>
                 </Grid.RowDefinitions>
-                <Viewbox Margin="10,10,30,0" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding ., Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}">
+                <Viewbox Margin="10,10,30,0" HorizontalAlignment="Center" VerticalAlignment="Center" >
                     <Grid>
                         <StackPanel  Orientation="Horizontal">
                             <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Name" FontFamily="{StaticResource MainFont}"></TextBlock>

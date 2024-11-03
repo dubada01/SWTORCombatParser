@@ -84,6 +84,8 @@ namespace SWTORCombatParser.ViewModels
         private bool _logLoaded;
         private bool _viewingLogs;
         private readonly BattleReviewView logView;
+        private readonly TimersCreationView _timersView;
+        private readonly ChallengeSetupView _challengeView;
 
         public TabInstance SelectedTab
         {
@@ -179,26 +181,34 @@ namespace SWTORCombatParser.ViewModels
 
             _overlayViewModel = new OverlayViewModel();
             _overlayViewModel.OverlayLockStateChanged += () => this.RaisePropertyChanged(nameof(OverlayLockIcon));
-            // var overlayView = new OverlayView(_overlayViewModel);
-            // var overlayTab = new TabInstance()
-            // { TabContent = overlayView, HeaderText = "Overlays", IsOverlaysTab = true };
-            // _overlayViewModel.OverlayLockStateChanged += overlayTab.UpdateLockIcon;
-
+            _timersView = new TimersCreationView();
+            _timersView.DataContext = _overlayViewModel._timersViewModel;
+            _timersView.Closing += (e, s) =>
+            {
+                s.Cancel = true;
+                _timersView.Hide();
+            };
+            _challengeView = new ChallengeSetupView();
+            _challengeView.DataContext = _overlayViewModel._challengesViewModel;
+            _challengeView.Closing += (e, s) =>
+            {
+                s.Cancel = true;
+                _challengeView.Hide();
+            };
+            
             _deathViewModel = new DeathReviewViewModel();
             var deathView = new DeathReviewPage(_deathViewModel);
             ContentTabs.Add(new TabInstance() { TabContent = deathView, HeaderText = "Death Review", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/skull.png") });
 
              _reviewViewModel = new BattleReviewViewModel();
              logView = new BattleReviewView(_reviewViewModel);
-            // ContentTabs.Add(new TabInstance() { TabContent = new BattleReviewView(_reviewViewModel), HeaderText = "Combat Log", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/google-docs.png") });
-
-
-            //ContentTabs.Add(overlayTab);
-
-            //_leaderboardViewModel = new LeaderboardViewModel();
-            //var leaderboardView = new LeaderboardView(_leaderboardViewModel);
-            //ContentTabs.Add(new TabInstance { TabContent = leaderboardView, HeaderText = "Leaderboards" });
-
+             logView.Closing += (e, s) =>
+             {
+                 s.Cancel = true;
+                 _viewingLogs = false;
+                 logView.Hide();
+             };
+             
             _phaseBarViewModel = new PhaseBarViewModel();
             PhasesBar = new PhaseBar(_phaseBarViewModel);
 
@@ -265,12 +275,6 @@ namespace SWTORCombatParser.ViewModels
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 logView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                logView.Closing += (e, s) =>
-                {
-                    s.Cancel = true;
-                    _viewingLogs = false;
-                    logView.Hide();
-                };
                 logView.Show(desktop.MainWindow);
                 _viewingLogs = true;
             }
@@ -298,11 +302,9 @@ namespace SWTORCombatParser.ViewModels
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var timersView = new TimersCreationView();
                 _overlayViewModel._timersViewModel.RefreshEncounterSelection();
-                timersView.DataContext = _overlayViewModel._timersViewModel;
-                timersView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                timersView.Show(desktop.MainWindow);
+                _timersView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                _timersView.Show(desktop.MainWindow);
             }
         }
         public ReactiveCommand<Unit,Unit> ShowChallengeWindowCommand => ReactiveCommand.Create(ShowChallengeWindow);
@@ -311,11 +313,9 @@ namespace SWTORCombatParser.ViewModels
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var challengeView = new ChallengeSetupView();
                 _overlayViewModel._challengesViewModel.RefreshEncounterSelection();
-                challengeView.DataContext = _overlayViewModel._challengesViewModel;
-                challengeView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                challengeView.Show(desktop.MainWindow);
+                _challengeView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                _challengeView.Show(desktop.MainWindow);
             }
         }
         public Bitmap OverlayLockIcon => _overlayViewModel.OverlaysLocked
@@ -324,6 +324,20 @@ namespace SWTORCombatParser.ViewModels
         public ReactiveCommand<Unit, Task> OpenPastCombatsCommand => _combatMonitorViewModel.LoadSpecificLogCommand;
         public ReactiveCommand<Unit,Unit> OpenParselyCommand => ReactiveCommand.Create(OpenParsely);
 
+        public ReactiveCommand<Unit, Unit> OpenOrbsStatsCommand => ReactiveCommand.Create(OpenOrbsStats);
+            
+        private void OpenOrbsStats()
+        {
+            Process.Start(new ProcessStartInfo
+                { FileName = "https://orbs-stats.com", UseShellExecute = true });
+        }
+        public ReactiveCommand<Unit, Unit> OpenBuyMeACoffeeCommand => ReactiveCommand.Create(OpenBuyMeACoffee);
+            
+        private void OpenBuyMeACoffee()
+        {
+            Process.Start(new ProcessStartInfo
+                { FileName = "https://buymeacoffee.com/dubatech", UseShellExecute = true });
+        }
 
         public bool CanOpenParsely
         {

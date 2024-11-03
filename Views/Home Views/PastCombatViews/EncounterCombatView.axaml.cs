@@ -15,10 +15,14 @@ namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
         }
         private void Border_PreviewMouseLeftButtonDown(object sender, PointerPressedEventArgs e)
         {
-            var viewModel = DataContext as EncounterCombat;
+            var point = e.GetCurrentPoint(sender as Control);
+            if (point.Properties.IsLeftButtonPressed)
+            {
+                var viewModel = DataContext as EncounterCombat;
 
-            viewModel.ToggleCombatVisibility();
+                viewModel.ToggleCombatVisibility();
 
+            }
         }
     }
 }

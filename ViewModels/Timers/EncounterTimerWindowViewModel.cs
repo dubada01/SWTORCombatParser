@@ -29,15 +29,6 @@ namespace SWTORCombatParser.ViewModels.Timers
             DefaultBossFrameManager.DefaultsUpdated += UpdateState;
             CombatLogStreamer.CombatUpdated += CheckForEnd;
             MainContent = new TimersWindow(this);
-            _timerWindow = new BaseOverlayWindow(this);
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
-                isEnabled = defaultTimersInfo.Acive;
-                _timerWindow.Position = new PixelPoint((int)defaultTimersInfo.Position.X, (int)defaultTimersInfo.Position.Y);
-                _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
-                _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
-            });
         }
 
         private void CheckForEnd(CombatStatusUpdate obj)

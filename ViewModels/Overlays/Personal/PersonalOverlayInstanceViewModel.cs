@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
 using System.Runtime.CompilerServices;
+using Avalonia.Controls;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Personal
@@ -38,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         {
             CellRemoved(this);
         }
-        public double Height => defaultHeight * currentScale;
+        public GridLength Height => new GridLength(defaultHeight * currentScale);
         public OverlayType SelectedMetric
         {
             get => selectedMetric; set

@@ -11,7 +11,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseModificationViewModel :ReactiveObject, INotifyPropertyChanged
+    public class PhaseModificationViewModel :ReactiveObject
     {
         private Phase _editingPhase;
         private string name;
@@ -37,11 +37,11 @@ namespace SWTORCombatParser.ViewModels.Phases
         private string multiTargetOption;
         private bool endhasMultiTarget;
         private string endmultiTargetOption;
+        private ObservableCollection<RefreshOptionViewModel> _multiValueOptions;
 
         public event Action<Phase> OnCancelEdit = delegate { };
 
         public event Action<Phase> OnNewPhase = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
         public string SelectedBoss { get; set; }
         public string SelectedEncounter { get; set; }
         public PhaseModificationViewModel(string source)
@@ -55,46 +55,37 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             get => seletedPhaseStart; set
             {
-                seletedPhaseStart = value;
+                this.RaiseAndSetIfChanged(ref seletedPhaseStart, value);
                 SetupUI();
-                OnPropertyChanged();
             }
         }
         public PhaseTrigger SelectedPhaseEnd
         {
             get => selectedPhaseEnd; set
             {
-                selectedPhaseEnd = value;
+                this.RaiseAndSetIfChanged(ref selectedPhaseEnd, value);
                 SetupUI();
-                OnPropertyChanged();
             }
         }
         public Guid Id { get; set; }
         public string Name
         {
-            get => name; set
-            {
-                name = value;
-                OnPropertyChanged();
-            }
+            get => name; set => this.RaiseAndSetIfChanged(ref name, value);
         }
         public bool HasMultiValue
         {
-            get => hasMultiValue; set
-            {
-                hasMultiValue = value;
-                OnPropertyChanged();
-            }
+            get => hasMultiValue; set => this.RaiseAndSetIfChanged(ref hasMultiValue, value);
         }
-        public ObservableCollection<RefreshOptionViewModel> MultiValueOptions { get; set; } = new ObservableCollection<RefreshOptionViewModel>();
+
+        public ObservableCollection<RefreshOptionViewModel> MultiValueOptions
+        {
+            get => _multiValueOptions;
+            set => this.RaiseAndSetIfChanged(ref _multiValueOptions, value);
+        }
 
         public string MultiValueOption
         {
-            get => multiValueOption; set
-            {
-                multiValueOption = value;
-                OnPropertyChanged();
-            }
+            get => multiValueOption; set => this.RaiseAndSetIfChanged(ref multiValueOption, value);
         }
         public ReactiveCommand<Unit,Unit> SaveRefreshOptionCommand => ReactiveCommand.Create(SaveRefreshCommand);
 
@@ -105,7 +96,6 @@ namespace SWTORCombatParser.ViewModels.Phases
             var newValueOption = new RefreshOptionViewModel() { Name = MultiValueOption };
             newValueOption.RemoveRequested += RemoveRefreshOption;
             MultiValueOptions.Add(newValueOption);
-            OnPropertyChanged("MultiValueOptions");
             MultiValueOption = "";
         }
 
@@ -115,21 +105,13 @@ namespace SWTORCombatParser.ViewModels.Phases
         }
         public bool EndHasMultiValue
         {
-            get => endhasMultiValue; set
-            {
-                endhasMultiValue = value;
-                OnPropertyChanged();
-            }
+            get => endhasMultiValue; set => this.RaiseAndSetIfChanged(ref endhasMultiValue, value);
         }
         public ObservableCollection<RefreshOptionViewModel> EndMultiValueOptions { get; set; } = new ObservableCollection<RefreshOptionViewModel>();
 
         public string EndMultiValueOption
         {
-            get => multiValueOption; set
-            {
-                multiValueOption = value;
-                OnPropertyChanged();
-            }
+            get => multiValueOption; set => this.RaiseAndSetIfChanged(ref multiValueOption, value);
         }
         public ReactiveCommand<Unit,Unit> EndSaveRefreshOptionCommand => ReactiveCommand.Create(EndSaveRefreshCommand);
 
@@ -140,7 +122,6 @@ namespace SWTORCombatParser.ViewModels.Phases
             var newValueOption = new RefreshOptionViewModel() { Name = EndMultiValueOption };
             newValueOption.RemoveRequested += EndRemoveRefreshOption;
             EndMultiValueOptions.Add(newValueOption);
-            OnPropertyChanged("EndMultiValueOption");
             EndMultiValueOption = "";
         }
 
@@ -150,73 +131,39 @@ namespace SWTORCombatParser.ViewModels.Phases
         }
         public bool HasValue
         {
-            get => hasValue; set
-            {
-                hasValue = value;
-                OnPropertyChanged();
-            }
+            get => hasValue; set => this.RaiseAndSetIfChanged(ref hasValue, value);
         }
         public string Value
         {
-            get => _value; set
-            {
-                _value = value;
-                OnPropertyChanged();
-            }
+            get => _value; set => this.RaiseAndSetIfChanged(ref _value, value);
         }
         public string ValuePrompt
         {
-            get => endvaluePrompt; set
-            {
-                endvaluePrompt = value;
-                OnPropertyChanged();
-            }
-
+            get => endvaluePrompt; set => this.RaiseAndSetIfChanged(ref endvaluePrompt, value);
         }
         public bool EndHasValue
         {
-            get => endhasValue; set
-            {
-                endhasValue = value;
-                OnPropertyChanged();
-            }
+            get => endhasValue; set => this.RaiseAndSetIfChanged(ref endhasValue, value);
         }
         public string EndValue
         {
-            get => _endvalue; set
-            {
-                _endvalue = value;
-                OnPropertyChanged();
-            }
+            get => _endvalue; set => this.RaiseAndSetIfChanged(ref _endvalue, value);
         }
         public string EndValuePrompt
         {
-            get => endvaluePrompt; set
-            {
-                endvaluePrompt = value;
-                OnPropertyChanged();
-            }
-
+            get => endvaluePrompt; set => this.RaiseAndSetIfChanged(ref endvaluePrompt, value);
         }
 
 
         public bool HasMultiTarget
         {
-            get => hasMultiTarget; set
-            {
-                hasMultiTarget = value;
-                OnPropertyChanged();
-            }
+            get => hasMultiTarget; set => this.RaiseAndSetIfChanged(ref hasMultiTarget, value);
         }
         public ObservableCollection<RefreshOptionViewModel> MultiTargetOptions { get; set; } = new ObservableCollection<RefreshOptionViewModel>();
 
         public string MultiTargetOption
         {
-            get => multiTargetOption; set
-            {
-                multiTargetOption = value;
-                OnPropertyChanged();
-            }
+            get => multiTargetOption; set => this.RaiseAndSetIfChanged(ref multiTargetOption, value);
         }
         public ReactiveCommand<Unit,Unit> SaveMultiTargetOption => ReactiveCommand.Create(SaveMultiTargetCommand);
 
@@ -227,7 +174,6 @@ namespace SWTORCombatParser.ViewModels.Phases
             var newValueOption = new RefreshOptionViewModel() { Name = MultiTargetOption };
             newValueOption.RemoveRequested += RemoveCustomTarget;
             MultiTargetOptions.Add(newValueOption);
-            OnPropertyChanged("MultiTargetOptions");
             MultiTargetOption = "";
         }
 
@@ -239,47 +185,27 @@ namespace SWTORCombatParser.ViewModels.Phases
 
         public string TargetText
         {
-            get => targetText; set
-            {
-                targetText = value;
-                OnPropertyChanged();
-            }
+            get => targetText; set => this.RaiseAndSetIfChanged(ref targetText, value);
         }
         public bool HasTarget
         {
-            get => hasTarget; set
-            {
-                hasTarget = value;
-                OnPropertyChanged();
-            }
+            get => hasTarget; set => this.RaiseAndSetIfChanged(ref hasTarget, value);
         }
         public string SelectedTarget
         {
-            get => selectedTarget; set
-            {
-                selectedTarget = value;
-                OnPropertyChanged();
-            }
+            get => selectedTarget; set => this.RaiseAndSetIfChanged(ref selectedTarget, value);
         }
 
 
         public bool EndHasMultiTarget
         {
-            get => endhasMultiTarget; set
-            {
-                endhasMultiTarget = value;
-                OnPropertyChanged();
-            }
+            get => endhasMultiTarget; set => this.RaiseAndSetIfChanged(ref endhasMultiTarget, value);
         }
         public ObservableCollection<RefreshOptionViewModel> EndMultiTargetOptions { get; set; } = new ObservableCollection<RefreshOptionViewModel>();
 
         public string EndMultiTargetOption
         {
-            get => endmultiTargetOption; set
-            {
-                endmultiTargetOption = value;
-                OnPropertyChanged();
-            }
+            get => endmultiTargetOption; set => this.RaiseAndSetIfChanged(ref endmultiTargetOption, value);
         }
         public ReactiveCommand<Unit,Unit> EndSaveMultiTargetOption => ReactiveCommand.Create(EndSaveMultiTargetCommand);
 
@@ -290,7 +216,6 @@ namespace SWTORCombatParser.ViewModels.Phases
             var newValueOption = new RefreshOptionViewModel() { Name = EndMultiTargetOption };
             newValueOption.RemoveRequested += EndRemoveCustomTarget;
             EndMultiTargetOptions.Add(newValueOption);
-            OnPropertyChanged("EndMultiTargetOptions");
             EndMultiTargetOption = "";
         }
 
@@ -302,27 +227,15 @@ namespace SWTORCombatParser.ViewModels.Phases
 
         public string EndTargetText
         {
-            get => endtargetText; set
-            {
-                endtargetText = value;
-                OnPropertyChanged();
-            }
+            get => endtargetText; set => this.RaiseAndSetIfChanged(ref endtargetText, value);
         }
         public bool EndHasTarget
         {
-            get => endhasTarget; set
-            {
-                endhasTarget = value;
-                OnPropertyChanged();
-            }
+            get => endhasTarget; set => this.RaiseAndSetIfChanged(ref endhasTarget, value);
         }
         public string EndSelectedTarget
         {
-            get => endselectedTarget; set
-            {
-                endselectedTarget = value;
-                OnPropertyChanged();
-            }
+            get => endselectedTarget; set => this.RaiseAndSetIfChanged(ref endselectedTarget, value);
         }
         public List<PhaseTrigger> AvailablePhaseTypes => Enum.GetValues<PhaseTrigger>().ToList();
         public void Cancel()
@@ -561,10 +474,6 @@ namespace SWTORCombatParser.ViewModels.Phases
                         break;
                     }
             }
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }
