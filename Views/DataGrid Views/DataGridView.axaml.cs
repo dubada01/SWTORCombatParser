@@ -143,8 +143,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                             Header = new TextBlock
                             {
                                 Text = statSlot.Header,
-                                TextWrapping = TextWrapping.Wrap, // Enables trimming with ellipsis
-                                TextTrimming = TextTrimming.None,
+                                TextTrimming = TextTrimming.CharacterEllipsis,
                                 Tag = statSlot,
                                 // Optionally, you can set other TextBlock properties here
                                 // such as FontWeight, FontSize, etc.

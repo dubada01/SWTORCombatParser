@@ -9,6 +9,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using ReactiveUI;
 using SWTORCombatParser.ViewModels.Timers;
 
@@ -19,50 +20,55 @@ namespace SWTORCombatParser.Views.Timers
     /// </summary>
     public partial class TimerInstanceView : UserControl
     {
+
         public TimerInstanceView()
         {
             InitializeComponent();
             Loaded += RestartAnimation;
         }
+
         private async void RestartAnimation(object? sender, RoutedEventArgs routedEventArgs)
         {
-            var timerBar = this.FindControl<Border>("TimerBar");
-            if (timerBar?.RenderTransform is ScaleTransform barScale)
+            await Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                // Assuming your DataContext is set and has the properties TimerDuration and CurrentRatio
-                if (this.DataContext is TimerInstanceViewModel vm)
+                var timerBar = this.FindControl<Border>("TimerBar");
+                if (timerBar?.RenderTransform is ScaleTransform barScale)
                 {
-                    var duration = vm.TimerDuration; // TimeSpan property
-                    var fromValue = vm.CurrentRatio; // double property
-
-                    var animation = new Animation
+                    // Assuming your DataContext is set and has the properties TimerDuration and CurrentRatio
+                    if (this.DataContext is TimerInstanceViewModel vm)
                     {
-                        Duration = duration,
-                        Easing = new LinearEasing(), // Use linear easing for smooth animation
-                        Children =
+                        var duration = vm.TimerDuration; // TimeSpan property
+                        var fromValue = vm.CurrentRatio; // double property
+
+                        var animation = new Animation
                         {
-                            new KeyFrame
+                            Duration = duration,
+                            Easing = new LinearEasing(), // Use linear easing for smooth animation
+                            Children =
                             {
-                                Cue = new Cue(0d),
-                                Setters =
+                                new KeyFrame
                                 {
-                                    new Setter(ScaleTransform.ScaleXProperty, fromValue)
-                                }
-                            },
-                            new KeyFrame
-                            {
-                                Cue = new Cue(1d),
-                                Setters =
+                                    Cue = new Cue(0d),
+                                    Setters =
+                                    {
+                                        new Setter(ScaleTransform.ScaleXProperty, fromValue)
+                                    }
+                                },
+                                new KeyFrame
                                 {
-                                    new Setter(ScaleTransform.ScaleXProperty, 0d)
+                                    Cue = new Cue(1d),
+                                    Setters =
+                                    {
+                                        new Setter(ScaleTransform.ScaleXProperty, 0d)
+                                    }
                                 }
                             }
-                        }
-                    };
-                    Debug.WriteLine($"{DateTime.Now}: Starting animation: "+vm.TimerName);
-                    await animation.RunAsync(timerBar);
+                        };
+                        Debug.WriteLine($"{DateTime.Now}: Starting animation: " + vm.TimerName);
+                        await animation.RunAsync(timerBar);
+                    }
                 }
-            }
+            }, DispatcherPriority.Render);
         }
     }
 }

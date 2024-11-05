@@ -22,7 +22,7 @@
             <Image MaxHeight="19" Source="../../resources/skull_Icon.png" IsVisible="{Binding DiedNatrually, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,0,3" VerticalAlignment="Bottom"></Image>
             <Border Grid.Row="1" Margin="0,0,0,2" CornerRadius="2" Background="{StaticResource Gray3Brush}" FlowDirection="LeftToRight">
                 <Grid>
-                    <Border Background="Crimson" CornerRadius="2" HorizontalAlignment="Stretch">
+                    <Border Background="Crimson"  RenderTransformOrigin="1,0" CornerRadius="2" HorizontalAlignment="Stretch">
                         <Border.RenderTransform>
                             <ScaleTransform ScaleX="{Binding HPPercent}"/>
                         </Border.RenderTransform>

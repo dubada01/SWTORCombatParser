@@ -37,13 +37,8 @@ public static class AvaloniaTimelineBuilder
         CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsParsed;
         CombatSelectionMonitor.CombatSelected += ShowTimelineNonLive;
 
-        var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("TimelineOverlay");
+        var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("Timeline");
         TimelineEnabled = defaults.Acive;
-    }
-
-    private static void UserDisabled()
-    {
-        TimelineEnabled = false;
     }
 
     private static void HistoricalLogsParsed(DateTime arg1, bool arg2)
@@ -172,6 +167,7 @@ public static class AvaloniaTimelineBuilder
         else
         {
             _inBossInstance = false;
+            _timelineWindowViewModel.InBossInstance = false;
             HideTimelineOverlay();
         }
     }
@@ -179,6 +175,7 @@ public static class AvaloniaTimelineBuilder
     private static void BuildTimelineFromEncounter(bool showLive = true)
     {
         _inBossInstance = true;
+        _timelineWindowViewModel.InBossInstance = true;
         _lastEncounterStartTime = CombatLogStateBuilder.CurrentState.EncounterEnteredInfo.FirstOrDefault(kvp=>kvp.Value == _currentEncounter).Key;
         var timeTrialLeaderboardEntries = _currentEncounter.BossInfos.Select(async bi =>
         {

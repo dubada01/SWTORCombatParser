@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using SkiaSharp;
+using SWTORCombatParser.DataStructures.ClassInfos;
 
 
 namespace SWTORCombatParser.Utilities
@@ -11,24 +13,50 @@ namespace SWTORCombatParser.Utilities
     public static class IconFactory
     {
         public static Bitmap _unknownIcon;
-
+        private static Dictionary<string, Bitmap> _classColoredBitmaps = new Dictionary<string, Bitmap>();
         public static void Init()
         {
             _unknownIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/question-mark.png")));
+            foreach(var swtorClass in ClassLoader.LoadAllClasses())
+            {
+                var colorForClass = GetIconColorFromClass(swtorClass);
+                _classColoredBitmaps[swtorClass.Discipline] = GetColoredBitmapImage(swtorClass, colorForClass);
+            }
         }
-
-        public static Bitmap GetColoredBitmapImage(string className, Color color)
+        
+        public static Bitmap GetClassIcon(string className)
         {
-            return SetIconColor(GetIcon(className), color);
+            if(string.IsNullOrEmpty(className))
+                return _unknownIcon;
+            if (_classColoredBitmaps.ContainsKey(className))
+                return _classColoredBitmaps[className];
+            return _unknownIcon;
         }
-
-        public static Bitmap GetIcon(string className)
+        
+        private static Color GetIconColorFromClass(SWTORClass classInfo)
+        {
+            return classInfo.Role switch
+            {
+                Role.Healer => Colors.ForestGreen,
+                Role.Tank => Colors.CornflowerBlue,
+                Role.DPS => Colors.IndianRed,
+                _ => (Color)ResourceFinder.GetColorFromResourceName("Gray4")
+            };
+        }
+        private static Bitmap GetIcon(string className)
         {
             if (string.IsNullOrEmpty(className))
                 return _unknownIcon;
             var iconForClass = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/Class Icons/" + className.ToLower() + ".png")));
             return iconForClass;
         }
+        private static Bitmap GetColoredBitmapImage(SWTORClass swtorClass, Color color)
+        {
+            return SetIconColor(GetIcon(swtorClass.Name), color);
+        }
+
+
+
 
         private static WriteableBitmap SetIconColor(Bitmap image, Color color)
         {

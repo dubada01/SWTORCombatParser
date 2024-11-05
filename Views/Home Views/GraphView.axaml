@@ -29,7 +29,7 @@
                 <ColumnDefinition Width="13"/>
             </Grid.ColumnDefinitions>
             <Border Grid.Column="1" Background="{StaticResource Gray4Brush}" CornerRadius="5,5,0,0" HorizontalAlignment="Stretch" BorderBrush="LightGray" BorderThickness="0">
-                <Viewbox MaxHeight="30" MaxWidth="900" Margin="5,0,5,0">
+                <Viewbox MaxHeight="35" MaxWidth="900" Margin="5,0,5,0">
                     <ItemsControl BorderThickness="0" ItemsSource="{Binding LegendItems}" Background="Transparent">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>

@@ -9,13 +9,10 @@ using SWTORCombatParser.Views.Home_Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
 using Avalonia.Threading;
 using ReactiveUI;
 using ScottPlot.Avalonia;
@@ -53,6 +50,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         private GridLength _participantSelectionHeight;
         private int _minSeletionHeight;
         private int _maxSeletionHeight;
+        private ObservableCollection<LegendItemViewModel> _legendItems;
 
         public double UserControlWidth
         {
@@ -85,7 +83,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             _participantsViewModel.ViewEnemiesToggled += UpdateParticipantUI;
 
             ParticipantSelectionContent.DataContext = _participantsViewModel;
-            LegendItems = GetLegends();
         }
 
         public void SetPlotForViewModel(AvaPlot plot)
@@ -163,7 +160,12 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 this.RaiseAndSetIfChanged(ref averageWindowDuration, value);
             }
         }
-        public ObservableCollection<LegendItemViewModel> LegendItems { get; set; }
+
+        public ObservableCollection<LegendItemViewModel> LegendItems
+        {
+            get => _legendItems;
+            set => this.RaiseAndSetIfChanged(ref _legendItems, value);
+        }
 
         public void HighlightEffect(List<CombatModifier> obj)
         {
@@ -256,6 +258,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         public void SetSeries(List<CombatMetaDataSeries> series)
         {
             _seriesToPlot = series;
+            LegendItems = GetLegends();
         }
         public void MousePositionUpdated(Point position)
         {
@@ -436,7 +439,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             lock (graphLock)
             {
-                var horizontalSpans = GraphView.Plot.GetPlottables().Where(p => p.GetType() == typeof(AxisSpan));
+                var horizontalSpans = GraphView.Plot.GetPlottables().Where(p => p.GetType() == typeof(HorizontalSpan));
                 foreach (var span in horizontalSpans)
                 {
                     GraphView.Plot.Remove(span);

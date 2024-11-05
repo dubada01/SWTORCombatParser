@@ -151,7 +151,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     IsVisible = combatsAreVisible,
                     CombatStartTime = combat.StartTime,
                     CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss"),
-                    CombatLabel = combat.IsCombatWithBoss ? combat.EncounterBossInfo : combat.IsPvPCombat ? GetPVPCombatText(combat) : string.Join(',', combat.Targets.Select(t => t.Name).Distinct()),
+                    CombatLabel = combat.IsCombatWithBoss ? combat.EncounterBossDifficultyParts.Item1 : combat.IsPvPCombat ? GetPVPCombatText(combat) : string.Join(',', combat.Targets.Select(t => t.Name).Distinct()),
                 };
                 pastCombatDisplay.PastCombatSelected += SelectCombat;
                 pastCombatDisplay.PastCombatUnSelected += UnselectCombat;

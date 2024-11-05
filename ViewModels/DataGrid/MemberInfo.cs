@@ -28,21 +28,21 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             _info = info;
             _entity = e;
 
-            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i, Colors.WhiteSmoke, entity: _entity) { Value = GetValue(i) }));
+            StatsSlots = new List<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i, entity: _entity) { Value = GetValue(i) }));
             if (_entity != null)
             {
                 IsLocalPlayer = e.IsLocalPlayer;
                 _playerClass =
     CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.Last().StartTime);
-                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, GetIconColorFromClass(_playerClass), _entity.Name, _playerClass.Name, IsLocalPlayer, _entity));
+                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, _entity.Name, _playerClass.Discipline, IsLocalPlayer, _entity));
             }
             else
             {
                 IsTotalsRow = true;
-                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, Colors.WhiteSmoke, "Totals"));
+                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, "Totals"));
             }
             if (selectedColumns.Count < 10)
-                StatsSlots.Add(new StatsSlotViewModel(OverlayType.None, Colors.WhiteSmoke) { Value = "" });
+                StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
         }
 
         public bool IsTotalsRow { get; set; }
@@ -69,16 +69,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 return MetricGetter.GetTotalforMetric(columnType, _info).ToString(formatToUse);
             return MetricGetter.GetValueForMetric(columnType, _info, _entity).ToString(formatToUse);
         }
-        private Color GetIconColorFromClass(SWTORClass classInfo)
-        {
-            return classInfo.Role switch
-            {
-                Role.Healer => Colors.ForestGreen,
-                Role.Tank => Colors.CornflowerBlue,
-                Role.DPS => Colors.IndianRed,
-                _ => (Color)ResourceFinder.GetColorFromResourceName("Gray4")
-            };
-        }
+
         public List<StatsSlotViewModel> StatsSlots { get; set; } = new List<StatsSlotViewModel>();
     }
 }

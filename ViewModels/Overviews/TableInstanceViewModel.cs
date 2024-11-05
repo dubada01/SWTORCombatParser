@@ -254,22 +254,12 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 case SortingOption.ByAbility:
                     return await IconGetter.GetIconPathForLog(log);
                 case SortingOption.BySource:
-                    return IconFactory.GetColoredBitmapImage(sourceClass.Name, GetIconColorFromClass(sourceClass));
+                    return IconFactory.GetClassIcon(sourceClass.Name);
                 case SortingOption.ByTarget:
-                    return IconFactory.GetColoredBitmapImage(targetClass.Name, GetIconColorFromClass(targetClass));
+                    return IconFactory.GetClassIcon(targetClass.Name);
                 default:
                     return null;
             }
-        }
-        private Color GetIconColorFromClass(SWTORClass classInfo)
-        {
-            return classInfo.Role switch
-            {
-                Role.Healer => Colors.ForestGreen,
-                Role.Tank => Colors.CornflowerBlue,
-                Role.DPS => Colors.IndianRed,
-                _ => (Color)ResourceFinder.GetColorFromResourceName("Gray4")
-            };
         }
         private Dictionary<string, List<ParsedLogEntry>> GetDataSplitOut(Combat combat, List<ParsedLogEntry> logsInScope)
         {
