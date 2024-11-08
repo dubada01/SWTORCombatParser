@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using System;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
@@ -31,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private List<DefaultChallengeData> _savedChallengeData;
         private ObservableCollection<ChallengeRowViewModel> challengeRows = new ObservableCollection<ChallengeRowViewModel>();
         private bool challengesEnabled;
-
+        public event Action ChallengesDisabled = delegate { };
         public EncounterSelectionView EncounterSelectionView { get; set; }
         public void UpdateSelectedEncounter(string encounterName, string bossName)
         {
@@ -73,6 +74,11 @@ namespace SWTORCombatParser.ViewModels.Challenges
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
             _challengeWindowViewModel = new ChallengeWindowViewModel("Challenges");
+            _challengeWindowViewModel.CloseRequested += () =>
+            {
+                ChallengesEnabled = false;
+                ChallengesDisabled();
+            };
             RefreshEncounterSelection();
         }
 

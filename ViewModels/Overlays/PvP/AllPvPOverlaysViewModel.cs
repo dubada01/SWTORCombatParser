@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.Model.Overlays;
+﻿using System;
+using SWTORCombatParser.Model.Overlays;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -12,14 +13,18 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private bool opponentHPEnabled;
         private bool miniMapEnabled;
         private int miniMapRangeBuffer;
+        public event Action MapClosed = delegate { };
+        public event Action OpponentClosed = delegate { };
 
         public AllPvPOverlaysViewModel()
         {
             _opponentOverlayViewModel = new OpponentOverlayViewModel("PvP_HP");
+            _opponentOverlayViewModel.CloseRequested += () => OpponentClosed();
             _opponentOverlayViewModel.OverlayStateChanged += UpdateOverlay;
             opponentHPEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP").Acive;
 
             _miniMapViewModel = new MiniMapViewModel("PvP_MiniMap");
+            _miniMapViewModel.CloseRequested += () => MapClosed();
             _miniMapViewModel.OverlayStateChanged += UpdateOverlay;
             miniMapEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap").Acive;
             MiniMapRangeBuffer = 15;

@@ -15,7 +15,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         public RaidNotesSetupViewModel()
         {
             _viewModel = new RaidNotesViewModel("RaidNotes");
-            _viewModel.OnClosing += Disable;
+            _viewModel.CloseRequested += Disable;
             _viewModel.OnInInstanceChanged += InInstanceChanged;
         }
         private void InInstanceChanged(bool instanceStatus)

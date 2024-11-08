@@ -174,27 +174,45 @@ namespace SWTORCombatParser.ViewModels.Overlays
             };
             _timersViewModel = new TimersCreationViewModel();
             _challengesViewModel = new ChallengeSetupViewModel();
-
-            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.ChallengesEnabled;
-
+            _abilityListSetup = new AbilityListSetupViewModel();
+            _raidNotesSetup = new RaidNotesSetupViewModel();
             _otherOverlayViewModel = new OthersOverlaySetupViewModel();
             OthersSetupView = new OtherOverlaySetupView();
             OthersSetupView.DataContext = _otherOverlayViewModel;
 
-            _abilityListSetup = new AbilityListSetupViewModel();
+            _challengesViewModel.ChallengesDisabled += () => {
+                AvailableUtilityOverlays.First(t => t.Type == UtilityOverlayType.RaidChallenge).IsSelected = false;
+            };
             _abilityListSetup.OnEnabledChanged += b => {
                 AvailableUtilityOverlays.First(t => t.Type == UtilityOverlayType.AbilityList).IsSelected = b;
             };
-
-            _raidNotesSetup = new RaidNotesSetupViewModel();
             _raidNotesSetup.OnEnabledChanged += b => {
                 AvailableUtilityOverlays.First(t => t.Type == UtilityOverlayType.RaidNotes).IsSelected = b;
             };
-
-            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = _otherOverlayViewModel._raidHotsConfigViewModel.RaidHotsEnabled;
             _otherOverlayViewModel._raidHotsConfigViewModel.EnabledChanged += e => {
                 AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = e;
             };
+            _otherOverlayViewModel._bossFrameViewModel.CloseRequested += () => {
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = false;
+            };
+            _otherOverlayViewModel._roomOverlayViewModel.CloseRequested += () => {
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = false;
+            };
+            _otherOverlayViewModel._PvpOverlaysConfigViewModel.MapClosed += () => {
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = false;
+            };
+            _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentClosed += () => {
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = false;
+            };
+            _timersViewModel.DisciplineClosed += () => {
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer).IsSelected = false;
+            };
+            _timersViewModel.EncounterClosed += () => {
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = false;
+            };
+           
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = _otherOverlayViewModel._raidHotsConfigViewModel.RaidHotsEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.ChallengesEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer).IsSelected = _timersViewModel.DisciplineTimersActive;

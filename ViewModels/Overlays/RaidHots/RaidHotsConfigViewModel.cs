@@ -36,6 +36,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             RaidFrameOverlayManager.Init();
             HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
             _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame") { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Editable = _isRaidFrameEditable};
+            _currentOverlayViewModel.CloseRequested += ()=> RaidHotsEnabled = false;
             raidHotsEnabled = _currentOverlayViewModel.Active;
             CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
             {

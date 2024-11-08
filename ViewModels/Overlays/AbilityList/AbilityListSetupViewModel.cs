@@ -13,6 +13,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
         public AbilityListSetupViewModel()
         {
             _viewModel = new AbilityListViewModel("AbilityList");
+            _viewModel.CloseRequested += Disable;
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_viewModel._overlayName);
             abilityListEnabled = defaults.Acive;
             if (defaults.Acive)
@@ -26,7 +27,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
                 _viewModel.Active = value;
             }
         }
-        private void Disable(AbilityListViewModel model)
+        private void Disable()
         {
             AbilityListEnabled = false;
             OnEnabledChanged(false);

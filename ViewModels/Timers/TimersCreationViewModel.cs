@@ -49,6 +49,9 @@ namespace SWTORCombatParser.ViewModels.Timers
         private Timer _timerEdited;
         private bool disciplineTimersActive;
         private bool alertTimersActive;
+        public event Action DisciplineClosed = delegate { };
+        public event Action AlertsClosed = delegate { };
+        public event Action EncounterClosed = delegate { };
 
         private List<DefaultTimersData> _savedTimersData = new List<DefaultTimersData>();
         public EncounterSelectionView EncounterSelectionView
@@ -253,10 +256,25 @@ namespace SWTORCombatParser.ViewModels.Timers
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
             _disciplineTimersWindow = new DisciplineTimersWindowViewModel("Discipline");
+            _disciplineTimersWindow.CloseRequested += () =>
+            {
+                DisciplineTimersActive = false;
+                DisciplineClosed();
+            };
             disciplineTimersActive = _disciplineTimersWindow.Active;
             _alertTimersWindow = new AlertsWindowViewModel("Alerts");
+            _alertTimersWindow.CloseRequested += () =>
+            {
+                AlertsActive = false;
+                AlertsClosed();
+            };
             alertTimersActive = _alertTimersWindow.Active;
             _encounterTimersWindow = new EncounterTimerWindowViewModel("Encounter");
+            _encounterTimersWindow.CloseRequested += () =>
+            {
+                EncounterTimersActive = false;
+                EncounterClosed();
+            };
             _encounterTimersActive = _encounterTimersWindow.Active;
             
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;

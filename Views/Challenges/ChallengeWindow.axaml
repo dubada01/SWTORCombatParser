@@ -10,11 +10,6 @@
              Background="{x:Null}">
     <Grid>
         <Grid>
-            <Grid IsVisible="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}">
-                <Viewbox HorizontalAlignment="Center" MaxHeight="30" Margin="0,1,0,0">
-                    <TextBlock Foreground="Beige" FontFamily="{StaticResource MainFont}"  Text="Challenges"></TextBlock>
-                </Viewbox>
-            </Grid>
             <local:ChallengeControl/>
         </Grid>
     </Grid>

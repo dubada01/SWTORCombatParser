@@ -107,7 +107,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 CombatDuration = TimeSpan.FromSeconds(_accurateDuration).ToString(@"mm\:ss");
                 _lastUpdateTime = DateTime.Now;
             };
-
+            this.CloseRequested += () =>
+            {
+                BossFrameEnabled = false;
+            };
             CombatLogStreamer.CombatUpdated += OnNewLog;
             CombatLogStreamer.NewLineStreamed += HandleNewLog;
             _bossFrame = new BrossFrameView(this);
