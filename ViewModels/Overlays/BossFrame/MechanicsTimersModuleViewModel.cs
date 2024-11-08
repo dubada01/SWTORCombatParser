@@ -18,17 +18,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private double _currentScale;
 
         public ObservableCollection<TimerInstanceViewModel> UpcomingMechanics { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
-        public MechanicsTimersModuleViewModel(EntityInfo bossInfo, bool mechTrackingEnabled, double scale)
+        public MechanicsTimersModuleViewModel(EntityInfo bossInfo, double scale)
         {
             _currentScale = scale;
-            isActive = mechTrackingEnabled;
             _bossInfo = bossInfo;
             TimerController.TimerTriggered += OnNewTimer;
             TimerController.TimerExpired += RemoveTimer;
-        }
-        public void SetActive(bool state)
-        {
-            isActive = state;
         }
 
         public void SetScale(double scale)

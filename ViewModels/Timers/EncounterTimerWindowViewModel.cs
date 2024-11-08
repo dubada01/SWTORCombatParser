@@ -19,14 +19,12 @@ namespace SWTORCombatParser.ViewModels.Timers
     public class EncounterTimerWindowViewModel : TimersWindowViewModel
     {
         private bool inBossRoom;
-        private bool isEnabled;
-        public override bool ShouldBeVisible => inBossRoom && isEnabled;
+        public override bool ShouldBeVisible => inBossRoom && Active;
         public EncounterTimerWindowViewModel(string overlayName) : base(overlayName)
         {
             SwtorTimers = new ObservableCollection<TimerInstanceViewModel>();
             CombatLogStateBuilder.AreaEntered += AreaEntered;
             CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
-            DefaultBossFrameManager.DefaultsUpdated += UpdateState;
             CombatLogStreamer.CombatUpdated += CheckForEnd;
             MainContent = new TimersWindow(this);
         }
@@ -45,18 +43,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
             }
         }
-        private void UpdateState()
-        {
-            isEnabled = DefaultBossFrameManager.GetDefaults().PredictMechs;
-            if (_active && !isEnabled)
-            {
-                Active = false;
-            }
-            if ((inBossRoom || OverlaysMoveable) && isEnabled)
-            {
-                Active = true;
-            }
-        }
+
 
         private void CheckForArea(DateTime arg1, bool arg2)
         {

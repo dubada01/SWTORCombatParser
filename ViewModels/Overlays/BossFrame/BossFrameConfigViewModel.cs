@@ -46,16 +46,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 UpdateBossFrameStates();
             }
         }
-        public bool MechPredictionsEnabled
-        {
-            get => mechPredictionsEnabled; set
-            {
-                this.RaiseAndSetIfChanged(ref mechPredictionsEnabled, value);
-                DefaultGlobalOverlays.SetActive("Encounter",mechPredictionsEnabled);
-                //DefaultBossFrameManager.SetPredictMechs(mechPredictionsEnabled);
-                UpdateBossFrameStates();
-            }
-        }
         public bool RaidChallengesEnabled
         {
             get => raidChallengesEnabled; set
@@ -120,7 +110,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
             bossFrameEnabled = currentDefaults.Acive;
             DotTrackingEnabled = currentDefaults.TrackDOTS;
-            MechPredictionsEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("Encounter").Acive;
             RaidChallengesEnabled = currentDefaults.RaidChallenges;
             this.WhenAnyValue(x => x.OverlaysMoveable).Subscribe(_ => this.RaisePropertyChanged(nameof(ShowFrame)));
             if (currentDefaults.Acive)
@@ -148,7 +137,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             foreach (var boss in BossesDetected)
             {
-                boss.UpdateBossFrameState(DotTrackingEnabled, MechPredictionsEnabled);
+                boss.UpdateBossFrameState(DotTrackingEnabled);
             }
         }
         public void OnNewLog(CombatStatusUpdate update)
@@ -184,7 +173,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
                     Dispatcher.UIThread.Invoke(() =>
                     {
-                        BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled, isDuplicate, CurrentScale));
+                        BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, isDuplicate, CurrentScale));
                         this.RaisePropertyChanged(nameof(ShowFrame));
                         UpdateVisibility();
                     });

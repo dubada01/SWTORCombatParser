@@ -214,7 +214,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = _otherOverlayViewModel._raidHotsConfigViewModel.RaidHotsEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.ChallengesEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
-            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _timersViewModel.EncounterTimersActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer).IsSelected = _timersViewModel.DisciplineTimersActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Timeline).IsSelected = AvaloniaTimelineBuilder.TimelineEnabled;
@@ -390,7 +390,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled = !_otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
                     break;
                 case UtilityOverlayType.RaidTimer:
-                    _otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled = !_otherOverlayViewModel._bossFrameViewModel.MechPredictionsEnabled;
                     _timersViewModel.EncounterTimersActive = !_timersViewModel.EncounterTimersActive;
                     break;
                 case UtilityOverlayType.DisciplineTimer:
