@@ -17,6 +17,12 @@
                 <Style Selector="DataGridRow:nth-child(even)">
                     <Setter Property="Background" Value="{StaticResource Gray2}" />
                 </Style>
+                <Style Selector="DataGridCell.rightAlign">
+                    <Setter Property="HorizontalContentAlignment" Value="Right"></Setter>
+                </Style>
+                <Style Selector="DataGridColumnHeader">
+                    <Setter Property="FontSize" Value="10"></Setter>
+                </Style>
             </DataGrid.Styles>
         </DataGrid>
     </Grid>

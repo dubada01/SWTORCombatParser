@@ -30,13 +30,13 @@
             <TextBlock Text="Settings" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="25"></TextBlock>
             <StackPanel Margin="10,45,0,0" Grid.Row="1" Grid.Column="0" Orientation="Vertical">
                 <StackPanel Orientation="Horizontal" ToolTip.Tip="Operate offline. No leaderboard or raid HOT autodetection available" Margin="0,5,0,5">
-                    <CheckBox Name="OfflineMode" Margin="5,0,0,0"></CheckBox>
-                    <TextBlock Text="Offline Mode" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <CheckBox Name="OfflineMode" Margin="5,0,0,0" VerticalAlignment="Center"></CheckBox>
+                    <TextBlock Text="Offline Mode" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                     
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
-                    <CheckBox Name="ForceLogUpdates" Margin="5,0,0,0"></CheckBox>
-                    <TextBlock Text="Force Log Updates" ToolTip.Tip="Orbs no longer waits until the OS has alerted it of a file change. May impact performance" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <CheckBox Name="ForceLogUpdates" Margin="5,0,0,0" VerticalAlignment="Center"></CheckBox>
+                    <TextBlock VerticalAlignment="Center" Text="Force Log Updates" ToolTip.Tip="Orbs no longer waits until the OS has alerted it of a file change. May impact performance" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                     
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
@@ -65,17 +65,17 @@
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" ToolTip.Tip="Orbs minimizes to the system tray and shows when SWTOR launches" Margin="0,20,0,5">
-                    <CheckBox Name="RunInBackground" Margin="5,0,0,0"></CheckBox>
-                    <TextBlock Text="Run in background" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <CheckBox Name="RunInBackground" Margin="5,0,0,0" VerticalAlignment="Center"></CheckBox>
+                    <TextBlock Text="Run in background" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                     
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" ToolTip.Tip="Orbs minimizes to the system tray and shows when SWTOR launches" Margin="0,5,0,5">
-                    <CheckBox Name="BackgroundWarning" Margin="5,0,0,0"></CheckBox>
-                    <TextBlock Text="Show background warning" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <CheckBox Name="BackgroundWarning" Margin="5,0,0,0" VerticalAlignment="Center"></CheckBox>
+                    <TextBlock Text="Show background warning" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                     
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" ToolTip.Tip="View all startup messages even if you've cleared them" Margin="0,5,0,5">
-                    <TextBlock VerticalAlignment="Center" Text="Show Startup Messages" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
+                    <TextBlock VerticalAlignment="Center" Text="Show Startup Messages"  Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                     <Button Name="ResetMessagesButton" Padding="5,3,5,3" Background="{StaticResource GreenColorBrush}" Foreground="PapayaWhip" FontSize="11" Classes="RoundedCorner" Margin="5,0,0,0">View</Button>
                 </StackPanel>
 

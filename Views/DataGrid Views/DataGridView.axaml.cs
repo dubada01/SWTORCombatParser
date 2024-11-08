@@ -68,7 +68,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
         private ListSortDirection sortDirection = ListSortDirection.Ascending;
         private readonly DataGridViewModel _viewModel;
         private string sortProperty = "Name";
-        private DataGridTextColumn columnToAddSortIconTo;
+        private DataGridTemplateColumn columnToAddSortIconTo;
 
         public DataGridView(DataGridViewModel vm)
         {
@@ -123,8 +123,10 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                                 var textBlock = new TextBlock
                                 {
                                     Text = member.IsTotalsRow ? "Total" : member.PlayerName,
+                                    FontWeight = member.IsTotalsRow ? FontWeight.Bold : FontWeight.Normal,
                                     FontSize = 12,
                                     Foreground = member.IsLocalPlayer ? Brushes.Goldenrod : Brushes.WhiteSmoke,
+                                    HorizontalAlignment = HorizontalAlignment.Right,
                                     VerticalAlignment = VerticalAlignment.Center
                                 };
                                 stackPanel.Children.Add(textBlock);
@@ -138,7 +140,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                     }
                     else
                     {
-                        var column = new DataGridTextColumn
+                        var column = new DataGridTemplateColumn
                         {
                             Header = new TextBlock
                             {
@@ -148,11 +150,26 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                                 // Optionally, you can set other TextBlock properties here
                                 // such as FontWeight, FontSize, etc.
                             },
-                            Binding = new Binding($"StatsSlots[{i}].Value"), // Binding to the appropriate StatSlot value,
+                            CellStyleClasses = { "rightAlign" },
+                            CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
+                            {
+                                var statToDisplay = member.StatsSlots.First(s=>s.Header == statSlot.Header);
+                                var textBox = new TextBlock
+                                {
+                                    Text = statToDisplay.Value,
+                                    TextTrimming = TextTrimming.CharacterEllipsis,
+                                    Foreground = statToDisplay.ForegroundColor,
+                                    HorizontalAlignment = HorizontalAlignment.Right,
+                                    VerticalAlignment = VerticalAlignment.Center,
+                                    FontWeight = member.IsTotalsRow ? FontWeight.Bold : FontWeight.Normal,
+                                    FontSize = member.IsTotalsRow ? 11 : 10
+                                };
+                                return textBox;
+                            }),
                             CustomSortComparer = customComparer,
-                            Foreground = statSlot.ForegroundColor,
+                            CanUserSort = true,
+                            SortMemberPath = "Value",
                             Width = new DataGridLength(1, DataGridLengthUnitType.Star),
-                            FontSize = 12
                         };
                         DynamicDataGrid.Columns.Add(column);
                         if (statSlot.Header == sortProperty)
@@ -181,7 +198,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
             e.Handled = true; // Prevent the default sort behavior
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                if (e.Column is DataGridTextColumn textColumn)
+                if (e.Column is DataGridTemplateColumn textColumn)
                 {
                     if ((textColumn.Header as TextBlock).Text == "Name")
                     {
@@ -193,9 +210,9 @@ namespace SWTORCombatParser.Views.DataGrid_Views
             });
         }
 
-        private void UpdateColumnForSort(DataGridTextColumn textColumn)
+        private void UpdateColumnForSort(DataGridTemplateColumn textColumn)
         {
-            if (textColumn.Header is Control headerControl)
+            if (textColumn.Header is TextBlock headerControl)
             {
                 var parentGrid = VisualTreeHelpers.GetParent<Grid>(headerControl, 2);
                 // Find the SortIcon Path within the parent Grid
@@ -214,7 +231,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                 // Clear sort indicators on other columns
                 foreach (var col in DynamicDataGrid.Columns)
                 {
-                    if (col != textColumn && col.Header is Control otherHeaderControl)
+                    if (col != textColumn && col.Header is TextBlock otherHeaderControl)
                     {
                         var otherParentGrid = VisualTreeHelpers.GetParent<Grid>(otherHeaderControl, 2);
                         // Find the SortIcon Path within the parent Grid

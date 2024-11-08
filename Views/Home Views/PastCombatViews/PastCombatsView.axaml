@@ -101,8 +101,8 @@
             </Viewbox>
             <Viewbox Grid.Column="1" MaxHeight="60" MaxWidth="100" Margin="5,5,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock FontFamily="{StaticResource MainFont}" Foreground="LightGray" Text="Show Trash: " FontWeight="Bold" ></TextBlock>
-                    <CheckBox IsChecked="{Binding ShowTrash}" HorizontalAlignment="Right"></CheckBox>
+                    <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Foreground="LightGray" Text="Show Trash: " FontWeight="Bold" ></TextBlock>
+                    <CheckBox IsChecked="{Binding ShowTrash}" VerticalAlignment="Center" HorizontalAlignment="Right"></CheckBox>
                 </StackPanel>
             </Viewbox>
         </Grid>
