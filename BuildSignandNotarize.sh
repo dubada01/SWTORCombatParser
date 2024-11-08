@@ -19,7 +19,12 @@ BUNDLE_IDENTIFIER="com.dubatech.Orbs"
 MINIMUM_SYSTEM_VERSION="10.12"
 ICON_FILE="./OrbsIcon.png" # Assuming OrbsIcon.png is next to the script
 
-# Create .app directory structure
+# Step 1: Build and Publish the .NET app
+echo "Publishing .NET app..."
+dotnet publish ./SWTORCombatParser.csproj -c Release -r osx-arm64 --self-contained -p:PublishSingleFile=true -p:Version=$VERSION
+
+# Step 2: Create .app directory structure
+echo "Creating .app structure..."
 mkdir -p "$APP_DIR/Contents/MacOS"
 mkdir -p "$APP_DIR/Contents/Resources" # Create Resources directory for the icon
 
@@ -31,10 +36,12 @@ else
   exit 1
 fi
 
-# Move the published files into the app bundle
+# Step 3: Move the published files into the app bundle
+echo "Moving published files into app bundle..."
 cp -R "$PUBLISH_DIR/"* "$APP_DIR/Contents/MacOS/"
 
-# Create Info.plist with dynamic version
+# Step 4: Create Info.plist with dynamic version
+echo "Creating Info.plist..."
 cat > "$APP_DIR/Contents/Info.plist" <<EOL
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
@@ -61,18 +68,24 @@ cat > "$APP_DIR/Contents/Info.plist" <<EOL
 </plist>
 EOL
 
+# Step 5: Clear extended attributes
 xattr -cr $APP_DIR
-# Sign the app binary with entitlements
+
+# Step 6: Sign the app binary with entitlements
+echo "Signing the app binary..."
 codesign --deep --force --verbose --options runtime --entitlements "$ENTITLEMENTS_PLIST" --sign "$DEVELOPER_ID" "$APP_DIR/Contents/MacOS/$APP_NAME"
 
-# Sign the entire app
+# Step 7: Sign the entire app
+echo "Signing the app bundle..."
 codesign --deep --force --verbose --options runtime --entitlements "$ENTITLEMENTS_PLIST" --sign "$DEVELOPER_ID" "$APP_DIR"
 
-# Zip the app using ditto to preserve all necessary metadata
+# Step 8: Zip the app using ditto to preserve all necessary metadata
+echo "Zipping the app..."
 cd "$MACOS_BUILD_DIR" || exit
 ditto -c -k --keepParent "$APP_NAME.app" "$ZIP_FILE"
 
-# Submit the app for notarization and capture the request ID
+# Step 9: Submit the app for notarization
+echo "Submitting app for notarization..."
 NOTARIZATION_INFO=$(xcrun notarytool submit "$ZIP_FILE" --keychain-profile "NotaryCredentials" --wait)
 echo "$NOTARIZATION_INFO"
 
@@ -80,7 +93,7 @@ echo "$NOTARIZATION_INFO"
 NOTARIZATION_ID=$(echo "$NOTARIZATION_INFO" | awk '/id:/{print $2; exit}')
 echo "Notarization ID: $NOTARIZATION_ID"
 
-# Check if the submission was successful
+# Step 10: Check if notarization was successful and staple the app
 if [[ "$NOTARIZATION_INFO" == *"status: Accepted"* ]]; then
     echo "Notarization successful, stapling the app..."
     xcrun stapler staple "$APP_NAME.app"
@@ -89,6 +102,5 @@ else
     xcrun notarytool log "$NOTARIZATION_ID" --keychain-profile "NotaryCredentials"
     exit 1
 fi
-
 
 echo "App creation, signing, and notarization complete!"
