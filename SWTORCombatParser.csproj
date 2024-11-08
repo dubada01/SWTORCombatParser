@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.0.2</VersionPrefix>
+    <VersionPrefix>2.0.3</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -27,11 +27,11 @@
 
   <!-- Define 'MACOS' symbol when building on macOS -->
   <PropertyGroup Condition="'$(OS)' == 'Unix'">
-    <DefineConstants>LINUX;$(DefineConstants)</DefineConstants>
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+<!--    <DefineConstants>LINUX;$(DefineConstants)</DefineConstants>-->
+<!--    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>-->
     
-    <!--<DefineConstants>MACOS;$(DefineConstants)</DefineConstants>-->
-    <!-- <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>-->
+    <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
    </PropertyGroup>
  
    
