@@ -93,7 +93,7 @@
                     <Button Background="Gray" Foreground="WhiteSmoke" Command="{Binding ImportCommand}" Classes="RoundedCorner" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
                 </StackPanel>
             </Viewbox>
-            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Classes="RoundedCorner" Height="30" Width="75" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" FontSize="10" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
+            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Classes="RoundedCorner" Height="30" Width="75" Padding="3" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" FontSize="10" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
         </Grid>
     </Grid>
 </Window>

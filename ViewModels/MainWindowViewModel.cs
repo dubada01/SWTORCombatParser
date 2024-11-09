@@ -354,6 +354,7 @@ namespace SWTORCombatParser.ViewModels
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var parselySettingsWindow = new ParselySettings();
+                parselySettingsWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 parselySettingsWindow.ShowDialog(desktop.MainWindow);
             }
         }

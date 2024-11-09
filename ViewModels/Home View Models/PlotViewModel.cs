@@ -308,7 +308,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                     plotYvals = PlotMaker.GetPlotYVals(applicableData, true);
                     plotXValRates = PlotMaker.GetPlotXValsRates(plotXvals);
                     plotYvaRates = PlotMaker.GetPlotYValRates(plotYvals, plotXvals, _averageWindowDurationDouble);
-                    //PlotPeaks(series, plotYvaRates,plotXValRates, combatToPlot, selectedEntity);
                 }
                 else
                 {
@@ -413,7 +412,6 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void UpdateSeriesAnnotation(Scatter plot, Callout annotation, string name, List<(string, string)> annotationTexts, bool effective, Point mousePos)
         {
-            Debug.WriteLine("Mouse Position: " + mousePos);
             if (!plot.IsVisible)
                 return;
             var coords = GraphView.Plot.GetCoordinates((float)mousePos.X, (float)mousePos.Y);
@@ -439,7 +437,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             lock (graphLock)
             {
-                var horizontalSpans = GraphView.Plot.GetPlottables().Where(p => p.GetType() == typeof(HorizontalSpan));
+                var horizontalSpans = GraphView.Plot.GetPlottables().Where(p => p.GetType() == typeof(HorizontalSpan)).ToList();
                 foreach (var span in horizontalSpans)
                 {
                     GraphView.Plot.Remove(span);

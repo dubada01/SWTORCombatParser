@@ -19,15 +19,9 @@ namespace SWTORCombatParser.Utilities
         {
             Dispatcher.UIThread.Invoke(() =>
             {
-                var mainTop = _mainWindow.Position.Y;
-                var mainLeft = _mainWindow.Position.X;
-                var mainWidth = _mainWindow.ClientSize.Width;
-                var mainHeight = _mainWindow.ClientSize.Width;
-                (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
-
                 _loadingWindow = new LoadingSplash();
-                _loadingWindow.Position = new PixelPoint((int)center.Item1 - 150, (int)center.Item2 - 50);
-                _loadingWindow.Show();
+                _loadingWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                _loadingWindow.Show(_mainWindow);
             });
             return _loadingWindow;
         }
@@ -36,14 +30,8 @@ namespace SWTORCombatParser.Utilities
             var instancedLoadedSplash = new LoadingSplash();
             Dispatcher.UIThread.Invoke(() =>
             {
-                var mainTop = _mainWindow.Position.Y;
-                var mainLeft = _mainWindow.Position.X;
-                var mainWidth = _mainWindow.ClientSize.Width;
-                var mainHeight = _mainWindow.ClientSize.Width;
-                (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
-
-                instancedLoadedSplash.Position = new PixelPoint((int)center.Item1 - 150, (int)center.Item2 - 50);
-                instancedLoadedSplash.Show();
+                instancedLoadedSplash.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                instancedLoadedSplash.Show(_mainWindow);
             });
             return instancedLoadedSplash;
         }
@@ -58,15 +46,9 @@ namespace SWTORCombatParser.Utilities
         {
             Dispatcher.UIThread.Invoke(() =>
             {
-                var mainTop = _mainWindow.Position.Y;
-                var mainLeft = _mainWindow.Position.X;
-                var mainWidth = _mainWindow.ClientSize.Width;
-                var mainHeight = _mainWindow.ClientSize.Width;
-                (double, double) center = (mainLeft + (mainWidth / 2), mainTop + (mainHeight / 2));
-
                 var warning = new BackgroundMonitoringWarning();
-                warning.Position = new PixelPoint((int)center.Item1 - 300, (int)center.Item2 - 100);
-                warning.Show();
+                warning.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                warning.Show(_mainWindow);
             });
         }
         public static void HideLoading()
