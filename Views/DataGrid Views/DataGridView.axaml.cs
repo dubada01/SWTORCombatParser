@@ -65,9 +65,10 @@ namespace SWTORCombatParser.Views.DataGrid_Views
     public partial class DataGridView : UserControl
     {
         // Determine the new sort direction
-        private ListSortDirection sortDirection = ListSortDirection.Ascending;
+        private object _sortLock = new object();
+        private ListSortDirection _sortDirection = ListSortDirection.Ascending;
         private readonly DataGridViewModel _viewModel;
-        private string sortProperty = "Name";
+        private string _sortProperty = "Name";
         private DataGridTemplateColumn columnToAddSortIconTo;
 
         public DataGridView(DataGridViewModel vm)
@@ -94,16 +95,16 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                 for (int i = 0; i < statCount; i++)
                 {
                     var statSlot = firstRow.StatsSlots[i];
-                    var customComparer = new CustomComparer(statSlot.Header, ListSortDirection.Descending);
+                    var customComparer = new CustomComparer(statSlot.Header, _sortDirection);
                     if (statSlot.Header == "Name")
                     {
                         // Create "Name" column with custom cell style to show an icon along with text
                         var nameColumn = new DataGridTemplateColumn
                         {
                             Header = "Name",
-                            CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member,ns) =>
+                            CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
                             {
-                                if(member == null)
+                                if (member == null)
                                     return null;
                                 var stackPanel = new StackPanel
                                 {
@@ -117,7 +118,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                                     Source = member.ClassIcon,
                                     VerticalAlignment = VerticalAlignment.Center
                                 };
-                                if(!member.IsTotalsRow)
+                                if (!member.IsTotalsRow)
                                     stackPanel.Children.Add(icon);
 
                                 var textBlock = new TextBlock
@@ -131,7 +132,8 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                                 };
                                 stackPanel.Children.Add(textBlock);
                                 // Create the ToolTip
-                                ToolTip.SetTip(stackPanel, new TextBlock { Text = $"Player: {member.PlayerName}\nClass: {member.ClassName}" });
+                                ToolTip.SetTip(stackPanel,
+                                    new TextBlock { Text = $"Player: {member.PlayerName}\nClass: {member.ClassName}" });
                                 return stackPanel;
                             }),
                             Width = new DataGridLength(1, DataGridLengthUnitType.Star)
@@ -153,7 +155,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                             CellStyleClasses = { "rightAlign" },
                             CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
                             {
-                                var statToDisplay = member.StatsSlots.First(s=>s.Header == statSlot.Header);
+                                var statToDisplay = member.StatsSlots.First(s => s.Header == statSlot.Header);
                                 var textBox = new TextBlock
                                 {
                                     Text = statToDisplay.Value,
@@ -172,25 +174,24 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                             Width = new DataGridLength(1, DataGridLengthUnitType.Star),
                         };
                         DynamicDataGrid.Columns.Add(column);
-                        if (statSlot.Header == sortProperty)
+                        if (statSlot.Header == _sortProperty)
                             columnToAddSortIconTo = column;
                     }
                 }
             }
 
-            Dispatcher.UIThread.Invoke(() =>
+
+            foreach (var column in DynamicDataGrid.Columns)
             {
-                foreach (var column in DynamicDataGrid.Columns)
-                {
-                    column.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
-                }
-            });
+                column.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
+            }
+
             ForceSort();
-            if(columnToAddSortIconTo != null)
-                Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    UpdateColumnForSort(columnToAddSortIconTo);
-                });
+            if (columnToAddSortIconTo != null)
+            {
+                UpdateColumnForSort(columnToAddSortIconTo);
+                Dispatcher.UIThread.InvokeAsync(() => SetSortIcon(columnToAddSortIconTo));
+            }
         }
 
         private void DynamicDataGrid_OnSorting(object? sender, DataGridColumnEventArgs e)
@@ -206,6 +207,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                     }
                     UpdateColumnForSort(textColumn);
                     ForceSort();
+                    SetSortIcon(textColumn);
                 }
             });
         }
@@ -214,19 +216,27 @@ namespace SWTORCombatParser.Views.DataGrid_Views
         {
             if (textColumn.Header is TextBlock headerControl)
             {
-                var parentGrid = VisualTreeHelpers.GetParent<Grid>(headerControl, 2);
-                // Find the SortIcon Path within the parent Grid
-                var sortIcon = VisualTreeHelpers.FindChildByName<Path>(parentGrid, "SortIcon");
-
                 if (textColumn.Tag is ListSortDirection existingDirection)
                 {
-                    sortDirection = existingDirection == ListSortDirection.Ascending
+                    _sortDirection = existingDirection == ListSortDirection.Ascending
                         ? ListSortDirection.Descending
                         : ListSortDirection.Ascending;
                 }
 
                 // Update the Tag to store the current sort direction
-                textColumn.Tag = sortDirection;
+                textColumn.Tag = _sortDirection;
+                // Retrieve the sort property based on the binding
+// Retrieve the sort property based on the binding
+                _sortProperty = ((textColumn.Header as TextBlock)?.Tag as StatsSlotViewModel).Header;
+            }
+        }
+        private void SetSortIcon(DataGridTemplateColumn textColumn)
+        {
+            if (textColumn.Header is TextBlock headerControl)
+            {
+                var parentGrid = VisualTreeHelpers.GetParent<Grid>(headerControl, 2);
+                // Find the SortIcon Path within the parent Grid
+                var sortIcon = VisualTreeHelpers.FindChildByName<Path>(parentGrid, "SortIcon");
 
                 // Clear sort indicators on other columns
                 foreach (var col in DynamicDataGrid.Columns)
@@ -244,27 +254,21 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                         }
                     }
                 }
-
                 // Update the SortIcon for the clicked column
                 if (sortIcon != null)
                 {
-                    sortIcon.Data = sortDirection == ListSortDirection.Ascending
+                    sortIcon.Data = _sortDirection == ListSortDirection.Ascending
                         ? SortIconGeometries.AscendingGeometry
                         : SortIconGeometries.DescendingGeometry;
 
                     sortIcon.IsVisible = true;
                 }
-
-                // Retrieve the sort property based on the binding
-// Retrieve the sort property based on the binding
-                sortProperty = ((textColumn.Header as TextBlock)?.Tag as StatsSlotViewModel).Header;
             }
         }
-
         private void ForceSort()
         {
             // Instantiate the CustomComparer with the new direction
-            CustomComparer comparer = new CustomComparer(sortProperty, sortDirection);
+            CustomComparer comparer = new CustomComparer(_sortProperty, _sortDirection);
 
             // Sort the items
             var items = DynamicDataGrid.ItemsSource as IEnumerable<MemberInfoViewModel>;
