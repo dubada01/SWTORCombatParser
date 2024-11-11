@@ -3,7 +3,8 @@
              x:Class="SWTORCombatParser.App"
              xmlns:local="using:SWTORCombatParser"
              RequestedThemeVariant="Dark"
-             xmlns:converters="clr-namespace:SWTORCombatParser.Utilities.Converters">
+             xmlns:converters="clr-namespace:SWTORCombatParser.Utilities.Converters"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <TrayIcon.Icons>
         <TrayIcons>
             <TrayIcon Icon="OrbsIcon.ico" 
@@ -33,6 +34,10 @@
                 <MergeResourceInclude Source="/Utilities/UIStyles/ComboBoxTemplates.axaml"></MergeResourceInclude>
             </ResourceDictionary.MergedDictionaries>
             <FontFamily x:Key="MainFont">Dotum</FontFamily>
+            <system:Double x:Key="SmallFontSize">8</system:Double>
+            <system:Double x:Key="NormalFontSize">10</system:Double>
+            <system:Double x:Key="LargeFontSize">13</system:Double>
+            <system:Double x:Key="TitleFontSize">23</system:Double>
             <converters:PastCombatSelectedToBackgroundConverter x:Key="PastCombatSelectedToBackgroundConverter"/>
             <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>
             <converters:RaidGroupToVisibilityConverter x:Key="RaidGroupToVisibilityConverter"/>

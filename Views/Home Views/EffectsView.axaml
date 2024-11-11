@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.CombatMetaDataView"
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.EffectsView"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -21,7 +21,7 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <TextBlock FontFamily="{StaticResource MainFont}"  Foreground="CadetBlue" HorizontalAlignment="Left" Text="Effect Type" FontWeight="DemiBold" FontSize="23" Grid.Row="0" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
+                <TextBlock FontFamily="{StaticResource MainFont}"  Foreground="CadetBlue" HorizontalAlignment="Left" Text="Effect Type" FontWeight="DemiBold" FontSize="{StaticResource TitleFontSize}" Grid.Row="0" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
                 <ComboBox Grid.Row="1" ItemsSource="{Binding AvailableEffectTypes}" SelectedItem="{Binding SelectedEffectType}"></ComboBox>
                 <StackPanel Grid.Row="2" IsVisible="{Binding OtherSelectionVisible, Converter={StaticResource BooleanToVisibiityConverter}}">
                     <TextBlock FontFamily="{StaticResource MainFont}"  Foreground="Gray" HorizontalAlignment="Left" Text="Other"  FontSize="16" Grid.Row="1" Margin="10,5,0,0" VerticalAlignment="Top"></TextBlock>
@@ -35,9 +35,14 @@
         
         <Border Grid.Row="1" BorderBrush="DimGray" BorderThickness="2" Padding="2,15,2,2" CornerRadius="4" Margin="0,15,5,0">
             <ListBox SelectionMode="Single" BorderThickness="0" Background="Transparent"  ScrollViewer.HorizontalScrollBarVisibility="Disabled"  ItemsSource="{Binding CombatEffects}" SelectedItem="{Binding SelectedEffect}">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Padding" Value="0" />
+                    </Style>
+                </ListBox.Styles>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Grid HorizontalAlignment="Stretch">
+                        <Grid Margin="5,0,0,3" HorizontalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width=".2*"/>
                                 <ColumnDefinition Width="2*"/>
@@ -46,9 +51,7 @@
                             <Viewbox MaxHeight="15" Margin="0,0,2,0">
                                 <TextBlock FontFamily="{StaticResource MainFont}" Foreground="CadetBlue" Text="{Binding Selected, Converter={StaticResource EffectSelectedToTextConverter}}"></TextBlock>
                             </Viewbox>
-                            <Viewbox MaxHeight="15" Margin="0,0,5,0" HorizontalAlignment="Left" Grid.Column="1" >
-                                <TextBlock Foreground="LightGray" FontFamily="{StaticResource MainFont}" Text="{Binding Name}"></TextBlock>
-                            </Viewbox>
+                            <TextBlock Margin="0,0,5,0" HorizontalAlignment="Left" Grid.Column="1" FontSize="{StaticResource NormalFontSize}" TextTrimming="CharacterEllipsis" Foreground="LightGray" FontFamily="{StaticResource MainFont}" Text="{Binding Name}"></TextBlock>
                             <Viewbox MaxHeight="15" HorizontalAlignment="Right" Grid.Column="2" >
                                 <TextBlock Foreground="LightGray" FontFamily="{StaticResource MainFont}" Text="{Binding Duration, StringFormat={}{0:0.#} sec}"></TextBlock>
                             </Viewbox>

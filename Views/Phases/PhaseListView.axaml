@@ -20,13 +20,13 @@
         <Border Grid.ColumnSpan="2" BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="Transparent">
                 <DataGrid ItemsSource="{Binding PhaseRows}" IsReadOnly="True">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Width="*" Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="*" Header="Type" Binding="{Binding Type}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="*" Header="Name" FontSize="{StaticResource NormalFontSize}" Binding="{Binding Name}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="*" Header="Type" FontSize="{StaticResource NormalFontSize}" Binding="{Binding Type}"></DataGridTextColumn>
                         <DataGridTemplateColumn Width=".75*" Header="Edit">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button  HorizontalAlignment="Center" Command="{Binding EditCommand}">
-                                        <Image Height="20" Source="avares://Orbs/resources/editIcon.png"></Image>
+                                        <Image Height="15" Source="avares://Orbs/resources/editIcon.png"></Image>
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -34,7 +34,7 @@
                         <DataGridTemplateColumn Width=".75*" Header="Delete">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button  HorizontalAlignment="Center" Classes="RoundedCorner" Content="x" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="40" Command="{Binding DeleteCommand}">
+                                    <Button  HorizontalAlignment="Center" Classes="RoundedCorner" Content="x" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="30" Command="{Binding DeleteCommand}">
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

@@ -14,6 +14,12 @@
         </Grid.RowDefinitions>
         <DataGrid ItemsSource="{Binding DataToView}" IsReadOnly="True">
             <DataGrid.Styles>
+                <Style Selector="DataGridRow:nth-child(odd)">
+                    <Setter Property="Background" Value="Transparent" />
+                </Style>
+                <Style Selector="DataGridRow:nth-child(even)">
+                    <Setter Property="Background" Value="{StaticResource Gray1}" />
+                </Style>
                 <Style Selector="DataGridCell.rightAlign">
                     <Setter Property="HorizontalContentAlignment" Value="Right"></Setter>
                 </Style>

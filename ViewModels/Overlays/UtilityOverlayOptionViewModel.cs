@@ -18,6 +18,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         AbilityList,
         RaidNotes,
         Timeline,
+        AlertTimer,
         Other
     }
     public class UtilityOverlayOptionViewModel : INotifyPropertyChanged

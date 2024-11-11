@@ -48,24 +48,22 @@
                         <RowDefinition Height=".33*"/>
                         <RowDefinition Height=".66*"/>
                     </Grid.RowDefinitions>
-                    <Viewbox Grid.Row="0" MaxHeight="25" VerticalAlignment="Top">
-                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="Live Parse" HorizontalAlignment="Center"></TextBlock>
-                    </Viewbox>
-                    <Viewbox Grid.Row="1" VerticalAlignment="Top" MaxHeight="40">
-                        <Button FontFamily="{StaticResource MainFont}"
-                                Classes="RoundedCorner"
-                                Width="50" 
-                                Background="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonColorConverter}}"
-                                Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}"
-                                Foreground="WhiteSmoke"
-                                Command="{Binding  ToggleLiveParseCommand}" ToolTip.Tip="Right click to configure auto live parsing">
-                            <Button.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="{Binding AutoLiveParseText}" Command="{Binding AutoLiveParseCommand}"/>
-                                </ContextMenu>
-                            </Button.ContextMenu>
-                        </Button>
-                    </Viewbox>
+                    <TextBlock Grid.Row="0" Margin="0,0,0,5" VerticalAlignment="Top" FontSize="{StaticResource TitleFontSize}" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="Live Parse" HorizontalAlignment="Center"></TextBlock>
+                    <Button Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}"
+                            Classes="RoundedCorner"
+                            Width="75" 
+                            Padding="5"
+                            FontSize="{StaticResource TitleFontSize}"
+                            Background="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonColorConverter}}"
+                            Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}"
+                            Foreground="WhiteSmoke"
+                            Command="{Binding  ToggleLiveParseCommand}" ToolTip.Tip="Right click to configure auto live parsing">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="{Binding AutoLiveParseText}" Command="{Binding AutoLiveParseCommand}"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
                 </Grid>
                 <Grid Grid.Row="1" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Column="0" HorizontalAlignment="Stretch" IsVisible="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
                     <Grid.ColumnDefinitions>

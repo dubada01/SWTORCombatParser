@@ -17,6 +17,7 @@
     <Color x:Key="ControlMediumColor">#959c8e</Color>
     <Color x:Key="ControlDarkColor">#FF211AA9</Color>
     <Color x:Key="Gray1">#111</Color>
+    <Color x:Key="Gray1_5">#191919</Color>
     <Color x:Key="Gray2">#222</Color>
     <Color x:Key="Gray2_75">#aa222222</Color>
     <Color x:Key="Gray3">#333</Color>

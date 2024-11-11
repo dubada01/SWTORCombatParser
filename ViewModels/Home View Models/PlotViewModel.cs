@@ -75,7 +75,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             _combatMetaDataViewModel = new CombatEfffectViewModel();
             _combatMetaDataViewModel.OnEffectSelected += HighlightEffect;
             _combatMetaDataViewModel.OnEffectsCleared += ResetEffectVisuals;
-            CombatMetaDataView = new CombatMetaDataView(_combatMetaDataViewModel);
+            EffectsView = new EffectsView(_combatMetaDataViewModel);
 
             ParticipantSelectionContent = new ParticipantSelectionView();
             _participantsViewModel = new ParticipantSelectionViewModel();
@@ -142,7 +142,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             }
         }
 
-        public CombatMetaDataView CombatMetaDataView { get; set; }
+        public EffectsView EffectsView { get; set; }
         public string AverageWindowDuration
         {
             get => averageWindowDuration;

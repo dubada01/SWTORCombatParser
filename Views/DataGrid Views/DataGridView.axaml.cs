@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
@@ -13,6 +14,8 @@ using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using ReactiveUI;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.ViewModels.DataGrid;
 
 namespace SWTORCombatParser.Views.DataGrid_Views
@@ -64,6 +67,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
     /// </summary>
     public partial class DataGridView : UserControl
     {
+        public ReactiveCommand<StatsSlotViewModel, Unit> RemoveColumnCommand { get; }
         // Determine the new sort direction
         private object _sortLock = new object();
         private ListSortDirection _sortDirection = ListSortDirection.Ascending;
@@ -77,8 +81,12 @@ namespace SWTORCombatParser.Views.DataGrid_Views
             _viewModel = vm;
             InitializeComponent();
             _viewModel.ColumnsRefreshed += RefreshColumns;
+            RemoveColumnCommand = ReactiveCommand.Create<StatsSlotViewModel>(RemoveColumn);
         }
-
+        private void RemoveColumn(StatsSlotViewModel columnVm)
+        {
+            _viewModel.RemoveHeader(columnVm.OverlayType);
+        }
         private void RefreshColumns()
         {
             // Clear any existing columns
@@ -95,12 +103,17 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                 for (int i = 0; i < statCount; i++)
                 {
                     var statSlot = firstRow.StatsSlots[i];
+                    if(statSlot.Header == "None")
+                    {
+                        continue;
+                    }
                     var customComparer = new CustomComparer(statSlot.Header, _sortDirection);
                     if (statSlot.Header == "Name")
                     {
                         // Create "Name" column with custom cell style to show an icon along with text
                         var nameColumn = new DataGridTemplateColumn
                         {
+                            CellStyleClasses = { "static" },
                             Header = "Name",
                             CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
                             {
@@ -146,13 +159,20 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                         {
                             Header = new TextBlock
                             {
+                                ContextMenu = new ContextMenu
+                                {
+                                    Items =
+                                    {
+                                        new MenuItem { Header = "Remove Column", Command = RemoveColumnCommand, CommandParameter = statSlot},
+                                    }
+                                },
                                 Text = statSlot.Header,
                                 TextTrimming = TextTrimming.CharacterEllipsis,
                                 Tag = statSlot,
                                 // Optionally, you can set other TextBlock properties here
                                 // such as FontWeight, FontSize, etc.
                             },
-                            CellStyleClasses = { "rightAlign" },
+                            CellStyleClasses = { "rightAlign","static" },
                             CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
                             {
                                 var statToDisplay = member.StatsSlots.First(s => s.Header == statSlot.Header);

@@ -111,7 +111,9 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                     l.Value.ValueType != DamageType.none ? l.Value.ValueType.ToString() : l.Effect.EffectType.ToString(),
                     l.Value.ModifierType,
                     l.Value.ModifierDisplayValue, maxValue, l.Value.EffectiveDblValue,
-                    l.Threat)));
+                    l.Threat,
+                    l.LogName,
+                    l.LogLineNumber)));
                 Task.Run(() => { logs.ForEach(async l => await l.AddIcons()); });
 
                 LogsToDisplay = new ObservableCollection<DisplayableLogEntry>(logs);
@@ -167,8 +169,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 
             }
 
-            bool sourceSelected = _viewingEntities.Contains(log.Source);
-            bool targetSelected = _viewingEntities.Contains(log.Target);
+            bool sourceSelected = _viewingEntities.Select(e=>e.LogId).Contains(log.Source.LogId);
+            bool targetSelected = _viewingEntities.Select(e=>e.LogId).Contains(log.Target.LogId);
 
             if (!(
                 _viewingEntities.Any(e => e.Name == "All")

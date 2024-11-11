@@ -3,8 +3,11 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media;
@@ -23,13 +26,18 @@ namespace SWTORCombatParser.DataStructures
         private readonly static SolidColorBrush _deathBackgroundWithSource = new(Brushes.Crimson.Color);
         private readonly static SolidColorBrush _revivedBackground = new(Brushes.CornflowerBlue.Color);
         private readonly static SolidColorBrush _damageBackground = new (Color.Parse("#613b3b"));
-        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat)
+        private readonly string _logPath;
+        private readonly long _lineNumber;
+        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat,string logPath, long lineNumber)
         {
             _sourceId = sourceId;
             _targetId = targetId;
             _abilityId = abilityId;
             _effectId = effectId;
 
+            _logPath = logPath;
+            _lineNumber = lineNumber + 1;
+            
             SecondsSinceCombatStart = sec;
             Source = source;
             Target = target;
@@ -114,6 +122,51 @@ namespace SWTORCombatParser.DataStructures
 
             }
         }
+        public ReactiveCommand<Unit, Unit> OpenLogCommand => ReactiveCommand.Create(OpenLog);
+
+        private void OpenLog()
+        {
+            if (string.IsNullOrEmpty(_logPath))
+            {
+                Console.WriteLine("Log path is not set.");
+                return;
+            }
+
+            try
+            {
+                var logsDirectory = Settings.ReadSettingOfType<string>("combat_logs_path");
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var logPathWithDirectory = Path.Combine(logsDirectory, _logPath);
+
+                    // Check if Notepad++ is available
+                    var notepadPlusPlusPath = @"C:\Program Files\Notepad++\notepad++.exe";
+                    if (File.Exists(notepadPlusPlusPath))
+                    {
+                        Process.Start(notepadPlusPlusPath, $"-n{_lineNumber} \"{logPathWithDirectory}\"");
+                    }
+                    else
+                    {
+                        // Fall back to regular Notepad if Notepad++ is not available
+                        Process.Start("notepad.exe", logPathWithDirectory);
+                    }
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    // Open the file in TextEdit on macOS
+                    Process.Start("open", $"-a TextEdit \"{Path.Combine(logsDirectory,_logPath)}\"");
+                }
+                else
+                {
+                    Console.WriteLine("Unsupported operating system.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to open log: {ex.Message}");
+            }
+        }
+
         private Color GetColorForValue(double fraction)
         {
             Color startColor = Colors.Transparent;

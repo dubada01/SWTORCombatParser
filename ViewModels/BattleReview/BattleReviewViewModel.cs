@@ -135,7 +135,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             _currentlySelectedCombats = combat;
 
-            var entities = combat.AllEntities.Select(e => new AvailableEntity { Entity = e, Selected = false }).ToList();
+            var entities = combat.AllEntities.DistinctBy(e=>e.LogId).Select(e => new AvailableEntity { Entity = e, Selected = false }).ToList();
             entities.ForEach(l => l.EntitiySelectionUpdated += UpdateSelectedEntities);
             ResetEntities(entities);
             UpdateVisuals();

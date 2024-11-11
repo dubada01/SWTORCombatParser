@@ -8,7 +8,7 @@
              x:DataType="vm:ChallengeSetupViewModel"
              Title="Challenge Setup"
              mc:Ignorable="d"
-             Width="900" Height="600"
+             Width="600" Height="600"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <Grid.RowDefinitions>
@@ -32,8 +32,8 @@
         <Border Grid.ColumnSpan="2" BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="Transparent">
                 <DataGrid ItemsSource="{Binding ChallengeRows}" IsReadOnly="True">
                                         <DataGrid.Columns>
-                        <DataGridTextColumn Width="*" Header="Name" Binding="{Binding Name}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="*" Header="Type" Binding="{Binding Type}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="*" Header="Name" FontSize="{StaticResource NormalFontSize}" Binding="{Binding Name}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="*" Header="Type" FontSize="{StaticResource NormalFontSize}" Binding="{Binding Type}"></DataGridTextColumn>
                         <DataGridTemplateColumn Width=".75*" Header="Color">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -44,7 +44,7 @@
                         <DataGridTemplateColumn Width=".75*" Header="Active">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <CheckBox  HorizontalAlignment="Center" IsChecked="{Binding IsEnabled}"></CheckBox>
+                                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding IsEnabled}"></CheckBox>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
@@ -52,7 +52,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button  HorizontalAlignment="Center" Command="{Binding EditCommand}">
-                                        <Image Height="20" Source="avares://Orbs/resources/editIcon.png"></Image>
+                                        <Image Height="15" Source="avares://Orbs/resources/editIcon.png"></Image>
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -61,7 +61,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button HorizontalAlignment="Center" Command="{Binding ShareCommand}">
-                                        <Image Height="20" Source="avares://Orbs/resources/shareIcon.png"></Image>
+                                        <Image Height="15" Source="avares://Orbs/resources/shareIcon.png"></Image>
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -69,7 +69,7 @@
                         <DataGridTemplateColumn Width=".75*" Header="Delete">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button  HorizontalAlignment="Center" Classes="RoundedCorner" Content="x" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="40" Command="{Binding DeleteCommand}">
+                                    <Button HorizontalAlignment="Center" Classes="RoundedCorner" Content="x" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="30" Command="{Binding DeleteCommand}">
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -87,13 +87,13 @@
             <Viewbox Grid.Row="3" Grid.Column="0" MaxHeight="50" HorizontalAlignment="Center">
                 <StackPanel Orientation="Horizontal"   >
                     <StackPanel VerticalAlignment="Center" Grid.Column="0" HorizontalAlignment="Center" Orientation="Vertical">
-                        <TextBlock Foreground="WhiteSmoke" VerticalAlignment="Center" Margin="15,0,15,0" FontFamily="{StaticResource MainFont}" FontSize="18" Text="Import Challenge"></TextBlock>
-                        <TextBox Text="{Binding ImportId}" Classes="RoundedTextBox" Width="100"/>
+                        <TextBlock  Foreground="WhiteSmoke" VerticalAlignment="Center" Margin="15,0,15,0" FontFamily="{StaticResource MainFont}" FontSize="{StaticResource LargeFontSize}" Text="Import Challenge"></TextBlock>
+                        <TextBox Text="{Binding ImportId}" Classes="RoundedTextBox" FontSize="{StaticResource LargeFontSize}" Width="100"/>
                     </StackPanel>
-                    <Button Background="Gray" Foreground="WhiteSmoke" Command="{Binding ImportCommand}" Classes="RoundedCorner" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
+                    <Button Background="Gray" Foreground="WhiteSmoke" Command="{Binding ImportCommand}" FontSize="{StaticResource LargeFontSize}" Classes="RoundedCorner" Width="75" Content="Import" Height="30" Margin="0,20,0,0"></Button>
                 </StackPanel>
             </Viewbox>
-            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Classes="RoundedCorner" Height="30" Width="75" Padding="3" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" FontSize="10" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
+            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Classes="RoundedCorner" Height="45" Padding="8,5,8,5" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" FontSize="{StaticResource LargeFontSize}" Content="Add Challenge" Command="{Binding AllChallengeCommand}"></Button>
         </Grid>
     </Grid>
 </Window>

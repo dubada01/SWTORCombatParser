@@ -32,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public Combat Combat { get; set; }
         public bool IsTrash => Combat != null && !Combat.IsCombatWithBoss && !IsCurrentCombat && !IsPvPCombat;
         public bool WasBossKilled => Combat?.WasBossKilled ?? false;
-
+        public bool ShouldShowDeathReview => Combat is { IsCombatWithBoss: true, WasBossKilled: false };
         public SolidColorBrush PvPBorderInidcator =>
             !IsPvPCombat ? new SolidColorBrush(Colors.WhiteSmoke) : WasPlayerKilled ? new SolidColorBrush(Colors.IndianRed) : new SolidColorBrush(Colors.MediumAquamarine);
         public bool WasPlayerKilled => Combat?.WasPlayerKilled(Combat.LocalPlayer) ?? false;

@@ -23,7 +23,9 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25"/>
-                    <RowDefinition Height="0.9*"/>
+                    <RowDefinition Height="0.25*"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="0.75*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -36,21 +38,22 @@
                 <Viewbox MaxHeight="15">
                     <TextBlock Text="Damage" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
-                <Viewbox MaxHeight="15" Grid.Column="1">
+                <Viewbox Grid.Row="0" MaxHeight="15" Grid.Column="1">
                     <TextBlock Text="Healing"  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
-                <Viewbox MaxHeight="15" Grid.Column="2">
+                <Viewbox Grid.Row="0" MaxHeight="15" Grid.Column="2">
                     <TextBlock Text="Mitigation" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
-                <Viewbox MaxHeight="15" Grid.Column="3">
+                <Viewbox Grid.Row="0" MaxHeight="15" Grid.Column="3">
                     <TextBlock Text="General" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
-                <Rectangle Grid.Row="1" Grid.Column="4" Fill="Gray"></Rectangle>
-                <Viewbox MaxHeight="15" Grid.Column="5">
+                <Rectangle Grid.Row="1" Grid.RowSpan="3" Grid.Column="4" Fill="Gray"></Rectangle>
+                <Viewbox Grid.Row="0" MaxHeight="15" Grid.Column="5">
                     <TextBlock Text="Utility" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 </Viewbox>
+                
                 <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding AvailableDamageOverlays}">
+                    <ItemsControl ItemsSource="{Binding MainDamageOverlays}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <local:OverlayOptionView HorizontalAlignment="Center"/>
@@ -59,7 +62,7 @@
                     </ItemsControl>
                 </ScrollViewer>
                 <ScrollViewer Grid.Row="1" Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding AvailableHealOverlays}">
+                    <ItemsControl ItemsSource="{Binding MainHealOverlays}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <local:OverlayOptionView HorizontalAlignment="Center"/>
@@ -68,7 +71,7 @@
                     </ItemsControl>
                 </ScrollViewer>
                 <ScrollViewer Grid.Row="1" Grid.Column="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding AvailableMitigationOverlays}">
+                    <ItemsControl ItemsSource="{Binding MainMitigationOverlays}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <local:OverlayOptionView HorizontalAlignment="Center"/>
@@ -76,7 +79,45 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-                <ScrollViewer  Grid.Row="1" Grid.Column="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+
+                <Viewbox Grid.Column="0" Grid.Row="2" MaxHeight="15">
+                    <TextBlock Text="Advanced Damage" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox Grid.Row="2" MaxHeight="15" Grid.Column="1">
+                    <TextBlock Text="Advanced Healing"  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox Grid.Row="2" MaxHeight="15" Grid.Column="2">
+                    <TextBlock Text="Advanced Mitigation" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <ScrollViewer Grid.Row="3" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AdvancedDamageOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="3" Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AdvancedHealOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="3" Grid.Column="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AdvancedMitigationOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                
+                <ScrollViewer  Grid.Row="1" Grid.RowSpan="3" Grid.Column="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding AvailableGeneralOverlays}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -85,7 +126,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-                <ScrollViewer Grid.Row="1" Grid.Column="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" Grid.Column="5" Grid.RowSpan="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding AvailableUtilityOverlays}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -94,8 +135,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-
-
             </Grid>
         </Border>
         <Viewbox Margin="0,2,0,2" MaxHeight="40"  HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">

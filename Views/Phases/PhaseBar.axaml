@@ -12,18 +12,12 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="75"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="40"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="0" Text="Phases" FontWeight="DemiBold" FontSize="20" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"></TextBlock>
-        <Border x:Name="PartitionBorder" Margin="5,0,5,2" Grid.Column="1" BorderThickness="2" BorderBrush="WhiteSmoke" CornerRadius="5" Padding="0,1,0,1">
+        <Border x:Name="PartitionBorder" Margin="5,0,5,2" Grid.Column="1" BorderThickness="2" BorderBrush="{StaticResource GreenColorBrush}" CornerRadius="5" Padding="0,1,0,1">
             <Grid x:Name="PartitionsHolder">
                 
             </Grid>
         </Border>
-        <Viewbox Grid.Column="2" HorizontalAlignment="Right" Margin="0,0,10,3">
-            <Button Background="WhiteSmoke" Width="50" Height="50" Classes="RoundedCorner" Command="{Binding ConfigurePhasesCommand}">
-                <Image Source="../../resources/cogIcon.png"></Image>
-            </Button>
-        </Viewbox>
     </Grid>
 </UserControl>

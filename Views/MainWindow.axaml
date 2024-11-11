@@ -32,6 +32,26 @@
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
+                <MenuItem Header="_Parsely">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="avares://Orbs/resources/ParselyIcon.ico"></Image>
+                    </MenuItem.Icon>
+                    <MenuItem Header="_Upload to Parsely" Command="{Binding UploadToParselyCommand}">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16" Source="avares://Orbs/resources/uploadToParselyIcon.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Open Parsely" Command="{Binding OpenParselyCommand}">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16" Source="avares://Orbs/resources/openParselyIcon.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Configure Parsely" Command="{Binding OpenParselyConfigCommand}">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16" Source="avares://Orbs/resources/setting.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
                 <MenuItem Header="_Orbs Stats" Command="{Binding OpenOrbsStatsCommand}">
                     <MenuItem.Icon>
                         <Image Width="16" Height="16" Source="avares://Orbs/resources/OrbsIcon.ico"></Image>
@@ -43,10 +63,17 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem IsEnabled="{Binding LogLoaded}" Header="_Log Info">
-                <MenuItem Header="_Browse Logs" Command="{Binding OpenLogViewWindow}">
+            <MenuItem Header="_Timers">
+                <MenuItem Header="Timers" Command="{Binding ShowTimerWindowCommand}">
+                </MenuItem>
+                <MenuItem Header="Challenges" Command="{Binding ShowChallengeWindowCommand}">
                     <MenuItem.Icon>
-                        <Image Source="avares://Orbs/resources/google-docs.png"></Image>
+                        <Image Source="avares://Orbs/resources/dpsIcon.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Phases" Command="{Binding OpenPhaseConfigCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/setting.png"></Image>
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
@@ -56,18 +83,10 @@
                         <Image Source="{Binding OverlayLockIcon}"></Image>
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Timers" Command="{Binding ShowTimerWindowCommand}">
-                </MenuItem>
-                <MenuItem Header="Challenges" Command="{Binding ShowChallengeWindowCommand}">
-                    <MenuItem.Icon>
-                        <Image Source="avares://Orbs/resources/dpsIcon.png"></Image>
-                    </MenuItem.Icon>
-                </MenuItem>
                 <MenuItem Header="Layout/Interface" Command="{Binding OpenOverlaySettingsCommand}">
                     <MenuItem.Icon>
                         <Image Source="avares://Orbs/resources/grid.png"></Image>
                     </MenuItem.Icon>
-                    
                 </MenuItem>
             </MenuItem>
         </Menu>
@@ -123,29 +142,7 @@
         </Grid>
 
         <!-- PastCombatsView -->
-        <ContentPresenter Grid.Column="0" Grid.Row="1" Content="{Binding PastCombatsView}"/>
+        <ContentPresenter Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Content="{Binding PastCombatsView}"/>
 
-        <!-- Rectangle Separator -->
-        <Rectangle Grid.Column="0" Grid.Row="2" Fill="DimGray" Margin="15,0,15,0"/>
-
-        <!-- Bottom Buttons -->
-        <StackPanel Grid.Column="0" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" Orientation="Horizontal">
-            <TextBlock VerticalAlignment="Center" Foreground="{StaticResource Gray10Brush}" Text="Parsely" Margin="0,0,5,0"/>
-            <Button VerticalAlignment="Center" Margin="5,2,5,2" Background="WhiteSmoke" Width="30" Command="{Binding OpenParselyConfigCommand}">
-                <Viewbox MaxHeight="20">
-                    <Image Source="avares://Orbs/resources/cogIcon.png"/>
-                </Viewbox>
-            </Button>
-            <Button VerticalAlignment="Center" Background="{Binding UploadButtonBackground}" Margin="5,2,5,2" Width="30" Command="{Binding UploadToParselyCommand}">
-                <Viewbox MaxHeight="20">
-                    <Image Source="avares://Orbs/resources/uploadToParselyIcon.png"/>
-                </Viewbox>
-            </Button>
-            <Button VerticalAlignment="Center" IsVisible="{Binding CanOpenParsely}" Margin="5,2,5,2" Width="30" Background="WhiteSmoke" Command="{Binding OpenParselyCommand}">
-                <Viewbox MaxHeight="20">
-                    <Image Source="avares://Orbs/resources/openParselyIcon.png"/>
-                </Viewbox>
-            </Button>
-        </StackPanel>
     </Grid>
 </Window>

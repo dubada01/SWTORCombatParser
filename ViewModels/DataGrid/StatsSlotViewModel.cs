@@ -26,7 +26,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public bool IsLocalPlayer { get; set; }
         public bool IsTotal { get; set; }
         public HorizontalAlignment ValueAlignment { get; set; }
-        private OverlayType OverlayType { get; set; }
+        public OverlayType OverlayType { get; set; }
         public StatsSlotViewModel(OverlayType type, string name = "", string iconName = "", bool isLocalPlayer = false, Entity entity = null)
         {
             Header = new OverlayTypeToReadableNameConverter().Convert(type,null,null,System.Globalization.CultureInfo.InvariantCulture).ToString();

@@ -7,7 +7,7 @@ namespace SWTORCombatParser.Views
     /// <summary>
     /// Interaction logic for DeathReviewPage.xaml
     /// </summary>
-    public partial class DeathReviewPage : UserControl
+    public partial class DeathReviewPage : Window
     {
         public DeathReviewPage(DeathReviewViewModel viewModel)
         {

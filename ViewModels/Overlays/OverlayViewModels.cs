@@ -62,9 +62,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public ChallengeSetupView ChallengesView { get; set; }
         public OtherOverlaySetupView OthersSetupView { get; set; }
 
-        public ObservableCollection<OverlayOptionViewModel> AvailableDamageOverlays { get; set; } = new();
-        public ObservableCollection<OverlayOptionViewModel> AvailableHealOverlays { get; set; } = new();
-        public ObservableCollection<OverlayOptionViewModel> AvailableMitigationOverlays { get; set; } = new();
+        public ObservableCollection<OverlayOptionViewModel> MainDamageOverlays { get; set; } = new();
+        public ObservableCollection<OverlayOptionViewModel> MainHealOverlays { get; set; } = new();
+        public ObservableCollection<OverlayOptionViewModel> MainMitigationOverlays { get; set; } = new();
+        
+        public ObservableCollection<OverlayOptionViewModel> AdvancedDamageOverlays { get; set; } = new();
+        public ObservableCollection<OverlayOptionViewModel> AdvancedHealOverlays { get; set; } = new();
+        public ObservableCollection<OverlayOptionViewModel> AdvancedMitigationOverlays { get; set; } = new();
+        
         public ObservableCollection<OverlayOptionViewModel> AvailableGeneralOverlays { get; set; } = new();
         public ObservableCollection<UtilityOverlayOptionViewModel> AvailableUtilityOverlays { get; set; } = new();
         public List<LeaderboardType> LeaderboardTypes { get; set; } = new();
@@ -148,12 +153,18 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
-                if (enumVal == OverlayType.DPS || enumVal == OverlayType.Damage || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.FocusDPS || enumVal == OverlayType.NonEDPS || enumVal == OverlayType.RawDamage || enumVal == OverlayType.SingleTargetDPS)
-                    AvailableDamageOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
-                if (enumVal == OverlayType.HPS || enumVal == OverlayType.RawHealing || enumVal == OverlayType.EHPS || enumVal == OverlayType.EffectiveHealing || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.SingleTargetEHPS || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime)
-                    AvailableHealOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
-                if (enumVal == OverlayType.Mitigation || enumVal == OverlayType.ShieldAbsorb || enumVal == OverlayType.ProvidedAbsorb || enumVal == OverlayType.DamageTaken || enumVal == OverlayType.DamageAvoided || enumVal == OverlayType.DamageSavedDuringCD)
-                    AvailableMitigationOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
+                if (enumVal == OverlayType.Damage || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.NonEDPS || enumVal == OverlayType.RawDamage || enumVal == OverlayType.SingleTargetDPS)
+                    AdvancedDamageOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
+                if (enumVal == OverlayType.RawHealing || enumVal == OverlayType.EffectiveHealing || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.SingleTargetEHPS || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime)
+                    AdvancedHealOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
+                if (enumVal == OverlayType.ShieldAbsorb || enumVal == OverlayType.ProvidedAbsorb ||  enumVal == OverlayType.DamageAvoided || enumVal == OverlayType.DamageSavedDuringCD)
+                    AdvancedMitigationOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
+                if (enumVal == OverlayType.DPS  || enumVal == OverlayType.FocusDPS)
+                    MainDamageOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
+                if (enumVal == OverlayType.HPS || enumVal == OverlayType.EHPS)
+                    MainHealOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
+                if (enumVal == OverlayType.Mitigation || enumVal == OverlayType.DamageTaken)
+                    MainMitigationOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
                 if (enumVal == OverlayType.APM || enumVal == OverlayType.InterruptCount || enumVal == OverlayType.ThreatPerSecond || enumVal == OverlayType.Threat)
                     AvailableGeneralOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
             }
@@ -165,6 +176,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new() { Name = "Challenges", Type = UtilityOverlayType.RaidChallenge},
                 new() { Name = "Encounter Timers", Type = UtilityOverlayType.RaidTimer},
                 new() { Name = "Discipline Timers", Type = UtilityOverlayType.DisciplineTimer},
+                new() { Name = "Alert Timers", Type = UtilityOverlayType.AlertTimer},
                 new() { Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
                 new() { Name = "Time Trial", Type = UtilityOverlayType.Timeline},
                 new() { Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
@@ -210,11 +222,15 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _timersViewModel.EncounterClosed += () => {
                 AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = false;
             };
+            _timersViewModel.AlertsClosed += () => {
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AlertTimer).IsSelected = false;
+            };
            
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = _otherOverlayViewModel._raidHotsConfigViewModel.RaidHotsEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.ChallengesEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _timersViewModel.EncounterTimersActive;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AlertTimer).IsSelected = _timersViewModel.AlertsActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer).IsSelected = _timersViewModel.DisciplineTimersActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Timeline).IsSelected = AvaloniaTimelineBuilder.TimelineEnabled;
@@ -547,17 +563,32 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void SetSelected(bool selected, OverlayType overlay)
         {
-            foreach (var overlayOption in AvailableDamageOverlays)
+            foreach (var overlayOption in MainDamageOverlays)
             {
                 if (overlayOption.Type == overlay)
                     overlayOption.IsSelected = selected;
             }
-            foreach (var overlayOption in AvailableHealOverlays)
+            foreach (var overlayOption in AdvancedDamageOverlays)
             {
                 if (overlayOption.Type == overlay)
                     overlayOption.IsSelected = selected;
             }
-            foreach (var overlayOption in AvailableMitigationOverlays)
+            foreach (var overlayOption in MainHealOverlays)
+            {
+                if (overlayOption.Type == overlay)
+                    overlayOption.IsSelected = selected;
+            }
+            foreach (var overlayOption in AdvancedHealOverlays)
+            {
+                if (overlayOption.Type == overlay)
+                    overlayOption.IsSelected = selected;
+            }
+            foreach (var overlayOption in MainMitigationOverlays)
+            {
+                if (overlayOption.Type == overlay)
+                    overlayOption.IsSelected = selected;
+            }
+            foreach (var overlayOption in AdvancedMitigationOverlays)
             {
                 if (overlayOption.Type == overlay)
                     overlayOption.IsSelected = selected;
@@ -570,17 +601,32 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private OverlayOptionViewModel GetType(OverlayType overlay)
         {
-            foreach (var overlayOption in AvailableDamageOverlays)
+            foreach (var overlayOption in MainDamageOverlays)
             {
                 if (overlayOption.Type == overlay)
                     return overlayOption;
             }
-            foreach (var overlayOption in AvailableHealOverlays)
+            foreach (var overlayOption in AdvancedDamageOverlays)
             {
                 if (overlayOption.Type == overlay)
                     return overlayOption;
             }
-            foreach (var overlayOption in AvailableMitigationOverlays)
+            foreach (var overlayOption in MainHealOverlays)
+            {
+                if (overlayOption.Type == overlay)
+                    return overlayOption;
+            }
+            foreach (var overlayOption in AdvancedHealOverlays)
+            {
+                if (overlayOption.Type == overlay)
+                    return overlayOption;
+            }
+            foreach (var overlayOption in MainMitigationOverlays)
+            {
+                if (overlayOption.Type == overlay)
+                    return overlayOption;
+            }
+            foreach (var overlayOption in AdvancedMitigationOverlays)
             {
                 if (overlayOption.Type == overlay)
                     return overlayOption;

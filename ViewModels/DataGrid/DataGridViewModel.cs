@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using Avalonia.Threading;
 using ReactiveUI;
 
@@ -65,17 +66,19 @@ namespace SWTORCombatParser.ViewModels.DataGrid
 
     public class DataGridViewModel : ReactiveObject
     {
-        private List<OverlayType> _columnOrder = new List<OverlayType> {
+        private List<OverlayType> _columnOrder = new()
+        {
             OverlayType.DPS,OverlayType.Damage,OverlayType.SingleTargetDPS,OverlayType.NonEDPS,OverlayType.RawDamage,OverlayType.FocusDPS,OverlayType.BurstDPS,
             OverlayType.EHPS,OverlayType.SingleTargetEHPS,OverlayType.EffectiveHealing,OverlayType.HPS,OverlayType.RawHealing, OverlayType.BurstEHPS, OverlayType.HealReactionTime,OverlayType.CleanseCount,OverlayType.CleanseSpeed,
             OverlayType.DamageTaken, OverlayType.BurstDamageTaken, OverlayType.Mitigation, OverlayType.ShieldAbsorb, OverlayType.ProvidedAbsorb, OverlayType.DamageAvoided, OverlayType.ThreatPerSecond,OverlayType.DamageSavedDuringCD,
             OverlayType.InterruptCount, OverlayType.APM};
-        private List<Combat> _allSelectedCombats = new List<Combat>();
+        private List<Combat> _allSelectedCombats = new();
         private List<OverlayType> _selectedColumnTypes = _defaultColumns;
-        private static List<OverlayType> _defaultColumns = new List<OverlayType>() { OverlayType.DPS, OverlayType.Damage, OverlayType.EHPS, OverlayType.EffectiveHealing, OverlayType.DamageTaken, OverlayType.APM };
-        private ObservableCollection<MemberInfoViewModel> partyMembers = new ObservableCollection<MemberInfoViewModel>();
+        private static List<OverlayType> _defaultColumns = new() { OverlayType.DPS, OverlayType.Damage, OverlayType.EHPS, OverlayType.EffectiveHealing, OverlayType.DamageTaken, OverlayType.APM };
+        private ObservableCollection<MemberInfoViewModel> partyMembers = new();
         private ObservableCollection<DataGridHeaderViewModel> headerNames;
         private string _localPlayer = "";
+        private string _selectedNewColumn;
 
         public DataGridViewModel()
         {
@@ -106,42 +109,23 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             RefreshColumns();
         }
         public event Action ColumnsRefreshed = delegate { };
-        public event Action ColumnsChanged = delegate { };
-
-        public ObservableCollection<DataGridHeaderViewModel> HeaderNames
-        {
-            get => headerNames; set
-            {
-                this.RaiseAndSetIfChanged(ref headerNames, value);
-            }
-        }
-        public List<string> AvailableColumns => _columnOrder.Select(c => GetNameFromType(c)).Where(c => !HeaderNames.Any(h => h.Text == c)).ToList();
+        public bool CanAddColumns => _selectedColumnTypes.Count < 8 && PartyMembers.Count > 0;
         public ObservableCollection<MemberInfoViewModel> PartyMembers
         {
-            get => partyMembers; set
-            {
-                this.RaiseAndSetIfChanged(ref partyMembers, value);
-            }
+            get => partyMembers; set => this.RaiseAndSetIfChanged(ref partyMembers, value);
         }
         
-
         public void UpdateCombat(Combat updatedCombat)
         {
             _allSelectedCombats.Clear();
             _allSelectedCombats.Add(updatedCombat);
-
-            UpdateUI();
-        }
-        public void RemoveCombat(Combat combatInfo)
-        {
-            _allSelectedCombats.Remove(combatInfo);
+            this.RaisePropertyChanged(nameof(CanAddColumns));
             UpdateUI();
         }
         public void Reset()
         {
             _localPlayer = "";
             _allSelectedCombats.Clear();
-            ColumnsChanged();
             UpdateUI();
         }
         private void RefreshColumns()
@@ -166,25 +150,41 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, null, _allSelectedCombats, orderedSelectedColumns));
             ColumnsRefreshed();
         }
-
-        private void AddHeader(string obj)
+        public List<string> AvailableColumns => _columnOrder.Select(GetNameFromType).Where(c => _selectedColumnTypes.All(h => GetNameFromType(h) != c)).ToList();
+        public string SelectedNewColumn
+        {
+            get => _selectedNewColumn;
+            set
+            {
+                _selectedNewColumn = value;
+                if(!string.IsNullOrEmpty(_selectedNewColumn))
+                    AddHeader(_selectedNewColumn);
+                _selectedNewColumn = "";
+                this.RaisePropertyChanged();
+            }
+        }
+        
+        public void AddHeader(string obj)
         {
             _selectedColumnTypes.Add(_columnOrder.FirstOrDefault(c => GetNameFromType(c) == obj));
             DataGridDefaults.SetDefaults(_selectedColumnTypes, _localPlayer);
             UpdateUI();
+            this.RaisePropertyChanged(nameof(CanAddColumns));
+            this.RaisePropertyChanged(nameof(AvailableColumns));
         }
 
-        private void RemoveHeader(DataGridHeaderViewModel obj)
+        public void RemoveHeader(OverlayType obj)
         {
-            var removedHeader = _selectedColumnTypes.FirstOrDefault(c => GetNameFromType(c) == obj.Text);
+            var removedHeader = _selectedColumnTypes.FirstOrDefault(c => c == obj);
             _selectedColumnTypes.Remove(removedHeader);
             DataGridDefaults.SetDefaults(_selectedColumnTypes, _localPlayer);
             UpdateUI();
+            this.RaisePropertyChanged(nameof(CanAddColumns));
+            this.RaisePropertyChanged(nameof(AvailableColumns));
         }
         private string GetNameFromType(OverlayType type)
         {
             return (string)new OverlayTypeToReadableNameConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
         }
-
     }
 }

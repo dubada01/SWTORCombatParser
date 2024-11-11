@@ -445,4 +445,8 @@
     <AvaloniaResource Remove="Views\Leaderboard View\**" />
     <AvaloniaResource Remove="ViewModels\Leaderboard\**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\HistoricalLogs\HistoricalCombatView.axaml" />
+  </ItemGroup>
 </Project>

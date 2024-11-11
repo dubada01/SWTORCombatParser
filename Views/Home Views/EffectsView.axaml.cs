@@ -6,9 +6,9 @@ namespace SWTORCombatParser.Views.Home_Views
     /// <summary>
     /// Interaction logic for CombatMetaDataView.xaml
     /// </summary>
-    public partial class CombatMetaDataView : UserControl
+    public partial class EffectsView : UserControl
     {
-        public CombatMetaDataView(CombatEfffectViewModel dataContext)
+        public EffectsView(CombatEfffectViewModel dataContext)
         {
             DataContext = dataContext;
             InitializeComponent();
