@@ -32,88 +32,55 @@
     </UserControl.Styles>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="150"/>
             <RowDefinition Height="50"/>
-            <RowDefinition Height="0.9*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Border Background="{StaticResource Gray3Brush}" CornerRadius="5" Grid.Row="0" Margin="0,0,0,0" BorderBrush="{Binding LiveParseActive, Converter={StaticResource LiveParseToBrushConverter}}" Padding="0,0,0,0" BorderThickness="5">
+        <Button VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}"
+                Classes="RoundedCorner"
+                Padding="8,5,8,8"
+                FontSize="18"
+                Background="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonColorConverter}}"
+                Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}"
+                Foreground="WhiteSmoke"
+                Command="{Binding  ToggleLiveParseCommand}" ToolTip.Tip="Right click to configure auto live parsing">
+            <Button.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{Binding AutoLiveParseText}" Command="{Binding AutoLiveParseCommand}"/>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+
+        <Border Grid.Row="1" BorderThickness="0,1.5,1.5,0" CornerRadius="3" BorderBrush="{StaticResource Gray3}">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height=".6*"/>
-                    <RowDefinition Height=".4*"/>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
-                <Grid Grid.Row="0" VerticalAlignment="Center" Margin="0,0,0,10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height=".33*"/>
-                        <RowDefinition Height=".66*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Margin="0,0,0,5" VerticalAlignment="Top" FontSize="{StaticResource TitleFontSize}" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" Text="Live Parse" HorizontalAlignment="Center"></TextBlock>
-                    <Button Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}"
-                            Classes="RoundedCorner"
-                            Width="75" 
-                            Padding="5"
-                            FontSize="{StaticResource TitleFontSize}"
-                            Background="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonColorConverter}}"
-                            Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}"
-                            Foreground="WhiteSmoke"
-                            Command="{Binding  ToggleLiveParseCommand}" ToolTip.Tip="Right click to configure auto live parsing">
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="{Binding AutoLiveParseText}" Command="{Binding AutoLiveParseCommand}"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                </Grid>
-                <Grid Grid.Row="1" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Column="0" HorizontalAlignment="Stretch" IsVisible="{Binding LiveParseActive, Converter={StaticResource BooleanToVisibiityConverter}}">
+                <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="65"/>
-                        <ColumnDefinition Width="65"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" FontSize="15" Text="Latency" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray12Brush}" VerticalAlignment="Center" Margin="0,0,0,5" HorizontalAlignment="Center"></TextBlock>
-                    <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Orientation="Horizontal">
-                        <TextBlock  Text="SWTOR:" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray9Brush}" VerticalAlignment="Center" Margin="0,0,3,0" HorizontalAlignment="Right"></TextBlock>
-                        <TextBlock  Text="{Binding CurrentLogOffsetMs}"  FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentLogOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Margin="7,0,0,0" Grid.Column="2" HorizontalAlignment="Left" Orientation="Horizontal">
-                        <TextBlock  Text="Orbs:" FontFamily="{ StaticResource MainFont}" Foreground="{StaticResource Gray9Brush}" VerticalAlignment="Center" Margin="0,0,3,0" HorizontalAlignment="Right"></TextBlock>
-                        <TextBlock  Text="{Binding CurrentOrbsOffsetMs}" FontWeight="DemiBold" FontFamily="{ StaticResource MainFont}" Foreground="{Binding CurrentOrbsOffsetMs, Converter={StaticResource LogLatencyToColorConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
-                    </StackPanel>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" FontSize="{StaticResource TitleFontSize}" Margin="5,5,5,0" FontFamily="{StaticResource MainFont}" Foreground="LightGray" Text="Battles" FontWeight="Bold" ></TextBlock>
+                    <Viewbox Grid.Column="1" MaxHeight="60" MaxWidth="100" Margin="5,5,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding ShowTrash}" VerticalAlignment="Center" HorizontalAlignment="Right"></CheckBox>
+                            <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="1,0,0,0" Foreground="LightGray" Text="Show Trash" FontWeight="Bold" ></TextBlock>
+
+                        </StackPanel>
+                    </Viewbox>
                 </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl  Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding PastEncounters}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <pastCombatViews:EncounterCombatView/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </Grid>
         </Border>
-
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Viewbox MaxHeight="60" Grid.Column="0" Margin="5,5,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Left">
-                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="LightGray" Text="Battles" FontWeight="Bold" ></TextBlock>
-            </Viewbox>
-            <Viewbox Grid.Column="1" MaxHeight="60" MaxWidth="100" Margin="5,5,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Foreground="LightGray" Text="Show Trash: " FontWeight="Bold" ></TextBlock>
-                    <CheckBox IsChecked="{Binding ShowTrash}" VerticalAlignment="Center" HorizontalAlignment="Right"></CheckBox>
-                </StackPanel>
-            </Viewbox>
-        </Grid>
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-            <ItemsControl  Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding PastEncounters}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <pastCombatViews:EncounterCombatView/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-
     </Grid>
 
 </UserControl>

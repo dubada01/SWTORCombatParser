@@ -101,12 +101,14 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         _currentRole = role;
         InitPositionAndSize();
     }
+    public bool HideTitleBar => !OverlaysMoveable && KeepBackgroundHidden;
     public bool OverlaysMoveable
     {
         get => _overlaysMoveable;
         set
         {
             this.RaiseAndSetIfChanged(ref _overlaysMoveable, value);
+            this.RaisePropertyChanged(nameof(HideTitleBar));
             UpdateVisibility();
             OnLocking(!_overlaysMoveable);
         }

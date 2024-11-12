@@ -11,9 +11,9 @@ namespace SWTORCombatParser.Utilities.Converters
             switch ((bool)value)
             {
                 case true:
-                    return "Stop";
+                    return "Stop Parsing";
                 case false:
-                    return "Start";
+                    return "Start Parsing";
             }
         }
 

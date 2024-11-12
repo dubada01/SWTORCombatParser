@@ -6,7 +6,7 @@
              xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Death_Review"
                 x:DataType="vm:DeathReviewViewModel"
              mc:Ignorable="d" 
-             Title="Death Review"
+             Title="Battle Review"
                 Width="1000" Height="600"
              d:DesignHeight="600" d:DesignWidth="1000">
     <Grid Background="{StaticResource Gray2Brush}">

@@ -159,10 +159,26 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         private async Task DisplayDamageTakenData(Combat combat, List<CombatInfoInstance> list)
         {
-            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingDamageLogs[defaultEntity]);
-            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
-            foreach (var orderedKey in splitOutdata)
+            // Filter entities with matching LogId
+            var selectedLogId = _selectedEntity.LogId;
+            var matchingEntities = combat.OutgoingDamageLogs
+                .Where(kvp => kvp.Key.LogId == selectedLogId)
+                .Select(kvp => kvp.Key);
+
+            // Collect all relevant logs for matching entities
+            var combinedLogs = matchingEntities
+                .SelectMany(entity => combat.IncomingDamageLogs.ContainsKey(entity)
+                    ? combat.IncomingDamageLogs[entity]
+                    : new List<ParsedLogEntry>());
+
+            // Group data by entity name and average values
+            var splitOutData = GetDataSplitOut(combat, combinedLogs.ToList());
+
+            // Update _sumTotal with the average
+            _sumTotal = splitOutData.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
+
+            // Populate rows asynchronously
+            foreach (var orderedKey in splitOutData)
             {
                 await PoppulateRows(orderedKey, list);
             }
@@ -170,11 +186,19 @@ namespace SWTORCombatParser.ViewModels.Overviews
 
         private async Task DisplayHealingData(Combat combat, List<CombatInfoInstance> list)
         {
-            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
-            var healing = combat.OutgoingHealingLogs[defaultEntity];
-            var shielding = combat.ShieldingProvidedLogs[defaultEntity];
+            var selectedLogId = _selectedEntity.LogId;
+            var matchingEntities = combat.OutgoingHealingLogs
+                .Where(kvp => kvp.Key.LogId == selectedLogId)
+                .Select(kvp => kvp.Key);
+
+            var healing = matchingEntities
+                .SelectMany(entity => combat.OutgoingHealingLogs.ContainsKey(entity) ? combat.OutgoingHealingLogs[entity] : new List<ParsedLogEntry>());
+
+            var shielding = matchingEntities
+                .SelectMany(entity => combat.ShieldingProvidedLogs.ContainsKey(entity) ? combat.ShieldingProvidedLogs[entity] : new List<ParsedLogEntry>());
+
             var both = healing.Concat(shielding);
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, both.ToList());
+            var splitOutdata = GetDataSplitOut(combat, both.ToList());
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
@@ -182,36 +206,61 @@ namespace SWTORCombatParser.ViewModels.Overviews
             }
         }
 
-        private async Task DisplayDamageData(Combat combat, List<CombatInfoInstance> list)
-        {
-            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.OutgoingDamageLogs[defaultEntity]);
-            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
-            foreach (var orderedKey in splitOutdata)
-            {
-                await PoppulateRows(orderedKey, list);
-            }
-        }
-        private async Task DisplayHealingReceived(Combat combat, List<CombatInfoInstance> list)
-        {
-            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.IncomingHealingLogs[defaultEntity]);
-            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
-            foreach (var orderedKey in splitOutdata)
-            {
-                await PoppulateRows(orderedKey, list);
-            }
-        }
-        private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
-        {
-            var defaultEntity = combat.OutgoingDamageLogs.ContainsKey(_selectedEntity) ? _selectedEntity : combat.OutgoingDamageLogs.Keys.First();
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = GetDataSplitOut(combat, combat.LogsInvolvingEntity[defaultEntity].Where(l=>l.Source == defaultEntity && l.Threat != 0).ToList());
-            _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Where(v=>v.Threat >=0).Sum(v => v.Threat));
-            foreach (var orderedKey in splitOutdata)
-            {
-                await PoppulateRowsThreat(orderedKey, list);
-            }
-        }
+      private async Task DisplayDamageData(Combat combat, List<CombatInfoInstance> list)
+{
+    var selectedLogId = _selectedEntity.LogId;
+    var matchingEntities = combat.OutgoingDamageLogs
+        .Where(kvp => kvp.Key.LogId == selectedLogId)
+        .Select(kvp => kvp.Key);
+
+    var combinedLogs = matchingEntities
+        .SelectMany(entity => combat.OutgoingDamageLogs.ContainsKey(entity) ? combat.OutgoingDamageLogs[entity] : new List<ParsedLogEntry>());
+
+    var splitOutdata = GetDataSplitOut(combat, combinedLogs.ToList());
+    _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
+    foreach (var orderedKey in splitOutdata)
+    {
+        await PoppulateRows(orderedKey, list);
+    }
+}
+
+private async Task DisplayHealingReceived(Combat combat, List<CombatInfoInstance> list)
+{
+    var selectedLogId = _selectedEntity.LogId;
+    var matchingEntities = combat.IncomingHealingLogs
+        .Where(kvp => kvp.Key.LogId == selectedLogId)
+        .Select(kvp => kvp.Key);
+
+    var combinedLogs = matchingEntities
+        .SelectMany(entity => combat.IncomingHealingLogs.ContainsKey(entity) ? combat.IncomingHealingLogs[entity] : new List<ParsedLogEntry>());
+
+    var splitOutdata = GetDataSplitOut(combat, combinedLogs.ToList());
+    _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
+    foreach (var orderedKey in splitOutdata)
+    {
+        await PoppulateRows(orderedKey, list);
+    }
+}
+
+private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
+{
+    var selectedLogId = _selectedEntity.LogId;
+    var matchingEntities = combat.LogsInvolvingEntity
+        .Where(kvp => kvp.Key.LogId == selectedLogId)
+        .Select(kvp => kvp.Key);
+
+    var combinedLogs = matchingEntities
+        .SelectMany(entity => combat.LogsInvolvingEntity.ContainsKey(entity)
+            ? combat.LogsInvolvingEntity[entity].Where(l => l.Source == entity && l.Threat != 0)
+            : new List<ParsedLogEntry>());
+
+    var splitOutdata = GetDataSplitOut(combat, combinedLogs.ToList());
+    _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Where(v => v.Threat >= 0).Sum(v => v.Threat));
+    foreach (var orderedKey in splitOutdata)
+    {
+        await PoppulateRowsThreat(orderedKey, list);
+    }
+}
         private async Task PoppulateRowsThreat(KeyValuePair<string, List<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
         {
             list.Add(new CombatInfoInstance

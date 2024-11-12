@@ -206,8 +206,8 @@ public partial class BaseOverlayWindow : Window
                         ContentCanvas.Height = _myScreen.Bounds.Height /scalingFactor;
                         userControl.Width = savedObjectSize.X / scalingFactor;
                         userControl.Height = savedObjectSize.Y / scalingFactor;
-                        Canvas.SetLeft(ContentObject, savedPosition.X / scalingFactor + 5);
-                        Canvas.SetTop(ContentObject, (savedPosition.Y / scalingFactor) +  2);
+                        Canvas.SetLeft(ContentObject, savedPosition.X / scalingFactor + 4 * scalingFactor);
+                        Canvas.SetTop(ContentObject, (savedPosition.Y / scalingFactor) +  10 * scalingFactor);
                     }
                     if(!canClickThrough && !ContentGrid.Children.Any())
                     {

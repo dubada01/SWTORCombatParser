@@ -13,35 +13,32 @@
     <Grid Background="{StaticResource Gray2Brush}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="60"/>
-                <RowDefinition Height="0.9*"/>
                 <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="0.9*"/>
             </Grid.RowDefinitions>
-            <overlay:CombatMetricsConfigView Grid.Row="1" DataContext="{Binding $self.DataContext}"/>
-
-            <Grid Grid.Row="2">
+            
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox HorizontalAlignment="Left" MaxHeight="20" Margin="15,2,10,2">
-                    <StackPanel  Orientation="Horizontal">
-                        <TextBlock Foreground="WhiteSmoke" FontSize="25" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
-                        <Viewbox MaxHeight="50">
-                            <CheckBox VerticalAlignment="Center" IsChecked="{Binding OverlaysLocked}"></CheckBox>
-                        </Viewbox>
-                    </StackPanel>
-                </Viewbox>
 
-                <Viewbox Margin="0,2,25,2" MaxHeight="35" HorizontalAlignment="Right" Grid.Column="3" Grid.Row="1">
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="25" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Bar Scalar: "/>
-                        <TextBox HorizontalAlignment="Center" Height="45" Width="100" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}" Classes="RoundedTextBox"></TextBox>
-                    </StackPanel>
-                </Viewbox>
+                <StackPanel Grid.ColumnSpan="4" HorizontalAlignment="Center"  Orientation="Horizontal">
+                    <TextBlock Foreground="WhiteSmoke" FontSize="{StaticResource LargeFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
+                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding OverlaysLocked}"></CheckBox>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Grid.Column="3">
+                    <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="{StaticResource LargeFontSize}" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Bar Scalar: "/>
+                    <TextBox FontSize="{StaticResource NormalFontSize}" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                </StackPanel>
             </Grid>
+            
+            
+            <overlay:CombatMetricsConfigView Grid.Row="1" DataContext="{Binding $self.DataContext}"/>
+
+
         </Grid>
        
     </Grid>

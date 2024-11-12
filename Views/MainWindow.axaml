@@ -18,7 +18,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="0.95*"/>
             <RowDefinition Height="1.5"/>
             <RowDefinition Height="40"/>
@@ -65,10 +65,13 @@
             </MenuItem>
             <MenuItem Header="_Timers">
                 <MenuItem Header="Timers" Command="{Binding ShowTimerWindowCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/timer-icon.png"></Image>
+                    </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Challenges" Command="{Binding ShowChallengeWindowCommand}">
                     <MenuItem.Icon>
-                        <Image Source="avares://Orbs/resources/dpsIcon.png"></Image>
+                        <Image Source="avares://Orbs/resources/challenge-icon.png"></Image>
                     </MenuItem.Icon>
                 </MenuItem>
                 <MenuItem Header="Phases" Command="{Binding OpenPhaseConfigCommand}">

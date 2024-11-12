@@ -20,6 +20,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+            <Rectangle Fill="Transparent" Height="25" IsVisible="{Binding HideTitleBar}"></Rectangle>
             <Grid IsVisible="{Binding OverlaysMoveable}" Height="25">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

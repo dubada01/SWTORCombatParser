@@ -9,8 +9,7 @@
                 x:DataType="vm:PlotViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid
-        Background="{StaticResource Gray3Brush}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="{Binding ParticipantSelectionHeight}" MaxHeight="{Binding MaxSeletionHeight}" MinHeight="{Binding MinSeletionHeight}"/>
             <RowDefinition Height="*"/>
