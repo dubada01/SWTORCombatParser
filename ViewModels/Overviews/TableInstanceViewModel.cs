@@ -1,14 +1,11 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -303,9 +300,9 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
                 case SortingOption.ByAbility:
                     return await IconGetter.GetIconPathForLog(log);
                 case SortingOption.BySource:
-                    return IconFactory.GetClassIcon(sourceClass.Name);
+                    return IconFactory.GetClassIcon(sourceClass.Discipline);
                 case SortingOption.ByTarget:
-                    return IconFactory.GetClassIcon(targetClass.Name);
+                    return IconFactory.GetClassIcon(targetClass.Discipline);
                 default:
                     return null;
             }

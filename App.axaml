@@ -44,6 +44,7 @@
             <converters:RoleToImageSourceConverter x:Key="RoleToImageSourceConverter"/>
             <converters:LiveParseActiveToBrushConverter x:Key="LiveParseToBrushConverter"/>
             <converters:OverlayMetricToColorConverter x:Key="OverlayMetricTypeToColorConverter"/>
+            <converters:FullOverlayMetricToColorConverter x:Key="FullOverlayMetricTypeToColorConverter"/>
             <converters:OverlayMoveableToVisibilityConverter x:Key="OverlayMoveableToVisibilityConverter"/>
             <converters:OverlyTypeToVisibilityConverter x:Key="OverlayTypeToVisibilityConverter"/>
             <converters:EncounterInfoToPastCombatColorConverter x:Key="EncounterInfoToPastCombatColorConverter"/>

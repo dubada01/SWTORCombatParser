@@ -1,13 +1,7 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
-using SWTORCombatParser.Views.Timers;
+﻿using SWTORCombatParser.Model.Timers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Avalonia;
-using Avalonia.Threading;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Timers;

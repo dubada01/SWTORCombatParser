@@ -4,7 +4,6 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace SWTORCombatParser.Model.CombatParsing

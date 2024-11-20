@@ -1,13 +1,8 @@
-﻿using SWTORCombatParser.Model.Timers;
-using SWTORCombatParser.Views.Timers;
+﻿using SWTORCombatParser.Views.Timers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using Avalonia;
-using Avalonia.Threading;
-using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {

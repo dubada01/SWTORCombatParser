@@ -1,11 +1,7 @@
 ﻿using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Reactive;
-using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;

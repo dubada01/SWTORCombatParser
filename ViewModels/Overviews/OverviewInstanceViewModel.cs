@@ -1,6 +1,4 @@
 ﻿using SWTORCombatParser.DataStructures;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overviews

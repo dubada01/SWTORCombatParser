@@ -1,5 +1,4 @@
-﻿using System;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
@@ -9,7 +8,6 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {

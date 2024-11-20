@@ -1,9 +1,7 @@
 ﻿using SWTORCombatParser.Model.Updates;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.ViewModels.Update;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;

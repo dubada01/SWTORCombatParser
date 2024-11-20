@@ -120,16 +120,19 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static void UpdatePlayerTargets(ParsedLogEntry log)
         {
+            var dictToUse = CurrentState.PlayerTargetsInfo;
             if (!log.Source.IsCharacter)
-                return;
-            if (!CurrentState.PlayerTargetsInfo.ContainsKey(log.Source))
-                CurrentState.PlayerTargetsInfo[log.Source] = new Dictionary<DateTime, EntityInfo>();
+            {
+                dictToUse = CurrentState.EnemyTargetsInfo;
+            }
+            if (!dictToUse.ContainsKey(log.Source))
+                dictToUse[log.Source] = new Dictionary<DateTime, EntityInfo>();
             if (log.Error == ErrorType.IncompleteLine)
                 return;
             if (log.Effect.EffectId == _7_0LogParsing.TargetSetId)
-                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = log.TargetInfo;
+                dictToUse[log.Source][log.TimeStamp] = log.TargetInfo;
             if (log.Effect.EffectId == _7_0LogParsing.TargetClearedId)
-                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = new EntityInfo();
+                dictToUse[log.Source][log.TimeStamp] = new EntityInfo();
         }
         private static void SetCharacterPositions(ParsedLogEntry log)
         {

@@ -1,6 +1,5 @@
 ﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Phases;
-using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
 using SWTORCombatParser.Views.Phases;
 using System;

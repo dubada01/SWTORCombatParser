@@ -7,10 +7,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
-using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -105,6 +103,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             CombatLogStreamer.NewLineStreamed += HandleNewLog;
             _bossFrame = new BrossFrameView(this);
             MainContent = _bossFrame;
+            SetAutoScaleHeight();
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
             CurrentScale = currentDefaults.Scale == 0 ? 1 : currentDefaults.Scale;
 
@@ -194,7 +193,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
                     }
                     else
-                        activeBoss.LogWithBoss(boss);
+                        activeBoss.LogWithBoss(boss,log.TimeStamp);
                 }
             }
         }

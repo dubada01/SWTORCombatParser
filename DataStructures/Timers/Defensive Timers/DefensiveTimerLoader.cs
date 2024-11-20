@@ -16,7 +16,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Defensive_Timers
             List<Timer> copiedTimers = new List<Timer>();
             foreach (var timer in timers)
             {
-
+                timer.ShowIconIfPossible = true;
                 timer.IsBuiltInDefensive = true;
                 timer.ResetOnEffectLoss = true;
                 timer.TrackOutsideOfCombat = true;

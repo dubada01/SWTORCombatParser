@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Threading;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
@@ -13,8 +11,6 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
-using SWTORCombatParser.Views;
-using SWTORCombatParser.Views.Overlay.Timeline;
 
 namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
@@ -126,8 +122,10 @@ public static class AvaloniaTimelineBuilder
     {
         if (_inBossInstance)
         {
-            if(_currentEncounter.BossInfos.First().EncounterName == bossName && !_timeTrackingLive)
+            if((_currentEncounter.BossInfos.First().EncounterName == bossName || _currentEncounter.NumberOfPlayer == "4") && !_timeTrackingLive)
                 _timeTrackingLive = true;
+            if(_currentEncounter.NumberOfPlayer != "4" && _currentEncounter.Difficutly != "Story")
+                _timeTrackingLive = false;
             
             if(!_timeTrackingLive)
                 return;
@@ -161,7 +159,7 @@ public static class AvaloniaTimelineBuilder
     }
     private static void TryBuildTimeline(EncounterInfo obj)
     {
-        if(obj.IsBossEncounter)
+        if(obj.IsBossEncounter && (obj.Difficutly == "Story" || obj.NumberOfPlayer == "4"))
         {
             if (_currentEncounter != obj)
             {

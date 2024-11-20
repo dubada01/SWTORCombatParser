@@ -1,7 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

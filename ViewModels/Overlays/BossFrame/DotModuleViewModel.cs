@@ -3,9 +3,7 @@ using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Avalonia.Threading;
 using ReactiveUI;
 

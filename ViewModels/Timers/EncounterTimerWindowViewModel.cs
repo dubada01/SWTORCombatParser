@@ -2,17 +2,11 @@
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Timers;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Avalonia;
-using Avalonia.Threading;
-using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {

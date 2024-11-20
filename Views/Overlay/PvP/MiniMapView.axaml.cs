@@ -1,12 +1,10 @@
 ﻿using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.PvP;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
-using Avalonia;
-using System.Reactive.Linq;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
@@ -10,7 +7,6 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
-using ReactiveUI;
 using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Views.Timers

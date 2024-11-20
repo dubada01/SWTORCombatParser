@@ -2,20 +2,16 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
-using System.Threading;
-using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Templates;
-using Avalonia.Data;
 using Avalonia.Layout;
-using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ReactiveUI;
-using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.ViewModels.DataGrid;
 
 namespace SWTORCombatParser.Views.DataGrid_Views
@@ -113,7 +109,6 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                         // Create "Name" column with custom cell style to show an icon along with text
                         var nameColumn = new DataGridTemplateColumn
                         {
-                            CellStyleClasses = { "static" },
                             Header = "Name",
                             CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
                             {
@@ -184,7 +179,8 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                                     HorizontalAlignment = HorizontalAlignment.Right,
                                     VerticalAlignment = VerticalAlignment.Center,
                                     FontWeight = member.IsTotalsRow ? FontWeight.Bold : FontWeight.Normal,
-                                    FontSize = member.IsTotalsRow ? 11 : 10
+                                    FontSize = member.IsTotalsRow ? 11 : 10,
+                                    Margin = new Thickness(0,0,5,0)
                                 };
                                 return textBox;
                             }),

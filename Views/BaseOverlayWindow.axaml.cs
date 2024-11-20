@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Documents;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Layout;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Threading;
-using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels;
 
 namespace SWTORCombatParser.Views;
@@ -87,7 +80,7 @@ public partial class BaseOverlayWindow : Window
     private PixelPoint _tempLocation;
     private Point _tempSize;
     private readonly BaseOverlayViewModel _viewModel;
-    private bool _canClickThrough = false;
+    public bool _canClickThrough = false;
 
     public BaseOverlayWindow(BaseOverlayViewModel viewModel)
     {
@@ -128,13 +121,26 @@ public partial class BaseOverlayWindow : Window
 
     private void SetSizeAndLocation(Point position, Point size)
     {
-        CacheTempPositions(position, size);
-        Dispatcher.UIThread.Invoke(() =>
+        if (_canClickThrough && _viewModel.KeepBackgroundHidden)
         {
-            Position = new PixelPoint((int)position.X, (int)position.Y);
-            Width = size.X;
-            Height = size.Y;
-        });
+            _tempLocation = new PixelPoint((int)position.X, (int)position.Y);
+            _tempSize = size;
+            savedPosition = new PixelPoint((int)position.X, (int)position.Y);
+            savedSize = size;
+            savedObjectSize = size;
+            _canClickThrough = false;
+            ToggleClickThrough(true);
+        }
+        else
+        {
+            CacheTempPositions(position, size);
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                Position = new PixelPoint((int)position.X, (int)position.Y);
+                Width = size.X;
+                Height = size.Y;
+            });
+        }
     }
 
     private void CacheTempPositions(Point position, Point size)
@@ -173,14 +179,15 @@ public partial class BaseOverlayWindow : Window
         return targetScreen;
     }
 
-    private PixelPoint savedPosition;
+    public PixelPoint savedPosition;
     private Point savedSize;
-    private Point savedObjectSize;
+    public Point savedObjectSize;
     private Screen? _myScreen;
 
     private void ToggleClickThrough(bool canClickThrough)
     {
-        _canClickThrough = canClickThrough;
+        if(_canClickThrough == canClickThrough)
+            return;
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             if (_viewModel.KeepBackgroundHidden)
@@ -189,25 +196,7 @@ public partial class BaseOverlayWindow : Window
                 {
                     if (canClickThrough && !ContentCanvas.Children.Any())
                     {
-                        var scalingFactor = _myScreen.Scaling;
-                        ContentCanvas.IsVisible = true;
-                        ContentGrid.IsVisible = false;
-                        ContentGrid.Children.Remove(ContentObject);
-                        ContentCanvas.Children.Add(ContentObject);
-                        ContentObject.Content = userControl;
-
-                        savedPosition = Position;
-                        savedSize = new Point(Width, Height);
-                        savedObjectSize = new Point(userControl.Bounds.Width * scalingFactor, userControl.Bounds.Height * scalingFactor);
-                        Position = new PixelPoint(0, 0);
-                        Width = _myScreen.Bounds.Width / scalingFactor;
-                        Height = _myScreen.Bounds.Height / scalingFactor;
-                        ContentCanvas.Width = _myScreen.Bounds.Width /scalingFactor;
-                        ContentCanvas.Height = _myScreen.Bounds.Height /scalingFactor;
-                        userControl.Width = savedObjectSize.X / scalingFactor;
-                        userControl.Height = savedObjectSize.Y / scalingFactor;
-                        Canvas.SetLeft(ContentObject, savedPosition.X / scalingFactor + 4 * scalingFactor);
-                        Canvas.SetTop(ContentObject, (savedPosition.Y / scalingFactor) +  10 * scalingFactor);
+                        ExpandWindowForClickthrough();
                     }
                     if(!canClickThrough && !ContentGrid.Children.Any())
                     {
@@ -236,13 +225,8 @@ public partial class BaseOverlayWindow : Window
                     }
                 }
             }
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                MakeWindowClickThroughMac(canClickThrough);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                MakeWindowClickThroughWindows(canClickThrough);
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                MakeWindowClickThroughUbuntu(canClickThrough);
-            
+            ToggleClickThroughCrossPlatform(canClickThrough);
+
             if(!_viewModel.KeepBackgroundHidden)
                 BackgroundArea.Opacity = canClickThrough ? 0.066 : 0.75;
             if (_viewModel.KeepBackgroundHidden)
@@ -254,7 +238,47 @@ public partial class BaseOverlayWindow : Window
                 OverlayIdText.IsVisible = !canClickThrough;
             CloseButton.IsVisible = !canClickThrough;
         });
+        _canClickThrough = canClickThrough;
     }
+
+    public void ExpandWindowForClickthrough()
+    {
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            if ((_viewModel.MainContent is not UserControl userControl) || ContentCanvas.Children.Any()) return;
+            var scalingFactor = _myScreen.Scaling;
+            ContentCanvas.IsVisible = true;
+            ContentGrid.IsVisible = false;
+            ContentGrid.Children.Remove(ContentObject);
+            ContentCanvas.Children.Add(ContentObject);
+            ContentObject.Content = userControl;
+
+            savedPosition = Position;
+            savedSize = new Point(Width, Height);
+            savedObjectSize =
+                new Point(userControl.Bounds.Width * scalingFactor, userControl.Bounds.Height * scalingFactor);
+            Position = new PixelPoint(0, 0);
+            Width = _myScreen.Bounds.Width / scalingFactor;
+            Height = _myScreen.Bounds.Height / scalingFactor;
+            ContentCanvas.Width = _myScreen.Bounds.Width / scalingFactor;
+            ContentCanvas.Height = _myScreen.Bounds.Height / scalingFactor;
+            userControl.Width = savedObjectSize.X / scalingFactor;
+            userControl.Height = savedObjectSize.Y / scalingFactor;
+            Canvas.SetLeft(ContentObject, savedPosition.X / scalingFactor + 4 * scalingFactor);
+            Canvas.SetTop(ContentObject, (savedPosition.Y / scalingFactor) + 10 * scalingFactor);
+        });
+    }
+
+    public void ToggleClickThroughCrossPlatform(bool canClickThrough)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            MakeWindowClickThroughMac(canClickThrough);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            MakeWindowClickThroughWindows(canClickThrough);
+        if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            MakeWindowClickThroughUbuntu(canClickThrough);
+    }
+
     // Platform-specific method for Windows
     private void MakeWindowClickThroughWindows(bool isClickThrough)
     {
@@ -302,7 +326,7 @@ public partial class BaseOverlayWindow : Window
         objc_msgSend(nsWindowHandle, setIgnoresMouseEventsSelector, isClickThrough);
     }
     // Platform-specific method for Ubuntu
-    public void MakeWindowClickThroughUbuntu(bool isClickThrough)
+    private void MakeWindowClickThroughUbuntu(bool isClickThrough)
     {
         // Get the native window handle using Avalonia's GetPlatformHandle method
         var platformHandle = this.TryGetPlatformHandle();

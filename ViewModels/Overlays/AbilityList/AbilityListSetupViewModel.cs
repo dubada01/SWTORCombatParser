@@ -1,5 +1,4 @@
 ﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Views.Overlay.AbilityList;
 using System;
 
 

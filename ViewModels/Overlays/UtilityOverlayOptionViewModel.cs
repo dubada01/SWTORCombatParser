@@ -1,5 +1,4 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace SWTORCombatParser.ViewModels.Overlays

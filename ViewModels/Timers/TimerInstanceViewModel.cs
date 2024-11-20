@@ -1,11 +1,10 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
 using ReactiveUI;
@@ -75,7 +74,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
         public double OverlayOpacity { get; set; }
-        public double CurrentRatio => double.IsNaN(TimerValue / MaxTimerValue) ? 1 : (TimerValue / MaxTimerValue);
+        public double CurrentRatio => double.IsNaN(TimerValue / MaxTimerValue) ? 0 : (TimerValue / MaxTimerValue);
         public TimeSpan TimerDuration { get; set; }
         public Color TimerColor => SourceTimer.TimerColor;
         public SolidColorBrush TimerForeground => new SolidColorBrush(TimerColor);
@@ -84,6 +83,22 @@ namespace SWTORCombatParser.ViewModels.Timers
         private static SolidColorBrush _defaultTimerBackground = Dispatcher.UIThread.Invoke(() => { return new SolidColorBrush(Colors.WhiteSmoke);}); 
         private static SolidColorBrush _aboutToExpireBackground = Dispatcher.UIThread.Invoke(() => { return new SolidColorBrush(Colors.OrangeRed);}); 
         public SolidColorBrush TimerBackground { get; set; } = _defaultTimerBackground;
+
+        
+        //TODO add this to settings config so that it is loaded each time a timer is created
+        public bool ShowIcon { get; set; }
+        private Bitmap? _infoIcon;
+        public Bitmap? InfoIcon
+        {
+            get => _infoIcon;
+            private set => this.RaiseAndSetIfChanged(ref _infoIcon, value);
+        }
+        public async Task LoadInfoIconAsync()
+        {
+            InfoIcon = SourceTimer.ShowIconIfPossible && IconGetter.HasIcon(SourceTimer.Effect)
+                ? await IconGetter.GetIconForId(SourceTimer.Effect)
+                : null;
+        }
         public double TimerValue
         {
             get => timerValue; set
@@ -138,6 +153,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 OverlayOpacity = 1;
             }
+
+
             if (swtorTimer.UseAudio)
             {
                 //builtin-timer-audio
@@ -170,14 +187,12 @@ namespace SWTORCombatParser.ViewModels.Timers
             TimerValue = swtorTimer.DurationSec;
             this.RaisePropertyChanged(nameof(CurrentRatio));
 
-            if (!swtorTimer.IsAlert)
+            _updateIntervalMs = !swtorTimer.IsAlert ? 100 : 3000;
+            
+            Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                _updateIntervalMs = 100;
-            }
-            else
-            {
-                _updateIntervalMs = 3000;
-            }
+                await LoadInfoIconAsync();
+            });
         }
 
 

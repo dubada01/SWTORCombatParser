@@ -1,11 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using System.Diagnostics;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using LibVLCSharp.Shared;
-using MvvmHelpers;
 using ReactiveUI;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
@@ -20,8 +18,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     internal bool _active;
     private bool _overlaysMoveable;
     private string _currentRole = "Default";
-    private bool _shouldBeVisible;
-    private bool _isVisibile;
     public event Action<bool> ActiveChanged = delegate { };
     public event Action CloseRequested = delegate { };
     public event Action<Point,Point> OnNewPositionAndSize = delegate { }; 
@@ -31,7 +27,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     public OverlaySettingsType SettingsType { get; set; } = OverlaySettingsType.Global;
     internal readonly string _overlayName;
     private UserControl _mainContent;
-    private bool _displayingContent;
+    private bool _inConversation;
 
     public UserControl MainContent
     {
@@ -46,17 +42,18 @@ public abstract class BaseOverlayViewModel:ReactiveObject
 
     public void UpdateVisibility()
     {
+        if (_overlayWindow == null)
+            return;
         this.RaisePropertyChanged(nameof(ShouldBeVisible));
-        if (!_active || (!OverlaysMoveable && !ShouldBeVisible))
+        if (!_active || (!OverlaysMoveable && !ShouldBeVisible) || _inConversation)
         {
             HideOverlayWindow();
         }
         else
         {
-            if ((ShouldBeVisible || OverlaysMoveable) && DisplayingContent)
+            if ((ShouldBeVisible || OverlaysMoveable))
             {
                 ShowOverlayWindow();
-                OnLocking(!OverlaysMoveable);
             }
         }
     }
@@ -65,29 +62,45 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     {
         get;
     }
-    public bool HideUnlessDisplayingContent { get; set; }
-    public bool DisplayingContent
-    {
-        get => _displayingContent || !HideUnlessDisplayingContent;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _displayingContent, value);
-            UpdateVisibility();
-        }
-    }
-
     public void RequestClose()
     {
         Dispatcher.UIThread.Invoke(() =>
         {
             CloseRequested();
         });
-
+    }
+    public void TemporarilyHide()
+    {
+        _active = false;
     }
     public BaseOverlayViewModel(string overlayName)
     {
         _overlayName = overlayName;
+        CombatLogStreamer.NewLineStreamed += ToggleVisibilityFromConversation;
     }
+
+    private void ToggleVisibilityFromConversation(ParsedLogEntry obj)
+    {
+        if(_overlayWindow == null)
+            return;
+        if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && obj.Source.IsLocalPlayer && !_inConversation)
+        {
+            _inConversation = true;
+            UpdateVisibility();
+        }
+        if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && obj.Source.IsLocalPlayer && _inConversation)
+        {
+            _inConversation = false;
+            UpdateVisibility();
+            if (KeepBackgroundHidden)
+            {
+                _overlayWindow.ExpandWindowForClickthrough();
+            }
+            _overlayWindow.ToggleClickThroughCrossPlatform(!OverlaysMoveable);
+        }
+        
+    }
+
     // A method to explicitly create the window once the derived class has been constructed
     public void InitializeOverlayWindow()
     {
@@ -95,6 +108,11 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         {
             _overlayWindow = new BaseOverlayWindow(this);  // Pass `this`, referring to the fully constructed derived class
         }
+    }
+
+    public void SetAutoScaleHeight()
+    {
+        _overlayWindow.SizeToContent = SizeToContent.Height;
     }
     public void SetRole(string role)
     {
@@ -127,14 +145,13 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     }
     public void ShowOverlayWindow()
     {
-        if ((ShouldBeVisible || OverlaysMoveable) && DisplayingContent)
+        if ((ShouldBeVisible || OverlaysMoveable))
         {
             if (!Active)
                 return;
             Dispatcher.UIThread.Invoke(() =>
             {
                 _overlayWindow?.Show();
-                _isVisibile = true;
             });
         }
     }
@@ -144,7 +161,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         Dispatcher.UIThread.Invoke(() =>
         {
             _overlayWindow?.Hide();
-            _isVisibile = false;
         });
     }
     public void InitPositionAndSize()
@@ -186,7 +202,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         if(SettingsType == OverlaySettingsType.Character)
             DefaultCharacterOverlays.SetActiveStateCharacter(_overlayName, state,_currentRole);
     }
-
     public void CloseButtonClicked()
     {
         Active = false;

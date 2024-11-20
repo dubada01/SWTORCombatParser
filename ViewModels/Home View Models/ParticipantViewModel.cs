@@ -1,8 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using System;
-using System.ComponentModel;
 using System.Globalization;
-using System.Runtime.CompilerServices;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
 

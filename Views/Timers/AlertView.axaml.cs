@@ -1,8 +1,4 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Timers;
-using System;
-using System.Runtime.InteropServices;
-using Avalonia.Controls;
+﻿using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Views.Timers
 {

@@ -7,13 +7,11 @@ using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using ReactiveUI;
-using SWTORCombatParser.Views;
 
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room

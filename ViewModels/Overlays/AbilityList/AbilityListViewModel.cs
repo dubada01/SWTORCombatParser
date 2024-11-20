@@ -5,16 +5,13 @@ using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using ReactiveUI;
-using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Overlay.AbilityList;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList

@@ -45,6 +45,10 @@ public static class MetricGetter
                 value = combats.SelectMany(c => c.TotalHealing).Where(v => v.Key == participant).Select(v => v.Value)
                     .Average();
                 break;
+            case OverlayType.HPS:
+                value = combats.SelectMany(c => c.HPS).Where(v => v.Key == participant).Select(v => v.Value)
+                    .Average();
+                break;
             case OverlayType.ProvidedAbsorb:
                 value = combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
                 break;
@@ -129,105 +133,109 @@ public static class MetricGetter
         switch (type)
         {
             case OverlayType.APM:
-                value = combats.SelectMany(c => c.APM).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.APM).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Average();
                 break;
             case OverlayType.DPS:
-                value = combats.SelectMany(c => c.EDPS).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.EDPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
             case OverlayType.Damage:
-                value = combats.SelectMany(c => c.TotalEffectiveDamage)
+                value = combats.SelectMany(c => c.TotalEffectiveDamage).Where(kvp=>kvp.Key.IsCharacter)
                     .Select(v => v.Value).Sum();
                 break;
             case OverlayType.RawDamage:
-                value = combats.SelectMany(c => c.TotalDamage).Select(v => v.Value)
+                value = combats.SelectMany(c => c.TotalDamage).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
                 break;
             case OverlayType.NonEDPS:
-                value = combats.SelectMany(c => c.DPS).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.DPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
             case OverlayType.EHPS:
-                value = combats.SelectMany(c => c.EHPS).Select(v => v.Value).Sum();
-                value += combats.SelectMany(c => c.PSPS).Select(v => v.Value)
+                value = combats.SelectMany(c => c.EHPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
+                value += combats.SelectMany(c => c.PSPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
                 break;
             case OverlayType.EffectiveHealing:
-                value = combats.SelectMany(c => c.TotalEffectiveHealing)
+                value = combats.SelectMany(c => c.TotalEffectiveHealing).Where(kvp=>kvp.Key.IsCharacter)
                     .Select(v => v.Value).Sum();
                 break;
             case OverlayType.RawHealing:
-                value = combats.SelectMany(c => c.TotalHealing).Select(v => v.Value)
+                value = combats.SelectMany(c => c.TotalHealing).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
+                    .Sum();
+                break;
+            case OverlayType.HPS:
+                value = combats.SelectMany(c => c.HPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
                 break;
             case OverlayType.ProvidedAbsorb:
-                value = combats.SelectMany(c => c.PSPS).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.PSPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
             case OverlayType.FocusDPS:
-                value = combats.SelectMany(c => c.EFocusDPS).Select(v => v.Value)
+                value = combats.SelectMany(c => c.EFocusDPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
                 break;
             case OverlayType.ThreatPerSecond:
-                value = combats.SelectMany(c => c.TPS).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.TPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
             case OverlayType.Threat:
-                value = combats.SelectMany(c => c.TotalThreat).Select(v => v.Value)
+                value = combats.SelectMany(c => c.TotalThreat).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
                 break;
             case OverlayType.DamageTaken:
-                value = combats.SelectMany(c => c.EDTPS).Select(v => v.Value)
+                value = combats.SelectMany(c => c.EDTPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
                 break;
             case OverlayType.Mitigation:
-                value = combats.SelectMany(c => c.MPS).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.MPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
             case OverlayType.DamageSavedDuringCD:
-                value = combats.SelectMany(c => c.DamageSavedFromCDPerSecond)
+                value = combats.SelectMany(c => c.DamageSavedFromCDPerSecond).Where(kvp=>kvp.Key.IsCharacter)
                     .Select(v => v.Value).Sum();
                 break;
             case OverlayType.DamageAvoided:
-                value = combats.SelectMany(c => c.DAPS).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.DAPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
             case OverlayType.ShieldAbsorb:
-                value = combats.SelectMany(c => c.SAPS).Select(v => v.Value).Sum();
+                value = combats.SelectMany(c => c.SAPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
             case OverlayType.BurstDPS:
-                value = combats.SelectMany(c => c.MaxBurstDamage).Select(v => v.Value)
+                value = combats.SelectMany(c => c.MaxBurstDamage).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Average();
                 break;
             case OverlayType.BurstEHPS:
-                value = combats.SelectMany(c => c.MaxBurstHeal).Select(v => v.Value)
+                value = combats.SelectMany(c => c.MaxBurstHeal).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Average();
                 break;
             case OverlayType.BurstDamageTaken:
-                value = combats.SelectMany(c => c.MaxBurstDamageTaken)
+                value = combats.SelectMany(c => c.MaxBurstDamageTaken).Where(kvp=>kvp.Key.IsCharacter)
                     .Select(v => v.Value).Average();
                 break;
             case OverlayType.HealReactionTime:
-                value = combats.SelectMany(c => c.NumberOfHighSpeedReactions).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.NumberOfHighSpeedReactions).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Average();
                 break;
             case OverlayType.TankHealReactionTime:
-                value = combats.SelectMany(c => c.AverageTankDamageRecoveryTimeTotal)
+                value = combats.SelectMany(c => c.AverageTankDamageRecoveryTimeTotal).Where(kvp=>kvp.Key.IsCharacter)
                     .Select(v => v.Value).Average();
                 break;
             case OverlayType.InterruptCount:
-                value = combats.SelectMany(c => c.TotalInterrupts).Select(v => v.Value)
+                value = combats.SelectMany(c => c.TotalInterrupts).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
                 break;
             case OverlayType.CritPercent:
-                value = combats.SelectMany(c => c.CritPercent).Select(v => v.Value).Average() * 100;
+                value = combats.SelectMany(c => c.CritPercent).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Average() * 100;
                 break;
             case OverlayType.SingleTargetDPS:
-                value = combats.SelectMany(c => c.STDPS).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.STDPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Average();
                 break;
             case OverlayType.SingleTargetEHPS:
-                value = combats.SelectMany(c => c.STEHPS).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.STEHPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Average();
                 break;
             case OverlayType.CleanseCount:
-                value = combats.SelectMany(c => c.TotalCleanses).Select(v => v.Value)
+                value = combats.SelectMany(c => c.TotalCleanses).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
                 break;
             case OverlayType.CleanseSpeed:
                 var averageCleanseSpeed = combats
-    .SelectMany(c => c.AverageCleanseSpeed)
+    .SelectMany(c => c.AverageCleanseSpeed).Where(kvp=>kvp.Key.IsCharacter)
     .Select(v => v.Value)
     .Where(v => v != 0);
 

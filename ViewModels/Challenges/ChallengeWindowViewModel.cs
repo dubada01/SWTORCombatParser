@@ -7,10 +7,7 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Challenges;
 using System;
 using System.Collections.ObjectModel;
-using Avalonia;
 using Avalonia.Threading;
-using ReactiveUI;
-using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {

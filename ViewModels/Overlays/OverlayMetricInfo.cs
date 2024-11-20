@@ -72,6 +72,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public TextDecorationCollection RankDecoration => RankIsPersonalRecord ? new TextDecorationCollection(new List<TextDecoration> { new TextDecoration { Location = TextDecorationLocation.Underline } }) : new TextDecorationCollection();
         public string PlayerName => Player.Name;
+        public FontWeight PlayerTextWeight => Player.IsLocalPlayer ? FontWeight.DemiBold : FontWeight.Normal;
+        public TextDecorationCollection PlayerTextDecorations => Player.IsLocalPlayer ? new TextDecorationCollection(new List<TextDecoration> { new TextDecoration { Location = TextDecorationLocation.Underline } }) : new TextDecorationCollection();
         public bool IsLeaderboardValue { get; set; } = false;
 
         public OverlayMetricInfo()

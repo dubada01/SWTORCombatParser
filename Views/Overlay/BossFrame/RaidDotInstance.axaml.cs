@@ -1,6 +1,4 @@
-﻿
-using Avalonia;
-using Avalonia.Animation;
+﻿using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Interactivity;

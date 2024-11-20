@@ -9,7 +9,6 @@ using SWTORCombatParser.Views.Home_Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;

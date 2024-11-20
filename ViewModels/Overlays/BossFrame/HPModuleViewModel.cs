@@ -13,6 +13,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private string bossName;
         private double defaultHeight = 50;
         private double height;
+        private string currentBossTarget;
 
         public double Height
         {
@@ -27,6 +28,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             get => bossName; set
             {
                 bossName = value;
+                OnPropertyChanged();
+            }
+        }
+        public string CurrentBossTarget
+        {
+            get => currentBossTarget; set
+            {
+                currentBossTarget = value;
                 OnPropertyChanged();
             }
         }
@@ -72,6 +81,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public void UpdateHP(double newHP)
         {
             BossCurrentHP = newHP;
+        }
+
+        public void UpdateTarget(string newTarget)
+        {
+            if (CurrentBossTarget != newTarget)
+                CurrentBossTarget = newTarget;
         }
         public void UpdateScale(double scale)
         {

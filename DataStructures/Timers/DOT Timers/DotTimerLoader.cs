@@ -23,6 +23,7 @@ namespace SWTORCombatParser.DataStructures.Timers.HOT_Timers
                 timer.IsBuiltInDot = true;
                 timer.ResetOnEffectLoss = true;
                 timer.TrackOutsideOfCombat = false;
+                timer.ShowIconIfPossible = true;
                 copiedTimers.Add(timer.Copy());
             }
             DefaultOrbsTimersManager.AddTimersForSource(copiedTimers, "DOTS");

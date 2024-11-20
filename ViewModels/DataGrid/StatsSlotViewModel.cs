@@ -1,7 +1,6 @@
 ﻿using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using MvvmHelpers;
 using ReactiveUI;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Overlays;

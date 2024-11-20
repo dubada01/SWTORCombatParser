@@ -1,10 +1,7 @@
-﻿using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.Timers;
+﻿using SWTORCombatParser.Model.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
 using SWTORCombatParser.Views;

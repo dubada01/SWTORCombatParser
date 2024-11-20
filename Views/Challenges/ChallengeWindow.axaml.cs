@@ -1,9 +1,5 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Challenges;
-using System;
-using System.Runtime.InteropServices;
+﻿using SWTORCombatParser.ViewModels.Challenges;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 
 namespace SWTORCombatParser.Views.Challenges
 {

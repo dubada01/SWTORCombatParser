@@ -166,9 +166,9 @@
     ]
   },
   {
-    "LogName": "Space",
-    "LogId": "945872057663605",
-    "Name": "New Lair Boss",
+    "LogName": "Emperor's Fortress Ruins",
+    "LogId": "945872057669657",
+    "Name": "Propagator Core",
     "EncounterType": 2,
     "BossNames": [
       "Propagator Core XR-53"

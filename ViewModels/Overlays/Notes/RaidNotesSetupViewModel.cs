@@ -1,7 +1,4 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Overlays;
-using System;
+﻿using System;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes

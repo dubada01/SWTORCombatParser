@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Styling;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.Views.Phases

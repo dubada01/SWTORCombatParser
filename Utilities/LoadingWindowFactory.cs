@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using SWTORCombatParser.Views;
 using Dispatcher = Avalonia.Threading.Dispatcher;
 

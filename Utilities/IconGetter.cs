@@ -1,5 +1,4 @@
 ﻿using Avalonia.Media.Imaging;
-using Newtonsoft.Json;
 using SWTORCombatParser.DataStructures;
 using System;
 using System.Collections.Concurrent;

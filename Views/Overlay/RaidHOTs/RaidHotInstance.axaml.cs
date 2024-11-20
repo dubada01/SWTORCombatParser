@@ -1,16 +1,12 @@
 ﻿
 using System;
 using System.Diagnostics;
-using Avalonia;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
-using ReactiveUI;
 using SWTORCombatParser.ViewModels.Timers;
 
 namespace SWTORCombatParser.Views.Overlay.RaidHOTs

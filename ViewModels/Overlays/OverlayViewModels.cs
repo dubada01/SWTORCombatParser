@@ -5,7 +5,6 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
@@ -19,17 +18,12 @@ using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
-using System.Runtime.CompilerServices;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using ReactiveUI;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
-using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -274,10 +268,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             ResetOverlays();
             _timersViewModel.TryShow();
-            if (!DefaultCharacterOverlays.DoesKeyExist(_currentCharacterRole))
-            {
-                InitializeRoleBasedOverlays();
-            }
             if (UseDynamicLayout)
             {
                 SetOverlaysToRole();
@@ -291,33 +281,35 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void SetOverlaysToCustom()
         {
             SetPersonalByClass(Role.DPS);
-            _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults("DPS");
-
-            UpdateOverlays();
-
+            TryUpdateDefaultsToCurrentRole();
         }
         private void SetOverlaysToRole()
         {
             SetPersonalByClass(Enum.Parse<Role>(_currentCharacterRole));
+            TryUpdateDefaultsToCurrentRole();
+        }
+
+        private void TryUpdateDefaultsToCurrentRole()
+        {
+            if (!DefaultCharacterOverlays.DoesKeyExist(_currentCharacterRole))
+            {
+                InitializeRoleBasedOverlays(_currentCharacterRole);
+            }
             _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults(_currentCharacterRole);
 
             UpdateOverlays();
-
         }
-        private void InitializeRoleBasedOverlays()
+
+        private void InitializeRoleBasedOverlays(string currentRole)
         {
             var mostUsedOverlayLayout = DefaultCharacterOverlays.GetMostUsedLayout();
             if (!string.IsNullOrEmpty(mostUsedOverlayLayout))
             {
-                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "DPS");
-                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "Healer");
-                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, "Tank");
+                DefaultCharacterOverlays.CopyFromKey(mostUsedOverlayLayout, currentRole);
             }
             else
             {
-                DefaultCharacterOverlays.InitializeCharacterDefaults("DPS");
-                DefaultCharacterOverlays.InitializeCharacterDefaults("Healer");
-                DefaultCharacterOverlays.InitializeCharacterDefaults("Tank");
+                DefaultCharacterOverlays.InitializeCharacterDefaults(currentRole);
             }
         }
         private void SetPersonalByClass(Role role)
@@ -453,14 +445,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
             overlayType.IsSelected = true;
             var viewModel = new OverlayInstanceViewModel(overlayType.Type);
-            //viewModel.SetWindow();
             viewModel.SetRole(_currentCharacterRole);
             viewModel.OverlayClosed += RemoveOverlay;
             viewModel.SizeScalar = SizeScalar;
             viewModel.Refresh(CombatIdentifier.CurrentCombat);
             viewModel.OverlaysMoveable = !OverlaysLocked;
-            _currentOverlays.Add(viewModel);
             viewModel.Active = true;
+            _currentOverlays.Add(viewModel);
         }
 
         private void RemoveOverlay(OverlayInstanceViewModel obj)
@@ -480,6 +471,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 SetSelected(false, overlay.CreatedType);
                 overlay.RequestClose();
+                overlay.TemporarilyHide();
             }
             _timersViewModel.HideTimers();
             _currentOverlays.Clear();

@@ -11,20 +11,22 @@ using SWTORCombatParser.Views.Overlay.RaidHOTs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using MoreLinq;
 using ReactiveUI;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
@@ -45,12 +47,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private bool tryingToRemoveUpdates = false;
         private ObservableCollection<RaidHotCell> _raidHotCells = new ObservableCollection<RaidHotCell>();
         public override bool ShouldBeVisible => true;
+        public bool DisplayGrid => Editable || _isManuallyModifiying;
+        private bool _isManuallyModifiying;
         public bool Editable
         {
             get => editable;
             set
             {
                 this.RaiseAndSetIfChanged(ref editable, value);
+                this.RaisePropertyChanged(nameof(DisplayGrid));
                 OverlaysMoveable = editable;
             }
         }
@@ -66,6 +71,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
         public List<PlacedName> CurrentNames = new List<PlacedName>();
         public bool SizeSet = false;
+        private readonly RaidFrameOverlay _raidFrameView;
 
         public RaidFrameOverlayViewModel(string overlayName):base(overlayName)
         {
@@ -76,8 +82,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CombatLogStreamer.HistoricalLogsFinished += SetCurrentEncounter;
             CombatLogStateBuilder.AreaEntered += NewEncounterEntered;
             HotkeyHandler.OnHideOverlaysHotkey += ToggleHide;
-            MainContent = new RaidFrameOverlay(this);
+            _raidFrameView = new RaidFrameOverlay(this);
+            _raidFrameView.MouseInArea += MouseInArea;
+            _raidFrameView.AreaClicked += CellClicked;
+            MainContent = _raidFrameView;
             KeepBackgroundHidden = true;
+            SettingsType = OverlaySettingsType.Character;
         }
         
         private void OnStartCombat(CombatStatusUpdate update)
@@ -113,6 +123,58 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
             });
         }
+        public ReactiveCommand<Button,Unit> SetFramesToManualCorrect => ReactiveCommand.Create<Button>(FramesToManualCorrect);
+
+        private void FramesToManualCorrect(Button clicked)
+        {
+            Editable = false;
+            _isManuallyModifiying = true;
+            _raidFrameView._manuallyEditing = true;
+            this.RaisePropertyChanged(nameof(DisplayGrid));
+            
+            // Create a new window
+            var window = new Window
+            {
+                SizeToContent = SizeToContent.WidthAndHeight,
+                CanResize = false,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                SystemDecorations = SystemDecorations.None,
+                Topmost = true
+            };
+            // Create a button
+            var button = new Button
+            {
+                Content = "Finished",
+                Classes = { "RoundedCorner" },
+                FontSize = 10,
+                Height = clicked.Height,
+                Width = clicked.Width,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Command = SetFramesToNormal
+            };
+
+            // Close the window when the button is clicked
+            button.Click += (sender, args) => window.Close();
+
+            // Add the button to the window
+            window.Content = button;
+
+            // Show the window
+            window.Show();
+            // Get the current cursor position
+            var cursorPosition = (_raidFrameView.GetVisualRoot() as Window).Position;
+            window.Position = new PixelPoint((int)cursorPosition.X + 7, (int)cursorPosition.Y + 45);
+        }
+        public ReactiveCommand<Unit,Unit> SetFramesToNormal => ReactiveCommand.Create(FramesToNormal);
+        private void FramesToNormal()
+        {
+            Editable = true;
+            _isManuallyModifiying = false;
+            _raidFrameView._manuallyEditing = false;
+            this.RaisePropertyChanged(nameof(DisplayGrid));
+        }
+        
         private void SetCurrentEncounter(DateTime arg1, bool arg2)
         {
             NewEncounterEntered(CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(arg1));
@@ -124,12 +186,16 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void MouseInArea(bool obj)
         {
+            Debug.WriteLine($"Mouse in frame: {obj}");
             _isMouseInFrame = obj;
         }
         public void CellClicked(double xFract, double yFract)
         {
+            if(!_isManuallyModifiying)
+                return;
             var cellX = (int)(xFract * columns);
             var cellY = (int)(yFract * rows);
+            Debug.WriteLine($"Cell Clicked: {cellX}, {cellY}");
             DateTime clickedTime = TimeUtility.CorrectedTime;
             lock (_cellClickLock)
             {

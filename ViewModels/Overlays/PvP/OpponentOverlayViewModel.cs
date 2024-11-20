@@ -6,13 +6,9 @@ using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.PvP;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
-using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {

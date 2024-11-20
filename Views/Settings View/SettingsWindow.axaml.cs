@@ -4,7 +4,6 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Update;
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;

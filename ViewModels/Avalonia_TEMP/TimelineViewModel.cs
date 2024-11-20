@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SWTORCombatParser.DataStructures.Timeline;
-using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Overlay.Timeline;
 
 namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;

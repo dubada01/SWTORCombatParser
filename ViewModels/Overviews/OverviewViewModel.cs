@@ -1,6 +1,5 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;

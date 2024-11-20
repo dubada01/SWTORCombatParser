@@ -131,6 +131,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             return added.Concat(removed).ToList();
         }
         public long TargetedBy { get; set; }
+        //TODO make this configurable so that users can turn it off. Also, probably add different colors for when there's many bosses
         public bool IsTargeted
         {
             get => isTargeted; set

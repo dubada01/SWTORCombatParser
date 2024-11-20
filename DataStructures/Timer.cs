@@ -62,6 +62,7 @@ namespace SWTORCombatParser.DataStructures
             get => isEnabled;
             set => isEnabled = value;
         }
+        public bool ShowIconIfPossible { get; set; }
         public string Source { get; set; } = "";
         public bool SourceIsLocal { get; set; }
         public bool SourceIsAnyButLocal { get; set; }
@@ -230,6 +231,7 @@ namespace SWTORCombatParser.DataStructures
                 SeletedTimerIsActiveId = TriggerType == TimerKeyType.IsTimerTriggered ? SeletedTimerIsActiveId : null,
                 IsUserAddedTimer = IsUserAddedTimer,
                 ChangeBackgroundNearExpiration = ChangeBackgroundNearExpiration,
+                ShowIconIfPossible = ShowIconIfPossible
             };
 
         }

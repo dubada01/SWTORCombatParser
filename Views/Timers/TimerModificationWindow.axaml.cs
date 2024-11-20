@@ -18,6 +18,12 @@ namespace SWTORCombatParser.Views.Timers
         private bool _isDragging;
         private Point _startPoint;
 
+        public TimerModificationWindow()
+        {
+            InitializeComponent();
+            _vm = new ModifyTimerViewModel("Shared");
+            DataContext = _vm;
+        }
         public TimerModificationWindow(ModifyTimerViewModel vm)
         {
             InitializeComponent();
@@ -33,17 +39,18 @@ namespace SWTORCombatParser.Views.Timers
             _vm.OnNewTimer += CloseWindow;
             CancelButton.Click += Cancel;
             VariableCheck.Click += CheckForForceToVisualsTab;
+            Loaded += (sender, args) => { TabContent.Content = new VisualsTabContent(); };
         }
 
         private void CheckForForceToVisualsTab(object? sender, RoutedEventArgs routedEventArgs)
         {
             if (!VariableCheck.IsChecked.Value)
             {
-                EffectsTabControl.SelectedIndex = 0;
+                EffectsTabStrip.SelectedIndex = 0;
             }
-            if (VariableCheck.IsChecked.Value && EffectsTabControl.SelectedIndex == 0)
+            if (VariableCheck.IsChecked.Value && EffectsTabStrip.SelectedIndex == 0)
             {
-                EffectsTabControl.SelectedIndex = 1;
+                EffectsTabStrip.SelectedIndex = 1;
             }
         }
 
@@ -111,6 +118,18 @@ namespace SWTORCombatParser.Views.Timers
         public void StopDrag(object sender, PointerReleasedEventArgs args)
         {
             _isDragging = false;
+        }
+
+        private void EffectsTabStrip_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (TabContent == null)
+                return;
+            TabContent.Content = EffectsTabStrip.SelectedIndex switch
+            {
+                0 => new VisualsTabContent(),
+                1 => new VariablesTabContent(),
+                _ => TabContent.Content
+            };
         }
     }
 }

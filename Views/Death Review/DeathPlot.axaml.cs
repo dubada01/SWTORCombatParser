@@ -1,13 +1,11 @@
 ﻿using SWTORCombatParser.ViewModels.Death_Review;
 using System;
-using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using ScottPlot;
 using ScottPlot.Avalonia;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Home_View_Models;
 using Image = ScottPlot.Image;
 
 

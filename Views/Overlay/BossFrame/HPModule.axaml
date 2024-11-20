@@ -13,10 +13,17 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.66*"/>
+            <ColumnDefinition Width="0.33*"/>
+        </Grid.ColumnDefinitions>
         <Viewbox MaxHeight="30" Height="{Binding Height}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">
             <TextBlock FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Foreground="{StaticResource Gray11Brush}" Text="{Binding BossName}"></TextBlock>
         </Viewbox>
-        <Border Grid.Row="1" Height="{Binding Height}" BorderBrush="{StaticResource Gray11Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2" CornerRadius="4" Margin="2">
+        <Viewbox Grid.Row="0" Grid.Column="1" MaxHeight="20" Height="{Binding Height}" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">
+            <TextBlock FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Foreground="{StaticResource Gray11Brush}" Text="{Binding CurrentBossTarget}"></TextBlock>
+        </Viewbox>
+        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Height="{Binding Height}" BorderBrush="{StaticResource Gray11Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2" CornerRadius="4" Margin="2">
             <Grid HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>

@@ -115,7 +115,14 @@ namespace SWTORCombatParser.Model.Overlays
         public static void SetCharacterDefaults(string type, Point position, Point widtHHeight, string characterName)
         {
             var currentDefaults = GetCharacterDefaults(characterName);
-            currentDefaults[type] = new OverlayInfo() { UseAsWindow = currentDefaults[type].UseAsWindow, Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
+            var useAsWindow = type == "RaidFrame";
+            var active = true;
+            if (currentDefaults.ContainsKey(type))
+            {
+                useAsWindow = currentDefaults[type].UseAsWindow;
+                active = currentDefaults[type].Acive;
+            }
+            currentDefaults[type] = new OverlayInfo() { UseAsWindow = useAsWindow, Position = position, WidtHHeight = widtHHeight, Acive = active };
             SaveCharacterDefaults(characterName, currentDefaults);
         }
         public static void SetCharacterWindowState(string type, bool useAsWindow, string characterName)

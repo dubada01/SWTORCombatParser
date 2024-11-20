@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Linq;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers

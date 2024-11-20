@@ -1,15 +1,15 @@
 ﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Threading;
+using ScottPlot;
 using SWTORCombatParser.Utilities.MouseHandler;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
 
@@ -23,7 +23,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private MouseHookHandler _mouseHookHandler;
         private bool _inCombat;
         private bool _isSubscribed;
-        private bool _isLocked = true;
+        public bool _manuallyEditing = false;
         private readonly RaidFrameOverlayViewModel _viewModel;
         public event Action<double, double> AreaClicked = delegate { };
         public event Action<bool> MouseInArea = delegate { };
@@ -52,10 +52,12 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 
         private void GlobalMouseDown(Point e)
         {
-            if (e.X < GetTopLeft().X || e.X > (GetTopLeft().X + GetWidth()) || e.Y < GetTopLeft().Y || e.Y > (GetTopLeft().Y + GetHeight()))
+            var cursorPos = GetCursorPosition();
+            Debug.WriteLine("Global Mouse Down: " + cursorPos);
+            if (cursorPos.X < GetTopLeft().X || cursorPos.X > (GetTopLeft().X + GetWidth()) || cursorPos.Y < GetTopLeft().Y || cursorPos.Y > (GetTopLeft().Y + GetHeight()))
                 return;
-            var relativeX = e.X - GetTopLeft().X;
-            var relativeY = e.Y - GetTopLeft().Y;
+            var relativeX = cursorPos.X - GetTopLeft().X;
+            var relativeY = cursorPos.Y - GetTopLeft().Y;
             var xFract = relativeX / (double)GetWidth();
             var yFract = relativeY / (double)GetHeight();
             AreaClicked(xFract, yFract);
@@ -93,7 +95,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             {
                 while (true)
                 {
-                    if (!_inCombat && !_isLocked)
+                    if (!_inCombat && _manuallyEditing)
                     {
                         var cursorPos = GetCursorPosition();
                         Dispatcher.UIThread.Invoke(() =>
@@ -101,6 +103,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                             var topLeft = GetTopLeft();
                             var width = GetWidth();
                             var height = GetHeight();
+                            //Debug.WriteLine("Cursor Pos: " + cursorPos + " TopLeft: " + topLeft + " Width: " + width + " Height: " + height);
                             if (cursorPos.X > topLeft.X && cursorPos.X < topLeft.X + width && cursorPos.Y > topLeft.Y &&
                                 cursorPos.Y < topLeft.Y + height)
                             {
@@ -117,7 +120,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             });
         }
         // Method to get the cursor position cross-platform
-        public static Point GetCursorPosition()
+        public Point GetCursorPosition()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -174,22 +177,21 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private static extern CGPoint CGEventSourceGetCursorPosition();
         private int GetHeight()
         {
-            return (int)((RaidGrid.Height));
+            var parentWindow = VisualRoot as BaseOverlayWindow;
+            var scalingFactor = parentWindow.Screens.ScreenFromVisual(parentWindow).Scaling;
+            return (int)(parentWindow.savedObjectSize.Y - (87 * scalingFactor));
         }
         private int GetWidth()
         {
-            return (int)((RaidGrid.Width));
+            var parentWindow = VisualRoot as BaseOverlayWindow;
+            var scalingFactor = parentWindow.Screens.ScreenFromVisual(parentWindow).Scaling;
+            return (int)(parentWindow.savedObjectSize.X - (100 * scalingFactor));
         }
-        private Point GetTopLeft()
+        private PixelPoint GetTopLeft()
         {        
-            var parentWindow = VisualRoot as Window;
-            if (parentWindow != null)
-            {
-                var realTop = parentWindow.Position.Y + 50;
-                var realLeft = parentWindow.Position.X + 50;
-                return new Point(realLeft, realTop);
-            }
-            return new Point(0, 0);
+            var parentWindow = VisualRoot as BaseOverlayWindow;
+            var scalingFactor = parentWindow.Screens.ScreenFromVisual(parentWindow).Scaling;
+            return new PixelPoint((int)(parentWindow.savedPosition.X + (50 * scalingFactor)), (int)(parentWindow.savedPosition.Y + (87 * scalingFactor)));
         }
     }
 }

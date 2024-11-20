@@ -3,17 +3,13 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.Views.Overlay.RaidHOTs;
 using System;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using ReactiveUI;
-using Point = Avalonia.Point;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {

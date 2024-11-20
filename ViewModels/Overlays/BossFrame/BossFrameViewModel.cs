@@ -1,8 +1,8 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using System;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Views.Overlay.BossFrame;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Avalonia.Threading;
+using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -38,16 +38,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             dotModuleViewModel.SetActive(showDots);
         }
-        public void LogWithBoss(EntityInfo bossInfo)
+        public void LogWithBoss(EntityInfo bossInfo, DateTime timeStamp)
         {
-            UpdateUI(bossInfo);
+            UpdateUI(bossInfo,timeStamp);
         }
 
-        private void UpdateUI(EntityInfo bossInfo)
+        private void UpdateUI(EntityInfo bossInfo, DateTime timeStamp)
         {
             _hpVM.UpdateHP(bossInfo.CurrentHP);
+            _hpVM.UpdateTarget(CombatLogStateBuilder.CurrentState.GetEnemyTargetAtTime(bossInfo.Entity, timeStamp).Entity.Name);
         }
-
+    
         internal void UpdateBossFrameScale(double currentScale)
         {
             _scale = currentScale;

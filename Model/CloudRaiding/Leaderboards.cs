@@ -1,14 +1,10 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 

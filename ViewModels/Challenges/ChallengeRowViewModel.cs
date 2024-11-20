@@ -1,5 +1,4 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

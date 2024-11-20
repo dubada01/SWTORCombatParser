@@ -3,15 +3,9 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Notes;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 using ReactiveUI;
-using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Overlay.Notes;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes

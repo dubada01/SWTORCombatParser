@@ -5,7 +5,6 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Timer = System.Timers.Timer;
 

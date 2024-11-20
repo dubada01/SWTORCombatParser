@@ -1,13 +1,8 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Views.Overlay.Personal;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Avalonia;
 using Avalonia.Threading;
 using ReactiveUI;
 using SWTORCombatParser.Views;

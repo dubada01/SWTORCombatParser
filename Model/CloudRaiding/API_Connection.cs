@@ -1,7 +1,5 @@
 ﻿//using MoreLinq;
 using Newtonsoft.Json;
-using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;

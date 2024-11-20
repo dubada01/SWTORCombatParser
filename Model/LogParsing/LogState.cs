@@ -46,6 +46,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
         public ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>>();
         public ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>> PlayerTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>>();
+        public ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>> EnemyTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>>();
         public Dictionary<Entity, Dictionary<DateTime, bool>> PlayerDeathChangeInfo = new Dictionary<Entity, Dictionary<DateTime, bool>>();
         public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new Dictionary<DateTime, EncounterInfo>();
 
@@ -177,6 +178,13 @@ namespace SWTORCombatParser.Model.LogParsing
         public EntityInfo GetPlayerTargetAtTime(Entity player, DateTime time)
         {
             if (!PlayerTargetsInfo.TryGetValue(player, out var targets))
+                return new EntityInfo();
+            var targetKeys = targets.Keys.ToList();
+            return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v => v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : new EntityInfo();
+        }
+        public EntityInfo GetEnemyTargetAtTime(Entity enemy, DateTime time)
+        {
+            if (!EnemyTargetsInfo.TryGetValue(enemy, out var targets))
                 return new EntityInfo();
             var targetKeys = targets.Keys.ToList();
             return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v => v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : new EntityInfo();

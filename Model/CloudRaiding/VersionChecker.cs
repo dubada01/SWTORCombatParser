@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using MsBox.Avalonia;
-using MsBox.Avalonia.Enums;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {

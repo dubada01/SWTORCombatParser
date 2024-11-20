@@ -1,7 +1,4 @@
-﻿
-
-using Avalonia;
-using Avalonia.Animation;
+﻿using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -44,7 +41,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                                 Cue = new Cue(0d),
                                 Setters =
                                 {
-                                    new Setter(ScaleTransform.ScaleXProperty, fromValue)
+                                    new Setter(ScaleTransform.ScaleYProperty, fromValue)
                                 }
                             },
                             new KeyFrame
@@ -52,7 +49,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                                 Cue = new Cue(1d),
                                 Setters =
                                 {
-                                    new Setter(ScaleTransform.ScaleXProperty, 0d)
+                                    new Setter(ScaleTransform.ScaleYProperty, 0d)
                                 }
                             }
                         }

@@ -1,7 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.CombatParsing;
-using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
