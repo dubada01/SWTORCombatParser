@@ -19,13 +19,12 @@ Please reach out to me on Discord @Zarnuro if you have any questions, would like
 - Improved visibility of your local character's name in all overlays
 - Added Icons to Timer Bars
 - Improved timer functionality for non-english clients
-- 
+- New combat review window for raid wipes
 
 ##TODO
 
-- Improve the Battle Review Window, want to add the ability to see damage taken across all players in the raid. By Ability, and source.
 - Need to add some good Revan 3rd floor overlay to show the clock and where the aberrations spawn
 - Make it so that you can easily see who initiated combat
-- Figure out how to fix the totals row for various columns in the DataGrid (FIXED)
 - I want make it so you can access the battle review by right clicking on a boss kill that you actually killed (vs the chin button on wipes)
+- Add class icon options for combat metric overlays
 
