@@ -147,9 +147,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
-                if (enumVal == OverlayType.Damage || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.NonEDPS || enumVal == OverlayType.RawDamage || enumVal == OverlayType.SingleTargetDPS)
+                if (enumVal == OverlayType.Damage || enumVal == OverlayType.BurstDPS || enumVal == OverlayType.NonEDPS || enumVal == OverlayType.RawDamage || enumVal == OverlayType.SingleTargetDPS || enumVal == OverlayType.InstantaneousDPS)
                     AdvancedDamageOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
-                if (enumVal == OverlayType.RawHealing || enumVal == OverlayType.EffectiveHealing || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.SingleTargetEHPS || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime)
+                if (enumVal == OverlayType.RawHealing || enumVal == OverlayType.EffectiveHealing || enumVal == OverlayType.BurstEHPS || enumVal == OverlayType.HealReactionTime || enumVal == OverlayType.SingleTargetEHPS
+                    || enumVal == OverlayType.HealReactionTimeRatio || enumVal == OverlayType.TankHealReactionTime || enumVal == OverlayType.InstantaneousEHPS)
                     AdvancedHealOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });
                 if (enumVal == OverlayType.ShieldAbsorb || enumVal == OverlayType.ProvidedAbsorb ||  enumVal == OverlayType.DamageAvoided || enumVal == OverlayType.DamageSavedDuringCD)
                     AdvancedMitigationOverlays.Add(new OverlayOptionViewModel() { Type = enumVal });

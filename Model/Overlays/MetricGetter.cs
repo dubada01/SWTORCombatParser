@@ -19,6 +19,9 @@ public static class MetricGetter
             case OverlayType.DPS:
                 value = combats.SelectMany(c => c.EDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
                 break;
+            case OverlayType.InstantaneousDPS:
+                value = combats.SelectMany(c => c.InstantaneousEffectiveDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                break;
             case OverlayType.Damage:
                 value = combats.SelectMany(c => c.TotalEffectiveDamage).Where(v => v.Key == participant)
                     .Select(v => v.Value).Average();
@@ -34,6 +37,9 @@ public static class MetricGetter
                 value = combats.SelectMany(c => c.EHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
                 value += combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value)
                     .Average();
+                break;
+            case OverlayType.InstantaneousEHPS:
+                value = combats.SelectMany(c => c.InstantaneousEffectiveHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
                 break;
             case OverlayType.EffectiveHealing:
                 value = combats.SelectMany(c => c.TotalEffectiveHealing).Where(v => v.Key == participant)
@@ -138,6 +144,9 @@ public static class MetricGetter
             case OverlayType.DPS:
                 value = combats.SelectMany(c => c.EDPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
+            case OverlayType.InstantaneousDPS:
+                value = combats.SelectMany(c => c.InstantaneousEffectiveDPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
+                break;
             case OverlayType.Damage:
                 value = combats.SelectMany(c => c.TotalEffectiveDamage).Where(kvp=>kvp.Key.IsCharacter)
                     .Select(v => v.Value).Sum();
@@ -153,6 +162,9 @@ public static class MetricGetter
                 value = combats.SelectMany(c => c.EHPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 value += combats.SelectMany(c => c.PSPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value)
                     .Sum();
+                break;
+            case OverlayType.InstantaneousEHPS:
+                value = combats.SelectMany(c => c.InstantaneousEffectiveHPS).Where(kvp=>kvp.Key.IsCharacter).Select(v => v.Value).Sum();
                 break;
             case OverlayType.EffectiveHealing:
                 value = combats.SelectMany(c => c.TotalEffectiveHealing).Where(kvp=>kvp.Key.IsCharacter)
@@ -258,6 +270,9 @@ public static class MetricGetter
             case OverlayType.DPS:
                 value = combat.ERegDPS[participant];
                 break;
+            case OverlayType.InstantaneousDPS:
+                value = combat.InstantaneousEffectiveDPS[participant];
+                break;
             case OverlayType.Damage:
                 value = combat.TotalEffectiveDamage[participant];
                 break;
@@ -269,6 +284,9 @@ public static class MetricGetter
                 break;
             case OverlayType.EHPS:
                 value = combat.EHPS[participant];
+                break;
+            case OverlayType.InstantaneousEHPS:
+                value = combat.InstantaneousEffectiveHPS[participant];
                 break;
             case OverlayType.EffectiveHealing:
                 value = combat.TotalEffectiveHealing[participant];

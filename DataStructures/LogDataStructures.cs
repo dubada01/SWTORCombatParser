@@ -37,8 +37,9 @@ namespace SWTORCombatParser.DataStructures
 
             _logPath = logPath;
             _lineNumber = lineNumber + 1;
-            
-            SecondsSinceCombatStart = sec;
+
+            var doubleSeconds = double.Parse(sec);
+            SecondsSinceCombatStart = TimeSpan.FromSeconds(doubleSeconds).ToString(@"mm\:ss\.fff");
             Source = source;
             Target = target;
             Ability = ability;

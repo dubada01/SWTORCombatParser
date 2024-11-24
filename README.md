@@ -16,6 +16,10 @@ Please reach out to me on Discord @Zarnuro if you have any questions, would like
 - Added the ability to open a combat log file at a specific line number using notepad++. Simply use the Log Review window, and click on the timestamp of the log you want to review. It'll open notepad++ and take you directly to the line you clicked in Orbs.
 - Direct integration to Orbs-Stats.com. You can now view the leaderboard for a given encounter by right-clicking on the encounter in the Battles list.
 - Death Review is now accessed directly via a button under the entry of a failed boss fight in the Battles list.
+- Improved visibility of your local character's name in all overlays
+- Added Icons to Timer Bars
+- Improved timer functionality for non-english clients
+- 
 
 ##TODO
 

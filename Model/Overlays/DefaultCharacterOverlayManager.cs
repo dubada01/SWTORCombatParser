@@ -42,7 +42,10 @@ namespace SWTORCombatParser.Model.Overlays
         SingleTargetEHPS,
         CleanseCount,
         CleanseSpeed,
-        CombatTimer
+        CombatTimer,
+        InstantaneousDPS,
+        InstantaneousEHPS,
+        InstantaneousDPTS,
     }
     public class AvaloniaPointConverter : JsonConverter<Point>
     {

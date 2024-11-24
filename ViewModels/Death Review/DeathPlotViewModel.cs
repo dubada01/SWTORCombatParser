@@ -33,7 +33,6 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        public event Action<double> XValueSelected = delegate { };
 
         public DeathPlotViewModel()
         {
@@ -46,7 +45,6 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         public void SetPlot(AvaPlot plot)
         {
             GraphView = plot;
-            InitCrosshair(0);
         }
         public ObservableCollection<LegendItemViewModel> GetLegends()
         {
@@ -62,31 +60,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             }
             Dispatcher.UIThread.Invoke(() => { GraphView.Refresh(); });
         }
-        public void MousePositionUpdated(Point mousePos)
-        {
-            lock (graphLock)
-            {
-                var xVal = GetXValClosestToMouse(mousePos);
-                SetAnnotationPosition(xVal, true);
-            }
-        }
-        public void SetAnnotationPosition(double position, bool fromMouse = false)
-        {
-            if (_crossHair.X == position) return;
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                _crossHair.X = position;
-                _crossHair.VerticalLine.Color = Colors.WhiteSmoke;
-                _crossHair.VerticalLine.LineWidth = 1;
-                _crossHair.IsVisible = true;
-                if (fromMouse)
-                {
-                    XValueSelected(position);
-                }
-                GraphView.Refresh();
-            });
-        }
-        public void PlotCombat(Combat combatToPlot, List<Entity> viewableEntities, DateTime minVal)
+        public void PlotCombat(Combat combatToPlot, List<Entity> viewableEntities, string abilityName, Entity objSource)
         {
             _currentPlayers = viewableEntities;
             var pallete = new ScottPlot.Palettes.Nord();
@@ -99,8 +73,12 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                     Type = PlotType.DamageTaken
                 };
                 _seriesToPlot.Add(series);
-                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l => l.TimeStamp > minVal).OrderBy(l => l.TimeStamp).ToList();
-                List<ParsedLogEntry> hpData = GetCorrectData(PlotType.HPPercent, combatToPlot, entity).Where(l => l.TimeStamp > minVal).OrderBy(l => l.TimeStamp).ToList();
+                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l => l.Ability == abilityName && (l.Source.LogId == objSource.LogId || objSource.IsCharacter)).OrderBy(l => l.TimeStamp).ToList();
+                if (applicableData == null || applicableData.Count == 0)
+                    continue;
+                var minTime = applicableData.MinBy(b=>b.TimeStamp).TimeStamp;
+                var maxTime = applicableData.MaxBy(b=>b.TimeStamp).TimeStamp;
+                List<ParsedLogEntry> hpData = GetCorrectData(PlotType.HPPercent, combatToPlot, entity).Where(l=>l.TimeStamp >= minTime.AddSeconds(-5) && l.TimeStamp <= maxTime.AddSeconds(5)).OrderBy(l => l.TimeStamp).ToList();
 
                 if (applicableData == null || applicableData.Count == 0)
                     continue;
@@ -123,7 +101,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                     plotXvals,
                     plotYvals,
                     color: series.Color);
-                series.PointsByCharacter[entity.Name].MarkerSize = 3;
+                series.PointsByCharacter[entity.Name].MarkerSize = 5;
                 series.PointsByCharacter[entity.Name].LineStyle = LineStyle.None;
                 series.PointsByCharacter[entity.Name].LegendText = seriesName;
                 series.PointsByCharacter[entity.Name].MarkerShape = MarkerShape.FilledCircle;
@@ -134,7 +112,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                     plotXValRates,
                     plotYvaRates,
                     color: series.Color);
-                series.LineByCharacter[entity.Name].LineWidth = 2;
+                series.LineByCharacter[entity.Name].LineWidth = 1;
                 series.LineByCharacter[entity.Name].Axes.YAxis = GraphView.Plot.Axes.Right;
                 series.LineByCharacter[entity.Name].IsVisible = true;
                 GraphView.Plot.Axes.AutoScale();
@@ -142,32 +120,16 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 {
                     foreach (var marker in deathMarkers)
                     {
-
-                        GraphView.Plot.Add.ImageMarker(new Coordinates(marker,GraphView.Plot.Axes.GetLimits().Top/5),new Image(_skullImage),0.05f);;
+                        GraphView.Plot.Add.ImageMarker(new Coordinates(marker,GraphView.Plot.Axes.GetLimits().Top/5),new Image(_skullImage),0.03f);;
                     }
                 }
             }
             GraphView.Plot.Axes.AutoScale();
-            InitCrosshair(GraphView.Plot.Axes.GetLimits().Left);
             GraphView.Plot.Axes.SetLimits(bottom: 0);
-            GraphView.Plot.Axes.SetLimits(right: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
+            GraphView.Plot.Axes.SetLimitsY(new AxisLimits(0,0,0,1),GraphView.Plot.Axes.Right);
             Dispatcher.UIThread.Invoke(GraphView.Refresh);
-            XValueSelected(GraphView.Plot.Axes.GetLimits().Left);
         }
-        private double GetXValClosestToMouse(Point mousePoint)
-        {
-            var coord = GraphView.Plot.GetCoordinates((float)mousePoint.X, (float)mousePoint.Y);
-            return coord.X;
-        }
-        private void InitCrosshair(double xVal)
-        {
-            _crossHair = GraphView.Plot.Add.Crosshair(xVal, 0);
-            _crossHair.VerticalLine.Color = Colors.WhiteSmoke;
-            _crossHair.VerticalLine.LineWidth = 1;
-            _crossHair.VerticalLine.LabelBackgroundColor = Colors.DimGray;
-            _crossHair.IsVisible = true;
-            _crossHair.HorizontalLine.IsVisible = false;
-        }
+
         private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
         {
             switch (type)

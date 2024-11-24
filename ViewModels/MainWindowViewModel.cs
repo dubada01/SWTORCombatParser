@@ -44,6 +44,7 @@ using Avalonia.Threading;
 using MsBox.Avalonia;
 using ReactiveUI;
 using SWTORCombatParser.Views.Challenges;
+using SWTORCombatParser.Views.Death_Review;
 using SWTORCombatParser.Views.Timers;
 
 namespace SWTORCombatParser.ViewModels
@@ -56,7 +57,7 @@ namespace SWTORCombatParser.ViewModels
         private readonly OverlayViewModel _overlayViewModel;
         private readonly OverviewViewModel _tableViewModel;
         private readonly DataGridViewModel _dataGridViewModel;
-        private readonly DeathReviewViewModel _deathViewModel;
+        private readonly RaidwideBattleReviewViewModel _deathViewModel;
         //private readonly LeaderboardViewModel _leaderboardViewModel;
         private readonly PhaseBarViewModel _phaseBarViewModel;
         private Entity localEntity;
@@ -82,7 +83,7 @@ namespace SWTORCombatParser.ViewModels
         private readonly BattleReviewView _logView;
         private readonly TimersCreationView _timersView;
         private readonly ChallengeSetupView _challengeView;
-        private readonly DeathReviewPage _deathView;
+        private readonly RaidwideBattleReviewWindow _deathView;
 
         public TabInstance SelectedTab
         {
@@ -201,8 +202,8 @@ namespace SWTORCombatParser.ViewModels
                 s.Cancel = true;
                 _challengeView.Hide();
             };
-            _deathViewModel = new DeathReviewViewModel();
-            _deathView = new DeathReviewPage(_deathViewModel);
+            _deathViewModel = new RaidwideBattleReviewViewModel();
+            _deathView = new RaidwideBattleReviewWindow(_deathViewModel);
             _deathView.Closing += (e, s) =>
             {
                 s.Cancel = true;
@@ -301,7 +302,7 @@ namespace SWTORCombatParser.ViewModels
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 _deathViewModel.Reset();
-                _deathViewModel.AddCombat(viewModelCombat);
+                _deathViewModel.SetCombat(viewModelCombat);
                 _deathView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                 _deathView.Show(desktop.MainWindow);
             }
@@ -492,7 +493,7 @@ namespace SWTORCombatParser.ViewModels
                 _plotViewModel.UpdateParticipants(selectedCombat);
                 _plotViewModel.AddCombatPlot(selectedCombat);
                 _tableViewModel.AddCombat(selectedCombat);
-                _deathViewModel.AddCombat(selectedCombat);
+                _deathViewModel.SetCombat(selectedCombat);
                 _reviewViewModel.CombatSelected(selectedCombat);
                 _dataGridViewModel.UpdateCombat(selectedCombat);
 

@@ -57,30 +57,5 @@ namespace SWTORCombatParser.Views.Death_Review
             _plot.Plot.FigureBackground.ImagePosition = ImagePosition.Center;
             _plot.Interaction.Disable();
         }
-        
-        
-        private void GridView_MouseMove(object sender, PointerEventArgs e)
-        {
-            if (!_mouseDown)
-            { return; }
-            if ((DateTime.Now - _lastAnnotationUpdateTime).TotalMilliseconds > _annotationUpdatePeriodMS)
-            {
-                _lastAnnotationUpdateTime = DateTime.Now;
-            }
-            else
-                return;
-
-            _plotViewModel.MousePositionUpdated(e.GetPosition(this));
-        }
-
-        private void GridView_MouseDown(object sender, PointerPressedEventArgs e)
-        {
-            _mouseDown = true;
-        }
-
-        private void GridView_MouseUp(object sender, PointerReleasedEventArgs e)
-        {
-            _mouseDown = false;
-        }
     }
 }

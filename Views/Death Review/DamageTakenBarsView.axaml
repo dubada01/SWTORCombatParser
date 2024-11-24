@@ -1,0 +1,40 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Death_Review"
+             x:DataType="vm:DamageTakenBarsViewModel"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SWTORCombatParser.Views.Death_Review.DamageTakenBarsView">
+    <Border Margin="5" BorderBrush="{StaticResource Gray4}" BorderThickness="2" CornerRadius="4" Padding="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Grid.Row="0" FontSize="{StaticResource LargeFontSize}" Text="{Binding TitleString}"></TextBlock>
+            <ScrollViewer Grid.Row="1">
+                <ItemsControl  ItemsSource="{Binding BarInfo}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid PointerPressed="InputElement_OnPointerPressed" Margin="2,3,2,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="17"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition  Width="Auto"/>
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <ProgressBar Grid.ColumnSpan="4" Foreground="{Binding BarColor}" Height="22" Maximum="1" Value="{Binding Ratio}"></ProgressBar>
+                                <Image Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="2,0,0,0" Source="{Binding Icon}" Height="15"></Image>
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Text="{Binding Text}" HorizontalAlignment="Left" Margin="2,0,0,0"></TextBlock>
+                                <TextBlock Grid.Column="2" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="{StaticResource SmallFontSize}" Text="{Binding SourceName}" HorizontalAlignment="Left" Margin="5,0,0,0"></TextBlock>
+                                <TextBlock Grid.Column="3" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Text="{Binding Value, StringFormat={}{0:N2}}" HorizontalAlignment="Right" Margin="0,0,10,0"></TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+
+</UserControl>

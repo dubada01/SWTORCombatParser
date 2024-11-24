@@ -55,6 +55,8 @@ public static class AvaloniaTimelineBuilder
 
     private static void CombatFinished(Combat obj)
     {
+        if(_currentEncounter == null)
+            return;
         if (!_inBossInstance || !obj.IsCombatWithBoss || !_currentEncounter.BossInfos.Any(bi=>bi.EncounterName == obj.EncounterBossDifficultyParts.Item1) || _lastEncounterStartTime > obj.StartTime || !_timeTrackingLive)
             return;
 
@@ -122,6 +124,8 @@ public static class AvaloniaTimelineBuilder
     {
         if (_inBossInstance)
         {
+            if (_currentEncounter == null)
+                return;
             if((_currentEncounter.BossInfos.First().EncounterName == bossName || _currentEncounter.NumberOfPlayer == "4") && !_timeTrackingLive)
                 _timeTrackingLive = true;
             if(_currentEncounter.NumberOfPlayer != "4" && _currentEncounter.Difficutly != "Story")

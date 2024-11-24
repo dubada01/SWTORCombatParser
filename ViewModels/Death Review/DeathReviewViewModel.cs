@@ -38,9 +38,6 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             DeathLogsView = new EventHistoryView(_deathLogsViewModel);
 
             _plotViewModel = new DeathPlotViewModel();
-            Observable.FromEvent<double>(
-                handler => _plotViewModel.XValueSelected += handler,
-                handler => _plotViewModel.XValueSelected -= handler).Sample(TimeSpan.FromSeconds(0.1)).Subscribe(newPos => { SeekToPosition(newPos); });
             DeathPlotView = new DeathPlot(_plotViewModel);
 
             _playerListViewModel = new DeathPlayerListViewModel();
@@ -50,7 +47,6 @@ namespace SWTORCombatParser.ViewModels.Death_Review
 
         private void TryUpdateGraph(double obj, List<EntityInfo> currentEntityInfo)
         {
-            _plotViewModel.SetAnnotationPosition(obj);
             _playerListViewModel.SetEntityHPS(currentEntityInfo);
         }
 
@@ -66,7 +62,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             var startTime = _deathLogsViewModel.UpdateLogs(true);
 
             _plotViewModel.Reset();
-            _plotViewModel.PlotCombat(_currentCombat, obj, startTime);
+            //_plotViewModel.PlotCombat(_currentCombat, obj, startTime);
         }
 
         internal void Reset()

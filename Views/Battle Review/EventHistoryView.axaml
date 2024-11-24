@@ -38,7 +38,7 @@
                 <Rectangle Fill="DimGray" Grid.Column="7" Margin="0,2,0,2"></Rectangle>
                 <Rectangle Fill="DimGray" Grid.Column="9" Margin="0,2,0,2"></Rectangle>
                 <Rectangle Fill="DimGray" Grid.Column="11" Margin="0,2,0,2"></Rectangle>
-                <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="{StaticResource LargeFontSize}" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Sec" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Grid.Column="0" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold"  FontSize="{StaticResource LargeFontSize}" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Time" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                 <TextBlock Grid.Column="2" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="{StaticResource LargeFontSize}" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Source" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                 <TextBlock Grid.Column="4" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="{StaticResource LargeFontSize}" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Target" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                 <TextBlock Grid.Column="6" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" FontSize="{StaticResource LargeFontSize}" VerticalAlignment="Center" Foreground="WhiteSmoke" Text="Ability" HorizontalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
@@ -81,7 +81,7 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock FontSize="{StaticResource NormalFontSize}" Margin="2,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" VerticalAlignment="Center" Text="{Binding SecondsSinceCombatStart, StringFormat=N2}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock FontSize="{StaticResource NormalFontSize}" Margin="2,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=DataGridCell}}" VerticalAlignment="Center" Text="{Binding SecondsSinceCombatStart}" HorizontalAlignment="Left" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                                     <Button Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Classes="GridCellButton" Command="{Binding OpenLogCommand}" ToolTip.Tip="Click To Open Log Here"/>
                                 </Grid>
                             </DataTemplate>

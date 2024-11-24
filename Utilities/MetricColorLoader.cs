@@ -85,7 +85,16 @@ namespace SWTORCombatParser.Utilities
         {
             lock(_fileLock)
             {
-                return JsonConvert.DeserializeObject<Dictionary<string,string>>(File.ReadAllText(infoPath));
+                var allColors = JsonConvert.DeserializeObject<Dictionary<string,string>>(File.ReadAllText(infoPath));
+                foreach (var color in Enum.GetValues<OverlayType>())
+                {
+                    if (!allColors.ContainsKey(color.ToString()))
+                    {
+                        allColors[color.ToString()] = GetMetricDefaultColor(color).ToString();
+                    }
+                }
+
+                return allColors;
             }
         }
         private static Dictionary<string, string> GetDefaultColors()

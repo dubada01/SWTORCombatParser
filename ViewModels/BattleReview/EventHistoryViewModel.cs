@@ -79,6 +79,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         }
         public DateTime UpdateLogs(bool isDethReview = false)
         {
+            DeathReview = isDethReview;
             if (_currentlySelectedCombat == null)
                 return DateTime.MinValue;
             DateTime firstDeath = DateTime.MinValue;
@@ -119,6 +120,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             });
             return firstDeath;
         }
+
+        public bool DeathReview { get; set; }
 
         private enum MatchField {
             Source,
@@ -196,15 +199,28 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 DisplayType.Healing         => log.Effect.EffectId == _7_0LogParsing._healEffectId,
                 DisplayType.HealingReceived => log.Effect.EffectId == _7_0LogParsing._healEffectId,
                 DisplayType.Abilities       => true,
-                DisplayType.DeathRecap      => (
-                                        log.Effect.EffectId != _7_0LogParsing._healEffectId
-                                        && log.Effect.EffectType != EffectType.Remove
-                                        && !(_viewingEntities.Contains(log.Source)
-                                        && log.Effect.EffectId == _7_0LogParsing._damageEffectId)
-                                        && log.Effect.EffectId != _7_0LogParsing.AbilityActivateId
-                                    ),
+                DisplayType.DeathRecap      => IsLogDeathRecap(log),
                 _ => false,
             };
+        }
+
+        private bool IsLogDeathRecap(ParsedLogEntry log)
+        {
+            if (log.Effect.EffectId == "836045448938502")
+                return false;
+            if (log.Effect.EffectId == _7_0LogParsing._healEffectId)
+                return false;
+            if (log.Effect.EffectType == EffectType.Remove)
+                return false;
+            if (_viewingEntities.Contains(log.Source) && log.Effect.EffectId == _7_0LogParsing._damageEffectId)
+                return false;
+            if (log.Source.IsCharacter && log.Effect.EffectId == _7_0LogParsing._damageEffectId)
+                return false;
+            if (log.Source.IsCharacter && !log.Target.IsCharacter && log.Effect.EffectType == EffectType.Apply)
+                return false;
+            if (log.Source.IsCharacter && log.Target.IsCharacter && log.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
+                return false;
+            return true;
         }
 
         internal List<EntityInfo> Seek(double obj)
@@ -212,10 +228,10 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 
             if (LogsToDisplay.Count == 0)
                 return new List<EntityInfo>();
-            var logToSeekTo = LogsToDisplay.MinBy(v => Math.Abs(double.Parse(v.SecondsSinceCombatStart, CultureInfo.InvariantCulture) - obj));
+            var logToSeekTo = LogsToDisplay.MinBy(v => Math.Abs(TimeSpan.ParseExact(v.SecondsSinceCombatStart,@"mm\:ss\.fff",null).TotalSeconds - obj));
             SelectedIndex = LogsToDisplay.IndexOf(logToSeekTo);
 
-            List<EntityInfo> returnList = GetInfosNearLog(double.Parse(logToSeekTo.SecondsSinceCombatStart, CultureInfo.InvariantCulture));
+            List<EntityInfo> returnList = GetInfosNearLog(TimeSpan.ParseExact(logToSeekTo.SecondsSinceCombatStart,@"mm\:ss\.fff",null).TotalSeconds);
             return returnList;
         }
 

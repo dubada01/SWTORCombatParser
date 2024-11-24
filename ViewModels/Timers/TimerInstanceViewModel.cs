@@ -95,9 +95,22 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public async Task LoadInfoIconAsync()
         {
-            InfoIcon = SourceTimer.ShowIconIfPossible && IconGetter.HasIcon(SourceTimer.Effect)
-                ? await IconGetter.GetIconForId(SourceTimer.Effect)
-                : null;
+            var result = async () =>
+            {
+                if(!SourceTimer.ShowIconIfPossible)
+                    return null;
+                if (!string.IsNullOrEmpty(SourceTimer.Effect) && IconGetter.HasIcon(SourceTimer.Effect))
+                {
+                    return await IconGetter.GetIconForId(SourceTimer.Effect);
+                }
+                if (!string.IsNullOrEmpty(SourceTimer.Ability) && IconGetter.HasIcon(SourceTimer.Ability))
+                {
+                    return await IconGetter.GetIconForId(SourceTimer.Ability);
+                }
+
+                return null;
+            };
+            InfoIcon = await result();
         }
         public double TimerValue
         {

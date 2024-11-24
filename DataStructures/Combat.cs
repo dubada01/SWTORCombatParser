@@ -14,6 +14,35 @@ using Avalonia;
 
 namespace SWTORCombatParser.DataStructures
 {
+    public class RichAbilityComparer : IEqualityComparer<RichAbility>
+    {
+        public bool Equals(RichAbility x, RichAbility y)
+        {
+            if (x == null || y == null)
+                return false;
+
+            return x.AbilityId == y.AbilityId && (x.AbilitySource.LogId == y.AbilitySource.LogId || x.AbilitySource.IsCharacter);
+        }
+
+        public int GetHashCode(RichAbility obj)
+        {
+            if (obj == null)
+                return 0;
+
+            // Combine the hash codes of the properties you want to compare.
+            if (obj.AbilitySource.IsCharacter)
+            {
+                return obj.AbilityId.GetHashCode();
+            }
+            return HashCode.Combine(obj.AbilityId, obj.AbilitySource.LogId);
+        }
+    }
+    public class RichAbility
+    {
+        public string AbilityName { get; set; }
+        public string AbilityId { get; set; }
+        public Entity AbilitySource { get; set; }
+    }
     public class Combat
     {
         public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.IsLocalPlayer);
@@ -165,6 +194,10 @@ namespace SWTORCombatParser.DataStructures
         {
             return IncomingDamageLogs[player].Where(l => l.Ability == ability || l.AbilityId == ability).Sum(l => l.Value.EffectiveDblValue);
         }
+        public double GetDamageIncomingByAbilityForPlayerFromSource(string ability, Entity player, Entity source)
+        {
+            return IncomingDamageLogs[player].Where(l => l.Ability == ability || l.AbilityId == ability && l.Source == source).Sum(l => l.Value.EffectiveDblValue);
+        }
         public double GetDamageToEntityByAbilityForPlayer(string ability, string entity, Entity player)
         {
             var outgoingDamageByEntity = GetOutgoingDamageByTarget(player);
@@ -239,6 +272,10 @@ namespace SWTORCombatParser.DataStructures
         {
             return GetByAbility(IncomingDamageLogs[source]);
         }
+        public Dictionary<RichAbility, List<ParsedLogEntry>> GetIncomingDamageByAbilityRich(Entity source)
+        {
+            return GetByAbilityRich(IncomingDamageLogs[source]);
+        }
         public Dictionary<Entity, List<ParsedLogEntry>> GetIncomingHealingBySource(Entity source)
         {
             return GetBySource(IncomingHealingLogs[source]);
@@ -306,6 +343,16 @@ namespace SWTORCombatParser.DataStructures
             foreach (var ability in distinctAbilities)
             {
                 returnDict[ability] = logsToCheck.Where(l => l.Ability == ability).ToList();
+            }
+            return returnDict;
+        }
+        public Dictionary<RichAbility, List<ParsedLogEntry>> GetByAbilityRich(List<ParsedLogEntry> logsToCheck)
+        {
+            var returnDict = new Dictionary<RichAbility, List<ParsedLogEntry>>();
+            var distinctAbilities = logsToCheck.Select(l =>new RichAbility(){AbilityId = l.AbilityId, AbilitySource = l.Source, AbilityName = l.Ability}).DistinctBy(ra=>!ra.AbilitySource.IsCharacter ? ra.AbilityId + ra.AbilitySource.Name : ra.AbilityId);
+            foreach (var ability in distinctAbilities)
+            {
+                returnDict[ability] = logsToCheck.Where(l => l.AbilityId == ability.AbilityId && l.Source == ability.AbilitySource).ToList();
             }
             return returnDict;
         }
@@ -487,6 +534,48 @@ namespace SWTORCombatParser.DataStructures
         public Dictionary<Entity, double> PercentageOfFightBelowFullHP => DurationSeconds == 0 ? TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => 0d) : TimeSpentBelowFullHealth.ToDictionary(kvp => kvp.Key, kvp => (kvp.Value / DurationSeconds) * 100);
         public Dictionary<Entity, double> TPS => DurationSeconds == 0 ? TotalThreat.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalThreat.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> DPS => DurationSeconds == 0 ? TotalDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity, double> InstantaneousEffectiveDPS
+        {
+            get
+            {
+                double windowSeconds = 10.0;
+                var startTime = EndTime.AddSeconds(-windowSeconds);
+
+                var dpsInWindow = new Dictionary<Entity, double>();
+
+                foreach (var kvp in OutgoingDamageLogs)
+                {
+                    var entity = kvp.Key;
+                    var logEntries = kvp.Value;
+
+                    if (logEntries.Count == 0)
+                    {
+                        dpsInWindow[entity] = 0d;
+                        continue;
+                    }
+
+                    double totalDamage = 0;
+
+                    // Iterate backwards through the logs
+                    for (int i = logEntries.Count - 1; i >= 0; i--)
+                    {
+                        var entry = logEntries[i];
+
+                        if (entry.TimeStamp < startTime)
+                        {
+                            // Stop processing once we encounter entries outside the time window
+                            break;
+                        }
+
+                        totalDamage += entry.Value.EffectiveDblValue;
+                    }
+
+                    dpsInWindow[entity] = totalDamage / windowSeconds;
+                }
+
+                return dpsInWindow;
+            }
+        }
         public Dictionary<Entity, double> STDPS => DurationSeconds == 0 ? MaxSingleTargetDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : MaxSingleTargetDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> EDPS => DurationSeconds == 0 ? TotalEffectiveDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> RegDPS => DurationSeconds == 0 ? TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
@@ -497,6 +586,63 @@ namespace SWTORCombatParser.DataStructures
         public Dictionary<Entity, double> APM => DurationSeconds == 0 ? TotalAbilites.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalAbilites.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / (DurationSeconds / 60d));
         public Dictionary<Entity, double> HPS => DurationSeconds == 0 ? TotalHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> EHPS => DurationSeconds == 0 ? TotalEffectiveHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
+        public Dictionary<Entity, double> InstantaneousEffectiveHPS
+        {
+            get
+            {
+                double windowSeconds = 10.0;
+                var startTime = EndTime.AddSeconds(-windowSeconds);
+
+                var healingInWindow = new Dictionary<Entity, double>();
+
+                foreach (var kvp in OutgoingHealingLogs)
+                {
+                    var entity = kvp.Key;
+                    var shieldLogs = new List<ParsedLogEntry>();
+                    if(ShieldingProvidedLogs.ContainsKey(entity))
+                        shieldLogs = ShieldingProvidedLogs[entity];
+                    var logEntries = kvp.Value;
+
+                    if (logEntries.Count == 0)
+                    {
+                        healingInWindow[entity] = 0d;
+                        continue;
+                    }
+
+                    double totalHealing = 0;
+
+                    // Iterate backwards through the logs
+                    for (int i = logEntries.Count - 1; i >= 0; i--)
+                    {
+                        var entry = logEntries[i];
+
+                        if (entry.TimeStamp < startTime)
+                        {
+                            // Stop processing once we encounter entries outside the time window
+                            break;
+                        }
+
+                        totalHealing += entry.Value.EffectiveDblValue;
+                    }
+                    // Iterate backwards through the logs
+                    for (int i = shieldLogs.Count - 1; i >= 0; i--)
+                    {
+                        var entry = shieldLogs[i];
+
+                        if (entry.TimeStamp < startTime)
+                        {
+                            // Stop processing once we encounter entries outside the time window
+                            break;
+                        }
+
+                        totalHealing += entry.Value.EffectiveDblValue;
+                    }
+                    healingInWindow[entity] = totalHealing / windowSeconds;
+                }
+
+                return healingInWindow;
+            }
+        }
         public Dictionary<Entity, double> STEHPS => DurationSeconds == 0 ? MaxSingleTargetHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : MaxSingleTargetHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> CompEHPS => DurationSeconds == 0 ? TotalEffectiveCompanionHealing.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalEffectiveCompanionHealing.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);
         public Dictionary<Entity, double> SPS => DurationSeconds == 0 ? TotalTankSheilding.ToDictionary(kvp => kvp.Key, kvp => 0d) : TotalTankSheilding.ToDictionary(kvp => kvp.Key, kvp => kvp.Value / DurationSeconds);

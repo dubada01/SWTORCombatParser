@@ -33,6 +33,26 @@ namespace SWTORCombatParser.Model.LogParsing
         public string EffectId { get; set; }
         public CombatModfierType Type { get; set; }
         public Dictionary<DateTime, int> ChargesAtTime { get; set; } = new Dictionary<DateTime, int>();
+        public int GetEffectStackForTimestamp(DateTime targetTime)
+        {
+            // Try to get the exact timestamp first
+            if (ChargesAtTime.TryGetValue(targetTime, out var value))
+            {
+                return value;
+            }
+
+            // Use reverse enumerator to find the closest key <= targetTime
+            foreach (var kvp in ChargesAtTime.Reverse())
+            {
+                if (kvp.Key <= targetTime)
+                {
+                    return kvp.Value;
+                }
+            }
+
+            // No valid timestamp found
+            return 0; // Or other default value
+        }
         public Entity Source { get; set; }
         public Entity Target { get; set; }
         public DateTime StartTime { get; set; }
@@ -201,6 +221,12 @@ namespace SWTORCombatParser.Model.LogParsing
             var inScopeModifiers = allMods.Where(m => !(m.Value.StartTime < startTime && m.Value.StopTime < startTime) && !(m.Value.StartTime > endTime && m.Value.StopTime > endTime) && m.Value.Target == owner).Select(kvp => kvp.Value);
             return GetEffects(startTime, endTime, inScopeModifiers);
         }
+        public List<CombatModifier> GetEffectsWithTarget(DateTime timestamp, Entity owner)
+        {
+            var allMods = Modifiers.SelectMany(kvp => kvp.Value);
+            var inScopeModifiers = allMods.Where(m => (m.Value.StartTime < timestamp && m.Value.StopTime > timestamp) && m.Value.Target == owner).Select(kvp => kvp.Value);
+            return GetEffects(timestamp, inScopeModifiers);
+        }
         public List<CombatModifier> GetPersonalEffects(DateTime startTime, DateTime endTime, Entity owner)
         {
             var allMods = Modifiers.SelectMany(kvp => kvp.Value);
@@ -269,6 +295,41 @@ namespace SWTORCombatParser.Model.LogParsing
                 return m;
             });
             return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
+
+        }
+        private static List<CombatModifier> GetEffects(DateTime timestamp, IEnumerable<CombatModifier> inScopeModifiers)
+        {
+            var correctedModifiers = inScopeModifiers.Select(m =>
+            {
+                CombatModifier correctedModifier = new CombatModifier();
+                if (m.StopTime == DateTime.MinValue || m.StartTime < timestamp || m.StopTime > timestamp)
+                {
+                    correctedModifier.EffectId = m.EffectId;
+                    correctedModifier.EffectName = m.EffectName;
+                    correctedModifier.Source = m.Source;
+                    correctedModifier.Target = m.Target;
+                    correctedModifier.Type = m.Type;
+                    correctedModifier.Name = m.Name;
+                    correctedModifier.StartTime = m.StartTime;
+                    correctedModifier.StopTime = m.StopTime;
+                    correctedModifier.ChargesAtTime = m.ChargesAtTime;
+                    if (m.StopTime == DateTime.MinValue)
+                    {
+                        correctedModifier.StopTime = timestamp;
+                    }
+                    if (m.StopTime > timestamp)
+                    {
+                        correctedModifier.StopTime = timestamp;
+                    }
+                    if (m.StartTime < timestamp)
+                    {
+                        correctedModifier.StartTime = timestamp;
+                    }
+                    return correctedModifier;
+                }
+                return m;
+            });
+            return correctedModifiers.ToList();
 
         }
 

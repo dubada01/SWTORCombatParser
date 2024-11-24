@@ -1,0 +1,28 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Death_Review"
+             x:DataType="vm:DamageTakenViewModel"
+             x:Class="SWTORCombatParser.Views.Death_Review.DamageTakenView">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <ContentPresenter Content="{Binding DeathPlotContent}"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <ContentPresenter Content="{Binding TotalDamageTakenContent}" Grid.Column="0"/>
+            <ContentPresenter Content="{Binding SpecificAbilityDamageTakenContent}" Grid.Column="1"/>
+        </Grid>
+        <ContentPresenter Content="{Binding PhasebarContent}" Grid.Row="2"/>
+    </Grid>
+
+    
+</UserControl>
