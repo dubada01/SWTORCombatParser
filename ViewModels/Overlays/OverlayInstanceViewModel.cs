@@ -314,10 +314,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void RefreshBarViews(Combat combatToDisplay)
         {
             OverlayMetricInfo metricToUpdate;
+            
             if (combatToDisplay.CharacterParticipants.Count == 0)
                 return;
             foreach (var participant in combatToDisplay.CharacterParticipants)
             {
+                var swtorClass =
+                    CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(participant, combatToDisplay.StartTime);
                 if (_metricBarsDict.Where(b => !b.Key.Item2).Any(m => m.Key.Item1 == participant.Name))
                 {
                     metricToUpdate = _metricBarsDict.FirstOrDefault(mb => mb.Key.Item1 == participant.Name && !mb.Key.Item2).Value;
@@ -326,7 +329,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 else
                 {
-                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
+                    metricToUpdate = new OverlayMetricInfo() { ClassIcon =  IconFactory.GetClassIcon(swtorClass.Discipline),Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
                     _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
                 var primaryType = Type;

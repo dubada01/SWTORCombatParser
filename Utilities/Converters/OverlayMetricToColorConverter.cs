@@ -1,6 +1,9 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 using SWTORCombatParser.DataStructures;
@@ -16,6 +19,7 @@ namespace SWTORCombatParser.Utilities.Converters
             {
                 return Brushes.DarkGoldenrod;
             }
+
             var intendedColor = MetricColorLoader.CurrentMetricBrushDict[(OverlayType)value];
             return intendedColor;
         }
@@ -25,38 +29,53 @@ namespace SWTORCombatParser.Utilities.Converters
             throw new NotImplementedException();
         }
     }
-    public class FullOverlayMetricToColorConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is not OverlayMetricInfo viewModel)
-            {
-                return Brushes.Transparent;
-            }
 
-            // Assuming the ViewModel has Type and Player properties
-            var type = viewModel.Type;
-            if (parameter is string secondaryString)
+    public class FullOverlayMetricToColorConverter : IMultiValueConverter
+    {
+        // Assuming you are using Avalonia, replace namespaces accordingly
+
+        public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+        {
+            // Check if any value is unset
+            if (values.Any(v => v == AvaloniaProperty.UnsetValue))
             {
-                if (secondaryString == "Secondary")
-                    type = viewModel.SecondaryType;
+                return Brushes.Transparent; // Return a default value when any binding is unset
             }
-            var player = viewModel.Player;
+            var type = (OverlayType)values[0];
+            var secondaryType = (OverlayType)values[1];
+            var player = values[2] as Entity; // Replace 'Player' with your actual player class
+
+            // Determine which type to use based on the ConverterParameter
+            if (parameter is string secondaryString && secondaryString == "Secondary")
+            {
+                type = secondaryType;
+            }
 
             if (type == null || player == null)
             {
                 return Brushes.Transparent;
             }
 
-            var intendedColor = MetricColorLoader.CurrentMetricBrushDict[type];
-
-            if (!player.IsLocalPlayer)
+            // Retrieve the intended color based on the type
+            if (!MetricColorLoader.CurrentMetricBrushDict.TryGetValue(type, out var intendedColor))
             {
-                return intendedColor;
+                return Brushes.Transparent;
             }
 
-            return DarkenBrush(intendedColor);
+            // Darken the brush if the player is the local player
+            if (player.IsLocalPlayer)
+            {
+                return DarkenBrush(intendedColor);
+            }
+
+            return intendedColor;
         }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+
         public static SolidColorBrush DarkenBrush(SolidColorBrush originalBrush, double factor = 0.3)
         {
             if (originalBrush == null)
@@ -78,9 +97,6 @@ namespace SWTORCombatParser.Utilities.Converters
             // Return a new SolidColorBrush with the darkened color
             return new SolidColorBrush(darkenedColor);
         }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
-        }
+
     }
 }

@@ -73,7 +73,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 return;
             _isSubscribed = true;
             _mouseHookHandler = new MouseHookHandler();
-            _mouseHookHandler.SubscribeToClicks();
+            _mouseHookHandler.StartListening();
             _mouseHookHandler.MouseClicked += GlobalMouseDown;
             MouseInArea(true);
         }
@@ -84,7 +84,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             if (!_isSubscribed)
                 return;
             _isSubscribed = false;
-            _mouseHookHandler.UnsubscribeFromClicks();
+            _mouseHookHandler.StopListening();
             _mouseHookHandler.MouseClicked -= GlobalMouseDown;
             _mouseHookHandler = null;
             MouseInArea(false);
@@ -103,7 +103,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                             var topLeft = GetTopLeft();
                             var width = GetWidth();
                             var height = GetHeight();
-                            //Debug.WriteLine("Cursor Pos: " + cursorPos + " TopLeft: " + topLeft + " Width: " + width + " Height: " + height);
+                            Debug.WriteLine("Cursor Pos: " + cursorPos + " TopLeft: " + topLeft + " Width: " + width + " Height: " + height);
                             if (cursorPos.X > topLeft.X && cursorPos.X < topLeft.X + width && cursorPos.Y > topLeft.Y &&
                                 cursorPos.Y < topLeft.Y + height)
                             {
@@ -132,7 +132,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return MouseHookHandler.GetCursorPosition();
+                return new Point(0, 0);
+                //return MouseHookHandler.GetCursorPosition();
             }
             else
             {
@@ -150,8 +151,14 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         // MacOS-specific function
         private static Point GetCursorPositionMac()
         {
-            CGPoint point = CGEventSourceGetCursorPosition();
-            return new Point(point.X, point.Y);
+            IntPtr cgEvent = CGEventCreate(IntPtr.Zero); // Create a new event
+            if (cgEvent == IntPtr.Zero)
+            {
+                throw new InvalidOperationException("Failed to create CGEvent.");
+            }
+
+            CGPoint mousePosition = CGEventGetLocation(cgEvent);
+            return new Point(mousePosition.X, mousePosition.Y);
         }
         // Structs for Windows and MacOS
         [StructLayout(LayoutKind.Sequential)]
@@ -172,9 +179,11 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out POINT lpPoint);
 
-        // P/Invoke for MacOS
-        [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
-        private static extern CGPoint CGEventSourceGetCursorPosition();
+        [DllImport("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices")]
+        private static extern IntPtr CGEventCreate(IntPtr source);
+
+        [DllImport("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices")]
+        private static extern CGPoint CGEventGetLocation(IntPtr cgEvent);
         private int GetHeight()
         {
             var parentWindow = VisualRoot as BaseOverlayWindow;

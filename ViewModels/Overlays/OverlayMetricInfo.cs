@@ -11,6 +11,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -26,7 +27,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private string valueStringFormat = "#,##0";
         private double sizeScalar = 1;
-
+        public Bitmap ClassIcon { get; set; }
         public Bitmap MedalIconPath { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/redX.png")));
         public string InfoText => $"{Type}: {(int)Value}" + (SecondaryType != OverlayType.None ? $"\n{SecondaryType}: {(int)SecondaryValue}" : "");
         public double SizeScalar
@@ -190,6 +191,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged("Type");
             if (type == SecondaryType)
                 OnPropertyChanged("SecondaryType");
+            OnPropertyChanged("DataContext");
         }
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }
