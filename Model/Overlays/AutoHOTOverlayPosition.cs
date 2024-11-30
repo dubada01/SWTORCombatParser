@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media.Imaging;
 
 namespace SWTORCombatParser.Model.Overlays
@@ -148,6 +149,16 @@ namespace SWTORCombatParser.Model.Overlays
 
         private static double ConvertCoordWithCompressionFactor(double value)
         {
+            #if MACOS
+            var scalingFactor = 1d;
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+
+                scalingFactor = desktop.MainWindow.RenderScaling;
+                return value/scalingFactor;
+
+            }
+            #endif
             return value / RaidFrameScreenGrab.CurrentCompressionFactor;
         }
     }

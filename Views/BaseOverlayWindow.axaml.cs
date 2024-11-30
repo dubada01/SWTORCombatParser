@@ -115,7 +115,13 @@ public partial class BaseOverlayWindow : Window
     {
         ToggleClickThrough(!_viewModel.OverlaysMoveable);
         IdentifierText.Text = _viewModel._overlayName;
-        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * RenderScaling), Position.Y + (78 * RenderScaling)), new Point((Width - 100) * RenderScaling, (Height - 78 ) * RenderScaling));
+        #if WINDOWS
+        var renderScaling = RenderScaling;
+        #endif
+        #if MACOS
+        var renderScaling = 1;
+        #endif
+        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78 * renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78 ) * renderScaling));
         _myScreen = GetCurrentScreen(this) ?? Screens.Primary;
     }
 
@@ -368,7 +374,13 @@ public partial class BaseOverlayWindow : Window
     private void UpdateState()
     {
         _viewModel.UpdateWindowProperties(new Point(Position.X, Position.Y), new Point(Width, Height));
-        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * RenderScaling), Position.Y + (78* RenderScaling)), new Point((Width - 100) * RenderScaling, (Height - 78 ) * RenderScaling));
+#if WINDOWS
+        var renderScaling = RenderScaling;
+#endif
+#if MACOS
+        var renderScaling = 1;
+#endif
+        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78* renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78 ) * renderScaling));
         CacheTempPositions(new Point(Position.X, Position.Y), new Point(Width, Height));
     }
 

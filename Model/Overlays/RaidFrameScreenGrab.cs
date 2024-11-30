@@ -46,7 +46,9 @@ namespace SWTORCombatParser.Model.Overlays
             var scalingFactor = 1d;
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+
                 scalingFactor = desktop.MainWindow.RenderScaling;
+
             }
             // Calculate the height of each row segment based on the total height and number of rows
             var ratio = Math.Ceiling(bmp.Height / (double)rowsCount);

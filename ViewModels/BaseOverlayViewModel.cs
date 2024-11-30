@@ -14,7 +14,7 @@ namespace SWTORCombatParser.ViewModels;
 
 public abstract class BaseOverlayViewModel:ReactiveObject
 {
-    private BaseOverlayWindow _overlayWindow;
+    public BaseOverlayWindow _overlayWindow;
     internal bool _active;
     private bool _overlaysMoveable;
     private string _currentRole = "Default";
@@ -189,7 +189,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             DefaultCharacterOverlays.SetCharacterDefaults(_overlayName, position, size,_currentRole);
         
     }
-
     public void UpdateWindowSizeWithScale(Point position, Point size)
     {
         OverlayScaledSize = size;

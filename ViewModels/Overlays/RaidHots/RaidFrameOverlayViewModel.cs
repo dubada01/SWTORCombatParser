@@ -111,7 +111,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             Task.Run(() =>
             {
                 var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(OverlayPosition,
-                    (int)OverlayScaledSize.X, (int)OverlayScaledSize.Y, Rows);
+                (int)OverlayScaledSize.X, (int)OverlayScaledSize.Y, Rows);
                 var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(OverlayPosition,
                     raidFrameBitmap, Rows, Columns, (int)OverlayScaledSize.Y, (int)OverlayScaledSize.X).Result;
                 raidFrameBitmap.Dispose();
