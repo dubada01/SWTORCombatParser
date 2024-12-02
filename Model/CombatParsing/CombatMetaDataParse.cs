@@ -21,7 +21,8 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             var cleanseLogs = combat.AllLogs.Where(l =>
 l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && l.Target.IsCharacter);
-
+            combat.Initiator = combat.AllLogs.FirstOrDefault(l =>
+                l.Effect.EffectType == EffectType.TargetChanged && !l.Source.IsCharacter)?.Target;
             //Parallel.ForEach(combatToPopulate.AllEntities, entitiy =>
             foreach (var entity in combatToPopulate.AllEntities)
             {

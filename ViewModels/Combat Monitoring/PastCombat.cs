@@ -5,6 +5,8 @@ using SWTORCombatParser.Model.Parsely;
 using System;
 using System.Linq;
 using System.Reactive;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using MsBox.Avalonia;
 using ReactiveUI;
@@ -41,6 +43,17 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             get => combatDuration; set => this.RaiseAndSetIfChanged(ref  combatDuration, value);
         }
+        public ReactiveCommand<Unit,Unit> DisplayWipeReviewCommand => ReactiveCommand.Create(DisplayWipeReview);
+
+        private void DisplayWipeReview()
+        {
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var mainViewModel = desktop.MainWindow.DataContext as MainWindowViewModel;
+                mainViewModel.ShowDeathReviewForCombat(Combat);
+            }
+        }
+
         public ReactiveCommand<Unit,Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
 
         private async void UploadToParsely()

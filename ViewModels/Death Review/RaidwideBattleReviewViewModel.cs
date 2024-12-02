@@ -51,8 +51,8 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
 
     public string EncounterName => CombatInstance?.BossInfo?.EncounterName;
     public string CompletionText => CombatInstance != null && CombatInstance.AllLogs.Count > 0 ? CombatInstance.WasBossKilled ? 
-        "Cleared in " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") : 
-        "Wipe at "+ PercentComplete.ToString("N2") + "% at " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") : "";
+        "Cleared in " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") + " started by " + CombatInstance.Initiator?.Name : 
+        "Wipe at "+ PercentComplete.ToString("N2") + "% at " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") + " started by " + CombatInstance.Initiator?.Name : "";
     public double PercentComplete => GetEncounterPercentComplete();
     public Combat CombatInstance { get; set; }
 

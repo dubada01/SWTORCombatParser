@@ -73,7 +73,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 return;
             _isSubscribed = true;
             _mouseHookHandler = new MouseHookHandler();
-            _mouseHookHandler.StartListening();
+            _mouseHookHandler.SubscribeToClicks();
             _mouseHookHandler.MouseClicked += GlobalMouseDown;
             MouseInArea(true);
         }
@@ -84,7 +84,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             if (!_isSubscribed)
                 return;
             _isSubscribed = false;
-            _mouseHookHandler.StopListening();
+            _mouseHookHandler.UnsubscribeFromClicks();
             _mouseHookHandler.MouseClicked -= GlobalMouseDown;
             _mouseHookHandler = null;
             MouseInArea(false);

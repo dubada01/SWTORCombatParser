@@ -450,6 +450,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
         {
+            if (combatToPlot == null)
+                return new List<ParsedLogEntry>();
             switch (type)
             {
                 case PlotType.DamageOutput:

@@ -26,6 +26,7 @@
             <Border.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Upload Battle to Parsely" Command="{Binding UploadToParselyCommand}"/>
+                    <MenuItem Header="Open Wipe Review" Command="{Binding DisplayWipeReviewCommand}"/>
                 </ContextMenu>
             </Border.ContextMenu>
             <Grid>

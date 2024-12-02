@@ -45,6 +45,8 @@ namespace SWTORCombatParser.DataStructures
     }
     public class Combat
     {
+        public Entity Initiator { get; set; }
+    
         public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.IsLocalPlayer);
         public List<Entity> CharacterParticipants = new List<Entity>();
         public Dictionary<Entity, SWTORClass> CharacterClases = new Dictionary<Entity, SWTORClass>();
