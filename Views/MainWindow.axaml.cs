@@ -30,7 +30,7 @@ namespace SWTORCombatParser.Views
     }
     public partial class MainWindow : Window
     {
-        private bool _actuallyClosing = false;
+        public bool ActuallyClosing { get; set; } = false;
         public HotkeyHandler HotkeyHandler;
         public MainWindow()
         {
@@ -76,7 +76,7 @@ namespace SWTORCombatParser.Views
 
         private void Window_Closing(object sender, WindowClosingEventArgs e)
         {
-            if (!_actuallyClosing && ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled"))
+            if (!ActuallyClosing && ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled"))
             {
                 e.Cancel = true;
                 if (ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring"))

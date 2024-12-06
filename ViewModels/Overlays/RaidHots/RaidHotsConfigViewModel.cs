@@ -54,8 +54,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 Thread.Sleep(100);
                 RaidFrameColumns = defaults.Columns.ToString();
             });
-
-
+            _currentOverlayViewModel.FirePlayerChanged(_currentCharacter);
         }
 
         public bool DecreasedSpecificity

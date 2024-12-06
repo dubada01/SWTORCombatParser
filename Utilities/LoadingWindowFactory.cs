@@ -47,7 +47,7 @@ namespace SWTORCombatParser.Utilities
             {
                 var warning = new BackgroundMonitoringWarning();
                 warning.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                warning.Show(_mainWindow);
+                warning.Show();
             });
         }
         public static void HideLoading()

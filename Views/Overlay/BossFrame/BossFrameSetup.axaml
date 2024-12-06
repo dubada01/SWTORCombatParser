@@ -21,7 +21,7 @@
             <Viewbox MaxHeight="40" Grid.Row="1" Grid.Column="0">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Foreground="WhiteSmoke" Text="Track DOTS"/>
-                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding DotTrackingEnabled}"></CheckBox>
+                    <CheckBox HorizontalAlignment="Center"></CheckBox>
                 </StackPanel>
             </Viewbox>
         </Grid>

@@ -15,8 +15,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
     public class BossFrameConfigViewModel : BaseOverlayViewModel
     {
         private bool bossFrameEnabled;
-        private bool dotTrackingEnabled;
-        private bool mechPredictionsEnabled;
         private string combatDuration;
         private System.Timers.Timer _timer;
         private bool _inCombat;
@@ -33,24 +31,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 if (bossFrameEnabled)
                     ShowOverlayWindow();
                 DefaultBossFrameManager.SetActiveState(bossFrameEnabled);
-            }
-        }
-        public bool DotTrackingEnabled
-        {
-            get => dotTrackingEnabled; set
-            {
-                this.RaiseAndSetIfChanged(ref dotTrackingEnabled, value);
-                DefaultBossFrameManager.SetDotTracking(dotTrackingEnabled);
-                UpdateBossFrameStates();
-            }
-        }
-        public bool RaidChallengesEnabled
-        {
-            get => raidChallengesEnabled; set
-            {
-                this.RaiseAndSetIfChanged(ref raidChallengesEnabled, value);
-                DefaultBossFrameManager.SetRaidChallenges(raidChallengesEnabled);
-                UpdateBossFrameStates();
             }
         }
         public ReactiveCommand<Unit,Unit> IncreaseCommand => ReactiveCommand.Create(Increase);
@@ -83,7 +63,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private DateTime _lastUpdateTime;
         private double _accurateDuration;
         private double currentScale = 1;
-        private bool raidChallengesEnabled;
 
         public BossFrameConfigViewModel(string overlayName) : base(overlayName)
         {
@@ -106,10 +85,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             SetAutoScaleHeight();
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
             CurrentScale = currentDefaults.Scale == 0 ? 1 : currentDefaults.Scale;
-
-            bossFrameEnabled = currentDefaults.Acive;
-            DotTrackingEnabled = currentDefaults.TrackDOTS;
-            RaidChallengesEnabled = currentDefaults.RaidChallenges;
+            var bossFrameDefaults = DefaultGlobalOverlays.GetOverlayInfoForType("BossFrame");
+            bossFrameEnabled = bossFrameDefaults.Acive;
             this.WhenAnyValue(x => x.OverlaysMoveable).Subscribe(_ => this.RaisePropertyChanged(nameof(ShowFrame)));
             if (currentDefaults.Acive)
                 ShowOverlayWindow();
@@ -130,13 +107,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             foreach (var boss in BossesDetected)
             {
                 boss.UpdateBossFrameScale(CurrentScale);
-            }
-        }
-        private void UpdateBossFrameStates()
-        {
-            foreach (var boss in BossesDetected)
-            {
-                boss.UpdateBossFrameState(DotTrackingEnabled);
             }
         }
         public void OnNewLog(CombatStatusUpdate update)
@@ -172,7 +142,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
                     Dispatcher.UIThread.Invoke(() =>
                     {
-                        BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, isDuplicate, CurrentScale));
+                        BossesDetected.Add(new BossFrameViewModel(boss, isDuplicate, CurrentScale));
                         this.RaisePropertyChanged(nameof(ShowFrame));
                         UpdateVisibility();
                     });

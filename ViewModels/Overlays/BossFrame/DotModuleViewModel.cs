@@ -22,10 +22,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             set => this.RaiseAndSetIfChanged(ref _activeDots, value);
         }
 
-        public DotModuleViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, double scale)
+        public DotModuleViewModel(EntityInfo bossInfo, double scale)
         {
             _currentScale = scale;
-            isActive = dotTrackingEnabled;
+            isActive = true;
             _bossInfo = bossInfo;
             TimerController.TimerExpired += RemoveTimer;
             TimerController.TimerTriggered += AddTimerVisual;

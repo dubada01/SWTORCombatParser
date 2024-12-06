@@ -170,6 +170,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
             Active = defaults.Acive;
             OnNewPositionAndSize(defaults.Position, defaults.WidtHHeight);
+            Debug.WriteLine("Get Overlay: " + _overlayName + " Position: " + defaults.Position + " Size: " + defaults.WidtHHeight);
         }
 
         if (SettingsType == OverlaySettingsType.Character)
@@ -179,6 +180,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
                 return;
             Active = thisDefault.Acive;
             OnNewPositionAndSize(thisDefault.Position, thisDefault.WidtHHeight);
+            Debug.WriteLine("Get Overlay: " + _overlayName + " Position: " + thisDefault.Position + " Size: " + thisDefault.WidtHHeight + " Role: " + _currentRole);
         }
     }
     public void UpdateWindowProperties(Point position, Point size)
@@ -187,6 +189,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             DefaultGlobalOverlays.SetDefault(_overlayName, position, size);
         if(SettingsType == OverlaySettingsType.Character)
             DefaultCharacterOverlays.SetCharacterDefaults(_overlayName, position, size,_currentRole);
+        Debug.WriteLine("Set Overlay: " + _overlayName + " Position: " + position + " Size: " + size + " Role: " + _currentRole);
         
     }
     public void UpdateWindowSizeWithScale(Point position, Point size)

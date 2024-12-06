@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -127,25 +128,21 @@ public partial class BaseOverlayWindow : Window
 
     private void SetSizeAndLocation(Point position, Point size)
     {
+        Debug.WriteLine("Setting size and location: " + position + " " + size);
+        CacheTempPositions(position, size);
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            Position = new PixelPoint((int)position.X, (int)position.Y);
+            Width = size.X;
+            Height = size.Y;
+        });
         if (_canClickThrough && _viewModel.KeepBackgroundHidden)
         {
-            _tempLocation = new PixelPoint((int)position.X, (int)position.Y);
-            _tempSize = size;
             savedPosition = new PixelPoint((int)position.X, (int)position.Y);
             savedSize = size;
             savedObjectSize = size;
             _canClickThrough = false;
             ToggleClickThrough(true);
-        }
-        else
-        {
-            CacheTempPositions(position, size);
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                Position = new PixelPoint((int)position.X, (int)position.Y);
-                Width = size.X;
-                Height = size.Y;
-            });
         }
     }
 

@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         public PersonalOverlayViewModel(string overlayName) : base(overlayName)
         {
             _currentScale = 1;
-            SettingsType = OverlaySettingsType.Character;
+            SettingsType = OverlaySettingsType.Global;
             _personalOverlay = new PersonalOverlayWindow(this);
             MainContent = _personalOverlay;
             DefaultPersonalOverlaysManager.NewDefaultSelected += UpdateMetrics;

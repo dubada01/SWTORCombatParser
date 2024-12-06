@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="20.5" version="20.5" Modules="simple" RootPath="." Language="en" Id="{C28C6992-CE58-4421-AF98-6398B3C3CEBF}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="20.5" version="20.9.1" Modules="simple" RootPath="." Language="en" Id="{C28C6992-CE58-4421-AF98-6398B3C3CEBF}">
   <COMPONENT cid="caphyon.advinst.msicomp.ProjectOptionsComponent">
     <ROW Name="HiddenItems" Value="AppXProductDetailsComponent;AppXDependenciesComponent;AppXAppDetailsComponent;AppXVisualAssetsComponent;AppXCapabilitiesComponent;AppXAppDeclarationsComponent;AppXUriRulesComponent;FixupComponent;MsiXDiffComponent;MsixManifestEditorComponent"/>
   </COMPONENT>
@@ -9,10 +9,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="SWTORParsingIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{21F9BF20-3671-4161-A544-8F9B47450634} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{CDA049D7-62E3-439D-AA71-41ABC2665F88} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Stats)"/>
-    <ROW Property="ProductVersion" Value="1.7.6"/>
+    <ROW Property="ProductVersion" Value="2.0.7" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{80800124-4453-4786-91FB-F71AA5158404}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>

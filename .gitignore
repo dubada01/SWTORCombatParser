@@ -33,6 +33,8 @@ MacOSBuilds/*.zip
 
 */TestLogs/
 Installer Project/SwtorCombatInstaller-cache/
+Installer Project/SwtorCombatInstaller.back (1)-SetupFiles/
+Installer Project/SwtorCombatInstaller.back (1)-cache/
 *.cab
 
 

@@ -115,6 +115,11 @@ namespace SWTORCombatParser
 
         private void ExitClicked(object sender, EventArgs e)
         {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopApp)
+            {
+                var mainWindow = desktopApp.MainWindow as MainWindow;
+                mainWindow.ActuallyClosing = true;
+            }
             ExitApplication();
         }
     }

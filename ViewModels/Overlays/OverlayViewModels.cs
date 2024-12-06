@@ -52,10 +52,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         public event Action OverlayLockStateChanged = delegate { };
 
-        public TimersCreationView TimersView { get; set; }
-        public ChallengeSetupView ChallengesView { get; set; }
-        public OtherOverlaySetupView OthersSetupView { get; set; }
-
         public ObservableCollection<OverlayOptionViewModel> MainDamageOverlays { get; set; } = new();
         public ObservableCollection<OverlayOptionViewModel> MainHealOverlays { get; set; } = new();
         public ObservableCollection<OverlayOptionViewModel> MainMitigationOverlays { get; set; } = new();
@@ -184,8 +180,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _abilityListSetup = new AbilityListSetupViewModel();
             _raidNotesSetup = new RaidNotesSetupViewModel();
             _otherOverlayViewModel = new OthersOverlaySetupViewModel();
-            OthersSetupView = new OtherOverlaySetupView();
-            OthersSetupView.DataContext = _otherOverlayViewModel;
 
             _challengesViewModel.ChallengesDisabled += () => {
                 AvailableUtilityOverlays.First(t => t.Type == UtilityOverlayType.RaidChallenge).IsSelected = false;
