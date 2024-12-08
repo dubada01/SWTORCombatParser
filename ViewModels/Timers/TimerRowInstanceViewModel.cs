@@ -6,7 +6,9 @@ using System.Reactive;
 using System.Runtime.CompilerServices;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Media.Immutable;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
@@ -34,6 +36,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ActiveChanged(this);
             }
         }
+
+        public IImmutableSolidColorBrush AudioButtonBorderColor => !string.IsNullOrEmpty(SourceTimer.CustomAudioPath)
+            ? Brushes.SeaGreen
+            : Brushes.Transparent;
         public Bitmap AudioImageSource => SourceTimer.UseAudio ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/audioIcon.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/mutedIcon.png")));
         public Bitmap VisibilityImageSource => !SourceTimer.IsSubTimer ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/view.png"))) :new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/hidden.png")));
         public string Name => SourceTimer.Name;
@@ -55,10 +61,14 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         private void ToggleAudio(object obj)
         {
-            SourceTimer.UseAudio = !SourceTimer.UseAudio;
-            DefaultOrbsTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
-            TimerController.RefreshAvailableTimers();
-            OnPropertyChanged("AudioImageSource");
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                SourceTimer.UseAudio = !SourceTimer.UseAudio;
+                DefaultOrbsTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
+                TimerController.RefreshAvailableTimers();
+                OnPropertyChanged("AudioImageSource");
+            });
+
         }
         public ReactiveCommand<object,Unit> ToggleVisibilityCommand => ReactiveCommand.Create<object>(ToggleVisiblity);
 

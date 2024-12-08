@@ -21,8 +21,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double _value;
         private double _secondaryValue;
         private int leaderboardRank;
-        private double defaultBarHeight = 35;
-        private double defaultFontSize = 18;
+        private double defaultBarHeight = 25;
+        private double defaultFontSize = 13;
         private double defaultValueWidth = 60;
 
         private string valueStringFormat = "#,##0";
@@ -53,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
-        public Thickness BorderThickness => IsLeaderboardValue ? new Thickness(3 * SizeScalar) : new Thickness(0);
+        public Thickness BorderThickness => IsLeaderboardValue ? new Thickness(1.25 * SizeScalar) : new Thickness(0);
         public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
         public CornerRadius BarRadiusSecondary { get; set; } = new CornerRadius(3, 3, 3, 3);
         public SolidColorBrush BarOutline => IsLeaderboardValue ? new SolidColorBrush(Brushes.WhiteSmoke.Color) : new SolidColorBrush(Brushes.Transparent.Color);
@@ -61,7 +61,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public bool FlipSecondaryAndPrimaryBars { get; set; }
         public Entity Player { get; set; }
         public bool RankIsPersonalRecord { get; set; }
-        public double LeaderboardSeperationDistance => (SizeScalar * 5);
+        public double LeaderboardSeperationDistance => (SizeScalar * 2);
         public string LeaderboardRank
         {
             get => leaderboardRank == 0 ? "" : leaderboardRank.ToString();

@@ -181,12 +181,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                         swtorTimer.IsAlert ? Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav") :
                         Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
                 }
-                Dispatcher.UIThread.Invoke(() =>
-                {
+
                     _libvlc = new LibVLC();
                     var media = new Media(_libvlc, new Uri(_audioPath, UriKind.RelativeOrAbsolute));
                     _mediaPlayer = new MediaPlayer(media);
-                });
+             
 
                 if (swtorTimer.AudioStartTime == 0)
                     _playAtTime = 2;

@@ -46,8 +46,19 @@ namespace SWTORCombatParser.Views.SettingsView
             ResetMessagesButton.Click += ResetMessages;
 
             EmergencyUIReset.Click += ShowEmergencyDialog;
+
+            SetCombatLogsPath.Click += UpdateCombatLogsPath;
         }
 
+        private async void UpdateCombatLogsPath(object? sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFolderDialog(){Title = "Select New Combat Logs Path"};
+            var result = await dialog.ShowAsync(this);
+            if (string.IsNullOrEmpty(result))
+                return;
+            LogPath.Text = result;
+            //UpdatePath(null,null);
+        }
 
 
         private void InitBools()

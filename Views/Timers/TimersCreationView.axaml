@@ -76,7 +76,7 @@
                         <DataGridTemplateColumn Width=".75*" Header="Audio">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button  HorizontalAlignment="Center" Command="{Binding ToggleAudioCommand}">
+                                    <Button BorderBrush="{Binding AudioButtonBorderColor}" HorizontalAlignment="Center" Command="{Binding ToggleAudioCommand}">
                                         <Image Height="20" Source="{Binding AudioImageSource}"></Image>
                                     </Button>
                                 </DataTemplate>

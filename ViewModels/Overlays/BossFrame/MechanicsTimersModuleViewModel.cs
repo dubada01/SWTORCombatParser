@@ -13,7 +13,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
     public class MechanicsTimersModuleViewModel : INotifyPropertyChanged
     {
         private EntityInfo _bossInfo;
-        private bool isActive;
+        private bool isActive = true;
         private object timerLock = new object();
         private double _currentScale;
 

@@ -130,17 +130,26 @@ public partial class BaseOverlayWindow : Window
     {
         Debug.WriteLine("Setting size and location: " + position + " " + size);
         CacheTempPositions(position, size);
+        var shouldSetClickthrough = _canClickThrough;
+        if (_canClickThrough)
+        {
+            ToggleClickThrough(false);
+        }
         Dispatcher.UIThread.Invoke(() =>
         {
             Position = new PixelPoint((int)position.X, (int)position.Y);
             Width = size.X;
             Height = size.Y;
         });
-        if (_canClickThrough && _viewModel.KeepBackgroundHidden)
+        if (shouldSetClickthrough && _viewModel.KeepBackgroundHidden)
         {
             savedPosition = new PixelPoint((int)position.X, (int)position.Y);
             savedSize = size;
             savedObjectSize = size;
+        }
+
+        if (shouldSetClickthrough)
+        {
             _canClickThrough = false;
             ToggleClickThrough(true);
         }

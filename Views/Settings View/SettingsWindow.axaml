@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SWTORCombatParser.Views.SettingsView"
         mc:Ignorable="d"
-        Title="Settings Window" Height="500" Width="400"  Background="Transparent"         
+        Title="Settings Window" Height="500" Width="450"  Background="Transparent"         
         TransparencyLevelHint="Transparent"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaTitleBarHeightHint="0"
@@ -41,26 +41,27 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
                     <TextBlock VerticalAlignment="Center" Text="Combat Log Path: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                    <TextBox Name="LogPath" Height="30" Width="250" FontSize="12" FontWeight="Normal" Classes="RoundedTextBox"/>
+                    <TextBox IsReadOnly="True" Name="LogPath" Height="30" Width="250" FontSize="10" FontWeight="Normal"/>
+                    <Button FontSize="{StaticResource NormalFontSize}" Margin="2,0,2,0" Content="Update" Name="SetCombatLogsPath"></Button>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0,5,0,5">
                     <TextBlock Text="Hotkeys" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                     <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
                         <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="LockEnabled"></CheckBox>
                         <TextBlock VerticalAlignment="Center" Text="Overlay Lock Toggle: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                        <TextBox Margin="11,0,0,0" x:Name="LockHotkey" HorizontalContentAlignment="Center" Tag="Lock" Height="30" Width="115" FontSize="12" FontWeight="Normal" Classes="RoundedTextBox" KeyDown="TextBox_PreviewKeyDown"/>
+                        <TextBox Margin="11,0,0,0" x:Name="LockHotkey" HorizontalContentAlignment="Center" Tag="Lock" Height="30" Width="115" FontSize="12" FontWeight="Normal" KeyDown="TextBox_PreviewKeyDown"/>
                         
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
                         <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="RefreshEnabled"></CheckBox>
                         <TextBlock VerticalAlignment="Center" Text="Auto Raid HOT Detect: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                        <TextBox x:Name="RefreshHotkey" HorizontalContentAlignment="Center" Tag="Refresh" Height="30" Width="115" FontSize="12" FontWeight="Normal" Classes="RoundedTextBox" KeyDown="TextBox_PreviewKeyDown"/>
+                        <TextBox x:Name="RefreshHotkey" HorizontalContentAlignment="Center" Tag="Refresh" Height="30" Width="115" FontSize="12" FontWeight="Normal" KeyDown="TextBox_PreviewKeyDown"/>
                         
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
                         <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="HideEnabled"></CheckBox>
                         <TextBlock VerticalAlignment="Center" Text="Hide Overlays: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                        <TextBox Margin="43,0,0,0" x:Name="HideHotkey" HorizontalContentAlignment="Center" Tag="Hide" Height="30" Width="115" FontSize="12" FontWeight="Normal" Classes="RoundedTextBox" KeyDown="TextBox_PreviewKeyDown"/>
+                        <TextBox Margin="43,0,0,0" x:Name="HideHotkey" HorizontalContentAlignment="Center" Tag="Hide" Height="30" Width="115" FontSize="12" FontWeight="Normal" KeyDown="TextBox_PreviewKeyDown"/>
                         
                     </StackPanel>
                 </StackPanel>

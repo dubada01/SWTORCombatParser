@@ -25,8 +25,7 @@ Please reach out to me on Discord @Zarnuro if you have any questions, would like
 ##TODO
 
 - Need to add some good Revan 3rd floor overlay to show the clock and where the aberrations spawn
-- Make the combat logs path selection a directory selector
-- Raid HOTS overlay still seems to not remember the position and size it should start at, and the first image capture with it seems to be off. Also if available it should always use the names in the logs.
-
+- Confirm that timer audio really works still on macOS and Windows
+ 
 
 

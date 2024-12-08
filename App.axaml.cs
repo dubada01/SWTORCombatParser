@@ -9,18 +9,23 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using LibVLCSharp.Shared;
 
 namespace SWTORCombatParser
 {
     public partial class App : Application
     {
+        [DllImport("libvlc.dll")]
+        public static extern IntPtr libvlc_new(int argc, string[] argv);
         public override void Initialize()
         {
+            Core.Initialize();
             AvaloniaXamlLoader.Load(this);
         }
         public override void OnFrameworkInitializationCompleted()

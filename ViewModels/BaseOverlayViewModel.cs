@@ -152,6 +152,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             Dispatcher.UIThread.Invoke(() =>
             {
                 _overlayWindow?.Show();
+                _overlayWindow.ToggleClickThroughCrossPlatform(!_overlaysMoveable);
             });
         }
     }
