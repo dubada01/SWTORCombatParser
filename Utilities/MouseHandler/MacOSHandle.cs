@@ -7,11 +7,11 @@ namespace SWTORCombatParser.Utilities.MouseHandler
    public class MouseHookHandler
     {
 
-        public void StartListening()
+        public void SubscribeToClicks()
         {
         }
 
-        public void StopListening()
+        public void UnsubscribeFromClicks()
         {
         }
         public event Action<Point> MouseClicked = delegate { };

@@ -16,6 +16,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using LibVLCSharp.Shared;
+using ManagedBass;
 
 namespace SWTORCombatParser
 {
@@ -25,7 +26,12 @@ namespace SWTORCombatParser
         public static extern IntPtr libvlc_new(int argc, string[] argv);
         public override void Initialize()
         {
+            #if WINDOWS
             Core.Initialize();
+            #endif
+            #if MACOS
+            Bass.Init();
+            #endif
             AvaloniaXamlLoader.Load(this);
         }
         public override void OnFrameworkInitializationCompleted()

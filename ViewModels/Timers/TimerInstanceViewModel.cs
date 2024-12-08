@@ -1,13 +1,17 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Utilities;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using LibVLCSharp.Shared;
+using ManagedBass;
 using ReactiveUI;
+using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
@@ -63,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public string TargetAddendem { get; set; }
         public long TargetId { get; set; }
         public string TimerName => GetTimerName();
-
+        
         public double MaxTimerValue
         {
             get => _maxTimerValue;
@@ -88,6 +92,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         //TODO add this to settings config so that it is loaded each time a timer is created
         public bool ShowIcon { get; set; }
         private Bitmap? _infoIcon;
+        private readonly int stream;
+
         public Bitmap? InfoIcon
         {
             get => _infoIcon;
@@ -181,11 +187,14 @@ namespace SWTORCombatParser.ViewModels.Timers
                         swtorTimer.IsAlert ? Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav") :
                         Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
                 }
-
+                    #if WINDOWS
                     _libvlc = new LibVLC();
                     var media = new Media(_libvlc, new Uri(_audioPath, UriKind.RelativeOrAbsolute));
                     _mediaPlayer = new MediaPlayer(media);
-             
+                    #endif
+                    #if MACOS
+                    stream = Bass.CreateStream(_audioPath, 0, 0, BassFlags.Default);
+                    #endif
 
                 if (swtorTimer.AudioStartTime == 0)
                     _playAtTime = 2;
@@ -266,7 +275,14 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     Dispatcher.UIThread.Invoke(() =>
                     {
+                        #if WINDOWS
                         _mediaPlayer.Play();
+                        #endif
+                        #if MACOS
+                        Debug.WriteLine("Trying to play: "+_audioPath);
+                        Bass.ChannelPlay(stream,false);
+                        Debug.WriteLine("Played: "+_audioPath);
+                        #endif
                     });
 
                 }
@@ -323,17 +339,28 @@ namespace SWTORCombatParser.ViewModels.Timers
                 Complete(true);
         }
 
+        private bool _hasAudioPlayed = false;
         private void UpdateTimeBasedTimer()
         {
             var deltaTime = (TimeUtility.CorrectedTime - _lastUpdateTime).TotalSeconds;
             _lastUpdateTime = TimeUtility.CorrectedTime;
             TimerValue -= deltaTime;
             this.RaisePropertyChanged(nameof(TimerValue));
-            if (SourceTimer.UseAudio && TimerValue <= _playAtTime)
+            if (_hasAudioPlayed && SourceTimer.UseAudio && TimerValue > _playAtTime)
+                _hasAudioPlayed = false;
+            if (SourceTimer.UseAudio && TimerValue <= _playAtTime && !_hasAudioPlayed)
             {
+                _hasAudioPlayed = true;
                 Dispatcher.UIThread.Invoke(() =>
                 {
-                    _mediaPlayer.Play();
+#if WINDOWS
+                        _mediaPlayer.Play();
+#endif
+#if MACOS
+                    Debug.WriteLine("Trying to play: "+_audioPath);
+                    Bass.ChannelPlay(stream,false);
+                    Debug.WriteLine("Played: "+_audioPath);
+#endif
                 });
             }
             if(SourceTimer.ChangeBackgroundNearExpiration && TimerValue <= 5 && !_isAboutToExpire)
