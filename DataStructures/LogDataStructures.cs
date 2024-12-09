@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using ReactiveUI;
 
 namespace SWTORCombatParser.DataStructures
@@ -22,6 +23,7 @@ namespace SWTORCombatParser.DataStructures
         private string _targetId;
         private string _abilityId;
         private string _effectId;
+        private readonly static SolidColorBrush _transparentBackground = new(Brushes.Transparent.Color);
         private readonly static SolidColorBrush _deathBackground = new(Brushes.IndianRed.Color);
         private readonly static SolidColorBrush _deathBackgroundWithSource = new(Brushes.Crimson.Color);
         private readonly static SolidColorBrush _revivedBackground = new(Brushes.CornflowerBlue.Color);
@@ -46,8 +48,8 @@ namespace SWTORCombatParser.DataStructures
 
             EffectName = effectName;
 
-            EffectBackground = new SolidColorBrush(Brushes.Transparent.Color);
-            ValueBackground = new SolidColorBrush(Brushes.Transparent.Color);
+            EffectBackground = _transparentBackground;
+            ValueBackground = _transparentBackground;
 
             AbilityTextMargin = !string.IsNullOrEmpty(_abilityId) && IconGetter.HasIcon(_abilityId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
             EffectTextMargin = !string.IsNullOrEmpty(_effectId) && IconGetter.HasIcon(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
@@ -68,10 +70,12 @@ namespace SWTORCombatParser.DataStructures
                 EffectBackground = _damageBackground;
 
             }
+
             if (double.TryParse(value, out var r))
             {
                 ValueBackground = new SolidColorBrush(GetColorForValue(logValue / maxValue));
             }
+
             Value = value;
             Threat = threat.ToString();
             WasValueCrit = wasValueCrit;

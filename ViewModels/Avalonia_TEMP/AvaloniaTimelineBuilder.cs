@@ -100,6 +100,8 @@ public static class AvaloniaTimelineBuilder
 
     public static async Task UploadBossKill(string encounterName, string flashpointOrRaidName, string difficulty, string playerCount, DateTime startTime, DateTime endTime)
     {
+        if(!_timeTrackingLive)
+            return;
         var timeTrialInfo = new TimeTrialLeaderboardEntry()
         {
             BossFight = encounterName,
@@ -175,6 +177,7 @@ public static class AvaloniaTimelineBuilder
         }
         else
         {
+            _timeTrackingLive = false;
             _inBossInstance = false;
             _timelineWindowViewModel.InBossInstance = false;
             HideTimelineOverlay();

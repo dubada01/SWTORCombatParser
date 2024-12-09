@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -16,12 +17,15 @@ namespace SWTORCombatParser.Utilities
         private static Dictionary<string, Bitmap> _classColoredBitmaps = new Dictionary<string, Bitmap>();
         public static void Init()
         {
-            _unknownIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/question-mark.png")));
-            foreach(var swtorClass in ClassLoader.LoadAllClasses())
+            Task.Run(() =>
             {
-                var colorForClass = GetIconColorFromClass(swtorClass);
-                _classColoredBitmaps[swtorClass.Discipline] = GetColoredBitmapImage(swtorClass, colorForClass);
-            }
+                _unknownIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/question-mark.png")));
+                foreach(var swtorClass in ClassLoader.LoadAllClasses())
+                {
+                    var colorForClass = GetIconColorFromClass(swtorClass);
+                    _classColoredBitmaps[swtorClass.Discipline] = GetColoredBitmapImage(swtorClass, colorForClass);
+                }  
+            });
         }
         
         public static Bitmap GetClassIcon(string className)

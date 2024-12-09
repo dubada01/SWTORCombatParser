@@ -252,6 +252,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
+            
             _disciplineTimersWindow = new DisciplineTimersWindowViewModel("Discipline");
             _disciplineTimersWindow.CloseRequested += () =>
             {
@@ -259,6 +260,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 DisciplineClosed();
             };
             disciplineTimersActive = _disciplineTimersWindow.Active;
+            
             _alertTimersWindow = new AlertsWindowViewModel("Alerts");
             _alertTimersWindow.CloseRequested += () =>
             {
@@ -266,6 +268,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 AlertsClosed();
             };
             alertTimersActive = _alertTimersWindow.Active;
+            
             _encounterTimersWindow = new EncounterTimerWindowViewModel("Encounter");
             _encounterTimersWindow.CloseRequested += () =>
             {

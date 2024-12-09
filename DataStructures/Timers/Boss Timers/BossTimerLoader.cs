@@ -42,6 +42,8 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
                         timer.Source = "Any";
                         timer.SourceIsLocal = false;
                     }
+
+                    timer.ShowIconIfPossible = true;
                     timer.IsMechanic = true;
                 }
                 sourcesToAdd.Add(source);

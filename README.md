@@ -25,7 +25,6 @@ Please reach out to me on Discord @Zarnuro if you have any questions, would like
 ##TODO
 
 - Need to add some good Revan 3rd floor overlay to show the clock and where the aberrations spawn
-- Confirm that timer audio really works still on macOS and Windows
- 
+
 
 

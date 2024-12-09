@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
 {
@@ -83,8 +84,16 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             if (_currentlySelectedCombat == null)
                 return DateTime.MinValue;
             DateTime firstDeath = DateTime.MinValue;
-            Regex re = new Regex(!string.IsNullOrEmpty(_logFilter) ? _logFilter : "", RegexOptions.IgnoreCase);
-            _displayedLogs = _currentlySelectedCombat.AllLogs.Where(l=>LogFilter(l, re)).ToList();
+            try
+            {
+                Regex re = new Regex(!string.IsNullOrEmpty(_logFilter) ? _logFilter : "", RegexOptions.IgnoreCase);
+                _displayedLogs = _currentlySelectedCombat.AllLogs.Where(l=>LogFilter(l, re)).ToList();
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                _displayedLogs = _currentlySelectedCombat.AllLogs.ToList();
+            }
             Dispatcher.UIThread.Invoke(() =>
             {
                 if (isDethReview)

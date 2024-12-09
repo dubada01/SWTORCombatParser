@@ -28,6 +28,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     internal readonly string _overlayName;
     private UserControl _mainContent;
     private bool _inConversation;
+    private bool _isHidden;
 
     public UserControl MainContent
     {
@@ -147,10 +148,11 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     {
         if ((ShouldBeVisible || OverlaysMoveable))
         {
-            if (!Active)
+            if (!Active || !_isHidden)
                 return;
             Dispatcher.UIThread.Invoke(() =>
             {
+                _isHidden = false;
                 _overlayWindow?.Show();
                 _overlayWindow.ToggleClickThroughCrossPlatform(!_overlaysMoveable);
             });
@@ -159,9 +161,12 @@ public abstract class BaseOverlayViewModel:ReactiveObject
 
     public void HideOverlayWindow()
     {
+        if(_isHidden)
+            return;
         Dispatcher.UIThread.Invoke(() =>
         {
             _overlayWindow?.Hide();
+            _isHidden = true;
         });
     }
     public void InitPositionAndSize()

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using ReactiveUI;
@@ -261,16 +262,19 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void RefreshOverlays()
         {
-            ResetOverlays();
-            _timersViewModel.TryShow();
-            if (UseDynamicLayout)
+            Task.Run(() =>
             {
-                SetOverlaysToRole();
-            }
-            else
-            {
-                SetOverlaysToCustom();
-            }
+                ResetOverlays();
+                _timersViewModel.TryShow();
+                if (UseDynamicLayout)
+                {
+                    SetOverlaysToRole();
+                }
+                else
+                {
+                    SetOverlaysToCustom();
+                }
+            });
         }
 
         private void SetOverlaysToCustom()
@@ -397,6 +401,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     break;
                 case UtilityOverlayType.DisciplineTimer:
                     _timersViewModel.DisciplineTimersActive = !_timersViewModel.DisciplineTimersActive;
+                    break;
+                case UtilityOverlayType.AlertTimer:
+                    _timersViewModel.AlertsActive = !_timersViewModel.AlertsActive;
                     break;
                 case UtilityOverlayType.RoomHazard:
                     _otherOverlayViewModel._roomOverlayViewModel.Active = !_otherOverlayViewModel._roomOverlayViewModel.Active;

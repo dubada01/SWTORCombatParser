@@ -1,4 +1,4 @@
-﻿<Window x:Class="SWTORCombatParser.Views.Timers.AlertView"
+﻿<UserControl x:Class="SWTORCombatParser.Views.Timers.AlertView"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,12 +7,7 @@
         xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers"
         x:DataType="vm:AlertsWindowViewModel"
         mc:Ignorable="d"
-        Height="300" Width="250"         
-        TransparencyLevelHint="Transparent"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaTitleBarHeightHint="0"
-        CanResize="False"
-        ExtendClientAreaChromeHints="NoChrome" Title="AlertArea" Background="{x:Null}" Topmost="True" ShowInTaskbar="False">
+        Background="{x:Null}">
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" Margin="0,0,0,0" HorizontalScrollBarVisibility="Disabled">
             <ItemsControl ItemsSource="{Binding SwtorTimers, UpdateSourceTrigger=PropertyChanged}">
@@ -24,4 +19,4 @@
             </ItemsControl>
         </ScrollViewer>
     </Grid>
-</Window>
+</UserControl>

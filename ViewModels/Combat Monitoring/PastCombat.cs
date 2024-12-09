@@ -3,13 +3,16 @@ using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.Parsely;
 using System;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Media;
 using MsBox.Avalonia;
 using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -59,11 +62,25 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private async void UploadToParsely()
         {
             var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Where(v=>v.LogLineNumber!=0).MinBy(v=>v.LogLineNumber).LogLineNumber, (int)Combat.AllLogs.MaxBy(v => v.LogLineNumber).LogLineNumber,Combat.LogFileName);
-            var response = await ParselyUploader.TryUploadText(lines, Combat.LogFileName);
+            var response = await ParselyUploader.TryUploadText(lines, Path.Combine(Settings.ReadSettingOfType<string>("combat_logs_path"), Combat.LogFileName));
             if (!response.WasSuccess)
             {
-                var box = MessageBoxManager.GetMessageBoxStandard("Error", response.ErrorMessage);
-                await box.ShowAsync();
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var box = MessageBoxManager.GetMessageBoxStandard("Error", response.ErrorMessage,windowStartupLocation: WindowStartupLocation.CenterOwner);
+                    await box.ShowWindowDialogAsync(desktop.MainWindow);
+
+                }
+            }
+            if (response.WasSuccess)
+            {
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var box = MessageBoxManager.GetMessageBoxStandard("Success",
+                        "Successfully uploaded to Parsely! Use the File->Parsely menu in Orbs to open and view your battle.",
+                        windowStartupLocation: WindowStartupLocation.CenterOwner);
+                    await box.ShowWindowDialogAsync(desktop.MainWindow);
+                }
             }
         }
 

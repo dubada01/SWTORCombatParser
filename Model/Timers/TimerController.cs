@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
@@ -33,6 +34,7 @@ public static class TimerController
     public static event Action<TimerInstanceViewModel, Action<TimerInstanceViewModel>> TimerExpired = delegate { };
     public static event Action<TimerInstanceViewModel, Action<TimerInstanceViewModel>> TimerTriggered = delegate { };
     public static event Action<string> ReorderRequested = delegate { };
+    public static event Action TimersInitialized = delegate { };
     public static void Init()
     {
         CombatLogStreamer.HistoricalLogsFinished += EnableTimers;
@@ -41,7 +43,8 @@ public static class TimerController
         CombatLogStreamer.NewLineStreamed += NewLogStreamed;
         CombatLogStateBuilder.AreaEntered += AreaChanged;
         DefaultOrbsTimersManager.Init();
-        RefreshAvailableTimers();
+        RefreshAvailableTimers(true);
+
     }
 
     private static void AreaChanged(EncounterInfo obj)
@@ -127,74 +130,88 @@ public static class TimerController
     }
 
     private static List<string> _expirationTimers = new List<string>();
-    public static void RefreshAvailableTimers()
+    public static void RefreshAvailableTimers(bool initializing = false)
     {
-        _expirationTimers.Clear();
-        _hideTimerSubs.ForEach(s => s.Dispose());
-        _showTimerSubs.ForEach(s => s.Dispose());
-        _reorderSubs.ForEach(s => s.Dispose());
-        var allDefaults = DefaultOrbsTimersManager.GetAllDefaults();
-        var timers = allDefaults.SelectMany(t => t.Timers);
-
-        List<Timer> secondaryTimers = new List<Timer>();
-        GetAllSubTimers(ref secondaryTimers, timers.ToList());
-        var distinctTimers = secondaryTimers.DistinctBy(t => t.Id);
-
-
-        _availableTimers = distinctTimers.Where(t => t.IsEnabled).Select(t => new TimerInstance(t.Copy())).ToList();
-        foreach (var timerInstance in _availableTimers)
+        Task.Run(() =>
         {
-            if (timerInstance.SourceTimer.IsSubTimer)
-            {
-                var parentTimer = _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.ParentTimerId);
-                if (parentTimer != null)
-                {
-                    timerInstance.ParentTimer = parentTimer;
-                }
-                else
-                {
-                    Logging.LogInfo("Parent timer not found for: " + JsonConvert.SerializeObject(timerInstance));
-                }
-            }
-            if (!string.IsNullOrEmpty(timerInstance.ExperiationTimerId))
-            {
-                var trigger = _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.ExperiationTimerId);
-                if (trigger != null)
-                {
-                    //timerInstance.ExpirationTimer = trigger;
-                    _expirationTimers.Add(trigger.SourceTimer.Id);
-                }
-                else
-                {
-                    Logging.LogInfo("Expiration timer not found for: " + JsonConvert.SerializeObject(timerInstance));
-                }
-            }
-            if (!string.IsNullOrEmpty(timerInstance.CancellationTimerId))
-            {
-                var cancelTrigger = _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.CancellationTimerId);
-                if (cancelTrigger != null)
-                {
-                    timerInstance.CancelTimer = cancelTrigger;
-                }
-                else
-                {
-                    Logging.LogInfo("Cancel timer not found for: " + JsonConvert.SerializeObject(timerInstance));
-                }
-            }
-        }
+            _expirationTimers.Clear();
+            _hideTimerSubs.ForEach(s => s.Dispose());
+            _showTimerSubs.ForEach(s => s.Dispose());
+            _reorderSubs.ForEach(s => s.Dispose());
+            var allDefaults = DefaultOrbsTimersManager.GetAllDefaults();
+            var timers = allDefaults.SelectMany(t => t.Timers);
 
-        _hideTimerSubs = _availableTimers.Select(t => Observable.FromEvent<Action<TimerInstanceViewModel, bool>, Tuple<TimerInstanceViewModel, bool>>(
-            onNextHandler => (p1, p2) => onNextHandler(Tuple.Create(p1, p2)),
-            manager => t.TimerOfTypeExpired += manager,
-            manager => t.TimerOfTypeExpired -= manager
-        ).Subscribe(args => OnTimerExpired(args.Item1, args.Item2))).ToList();
-        _showTimerSubs = _availableTimers.Select(t =>
-            Observable.FromEvent<TimerInstanceViewModel>(handler => t.NewTimerInstance += handler,
-                handler => t.NewTimerInstance -= handler).Subscribe(AddTimerVisual)).ToList();
-        _reorderSubs = _availableTimers.Select(t =>
-            Observable.FromEvent<string>(handler => t.ReorderRequested += handler,
-                handler => t.ReorderRequested -= handler).Throttle(TimeSpan.FromMilliseconds(250)).Subscribe(ReorderRequest)).ToList();
-        FilterTimers();
+            List<Timer> secondaryTimers = new List<Timer>();
+            GetAllSubTimers(ref secondaryTimers, timers.ToList());
+            var distinctTimers = secondaryTimers.DistinctBy(t => t.Id);
+
+
+            _availableTimers = distinctTimers.Where(t => t.IsEnabled).Select(t => new TimerInstance(t.Copy())).ToList();
+            foreach (var timerInstance in _availableTimers)
+            {
+                if (timerInstance.SourceTimer.IsSubTimer)
+                {
+                    var parentTimer =
+                        _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.ParentTimerId);
+                    if (parentTimer != null)
+                    {
+                        timerInstance.ParentTimer = parentTimer;
+                    }
+                    else
+                    {
+                        Logging.LogInfo("Parent timer not found for: " + JsonConvert.SerializeObject(timerInstance));
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(timerInstance.ExperiationTimerId))
+                {
+                    var trigger =
+                        _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.ExperiationTimerId);
+                    if (trigger != null)
+                    {
+                        //timerInstance.ExpirationTimer = trigger;
+                        _expirationTimers.Add(trigger.SourceTimer.Id);
+                    }
+                    else
+                    {
+                        Logging.LogInfo("Expiration timer not found for: " +
+                                        JsonConvert.SerializeObject(timerInstance));
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(timerInstance.CancellationTimerId))
+                {
+                    var cancelTrigger =
+                        _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.CancellationTimerId);
+                    if (cancelTrigger != null)
+                    {
+                        timerInstance.CancelTimer = cancelTrigger;
+                    }
+                    else
+                    {
+                        Logging.LogInfo("Cancel timer not found for: " + JsonConvert.SerializeObject(timerInstance));
+                    }
+                }
+            }
+
+            _hideTimerSubs = _availableTimers.Select(t => Observable
+                .FromEvent<Action<TimerInstanceViewModel, bool>, Tuple<TimerInstanceViewModel, bool>>(
+                    onNextHandler => (p1, p2) => onNextHandler(Tuple.Create(p1, p2)),
+                    manager => t.TimerOfTypeExpired += manager,
+                    manager => t.TimerOfTypeExpired -= manager
+                ).Subscribe(args => OnTimerExpired(args.Item1, args.Item2))).ToList();
+            _showTimerSubs = _availableTimers.Select(t =>
+                Observable.FromEvent<TimerInstanceViewModel>(handler => t.NewTimerInstance += handler,
+                    handler => t.NewTimerInstance -= handler).Subscribe(AddTimerVisual)).ToList();
+            _reorderSubs = _availableTimers.Select(t =>
+                Observable.FromEvent<string>(handler => t.ReorderRequested += handler,
+                        handler => t.ReorderRequested -= handler).Throttle(TimeSpan.FromMilliseconds(250))
+                    .Subscribe(ReorderRequest)).ToList();
+            FilterTimers();
+            if(initializing)
+                TimersInitialized();
+        });
+
     }
 
     private static void GetAllSubTimers(ref List<Timer> subTimers, List<Timer> baseTimers)

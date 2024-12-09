@@ -95,7 +95,7 @@
         </Grid>
         <ContentPresenter Content="{Binding DeathLogsView}"  Grid.Row="1"/>
         <Slider VerticalAlignment="Top" Maximum="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="20,5,20,5" Value="{Binding CurrentSliderValue}"></Slider>
-        <TextBlock Grid.Row="2" HorizontalAlignment="Left" FontSize="{StaticResource SmallFontSize}" VerticalAlignment="Center" Text="-10s"></TextBlock>
+        <TextBlock Grid.Row="2" HorizontalAlignment="Left" FontSize="{StaticResource SmallFontSize}" VerticalAlignment="Center" Text="-30s"></TextBlock>
         <TextBlock Grid.Row="2" HorizontalAlignment="Right" FontSize="{StaticResource SmallFontSize}" VerticalAlignment="Center" Text="End"></TextBlock>
         <TextBlock Grid.Row="2" HorizontalAlignment="Center" FontSize="{StaticResource NormalFontSize}" VerticalAlignment="Bottom" Text="{Binding CurrentTimeOffset}"></TextBlock>
     </Grid>

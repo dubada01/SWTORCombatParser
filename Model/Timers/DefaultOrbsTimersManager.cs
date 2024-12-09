@@ -153,10 +153,6 @@ namespace SWTORCombatParser.Model.Timers
             {
                 if (currentDefaults.Timers.Any(t => t.Id == timer.Id))
                 {
-                    if (source == "DOTS" || source == "DCD" || timer.IsMechanic)
-                    {
-                        currentDefaults.Timers.First(t => t.Id == timer.Id).ShowIconIfPossible = true;
-                    }
                     continue;
                 }
                 currentDefaults.Timers.Add(timer);

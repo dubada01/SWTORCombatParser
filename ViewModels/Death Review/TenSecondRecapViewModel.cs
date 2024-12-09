@@ -35,10 +35,11 @@ public class TenSecondRecapViewModel:ReactiveObject
     private readonly string _allPlayers = "All Players";
     private readonly string _allBosses = "All Bosses";
 
+    private int _timeOffset = 30;
     private DateTime _currentSelectedTime = DateTime.MinValue;
     private List<Entity> _availablePlayers;
 
-    public string CurrentTimeOffset => (-10 * (1-_currentSliderValue)).ToString("N2");
+    public string CurrentTimeOffset => (-_timeOffset * (1-_currentSliderValue)).ToString("N2");
     public double CurrentSliderValue
     {
         get => _currentSliderValue;
@@ -46,8 +47,8 @@ public class TenSecondRecapViewModel:ReactiveObject
         {
             if(_currentCombat == null)
                 return;
-            _currentSelectedTime = _currentCombat.EndTime.AddSeconds(-10 * (1-value));
-            Debug.WriteLine("Selected Time: " + _currentSelectedTime+ " which is " + (-10 * (1-value)) +" seconds before the end of the combat");
+            _currentSelectedTime = _currentCombat.EndTime.AddSeconds(-_timeOffset * (1-value));
+            Debug.WriteLine("Selected Time: " + _currentSelectedTime+ " which is " + (-_timeOffset * (1-value)) +" seconds before the end of the combat");
             this.RaiseAndSetIfChanged(ref _currentSliderValue, value);
             this.RaisePropertyChanged(nameof(CurrentTimeOffset));
             UpdateBuffsAndDebuffs();
@@ -121,26 +122,29 @@ public class TenSecondRecapViewModel:ReactiveObject
         DeathLogsView = new EventHistoryView(_deathLogsViewModel);
     }
     public void SetCombat(Combat combat)
-    {
+    {        
         if(combat.AllLogs.Count == 0)
             return;
-        _currentCombat = combat;
-        _currentSelectedTime = combat.EndTime.AddSeconds(-10);
-        CurrentSliderValue = 0;
+        Task.Run(() =>
+        {
+            _currentCombat = combat;
+            _currentSelectedTime = combat.EndTime.AddSeconds(-_timeOffset);
+            CurrentSliderValue = 0;
         
-        var players = _currentCombat.CharacterParticipants.ToList();
-        players.Insert(0, new Entity() { Name = _allPlayers });
-        AvailablePlayers = players;
+            var players = _currentCombat.CharacterParticipants.ToList();
+            players.Insert(0, new Entity() { Name = _allPlayers });
+            AvailablePlayers = players;
         
-        var bosses = _currentCombat.AllEntities.Where(e => e.IsBoss).ToList();
-        bosses.Insert(0, new Entity() { Name = _allBosses });
-        AvailableBosses = bosses;
+            var bosses = _currentCombat.AllEntities.Where(e => e.IsBoss).ToList();
+            bosses.Insert(0, new Entity() { Name = _allBosses });
+            AvailableBosses = bosses;
         
-        SelectedBoss = AvailableBosses.First();
-        SelectedPlayer = AvailablePlayers.First();
+            SelectedBoss = AvailableBosses.First();
+            SelectedPlayer = AvailablePlayers.First();
         
-        _deathLogsViewModel.SelectCombat(combat);
-        _deathLogsViewModel.UpdateLogs(true);
+            _deathLogsViewModel.SelectCombat(combat);
+            _deathLogsViewModel.UpdateLogs(true);
+        });
     }
     
     private void UpdateBuffsAndDebuffs()

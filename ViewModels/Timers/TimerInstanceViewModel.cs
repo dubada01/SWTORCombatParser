@@ -103,17 +103,15 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             var result = async () =>
             {
-                if(!SourceTimer.ShowIconIfPossible)
-                    return null;
                 if (!string.IsNullOrEmpty(SourceTimer.Effect) && IconGetter.HasIcon(SourceTimer.Effect))
                 {
                     return await IconGetter.GetIconForId(SourceTimer.Effect);
                 }
+
                 if (!string.IsNullOrEmpty(SourceTimer.Ability) && IconGetter.HasIcon(SourceTimer.Ability))
                 {
                     return await IconGetter.GetIconForId(SourceTimer.Ability);
                 }
-
                 return null;
             };
             InfoIcon = await result();
