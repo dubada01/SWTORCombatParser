@@ -52,24 +52,34 @@ namespace SWTORCombatParser.Model.Overlays
     {
         public override void WriteJson(JsonWriter writer, Point value, JsonSerializer serializer)
         {
-            // Serialize as "X, Y"
-            writer.WriteValue($"{value.X}, {value.Y}");
+            // Serialize as "X, Y" using InvariantCulture for consistency
+            writer.WriteValue($"{value.X.ToString(CultureInfo.InvariantCulture)}, {value.Y.ToString(CultureInfo.InvariantCulture)}");
         }
 
         public override Point ReadJson(JsonReader reader, Type objectType, Point existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            // Deserialize from "X, Y"
+            // Deserialize from formats like "200,3 , 20" or "X, Y"
             var value = (string)reader.Value;
-            var parts = value.Split(',');
 
-            if (parts.Length == 2 && double.TryParse(parts[0], out double x) && double.TryParse(parts[1], out double y))
+            // Normalize and trim input
+            value = value.Trim();
+            List<string> parts = new List<string>();
+            // Split based on ", " (comma followed by space) to avoid breaking on decimal commas
+            if(value.Contains(" "))
+                parts = value.Split(new[] { ", " }, StringSplitOptions.None).ToList();
+            else
+                parts = value.Split(new[] { "," }, StringSplitOptions.None).ToList();
+
+            if (parts.Count == 2 &&
+                double.TryParse(parts[0],  CultureInfo.InvariantCulture, out double x) &&
+                double.TryParse(parts[1],  CultureInfo.InvariantCulture, out double y))
             {
                 return new Point(x, y);
             }
-
             throw new JsonSerializationException("Invalid format for Avalonia Point");
         }
     }
+
     public class AvaloniaPixelPointConverter : JsonConverter<PixelPoint>
     {
         public override void WriteJson(JsonWriter writer, PixelPoint value, JsonSerializer serializer)
