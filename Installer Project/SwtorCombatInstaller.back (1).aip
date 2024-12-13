@@ -9,10 +9,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="OrbsIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{9A706B06-7F57-43AA-9D42-5BFC84717FCA} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{92D0C20A-5603-48E3-A7DF-36A6E8B90E90} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Parser)"/>
-    <ROW Property="ProductVersion" Value="2.0.7" Options="32"/>
+    <ROW Property="ProductVersion" Value="2.0.8" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{80800124-4453-4786-91FB-F71AA5158404}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -130,18 +130,12 @@
     <ROW Directory="keystore_Dir" Directory_Parent="plugins_Dir" DefaultDir="keystore"/>
     <ROW Directory="lib_Dir" Directory_Parent="win_Dir" DefaultDir="lib"/>
     <ROW Directory="libvlc_Dir" Directory_Parent="APPDIR" DefaultDir="libvlc"/>
-    <ROW Directory="linuxarm64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="LINUX-~2|linux-arm64"/>
-    <ROW Directory="linuxarm_Dir" Directory_Parent="runtimes_Dir" DefaultDir="LINUX-~1|linux-arm"/>
-    <ROW Directory="linuxmuslx64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="LINUX-~3|linux-musl-x64"/>
-    <ROW Directory="linuxx64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="LINUX-~4|linux-x64"/>
     <ROW Directory="logger_1_Dir" Directory_Parent="plugins_1_Dir" DefaultDir="logger"/>
     <ROW Directory="logger_Dir" Directory_Parent="plugins_Dir" DefaultDir="logger"/>
     <ROW Directory="lua_1_Dir" Directory_Parent="plugins_Dir" DefaultDir="lua"/>
     <ROW Directory="lua_2_Dir" Directory_Parent="winx86_1_Dir" DefaultDir="lua"/>
     <ROW Directory="lua_3_Dir" Directory_Parent="plugins_1_Dir" DefaultDir="lua"/>
     <ROW Directory="lua_Dir" Directory_Parent="winx64_1_Dir" DefaultDir="lua"/>
-    <ROW Directory="maccatalystarm64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="MACCAT~1|maccatalyst-arm64"/>
-    <ROW Directory="maccatalystx64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="MACCAT~2|maccatalyst-x64"/>
     <ROW Directory="meta_1_Dir" Directory_Parent="lua_2_Dir" DefaultDir="meta"/>
     <ROW Directory="meta_Dir" Directory_Parent="lua_Dir" DefaultDir="meta"/>
     <ROW Directory="meta_engine_1_Dir" Directory_Parent="plugins_1_Dir" DefaultDir="META_E~1|meta_engine"/>
@@ -156,20 +150,7 @@
     <ROW Directory="mux_Dir" Directory_Parent="plugins_Dir" DefaultDir="mux"/>
     <ROW Directory="native_10_Dir" Directory_Parent="winx64_Dir" DefaultDir="native"/>
     <ROW Directory="native_11_Dir" Directory_Parent="winx86_Dir" DefaultDir="native"/>
-    <ROW Directory="native_1_Dir" Directory_Parent="linuxarm64_Dir" DefaultDir="native"/>
-    <ROW Directory="native_2_Dir" Directory_Parent="linuxmuslx64_Dir" DefaultDir="native"/>
-    <ROW Directory="native_3_Dir" Directory_Parent="linuxx64_Dir" DefaultDir="native"/>
-    <ROW Directory="native_4_Dir" Directory_Parent="maccatalystarm64_Dir" DefaultDir="native"/>
-    <ROW Directory="native_5_Dir" Directory_Parent="maccatalystx64_Dir" DefaultDir="native"/>
-    <ROW Directory="native_6_Dir" Directory_Parent="osx_Dir" DefaultDir="native"/>
-    <ROW Directory="native_7_Dir" Directory_Parent="osxarm64_Dir" DefaultDir="native"/>
-    <ROW Directory="native_8_Dir" Directory_Parent="osxx64_Dir" DefaultDir="native"/>
-    <ROW Directory="native_9_Dir" Directory_Parent="winarm64_Dir" DefaultDir="native"/>
-    <ROW Directory="native_Dir" Directory_Parent="linuxarm_Dir" DefaultDir="native"/>
     <ROW Directory="net8.0_Dir" Directory_Parent="lib_Dir" DefaultDir="net8.0"/>
-    <ROW Directory="osx_Dir" Directory_Parent="runtimes_Dir" DefaultDir="osx"/>
-    <ROW Directory="osxarm64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="OSX-AR~1|osx-arm64"/>
-    <ROW Directory="osxx64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="osx-x64"/>
     <ROW Directory="packetizer_1_Dir" Directory_Parent="plugins_1_Dir" DefaultDir="PACKET~1|packetizer"/>
     <ROW Directory="packetizer_Dir" Directory_Parent="plugins_Dir" DefaultDir="PACKET~1|packetizer"/>
     <ROW Directory="playlist_1_Dir" Directory_Parent="lua_2_Dir" DefaultDir="playlist"/>
@@ -209,7 +190,6 @@
     <ROW Directory="visualization_1_Dir" Directory_Parent="plugins_1_Dir" DefaultDir="VISUAL~1|visualization"/>
     <ROW Directory="visualization_Dir" Directory_Parent="plugins_Dir" DefaultDir="VISUAL~1|visualization"/>
     <ROW Directory="win_Dir" Directory_Parent="runtimes_Dir" DefaultDir="win"/>
-    <ROW Directory="winarm64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="WIN-AR~1|win-arm64"/>
     <ROW Directory="winx64_1_Dir" Directory_Parent="libvlc_Dir" DefaultDir="win-x64"/>
     <ROW Directory="winx64_Dir" Directory_Parent="runtimes_Dir" DefaultDir="win-x64"/>
     <ROW Directory="winx86_1_Dir" Directory_Parent="libvlc_Dir" DefaultDir="win-x86"/>
@@ -338,7 +318,6 @@
     <ROW Component="absorbs.json" ComponentId="{BC95CB44-109E-4AB0-9515-80D2B8A8D9C0}" Directory_="AbilityInfo_Dir" Attributes="0" KeyPath="absorbs.json" Type="0"/>
     <ROW Component="anevia_streams.luac" ComponentId="{2E72CAF0-9622-4059-86E0-E615979DC719}" Directory_="playlist_Dir" Attributes="0" KeyPath="anevia_streams.luac" Type="0"/>
     <ROW Component="anevia_streams.luac_1" ComponentId="{9D75B93F-A8F0-4DB4-8BE4-418816A67E75}" Directory_="playlist_1_Dir" Attributes="0" KeyPath="anevia_streams.luac_1" Type="0"/>
-    <ROW Component="av_libglesv2.dll" ComponentId="{3A9DED97-25FF-4C5F-96ED-9042637F6822}" Directory_="native_9_Dir" Attributes="256" KeyPath="av_libglesv2.dll"/>
     <ROW Component="av_libglesv2.dll_1" ComponentId="{94045F3D-97C5-4DB2-B11D-150E70F0CF12}" Directory_="native_10_Dir" Attributes="256" KeyPath="av_libglesv2.dll_1"/>
     <ROW Component="av_libglesv2.dll_2" ComponentId="{95DBCA1C-3BCA-4CD6-BD2D-E2FA4E4F9529}" Directory_="native_11_Dir" Attributes="0" KeyPath="av_libglesv2.dll_2"/>
     <ROW Component="batch_window.html" ComponentId="{469A7DDA-1FC2-4CD3-890E-7D823FE1DF1F}" Directory_="dialogs_Dir" Attributes="0" KeyPath="batch_window.html" Type="0"/>
@@ -363,15 +342,8 @@
     <ROW Component="icecast.luac_1" ComponentId="{16A349F5-58BD-4BBE-B929-A680BF08C37C}" Directory_="sd_1_Dir" Attributes="0" KeyPath="icecast.luac_1" Type="0"/>
     <ROW Component="jqueryui1.8.13.custom.css" ComponentId="{E0134E74-3F3C-49EC-A6B4-0009FB913678}" Directory_="uilightness_Dir" Attributes="0" KeyPath="jqueryui1.8.13.custom.css" Type="0"/>
     <ROW Component="jqueryui1.8.13.custom.css_1" ComponentId="{706BB34D-C06C-4248-BEDF-876C55879531}" Directory_="uilightness_1_Dir" Attributes="0" KeyPath="jqueryui1.8.13.custom.css_1" Type="0"/>
-    <ROW Component="libAvaloniaNative.dylib" ComponentId="{BD22626B-3736-48CA-84A5-62AEAB4AB970}" Directory_="native_6_Dir" Attributes="0" KeyPath="libAvaloniaNative.dylib" Type="0"/>
-    <ROW Component="libHarfBuzzSharp.dll" ComponentId="{0FB1730F-2654-4ACE-9B98-23FB73C8A2D6}" Directory_="native_9_Dir" Attributes="256" KeyPath="libHarfBuzzSharp.dll"/>
     <ROW Component="libHarfBuzzSharp.dll_1" ComponentId="{F62E437F-5C0B-45D9-9295-978A598558C6}" Directory_="native_10_Dir" Attributes="256" KeyPath="libHarfBuzzSharp.dll_1"/>
     <ROW Component="libHarfBuzzSharp.dll_2" ComponentId="{6872F583-0DD8-441A-958F-F56EAF5DAE59}" Directory_="native_11_Dir" Attributes="0" KeyPath="libHarfBuzzSharp.dll_2"/>
-    <ROW Component="libHarfBuzzSharp.so" ComponentId="{CB21C3C2-EADC-44CF-9692-EE66552FBC76}" Directory_="native_Dir" Attributes="0" KeyPath="libHarfBuzzSharp.so" Type="0"/>
-    <ROW Component="libHarfBuzzSharp.so_1" ComponentId="{B8E5DD20-BF3E-4466-942B-F8A97F32BD9D}" Directory_="native_1_Dir" Attributes="0" KeyPath="libHarfBuzzSharp.so_1" Type="0"/>
-    <ROW Component="libHarfBuzzSharp.so_2" ComponentId="{983164D3-E935-472A-9ACD-F6F9FFEC7A01}" Directory_="native_2_Dir" Attributes="0" KeyPath="libHarfBuzzSharp.so_2" Type="0"/>
-    <ROW Component="libHarfBuzzSharp.so_3" ComponentId="{F42A785F-DA0F-4850-A139-804B097E3FE0}" Directory_="native_3_Dir" Attributes="0" KeyPath="libHarfBuzzSharp.so_3" Type="0"/>
-    <ROW Component="libSkiaSharp.dll" ComponentId="{41B09A1E-D213-4BFE-B790-0A6746A9C530}" Directory_="native_9_Dir" Attributes="256" KeyPath="libSkiaSharp.dll"/>
     <ROW Component="libSkiaSharp.dll_1" ComponentId="{BE8C28C6-C653-4BEB-AF48-84573609331B}" Directory_="native_10_Dir" Attributes="256" KeyPath="libSkiaSharp.dll_1"/>
     <ROW Component="libSkiaSharp.dll_2" ComponentId="{BB04C402-FB81-4F28-ADB3-B9FF61E3F055}" Directory_="native_11_Dir" Attributes="0" KeyPath="libSkiaSharp.dll_2"/>
     <ROW Component="libaccess_concat_plugin.dll" ComponentId="{894EFEF5-6512-4C24-B51C-9A08DC10EED1}" Directory_="access_Dir" Attributes="256" KeyPath="libaccess_concat_plugin.dll"/>
@@ -954,10 +926,6 @@
     <ROW Component="libudp_plugin.dll_1" ComponentId="{C9564142-6E61-43E7-A4F5-7ADE3B5514D1}" Directory_="access_1_Dir" Attributes="0" KeyPath="libudp_plugin.dll_1"/>
     <ROW Component="libugly_resampler_plugin.dll" ComponentId="{9F381855-1025-4E3E-9261-E5E42B34E880}" Directory_="audio_filter_Dir" Attributes="256" KeyPath="libugly_resampler_plugin.dll"/>
     <ROW Component="libugly_resampler_plugin.dll_1" ComponentId="{28EB279F-F922-496A-AB3C-BB8121F1AABE}" Directory_="audio_filter_1_Dir" Attributes="0" KeyPath="libugly_resampler_plugin.dll_1"/>
-    <ROW Component="libuiohook.dylib" ComponentId="{2F2DF55B-06F4-4BCC-9A4B-C12CEA968318}" Directory_="native_4_Dir" Attributes="0" KeyPath="libuiohook.dylib" Type="0"/>
-    <ROW Component="libuiohook.dylib_1" ComponentId="{84C50D83-53EE-4BD7-AD4F-743538E42DDE}" Directory_="native_5_Dir" Attributes="0" KeyPath="libuiohook.dylib_1" Type="0"/>
-    <ROW Component="libuiohook.dylib_2" ComponentId="{0D399226-867A-494C-9F83-0F99AC5C84C6}" Directory_="native_7_Dir" Attributes="0" KeyPath="libuiohook.dylib_2" Type="0"/>
-    <ROW Component="libuiohook.dylib_3" ComponentId="{C3EAA2CC-BC56-459F-A410-4053C9B26DBE}" Directory_="native_8_Dir" Attributes="0" KeyPath="libuiohook.dylib_3" Type="0"/>
     <ROW Component="libuleaddvaudio_plugin.dll" ComponentId="{135BEBA6-C8F2-4694-B8D1-A02FDE635B98}" Directory_="codec_Dir" Attributes="256" KeyPath="libuleaddvaudio_plugin.dll"/>
     <ROW Component="libuleaddvaudio_plugin.dll_1" ComponentId="{75519C62-EB4B-48D8-99D8-9E5E14B4F3DE}" Directory_="codec_1_Dir" Attributes="0" KeyPath="libuleaddvaudio_plugin.dll_1"/>
     <ROW Component="libupnp_plugin.dll" ComponentId="{E82B7454-A75F-4FE8-9DF7-5E354A9592E7}" Directory_="services_discovery_Dir" Attributes="256" KeyPath="libupnp_plugin.dll"/>
@@ -1036,7 +1004,6 @@
     <ROW Component="timers.json_6" ComponentId="{51BCB1F0-42DF-4F88-B931-6D128F3F56FC}" Directory_="OffensiveTimers_Dir" Attributes="0" KeyPath="timers.json_6" Type="0"/>
     <ROW Component="uibg_diagonalsthick_18_b81900_40x40.png" ComponentId="{13B45A40-113B-460B-9F11-6AD0382B18FF}" Directory_="images_Dir" Attributes="0" KeyPath="uibg_diagonalsthick_18_b81900_40x40.png" Type="0"/>
     <ROW Component="uibg_diagonalsthick_18_b81900_40x40.png_1" ComponentId="{15B0E3A0-1C15-4F15-97DD-7710A54F9360}" Directory_="images_2_Dir" Attributes="0" KeyPath="uibg_diagonalsthick_18_b81900_40x40.png_1" Type="0"/>
-    <ROW Component="uiohook.dll" ComponentId="{CB32AEB6-20D6-4CD3-BAC9-607B8F22DD7F}" Directory_="native_9_Dir" Attributes="256" KeyPath="uiohook.dll"/>
     <ROW Component="uiohook.dll_1" ComponentId="{43D66AB8-1419-43AC-81FF-4690FA2CA1A3}" Directory_="native_10_Dir" Attributes="256" KeyPath="uiohook.dll_1"/>
     <ROW Component="uiohook.dll_2" ComponentId="{5409B728-B599-433D-82EB-74FB35471F8F}" Directory_="native_11_Dir" Attributes="0" KeyPath="uiohook.dll_2"/>
   </COMPONENT>
@@ -1103,29 +1070,7 @@
     <ROW File="timers.json_4" Component_="timers.json_4" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0\DataStructures\Timers\DOT Timers\timers.json" SelfReg="false"/>
     <ROW File="timers.json_5" Component_="timers.json_5" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0\DataStructures\Timers\HOT Timers\timers.json" SelfReg="false"/>
     <ROW File="timers.json_6" Component_="timers.json_6" FileName="TIMERS~1.JSO|timers.json" Attributes="0" SourcePath="..\bin\Release\net8.0\DataStructures\Timers\Offensive Timers\timers.json" SelfReg="false"/>
-    <ROW File="libHarfBuzzSharp.so" Component_="libHarfBuzzSharp.so" FileName="LIBHAR~1.SO|libHarfBuzzSharp.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-arm\native\libHarfBuzzSharp.so" SelfReg="false"/>
-    <ROW File="libSkiaSharp.so" Component_="libHarfBuzzSharp.so" FileName="LIBSKI~1.SO|libSkiaSharp.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-arm\native\libSkiaSharp.so" SelfReg="false"/>
-    <ROW File="libuiohook.so" Component_="libHarfBuzzSharp.so" FileName="LIBUIO~1.SO|libuiohook.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-arm\native\libuiohook.so" SelfReg="false"/>
-    <ROW File="libHarfBuzzSharp.so_1" Component_="libHarfBuzzSharp.so_1" FileName="LIBHAR~1.SO|libHarfBuzzSharp.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-arm64\native\libHarfBuzzSharp.so" SelfReg="false"/>
-    <ROW File="libSkiaSharp.so_1" Component_="libHarfBuzzSharp.so_1" FileName="LIBSKI~1.SO|libSkiaSharp.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-arm64\native\libSkiaSharp.so" SelfReg="false"/>
-    <ROW File="libuiohook.so_1" Component_="libHarfBuzzSharp.so_1" FileName="LIBUIO~1.SO|libuiohook.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-arm64\native\libuiohook.so" SelfReg="false"/>
-    <ROW File="libHarfBuzzSharp.so_2" Component_="libHarfBuzzSharp.so_2" FileName="LIBHAR~1.SO|libHarfBuzzSharp.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-musl-x64\native\libHarfBuzzSharp.so" SelfReg="false"/>
-    <ROW File="libSkiaSharp.so_2" Component_="libHarfBuzzSharp.so_2" FileName="LIBSKI~1.SO|libSkiaSharp.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-musl-x64\native\libSkiaSharp.so" SelfReg="false"/>
-    <ROW File="libHarfBuzzSharp.so_3" Component_="libHarfBuzzSharp.so_3" FileName="LIBHAR~1.SO|libHarfBuzzSharp.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-x64\native\libHarfBuzzSharp.so" SelfReg="false"/>
-    <ROW File="libSkiaSharp.so_3" Component_="libHarfBuzzSharp.so_3" FileName="LIBSKI~1.SO|libSkiaSharp.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-x64\native\libSkiaSharp.so" SelfReg="false"/>
-    <ROW File="libuiohook.so_2" Component_="libHarfBuzzSharp.so_3" FileName="LIBUIO~1.SO|libuiohook.so" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\linux-x64\native\libuiohook.so" SelfReg="false"/>
-    <ROW File="libuiohook.dylib" Component_="libuiohook.dylib" FileName="LIBUIO~1.DYL|libuiohook.dylib" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\maccatalyst-arm64\native\libuiohook.dylib" SelfReg="false"/>
-    <ROW File="libuiohook.dylib_1" Component_="libuiohook.dylib_1" FileName="LIBUIO~1.DYL|libuiohook.dylib" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\maccatalyst-x64\native\libuiohook.dylib" SelfReg="false"/>
-    <ROW File="libAvaloniaNative.dylib" Component_="libAvaloniaNative.dylib" FileName="LIBAVA~1.DYL|libAvaloniaNative.dylib" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\osx\native\libAvaloniaNative.dylib" SelfReg="false"/>
-    <ROW File="libHarfBuzzSharp.dylib" Component_="libAvaloniaNative.dylib" FileName="LIBHAR~1.DYL|libHarfBuzzSharp.dylib" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\osx\native\libHarfBuzzSharp.dylib" SelfReg="false"/>
-    <ROW File="libSkiaSharp.dylib" Component_="libAvaloniaNative.dylib" FileName="LIBSKI~1.DYL|libSkiaSharp.dylib" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\osx\native\libSkiaSharp.dylib" SelfReg="false"/>
-    <ROW File="libuiohook.dylib_2" Component_="libuiohook.dylib_2" FileName="LIBUIO~1.DYL|libuiohook.dylib" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\osx-arm64\native\libuiohook.dylib" SelfReg="false"/>
-    <ROW File="libuiohook.dylib_3" Component_="libuiohook.dylib_3" FileName="LIBUIO~1.DYL|libuiohook.dylib" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\osx-x64\native\libuiohook.dylib" SelfReg="false"/>
     <ROW File="Microsoft.Win32.SystemEvents.dll_1" Component_="Microsoft.Win32.SystemEvents.dll_1" FileName="MICROS~1.DLL|Microsoft.Win32.SystemEvents.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll" SelfReg="false"/>
-    <ROW File="av_libglesv2.dll" Component_="av_libglesv2.dll" FileName="AV_LIB~1.DLL|av_libglesv2.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\win-arm64\native\av_libglesv2.dll" SelfReg="false"/>
-    <ROW File="libHarfBuzzSharp.dll" Component_="libHarfBuzzSharp.dll" FileName="LIBHAR~1.DLL|libHarfBuzzSharp.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\win-arm64\native\libHarfBuzzSharp.dll" SelfReg="false"/>
-    <ROW File="libSkiaSharp.dll" Component_="libSkiaSharp.dll" FileName="LIBSKI~1.DLL|libSkiaSharp.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\win-arm64\native\libSkiaSharp.dll" SelfReg="false"/>
-    <ROW File="uiohook.dll" Component_="uiohook.dll" FileName="uiohook.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\win-arm64\native\uiohook.dll" SelfReg="false"/>
     <ROW File="av_libglesv2.dll_1" Component_="av_libglesv2.dll_1" FileName="AV_LIB~1.DLL|av_libglesv2.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\win-x64\native\av_libglesv2.dll" SelfReg="false"/>
     <ROW File="libHarfBuzzSharp.dll_1" Component_="libHarfBuzzSharp.dll_1" FileName="LIBHAR~1.DLL|libHarfBuzzSharp.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\win-x64\native\libHarfBuzzSharp.dll" SelfReg="false"/>
     <ROW File="libSkiaSharp.dll_1" Component_="libSkiaSharp.dll_1" FileName="LIBSKI~1.DLL|libSkiaSharp.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\runtimes\win-x64\native\libSkiaSharp.dll" SelfReg="false"/>
@@ -2581,20 +2526,7 @@
     <ROW Feature_="MainFeature" Component_="AnimatedImage.Avalonia.dll"/>
     <ROW Feature_="MainFeature" Component_="timers.json_5"/>
     <ROW Feature_="MainFeature" Component_="timers.json_6"/>
-    <ROW Feature_="MainFeature" Component_="libHarfBuzzSharp.so"/>
-    <ROW Feature_="MainFeature" Component_="libHarfBuzzSharp.so_1"/>
-    <ROW Feature_="MainFeature" Component_="libHarfBuzzSharp.so_2"/>
-    <ROW Feature_="MainFeature" Component_="libHarfBuzzSharp.so_3"/>
-    <ROW Feature_="MainFeature" Component_="libuiohook.dylib"/>
-    <ROW Feature_="MainFeature" Component_="libuiohook.dylib_1"/>
-    <ROW Feature_="MainFeature" Component_="libAvaloniaNative.dylib"/>
-    <ROW Feature_="MainFeature" Component_="libuiohook.dylib_2"/>
-    <ROW Feature_="MainFeature" Component_="libuiohook.dylib_3"/>
     <ROW Feature_="MainFeature" Component_="Microsoft.Win32.SystemEvents.dll_1"/>
-    <ROW Feature_="MainFeature" Component_="av_libglesv2.dll"/>
-    <ROW Feature_="MainFeature" Component_="libHarfBuzzSharp.dll"/>
-    <ROW Feature_="MainFeature" Component_="libSkiaSharp.dll"/>
-    <ROW Feature_="MainFeature" Component_="uiohook.dll"/>
     <ROW Feature_="MainFeature" Component_="av_libglesv2.dll_1"/>
     <ROW Feature_="MainFeature" Component_="libHarfBuzzSharp.dll_1"/>
     <ROW Feature_="MainFeature" Component_="libSkiaSharp.dll_1"/>

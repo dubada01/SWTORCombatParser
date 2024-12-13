@@ -2,6 +2,7 @@
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -10,7 +11,11 @@ using System.Threading.Tasks;
 namespace SWTORCombatParser.Model.CloudRaiding
 {
     public class ChallengeDatabaseAccess
-    {
+    {        
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings
+        {
+            Culture = CultureInfo.InvariantCulture
+        };
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
         public static async Task<List<string>> GetAllChallengeIds()
         {
@@ -42,7 +47,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using (HttpClient connection = new HttpClient())
                 {
                     Uri uri = new Uri($"{_apiPath}/challenges/add");
-                    var str = JsonConvert.SerializeObject(newTimer);
+                    var str = JsonConvert.SerializeObject(newTimer, _settings);
                     var content = new StringContent(str, Encoding.UTF8, "application/json");
                     var response = await connection.PostAsync(uri, content);
                     response.EnsureSuccessStatusCode();

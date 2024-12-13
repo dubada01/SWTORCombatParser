@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Avalonia;
@@ -105,6 +106,10 @@ namespace SWTORCombatParser.Model.Overlays
     {
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "character_overlay_info.json");
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings
+        {
+            Culture = CultureInfo.InvariantCulture
+        };
         public static void Init()
         {
             if (!Directory.Exists(appDataPath))
@@ -207,7 +212,7 @@ namespace SWTORCombatParser.Model.Overlays
         {
             var currentDefaults = GetCurrentCharacterDefaults();
             currentDefaults[character] = data;
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults, _settings));
         }
         public static void CopyFromKey(string from, string to)
         {
@@ -220,7 +225,7 @@ namespace SWTORCombatParser.Model.Overlays
             else
             {
                 currentDefaults[to] = currentDefaults[from];
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults, _settings));
             }
         }
         public static void InitializeCharacterDefaults(string characterName)
@@ -240,7 +245,7 @@ namespace SWTORCombatParser.Model.Overlays
                 defaults["Alerts"] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point(250,100) };
             }
             currentDefaults[characterName] = defaults;
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults, _settings));
         }
         private static Dictionary<string, Dictionary<string, OverlayInfo>> GetCurrentCharacterDefaults()
         {

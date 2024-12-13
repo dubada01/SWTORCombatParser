@@ -4,6 +4,7 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -40,7 +41,7 @@ namespace SWTORCombatParser.DataStructures
             _logPath = logPath;
             _lineNumber = lineNumber + 1;
 
-            var doubleSeconds = double.Parse(sec);
+            var doubleSeconds = double.Parse(sec, CultureInfo.InvariantCulture);
             SecondsSinceCombatStart = TimeSpan.FromSeconds(doubleSeconds).ToString(@"mm\:ss\.fff");
             Source = source;
             Target = target;

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Avalonia;
@@ -26,6 +27,10 @@ namespace SWTORCombatParser.Model.Challenge
         private static string infoPath = Path.Combine(appDataPath, "challengeInfo.json");
         private static string activePath = Path.Combine(appDataPath, "challengeActive.json");
         private static object _fileLock = new object();
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings
+        {
+            Culture = CultureInfo.InvariantCulture
+        };
         public static void UpdateChallengeActive(bool challengeActive, string source)
         {
             var currentActives = GetAllChallengeActive();
@@ -109,7 +114,7 @@ namespace SWTORCombatParser.Model.Challenge
                     defaults.Add(source);
             }
 
-            UpdateConfig(JsonConvert.SerializeObject(defaults));
+            UpdateConfig(JsonConvert.SerializeObject(defaults, _settings));
         }
         public static void AddSource(DefaultChallengeData source)
         {
@@ -128,7 +133,7 @@ namespace SWTORCombatParser.Model.Challenge
             }
             else
                 defaults.Add(source);
-            UpdateConfig(JsonConvert.SerializeObject(defaults));
+            UpdateConfig(JsonConvert.SerializeObject(defaults, _settings));
         }
 
         public static void ResetChallengesForSouce(string source)
@@ -237,12 +242,12 @@ namespace SWTORCombatParser.Model.Challenge
                 currentDefaults.Remove(currentDefaults.First(cd => cd.ChallengeSource == source));
                 currentDefaults.Add(data);
 
-                UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
+                UpdateConfig(JsonConvert.SerializeObject(currentDefaults, _settings));
             }
         }
         private static void SaveAllResults(List<DefaultChallengeData> data)
         {
-            UpdateConfig(JsonConvert.SerializeObject(data));
+            UpdateConfig(JsonConvert.SerializeObject(data, _settings));
         }
         private static void InitializeDefaults(string source)
         {

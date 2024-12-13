@@ -3,6 +3,7 @@ using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reactive;
 using ReactiveUI;
@@ -249,16 +250,16 @@ namespace SWTORCombatParser.ViewModels.Phases
                 EntityIds = MultiTargetOptions.Any() ? MultiTargetOptions.Select(o => long.Parse(o.Name)).ToList() : (!string.IsNullOrEmpty(SelectedTarget) ? new List<long> { long.Parse(SelectedTarget) } : new List<long>()),
                 AbilityIds = MultiValueOptions.Select(t => t.Name).ToList(),
                 EffectIds = MultiValueOptions.Select(t => t.Name).ToList(),
-                HPPercentage = !string.IsNullOrEmpty(Value) ? double.Parse(Value) : 0,
-                CombatDuration = !string.IsNullOrEmpty(Value) ? double.Parse(Value) : 0
+                HPPercentage = !string.IsNullOrEmpty(Value) ? double.Parse(Value,CultureInfo.InvariantCulture) : 0,
+                CombatDuration = !string.IsNullOrEmpty(Value) ? double.Parse(Value,CultureInfo.InvariantCulture) : 0
             };
             var endArgs = new PhaseArgs
             {
                 EntityIds = EndMultiTargetOptions.Any() ? EndMultiTargetOptions.Select(o => long.Parse(o.Name)).ToList() : (!string.IsNullOrEmpty(EndSelectedTarget) ? new List<long> { long.Parse(EndSelectedTarget) } : new List<long>()),
                 AbilityIds = EndMultiValueOptions.Select(t => t.Name).ToList(),
                 EffectIds = EndMultiValueOptions.Select(t => t.Name).ToList(),
-                HPPercentage = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue) : 0,
-                CombatDuration = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue) : 0
+                HPPercentage = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue,CultureInfo.InvariantCulture) : 0,
+                CombatDuration = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue,CultureInfo.InvariantCulture) : 0
             };
             OnNewPhase(new Phase()
             {
