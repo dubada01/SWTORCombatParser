@@ -465,27 +465,34 @@ namespace SWTORCombatParser.ViewModels
             CurrentlyDisplayedCombat = updatedCombat;
             if (LoadingWindowFactory.MainWindowHidden)
                 return;
-            Dispatcher.UIThread.Invoke(delegate
+            try
             {
-                _overlayViewModel.CombatUpdated(updatedCombat);
-                switch (SelectedTabIndex)
+                Dispatcher.UIThread.Invoke(delegate
                 {
-                    case 1:
-                        _plotViewModel.UpdateParticipants(updatedCombat);
-                        _plotViewModel.UpdateLivePlot(updatedCombat);
-                        break;
-                    case 2:
-                        _tableViewModel.AddCombat(updatedCombat);
-                        break;
-                    case 0:
-                        _dataGridViewModel.UpdateCombat(updatedCombat);
-                        break;
-                }
-                if(_viewingLogs)
-                    _reviewViewModel.CombatSelected(updatedCombat);
-            });
-
-            _allViewsUpToDate = false;
+                    _overlayViewModel.CombatUpdated(updatedCombat);
+                    switch (SelectedTabIndex)
+                    {
+                        case 1:
+                            _plotViewModel.UpdateParticipants(updatedCombat);
+                            _plotViewModel.UpdateLivePlot(updatedCombat);
+                            break;
+                        case 2:
+                            _tableViewModel.AddCombat(updatedCombat);
+                            break;
+                        case 0:
+                            _dataGridViewModel.UpdateCombat(updatedCombat);
+                            break;
+                    }
+                    if(_viewingLogs)
+                        _reviewViewModel.CombatSelected(updatedCombat);
+                    
+                });
+                _allViewsUpToDate = false;
+            }
+            catch (Exception e)
+            {
+                Logging.LogError("Failed to update combat visuals: " + e.Message);
+            }
         }
         private void SelectCombat(Combat selectedCombat)
         {
@@ -495,20 +502,26 @@ namespace SWTORCombatParser.ViewModels
         }
         private void UpdateViewsWithSelectedCombat(Combat selectedCombat)
         {
-
-            Dispatcher.UIThread.Invoke(delegate
+            try
             {
-                CurrentlyDisplayedCombat = selectedCombat;
-                _overlayViewModel.CombatSeleted(selectedCombat);
-                _plotViewModel.UpdateParticipants(selectedCombat);
-                _plotViewModel.AddCombatPlot(selectedCombat);
-                _tableViewModel.AddCombat(selectedCombat);
-                _deathViewModel.SetCombat(selectedCombat);
-                _reviewViewModel.CombatSelected(selectedCombat);
-                _dataGridViewModel.UpdateCombat(selectedCombat);
+                Dispatcher.UIThread.Invoke(delegate
+                {
+                    CurrentlyDisplayedCombat = selectedCombat;
+                    _overlayViewModel.CombatSeleted(selectedCombat);
+                    _plotViewModel.UpdateParticipants(selectedCombat);
+                    _plotViewModel.AddCombatPlot(selectedCombat);
+                    _tableViewModel.AddCombat(selectedCombat);
+                    _deathViewModel.SetCombat(selectedCombat);
+                    _reviewViewModel.CombatSelected(selectedCombat);
+                    _dataGridViewModel.UpdateCombat(selectedCombat);
 
-                _allViewsUpToDate = true;
-            });
+                    _allViewsUpToDate = true;
+                });
+            }
+            catch (Exception e)
+            {
+                Logging.LogError("Failed to update combat visuals: " + e.Message);
+            }
         }
 
         private void LocalPlayerChanged(Entity obj)

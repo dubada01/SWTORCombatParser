@@ -21,6 +21,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
+using MsBox.Avalonia;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
@@ -116,6 +117,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _combatLogStreamer.NewTotalTimeOffsetMs += UpdateTotalOffset;
             _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
             _combatLogStreamer.ReparsingLogs += HandleLogReparse;
+            _combatLogStreamer.ErrorParsingLogs += LiveParseError;
             CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
                 manager => CombatLogStreamer.CombatUpdated += manager,
@@ -297,7 +299,14 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 reader.Close();
             }
         }
+
         ///
+        public async void LiveParseError(string errorMessage)
+        {
+            var box =MessageBoxManager.GetMessageBoxStandard("Error",
+                "There was an unexepected error while parsing the combat log. Please message Zarnuro on Discord with the following error message for support if this issue persists.\r\n\r\n" + errorMessage);
+           await box.ShowAsync();
+        }
         public void DisableLiveParse()
         {
             if (!LiveParseActive)
@@ -383,6 +392,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _totalLogsDuringCombat[combatStartTime] = obj;
             _usingHistoricalData = false;
             var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), true);
+            //only process combats if they were property created
+            if(combatInfo.StartTime == DateTime.MinValue)
+            {
+                return;
+            }
             CombatSelectionMonitor.InProgressCombatSeleted(combatInfo);
             if (CurrentEncounter == null)
                 return;
@@ -406,6 +420,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true, combatEndUpdate: true);
+                //only process combats if they were property created
+                if(combatInfo.StartTime == DateTime.MinValue)
+                {
+                    return;
+                }
                 //if (combatInfo.IsCombatWithBoss)
                 //    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
                 CombatSelectionMonitor.SelectCompleteCombat(combatInfo);
@@ -434,6 +453,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     continue;
                 Logging.LogInfo("Processing combat with start time " + combatStartTime + " and " + combatLogs.Count + " log entries");
                 var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs, false, true, combatEndUpdate:true);
+                //only process combats if they were property created
+                if(combatInfo.StartTime == DateTime.MinValue)
+                {
+                    return;
+                }
                 Logging.LogInfo("Combat processed!");
                 //LocalCombatLogCaching.SaveCombatLogs(combatInfo, false);
                 var addedNewEncounter = TryAddEncounter(combatInfo.StartTime);

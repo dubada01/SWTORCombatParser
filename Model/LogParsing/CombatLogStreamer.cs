@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -29,6 +30,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public event Action<double> NewLogTimeOffsetMs = delegate { };
         public event Action<double> NewTotalTimeOffsetMs = delegate { };
         public event Action ReparsingLogs = delegate { };
+        public event Action<string> ErrorParsingLogs = delegate { };
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
 
         private bool _isInCombat = false;
@@ -58,12 +60,22 @@ namespace SWTORCombatParser.Model.LogParsing
             Logging.LogInfo("Starting live monitor of log - " + logToMonitor);
             Task.Run(() =>
             {
-                ResetMonitoring();
-                _logToMonitor = logToMonitor;
-                ParseExisitingLogs();
-                LoadingWindowFactory.HideLoading();
-                _monitorLog = true;
-                PollForUpdates();
+                try
+                {
+                    ResetMonitoring();
+                    _logToMonitor = logToMonitor;
+                    ParseExisitingLogs();
+                    LoadingWindowFactory.HideLoading();
+                    _monitorLog = true;
+                    PollForUpdates();
+                }
+                catch (Exception e)
+                {
+                    Logging.LogError("Error during log monitoring: " + e.Message);
+                    _monitorLog = false;
+                    _currentCombatLogs.Clear();
+                    ErrorParsingLogs(JsonConvert.SerializeObject(e));
+                }
             });
         }
         public void ParseCompleteLog(string log)

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using ScottPlot;
 using SWTORCombatParser.Utilities.MouseHandler;
@@ -187,20 +188,39 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private int GetHeight()
         {
             var parentWindow = VisualRoot as BaseOverlayWindow;
-            var scalingFactor = parentWindow.Screens.ScreenFromVisual(parentWindow).Scaling;
-            return (int)(parentWindow.savedObjectSize.Y - (87 * scalingFactor));
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+
+                var scalingFactor = desktop.MainWindow.RenderScaling;
+                return (int)(parentWindow.savedObjectSize.Y - (87 * scalingFactor));
+            }
+
+            return 0;
         }
         private int GetWidth()
         {
             var parentWindow = VisualRoot as BaseOverlayWindow;
-            var scalingFactor = parentWindow.Screens.ScreenFromVisual(parentWindow).Scaling;
-            return (int)(parentWindow.savedObjectSize.X - (100 * scalingFactor));
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+
+                var scalingFactor = desktop.MainWindow.RenderScaling;
+                return (int)(parentWindow.savedObjectSize.X - (100 * scalingFactor));
+            }
+
+            return 0;
         }
         private PixelPoint GetTopLeft()
         {        
             var parentWindow = VisualRoot as BaseOverlayWindow;
-            var scalingFactor = parentWindow.Screens.ScreenFromVisual(parentWindow).Scaling;
-            return new PixelPoint((int)(parentWindow.savedPosition.X + (50 * scalingFactor)), (int)(parentWindow.savedPosition.Y + (87 * scalingFactor)));
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+
+                var scalingFactor = desktop.MainWindow.RenderScaling;
+                return new PixelPoint((int)(parentWindow.savedPosition.X + (50 * scalingFactor)),
+                    (int)(parentWindow.savedPosition.Y + (87 * scalingFactor)));
+            }
+
+            return new PixelPoint();
         }
     }
 }

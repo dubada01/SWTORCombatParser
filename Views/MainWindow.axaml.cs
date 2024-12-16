@@ -49,6 +49,7 @@ namespace SWTORCombatParser.Views
             Position = new PixelPoint(windowInfo.TopLeft.X, windowInfo.TopLeft.Y);
             Width = windowInfo.Width;
             Height = windowInfo.Height;
+            ScalingManager.UIScalingFactor = RenderScaling;
             //base.OnOpened(e);
         }
 

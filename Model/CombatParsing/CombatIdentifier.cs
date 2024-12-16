@@ -5,6 +5,7 @@ using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
@@ -16,82 +17,118 @@ namespace SWTORCombatParser.Model.CombatParsing
         private static object _modlock = new object();
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false, bool isPhaseCombat = false)
         {
-
-            var state = CombatLogStateBuilder.CurrentState;
-            var orderedLogs = ongoingLogs.OrderBy(t => t.TimeStamp);
-            var firstTime = orderedLogs.First().TimeStamp;
-            var encounter = GetEncounterInfo(firstTime);
-            var currentPariticpants = orderedLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct().ToList();
-
-            currentPariticpants.AddRange(orderedLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Target).Distinct().ToList());
-            var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
-            var participantInfos = orderedLogs.Select(p => p.SourceInfo).Distinct().ToList();
-            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity, firstTime));
-
-            var orderedLogsList = orderedLogs.ToHashSet();
-            var targets = GetTargets(orderedLogsList);
-            var allEntities = new List<Entity>().Concat(targets).Concat(currentPariticpants).Distinct().ToList();
-
-            // Create the dictionary
-            Dictionary<Entity, List<ParsedLogEntry>> entityLogs = allEntities
-                .ToDictionary(
-                    p => p,
-                    p => ongoingLogs.AsParallel().WithDegreeOfParallelism(8)
-                        .Where(l => p.LogId == l.Target.LogId || p.LogId == l.Source.LogId).OrderBy(t => t.TimeStamp)
-                        .ToList()
-                );
-
-            var newCombat = new Combat()
+            try
             {
-                CharacterParticipants = participants,
-                CharacterClases = classes,
-                StartTime = orderedLogs.First().TimeStamp,
-                EndTime = orderedLogs.Last().TimeStamp,
-                Targets = targets,
-                AllLogs = orderedLogsList,
-                LogsInvolvingEntity = entityLogs
-            };
-            if (encounter != null && encounter.BossInfos != null)
-            {
-                newCombat.ParentEncounter = encounter;
-                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
-                newCombat.BossInfo = GetCurrentBossInfoObject(ongoingLogs, encounter);
-                UpdateBossEntities(ongoingLogs, encounter);
-                //newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, encounter);
-            }
-            if (newCombat.IsCombatWithBoss)
-            {
-                var parts = newCombat.EncounterBossDifficultyParts;
-                if (isRealtime)
-                    EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
-            }
-            if (newCombat.Targets.Any(t => t.LogId == 2857785339412480))
-            {
-                newCombat.ParentEncounter = new EncounterInfo()
+                var state = CombatLogStateBuilder.CurrentState;
+                var orderedLogs = ongoingLogs.OrderBy(t => t.TimeStamp);
+                var firstTime = orderedLogs.First().TimeStamp;
+                var encounter = GetEncounterInfo(firstTime);
+                var currentPariticpants = orderedLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion)
+                    .Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct()
+                    .ToList();
+
+                currentPariticpants.AddRange(orderedLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion)
+                    .Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Target).Distinct()
+                    .ToList());
+                var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
+                var participantInfos = orderedLogs.Select(p => p.SourceInfo).Distinct().ToList();
+                var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault())
+                    .ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity, firstTime));
+
+                var orderedLogsList = orderedLogs.ToHashSet();
+                var targets = GetTargets(orderedLogsList);
+                var allEntities = new List<Entity>().Concat(targets).Concat(currentPariticpants).Distinct().ToList();
+
+                // Create the dictionary
+                Dictionary<Entity, List<ParsedLogEntry>> entityLogs = allEntities
+                    .ToDictionary(
+                        p => p,
+                        p => ongoingLogs.AsParallel().WithDegreeOfParallelism(8)
+                            .Where(l => p.LogId == l.Target.LogId || p.LogId == l.Source.LogId)
+                            .OrderBy(t => t.TimeStamp)
+                            .ToList()
+                    );
+
+                var newCombat = new Combat()
                 {
-                    Name = "Parsing",
-                    LogName = "Parsing",
-                    Difficutly = "Parsing",
-                    NumberOfPlayer = "1",
-                    EncounterType = EncounterType.Parsing,
-                    BossIds = new Dictionary<string, Dictionary<string, List<long>>>() { { "Training Dummy", new Dictionary<string, List<long>>() { { "Parsing 1", new List<long> { 2857785339412480 } } } } },
-                    RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>() { { "Training Dummy", new Dictionary<string, List<long>>() { { "Parsing 1", new List<long> { 2857785339412480 } } } } },
+                    CharacterParticipants = participants,
+                    CharacterClases = classes,
+                    StartTime = orderedLogs.First().TimeStamp,
+                    EndTime = orderedLogs.Last().TimeStamp,
+                    Targets = targets,
+                    AllLogs = orderedLogsList,
+                    LogsInvolvingEntity = entityLogs
                 };
-                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
-                newCombat.BossInfo = GetCurrentBossInfoObject(ongoingLogs, encounter);
+                if (encounter != null && encounter.BossInfos != null)
+                {
+                    newCombat.ParentEncounter = encounter;
+                    newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
+                    newCombat.BossInfo = GetCurrentBossInfoObject(ongoingLogs, encounter);
+                    UpdateBossEntities(ongoingLogs, encounter);
+                    //newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, encounter);
+                }
+
+                if (newCombat.IsCombatWithBoss)
+                {
+                    var parts = newCombat.EncounterBossDifficultyParts;
+                    if (isRealtime)
+                        EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1,
+                            newCombat.ParentEncounter.Difficutly);
+                }
+
+                if (newCombat.Targets.Any(t => t.LogId == 2857785339412480))
+                {
+                    newCombat.ParentEncounter = new EncounterInfo()
+                    {
+                        Name = "Parsing",
+                        LogName = "Parsing",
+                        Difficutly = "Parsing",
+                        NumberOfPlayer = "1",
+                        EncounterType = EncounterType.Parsing,
+                        BossIds = new Dictionary<string, Dictionary<string, List<long>>>()
+                        {
+                            {
+                                "Training Dummy",
+                                new Dictionary<string, List<long>>()
+                                    { { "Parsing 1", new List<long> { 2857785339412480 } } }
+                            }
+                        },
+                        RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>()
+                        {
+                            {
+                                "Training Dummy",
+                                new Dictionary<string, List<long>>()
+                                    { { "Parsing 1", new List<long> { 2857785339412480 } } }
+                            }
+                        },
+                    };
+                    newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
+                    newCombat.BossInfo = GetCurrentBossInfoObject(ongoingLogs, encounter);
+                }
+
+                lock (_modlock)
+                {
+                    CombatMetaDataParse.PopulateMetaData(newCombat);
+                    var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key,
+                        kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8)
+                            .Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l => l.TimeStamp)
+                            .ToList());
+                    AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
+                    AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
+                }
+
+                if (combatEndUpdate)
+                {
+                    CombatFinished(newCombat);
+                }
+
+                return newCombat;
             }
-            lock (_modlock)
+            catch(Exception e)
             {
-                CombatMetaDataParse.PopulateMetaData(newCombat);
-                var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8).Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l => l.TimeStamp).ToList());
-                AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
-                AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
+                Logging.LogError("Failed to create combat: " + e.Message);
+                return new Combat();
             }
-            if(combatEndUpdate)
-            {
-                CombatFinished(newCombat);
-            }
-            return newCombat;
         }
 
         private static List<Entity> GetTargets(HashSet<ParsedLogEntry> logs)
