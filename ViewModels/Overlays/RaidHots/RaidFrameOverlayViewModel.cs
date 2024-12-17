@@ -110,16 +110,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CanDetect = false;
             Task.Run(() =>
             {
-                var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(OverlayPosition,
-                (int)OverlayScaledSize.X, (int)OverlayScaledSize.Y, Rows);
-                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(OverlayPosition,
-                    raidFrameBitmap, Rows, Columns, (int)OverlayScaledSize.Y, (int)OverlayScaledSize.X).Result;
-                raidFrameBitmap.Dispose();
-                Dispatcher.UIThread.Invoke(() =>
+                try
                 {
-                    UpdateNames(names);
-                });
-                CanDetect = true;
+                    var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(OverlayPosition,
+                (int)OverlayScaledSize.X, (int)OverlayScaledSize.Y, Rows);
+                    var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(OverlayPosition,
+                        raidFrameBitmap, Rows, Columns, (int)OverlayScaledSize.Y, (int)OverlayScaledSize.X).Result;
+                    raidFrameBitmap.Dispose();
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        UpdateNames(names);
+                    });
+
+                }
+                catch (Exception ex)
+                {
+                    Logging.LogError("Failed to detect raid frame names: " + ex.Message);
+                }
+                finally
+                {
+                    CanDetect = true;
+                }
 
             });
         }

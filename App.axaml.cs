@@ -90,11 +90,19 @@ namespace SWTORCombatParser
             var iconsPath = Path.Combine(appDataPath, "resources/icons");
 
             // Check if the icons directory already exists
-            if (!Directory.Exists(iconsPath))
+            if (!Directory.Exists(iconsPath) || Directory.GetDirectories(iconsPath).Length > 0)
             {
                 var zipFilePath = Path.Combine(Environment.CurrentDirectory, "resources", "packagedIcons.zip");
                 if(!File.Exists(zipFilePath))
                     throw new FileNotFoundException("Could not find the packaged icons zip file");
+
+                // Check if the directory exists and has subdirectories
+                if (Directory.Exists(iconsPath))
+                {
+                    // Delete the directory and all its contents
+                    Directory.Delete(iconsPath, true); // true indicates recursive deletion
+                }
+
                 Directory.CreateDirectory(iconsPath);
 
                 // Use System.IO.Compression to extract the files
