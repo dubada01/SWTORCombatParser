@@ -28,7 +28,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     internal readonly string _overlayName;
     private UserControl _mainContent;
     private bool _inConversation;
-    private bool _isHidden;
+    private bool _isHidden = true;
 
     public UserControl MainContent
     {
@@ -146,6 +146,8 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     }
     public void ShowOverlayWindow()
     {
+        if(SettingsType == OverlaySettingsType.Character)
+            Debug.WriteLine("HI");
         if ((ShouldBeVisible || OverlaysMoveable))
         {
             if (!Active || !_isHidden)

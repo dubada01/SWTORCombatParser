@@ -18,8 +18,10 @@ using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -349,6 +351,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             Dispatcher.UIThread.Invoke(() =>
             {
+                _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults(_currentCharacterRole);
                 if (_overlayDefaults.Count == 0)
                     return;
                 if (_overlayDefaults.First().Value.Locked)
@@ -435,32 +438,38 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void CreateOverlay(OverlayOptionViewModel type, bool canDelete)
         {
+            Debug.WriteLine("Try Creating overlay: "+type.Type);
             OverlayOptionViewModel overlayType = type;
-            if (_currentOverlays.Any(o => o.CreatedType == overlayType.Type))
+            if (_currentOverlays.Any(o => o.CreatedType == overlayType.Type) && canDelete)
             {
-                if (!canDelete)
-                    return;
+                Debug.WriteLine("Removing overlay on untoggle: "+type.Type);
                 var currentOverlay = _currentOverlays.First(o => o.CreatedType == overlayType.Type);
                 currentOverlay.RequestClose();
                 RemoveOverlay(currentOverlay);
                 return;
             }
+            Debug.WriteLine("Creating new overlay: "+type.Type);
             overlayType.IsSelected = true;
             var viewModel = new OverlayInstanceViewModel(overlayType.Type);
             viewModel.SetRole(_currentCharacterRole);
-            viewModel.OverlayClosed += RemoveOverlay;
+            viewModel.OverlayClosed += OverlayHidden;
             viewModel.SizeScalar = SizeScalar;
             viewModel.Refresh(CombatIdentifier.CurrentCombat);
             viewModel.OverlaysMoveable = !OverlaysLocked;
             viewModel.Active = true;
+            viewModel.ShowOverlayWindow();
             _currentOverlays.Add(viewModel);
         }
 
+        private void OverlayHidden(OverlayInstanceViewModel overlay)
+        {
+            _currentOverlays.Remove(overlay);
+            SetSelected(false, overlay.CreatedType);
+        }
         private void RemoveOverlay(OverlayInstanceViewModel obj)
         {
             DefaultCharacterOverlays.SetActiveStateCharacter(obj.CreatedType.ToString(), false, _currentCharacterRole);
-            _currentOverlays.Remove(obj);
-            SetSelected(false, obj.CreatedType);
+            OverlayHidden(obj);
         }
         public void HideOverlays()
         {

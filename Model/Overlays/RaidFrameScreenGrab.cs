@@ -122,11 +122,6 @@ namespace SWTORCombatParser.Model.Overlays
                     var ms = new MemoryStream();
                     encodedData.SaveTo(ms);
                     ms.Seek(0, SeekOrigin.Begin);
-                    using (FileStream fs = new FileStream("test.png", FileMode.Create))
-                    {
-                        ms.CopyTo(fs);
-                        fs.Flush();
-                    }
                     return ms;
                 }
             }

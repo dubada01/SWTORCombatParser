@@ -98,7 +98,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 if (updateTimes[i] == timestamp)
                     return playerDeathInfo[updateTimes[i]];
-                if (updateTimes[i] > timestamp)
+                if (updateTimes[i] > timestamp && i != 0)
                     return playerDeathInfo[updateTimes[i - 1]];
             }
             return false;

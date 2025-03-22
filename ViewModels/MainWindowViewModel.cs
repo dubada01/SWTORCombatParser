@@ -42,6 +42,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using MsBox.Avalonia;
 using ReactiveUI;
+using SWTORCombatParser.DataStructures.Phases;
 using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Death_Review;
 using SWTORCombatParser.Views.Timers;
@@ -123,7 +124,8 @@ namespace SWTORCombatParser.ViewModels
             Leaderboards.Init();
 
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
-
+            
+            DefaultPhaseLoader.LoadBuiltinPhases();
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
             MetricColorLoader.Init();

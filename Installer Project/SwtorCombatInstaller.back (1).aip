@@ -6,10 +6,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="OrbsIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{342001B9-AF12-4C47-8071-E4D8EDF71A8C} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{033A288E-B2A3-431C-946B-4670A51907B1} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Parser)"/>
-    <ROW Property="ProductVersion" Value="2.0.11" Options="32"/>
+    <ROW Property="ProductVersion" Value="2.0.13" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{80800124-4453-4786-91FB-F71AA5158404}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>

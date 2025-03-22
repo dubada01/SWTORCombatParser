@@ -99,9 +99,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public OverlayInstanceViewModel(OverlayType type) : base(type.ToString())
         {
+            SettingsType = OverlaySettingsType.Character;
             MainContent = new InfoOverlay(this);
             CloseRequested += OverlayClosing;
-            SettingsType = OverlaySettingsType.Character;
             CreatedType = type;
             Type = type;
             if (type == OverlayType.EHPS)
