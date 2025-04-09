@@ -7,6 +7,7 @@ using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.Phases
 {
@@ -112,8 +113,6 @@ namespace SWTORCombatParser.Model.Phases
 
         public static event Action<List<PhaseInstance>> PhaseInstancesUpdated = delegate { };
         public static event Action<List<PhaseInstance>> SelectedPhasesUpdated = delegate { };
-        public static event Action<Phase> PhaseStarted = delegate { };
-        public static event Action<Phase> PhaseEnded = delegate { };
 
         private static int _processedLines = 0;
         private static List<PhaseInstance> activePhases = new List<PhaseInstance>();
@@ -151,7 +150,7 @@ namespace SWTORCombatParser.Model.Phases
                     HandleNewLine(line);
                     _processedLines++;
                 }
-                PhaseInstancesUpdated(ActivePhases.ToList());
+                PhaseInstancesUpdated.InvokeSafely(ActivePhases.ToList());
             }
         }
         private static void UpdatePhases(CombatStatusUpdate update)
@@ -171,7 +170,7 @@ namespace SWTORCombatParser.Model.Phases
                         _processedLines++;
                     }
                 }
-                PhaseInstancesUpdated(ActivePhases.ToList());
+                PhaseInstancesUpdated.InvokeSafely(ActivePhases.ToList());
             }
         }
         private static void UpdateActiveEntities(ParsedLogEntry entry)
@@ -191,7 +190,6 @@ namespace SWTORCombatParser.Model.Phases
             ActivePhases.Clear();
             SelectedPhases.Clear();
             _hpPhasesTriggered.Clear();
-            //SelectedPhasesUpdated(SelectedPhases);
             SetSelectedPhaseDuration();
         }
 
@@ -385,8 +383,6 @@ namespace SWTORCombatParser.Model.Phases
             }
 
             ActivePhases.Add(phaseInstance);
-
-            PhaseStarted(phase);
         }
         private static void StopPhase(ParsedLogEntry entry, Phase phase)
         {
@@ -396,7 +392,6 @@ namespace SWTORCombatParser.Model.Phases
                 return;
             }
             currentPhase.PhaseEnd = entry.TimeStamp;
-            PhaseEnded(phase);
         }
 
         internal static void TogglePhaseInstance(PhaseInstance instance)
@@ -410,7 +405,7 @@ namespace SWTORCombatParser.Model.Phases
                 SelectedPhases.Add(instance);
             }
             SetSelectedPhaseDuration();
-            SelectedPhasesUpdated(SelectedPhases);
+            SelectedPhasesUpdated.InvokeSafely(SelectedPhases);
         }
     }
 }

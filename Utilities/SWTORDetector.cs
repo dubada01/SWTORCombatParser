@@ -46,7 +46,7 @@ namespace SWTORCombatParser.Utilities
 
         private static void UpdateStatus()
         {
-            SwtorProcessStateChanged(!SwtorRunning);
+            SwtorProcessStateChanged.InvokeSafely(!SwtorRunning);
         }
 
         public static void StopMonitoring()

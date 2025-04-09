@@ -116,7 +116,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _combatLogStreamer.NewLogTimeOffsetMs += UpdateLogOffset;
             _combatLogStreamer.NewTotalTimeOffsetMs += UpdateTotalOffset;
             _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
-            _combatLogStreamer.ReparsingLogs += HandleLogReparse;
             _combatLogStreamer.ErrorParsingLogs += LiveParseError;
             CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
@@ -141,10 +140,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private void LocalPlayerFound(Entity obj)
         {
             LocalPlayerId(obj);
-        }
-        public void HandleLogReparse()
-        {
-            _usingHistoricalData = true;
         }
         public void Reset()
         {

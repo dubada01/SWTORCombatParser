@@ -47740,9 +47740,9 @@ ability_id,icon
 2145168660627790,abl_sm_sc_Smuggle
 2145168660627802,abl_sm_sc_Smuggle
 2145168660627457,abl_sm_sc_Smuggle
-962811408679168,smuggler&apos;sluck
-962811408679181,smuggler&apos;sluck
-962811408678913,smuggler&apos;sluck
+962811408679168,smuggler-apos;sluck
+962811408679181,smuggler-apos;sluck
+962811408678913,smuggler-apos;sluck
 962811408679204,smuggler'sluck
 962811408679206,smuggler'sluck
 807264873087437,movementslowed
@@ -48688,7 +48688,7 @@ ability_id,icon
 16141102898495301074,abl_bh_pt_efficent_suit
 16141104978367809952,abl_bh_pt_engulfing_flames
 16141060644175832946,abl_bh_pt_enhanced_paralytics
-16141067715517135179,smuggler&apos;sluck
+16141067715517135179,smuggler-apos;sluck
 16141124047565029868,abl_bhtr_ptvg_iron_will
 16140901715470498905,jetcharge
 16140955058274725469,abl_bh_me_kolto_surge

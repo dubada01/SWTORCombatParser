@@ -1,13 +1,11 @@
-﻿<Window x:Class="SWTORCombatParser.Views.DeathReviewPage"
+﻿<UserControl x:Class="SWTORCombatParser.Views.DeathReviewPage"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Death_Review"
-                x:DataType="vm:DeathReviewViewModel"
+             x:DataType="vm:DeathReviewViewModel"
              mc:Ignorable="d" 
-             Title="Battle Review"
-                Width="1000" Height="600"
              d:DesignHeight="600" d:DesignWidth="1000">
     <Grid Background="{StaticResource Gray2Brush}">
         <Grid.RowDefinitions>
@@ -30,4 +28,4 @@
 
         <ContentPresenter Content="{Binding DeathLogsView}"  Grid.Row="2" Grid.Column="1"/>
     </Grid>
-</Window>
+</UserControl>

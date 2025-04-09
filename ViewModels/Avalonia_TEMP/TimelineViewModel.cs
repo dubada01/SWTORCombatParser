@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SWTORCombatParser.DataStructures.Timeline;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Overlay.Timeline;
 
 namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
@@ -60,8 +61,8 @@ public class TimelineElement
                 _instanceInfo.MaxDuration = maxDuration;
                 _instanceInfo.PreviousBossKills = previousKills;
                 UpdateBossKillElements();
-                OnInit(maxDuration);
-                OnUpdateTimeline(maxDuration);
+                OnInit.InvokeSafely(maxDuration);
+                OnUpdateTimeline.InvokeSafely(maxDuration);
                 AreaEntered(areaName, difficulty, playerCount);
             }
         }
@@ -108,7 +109,7 @@ public class TimelineElement
                 {
                     _instanceInfo.MaxDuration = currentTime;
                 }
-                OnUpdateTimeline(currentTime);
+                OnUpdateTimeline.InvokeSafely(currentTime);
                 //also update any active boss encounters to have their end time be the current time
                 foreach (var boss in _instanceInfo.CurrentBossKills.Where(b=>b.IsKilled == false))
                 {

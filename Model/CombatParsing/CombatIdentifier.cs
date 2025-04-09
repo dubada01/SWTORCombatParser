@@ -119,7 +119,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
                 if (combatEndUpdate)
                 {
-                    CombatFinished(newCombat);
+                    CombatFinished.InvokeSafely(newCombat);
                 }
 
                 return newCombat;

@@ -1,7 +1,6 @@
 ﻿using SWTORCombatParser.ViewModels.Death_Review;
 using System;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using ScottPlot;
 using ScottPlot.Avalonia;
@@ -55,7 +54,7 @@ namespace SWTORCombatParser.Views.Death_Review
             var bitmap = SKBitmapFromFile.Load("avares://Orbs/resources/SwtorLogo.png");
             _plot.Plot.FigureBackground.Image = new Image(bitmap);
             _plot.Plot.FigureBackground.ImagePosition = ImagePosition.Center;
-            _plot.Interaction.Disable();
+            _plot.Plot.PlotControl.UserInputProcessor.Disable();
         }
     }
 }

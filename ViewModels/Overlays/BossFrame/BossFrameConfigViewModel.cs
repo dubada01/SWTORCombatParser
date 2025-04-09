@@ -20,6 +20,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private bool _inCombat;
         public override bool ShouldBeVisible => ShowFrame;
         public BrossFrameView _bossFrame { get; set; }
+        public static event Action<bool> InCombatWithBoss = delegate { };
         public bool BossFrameEnabled
         {
             get => bossFrameEnabled; set
@@ -144,6 +145,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     {
                         BossesDetected.Add(new BossFrameViewModel(boss, isDuplicate, CurrentScale));
                         this.RaisePropertyChanged(nameof(ShowFrame));
+                        InCombatWithBoss(true);
                         UpdateVisibility();
                     });
                 }
@@ -158,6 +160,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                         {
                             BossesDetected.Remove(activeBoss);
                             this.RaisePropertyChanged(nameof(ShowFrame));
+                            InCombatWithBoss(BossesDetected.Count == 0);
                             UpdateVisibility();
                         });
 
@@ -187,6 +190,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             Dispatcher.UIThread.Invoke(() =>
             {
                 BossesDetected.Clear();
+                InCombatWithBoss(false);
                 this.RaisePropertyChanged(nameof(ShowFrame));
                 UpdateVisibility();
             });

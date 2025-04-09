@@ -15,7 +15,7 @@
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="0" Text="Phases" FontWeight="DemiBold" FontSize="20" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center"></TextBlock>
         <Border x:Name="PartitionBorder" Margin="5,0,5,2" Grid.Column="1" BorderThickness="2" BorderBrush="{StaticResource GreenColorBrush}" CornerRadius="5" Padding="0,1,0,1">
-            <Grid x:Name="PartitionsHolder">
+            <Grid x:Name="PartitionsHolder" HorizontalAlignment="Stretch">
                 
             </Grid>
         </Border>

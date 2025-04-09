@@ -440,17 +440,42 @@ public partial class BaseOverlayWindow : Window
 
     private void Thumb_MouseEnter(object? sender, PointerEventArgs e)
     {
-        Cursor = new Cursor(StandardCursorType.SizeAll);
+        Cursor = new Cursor(StandardCursorType.BottomRightCorner);
+    }
+    private Point startDrag;
+    private double initialWidth;
+    private double initialHeight;
+
+    private void Drag_Started(object? sender, PointerPressedEventArgs e)
+    {
+        startDrag = e.GetPosition(this);
+        initialWidth = Width;
+        initialHeight = Height;
+        _isDragging = true;
     }
 
-    private void Thumb_DragDelta(object? sender, VectorEventArgs e)
+    private void Thumb_DragDelta(object? sender, PointerEventArgs e)
     {
-        var yadjust = Height + e.Vector.Y;
-        var xadjust = Width + e.Vector.X;
-        if (xadjust > 0)
-            SetValue(WidthProperty, xadjust);
-        if (yadjust > 0)
-            SetValue(HeightProperty, yadjust);
+        if(!_isDragging)
+            return;
+    
+        var currentPosition = e.GetPosition(this);
+        var delta = currentPosition - startDrag;
+    
+        var newWidth = initialWidth + delta.X;
+        var newHeight = initialHeight + delta.Y;
+
+        // Ensure we don't set negative dimensions.
+        if(newWidth > 0)
+            SetValue(WidthProperty, newWidth);
+        if(newHeight > 0)
+            SetValue(HeightProperty, newHeight);
+
         UpdateState();
+    }
+
+    private void Drag_Stopped(object? sender, PointerReleasedEventArgs e)
+    {
+        _isDragging = false;
     }
 }

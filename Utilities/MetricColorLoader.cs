@@ -55,7 +55,7 @@ namespace SWTORCombatParser.Utilities
             currentSettings[type.ToString()] = color;
             WriteNewColors(currentSettings);
             CurrentMetricBrushDict[type] = new SolidColorBrush(Color.Parse(color));
-            OnOverlayTypeColorUpdated(type);
+            OnOverlayTypeColorUpdated.InvokeSafely(type);
         }
         public static Color GetDefaultColorForMetric(OverlayType type)
         {

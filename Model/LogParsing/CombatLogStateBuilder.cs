@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -65,7 +66,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.CacheEncounterEnterList();
                 if (liveLog)
                 {
-                    AreaEntered(raidOfInterest);
+                    AreaEntered.InvokeSafely(raidOfInterest);
                     if (raidOfInterest.IsPvpEncounter)
                         EncounterTimerTrigger.FirePvpEncounterDetected();
                     else
@@ -82,7 +83,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.CacheEncounterEnterList();
                 if (liveLog)
                 {
-                    AreaEntered(openWorldEncounter);
+                    AreaEntered.InvokeSafely(openWorldEncounter);
                     EncounterTimerTrigger.FireNonPvpEncounterDetected();
                 }
 
@@ -116,7 +117,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return;
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
             if (parsedLine.Source.IsLocalPlayer && realTime)
-                PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
+                PlayerDiciplineChanged.InvokeSafely(parsedLine.Source, parsedLine.SourceInfo.Class);
         }
         private static void UpdatePlayerTargets(ParsedLogEntry log)
         {

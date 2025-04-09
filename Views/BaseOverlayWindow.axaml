@@ -7,9 +7,10 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SWTORCombatParser.Views.BaseOverlayWindow"
         TransparencyLevelHint="Transparent"
-        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaToDecorationsHint="False"
         ExtendClientAreaTitleBarHeightHint="-1"
         ExtendClientAreaChromeHints="NoChrome"
+        SystemDecorations="None"
         Width="100"
         Height="100"
         Topmost="True" Background="{x:Null}" BorderThickness="0" ShowInTaskbar="False">
@@ -41,9 +42,10 @@
             <Grid Grid.Row="1" Margin="5,2" Name="ContentGrid" >
                 <ContentPresenter x:Name="ContentObject" Content="{Binding MainContent}"/>
             </Grid>
-
-            <Thumb Grid.Row="1" IsVisible="{Binding OverlaysMoveable}"  HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-               PointerEntered="Thumb_MouseEnter" PointerExited="Grid_MouseLeave" DragDelta="Thumb_DragDelta"></Thumb>
+            <Canvas Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="20" Width="20">
+                <Polygon Fill="{StaticResource Gray3}" Points="0,20 20,20 20,0" IsVisible="{Binding OverlaysMoveable}" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                         PointerEntered="Thumb_MouseEnter" PointerExited="Grid_MouseLeave" PointerReleased="Drag_Stopped" PointerPressed="Drag_Started" PointerMoved="Thumb_DragDelta"></Polygon>
+            </Canvas>
         </Grid>
     </Grid>
 </Window>

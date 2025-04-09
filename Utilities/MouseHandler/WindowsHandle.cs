@@ -44,7 +44,7 @@ public class MouseHookHandler
             Point clickLocation = new Point(hookStruct.pt.X, hookStruct.pt.Y);
 
             // Fire the MouseClicked event
-            MouseClicked?.Invoke(clickLocation);
+            MouseClicked?.InvokeSafely(clickLocation);
         }
 
         return CallNextHookEx(_hookID, nCode, wParam, lParam);

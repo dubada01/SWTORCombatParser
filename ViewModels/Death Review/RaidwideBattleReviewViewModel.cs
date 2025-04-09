@@ -6,6 +6,7 @@ using ReactiveUI;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Death_Review;
 
 namespace SWTORCombatParser.ViewModels.Death_Review;
@@ -18,6 +19,8 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
     private DamageTakenView _damageTakenView;
     private DamageTakenViewModel _damageTakenViewModel;
     private int _selectedTabIndex;
+    private readonly DeathReviewViewModel _legacyDeathReviewVM;
+    private readonly DeathReviewPage _legacyDeathReviewView;
 
     public RaidwideBattleReviewViewModel()
     {
@@ -26,6 +29,9 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
         
         _damageTakenViewModel = new DamageTakenViewModel();
         _damageTakenView = new DamageTakenView(_damageTakenViewModel);
+
+        _legacyDeathReviewVM = new DeathReviewViewModel();
+        _legacyDeathReviewView = new DeathReviewPage(_legacyDeathReviewVM);
         
         CurrentReviewContent = _damageTakenView;
     }
@@ -36,6 +42,8 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
         set
         {
             _selectedTabIndex = value;
+            if (_selectedTabIndex == 2)
+                CurrentReviewContent = _legacyDeathReviewView;
             if(_selectedTabIndex == 1)
                 CurrentReviewContent = _recapView;
             if(_selectedTabIndex == 0)
@@ -61,6 +69,7 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
         CombatInstance = combat;
         _recapViewModel.SetCombat(combat);
         _damageTakenViewModel.SetCombat(combat);
+        _legacyDeathReviewVM.AddCombat(combat);
         this.RaisePropertyChanged(nameof(CompletionText));
         this.RaisePropertyChanged(nameof(EncounterName));
     }

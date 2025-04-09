@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using ScottPlot;
 using ScottPlot.Plottables;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -73,7 +74,7 @@ namespace SWTORCombatParser.DataStructures
                 }
             }
 
-            TriggerRender(arg1 || arg2);
+            TriggerRender.InvokeSafely(arg1 || arg2);
         }
     }
 }

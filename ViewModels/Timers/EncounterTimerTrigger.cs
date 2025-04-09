@@ -1,4 +1,5 @@
 ﻿using System;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -13,15 +14,15 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (CurrentEncounter.Item1 == encounterName && CurrentEncounter.Item2 == bossName && CurrentEncounter.Item3 == difficulty)
                 return;
             CurrentEncounter = (encounterName, bossName, difficulty);
-            EncounterDetected(encounterName, bossName, difficulty);
+            EncounterDetected.InvokeSafely(encounterName, bossName, difficulty);
         }
         public static void FirePvpEncounterDetected()
         {
-            PvPEncounterEntered();
+            PvPEncounterEntered.InvokeSafely();
         }
         public static void FireNonPvpEncounterDetected()
         {
-            NonPvpEncounterEntered();
+            NonPvpEncounterEntered.InvokeSafely();
         }
     }
 }

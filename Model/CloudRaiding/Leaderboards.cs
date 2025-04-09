@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
 namespace SWTORCombatParser.Model.CloudRaiding
@@ -47,7 +48,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             LeaderboardSettings.SaveLeaderboardSettings(type);
             CurrentLeaderboardType = type;
             TopLeaderboards.Clear();
-            LeaderboardTypeChanged(CurrentLeaderboardType);
+            LeaderboardTypeChanged.InvokeSafely(CurrentLeaderboardType);
             if (CurrentCombat == null)
                 return;
             Task.Run(() =>
@@ -78,7 +79,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 if (CurrentLeaderboardType == LeaderboardType.Off)
                 {
                     TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
-                    TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
+                    TopLeaderboardEntriesAvailable.InvokeSafely(TopLeaderboards.ToDictionary());
                     return;
                 }
 
@@ -86,7 +87,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 CurrentCombat = newCombat;
                 if (TopLeaderboards.Count > 0)
                 {
-                    TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
+                    TopLeaderboardEntriesAvailable.InvokeSafely(TopLeaderboards.ToDictionary());
                     return;
                 }
 
@@ -102,7 +103,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 });
             }
 
-            TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
+            TopLeaderboardEntriesAvailable.InvokeSafely(TopLeaderboards.ToDictionary());
 
         }
         private static int percentileUpdates = 0;
@@ -113,7 +114,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 if (CurrentLeaderboardType == LeaderboardType.Off)
                 {
                     LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
-                    LeaderboardStandingsAvailable(LeaderboardStandings);
+                    LeaderboardStandingsAvailable.InvokeSafely(LeaderboardStandings);
                     return;
                 }
                 var state = CombatLogStateBuilder.CurrentState;
@@ -159,7 +160,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         LeaderboardStandings[participant][enumVal] =(percentileForValue, false);            
                     });
                 }
-                LeaderboardStandingsAvailable(LeaderboardStandings);
+                LeaderboardStandingsAvailable.InvokeSafely(LeaderboardStandings);
             }
         }
         private static LeaderboardTop GetTop(Combat newCombat, LeaderboardEntryType type, bool useClass = false)

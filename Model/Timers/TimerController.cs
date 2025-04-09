@@ -252,14 +252,14 @@ public static class TimerController
 
     private static void ReorderRequest(string id)
     {
-        ReorderRequested(id);
+        ReorderRequested.InvokeSafely(id);
     }
     private static void AddTimerVisual(TimerInstanceViewModel t)
     {
         if (t.SourceTimer.IsSubTimer)
             TimerAddedCallback(t);
         else
-            TimerTriggered(t, TimerAddedCallback);
+            TimerTriggered.InvokeSafely(t, TimerAddedCallback);
     }
 
     private static object _currentTimersModLock = new object();
@@ -293,7 +293,7 @@ public static class TimerController
                 }
             }
         }
-        TimerExpired(t, TimerRemovedCallback);
+        TimerExpired.InvokeSafely(t, TimerRemovedCallback);
     }
     private static void TimerRemovedCallback(TimerInstanceViewModel removedTimer)
     {

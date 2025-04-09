@@ -7,6 +7,7 @@ using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using SWTORCombatParser.ViewModels.Overlays.BossFrame;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
@@ -17,10 +18,15 @@ namespace SWTORCombatParser.ViewModels.Timers
         public EncounterTimerWindowViewModel(string overlayName) : base(overlayName)
         {
             SwtorTimers = new ObservableCollection<TimerInstanceViewModel>();
-            CombatLogStateBuilder.AreaEntered += AreaEntered;
-            CombatLogStreamer.HistoricalLogsFinished += CheckForArea;
+            BossFrameConfigViewModel.InCombatWithBoss += HandleBossCombatChanged;
             CombatLogStreamer.CombatUpdated += CheckForEnd;
             MainContent = new TimersWindow(this);
+        }
+
+        private void HandleBossCombatChanged(bool obj)
+        {
+            inBossRoom = obj;
+            UpdateVisibility();
         }
 
         private void CheckForEnd(CombatStatusUpdate obj)
@@ -37,20 +43,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
             }
         }
-
-
-        private void CheckForArea(DateTime arg1, bool arg2)
-        {
-            var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(TimeUtility.CorrectedTime);
-            AreaEntered(currentArea);
-        }
-
-        private void AreaEntered(EncounterInfo areaInfo)
-        {
-            inBossRoom = areaInfo.IsBossEncounter;
-            UpdateVisibility();
-        }
-
+        
         private object _timerChangeLock = new object();
         private double _currentScale;
 

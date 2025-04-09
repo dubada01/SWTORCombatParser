@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Timers;
+using SWTORCombatParser.Utilities;
 using Timer = System.Timers.Timer;
 
 namespace SWTORCombatParser.Model.CombatParsing
@@ -232,7 +233,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             _timeoutTimer.Stop();
             InCombat = false;
             Reset();
-            AlertExitCombatTimedOut(CombatState.ExitCombatDelayTimedOut);
+            AlertExitCombatTimedOut.InvokeSafely(CombatState.ExitCombatDelayTimedOut);
         }
 
         private static CombatState EndCombat()

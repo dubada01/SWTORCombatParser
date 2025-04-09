@@ -152,7 +152,7 @@ namespace SWTORCombatParser.Model.Timers
         }
         private void CompleteTimer(TimerInstanceViewModel timer, bool endedNatrually)
         {
-            TimerOfTypeExpired(timer, endedNatrually);
+            TimerOfTypeExpired.InvokeSafely(timer, endedNatrually);
             lock (_timerChangeLock)
             {
                 _activeTimerInstancesForTimer.Remove(timer.TimerId);
@@ -205,7 +205,7 @@ namespace SWTORCombatParser.Model.Timers
                     ModifyVariable(SourceTimer);
                     if (!SourceTimer.UseVisualsAndModify)
                     {
-                        Triggered();
+                        Triggered.InvokeSafely();
                         return;
                     }
                 }
@@ -221,7 +221,7 @@ namespace SWTORCombatParser.Model.Timers
                     var timerToRefresh = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id).Value;
                     timerToRefresh.Reset(log.TimeStamp);
                     Debug.WriteLine("Requested reorder from refresh of "+SourceTimer.Name);
-                    ReorderRequested(SourceTimer.Id);
+                    ReorderRequested.InvokeSafely(SourceTimer.Id);
                 }
 
                 if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
@@ -235,7 +235,7 @@ namespace SWTORCombatParser.Model.Timers
                             return;
                         timerToRestart.Reset(log.TimeStamp);
                         Debug.WriteLine("Requested reorder from refresh of "+SourceTimer.Name);
-                        ReorderRequested(SourceTimer.Id);
+                        ReorderRequested.InvokeSafely(SourceTimer.Id);
                     }
                     if (!_activeTimerInstancesForTimer.Any())
                     {
@@ -459,8 +459,8 @@ namespace SWTORCombatParser.Model.Timers
                 _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             }
             timerVM.TriggerTimeTimer(startTime);
-            Triggered();
-            NewTimerInstance(timerVM);
+            Triggered.InvokeSafely();
+            NewTimerInstance.InvokeSafely(timerVM);
         }
         public void CreateTimerInstance(DateTime startTime, string targetAdendum, long targetId, int charges = 0)
         {
@@ -477,8 +477,8 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TriggerTimeTimer(startTime);
             if (charges != 0)
                 timerVM.Charges = charges;
-            Triggered();
-            NewTimerInstance(timerVM);
+            Triggered.InvokeSafely();
+            NewTimerInstance.InvokeSafely(timerVM);
         }
         private void CreateHPTimerInstance(double currentHP, string targetAdendum, long targetId)
         {
@@ -492,8 +492,8 @@ namespace SWTORCombatParser.Model.Timers
                 _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             }
             timerVM.TriggerHPTimer(currentHP);
-            Triggered();
-            NewTimerInstance(timerVM);
+            Triggered.InvokeSafely();
+            NewTimerInstance.InvokeSafely(timerVM);
         }
 
         private void CreateAbsorbTimerInstance(double maxAbsorb, string abilityName, long targetId)
@@ -508,8 +508,8 @@ namespace SWTORCombatParser.Model.Timers
                 _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
             }
             timerVM.TriggerAbsorbTimer(maxAbsorb);
-            Triggered();
-            NewTimerInstance(timerVM);
+            Triggered.InvokeSafely();
+            NewTimerInstance.InvokeSafely(timerVM);
         }
     }
 }

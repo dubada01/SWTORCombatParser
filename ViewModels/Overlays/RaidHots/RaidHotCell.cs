@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Threading;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
@@ -136,6 +137,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             get => isTargeted; set
             {
+                var displayTargeted = Settings.ReadSettingOfType<bool>("overlay_show_targeted");
+                if (!displayTargeted && isTargeted)
+                    return;
                 isTargeted = value;
                 OnPropertyChanged();
             }

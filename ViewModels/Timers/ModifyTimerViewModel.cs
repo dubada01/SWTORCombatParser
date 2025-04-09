@@ -1002,7 +1002,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void Cancel()
         {
             if (isEditing)
-                OnCancelEdit(_editedTimer);
+                OnCancelEdit.InvokeSafely(_editedTimer);
         }
 
         public ReactiveCommand<object,Unit> SaveCommand => ReactiveCommand.Create<object>(Save);
@@ -1076,7 +1076,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ChargesSetVariableName = ChargeVariable
             };
 
-            OnNewTimer(newTimer, isEditing, false);
+            OnNewTimer.InvokeSafely(newTimer, isEditing, false);
         }
         private bool Validate()
         {

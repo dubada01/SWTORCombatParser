@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 
@@ -117,6 +118,8 @@ namespace SWTORCombatParser.Views.Phases
                         {
                             Foreground = Brushes.WhiteSmoke,
                             Background = (SolidColorBrush)Application.Current.FindResource("Gray5Brush"),
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            HorizontalContentAlignment = HorizontalAlignment.Center,
                             Content = new TextBlock
                             {
                                 Text = phase.SourcePhase.Name,

@@ -6,6 +6,7 @@ using System.Reactive;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
@@ -29,7 +30,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         }
         private void UpdatePhases(List<PhaseInstance> phases)
         {
-            PhaseInstancesUpdated(phases);
+            PhaseInstancesUpdated.InvokeSafely(phases);
         }
 
         private void ConfigurePhases()

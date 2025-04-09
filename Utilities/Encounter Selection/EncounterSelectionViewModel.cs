@@ -121,7 +121,7 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
 
             if (AvailablePlayerCounts.Any() && !AvailablePlayerCounts.Contains(selectedPlayerCount))
                 selectedPlayerCount = AvailablePlayerCounts[0];
-            SelectionUpdated(selectedEncounter.Name, selectedBoss);
+            SelectionUpdated.InvokeSafely(selectedEncounter.Name, selectedBoss);
         }
     }
 }

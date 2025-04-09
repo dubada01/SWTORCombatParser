@@ -19,8 +19,8 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         private DeathChallengeViewModel _challengeViewModel;
         public EventHistoryView DeathLogsView { get; set; }
         private EventHistoryViewModel _deathLogsViewModel;
-        public DeathPlot DeathPlotView { get; set; }
-        private DeathPlotViewModel _plotViewModel;
+        public LegacyDeathPlot DeathPlotView { get; set; }
+        private LegacyDeathReviewPlotVM _plotViewModel;
         public DeathPlayerList DeathPlayerListView { get; set; }
         private DeathPlayerListViewModel _playerListViewModel;
 
@@ -37,8 +37,11 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             _deathLogsViewModel.LogPositionChanged += TryUpdateGraph;
             DeathLogsView = new EventHistoryView(_deathLogsViewModel);
 
-            _plotViewModel = new DeathPlotViewModel();
-            DeathPlotView = new DeathPlot(_plotViewModel);
+            _plotViewModel = new LegacyDeathReviewPlotVM();
+            DeathPlotView = new LegacyDeathPlot(_plotViewModel);
+            Observable.FromEvent<double>(
+                handler => _plotViewModel.XValueSelected += handler,
+                handler => _plotViewModel.XValueSelected -= handler).Sample(TimeSpan.FromSeconds(0.1)).Subscribe(newPos => { SeekToPosition(newPos); });
 
             _playerListViewModel = new DeathPlayerListViewModel();
             _playerListViewModel.ParticipantSelected += UpdateSelectedPlayers;
@@ -62,7 +65,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             var startTime = _deathLogsViewModel.UpdateLogs(true);
 
             _plotViewModel.Reset();
-            //_plotViewModel.PlotCombat(_currentCombat, obj, startTime);
+            _plotViewModel.PlotCombat(_currentCombat, obj, startTime);
         }
 
         internal void Reset()
@@ -83,8 +86,8 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 _deathLogsViewModel.SetViewableEntities(selectedParticipants.ToList());
             }
             
-           // _plotViewModel.Reset();
-           // _plotViewModel.PlotCombat(_currentCombat, selectedParticipants, startTime);
+            //_plotViewModel.Reset();
+            //_plotViewModel.PlotCombat(_currentCombat, selectedParticipants, startTime);
         }
 
         internal void RemoveCombat(Combat obj)

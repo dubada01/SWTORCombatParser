@@ -28,27 +28,26 @@ namespace SWTORCombatParser.Views.SettingsView
             InitHotkeys();
             InitBools();
             InitPath();
-            RefreshEnabled.Checked += ToggleHotkeyEnabled;
-            RefreshEnabled.Unchecked += ToggleHotkeyEnabled;
-            LockEnabled.Checked += ToggleHotkeyEnabled;
-            LockEnabled.Unchecked += ToggleHotkeyEnabled;
-            HideEnabled.Checked += ToggleHotkeyEnabled;
-            HideEnabled.Unchecked += ToggleHotkeyEnabled;
-            RunInBackground.Checked += ToggleBackground;
-            RunInBackground.Unchecked += ToggleBackground;
-            ForceLogUpdates.Checked += ToggleLogForce;
-            ForceLogUpdates.Unchecked += ToggleLogForce;
-            OfflineMode.Checked += ToggleOffline;
-            OfflineMode.Unchecked += ToggleOffline;
-            BackgroundWarning.Checked += ToggleWarning;
-            BackgroundWarning.Unchecked += ToggleWarning;
+            RefreshEnabled.IsCheckedChanged += ToggleHotkeyEnabled;
+            LockEnabled.IsCheckedChanged += ToggleHotkeyEnabled;
+            HideEnabled.IsCheckedChanged += ToggleHotkeyEnabled;
+            RunInBackground.IsCheckedChanged += ToggleBackground;
+            ForceLogUpdates.IsCheckedChanged += ToggleLogForce;
+            OfflineMode.IsCheckedChanged += ToggleOffline;
+            BackgroundWarning.IsCheckedChanged += ToggleWarning;
             LogPath.TextChanged += UpdatePath;
             ResetMessagesButton.Click += ResetMessages;
 
             EmergencyUIReset.Click += ShowEmergencyDialog;
 
             SetCombatLogsPath.Click += UpdateCombatLogsPath;
+
+
+
+            ShowTargeted.IsCheckedChanged += UpdatedDisplayTargeted;
         }
+
+
 
         private async void UpdateCombatLogsPath(object? sender, RoutedEventArgs e)
         {
@@ -67,6 +66,7 @@ namespace SWTORCombatParser.Views.SettingsView
             RunInBackground.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled");
             ForceLogUpdates.IsChecked = Settings.ReadSettingOfType<bool>("force_log_updates");
             BackgroundWarning.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring");
+            ShowTargeted.IsChecked = Settings.ReadSettingOfType<bool>("overlay_show_targeted");
         }
         private async void ResetMessages(object sender, RoutedEventArgs e)
         {
@@ -105,12 +105,12 @@ namespace SWTORCombatParser.Views.SettingsView
 
         private void ToggleOffline(object sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting<bool>("offline_mode", OfflineMode.IsChecked.Value);
+            Settings.WriteSetting("offline_mode", OfflineMode.IsChecked.Value);
         }
 
         private void ToggleLogForce(object sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting<bool>("force_log_updates", ForceLogUpdates.IsChecked.Value);
+            Settings.WriteSetting("force_log_updates", ForceLogUpdates.IsChecked.Value);
         }
 
         private void ToggleBackground(object sender, RoutedEventArgs e)
@@ -121,7 +121,10 @@ namespace SWTORCombatParser.Views.SettingsView
         {
             ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", !RunInBackground.IsChecked.Value);
         }
-
+        private void UpdatedDisplayTargeted(object? sender, RoutedEventArgs e)
+        {
+            Settings.WriteSetting("overlay_show_targeted", ShowTargeted.IsChecked.Value);
+        }
         private void ToggleHotkeyEnabled(object sender, RoutedEventArgs e)
         {
             var current = Settings.ReadSettingOfType<HotkeySettings>("Hotkeys");
@@ -132,7 +135,7 @@ namespace SWTORCombatParser.Views.SettingsView
             if (((CheckBox)sender).Name == "HideEnabled")
                 current.OverlayHideEnabled = !current.OverlayHideEnabled;
 
-            Settings.WriteSetting<HotkeySettings>("Hotkeys", current);
+            Settings.WriteSetting("Hotkeys", current);
         }
 
         private void InitHotkeys()
@@ -301,7 +304,7 @@ namespace SWTORCombatParser.Views.SettingsView
                     current.OverlayHideHotkeyStroke = keyStroke;
                     break;
             }
-            Settings.WriteSetting<HotkeySettings>("Hotkeys", current);
+            Settings.WriteSetting("Hotkeys", current);
         }
         private void UpdateTextBoxDisplay(TextBox textBox, int mod1, int mod2, int keyStroke)
         {

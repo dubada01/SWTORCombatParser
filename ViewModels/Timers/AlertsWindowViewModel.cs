@@ -11,7 +11,7 @@ public class AlertsWindowViewModel : TimersWindowViewModel
 {
 
     private List<TimerInstanceViewModel> _currentTimers = new List<TimerInstanceViewModel>();
-    public override bool ShouldBeVisible => true;
+    public override bool ShouldBeVisible => _alertPlaying;
     public List<TimerInstanceViewModel> SwtorTimers
     {
         get => _swtorTimers;
@@ -27,6 +27,7 @@ public class AlertsWindowViewModel : TimersWindowViewModel
     
     private object _timerChangeLock = new object();
     private List<TimerInstanceViewModel> _swtorTimers = new List<TimerInstanceViewModel>();
+    private bool _alertPlaying;
 
     protected override void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
     {
@@ -35,6 +36,8 @@ public class AlertsWindowViewModel : TimersWindowViewModel
             callback(obj);
             return;
         }
+
+        _alertPlaying = true;
         ShowOverlayWindow();
 
         lock (_timerChangeLock)
@@ -59,7 +62,11 @@ public class AlertsWindowViewModel : TimersWindowViewModel
         SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
         callback(removedTimer);
         if (SwtorTimers.Count == 0)
+        {
             HideOverlayWindow();
+            _alertPlaying = false;
+            UpdateVisibility();
+        }
     }
 
     protected override void ReorderTimers(string id)

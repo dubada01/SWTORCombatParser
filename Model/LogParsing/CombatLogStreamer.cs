@@ -19,33 +19,37 @@ namespace SWTORCombatParser.Model.LogParsing
         Incomplete,
         Repeat
     }
+
     public class CombatLogStreamer
     {
+        // Static events
         public static event Action CombatStarted = delegate { };
-
         public static event Action<CombatStatusUpdate> CombatUpdated = delegate { };
         public static event Action<DateTime, bool> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
+        public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
+
+        // Instance events
         public event Action<Entity> LocalPlayerIdentified = delegate { };
         public event Action<double> NewLogTimeOffsetMs = delegate { };
         public event Action<double> NewTotalTimeOffsetMs = delegate { };
-        public event Action ReparsingLogs = delegate { };
         public event Action<string> ErrorParsingLogs = delegate { };
-        public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
 
         private bool _isInCombat = false;
         private bool _isWaitingForExitCombatTimout;
 
-        private int numberOfProcessedLines=0;
+        private int numberOfProcessedLines = 0;
         private string _logToMonitor;
         private bool _monitorLog;
-        private long numberOfProcessedBytes = 0;
+        private long _numberOfProcessedBytes = 0;
         private List<ParsedLogEntry> _currentCombatLogs = new List<ParsedLogEntry>();
         private List<ParsedLogEntry> _waitingForExitCombatTimeout = new List<ParsedLogEntry>();
         private DateTime _currentCombatStartTime;
         private DateTime _lastUpdateTime;
         private Encoding _fileEncoding;
         private bool _forceUpdateOfLogs = false;
+        private DateTime _mostRecentLogTime;
+
         public CombatLogStreamer()
         {
             _forceUpdateOfLogs = Settings.ReadSettingOfType<bool>("force_log_updates");
@@ -54,7 +58,9 @@ namespace SWTORCombatParser.Model.LogParsing
             CombatDetector.AlertExitCombatTimedOut += OnExitCombatTimedOut;
             _7_0LogParsing.SetupRegex();
         }
+
         public string CurrentLog => _logToMonitor;
+
         public void MonitorLog(string logToMonitor)
         {
             Logging.LogInfo("Starting live monitor of log - " + logToMonitor);
@@ -74,10 +80,11 @@ namespace SWTORCombatParser.Model.LogParsing
                     Logging.LogError("Error during log monitoring: " + e.Message);
                     _monitorLog = false;
                     _currentCombatLogs.Clear();
-                    ErrorParsingLogs(JsonConvert.SerializeObject(e));
+                    ErrorParsingLogs.InvokeSafely(JsonConvert.SerializeObject(e));
                 }
             });
         }
+
         public void ParseCompleteLog(string log)
         {
             Logging.LogInfo("Loading existing log - " + log);
@@ -88,7 +95,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private void ParseExisitingLogs()
         {
-            HistoricalLogsStarted();
+            HistoricalLogsStarted.InvokeSafely();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
             CombatLogParser.SetParseDate(file.Time);
             var currentLogs = CombatLogParser.ParseAllLines(file, true);
@@ -99,8 +106,8 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 characters[i] = currentLogs[i].LogBytes;
             });
-            numberOfProcessedBytes = characters.Sum();
-            Logging.LogInfo("Processed " + numberOfProcessedBytes + " bytes of data in " + _logToMonitor);
+            _numberOfProcessedBytes = characters.Sum();
+            Logging.LogInfo("Processed " + _numberOfProcessedBytes + " bytes of data in " + _logToMonitor);
             ParseHistoricalLog(currentLogs);
         }
 
@@ -110,9 +117,10 @@ namespace SWTORCombatParser.Model.LogParsing
             EndCombat();
             _currentCombatLogs.Clear();
         }
+
         private void ResetMonitoring()
         {
-            numberOfProcessedBytes = 0;
+            _numberOfProcessedBytes = 0;
             numberOfProcessedLines = 0;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
@@ -129,6 +137,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
             });
         }
+
         private void GenerateNewFrame()
         {
             if (_forceUpdateOfLogs)
@@ -144,7 +153,6 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 ParseLogFile();
             }
-
         }
 
         private void ParseLogFile()
@@ -154,7 +162,7 @@ namespace SWTORCombatParser.Model.LogParsing
             using (var sr = new StreamReader(fs, _fileEncoding))
             {
                 List<string> lines = new List<string>();
-                GetNewlines(sr, lines);
+                GetNewlines2(sr, lines);
                 sr.Close();
                 fs.Close();
                 if (lines.Count == 0)
@@ -166,18 +174,78 @@ namespace SWTORCombatParser.Model.LogParsing
                     var result = ProcessNewLine(lines[line], numberOfProcessedLines, Path.GetFileName(_logToMonitor), logUpdateTime);
                     if (result == ProcessedLineResult.Incomplete)
                     {
-                        ReparsingLogs();
-                        Logging.LogInfo("Failed to parse line: " + lines[line]);
-                        ResetMonitoring();
-                        _monitorLog = false;
-                        ParseExisitingLogs();
-                        _monitorLog = true;
+                        for (var remainingLine = line; remainingLine < lines.Count; remainingLine++)
+                            _numberOfProcessedBytes -= _fileEncoding.GetByteCount(lines[remainingLine]);
+                        break;
                     }
                 }
                 if (!_isInCombat)
                     return;
                 var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentCombatLogs, CombatStartTime = _currentCombatStartTime };
-                CombatUpdated(updateMessage);
+                CombatUpdated.InvokeSafely(updateMessage);
+            }
+        }
+
+        private void GetNewlines2(StreamReader sr, List<string> lines)
+        {
+            try
+            {
+                // Move the stream to the last processed byte.
+                sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
+                bool seenCarriageReturn = false;
+                StringBuilder newLine = new StringBuilder();
+                char[] buffer = new char[2500];
+                int readCount;
+
+                while ((readCount = sr.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    for (int i = 0; i < readCount; i++)
+                    {
+                        char current = buffer[i];
+
+                        // If a null character is encountered, consider this an indication of corruption.
+                        if (current == '\0')
+                        {
+                            seenCarriageReturn = false;
+                            // Stop processing the current buffer.
+                            break;
+                        }
+
+                        if (current == '\r')
+                        {
+                            seenCarriageReturn = true;
+                            continue;
+                        }
+
+                        if (current == '\n' && seenCarriageReturn)
+                        {
+                            // A full line ending ("\r\n") has been encountered.
+                            seenCarriageReturn = false;
+                            string completeLine = newLine.ToString() + "\r\n";
+                            lines.Add(completeLine);
+                            _numberOfProcessedBytes += _fileEncoding.GetByteCount(completeLine);
+                            newLine.Clear();
+                            continue;
+                        }
+
+                        // If the previous character was '\r' but the current one is not '\n',
+                        // append the carriage return to the line.
+                        if (seenCarriageReturn)
+                        {
+                            newLine.Append('\r');
+                            seenCarriageReturn = false;
+                        }
+
+                        newLine.Append(current);
+                    }
+                }
+                // Note: If there's a trailing partial line without a "\r\n", it remains unprocessed for the next read.
+            }
+            catch (Exception e)
+            {
+                Logging.LogError("Error occurred while parsing log file at position "
+                                 + _numberOfProcessedBytes + " - " + _logToMonitor + "\r\n"
+                                 + "Exception Message: " + e.Message);
             }
         }
 
@@ -185,7 +253,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             try
             {
-                sr.BaseStream.Seek(numberOfProcessedBytes, SeekOrigin.Begin);
+                sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
                 bool lastValueWasbsR = false;
                 StringBuilder newLine = new StringBuilder();
 
@@ -213,21 +281,21 @@ namespace SWTORCombatParser.Model.LogParsing
                                 if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
                                 {
                                     lines.Add(newLine + "\r\n");
-                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
+                                    _numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
                                     break;
                                 }
                                 else
                                 {
                                     if (newLine.Length == 0)
                                         continue;
-                                    numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
+                                    _numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
                                     lines.Add(newLine + "\r\n");
                                     newLine.Clear();
                                 }
                             }
                             if (newLine.Length == 0)
                                 continue;
-                            numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
+                            _numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
                             lines.Add(newLine + "\r\n");
                             newLine.Clear();
 
@@ -242,7 +310,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             catch (Exception e)
             {
-                Logging.LogError("Error occured while parsing log file at position " + numberOfProcessedBytes + " - " + _logToMonitor + "\r\n" + "Exception Message: " + e.Message);
+                Logging.LogError("Error occured while parsing log file at position " + _numberOfProcessedBytes + " - " + _logToMonitor + "\r\n" + "Exception Message: " + e.Message);
             }
         }
 
@@ -255,7 +323,7 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 if (t.Source.IsLocalPlayer)
                 {
-                    LocalPlayerIdentified(t.Source);
+                    LocalPlayerIdentified.InvokeSafely(t.Source);
                     localPlayerIdentified = true;
                 }
                 CheckForCombatState(t, false);
@@ -265,8 +333,10 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
             }
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
-            HistoricalLogsFinished(_currentCombatLogs.Count == 0 ? TimeUtility.CorrectedTime : _currentCombatLogs.Max(l => l.TimeStamp), localPlayerIdentified);
+            DateTime combatEndTime = _currentCombatLogs.Count == 0 ? TimeUtility.CorrectedTime : _currentCombatLogs.Max(l => l.TimeStamp);
+            HistoricalLogsFinished.InvokeSafely(combatEndTime, localPlayerIdentified);
         }
+
         private void ConfirmUsingMostRecentLog()
         {
             var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
@@ -276,6 +346,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 ResetMonitoring();
             }
         }
+
         private bool CheckIfStale()
         {
             var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
@@ -291,26 +362,26 @@ namespace SWTORCombatParser.Model.LogParsing
             _lastUpdateTime = fileInfo.LastWriteTime;
             return true;
         }
-        private DateTime _mostRecentLogTime;
 
         private ProcessedLineResult ProcessNewLine(string line, long lineIndex, string logName, DateTime logUpdateTime)
         {
             var parsedLine = CombatLogParser.ParseLine(line, lineIndex, _mostRecentLogTime);
-            _mostRecentLogTime = parsedLine.TimeStamp;
-            var logTimeOffset = Math.Abs((parsedLine.TimeStamp - logUpdateTime).TotalMilliseconds);
-            var totalTimeOffset = Math.Abs((parsedLine.TimeStamp - TimeUtility.CorrectedTime).TotalMilliseconds);
-            NewLogTimeOffsetMs(logTimeOffset);
-            NewTotalTimeOffsetMs(totalTimeOffset);
             if (parsedLine.Error == ErrorType.IncompleteLine)
             {
                 return ProcessedLineResult.Incomplete;
             }
+            
+            _mostRecentLogTime = parsedLine.TimeStamp;
+            var logTimeOffset = Math.Abs((parsedLine.TimeStamp - logUpdateTime).TotalMilliseconds);
+            var totalTimeOffset = Math.Abs((parsedLine.TimeStamp - TimeUtility.CorrectedTime).TotalMilliseconds);
+            NewLogTimeOffsetMs.InvokeSafely(logTimeOffset);
+            NewTotalTimeOffsetMs.InvokeSafely(totalTimeOffset);
 
             if (parsedLine.Source.IsLocalPlayer)
-                LocalPlayerIdentified(parsedLine.Source);
+                LocalPlayerIdentified.InvokeSafely(parsedLine.Source);
             parsedLine.LogName = Path.GetFileName(logName);
             CheckForCombatState(parsedLine);
-            NewLineStreamed(parsedLine);
+            NewLineStreamed.InvokeSafely(parsedLine);
             if (_isInCombat && !_isWaitingForExitCombatTimout)
             {
                 _currentCombatLogs.Add(parsedLine);
@@ -322,6 +393,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return ProcessedLineResult.Success;
         }
+
         private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true, bool isrealtime = false)
         {
             var currentCombatState = CombatDetector.CheckForCombatState(parsedLine, isrealtime);
@@ -337,19 +409,20 @@ namespace SWTORCombatParser.Model.LogParsing
             if (currentCombatState == CombatState.ExitedCombat)
             {
                 EndCombat(parsedLine);
-
             }
             if (currentCombatState == CombatState.ExitCombatDetected)
             {
                 _isWaitingForExitCombatTimout = true;
             }
         }
+
         private void OnExitCombatTimedOut(CombatState state)
         {
             _isWaitingForExitCombatTimout = false;
             _waitingForExitCombatTimeout.Clear();
             EndCombat();
         }
+
         private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat)
         {
             Logging.LogInfo("Parsing... Starting combat");
@@ -357,14 +430,20 @@ namespace SWTORCombatParser.Model.LogParsing
             _isInCombat = true;
             _currentCombatStartTime = parsedLine.TimeStamp;
             _currentCombatLogs.Add(parsedLine);
-            var updateMessage = new CombatStatusUpdate { Type = UpdateType.Start, CombatStartTime = _currentCombatStartTime, CombatLocation = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(parsedLine.TimeStamp).Name };
+            var updateMessage = new CombatStatusUpdate
+            {
+                Type = UpdateType.Start,
+                CombatStartTime = _currentCombatStartTime,
+                CombatLocation = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(parsedLine.TimeStamp).Name
+            };
             if (shouldUpdateOnNewCombat)
             {
                 EncounterTimerTrigger.CurrentEncounter = ("", "", "");
-                CombatStarted();
-                CombatUpdated(updateMessage);
+                CombatStarted.InvokeSafely();
+                CombatUpdated.InvokeSafely(updateMessage);
             }
         }
+
         private void EndCombat(ParsedLogEntry parsedLine = null)
         {
             Logging.LogInfo("Parsing... Ending combat");
@@ -386,7 +465,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 return;
             var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatLogs, CombatStartTime = _currentCombatStartTime };
             Logging.LogInfo("Sending combat state change notification: " + updateMessage.Type + " at " + updateMessage.CombatStartTime + " with location " + updateMessage.CombatLocation);
-            CombatUpdated(updateMessage);
+            CombatUpdated.InvokeSafely(updateMessage);
         }
     }
 }
