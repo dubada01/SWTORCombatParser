@@ -4,7 +4,9 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using Newtonsoft.Json;
 using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CombatParsing
@@ -15,10 +17,139 @@ namespace SWTORCombatParser.Model.CombatParsing
         public static Combat CurrentCombat { get; set; }
 
         private static object _modlock = new object();
+        private static bool _initialized;
+        /// <summary>
+        /// Call once to reset the incremental generator.
+        /// </summary>
+        public static void Initialize()
+        {
+            lock (_modlock)
+            {
+                CurrentCombat = new Combat();
+                _initialized = true;
+            }
+        } 
+        /// <summary>
+        /// Merge incomingLogs into the existing CurrentCombat, appending only new entries.
+        /// </summary>
+        public static Combat UpdateCurrentCombatFromLogs(
+            List<ParsedLogEntry> ongoingLogs,
+            bool isRealtime = false,
+            bool quietOverlays = false,
+            bool combatEndUpdate = false,
+            bool isPhaseCombat = false)
+        {
+            if (ongoingLogs == null || ongoingLogs.Count == 0)
+                return CurrentCombat;
+
+            lock (_modlock)
+            {
+                if (!_initialized)
+                    Initialize();
+
+                // Sort the incoming batch by timestamp
+                var orderedIncoming = ongoingLogs.OrderBy(l => l.TimeStamp).ToList();
+
+                // Identify new logs not already in CurrentCombat.AllLogs
+                var newLogs = orderedIncoming
+                    .Where(l => !CurrentCombat.AllLogs.Contains(l))
+                    .ToList();
+
+                if (newLogs.Count == 0)
+                    return CurrentCombat;
+
+                // Merge each new log
+                foreach (var log in newLogs)
+                {
+                    // 1) HashSet of all logs
+                    CurrentCombat.AllLogs.Add(log);
+
+                    // 2) Per-entity logs
+                    MergeEntityLog(log.Source, log);
+                    MergeEntityLog(log.Target, log);
+
+                    // 3) Participants and classes
+                    if (log.Source.IsCharacter || log.Source.IsCompanion)
+                        AddParticipant(log.Source, log.TimeStamp);
+                    if (log.Target.IsCharacter || log.Target.IsCompanion)
+                        AddParticipant(log.Target, log.TimeStamp);
+
+                    // 4) Targets
+                    if (!log.Target.IsCharacter && !log.Target.IsCompanion)
+                        AddTarget(log.Target);
+
+                    // 5) Start and End times
+                    if (CurrentCombat.StartTime == default)
+                    {
+                        CurrentCombat.StartTime = log.TimeStamp;
+                    }
+                    CurrentCombat.EndTime = log.TimeStamp;
+                }
+
+                // 6) Post-merge metadata (threat, shielding, cooldowns)
+                CombatMetaDataParse.PopulateMetaData(CurrentCombat);
+
+                var absorbLogs = CurrentCombat.IncomingDamageMitigatedLogs
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value
+                            .Where(e => e.Value.Modifier.ValueType == DamageType.absorbed)
+                            .OrderBy(e => e.TimeStamp)
+                            .ToList()
+                    );
+                AddShieldingToLogs.AddShieldLogsByTarget(absorbLogs, CurrentCombat);
+                AddTankCooldown.AddDamageSavedDuringCooldown(CurrentCombat);
+
+                // 7) Real-time triggers
+                if (CurrentCombat.IsCombatWithBoss && isRealtime)
+                {
+                    var parts = CurrentCombat.EncounterBossDifficultyParts;
+                    EncounterTimerTrigger.FireEncounterDetected(
+                        CurrentCombat.ParentEncounter.Name,
+                        parts.Item1,
+                        CurrentCombat.ParentEncounter.Difficutly
+                    );
+                }
+
+                // 8) Combat finished event
+                if (combatEndUpdate)
+                    CombatFinished.InvokeSafely(CurrentCombat);
+
+                return CurrentCombat;
+            }
+        }
+
+        private static void MergeEntityLog(Entity e, ParsedLogEntry log)
+        {
+            if (!CurrentCombat.LogsInvolvingEntity.TryGetValue(e, out var list))
+            {
+                list = new List<ParsedLogEntry>();
+                CurrentCombat.LogsInvolvingEntity[e] = list;
+            }
+            list.Add(log);
+        }
+
+        private static void AddParticipant(Entity e, DateTime timestamp)
+        {
+            if (!CurrentCombat.CharacterParticipants.Any(p => p.LogId == e.LogId))
+            {
+                CurrentCombat.CharacterParticipants.Add(e);
+                var cls = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(e, timestamp);
+                CurrentCombat.CharacterClases[e] = cls;
+            }
+        }
+
+        private static void AddTarget(Entity e)
+        {
+            if (!CurrentCombat.Targets.Any(t => t.LogId == e.LogId))
+                CurrentCombat.Targets.Add(e);
+        }
         public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false, bool isPhaseCombat = false)
         {
             try
             {
+                if (ongoingLogs.Count == 0)
+                    return new Combat();
                 var state = CombatLogStateBuilder.CurrentState;
                 var orderedLogs = ongoingLogs.OrderBy(t => t.TimeStamp);
                 var firstTime = orderedLogs.First().TimeStamp;
@@ -109,11 +240,13 @@ namespace SWTORCombatParser.Model.CombatParsing
                 lock (_modlock)
                 {
                     CombatMetaDataParse.PopulateMetaData(newCombat);
+                    //Debug.WriteLine("###############"+JsonConvert.SerializeObject(newCombat.PlayerThreatPerEnemy.ToDictionary(kvp=>kvp.Key.Name + kvp.Key.Id, kvp=>kvp.Value.ToDictionary(a=>a.Key.Name + kvp.Key.Id, a=>a.Value)), Formatting.Indented)+"-------------------\r\n");
+                    
                     var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key,
                         kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8)
                             .Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l => l.TimeStamp)
                             .ToList());
-                    AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
+                    AddShieldingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
                     AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
                 }
 
@@ -126,7 +259,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             catch(Exception e)
             {
-                Logging.LogError("Failed to create combat: " + e.Message);
+                Logging.LogError("Failed to create combat: " + e.Message + "\r\n" + e.StackTrace);
                 return new Combat();
             }
         }

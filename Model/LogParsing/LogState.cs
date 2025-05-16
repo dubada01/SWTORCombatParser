@@ -32,7 +32,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public string EffectName { get; set; }
         public string EffectId { get; set; }
         public CombatModfierType Type { get; set; }
-        public Dictionary<DateTime, int> ChargesAtTime { get; set; } = new Dictionary<DateTime, int>();
+        public Dictionary<DateTime, int> ChargesAtTime { get; set; } = new();
         public int GetEffectStackForTimestamp(DateTime targetTime)
         {
             // Try to get the exact timestamp first
@@ -62,23 +62,24 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public class LogState
     {
-        private List<DateTime> _orderedEncounterChangeTimes = new List<DateTime>();
+        private List<DateTime> _orderedEncounterChangeTimes = new();
 
-        public ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, SWTORClass>>();
-        public ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>> PlayerTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>>();
-        public ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>> EnemyTargetsInfo = new ConcurrentDictionary<Entity, Dictionary<DateTime, EntityInfo>>();
-        public Dictionary<Entity, Dictionary<DateTime, bool>> PlayerDeathChangeInfo = new Dictionary<Entity, Dictionary<DateTime, bool>>();
-        public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new Dictionary<DateTime, EncounterInfo>();
+        public ConcurrentDictionary<Entity, ConcurrentDictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new();
+        public ConcurrentDictionary<Entity, ConcurrentDictionary<DateTime, EntityInfo>> PlayerTargetsInfo = new();
+        public ConcurrentDictionary<Entity, ConcurrentDictionary<DateTime, EntityInfo>> EnemyTargetsInfo = new();
+        public Dictionary<Entity, ConcurrentDictionary<DateTime, bool>> PlayerDeathChangeInfo = new();
+        public Dictionary<Entity, ConcurrentDictionary<DateTime, bool>> EnemyDeathChangeInfo = new();
+        public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new();
 
         public LogVersion LogVersion { get; set; } = LogVersion.Legacy;
-        public List<ParsedLogEntry> RawLogs { get; set; } = new List<ParsedLogEntry>();
+        public List<ParsedLogEntry> RawLogs { get; set; } = new();
         public string CurrentLocation { get; set; }
-        public ConcurrentDictionary<string, ConcurrentDictionary<Guid, CombatModifier>> Modifiers { get; set; } = new ConcurrentDictionary<string, ConcurrentDictionary<Guid, CombatModifier>>();
-        public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new Dictionary<Entity, PositionData>();
+        public ConcurrentDictionary<string, ConcurrentDictionary<Guid, CombatModifier>> Modifiers { get; set; } = new();
+        public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new();
         public PositionData CurrentLocalCharacterPosition => LocalPlayer == null ? new PositionData() : CurrentCharacterPositions[LocalPlayer];
         public Entity LocalPlayer { get; internal set; }
 
-        private static object _effectsModLock = new object();
+        private static object _effectsModLock = new();
 
 
         public bool WasPlayerDeadAtTime(Entity player, DateTime timestamp)
@@ -100,6 +101,28 @@ namespace SWTORCombatParser.Model.LogParsing
                     return playerDeathInfo[updateTimes[i]];
                 if (updateTimes[i] > timestamp && i != 0)
                     return playerDeathInfo[updateTimes[i - 1]];
+            }
+            return false;
+        }
+        public bool WasEnemyDeadAtTime(Entity enemy, DateTime timestamp)
+        {
+            if (!EnemyDeathChangeInfo.TryGetValue(enemy, out var enemyDeathInfo))
+            {
+                return true;
+            }
+            if (!enemyDeathInfo.Any(d => d.Key > timestamp))
+                return true;
+            var updateTimes = enemyDeathInfo.Keys.ToList();
+            for (var i = 0; i < updateTimes.Count; i++)
+            {
+                if (i == updateTimes.Count - 1)
+                {
+                    return enemyDeathInfo[updateTimes.Last()];
+                }
+                if (updateTimes[i] == timestamp)
+                    return enemyDeathInfo[updateTimes[i]];
+                if (updateTimes[i] > timestamp && i != 0)
+                    return enemyDeathInfo[updateTimes[i - 1]];
             }
             return false;
         }
@@ -264,37 +287,38 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static List<CombatModifier> GetEffects(DateTime startTime, DateTime endTime, IEnumerable<CombatModifier> inScopeModifiers)
         {
-            var correctedModifiers = inScopeModifiers.Select(m =>
+            var result = new List<CombatModifier>();
+
+            foreach (var m in inScopeModifiers)
             {
-                CombatModifier correctedModifier = new CombatModifier();
-                if (m.StopTime == DateTime.MinValue || m.StartTime < startTime || m.StopTime > endTime)
+                var start = m.StartTime < startTime ? startTime : m.StartTime;
+                var stop = (m.StopTime == DateTime.MinValue || m.StopTime > endTime) ? endTime : m.StopTime;
+
+                if ((stop - start).TotalSeconds <= 0)
+                    continue;
+
+                if (m.StartTime < startTime || m.StopTime > endTime || m.StopTime == DateTime.MinValue)
                 {
-                    correctedModifier.EffectId = m.EffectId;
-                    correctedModifier.EffectName = m.EffectName;
-                    correctedModifier.Source = m.Source;
-                    correctedModifier.Target = m.Target;
-                    correctedModifier.Type = m.Type;
-                    correctedModifier.Name = m.Name;
-                    correctedModifier.StartTime = m.StartTime;
-                    correctedModifier.StopTime = m.StopTime;
-                    correctedModifier.ChargesAtTime = m.ChargesAtTime;
-                    if (m.StopTime == DateTime.MinValue)
+                    result.Add(new CombatModifier
                     {
-                        correctedModifier.StopTime = endTime;
-                    }
-                    if (m.StopTime > endTime)
-                    {
-                        correctedModifier.StopTime = endTime;
-                    }
-                    if (m.StartTime < startTime)
-                    {
-                        correctedModifier.StartTime = startTime;
-                    }
-                    return correctedModifier;
+                        EffectId = m.EffectId,
+                        EffectName = m.EffectName,
+                        Source = m.Source,
+                        Target = m.Target,
+                        Type = m.Type,
+                        Name = m.Name,
+                        StartTime = start,
+                        StopTime = stop,
+                        ChargesAtTime = m.ChargesAtTime
+                    });
                 }
-                return m;
-            });
-            return correctedModifiers.Where(m => m.DurationSeconds > 0).ToList();
+                else
+                {
+                    result.Add(m);
+                }
+            }
+
+            return result;
 
         }
         private static List<CombatModifier> GetEffects(DateTime timestamp, IEnumerable<CombatModifier> inScopeModifiers)

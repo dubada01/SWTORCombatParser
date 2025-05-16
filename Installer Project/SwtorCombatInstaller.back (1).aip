@@ -6,10 +6,10 @@
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPPRODUCTICON" Value="OrbsIcon.exe" Type="8"/>
     <ROW Property="Manufacturer" Value="DubaTech"/>
-    <ROW Property="ProductCode" Value="1033:{E4DC2BF1-3B70-4740-B5B1-44B40BC7917A} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{4C3B5B57-1723-413C-A518-C765BEFC1E5A} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Orbs (Old Republic Battle Parser)"/>
-    <ROW Property="ProductVersion" Value="2.0.14" Options="32"/>
+    <ROW Property="ProductVersion" Value="2.0.19.1" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{80800124-4453-4786-91FB-F71AA5158404}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
@@ -179,7 +179,6 @@
     <ROW Component="BuiltInChallenges.json" ComponentId="{CA6AFD85-E47A-416C-946F-A58E94B4EEDC}" Directory_="ChallengeInfo_Dir" Attributes="0" KeyPath="BuiltInChallenges.json" Type="0"/>
     <ROW Component="Cademimu.json" ComponentId="{454BD957-7942-4D4A-B8BB-42751ABEAEC5}" Directory_="Cademimu_Dir" Attributes="0" KeyPath="Cademimu.json" Type="0"/>
     <ROW Component="Classes.json" ComponentId="{9C984E26-B035-4124-9C6C-D3920F12CD74}" Directory_="ClassInfos_Dir" Attributes="0" KeyPath="Classes.json" Type="0"/>
-    <ROW Component="ColorTextBlock.Avalonia.dll" ComponentId="{D8C8459D-E2B3-4FA9-9672-71CD374244B9}" Directory_="APPDIR" Attributes="0" KeyPath="ColorTextBlock.Avalonia.dll"/>
     <ROW Component="CrisisonUmbara.json" ComponentId="{8B83750F-06B8-41CB-8E69-E044895D10B5}" Directory_="CrisisonUmbara_Dir" Attributes="0" KeyPath="CrisisonUmbara.json" Type="0"/>
     <ROW Component="CzerkaCoreMeltdown.json" ComponentId="{1B27E97F-BFDC-491C-B405-BD9935C04623}" Directory_="CzerkaCoreMeltdown_Dir" Attributes="0" KeyPath="CzerkaCoreMeltdown.json" Type="0"/>
     <ROW Component="CzerkaCorporateLabs.json" ComponentId="{9AAAAC28-5E6E-4FA7-ACCE-16591C7BD158}" Directory_="CzerkaCorporateLabs_Dir" Attributes="0" KeyPath="CzerkaCorporateLabs.json" Type="0"/>
@@ -202,7 +201,6 @@
     <ROW Component="LostIsland.json" ComponentId="{C4272F0C-33EF-45C8-94C4-9E6612E63D75}" Directory_="LostIsland_Dir" Attributes="0" KeyPath="LostIsland.json" Type="0"/>
     <ROW Component="ManagedBass.dll" ComponentId="{7BFEC93E-2EBB-4B7A-B740-8962689C6805}" Directory_="APPDIR" Attributes="0" KeyPath="ManagedBass.dll"/>
     <ROW Component="MandalorianRaiders.json" ComponentId="{79F42EC7-6D9D-48A2-B82B-D820085299D4}" Directory_="MandalorianRaiders_Dir" Attributes="0" KeyPath="MandalorianRaiders.json" Type="0"/>
-    <ROW Component="Markdown.Avalonia.dll" ComponentId="{941C6EA3-2861-4E4A-AC2F-1A9C8D85050F}" Directory_="APPDIR" Attributes="0" KeyPath="Markdown.Avalonia.dll"/>
     <ROW Component="MathNet.Numerics.dll" ComponentId="{4437947D-96D9-47F0-890C-4FBDE77B263C}" Directory_="APPDIR" Attributes="0" KeyPath="MathNet.Numerics.dll"/>
     <ROW Component="MicroCom.Runtime.dll" ComponentId="{79EEE2D4-AB7F-446D-B36A-3AF51B5FFB41}" Directory_="APPDIR" Attributes="0" KeyPath="MicroCom.Runtime.dll"/>
     <ROW Component="Microsoft.CSharp.dll" ComponentId="{CCAF4938-C2AE-49F1-B8DC-99CABE225C32}" Directory_="APPDIR" Attributes="0" KeyPath="Microsoft.CSharp.dll"/>
@@ -824,7 +822,6 @@
     <ROW File="clretwrc.dll" Component_="clretwrc.dll" FileName="clretwrc.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\clretwrc.dll" SelfReg="false"/>
     <ROW File="clrgc.dll" Component_="clrgc.dll" FileName="clrgc.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\clrgc.dll" SelfReg="false"/>
     <ROW File="clrjit.dll" Component_="clrjit.dll" FileName="clrjit.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\clrjit.dll" SelfReg="false"/>
-    <ROW File="ColorTextBlock.Avalonia.dll" Component_="ColorTextBlock.Avalonia.dll" FileName="COLORT~1.DLL|ColorTextBlock.Avalonia.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\ColorTextBlock.Avalonia.dll" SelfReg="false"/>
     <ROW File="coreclr.dll" Component_="coreclr.dll" FileName="coreclr.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\coreclr.dll" SelfReg="false"/>
     <ROW File="createdump.exe" Component_="createdump.exe" FileName="CREATE~1.EXE|createdump.exe" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\createdump.exe" SelfReg="false"/>
     <ROW File="DialogHost.Avalonia.dll" Component_="DialogHost.Avalonia.dll" FileName="DIALOG~1.DLL|DialogHost.Avalonia.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\DialogHost.Avalonia.dll" SelfReg="false"/>
@@ -837,7 +834,6 @@
     <ROW File="LibVLCSharp.dll" Component_="LibVLCSharp.dll" FileName="LIBVLC~1.DLL|LibVLCSharp.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\LibVLCSharp.dll" SelfReg="false"/>
     <ROW File="LoggingConfig.json" Component_="BossMechanicSkimmerConfig.json" FileName="LOGGIN~1.JSO|LoggingConfig.json" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\LoggingConfig.json" SelfReg="false"/>
     <ROW File="ManagedBass.dll" Component_="ManagedBass.dll" FileName="MANAGE~1.DLL|ManagedBass.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\ManagedBass.dll" SelfReg="false"/>
-    <ROW File="Markdown.Avalonia.dll" Component_="Markdown.Avalonia.dll" FileName="MARKDO~1.DLL|Markdown.Avalonia.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\Markdown.Avalonia.dll" SelfReg="false"/>
     <ROW File="MathNet.Numerics.dll" Component_="MathNet.Numerics.dll" FileName="MATHNE~1.DLL|MathNet.Numerics.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\MathNet.Numerics.dll" SelfReg="false"/>
     <ROW File="MicroCom.Runtime.dll" Component_="MicroCom.Runtime.dll" FileName="MICROC~1.DLL|MicroCom.Runtime.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\MicroCom.Runtime.dll" SelfReg="false"/>
     <ROW File="Microsoft.CSharp.dll" Component_="Microsoft.CSharp.dll" FileName="MICROS~1.DLL|Microsoft.CSharp.dll" Attributes="0" SourcePath="..\bin\Release\net8.0\win-x86\msixpublish\Microsoft.CSharp.dll" SelfReg="false"/>
@@ -2056,7 +2052,6 @@
     <ROW Feature_="MainFeature" Component_="clretwrc.dll"/>
     <ROW Feature_="MainFeature" Component_="clrgc.dll"/>
     <ROW Feature_="MainFeature" Component_="clrjit.dll"/>
-    <ROW Feature_="MainFeature" Component_="ColorTextBlock.Avalonia.dll"/>
     <ROW Feature_="MainFeature" Component_="coreclr.dll"/>
     <ROW Feature_="MainFeature" Component_="createdump.exe"/>
     <ROW Feature_="MainFeature" Component_="DialogHost.Avalonia.dll"/>
@@ -2068,7 +2063,6 @@
     <ROW Feature_="MainFeature" Component_="libSkiaSharp.dll"/>
     <ROW Feature_="MainFeature" Component_="LibVLCSharp.dll"/>
     <ROW Feature_="MainFeature" Component_="ManagedBass.dll"/>
-    <ROW Feature_="MainFeature" Component_="Markdown.Avalonia.dll"/>
     <ROW Feature_="MainFeature" Component_="MathNet.Numerics.dll"/>
     <ROW Feature_="MainFeature" Component_="MicroCom.Runtime.dll"/>
     <ROW Feature_="MainFeature" Component_="Microsoft.CSharp.dll"/>

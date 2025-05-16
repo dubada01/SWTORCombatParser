@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using Avalonia;
@@ -7,11 +9,13 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Templates;
+using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ReactiveUI;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.DataGrid;
 
 namespace SWTORCombatParser.Views.DataGrid_Views
@@ -78,7 +82,27 @@ namespace SWTORCombatParser.Views.DataGrid_Views
             InitializeComponent();
             _viewModel.ColumnsRefreshed += RefreshColumns;
             RemoveColumnCommand = ReactiveCommand.Create<StatsSlotViewModel>(RemoveColumn);
+            Loaded += SetDefaultSorting;
         }
+
+        private void SetDefaultSorting(object? sender, RoutedEventArgs e)
+        {
+            var sortingInfo = Settings.ReadSettingOfType<string>("grid_sort");
+            
+            if (string.IsNullOrWhiteSpace(sortingInfo) || sortingInfo.Length < 2)
+                throw new InvalidOperationException("Invalid sort settings format.");
+            
+            string sortProperty = sortingInfo.Split("_+_")[0];
+            if (!int.TryParse(sortingInfo.Split("_+_")[1], out int direction))
+            {
+                Logging.LogError("Invalid sort settings format.");
+                return;
+            }
+            _sortProperty = sortProperty;
+            _sortDirection = (ListSortDirection)direction;
+            RefreshColumns();
+        }
+
         private void RemoveColumn(StatsSlotViewModel columnVm)
         {
             _viewModel.RemoveHeader(columnVm.OverlayType);
@@ -224,8 +248,16 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                     UpdateColumnForSort(textColumn);
                     ForceSort();
                     SetSortIcon(textColumn);
+                    Settings.WriteSetting("grid_sort",GetSortInfo());
                 }
             });
+        }
+
+        private string GetSortInfo()
+        {
+            var direction = ((int)_sortDirection).ToString();
+            var property = _sortProperty;
+            return property +"_+_"+ direction;
         }
 
         private void UpdateColumnForSort(DataGridTemplateColumn textColumn)
@@ -285,7 +317,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
         {
             // Instantiate the CustomComparer with the new direction
             CustomComparer comparer = new CustomComparer(_sortProperty, _sortDirection);
-
+            Debug.WriteLine($"Sorting {_sortProperty} on {_sortDirection}");
             // Sort the items
             var items = DynamicDataGrid.ItemsSource as IEnumerable<MemberInfoViewModel>;
             if (items != null)

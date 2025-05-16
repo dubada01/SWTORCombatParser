@@ -1,0 +1,32 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="SWTORCombatParser.Views.Overlay.ThreatTable.ThreatTableEntry"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.ThreatTable"
+             x:DataType="vm:ThreatTableEntryViewModel">
+    <Border Margin="2,2,2,2" Background="{StaticResource Gray3}" BorderBrush="{Binding EnemyBackground}" BorderThickness="2" CornerRadius="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.33*"/>
+                <RowDefinition Height="0.33*"/>
+                <RowDefinition Height="0.33*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding EnemyNameColor}" FontSize="{StaticResource LargerFontSize}" Text="{Binding EnemyName}"></TextBlock>
+            <Border Margin="3,3,2,3" CornerRadius="3" Grid.Row="1" Background="{StaticResource Gray2}" HorizontalAlignment="Stretch"/>
+            <Image Grid.Row="1" HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="3,0,0,0" Width="10" Source="avares://Orbs/resources/tankIcon.png" IsVisible="{Binding TopIsTank}"></Image>
+            <TextBlock Grid.Row="1" FontWeight="{Binding TopFontWeight}" HorizontalAlignment="Left" Margin="15,5,0,5" VerticalAlignment="Center" FontSize="{StaticResource LargeFontSize}" Text="{Binding TopPlayerName}"></TextBlock>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{Binding ColumnRatio}"/>
+                    <ColumnDefinition Width="{Binding RemainderRatio}"/>
+                </Grid.ColumnDefinitions>
+                <Border Margin="3,3,0,3" CornerRadius="3" Grid.Column="0" Background="{Binding RemainderColor}" HorizontalAlignment="Stretch"/>
+                <Image HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="3,0,0,0" Width="10" Source="avares://Orbs/resources/tankIcon.png" IsVisible="{Binding BottomIstank}"></Image>
+                <TextBlock Grid.Column="0" FontSize="{StaticResource LargeFontSize}" FontWeight="{Binding BottomFontWeight}" HorizontalAlignment="Left" Margin="15,5,0,5" VerticalAlignment="Center" Text="{Binding SecondPlayerName}"></TextBlock>
+            </Grid>
+
+        </Grid>
+    </Border>
+</UserControl>

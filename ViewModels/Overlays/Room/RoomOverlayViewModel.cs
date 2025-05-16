@@ -40,6 +40,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             _settings = RoomOverlayLoader.GetRoomOverlaySettings();
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
             EncounterTimerTrigger.EncounterDetected += OnBossEncounterDetected;
+            
+            
+            ImagePath = new Bitmap(
+                AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/Empty.png")));
+            _isTriggered = true;
+            UpdateVisibility();
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                IsActive = true;
+            });
+            _isTriggered = false;
         }
 
         private void OnBossEncounterDetected(string arg1, string arg2, string arg3)
@@ -47,7 +58,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             if (!Active || _isTriggered)
                 return;
             ImagePath = new Bitmap(
-                AssetLoader.Open(new Uri("avares://Orbs/resources/resources/RoomOverlays/IP-CPT/Empty.png")));
+                AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/Empty.png")));
             _isTriggered = true;
             UpdateVisibility();
             _currentBossName = arg2;

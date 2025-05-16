@@ -48,7 +48,6 @@ public class TenSecondRecapViewModel:ReactiveObject
             if(_currentCombat == null)
                 return;
             _currentSelectedTime = _currentCombat.EndTime.AddSeconds(-_timeOffset * (1-value));
-            Debug.WriteLine("Selected Time: " + _currentSelectedTime+ " which is " + (-_timeOffset * (1-value)) +" seconds before the end of the combat");
             this.RaiseAndSetIfChanged(ref _currentSliderValue, value);
             this.RaisePropertyChanged(nameof(CurrentTimeOffset));
             UpdateBuffsAndDebuffs();
@@ -199,7 +198,6 @@ public class TenSecondRecapViewModel:ReactiveObject
     private List<CombatModifier> GetEffectsOnEntityAtTime(Entity entity)
     {
         var allEffectsOnEntity = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(_currentSelectedTime,entity);
-        Debug.WriteLine("There were " + allEffectsOnEntity.Count + " effects on " + entity.Name + " at " + _currentSelectedTime);
         return allEffectsOnEntity;
     }
     private void RefreshInScopeEntities()

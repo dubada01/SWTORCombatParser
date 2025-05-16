@@ -17,6 +17,7 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using LibVLCSharp.Shared;
 using ManagedBass;
+using SWTORCombatParser.Model.CombatParsing;
 
 namespace SWTORCombatParser
 {
@@ -59,7 +60,7 @@ namespace SWTORCombatParser
                     await ExtractIconsIfNecessaryAsync();
                     IconGetter.Init();
                 });
-
+                CombatIdentifier.Initialize();
                 var mainWindow = new MainWindow();
                 var mainWindowVM = new MainWindowViewModel(mainWindow.HotkeyHandler);
                 mainWindow.DataContext = mainWindowVM;
@@ -67,6 +68,8 @@ namespace SWTORCombatParser
                 {
                     desktop.MainWindow = mainWindow;
                 }
+                // TODO record when players start the software
+                //Logging.LogStartup();
                 mainWindow.Show();
             }
             else

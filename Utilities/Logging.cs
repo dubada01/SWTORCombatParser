@@ -46,6 +46,18 @@ namespace SWTORCombatParser.Utilities
                 }
             }
         }
+
+        public static void LogStartup()
+        {
+            LoadLoggingConfig();
+            if (!_useVerboseLogging)
+                return;
+            lock (_logLock)
+            {
+                if (!Settings.ReadSettingOfType<bool>("offline_mode"))
+                    CloudLogging.UploadLogAsync("User Started Orbs", "startup");
+            }
+        }
         public static void LoadLoggingConfig()
         {
             try
@@ -54,7 +66,7 @@ namespace SWTORCombatParser.Utilities
             }
             catch (Exception exception)
             {
-                Console.WriteLine("ERROR: Could not load logging config.\r\n"+ exception.Message);
+                LogError("ERROR: Could not load logging config.\r\n"+ exception.Message);
                 //LogError("Failed to determine logging configuration. Please close and save LoggingConfig.json");
             }
 

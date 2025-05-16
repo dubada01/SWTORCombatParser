@@ -74,7 +74,9 @@ namespace SWTORCombatParser.Utilities
             catch
             {
                 string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
-                return await LoadImageAsync(Path.Combine(appDataPath, "resources", "icons", ".png"), abilityId);
+                var icon =  await LoadImageAsync(Path.Combine(appDataPath, "resources", "icons", ".png"), abilityId);
+                IconDict.TryAdd(abilityId, icon);
+                return icon;
             }
         }
     }

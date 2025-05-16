@@ -28,6 +28,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private double _maxAbsorb = 0;
         private double timerValue = 1;
         private int _updateIntervalMs;
+        private bool _audioLoaded;
         private MediaPlayer _mediaPlayer;
         private LibVLC _libvlc;
         private string _audioPath;
@@ -174,30 +175,44 @@ namespace SWTORCombatParser.ViewModels.Timers
 
             if (swtorTimer.UseAudio)
             {
-                //builtin-timer-audio
-                if (!string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(Path.Combine(Environment.CurrentDirectory, "resources/Audio/TimerAudio/", swtorTimer.CustomAudioPath)))
+                try
                 {
-                    _audioPath = Path.Combine(Environment.CurrentDirectory, "resources/Audio/TimerAudio/", swtorTimer.CustomAudioPath);
-                }
-                else
-                {
-                    _audioPath = !string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(swtorTimer.CustomAudioPath) ? swtorTimer.CustomAudioPath :
-                        swtorTimer.IsAlert ? Path.Combine(Environment.CurrentDirectory, "resources/Audio/AlertSound.wav") :
-                        Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
-                }
-                    #if WINDOWS
+                    //builtin-timer-audio
+                    if (!string.IsNullOrEmpty(swtorTimer.CustomAudioPath) && File.Exists(
+                            Path.Combine(Environment.CurrentDirectory, "resources/Audio/TimerAudio/",
+                                swtorTimer.CustomAudioPath)))
+                    {
+                        _audioPath = Path.Combine(Environment.CurrentDirectory, "resources/Audio/TimerAudio/",
+                            swtorTimer.CustomAudioPath);
+                    }
+                    else
+                    {
+                        _audioPath =
+                            !string.IsNullOrEmpty(swtorTimer.CustomAudioPath) &&
+                            File.Exists(swtorTimer.CustomAudioPath) ? swtorTimer.CustomAudioPath :
+                            swtorTimer.IsAlert ? Path.Combine(Environment.CurrentDirectory,
+                                "resources/Audio/AlertSound.wav") :
+                            Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
+                    }
+#if WINDOWS
                     _libvlc = new LibVLC();
                     var media = new Media(_libvlc, new Uri(_audioPath, UriKind.RelativeOrAbsolute));
                     _mediaPlayer = new MediaPlayer(media);
-                    #endif
-                    #if MACOS
+#endif
+#if MACOS
                     stream = Bass.CreateStream(_audioPath, 0, 0, BassFlags.Default);
-                    #endif
+#endif
 
-                if (swtorTimer.AudioStartTime == 0)
-                    _playAtTime = 2;
-                else
-                    _playAtTime = swtorTimer.AudioStartTime;
+                    if (swtorTimer.AudioStartTime == 0)
+                        _playAtTime = 2;
+                    else
+                        _playAtTime = swtorTimer.AudioStartTime;
+                    _audioLoaded = true;
+                }
+                catch (Exception ex)
+                {
+                    Logging.LogError("Failed to open audio file for timer at: "+_audioPath);
+                }
 
             }
 
@@ -269,7 +284,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
             else
             {
-                if (SourceTimer.UseAudio)
+                if (SourceTimer.UseAudio && _audioLoaded)
                 {
                     Dispatcher.UIThread.Invoke(() =>
                     {
@@ -277,9 +292,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                         _mediaPlayer.Play();
                         #endif
                         #if MACOS
-                        Debug.WriteLine("Trying to play: "+_audioPath);
                         Bass.ChannelPlay(stream,false);
-                        Debug.WriteLine("Played: "+_audioPath);
                         #endif
                     });
 
@@ -344,9 +357,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             _lastUpdateTime = TimeUtility.CorrectedTime;
             TimerValue -= deltaTime;
             this.RaisePropertyChanged(nameof(TimerValue));
-            if (_hasAudioPlayed && SourceTimer.UseAudio && TimerValue > _playAtTime)
+            if (_hasAudioPlayed && SourceTimer.UseAudio && _audioLoaded && TimerValue > _playAtTime)
                 _hasAudioPlayed = false;
-            if (SourceTimer.UseAudio && TimerValue <= _playAtTime && !_hasAudioPlayed)
+            if (SourceTimer.UseAudio && _audioLoaded && TimerValue <= _playAtTime && !_hasAudioPlayed)
             {
                 _hasAudioPlayed = true;
                 Dispatcher.UIThread.Invoke(() =>
@@ -355,9 +368,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                         _mediaPlayer.Play();
 #endif
 #if MACOS
-                    Debug.WriteLine("Trying to play: "+_audioPath);
                     Bass.ChannelPlay(stream,false);
-                    Debug.WriteLine("Played: "+_audioPath);
 #endif
                 });
             }

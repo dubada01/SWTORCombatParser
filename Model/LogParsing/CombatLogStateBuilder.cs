@@ -34,6 +34,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.LogVersion = LogVersion.NextGen;
             }
             UpdatePlayerDeathState(log);
+            UpdateEnemyDeathState(log);
             SetCharacterPositions(log);
 
             if (log.Effect.EffectType == EffectType.DisciplineChanged)
@@ -96,7 +97,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var player = log.Target;
             if (CurrentState.PlayerDeathChangeInfo.Keys.All(k => k.Id != player.Id))
             {
-                CurrentState.PlayerDeathChangeInfo[player] = new Dictionary<DateTime, bool>
+                CurrentState.PlayerDeathChangeInfo[player] = new ConcurrentDictionary<DateTime, bool>
                 {
                     [log.TimeStamp] = false
                 };
@@ -106,12 +107,27 @@ namespace SWTORCombatParser.Model.LogParsing
             if (log.Effect.EffectId == _7_0LogParsing.RevivedCombatId)
                 CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
         }
+        private static void UpdateEnemyDeathState(ParsedLogEntry log)
+        {
+            if (log.Target.IsCharacter)
+                return;
+            var player = log.Target;
+            if (CurrentState.EnemyDeathChangeInfo.Keys.All(k => k.Id != player.Id))
+            {
+                CurrentState.EnemyDeathChangeInfo[player] = new ConcurrentDictionary<DateTime, bool>
+                {
+                    [log.TimeStamp] = false
+                };
+            }
+            if (log.Effect.EffectId == _7_0LogParsing.DeathCombatId)
+                CurrentState.EnemyDeathChangeInfo[player][log.TimeStamp] = true;
+        }
         private static void UpdatePlayerClassState(ParsedLogEntry parsedLine, bool realTime)
         {
             if (!parsedLine.Source.IsCharacter)
                 return;
             if (!CurrentState.PlayerClassChangeInfo.ContainsKey(parsedLine.Source))
-                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
+                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new ConcurrentDictionary<DateTime, SWTORClass>();
 
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
@@ -127,7 +143,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 dictToUse = CurrentState.EnemyTargetsInfo;
             }
             if (!dictToUse.ContainsKey(log.Source))
-                dictToUse[log.Source] = new Dictionary<DateTime, EntityInfo>();
+                dictToUse[log.Source] = new ConcurrentDictionary<DateTime, EntityInfo>();
             if (log.Error == ErrorType.IncompleteLine)
                 return;
             if (log.Effect.EffectId == _7_0LogParsing.TargetSetId)

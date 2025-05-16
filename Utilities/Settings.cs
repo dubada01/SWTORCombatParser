@@ -51,6 +51,8 @@ public static class Settings
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName) && settingName == "stub_logs")
             settingList[settingName] = false;
+        if (!settingList.ContainsKey(settingName) && settingName == "grid_sort")
+            settingList[settingName] = "Damage_+_1";
         if (!settingList.ContainsKey(settingName) && settingName == "offline_mode")
             settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "DynamicLayout")
@@ -87,7 +89,7 @@ public static class Settings
             catch (JsonException ex)
             {
                 // Log or handle the error appropriately
-                Console.WriteLine($"Error deserializing setting '{settingName}' to type {typeof(T).Name}: {ex.Message}");
+                Logging.LogError($"Error deserializing setting '{settingName}' to type {typeof(T).Name}: {ex.Message}");
             }
         }
 

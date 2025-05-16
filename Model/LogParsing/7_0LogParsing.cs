@@ -359,98 +359,161 @@ namespace SWTORCombatParser.Model.LogParsing
             newValue.DisplayValue = _interner.Intern(newValue.EffectiveDblValue.ToString("#,##0"));
             return newValue;
         }
-        private static EntityInfo ParseEntity(string value)
+        private static EntityInfo ParseEntity(ReadOnlySpan<char> value)
         {
             var entityToReturn = new EntityInfo
             {
                 IsAlive = true
             };
-            var entityParts = value.Split("|");
-            if (entityParts.Length == 1)
-                return entityToReturn;
-            var name = entityParts[0];
-            var position = entityParts[1];
-            var hpInfo = entityParts[2];
 
-            AddEntity(entityToReturn, name);
-            AddPosition(entityToReturn, position);
-            AddHpInfo(entityToReturn, hpInfo);
+            int firstSep = value.IndexOf('|');
+            if (firstSep < 0)
+                return entityToReturn;
+
+            int secondSep = value.Slice(firstSep + 1).IndexOf('|');
+            if (secondSep < 0)
+                return entityToReturn;
+
+            secondSep += firstSep + 1; // adjust index relative to full span
+
+            var nameSpan = value.Slice(0, firstSep);
+            var posSpan = value.Slice(firstSep + 1, secondSep - firstSep - 1);
+            var hpSpan = value.Slice(secondSep + 1);
+
+            AddEntity(entityToReturn, nameSpan);
+            AddPosition(entityToReturn, posSpan);
+            AddHpInfo(entityToReturn, hpSpan);
 
             return entityToReturn;
         }
-        private static void AddPosition(EntityInfo entityInfo, string positionInfo)
+
+        private static void AddPosition(EntityInfo entityInfo, ReadOnlySpan<char> positionInfo)
         {
-            var innerPart = positionInfo.Substring(1, positionInfo.Length - 2);
-            var positionParts = innerPart.Split(',');
-            entityInfo.Position = new PositionData()
-            {
-                X = double.Parse(positionParts[0], CultureInfo.InvariantCulture),
-                Y = double.Parse(positionParts[1], CultureInfo.InvariantCulture),
-                Z = double.Parse(positionParts[2], CultureInfo.InvariantCulture),
-                Facing = double.Parse(positionParts[3], CultureInfo.InvariantCulture)
-            };
-        }
-        private static void AddHpInfo(EntityInfo entityInfo, string hpInfo)
-        {
-            if (string.IsNullOrEmpty(hpInfo))
+            // Expecting format: (x,y,z,facing)
+            if (positionInfo.Length < 5 || positionInfo[0] != '(' || positionInfo[^1] != ')')
                 return;
-            var innerPart = hpInfo.Substring(1, hpInfo.Length - 2);
-            var hpParts = innerPart.Split('/');
-            entityInfo.CurrentHP = double.Parse(hpParts[0], CultureInfo.InvariantCulture);
-            entityInfo.MaxHP = double.Parse(hpParts[1], CultureInfo.InvariantCulture);
+
+            var inner = positionInfo.Slice(1, positionInfo.Length - 2);
+            int i = 0;
+            for (int j = 0; j < 4; j++)
+            {
+                int nextComma = inner.Slice(i).IndexOf(',');
+                ReadOnlySpan<char> val;
+                if (j < 3)
+                {
+                    val = inner.Slice(i, nextComma);
+                    i += nextComma + 1;
+                }
+                else
+                {
+                    val = inner.Slice(i);
+                }
+
+                switch (j)
+                {
+                    case 0: entityInfo.Position.X = double.Parse(val, CultureInfo.InvariantCulture); break;
+                    case 1: entityInfo.Position.Y = double.Parse(val, CultureInfo.InvariantCulture); break;
+                    case 2: entityInfo.Position.Z = double.Parse(val, CultureInfo.InvariantCulture); break;
+                    case 3: entityInfo.Position.Facing = double.Parse(val, CultureInfo.InvariantCulture); break;
+                }
+            }
         }
-        private static void AddEntity(EntityInfo entityToReturn, string name)
+
+        private static void AddHpInfo(EntityInfo entityInfo, ReadOnlySpan<char> hpInfo)
         {
-            // Constants
+            if (hpInfo.Length < 3 || hpInfo[0] != '(' || hpInfo[^1] != ')')
+                return;
+
+            var inner = hpInfo.Slice(1, hpInfo.Length - 2);
+            var slashIndex = inner.IndexOf('/');
+            if (slashIndex < 0)
+                return;
+
+            var currentHpSpan = inner.Slice(0, slashIndex);
+            var maxHpSpan = inner.Slice(slashIndex + 1);
+
+            entityInfo.CurrentHP = double.Parse(currentHpSpan, CultureInfo.InvariantCulture);
+            entityInfo.MaxHP = double.Parse(maxHpSpan, CultureInfo.InvariantCulture);
+        }
+
+
+        private static void AddEntity(EntityInfo entityToReturn, ReadOnlySpan<char> name)
+        {
             const char atSymbol = '@';
             const char colonSymbol = ':';
             const char leftBraceSymbol = '{';
             const char rightBraceSymbol = '}';
-            if (name.Contains(atSymbol))
+
+            if (name.IndexOf(atSymbol) >= 0)
             {
-                if (!name.Contains(colonSymbol))
+                if (name.IndexOf(colonSymbol) < 0)
                 {
-                    var parts = name.Split('#');
-                    var characterName = parts[0].Replace(atSymbol.ToString(), "");
-                    if (long.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var playerId))
+                    var hashIndex = name.IndexOf('#');
+                    if (hashIndex > 0)
                     {
-                        entityToReturn.Entity = _currentEntities.GetOrAdd(playerId, new Entity
+                        var characterName = name.Slice(name.IndexOf(atSymbol) + 1,
+                            hashIndex - name.IndexOf(atSymbol) - 1);
+                        var idSpan = name.Slice(hashIndex + 1);
+                        if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var playerId))
                         {
-                            IsCharacter = true,
-                            Name = characterName,
-                            Id = playerId,
-                            LogId = playerId
-                        });
+                            entityToReturn.Entity = _currentEntities.GetOrAdd(playerId, new Entity
+                            {
+                                IsCharacter = true,
+                                Name = characterName.ToString(),
+                                Id = playerId,
+                                LogId = playerId
+                            });
+                        }
+
+                        return;
                     }
-                    return;
                 }
 
-                if (name.Contains("/"))
+                var slashIndex = name.IndexOf('/');
+                if (slashIndex >= 0)
                 {
-                    var valueToUse = name.Split('/')[1];
-                    var companionName = valueToUse.Split(colonSymbol)[0].Trim();
-
-                    var companionNameComponents = companionName.Split(leftBraceSymbol);
-                    var compName = companionNameComponents[0].Trim();
-                    if (long.TryParse(companionNameComponents[1].Replace(rightBraceSymbol.ToString(), ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out var compId))
+                    var secondPart = name.Slice(slashIndex + 1);
+                    var colonIdx = secondPart.IndexOf(colonSymbol);
+                    if (colonIdx >= 0)
                     {
-                        entityToReturn.Entity = _currentEntities.GetOrAdd(compId, new Entity
+                        var compNameSpan = secondPart.Slice(0, colonIdx).Trim();
+                        var braceIndex = compNameSpan.IndexOf(leftBraceSymbol);
+                        if (braceIndex >= 0)
                         {
-                            IsCharacter = true,
-                            IsCompanion = true,
-                            Name = compName,
-                            Id = compId,
-                            LogId = compId
-                        });
+                            var nameOnly = compNameSpan.Slice(0, braceIndex).Trim();
+                            var idSpan = compNameSpan.Slice(braceIndex + 1);
+                            var rightBraceIdx = idSpan.IndexOf(rightBraceSymbol);
+                            if (rightBraceIdx > 0)
+                                idSpan = idSpan.Slice(0, rightBraceIdx);
+
+                            if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture,
+                                    out var compId))
+                            {
+                                entityToReturn.Entity = _currentEntities.GetOrAdd(compId, new Entity
+                                {
+                                    IsCharacter = true,
+                                    IsCompanion = true,
+                                    Name = nameOnly.ToString(),
+                                    Id = compId,
+                                    LogId = compId
+                                });
+                            }
+
+                            return;
+                        }
                     }
-                    return;
                 }
             }
 
-            if (!name.Contains(colonSymbol))
+            if (name.IndexOf(colonSymbol) < 0)
             {
-                var unknownValParts = name.Split(leftBraceSymbol);
-                if (long.TryParse(unknownValParts[1].Replace(rightBraceSymbol.ToString(), ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out var unknownEntityId))
+                var braceIdx = name.IndexOf(leftBraceSymbol);
+                var idSpan = name.Slice(braceIdx + 1);
+                var rbIdx = idSpan.IndexOf(rightBraceSymbol);
+                if (rbIdx > 0)
+                    idSpan = idSpan.Slice(0, rbIdx);
+
+                if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var unknownEntityId))
                 {
                     entityToReturn.Entity = _currentEntities.GetOrAdd(unknownEntityId, new Entity
                     {
@@ -460,12 +523,14 @@ namespace SWTORCombatParser.Model.LogParsing
                         LogId = unknownEntityId
                     });
                 }
+
                 return;
             }
 
-            if (name[0] == ':' && name[1] == ':')
+            if (name.StartsWith("::".AsSpan()))
             {
-                if (long.TryParse(name.Replace(colonSymbol.ToString(), ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out var starFighterId))
+                var idSpan = name.Slice(2); // skip the ::
+                if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var starFighterId))
                 {
                     entityToReturn.Entity = _currentEntities.GetOrAdd(starFighterId, new Entity
                     {
@@ -475,17 +540,34 @@ namespace SWTORCombatParser.Model.LogParsing
                         LogId = starFighterId
                     });
                 }
+
                 return;
             }
-            var id = long.Parse(name.Split(':')[1]);
-            var splitVal = name.Split('{');
-            var logId = long.Parse(splitVal[1].Split('}')[0]);
-            var entityName = splitVal[0].Trim();
 
-            var newEntity = new Entity() { IsCharacter = false, Name = entityName, Id = id, LogId = logId };
-            var entityToUse = _currentEntities.GetOrAdd(id, newEntity);
-            entityToReturn.Entity = entityToUse;
+            // Final fallback format: "Name {LogId}:{Id}"
+            var colonIdx2 = name.IndexOf(colonSymbol);
+            var leftBraceIdx = name.IndexOf(leftBraceSymbol);
+            var rightBraceIdx2 = name.IndexOf(rightBraceSymbol);
+
+            var idPart = name.Slice(colonIdx2 + 1);
+            var idEnd = idPart.IndexOf(' ');
+            if (idEnd >= 0)
+                idPart = idPart.Slice(0, idEnd);
+
+            var idParsed = long.Parse(idPart, NumberStyles.Integer, CultureInfo.InvariantCulture);
+            var logIdParsed = long.Parse(name.Slice(leftBraceIdx + 1, rightBraceIdx2 - leftBraceIdx - 1),
+                NumberStyles.Integer, CultureInfo.InvariantCulture);
+            var entityName = name.Slice(0, leftBraceIdx).Trim();
+
+            entityToReturn.Entity = _currentEntities.GetOrAdd(idParsed, new Entity
+            {
+                IsCharacter = false,
+                Name = entityName.ToString(),
+                Id = idParsed,
+                LogId = logIdParsed
+            });
         }
+
 
         private static string ParseAbility(string value)
         {
@@ -501,67 +583,104 @@ namespace SWTORCombatParser.Model.LogParsing
             var splitVal = value.Split('{');
             return splitVal[1].Replace("}", "").Trim();
         }
-        private static Effect ParseEffect(string value)
+        private static Effect ParseEffect(ReadOnlySpan<char> value)
+{
+    // Find the first and second colons
+    int firstColon = value.IndexOf(':');
+    if (firstColon < 0)
+        return null;
+
+    int secondColon = value.Slice(firstColon + 1).IndexOf(':');
+    ReadOnlySpan<char> typeSpan, nameSpan;
+
+    if (secondColon < 0)
+    {
+        typeSpan = value.Slice(0, firstColon);
+        nameSpan = value.Slice(firstColon + 1);
+    }
+    else
+    {
+        secondColon += firstColon + 1;
+        typeSpan = value.Slice(0, firstColon);
+        var namePart1 = value.Slice(firstColon + 1, secondColon - firstColon - 1);
+        var namePart2 = value.Slice(secondColon + 1);
+        nameSpan = string.Concat(namePart1, namePart2);
+    }
+
+    // Extract type ID from inside braces
+    var braceStart = typeSpan.IndexOf('{');
+    var braceEnd = typeSpan.IndexOf('}');
+    ReadOnlySpan<char> typeId = (braceStart >= 0 && braceEnd > braceStart)
+        ? typeSpan.Slice(braceStart + 1, braceEnd - braceStart - 1).Trim()
+        : default;
+
+    var effectType = GetEffectTypeById(typeId.ToString());
+
+    var newEffect = new Effect { EffectType = effectType };
+
+    // Split nameSpan on `{`
+    int nameBrace1 = nameSpan.IndexOf('{');
+    int nameBrace2 = nameSpan.Slice(nameBrace1 + 1).IndexOf('{');
+    nameBrace2 = nameBrace2 >= 0 ? nameBrace2 + nameBrace1 + 1 : -1;
+
+    ReadOnlySpan<char> namePart = nameSpan.Slice(0, nameBrace1).Trim();
+    ReadOnlySpan<char> effectId = ReadOnlySpan<char>.Empty;
+    ReadOnlySpan<char> secondId = ReadOnlySpan<char>.Empty;
+    ReadOnlySpan<char> difficulty = ReadOnlySpan<char>.Empty;
+
+    if (nameBrace1 >= 0)
+    {
+        var afterBrace = nameSpan.Slice(nameBrace1 + 1);
+        int endBrace = afterBrace.IndexOf('}');
+        if (endBrace >= 0)
         {
-            var split = value.Split(':');
-            var type = "";
-            var name = "";
-            if (split.Length == 2)
+            effectId = afterBrace.Slice(0, endBrace).Trim();
+            var afterId = afterBrace.Slice(endBrace + 1).Trim();
+            if (effectType == EffectType.AreaEntered)
             {
-                type = split[0];
-                name = split[1];
+                difficulty = afterId;
             }
 
-            if (split.Length == 3)
+            if (nameBrace2 > 0)
             {
-                type = split[0];
-                name = split[1] + split[2];
+                var second = nameSpan.Slice(nameBrace2 + 1);
+                int secondEndBrace = second.IndexOf('}');
+                if (secondEndBrace > 0)
+                    secondId = second.Slice(0, secondEndBrace);
             }
-            var newEffect = new Effect
-            {
-                //EffectType = GetEffectType(type.Split('{')[0].Trim())
-                EffectType = GetEffectTypeById(type.Split('{')[1].Replace("}", "").Trim())
-            };
-
-            var splitName = name.Split('{');
-
-            switch (newEffect.EffectType)
-            {
-                case EffectType.DisciplineChanged:
-                    newEffect.EffectName = _interner.Intern(name);
-                    break;
-                case EffectType.AreaEntered:
-                    {
-                        var difficulty = splitName.Length > 1 ? splitName[1].Split('}')[1].Trim() : "";
-                        if (splitName.Length > 2)
-                            newEffect.SecondEffectId = splitName[2].Replace("}", "");
-                        var areaInfo = splitName[0].Trim() + " " + difficulty;
-                        newEffect.EffectName = areaInfo;
-                        newEffect.EffectId = splitName[1].Split('}')[0];
-                        break;
-                    }
-                default:
-                    newEffect.EffectName = _interner.Intern(splitName[0].Trim());
-                    newEffect.EffectId = _interner.Intern(splitName[1].Replace("}", "").Trim());
-                    break;
-            }
-            if (newEffect.EffectType == EffectType.Event)
-            {
-                if (newEffect.EffectId == TargetSetId || newEffect.EffectId == TargetClearedId)
-                {
-                    newEffect.EffectType = EffectType.TargetChanged;
-                }
-                if(newEffect.EffectId == ModifyThreatId)
-                {
-                    newEffect.EffectType = EffectType.ModifyThreat;
-                }
-                if(newEffect.EffectId == TauntId)
-                {
-                    newEffect.EffectType = EffectType.ModifyThreat;
-                }
-            }
-            return newEffect;
         }
+    }
+
+    switch (effectType)
+    {
+        case EffectType.DisciplineChanged:
+            newEffect.EffectName = _interner.Intern(nameSpan.ToString());
+            break;
+
+        case EffectType.AreaEntered:
+            newEffect.EffectName = _interner.Intern($"{namePart.ToString()} {difficulty.ToString()}");
+            newEffect.EffectId = _interner.Intern(effectId.ToString());
+            newEffect.SecondEffectId = secondId.IsEmpty ? null : _interner.Intern(secondId.ToString());
+            break;
+
+        default:
+            newEffect.EffectName = _interner.Intern(namePart.ToString());
+            newEffect.EffectId = _interner.Intern(effectId.ToString());
+            break;
+    }
+
+    if (effectType == EffectType.Event)
+    {
+        if (newEffect.EffectId == TargetSetId || newEffect.EffectId == TargetClearedId)
+            newEffect.EffectType = EffectType.TargetChanged;
+
+        if (newEffect.EffectId == ModifyThreatId || newEffect.EffectId == TauntId)
+            newEffect.EffectType = EffectType.ModifyThreat;
+    }
+
+    return newEffect;
+}
+
         private static DamageType GetValueTypeById(string val)
         {
             switch (val)

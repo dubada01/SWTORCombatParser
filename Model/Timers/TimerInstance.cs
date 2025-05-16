@@ -170,7 +170,8 @@ namespace SWTORCombatParser.Model.Timers
                 _currentEncounter = currentEncounter;
                 if (bossData.Item1 != "")
                     UpdateBossInfo(bossData, log.TimeStamp);
-
+                if (string.IsNullOrEmpty(SourceTimer.Name))
+                    SourceTimer.Name = "Unknown Timer";
                 if (SourceTimer.Name.Contains("Other's") &&
                     currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                     return;
@@ -220,7 +221,6 @@ namespace SWTORCombatParser.Model.Timers
                 {
                     var timerToRefresh = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id).Value;
                     timerToRefresh.Reset(log.TimeStamp);
-                    Debug.WriteLine("Requested reorder from refresh of "+SourceTimer.Name);
                     ReorderRequested.InvokeSafely(SourceTimer.Id);
                 }
 
@@ -234,7 +234,6 @@ namespace SWTORCombatParser.Model.Timers
                         if (log.TimeStamp - timerToRestart.StartTime < TimeSpan.FromSeconds(1))
                             return;
                         timerToRestart.Reset(log.TimeStamp);
-                        Debug.WriteLine("Requested reorder from refresh of "+SourceTimer.Name);
                         ReorderRequested.InvokeSafely(SourceTimer.Id);
                     }
                     if (!_activeTimerInstancesForTimer.Any())

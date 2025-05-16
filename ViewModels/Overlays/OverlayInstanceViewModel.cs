@@ -70,7 +70,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public OverlayType SecondaryType { get; set; }
         public string MetricTotal
         {
-            get => metricTotal; set
+            get => metricTotal == "0" ? "" : metricTotal; set
             {
                 this.RaiseAndSetIfChanged(ref metricTotal, value);
             }
@@ -263,7 +263,6 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 SizeScalar = SizeScalar,
                 MedalIconPath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/crownIcon.png")))
             };
-            Debug.WriteLine("Leaderboard " + CreatedType.ToString() + " set for overlay");
             _metricBarsDict.TryAdd((characterName, true), metricbar);
             OrderMetricBars();
         }

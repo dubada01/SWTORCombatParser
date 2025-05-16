@@ -8,16 +8,24 @@
         x:DataType="vm:RoomOverlayViewModel"
         mc:Ignorable="d"
         Background="{x:Null}">
-    <Grid x:Name="MainArea" IsVisible="{Binding IsActive, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip.Tip="Room Overlay">
-        <Canvas IsHitTestVisible="False" x:Name="ImageCanvas">
-            <DockPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
-            Margin="0,0,0,0" x:Name="ReferenceInfo" Canvas.Left="0" Canvas.Top="0"
-            Width="{Binding Width, ElementName=ImageCanvas}"
-            Height="{Binding Height, ElementName=ImageCanvas}">
-                <Image x:Name="RoomImage" Source="{Binding ImagePath}">
-                </Image>
-            </DockPanel>
-            <Image x:Name="CharImage" Source="{Binding CharImagePath}"></Image>
+    <Grid x:Name="MainArea"
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch"
+          IsVisible="{Binding IsActive, Converter={StaticResource BooleanToHiddenVisibilityConverter}}"
+          ToolTip.Tip="Room Overlay">
+        <Canvas x:Name="ImageCanvas"
+                IsHitTestVisible="False"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+            <Image x:Name="RoomImage"
+                   Source="{Binding ImagePath}"
+                   Stretch="Fill"
+                   Width="{Binding Bounds.Width, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                   Height="{Binding Bounds.Height, Mode=OneWay, RelativeSource={RelativeSource AncestorType=Canvas}}"
+                   Canvas.Left="0"
+                   Canvas.Top="0"/>
+            <Image x:Name="CharImage"
+                   Source="{Binding CharImagePath}"/>
         </Canvas>
     </Grid>
 </UserControl>

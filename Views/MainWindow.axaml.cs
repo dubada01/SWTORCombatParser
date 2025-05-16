@@ -35,6 +35,9 @@ namespace SWTORCombatParser.Views
         public MainWindow()
         {
             InitializeComponent();
+            #if DEBUG
+                this.AttachDevTools();
+            #endif
             HotkeyHandler  = new HotkeyHandler();
             LoadingWindowFactory.SetMainWindow(this);
 
@@ -104,7 +107,6 @@ namespace SWTORCombatParser.Views
         private void Window_PointerLeave(object sender, PointerEventArgs e)
         {
             OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new PixelPoint(Position.X,Position.Y), Width = ClientSize.Width, Height = ClientSize.Height });
-            Debug.WriteLine($"Window Position: {Position.X},{Position.Y} Width: {ClientSize.Width} Height: {ClientSize.Height}");
         }
     }
 }

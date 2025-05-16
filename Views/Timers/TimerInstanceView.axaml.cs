@@ -60,7 +60,6 @@ namespace SWTORCombatParser.Views.Timers
                                 }
                             }
                         };
-                        Debug.WriteLine($"{DateTime.Now}: Starting animation: " + vm.TimerName);
                         await animation.RunAsync(timerBar);
                     }
                 }

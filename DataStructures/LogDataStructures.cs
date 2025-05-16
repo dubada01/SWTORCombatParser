@@ -134,7 +134,6 @@ namespace SWTORCombatParser.DataStructures
         {
             if (string.IsNullOrEmpty(_logPath))
             {
-                Console.WriteLine("Log path is not set.");
                 return;
             }
 
@@ -164,12 +163,12 @@ namespace SWTORCombatParser.DataStructures
                 }
                 else
                 {
-                    Console.WriteLine("Unsupported operating system.");
+                    Logging.LogError("Unsupported operating system.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to open log: {ex.Message}");
+                Logging.LogError($"Failed to open log: {ex.Message}");
             }
         }
 

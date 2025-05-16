@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using System;
+using SWTORCombatParser.DataStructures;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
@@ -51,11 +52,24 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             get => bossCurrentHP; set
             {
+                if (double.IsNaN(value) || double.IsInfinity(value))
+                    value = 0;
                 bossCurrentHP = value;
                 OnPropertyChanged();
-                var ratio = BossCurrentHP / BossMaxHP;
-                BarWidth = new GridLength(ratio, GridUnitType.Star);
-                RemainderWidth = new GridLength(1 - ratio, GridUnitType.Star);
+                var ratio = BossMaxHP <= 0 ? 0 : bossCurrentHP / BossMaxHP;
+                if (double.IsNaN(ratio) || double.IsInfinity(ratio) || ratio < 0 || ratio > 1)
+                    ratio = Math.Clamp(ratio, 0, 1); // or just ratio = 0;
+
+                try
+                {
+                    BarWidth = new GridLength(ratio, GridUnitType.Star);
+                    RemainderWidth = new GridLength(1 - ratio, GridUnitType.Star);
+                }
+                catch
+                {
+                    BarWidth = new GridLength(0, GridUnitType.Star);
+                    RemainderWidth = new GridLength(1, GridUnitType.Star);
+                }
                 OnPropertyChanged("RemainderWidth");
                 OnPropertyChanged("BarWidth");
                 OnPropertyChanged("HPPercentText");

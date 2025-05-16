@@ -36,7 +36,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             raidHotsEnabled = _currentOverlayViewModel.Active;
             CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
             {
-                if (!b)
+                if (!b || CombatLogStateBuilder.CurrentState?.LocalPlayer == null)
                     return;
                 var playerName = CombatLogStateBuilder.CurrentState.LocalPlayer.Name;
                 var classInfo = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(t);

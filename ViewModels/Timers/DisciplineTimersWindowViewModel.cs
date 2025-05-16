@@ -51,7 +51,6 @@ namespace SWTORCombatParser.ViewModels.Timers
                 if(_visibleTimers.All(t => t.SourceTimer.Id != id) && id != "Any")
                     return;
                 _visibleTimers.RemoveAll(t => t.TimerValue < 0);
-                Debug.WriteLine("+++++"+Environment.StackTrace);
                 SwtorTimers = new ObservableCollection<TimerInstanceViewModel>(_visibleTimers.OrderBy(t => t.TimerValue));
             }
         }

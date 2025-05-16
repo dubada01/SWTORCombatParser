@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -27,9 +28,10 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private bool viewingTrash = false;
         private object combatAddLock = new object();
         private ObservableCollection<PastCombat> _encounterCombats = new ObservableCollection<PastCombat>();
+        private List<Combat> _encounterNonCombats = new List<Combat>();
         private Bitmap _expandIconSource = collapseIcon;
         public EncounterInfo Info { get; set; }
-        public string PPHInfo => Info.IsBossEncounter && combats.Count > 1 ? $"PPH {Combats.Count / (combats.Last().StartTime - combats.First().StartTime).TotalHours:N2}" : "";
+        public string PPHInfo => Info.IsBossEncounter && combats.Count > 1 ? $"PPH {Combats.Count / (combats.OrderBy(c=>c.StartTime).Last().StartTime - combats.OrderBy(c=>c.StartTime).First().StartTime).TotalHours:N2}" : "";
         public int NumberOfBossBattles => EncounterCombats.Count(c => !c.IsTrash);
         public int NumberOfTrashBattles => EncounterCombats.Count(c => c.IsTrash);
         public GridLength DetailsHeight => Info.IsBossEncounter ? new GridLength(0.5, GridUnitType.Star) : new GridLength(0, GridUnitType.Star);
@@ -89,7 +91,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 this.RaiseAndSetIfChanged(ref combats, value);
             }
         }
-
+        
         public ObservableCollection<PastCombat> EncounterCombats
         {
             get => _encounterCombats;
@@ -101,6 +103,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             //UnselectAll();
             var ongoingCombatDisplay = new PastCombat()
             {
+                ParentEncounter = this,
                 CombatStartTime = TimeUtility.CorrectedTime,
                 IsCurrentCombat = true,
                 IsSelected = true,
@@ -115,7 +118,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 EncounterCombats.Add(ongoingCombatDisplay);
                 EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
             });
-
         }
         public void RemoveOngoing()
         {
@@ -136,6 +138,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             currentcombat.Combat = combat;
             return currentcombat;
         }
+        
         public void AddCombat(Combat combat, bool isReplacingOngoing)
         {
             lock (combatAddLock)
@@ -143,6 +146,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 Combats.Add(combat);
                 var pastCombatDisplay = new PastCombat()
                 {
+                    ParentEncounter = this,
                     IsSelected = isReplacingOngoing,
                     Combat = combat,
                     IsVisible = combatsAreVisible,
@@ -159,6 +163,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
                 });
             }
+            if(isReplacingOngoing)
+               EncounterMonitor.FireEncounterUpdated();
             this.RaisePropertyChanged(nameof(PPHInfo));
             this.RaisePropertyChanged(nameof(NumberOfBossBattles));
             this.RaisePropertyChanged(nameof(NumberOfTrashBattles));

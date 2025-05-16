@@ -133,6 +133,7 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> IncomingHealingLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> ShieldingProvidedLogs = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
         public ConcurrentDictionary<Entity, List<ParsedLogEntry>> AbilitiesActivated = new ConcurrentDictionary<Entity, List<ParsedLogEntry>>();
+        public ConcurrentDictionary<Entity, Dictionary<Entity, double>> PlayerThreatPerEnemy  = new ConcurrentDictionary<Entity, Dictionary<Entity, double>>();
         public List<Point> GetBurstValues(Entity entity, PlotType typeOfData)
         {
             var logs = new List<ParsedLogEntry>();

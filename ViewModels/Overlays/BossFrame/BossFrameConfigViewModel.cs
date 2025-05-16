@@ -160,7 +160,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                         {
                             BossesDetected.Remove(activeBoss);
                             this.RaisePropertyChanged(nameof(ShowFrame));
-                            InCombatWithBoss(BossesDetected.Count == 0);
+                            InCombatWithBoss(BossesDetected.Count > 0);
                             UpdateVisibility();
                         });
 

@@ -22,6 +22,8 @@ namespace SWTORCombatParser.Model.Challenge
         private Combat _currentSelectedCombat;
         private EncounterInfo _currentEncounter;
         private double _currentScale = 1;
+        private object _selectionLock = new object();
+        private object _updateLock = new object();
         public ChallengeUpdater()
         {
             CombatLogStreamer.CombatStarted += ResetChallenges;
@@ -60,22 +62,26 @@ namespace SWTORCombatParser.Model.Challenge
 
         public void RefreshChallenges()
         {
-            _allChallenges = DefaultChallengeManager.GetAllDefaults().SelectMany(c => c.Challenges).Where(c => c.IsEnabled).ToList();
+            lock(_updateLock)
+                _allChallenges = DefaultChallengeManager.GetAllDefaults().SelectMany(c => c.Challenges).Where(c => c.IsEnabled).ToList();
         }
         private void CheckForActiveChallenge(ParsedLogEntry obj)
         {
-            foreach (var challenge in _allChallenges)
+            lock (_updateLock)
             {
-                if (IsLogForChallenge(obj, challenge) && (_currentBossName == challenge.Source.Split('|')[1]) ||
-                    (challenge.ChallengeType == ChallengeType.MetricDuringPhase && PhaseManager.ActivePhases.Any(p => challenge.PhaseId == p.SourcePhase.Id)))
+                foreach (var challenge in _allChallenges)
                 {
-                    if (!_activeChallenges.Any(c => c.Id == challenge.Id))
+                    if (IsLogForChallenge(obj, challenge) && (_currentBossName == challenge.Source.Split('|')[1]) ||
+                        (challenge.ChallengeType == ChallengeType.MetricDuringPhase && PhaseManager.ActivePhases.Any(p => challenge.PhaseId == p.SourcePhase.Id)))
                     {
-                        _activeChallenges.Add(challenge);
-                        Dispatcher.UIThread.Invoke(() =>
+                        if (!_activeChallenges.Any(c => c.Id == challenge.Id))
                         {
-                            _challenges.Add(new ChallengeInstanceViewModel(challenge) { Scale = _currentScale });
-                        });
+                            _activeChallenges.Add(challenge);
+                            Dispatcher.UIThread.Invoke(() =>
+                            {
+                                _challenges.Add(new ChallengeInstanceViewModel(challenge) { Scale = _currentScale });
+                            });
+                        }
                     }
                 }
             }
@@ -116,14 +122,17 @@ namespace SWTORCombatParser.Model.Challenge
         }
         public void CombatSelected(Combat obj)
         {
-            _currentBossName = obj.EncounterBossDifficultyParts.Item1;
-            _currentSelectedCombat = obj;
-            ResetChallenges();
-            foreach (var log in obj.AllLogs)
+            lock (_selectionLock)
             {
-                CheckForActiveChallenge(log);
+                _currentBossName = obj.EncounterBossDifficultyParts.Item1;
+                _currentSelectedCombat = obj;
+                ResetChallenges();
+                foreach (var log in obj.AllLogs)
+                {
+                    CheckForActiveChallenge(log);
+                }
+                UpdateCombats(obj);
             }
-            UpdateCombats(obj);
         }
         private void ResetChallenges()
         {

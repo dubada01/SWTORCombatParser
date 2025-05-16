@@ -37,6 +37,7 @@
             <system:Double x:Key="SmallFontSize">8</system:Double>
             <system:Double x:Key="NormalFontSize">10</system:Double>
             <system:Double x:Key="LargeFontSize">13</system:Double>
+            <system:Double x:Key="LargerFontSize">16</system:Double>
             <system:Double x:Key="TitleFontSize">23</system:Double>
             <converters:PastCombatSelectedToBackgroundConverter x:Key="PastCombatSelectedToBackgroundConverter"/>
             <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>

@@ -32,8 +32,23 @@ public class LegacyDeathReviewPlotVM
 
     public LegacyDeathReviewPlotVM()
     {
-        _skullImage =
-            SKBitmapFromFile.Load("avares://Orbs/resources/skull_Icon.png");
+// Load the original bitmap
+        var originalBitmap = SKBitmapFromFile.Load("avares://Orbs/resources/skull_Icon.png");
+
+// Define the target dimensions
+        var targetInfo = new SKImageInfo(15, 15);
+
+// Resize the bitmap. You can choose a filter quality (e.g., Low, Medium, or High) depending on the quality and performance you desire.
+        var resizedBitmap = originalBitmap.Resize(targetInfo, SKFilterQuality.High);
+
+        if (resizedBitmap == null)
+        {
+            // Handle the error if resizing failed (e.g., log an error or throw an exception)
+            throw new Exception("Failed to resize image.");
+        }
+
+// Assign or use resizedBitmap as needed
+        _skullImage = resizedBitmap;
         GraphView = new AvaPlot();
         // NOTE: AvaPlot in Avalonia does not support Configuration.Pan/Zoom like the WPF version.
         // To disable these interactions, handle pointer events in the view or override them in your control.

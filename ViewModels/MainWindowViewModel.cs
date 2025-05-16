@@ -493,7 +493,7 @@ namespace SWTORCombatParser.ViewModels
             }
             catch (Exception e)
             {
-                Logging.LogError("Failed to update combat visuals: " + e.Message);
+                Logging.LogError("Failed to update combat visuals: " + e.Message + "\r\n" + e.StackTrace);
             }
         }
         private void SelectCombat(Combat selectedCombat)
@@ -522,7 +522,7 @@ namespace SWTORCombatParser.ViewModels
             }
             catch (Exception e)
             {
-                Logging.LogError("Failed to update combat visuals: " + e.Message);
+                Logging.LogError("Failed to update combat visuals: " + e.Message + "\r\n" + e.StackTrace);
             }
         }
 

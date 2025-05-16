@@ -2,8 +2,16 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
+using Avalonia.Threading;
+using ReactiveUI;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.Timeline;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.DataGrid;
+using SWTORCombatParser.Views.DataGrid_Views;
 using SWTORCombatParser.Views.Overlay.Timeline;
 
 namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
@@ -20,18 +28,21 @@ public class TimelineElement
     public class TimelineWindowViewModel : BaseOverlayViewModel
     {
         private object lockObj = new object();
+        private Combat encounterCombat;
         public event Action<TimeSpan> OnUpdateTimeline = delegate { };
         public event Action<TimeSpan> OnInit = delegate { };
         public event Action<string,string,string> AreaEntered = delegate { };
         private InstanceInformation _instanceInfo;
         private bool _inBossInstance;
+        private readonly DataGridViewModel _metricViewModel;
         public ObservableCollection<TimelineElement> AllTimelineElements { get; } = new ObservableCollection<TimelineElement>();
+        public DataGridView MetricsView { get; set; }
 
         // Expose CurrentTime and MaxDuration as properties
         public TimeSpan CurrentTime { get; set; }
         public TimeSpan MaxDuration => _instanceInfo?.MaxDuration ?? TimeSpan.Zero;
         public override bool ShouldBeVisible => InBossInstance;
-
+        
         public bool InBossInstance
         {
             get => _inBossInstance;
@@ -45,15 +56,36 @@ public class TimelineElement
         public TimelineWindowViewModel(string overlayName) : base(overlayName)
         {
             MainContent = new TimelineWindow(this);
+            _metricViewModel = new DataGridViewModel();
+            MetricsView = new DataGridView(_metricViewModel);
+            this.RaisePropertyChanged(nameof(MetricsView));
             _instanceInfo = new InstanceInformation()
             {
                 MaxDuration = TimeSpan.Zero,
                 PreviousBossKills = new List<BossKillInfo>(),
                 CurrentBossKills = new List<BossKillInfo>()
             };
+            EncounterMonitor.EncounterUpdated += UpdateEncounterLevelInfo;
         }
 
-        
+        private void UpdateEncounterLevelInfo(EncounterCombat obj)
+        {
+            if (obj == null || obj.Combats.Count == 0)
+            {
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    _metricViewModel.Reset();
+                });
+                return;
+            }
+            encounterCombat = obj.OverallCombat;
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                _metricViewModel.UpdateCombat(encounterCombat);
+            });
+        }
+
+
         public void ConfigureTimeline(TimeSpan maxDuration, List<BossKillInfo> previousKills, string areaName, string difficulty, string playerCount)
         {
             lock (lockObj)

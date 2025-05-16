@@ -155,164 +155,131 @@ namespace SWTORCombatParser.Model.LogParsing
             }
         }
 
-        private void ParseLogFile()
-        {
-            var logUpdateTime = TimeUtility.CorrectedTime;
-            using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (var sr = new StreamReader(fs, _fileEncoding))
-            {
-                List<string> lines = new List<string>();
-                GetNewlines2(sr, lines);
-                sr.Close();
-                fs.Close();
-                if (lines.Count == 0)
-                    return;
+private void ParseLogFile()
+{
+    var logUpdateTime = TimeUtility.CorrectedTime;
 
-                for (var line = 0; line < lines.Count; line++)
-                {
-                    numberOfProcessedLines++;
-                    var result = ProcessNewLine(lines[line], numberOfProcessedLines, Path.GetFileName(_logToMonitor), logUpdateTime);
-                    if (result == ProcessedLineResult.Incomplete)
-                    {
-                        for (var remainingLine = line; remainingLine < lines.Count; remainingLine++)
-                            _numberOfProcessedBytes -= _fileEncoding.GetByteCount(lines[remainingLine]);
-                        break;
-                    }
-                }
-                if (!_isInCombat)
-                    return;
-                var updateMessage = new CombatStatusUpdate { Type = UpdateType.Update, Logs = _currentCombatLogs, CombatStartTime = _currentCombatStartTime };
-                CombatUpdated.InvokeSafely(updateMessage);
-            }
+    // 1) Remember where we started in the file
+    long originalCursor = _numberOfProcessedBytes;
+
+    // 2) Read everything we can—capturing absolute startOffsets but NOT yet
+    //    updating _numberOfProcessedBytes.
+    List<string> lines       = new();
+    List<long>   startOffsets = new();
+    using var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+    using var sr = new StreamReader(fs, _fileEncoding);
+    GetNewlines2(sr, lines, startOffsets);
+    // note: GetNewlines2 should only use a temporary local offset var,
+    //       *not* write into _numberOfProcessedBytes itself.
+
+    if (lines.Count == 0)
+        return;
+
+    // 3) Try to parse every line
+    int successfulLines = 0;
+    for (int i = 0; i < lines.Count; i++)
+    {
+        numberOfProcessedLines++;
+        var result = ProcessNewLine(lines[i], numberOfProcessedLines, Path.GetFileName(_logToMonitor), logUpdateTime);
+
+        if (result == ProcessedLineResult.Incomplete)
+        {
+            // rollback line count
+            numberOfProcessedLines -= (lines.Count - i);
+
+            // jump the cursor back to the start of this bad line
+            _numberOfProcessedBytes = startOffsets[i];
+
+            Logging.LogError($"Incomplete parse on line #{i}, rolling back to byte offset {_numberOfProcessedBytes}");
+            break;
         }
 
-        private void GetNewlines2(StreamReader sr, List<string> lines)
+        successfulLines++;
+    }
+
+    // 4) If every line succeeded, *then* advance the cursor by the total bytes
+    //    of all lines we just consumed.
+    if (successfulLines == lines.Count)
+    {
+        long newBytes = lines.Sum(l => _fileEncoding.GetByteCount(l));
+        _numberOfProcessedBytes = originalCursor + newBytes;
+    }
+
+    // 5) Fire update if needed
+    if (_isInCombat)
+    {
+        var updateMessage = new CombatStatusUpdate {
+            Type            = UpdateType.Update,
+            Logs            = _currentCombatLogs,
+            CombatStartTime = _currentCombatStartTime
+        };
+        CombatUpdated.InvokeSafely(updateMessage);
+    }
+}
+
+
+private void GetNewlines2(
+    StreamReader sr,
+    List<string> lines,
+    List<long> lineStartOffsets)
+{
+    // 0) Reposition the reader to where we left off last time
+    sr.DiscardBufferedData();
+    sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
+
+    long localOffset = _numberOfProcessedBytes;   // snapshot, never write back directly
+    bool seenCR = false;
+    var newLine = new StringBuilder();
+    char[] buffer = new char[2500];
+    int readCount;
+
+    while ((readCount = sr.Read(buffer, 0, buffer.Length)) > 0)
+    {
+        for (int i = 0; i < readCount; i++)
         {
-            try
+            char c = buffer[i];
+            if (c == '\0')
             {
-                // Move the stream to the last processed byte.
-                sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
-                bool seenCarriageReturn = false;
-                StringBuilder newLine = new StringBuilder();
-                char[] buffer = new char[2500];
-                int readCount;
-
-                while ((readCount = sr.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    for (int i = 0; i < readCount; i++)
-                    {
-                        char current = buffer[i];
-
-                        // If a null character is encountered, consider this an indication of corruption.
-                        if (current == '\0')
-                        {
-                            seenCarriageReturn = false;
-                            // Stop processing the current buffer.
-                            break;
-                        }
-
-                        if (current == '\r')
-                        {
-                            seenCarriageReturn = true;
-                            continue;
-                        }
-
-                        if (current == '\n' && seenCarriageReturn)
-                        {
-                            // A full line ending ("\r\n") has been encountered.
-                            seenCarriageReturn = false;
-                            string completeLine = newLine.ToString() + "\r\n";
-                            lines.Add(completeLine);
-                            _numberOfProcessedBytes += _fileEncoding.GetByteCount(completeLine);
-                            newLine.Clear();
-                            continue;
-                        }
-
-                        // If the previous character was '\r' but the current one is not '\n',
-                        // append the carriage return to the line.
-                        if (seenCarriageReturn)
-                        {
-                            newLine.Append('\r');
-                            seenCarriageReturn = false;
-                        }
-
-                        newLine.Append(current);
-                    }
-                }
-                // Note: If there's a trailing partial line without a "\r\n", it remains unprocessed for the next read.
+                seenCR = false;
+                break;
             }
-            catch (Exception e)
+
+            if (c == '\r')
             {
-                Logging.LogError("Error occurred while parsing log file at position "
-                                 + _numberOfProcessedBytes + " - " + _logToMonitor + "\r\n"
-                                 + "Exception Message: " + e.Message);
+                seenCR = true;
+                continue;
             }
+
+            if (c == '\n' && seenCR)
+            {
+                // complete line (including CRLF)
+                var complete = newLine.ToString() + "\r\n";
+                lines.Add(complete);
+                lineStartOffsets.Add(localOffset);
+
+                // advance our local offset by the byte‐count of that line
+                int bc = _fileEncoding.GetByteCount(complete);
+                localOffset += bc;
+
+                newLine.Clear();
+                seenCR = false;
+                continue;
+            }
+
+            if (seenCR)
+            {
+                // stray CR, treat it as part of the content
+                newLine.Append('\r');
+                seenCR = false;
+            }
+
+            newLine.Append(c);
         }
+    }
 
-        private void GetNewlines(StreamReader sr, List<string> lines)
-        {
-            try
-            {
-                sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
-                bool lastValueWasbsR = false;
-                StringBuilder newLine = new StringBuilder();
+    // any trailing partial line stays in 'newLine' for next pass
+}
 
-                while (!sr.EndOfStream)
-                {
-                    char[] readChars = new char[2500];
-                    sr.Read(readChars, 0, 2500);
-                    for (var c = 0; c < readChars.Length; c++)
-                    {
-                        if (readChars[c] == '\0')
-                        {
-                            lastValueWasbsR = false;
-                            break;
-                        }
-                        if (readChars[c] == '\r')
-                        {
-                            lastValueWasbsR = true;
-                            continue;
-                        }
-                        if (readChars[c] == '\n' && lastValueWasbsR)
-                        {
-                            lastValueWasbsR = false;
-                            if (readChars[2499] == '\0' || sr.EndOfStream)
-                            {
-                                if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
-                                {
-                                    lines.Add(newLine + "\r\n");
-                                    _numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
-                                    break;
-                                }
-                                else
-                                {
-                                    if (newLine.Length == 0)
-                                        continue;
-                                    _numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
-                                    lines.Add(newLine + "\r\n");
-                                    newLine.Clear();
-                                }
-                            }
-                            if (newLine.Length == 0)
-                                continue;
-                            _numberOfProcessedBytes += _fileEncoding.GetByteCount(newLine + "\r\n");
-                            lines.Add(newLine + "\r\n");
-                            newLine.Clear();
-
-                        }
-                        else
-                        {
-                            newLine.Append(readChars[c]);
-                            lastValueWasbsR = false;
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError("Error occured while parsing log file at position " + _numberOfProcessedBytes + " - " + _logToMonitor + "\r\n" + "Exception Message: " + e.Message);
-            }
-        }
 
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
         {
@@ -326,7 +293,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     LocalPlayerIdentified.InvokeSafely(t.Source);
                     localPlayerIdentified = true;
                 }
-                CheckForCombatState(t, false);
+                CheckForCombatState(t, false, false);
                 if (_isInCombat)
                 {
                     _currentCombatLogs.Add(t);
@@ -380,7 +347,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (parsedLine.Source.IsLocalPlayer)
                 LocalPlayerIdentified.InvokeSafely(parsedLine.Source);
             parsedLine.LogName = Path.GetFileName(logName);
-            CheckForCombatState(parsedLine);
+            CheckForCombatState(parsedLine, true, true);
             NewLineStreamed.InvokeSafely(parsedLine);
             if (_isInCombat && !_isWaitingForExitCombatTimout)
             {
@@ -394,17 +361,17 @@ namespace SWTORCombatParser.Model.LogParsing
             return ProcessedLineResult.Success;
         }
 
-        private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat = true, bool isrealtime = false)
+        private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat, bool isrealtime)
         {
             var currentCombatState = CombatDetector.CheckForCombatState(parsedLine, isrealtime);
             if (currentCombatState == CombatState.ExitedByEntering)
             {
                 EndCombat(parsedLine);
-                EnterCombat(parsedLine, shouldUpdateOnNewCombat);
+                EnterCombat(parsedLine, shouldUpdateOnNewCombat, isrealtime);
             }
             if (currentCombatState == CombatState.EnteredCombat)
             {
-                EnterCombat(parsedLine, shouldUpdateOnNewCombat);
+                EnterCombat(parsedLine, shouldUpdateOnNewCombat, isrealtime);
             }
             if (currentCombatState == CombatState.ExitedCombat)
             {
@@ -423,7 +390,7 @@ namespace SWTORCombatParser.Model.LogParsing
             EndCombat();
         }
 
-        private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat)
+        private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat, bool isrealtime)
         {
             Logging.LogInfo("Parsing... Starting combat");
             _currentCombatLogs.Clear();
@@ -447,6 +414,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private void EndCombat(ParsedLogEntry parsedLine = null)
         {
             Logging.LogInfo("Parsing... Ending combat");
+            
             _isWaitingForExitCombatTimout = false;
             if (!_isInCombat)
                 return;

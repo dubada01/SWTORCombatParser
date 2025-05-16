@@ -11,6 +11,7 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Views.Phases
 {
@@ -151,7 +152,7 @@ namespace SWTORCombatParser.Views.Phases
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Logging.LogError(e.Message);
             }
         }
         private void AddColumnDefinition(double width)

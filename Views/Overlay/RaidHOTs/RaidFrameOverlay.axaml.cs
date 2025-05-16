@@ -4,13 +4,10 @@ using SWTORCombatParser.ViewModels.Overlays.RaidHots;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
-using ScottPlot;
 using SWTORCombatParser.Utilities.MouseHandler;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
 
@@ -26,6 +23,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private bool _isSubscribed;
         public bool _manuallyEditing = false;
         private readonly RaidFrameOverlayViewModel _viewModel;
+        private DispatcherTimer _cursorTimer;
         public event Action<double, double> AreaClicked = delegate { };
         public event Action<bool> MouseInArea = delegate { };
         public RaidFrameOverlay(RaidFrameOverlayViewModel viewModel)
@@ -36,6 +34,12 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 
             Loaded += Hello;
             CombatLogStreamer.CombatUpdated += CheckForCombat;
+            // fire at ~200 ms intervals, on the UI thread
+            _cursorTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(200)
+            };
+            _cursorTimer.Tick += OnCursorTimerTick;
         }
 
         private void CheckForCombat(CombatStatusUpdate obj)
@@ -54,7 +58,6 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         private void GlobalMouseDown(Point e)
         {
             var cursorPos = GetCursorPosition();
-            Debug.WriteLine("Global Mouse Down: " + cursorPos);
             if (cursorPos.X < GetTopLeft().X || cursorPos.X > (GetTopLeft().X + GetWidth()) || cursorPos.Y < GetTopLeft().Y || cursorPos.Y > (GetTopLeft().Y + GetHeight()))
                 return;
             var relativeX = cursorPos.X - GetTopLeft().X;
@@ -65,7 +68,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         }
         private void Hello(object? sender, RoutedEventArgs routedEventArgs)
         {
-            PollForCursorPos();
+            StartPolling();
         }
         
         private void SubscribeToClicks()
@@ -90,35 +93,28 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             _mouseHookHandler = null;
             MouseInArea(false);
         }
-        private void PollForCursorPos()
+        public void StartPolling() => _cursorTimer.Start();
+        public void StopPolling()  => _cursorTimer.Stop();
+
+        private void OnCursorTimerTick(object? sender, EventArgs e)
         {
-            Task.Run(() =>
+            // only do work when we actually need to
+            if (!_inCombat && _manuallyEditing)
             {
-                while (true)
-                {
-                    if (!_inCombat && _manuallyEditing)
-                    {
-                        var cursorPos = GetCursorPosition();
-                        Dispatcher.UIThread.Invoke(() =>
-                        {
-                            var topLeft = GetTopLeft();
-                            var width = GetWidth();
-                            var height = GetHeight();
-                            Debug.WriteLine("Cursor Pos: " + cursorPos + " TopLeft: " + topLeft + " Width: " + width + " Height: " + height);
-                            if (cursorPos.X > topLeft.X && cursorPos.X < topLeft.X + width && cursorPos.Y > topLeft.Y &&
-                                cursorPos.Y < topLeft.Y + height)
-                            {
-                                SubscribeToClicks();
-                            }
-                            else
-                            {
-                                UnsubscribeFromClicks();
-                            }
-                        });
-                    }
-                    Thread.Sleep(200);
-                }
-            });
+                var cursorPos = GetCursorPosition();
+                var topLeft   = GetTopLeft();
+                var width     = GetWidth();
+                var height    = GetHeight();
+
+                bool inside =  
+                    cursorPos.X > topLeft.X &&
+                    cursorPos.X < topLeft.X + width &&
+                    cursorPos.Y > topLeft.Y &&
+                    cursorPos.Y < topLeft.Y + height;
+
+                if (inside) SubscribeToClicks();
+                else        UnsubscribeFromClicks();
+            }
         }
         // Method to get the cursor position cross-platform
         public Point GetCursorPosition()
@@ -192,7 +188,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             {
 
                 var scalingFactor = desktop.MainWindow.RenderScaling;
-                return (int)(parentWindow.savedObjectSize.Y - (87 * scalingFactor));
+                return (int)(parentWindow.Height - (87 * scalingFactor));
             }
 
             return 0;
@@ -204,7 +200,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             {
 
                 var scalingFactor = desktop.MainWindow.RenderScaling;
-                return (int)(parentWindow.savedObjectSize.X - (100 * scalingFactor));
+                return (int)(parentWindow.Width - (100 * scalingFactor));
             }
 
             return 0;
@@ -216,8 +212,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             {
 
                 var scalingFactor = desktop.MainWindow.RenderScaling;
-                return new PixelPoint((int)(parentWindow.savedPosition.X + (50 * scalingFactor)),
-                    (int)(parentWindow.savedPosition.Y + (87 * scalingFactor)));
+                return new PixelPoint((int)(parentWindow.Position.X + (50 * scalingFactor)),
+                    (int)(parentWindow.Position.Y + (87 * scalingFactor)));
             }
 
             return new PixelPoint();

@@ -6650,13 +6650,13 @@
         "ExperiationTimerId": "",
         "CombatTimeElapsed": 0.0,
         "Ability": "",
-        "Effect": "3449047717249024",
+        "Effect": "3447578838433792",
         "ResetOnEffectLoss": false,
         "IsPeriodic": false,
         "Repeats": 0,
         "CanBeRefreshed": false,
         "AbilitiesThatRefresh": [
-          "3449047717249024"
+          "3447578838433792"
         ],
         "IsAlert": false,
         "AlertText": "",

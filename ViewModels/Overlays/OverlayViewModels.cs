@@ -165,6 +165,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays = new ObservableCollection<UtilityOverlayOptionViewModel>
             {
                 new() { Name = "Personal Stats", Type = UtilityOverlayType.Personal},
+                new() { Name = "Threat Table", Type = UtilityOverlayType.ThreatTable},
                 new() { Name = "Raid HOTS", Type = UtilityOverlayType.RaidHot},
                 new() { Name = "Boss HP", Type = UtilityOverlayType.RaidBoss},
                 new() { Name = "Challenges", Type = UtilityOverlayType.RaidChallenge},
@@ -172,7 +173,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new() { Name = "Discipline Timers", Type = UtilityOverlayType.DisciplineTimer},
                 new() { Name = "Alert Timers", Type = UtilityOverlayType.AlertTimer},
                 new() { Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
-                new() { Name = "Time Trial", Type = UtilityOverlayType.Timeline},
+                new() { Name = "Timeline", Type = UtilityOverlayType.Timeline},
                 new() { Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
                 new() { Name = "PvP Mini-map", Type = UtilityOverlayType.PvPMap},
                 new() { Name = "Ability List", Type = UtilityOverlayType.AbilityList},
@@ -202,6 +203,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _otherOverlayViewModel._roomOverlayViewModel.CloseRequested += () => {
                 AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = false;
             };
+            _otherOverlayViewModel._threatTableOverlayViewModel.CloseRequested += () =>
+            {
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.ThreatTable).IsSelected = false;
+            };
             _otherOverlayViewModel._PvpOverlaysConfigViewModel.MapClosed += () => {
                 AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = false;
             };
@@ -221,6 +226,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = _otherOverlayViewModel._raidHotsConfigViewModel.RaidHotsEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.ChallengesEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.ThreatTable).IsSelected = _otherOverlayViewModel._threatTableOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _timersViewModel.EncounterTimersActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AlertTimer).IsSelected = _timersViewModel.AlertsActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer).IsSelected = _timersViewModel.DisciplineTimersActive;
@@ -429,6 +435,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case UtilityOverlayType.Timeline:
                     AvaloniaTimelineBuilder.TimelineEnabled = !AvaloniaTimelineBuilder.TimelineEnabled;
                     break;
+                case UtilityOverlayType.ThreatTable:
+                    _otherOverlayViewModel._threatTableOverlayViewModel.Active = !_otherOverlayViewModel._threatTableOverlayViewModel.Active;
+                    break;
                 default:
                     return;
 
@@ -438,17 +447,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void CreateOverlay(OverlayOptionViewModel type, bool canDelete)
         {
-            Debug.WriteLine("Try Creating overlay: "+type.Type);
             OverlayOptionViewModel overlayType = type;
             if (_currentOverlays.Any(o => o.CreatedType == overlayType.Type) && canDelete)
             {
-                Debug.WriteLine("Removing overlay on untoggle: "+type.Type);
                 var currentOverlay = _currentOverlays.First(o => o.CreatedType == overlayType.Type);
                 currentOverlay.RequestClose();
                 RemoveOverlay(currentOverlay);
                 return;
             }
-            Debug.WriteLine("Creating new overlay: "+type.Type);
             overlayType.IsSelected = true;
             var viewModel = new OverlayInstanceViewModel(overlayType.Type);
             viewModel.SetRole(_currentCharacterRole);

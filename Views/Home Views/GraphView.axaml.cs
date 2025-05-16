@@ -174,10 +174,6 @@ namespace SWTORCombatParser.Views.Home_Views
         // Handle the zoom/pan action
         void HandleZoomOrPan(AxisLimits limits)
         {
-            // Implement your logic based on the visible data
-            Console.WriteLine($"New X Range: {limits.Left} to {limits.Right}");
-            Console.WriteLine($"New Y Range: {limits.Top} to {limits.Bottom}");
-
             _plotViewModel.UpdatePlotAxis(limits);
         }
     }

@@ -138,7 +138,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             get => isTargeted; set
             {
                 var displayTargeted = Settings.ReadSettingOfType<bool>("overlay_show_targeted");
-                if (!displayTargeted && isTargeted)
+                if (!displayTargeted && value)
                     return;
                 isTargeted = value;
                 OnPropertyChanged();
@@ -204,7 +204,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 RaidHotsOnPlayer.Add(obj);
             });
             obj.FireTimerStarted();
-            Debug.WriteLine("Started Animation!");
             obj.TimerExpired += RemoveFromList;
             obj.TimerRefreshed += RefreshList;
         }

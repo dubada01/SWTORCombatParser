@@ -29,12 +29,18 @@ namespace SWTORCombatParser.Views.Overlay.Timeline
             viewModel = vm;
             DataContext = vm;
             InitializeComponent();
-
+            
             // Set up references and initial setup
             timelineCanvas = this.FindControl<Canvas>("TimelineCanvas");
             viewModel.OnInit += SetCurrentTimeAndUpdate;
             viewModel.OnUpdateTimeline += SetCurrentTimeAndUpdate;
             viewModel.AreaEntered += SetAreaName;
+            
+            timelineCanvas.GetObservable(BoundsProperty).Subscribe(_ =>
+            {
+                if (viewModel?.AllTimelineElements?.Count > 0)
+                    OnUpdateTimelinePositions();
+            });
         }
         private void SetAreaName(string name, string difficulty, string playerCount)
         {

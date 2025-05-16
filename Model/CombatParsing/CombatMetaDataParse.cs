@@ -31,12 +31,12 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 var outgoingLogs = logsInScope.Where(log => log.Source == entity);
                 var incomingLogs = logsInScope.Where(log => log.Target == entity);
 
-                var parsedLogEntries = outgoingLogs as ParsedLogEntry[] ?? outgoingLogs.ToArray();
-                combat.OutgoingDamageLogs[entity] = parsedLogEntries
+                var logEntriesForEntity = outgoingLogs as ParsedLogEntry[] ?? outgoingLogs.ToArray();
+                combat.OutgoingDamageLogs[entity] = logEntriesForEntity
                     .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._damageEffectId && (l.Source.Name != l.Target.Name)).ToList();
-                combat.OutgoingHealingLogs[entity] = parsedLogEntries
+                combat.OutgoingHealingLogs[entity] = logEntriesForEntity
                     .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._healEffectId).ToList();
-                combat.AbilitiesActivated[entity] = parsedLogEntries.Where(l =>
+                combat.AbilitiesActivated[entity] = logEntriesForEntity.Where(l =>
                     l.Effect.EffectType == EffectType.Event && l.Effect.EffectId == _7_0LogParsing.AbilityActivateId).ToList();
                 var logEntries = incomingLogs as ParsedLogEntry[] ?? incomingLogs.ToArray();
                 combat.IncomingDamageLogs[entity] = logEntries
@@ -77,15 +77,15 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     combat.TotalEffectiveFocusDamage[entity] = 0;
                 }
 
-                var totalAbilitiesDone = parsedLogEntries.Count(l =>
+                var totalAbilitiesDone = logEntriesForEntity.Count(l =>
                     l.Effect.EffectType == EffectType.Event && l.Effect.EffectId == _7_0LogParsing.AbilityActivateId);
 
-                var interruptLogs = parsedLogEntries.Select((v, i) => new { value = v, index = i }).Where(l =>
+                var interruptLogs = logEntriesForEntity.Select((v, i) => new { value = v, index = i }).Where(l =>
                     l.value.Effect.EffectType == EffectType.Event && l.index != 0 &&
                     l.value.Effect.EffectId == _7_0LogParsing.InterruptCombatId &&
-                    abilityIdsThatCanInterrupt.Contains(parsedLogEntries.ElementAt(l.index - 1).AbilityId));
+                    abilityIdsThatCanInterrupt.Contains(logEntriesForEntity.ElementAt(l.index - 1).AbilityId));
 
-                var mycleanseLogs = parsedLogEntries.Where(l => _cleanseAbilityIds.Contains(l.AbilityId)).Where(l => cleanseLogs.Any(t => t.LogLineNumber - l.LogLineNumber <= 4 && t.LogLineNumber - l.LogLineNumber > 0));
+                var mycleanseLogs = logEntriesForEntity.Where(l => _cleanseAbilityIds.Contains(l.AbilityId)).Where(l => cleanseLogs.Any(t => t.LogLineNumber - l.LogLineNumber <= 4 && t.LogLineNumber - l.LogLineNumber > 0));
                 var myCleanseSpeeds = mycleanseLogs.Select(cl => GetSpeedFromLog(cl, cleanseLogs));
                 var averageCleansespeed = myCleanseSpeeds.Any() ? myCleanseSpeeds.Average() : 0;
 
@@ -106,7 +106,43 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 combat.AverageCleanseSpeed[entity] = averageCleansespeed;
                 combat.TotalInterrupts[entity] = interruptLogs.Count();
                 combat.TotalCleanses[entity] = mycleanseLogs.Count();
-                combat.TotalThreat[entity] = parsedLogEntries.Sum(l => l.Threat);
+                combat.TotalThreat[entity] = 0;
+// Step 1: Build PlayerThreatPerEnemy[enemy][player]
+                if (!entity.IsCharacter)
+                {
+                    if (!combat.PlayerThreatPerEnemy.ContainsKey(entity))
+                        combat.PlayerThreatPerEnemy[entity] = new Dictionary<Entity, double>();
+
+                    foreach (var group in incomingLogs.GroupBy(l => l.Source))
+                    {
+                        var player = group.Key;
+                        double threat = 0;
+                        foreach (var log in group)
+                        {
+                            threat = Math.Max(0, threat + log.Threat);
+                        }
+                        combat.PlayerThreatPerEnemy[entity][player] = threat;
+                    }
+                }
+
+// Step 2: Later — after all enemies processed — rebuild TotalThreat[player]
+                
+                foreach (var enemyKvp in combat.PlayerThreatPerEnemy)
+                {
+                    foreach (var playerKvp in enemyKvp.Value)
+                    {
+                        if (playerKvp.Key != entity)
+                            continue;
+                        var player = playerKvp.Key;
+                        var threat = playerKvp.Value;
+
+                        if (!combat.TotalThreat.ContainsKey(player))
+                            combat.TotalThreat[player] = 0;
+
+                        combat.TotalThreat[player] += threat;
+                    }
+                }
+                
                 combat.MaxDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0
                     ? 0
                     : combat.OutgoingDamageLogs[entity].Max(l => l.Value.DblValue);

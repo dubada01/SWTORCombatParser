@@ -10,7 +10,10 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.ViewModels;
+using SWTORCombatParser.ViewModels.Overlays;
 
 namespace SWTORCombatParser.Views;
 
@@ -90,6 +93,7 @@ public partial class BaseOverlayWindow : Window
         _viewModel = viewModel;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             RemoveShadowAndBorderMac();
+
         
         InitializeComponent();
         Loaded += InitOverlay;
@@ -97,13 +101,18 @@ public partial class BaseOverlayWindow : Window
         viewModel.CloseRequested += Hide;
         viewModel.OnNewPositionAndSize += SetSizeAndLocation;
         Opened += SetWindowParams;
-        _myScreen = GetCurrentScreen(this) ?? Screens.Primary;
     }
 
     private void SetWindowParams(object? sender, EventArgs e)
     {
-        if(_canClickThrough && _viewModel.KeepBackgroundHidden)
-            return;
+        string? obsTitle = _viewModel is OverlayInstanceViewModel overlay
+            ? overlay.Type == OverlayType.None
+                ? null
+                : $"{overlay.Type}"
+            : _viewModel.ToString()!.Split('.').Last().Replace("ViewModel", "");
+        if (obsTitle is not null) base.Title = obsTitle;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            RemoveFromAltTab();
         Dispatcher.UIThread.Invoke(() =>
         {
             Position = _tempLocation;
@@ -123,12 +132,10 @@ public partial class BaseOverlayWindow : Window
         var renderScaling = 1;
         #endif
         _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78 * renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78 ) * renderScaling));
-        _myScreen = GetCurrentScreen(this) ?? Screens.Primary;
     }
 
     private void SetSizeAndLocation(Point position, Point size)
     {
-        Debug.WriteLine("Setting size and location: " + position + " " + size);
         CacheTempPositions(position, size);
         var shouldSetClickthrough = _canClickThrough;
         if (_canClickThrough)
@@ -141,12 +148,6 @@ public partial class BaseOverlayWindow : Window
             Width = size.X;
             Height = size.Y;
         });
-        if (shouldSetClickthrough && _viewModel.KeepBackgroundHidden)
-        {
-            savedPosition = new PixelPoint((int)position.X, (int)position.Y);
-            savedSize = size;
-            savedObjectSize = size;
-        }
 
         if (shouldSetClickthrough)
         {
@@ -161,40 +162,7 @@ public partial class BaseOverlayWindow : Window
         _tempSize = size;
     }
     
-    public Screen? GetCurrentScreen(Window window)
-    {
-        // Get the window bounds in screen coordinates
-        var windowBounds = window.Bounds;
 
-        // Iterate over all screens and find the one with the most overlap
-        Screen? targetScreen = null;
-        double maxOverlapArea = 0;
-
-        foreach (var screen in window.Screens.All)
-        {
-            // Convert PixelRect to Rect
-            var screenBounds = new Rect(screen.Bounds.Position.ToPoint(1), screen.Bounds.Size.ToSize(1));
-
-
-            // Calculate the intersection area between the window and the screen
-            var intersection = windowBounds.Intersect(screenBounds);
-            var overlapArea = intersection.Width * intersection.Height;
-
-            // Check if this screen has the most overlap with the window
-            if (overlapArea > maxOverlapArea)
-            {
-                maxOverlapArea = overlapArea;
-                targetScreen = screen;
-            }
-        }
-
-        return targetScreen;
-    }
-
-    public PixelPoint savedPosition;
-    private Point savedSize;
-    public Point savedObjectSize;
-    private Screen? _myScreen;
 
     private void ToggleClickThrough(bool canClickThrough)
     {
@@ -202,85 +170,25 @@ public partial class BaseOverlayWindow : Window
             return;
         Dispatcher.UIThread.InvokeAsync(() =>
         {
-            if (_viewModel.KeepBackgroundHidden)
-            {
-                if ((_viewModel.MainContent is UserControl userControl) )
-                {
-                    if (canClickThrough && !ContentCanvas.Children.Any())
-                    {
-                        ExpandWindowForClickthrough();
-                    }
-                    if(!canClickThrough && !ContentGrid.Children.Any())
-                    {
-                        ContentCanvas.IsVisible = false;
-                        ContentGrid.IsVisible = true;
-                        ContentCanvas.Children.Remove(ContentObject);
-                        ContentGrid.Children.Add(ContentObject);
-                        ContentObject.Content = userControl;
-
-                        Position = savedPosition;
-                        Width = savedSize.X;
-                        Height = savedSize.Y;
-                        
-                        
-                        Task.Run(() =>
-                        {
-                            Thread.Sleep(100);
-                            Dispatcher.UIThread.Invoke(() =>
-                            {
-                                userControl.Width = double.NaN;
-                                userControl.Height = double.NaN;
-                            });
-                        });
-
-
-                    }
-                }
-            }
             ToggleClickThroughCrossPlatform(canClickThrough);
-
-            if(!_viewModel.KeepBackgroundHidden)
-                BackgroundArea.Opacity = canClickThrough ? 0.066 : 0.75;
-            if (_viewModel.KeepBackgroundHidden)
-            {
-                BackgroundArea.Opacity = 0;
-                OverlayIdText.IsVisible = false;
-            }
-            else
-                OverlayIdText.IsVisible = !canClickThrough;
+            BackgroundArea.Opacity = canClickThrough ? _viewModel.BackgroundLockedOpacity : 0.75;
+            OverlayIdText.IsVisible = !canClickThrough;
             CloseButton.IsVisible = !canClickThrough;
         });
         _canClickThrough = canClickThrough;
     }
 
-    public void ExpandWindowForClickthrough()
+    private void RemoveFromAltTab()
     {
-        Dispatcher.UIThread.InvokeAsync(() =>
+        var visualRoot = this.GetVisualRoot() as TopLevel;
+        if (visualRoot != null && visualRoot.TryGetPlatformHandle() is { } platformHandle)
         {
-            if ((_viewModel.MainContent is not UserControl userControl) || ContentCanvas.Children.Any()) return;
-            var scalingFactor = _myScreen.Scaling;
-            ContentCanvas.IsVisible = true;
-            ContentGrid.IsVisible = false;
-            ContentGrid.Children.Remove(ContentObject);
-            ContentCanvas.Children.Add(ContentObject);
-            ContentObject.Content = userControl;
-
-            savedPosition = Position;
-            savedSize = new Point(Width, Height);
-            savedObjectSize =
-                new Point(userControl.Bounds.Width * scalingFactor, userControl.Bounds.Height * scalingFactor);
-            Position = new PixelPoint(0, 0);
-            Width = _myScreen.Bounds.Width / scalingFactor;
-            Height = _myScreen.Bounds.Height / scalingFactor;
-            ContentCanvas.Width = _myScreen.Bounds.Width / scalingFactor;
-            ContentCanvas.Height = _myScreen.Bounds.Height / scalingFactor;
-            userControl.Width = savedObjectSize.X / scalingFactor;
-            userControl.Height = savedObjectSize.Y / scalingFactor;
-            Canvas.SetLeft(ContentObject, savedPosition.X / scalingFactor + 4 * scalingFactor);
-            Canvas.SetTop(ContentObject, (savedPosition.Y / scalingFactor) + 10 * scalingFactor);
-        });
+            var hwnd = platformHandle.Handle;
+            SetWindowLong(hwnd, GWL_EXSTYLE,
+                GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+        }
     }
-
+    
     public void ToggleClickThroughCrossPlatform(bool canClickThrough)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -298,7 +206,6 @@ public partial class BaseOverlayWindow : Window
         var platformHandle = this.TryGetPlatformHandle();
         if (platformHandle == null)
         {
-            Console.WriteLine("Unable to retrieve platform handle.");
             return;
         }
 
@@ -325,7 +232,6 @@ public partial class BaseOverlayWindow : Window
         var platformHandle = this.TryGetPlatformHandle();
         if (platformHandle == null)
         {
-            Console.WriteLine("Unable to retrieve platform handle.");
             return;
         }
 
@@ -344,7 +250,6 @@ public partial class BaseOverlayWindow : Window
         var platformHandle = this.TryGetPlatformHandle();
         if (platformHandle == null)
         {
-            Console.WriteLine("Unable to retrieve platform handle.");
             return;
         }
 

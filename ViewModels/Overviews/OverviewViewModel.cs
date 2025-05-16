@@ -57,7 +57,6 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 if(AvailableParticipants.All(e => e.LogId != value.LogId))
                     return;
                 this.RaiseAndSetIfChanged(ref selectedEntity, value);
-                Debug.WriteLine("Selected "+selectedEntity?.Name);
                 if (selectedEntity == null)
                     return;
                 ParticipantSelectionHandler.UpdateSelection(SelectedEntity);

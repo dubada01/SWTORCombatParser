@@ -86,7 +86,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             _raidFrameView.MouseInArea += MouseInArea;
             _raidFrameView.AreaClicked += CellClicked;
             MainContent = _raidFrameView;
-            KeepBackgroundHidden = true;
+            BackgroundLockedOpacity = 0;
             SettingsType = OverlaySettingsType.Character;
         }
         
@@ -197,7 +197,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void MouseInArea(bool obj)
         {
-            Debug.WriteLine($"Mouse in frame: {obj}");
             _isMouseInFrame = obj;
         }
         public void CellClicked(double xFract, double yFract)
@@ -206,7 +205,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 return;
             var cellX = (int)(xFract * columns);
             var cellY = (int)(yFract * rows);
-            Debug.WriteLine($"Cell Clicked: {cellX}, {cellY}");
             DateTime clickedTime = TimeUtility.CorrectedTime;
             lock (_cellClickLock)
             {
@@ -292,7 +290,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     return;
                 oldestUnhandledCell = _mostRecentlyClickedCell.MinBy(d => d.Key).Value;
                 oldestClickedCellTime = _mostRecentlyClickedCell.MinBy(d => d.Key).Key;
-                Debug.WriteLine($"Clicked At: {oldestClickedCellTime}   with Target Change at: {obj.TimeStamp}");
                 if (oldestClickedCellTime.AddSeconds(-1) > obj.TimeStamp)
                     return;
                 _mostRecentlyClickedCell.Remove(_mostRecentlyClickedCell.MinBy(d => d.Key).Key);

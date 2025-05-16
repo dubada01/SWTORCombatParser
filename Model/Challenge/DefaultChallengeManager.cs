@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using Avalonia;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 
 
 namespace SWTORCombatParser.Model.Challenge
@@ -282,7 +283,7 @@ namespace SWTORCombatParser.Model.Challenge
                 catch (Exception e)
                 {
                     // Handle the error, e.g., log it or inform the user
-                    Console.WriteLine($"Error writing config to file: {e.Message}");
+                    Logging.LogError($"Error writing config to file: {e.Message}");
                 }
             }
 

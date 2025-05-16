@@ -28,6 +28,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     internal readonly string _overlayName;
     private UserControl _mainContent;
     private bool _inConversation;
+    private static double _defaultLockedOpacity = 0.066;
     private bool _isHidden = true;
 
     public UserControl MainContent
@@ -41,6 +42,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         }
     }
 
+    public double BackgroundLockedOpacity { get; set; } = _defaultLockedOpacity;
     public void UpdateVisibility()
     {
         if (_overlayWindow == null)
@@ -58,7 +60,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             }
         }
     }
-    public bool KeepBackgroundHidden { get; set; }
     public abstract bool ShouldBeVisible
     {
         get;
@@ -93,10 +94,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         {
             _inConversation = false;
             UpdateVisibility();
-            if (KeepBackgroundHidden)
-            {
-                _overlayWindow.ExpandWindowForClickthrough();
-            }
             _overlayWindow.ToggleClickThroughCrossPlatform(!OverlaysMoveable);
         }
         
@@ -120,14 +117,13 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         _currentRole = role;
         InitPositionAndSize();
     }
-    public bool HideTitleBar => !OverlaysMoveable && KeepBackgroundHidden;
+
     public bool OverlaysMoveable
     {
         get => _overlaysMoveable;
         set
         {
             this.RaiseAndSetIfChanged(ref _overlaysMoveable, value);
-            this.RaisePropertyChanged(nameof(HideTitleBar));
             UpdateVisibility();
             OnLocking(!_overlaysMoveable);
         }
@@ -146,8 +142,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     }
     public void ShowOverlayWindow()
     {
-        if(SettingsType == OverlaySettingsType.Character)
-            Debug.WriteLine("HI");
         if ((ShouldBeVisible || OverlaysMoveable))
         {
             if (!Active || !_isHidden)
@@ -178,7 +172,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
             Active = defaults.Acive;
             OnNewPositionAndSize(defaults.Position, defaults.WidtHHeight);
-            Debug.WriteLine("Get Overlay: " + _overlayName + " Position: " + defaults.Position + " Size: " + defaults.WidtHHeight);
         }
 
         if (SettingsType == OverlaySettingsType.Character)
@@ -188,7 +181,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
                 return;
             Active = thisDefault.Acive;
             OnNewPositionAndSize(thisDefault.Position, thisDefault.WidtHHeight);
-            Debug.WriteLine("Get Overlay: " + _overlayName + " Position: " + thisDefault.Position + " Size: " + thisDefault.WidtHHeight + " Role: " + _currentRole);
         }
     }
     public void UpdateWindowProperties(Point position, Point size)
@@ -197,7 +189,6 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             DefaultGlobalOverlays.SetDefault(_overlayName, position, size);
         if(SettingsType == OverlaySettingsType.Character)
             DefaultCharacterOverlays.SetCharacterDefaults(_overlayName, position, size,_currentRole);
-        Debug.WriteLine("Set Overlay: " + _overlayName + " Position: " + position + " Size: " + size + " Role: " + _currentRole);
         
     }
     public void UpdateWindowSizeWithScale(Point position, Point size)

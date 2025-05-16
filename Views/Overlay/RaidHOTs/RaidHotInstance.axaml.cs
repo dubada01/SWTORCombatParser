@@ -57,7 +57,6 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                             }
                         }
                     };
-                    Debug.WriteLine($"{DateTime.Now}: Starting HOT animation: "+vm.TimerName);
                     await animation.RunAsync(timerBar);
                 }
             }

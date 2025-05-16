@@ -16,7 +16,7 @@ public static class DelegateExtensions
             }
             catch (Exception ex)
             {
-                Logging.LogError($"Exception in event handler: {ex.Message}");
+                Logging.LogError($"Exception in event handler: {ex.Message} \r\n {ex.StackTrace}");
             }
         }
     }
@@ -33,7 +33,7 @@ public static class DelegateExtensions
             }
             catch (Exception ex)
             {
-                Logging.LogError($"Exception in event handler: {ex.Message}");
+                Logging.LogError($"Exception in event handler: {ex.Message} \r\n {ex.StackTrace}");
             }
         }
     }
@@ -50,7 +50,7 @@ public static class DelegateExtensions
             }
             catch (Exception ex)
             {
-                Logging.LogError($"Exception in event handler: {ex.Message}");
+                Logging.LogError($"Exception in event handler: {ex.Message} \r\n {ex.StackTrace}");
             }
         }
     }
@@ -66,7 +66,7 @@ public static class DelegateExtensions
             }
             catch (Exception ex)
             {
-                Logging.LogError($"Exception in event handler: {ex.Message}");
+                Logging.LogError($"Exception in event handler: {ex.Message} \r\n {ex.StackTrace}");
             }
         }
     }

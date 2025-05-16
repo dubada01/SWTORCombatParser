@@ -88,8 +88,6 @@ namespace SWTORCombatParser.Utilities
             };
 
             _registeredHotkeys[hotkeyId] = hotkey;
-
-            Console.WriteLine($"Hotkey {hotkeyId} registered: {hotkey}");
         }
 
         // Unregister a specific hotkey
@@ -98,7 +96,6 @@ namespace SWTORCombatParser.Utilities
             if (_registeredHotkeys.ContainsKey(hotkeyId))
             {
                 _registeredHotkeys.Remove(hotkeyId);
-                Console.WriteLine($"Hotkey {hotkeyId} unregistered.");
             }
         }
 
@@ -106,7 +103,6 @@ namespace SWTORCombatParser.Utilities
         public void UnregAll()
         {
             _registeredHotkeys.Clear();
-            Console.WriteLine("All hotkeys unregistered.");
         }
 
         // Handle key pressed events
@@ -204,9 +200,6 @@ namespace SWTORCombatParser.Utilities
                     case 3:
                         FireHideOverlays();
                         break;
-                    default:
-                        Debug.WriteLine($"Unknown hotkey ID: {hotkeyId}");
-                        break;
                 }
             });
         }
@@ -234,21 +227,18 @@ namespace SWTORCombatParser.Utilities
         public static event Action OnLockOverlayHotkey = delegate { };
         public static void FireLockOverlay()
         {
-            Debug.WriteLine("Locking hotkey fired");
             OnLockOverlayHotkey();
         }
 
         public static event Action OnRefreshHOTsHotkey = delegate { };
         public static void FireRefreshHots()
         {
-            Debug.WriteLine("Refresh HOTs hotkey fired");
             OnRefreshHOTsHotkey();
         }
 
         public static event Action OnHideOverlaysHotkey = delegate { };
         public static void FireHideOverlays()
         {
-            Debug.WriteLine("Hide Overlays hotkey fired");
             OnHideOverlaysHotkey();
         }
 
@@ -259,7 +249,6 @@ namespace SWTORCombatParser.Utilities
             {
                 _hook.Dispose();
                 _isInitialized = false;
-                Console.WriteLine("Global hook disposed.");
             }
         }
 

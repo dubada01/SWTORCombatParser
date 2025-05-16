@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -23,6 +24,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using MsBox.Avalonia;
 using ReactiveUI;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
@@ -238,6 +240,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private string _logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic/CombatLogs");
         private double currentLogOffsetMs;
         private double currentTotalOffsetMs;
+
         private void TransferLogData(string testLogPath)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -402,6 +405,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             }
             Leaderboards.UpdateOverlaysWithNewLeaderboard(combatInfo, false);
         }
+
+
         private void CombatStopped(List<ParsedLogEntry> obj, DateTime combatStartTime)
         {
             if (obj.Count == 0)
@@ -443,7 +448,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             foreach (var combatStartTime in _totalLogsDuringCombat.Keys.OrderBy(t => t))
             {
-                var combatLogs = _totalLogsDuringCombat[combatStartTime].ToList();
+                List<ParsedLogEntry> combatLogs = new List<ParsedLogEntry>();
+               _totalLogsDuringCombat.TryGetValue(combatStartTime, out combatLogs);
                 if (combatLogs.Count == 0)
                     continue;
                 Logging.LogInfo("Processing combat with start time " + combatStartTime + " and " + combatLogs.Count + " log entries");
@@ -460,6 +466,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 AddCombatToEncounter(combatInfo, false);
                 Logging.LogInfo("Combat added to encounter");
             }
+            //EncounterMonitor.FireEncounterUpdated();
+            _totalLogsDuringCombat.Clear();
         }
         private void HistoricalLogsFinished(DateTime combatEndTime, bool localPlayerIdentified)
         {
@@ -498,6 +506,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 _allEncounters.Add(newEncounter);
                 _allEncounters.ForEach(e => e.Collapse());
                 CurrentEncounter = newEncounter;
+                EncounterMonitor.SetCurrentEncounter(CurrentEncounter);
                 return true;
             }
             return false;
@@ -541,12 +550,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         private void SelectCombat(PastCombat selectedCombat)
         {
-            _numberOfSelectedCombats++;
-            if (_numberOfSelectedCombats > 3)
-            {
-                selectedCombat.IsSelected = false;
-                return;
-            }
             OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
 
             //Run these in a task so that the UI can update first
@@ -554,6 +557,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 CombatSelectionMonitor.SelectCompleteCombat(selectedCombat.Combat);
                 CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(selectedCombat.Combat);
+                EncounterMonitor.SetCurrentEncounter(selectedCombat.ParentEncounter);
             });
 
 

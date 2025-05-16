@@ -25,7 +25,6 @@ namespace SWTORCombatParser.Model.Updates
         {
             var clearedMessages =  new List<string>();
             Settings.WriteSetting("cleared_messages", clearedMessages);
-            Debug.WriteLine("Reset cleared messages");
         }
         internal static void ClearMessage(Guid messageToClear)
         {
@@ -34,7 +33,6 @@ namespace SWTORCombatParser.Model.Updates
                 clearedMessages = new List<string>();
             clearedMessages.Add(messageToClear.ToString());
             Settings.WriteSetting("cleared_messages", clearedMessages);
-            Debug.WriteLine("Cleared message: " + messageToClear);
         }
     }
 }

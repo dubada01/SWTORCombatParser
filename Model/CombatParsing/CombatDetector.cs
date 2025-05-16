@@ -62,7 +62,6 @@ namespace SWTORCombatParser.Model.CombatParsing
                 {
                     if (isRealTime)
                     {
-                        Debug.WriteLine($"Restarting at: {(_inCombatStartTime - line.TimeStamp).TotalSeconds}");
                         RestartTimer();
                     }
                     else

@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         public double ShieldValue;
         public DateTime ShieldingTime;
     }
-    public static class AddSheildingToLogs
+    public static class AddShieldingToLogs
     {
         public static void AddShieldLogsByTarget(Dictionary<Entity, List<ParsedLogEntry>> allPriticipantSheildingLogs, Combat combat)
         {

@@ -127,6 +127,11 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             _allSelectedCombats.Clear();
             UpdateUI();
         }
+
+        public List<string> GetCurrentColumnNames()
+        {
+            return _selectedColumnTypes.Select(GetNameFromType).ToList();
+        }
         private void RefreshColumns()
         {
             if (!string.IsNullOrEmpty(_localPlayer))

@@ -32,6 +32,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             get => isVisible; set => this.RaiseAndSetIfChanged(ref isVisible, value);
         }
         public EncounterInfo EncounterInfo { get; set; }
+        public EncounterCombat ParentEncounter { get; set; }
         public Combat Combat { get; set; }
         public bool IsTrash => Combat != null && !Combat.IsCombatWithBoss && !IsCurrentCombat && !IsPvPCombat;
         public bool WasBossKilled => Combat?.WasBossKilled ?? false;

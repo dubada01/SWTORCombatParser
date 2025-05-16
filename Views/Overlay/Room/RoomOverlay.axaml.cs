@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using SWTORCombatParser.ViewModels;
@@ -19,28 +20,45 @@ namespace SWTORCombatParser.Views.Overlay.Room
         {
             DataContext = viewmodel;
             InitializeComponent();
+            Loaded += SetCharSize;
         }
 
-        
+        private void SetCharSize(object? sender, RoutedEventArgs e)
+        {
+            CharImage.Height = 50;
+            CharImage.Width = 50;
+        }
+
         internal void DrawCharacter(double xFraction, double yFraction, double facing)
         {
             Dispatcher.UIThread.Invoke(() =>
             {
-                var imageLocation = GetBoundingBox(RoomImage, ReferenceInfo);
-                Point characterLocation = new Point((imageLocation.Width * xFraction) + imageLocation.X, (imageLocation.Height * yFraction) + imageLocation.Y);
-                CharImage.Height = imageLocation.Width * 0.066;
-                CharImage.Width = imageLocation.Width * 0.066;
-                Canvas.SetLeft(CharImage, characterLocation.X - (CharImage.Width / 2));
-                Canvas.SetTop(CharImage, characterLocation.Y - (CharImage.Height / 2));
+                var imageBounds = RoomImage.Bounds;
+                var transformToVisual = RoomImage.TransformToVisual(ImageCanvas);
+                var visualOffset = transformToVisual?.Transform(new Point(0,0)) ?? default;
 
-                var Rotation = new RotateTransform(90, imageLocation.Width / 2, imageLocation.Height / 2);
-                ReferenceInfo.RenderTransform = Rotation;
+                // Get DPI scale (1.0 = 96 DPI)
+                var scale = VisualRoot?.RenderScaling ?? 1.0;
 
-                var rotationTransform = new RotateTransform(facing * -1, CharImage.Width / 2, CharImage.Height / 2);
-                CharImage.RenderTransform = rotationTransform;
+                // Apply scale to layout-related dimensions if necessary
+                var scaledWidth = imageBounds.Width * scale;
+                var scaledHeight = imageBounds.Height * scale;
+                var scaledOffsetX = visualOffset.X * scale;
+                var scaledOffsetY = visualOffset.Y * scale;
+
+                var characterX = (scaledWidth * xFraction) + scaledOffsetX;
+                var characterY = (scaledHeight * yFraction) + scaledOffsetY;
+
+                var characterSize = scaledWidth * 0.066;
+                CharImage.Width = characterSize / scale;  // Convert back to layout units
+                CharImage.Height = characterSize / scale;
+
+                Canvas.SetLeft(CharImage, (characterX - (characterSize / 2)) / scale);
+                Canvas.SetTop(CharImage, (characterY - (characterSize / 2)) / scale);
+
+                CharImage.RenderTransform = new RotateTransform(-facing, CharImage.Width / 2, CharImage.Height / 2);
+                CharImage.RenderTransformOrigin = RelativePoint.TopLeft;
             });
-
-
         }
         private static Rect GetBoundingBox(Control child, Control parent)
         {
@@ -54,7 +72,7 @@ namespace SWTORCombatParser.Views.Overlay.Room
             Dispatcher.UIThread.Invoke(() =>
             {
 
-                var imageLocation = GetBoundingBox(RoomImage, ReferenceInfo);
+                var imageLocation = GetBoundingBox(RoomImage, ImageCanvas);
                 Point characterLocation = new Point((imageLocation.Width * xFraction) + imageLocation.X, (imageLocation.Height * yFraction) + imageLocation.Y);
                 var newHazard = new Ellipse();
                 newHazard.Fill = widthFraction > 0.06 ? Brushes.Pink : Brushes.CornflowerBlue;

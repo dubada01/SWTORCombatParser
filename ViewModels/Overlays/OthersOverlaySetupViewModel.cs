@@ -7,6 +7,7 @@ using SWTORCombatParser.Views.Overlay.PvP;
 using SWTORCombatParser.Views.Overlay.RaidHOTs;
 using SWTORCombatParser.Views.Overlay.Room;
 using ReactiveUI;
+using SWTORCombatParser.ViewModels.Overlays.ThreatTable;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -16,6 +17,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public AllPvPOverlaysViewModel _PvpOverlaysConfigViewModel;
         public BossFrameConfigViewModel _bossFrameViewModel;
         public RoomOverlayViewModel _roomOverlayViewModel;
+        public ThreatTableOverlayViewModel _threatTableOverlayViewModel;
         public BossFrameSetup BossFrameView { get; set; }
         public RoomSetup RoomOverlaySetup { get; set; }
         public PvpOverlaySetup PvpOverlays { get; set; }
@@ -27,6 +29,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
             _roomOverlayViewModel = new RoomOverlayViewModel("RoomHazard");
             RoomOverlaySetup = new RoomSetup(_roomOverlayViewModel);
+            
+            _threatTableOverlayViewModel = new ThreatTableOverlayViewModel("ThreatTable");
 
             RaidHotsConfig = new RaidHOTsSteup();
             _raidHotsConfigViewModel = new RaidHotsConfigViewModel();
@@ -46,11 +50,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _bossFrameViewModel.LockOverlays();
                 _roomOverlayViewModel.OverlaysMoveable = false;
                 _PvpOverlaysConfigViewModel.LockOverlays();
+                _threatTableOverlayViewModel.OverlaysMoveable = false;
             }
             else
             {
                 _bossFrameViewModel.UnlockOverlays();
                 _roomOverlayViewModel.OverlaysMoveable = true;
+                _threatTableOverlayViewModel.OverlaysMoveable = true;
                 _PvpOverlaysConfigViewModel.UnlockOverlays();
             }
         }

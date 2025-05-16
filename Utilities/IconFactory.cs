@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -56,7 +57,15 @@ namespace SWTORCombatParser.Utilities
         }
         private static Bitmap GetColoredBitmapImage(SWTORClass swtorClass, Color color)
         {
-            return SetIconColor(GetIcon(swtorClass.Name), color);
+            try
+            {
+                return SetIconColor(GetIcon(swtorClass.Name), color);
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError("Failed to set icon color: "+ex.Message +"\r\n" + ex.StackTrace);
+                return GetIcon(swtorClass.Name);
+            }
         }
 
 
@@ -73,13 +82,13 @@ namespace SWTORCombatParser.Utilities
                 skBitmap = SKBitmap.Decode(imageStream);
             }
 
-            // Apply the color change using SkiaSharp
+            // Apply color transformation
             for (int y = 0; y < skBitmap.Height; y++)
             {
                 for (int x = 0; x < skBitmap.Width; x++)
                 {
-                    SKColor skColor = skBitmap.GetPixel(x, y);
-                    if (skColor.Alpha != 0) // Check alpha channel
+                    var skColor = skBitmap.GetPixel(x, y);
+                    if (skColor.Alpha != 0)
                     {
                         var newColor = new SKColor(color.R, color.G, color.B, skColor.Alpha);
                         skBitmap.SetPixel(x, y, newColor);
@@ -87,15 +96,25 @@ namespace SWTORCombatParser.Utilities
                 }
             }
 
-            // Convert SkiaSharp SKBitmap back to Avalonia WriteableBitmap
-            using (var skiaStream = new MemoryStream())
+            // Create Avalonia WriteableBitmap
+            var pixelSize = new PixelSize(skBitmap.Width, skBitmap.Height);
+            var dpi = new Vector(96, 96);
+            var writeable = new WriteableBitmap(pixelSize, dpi, Avalonia.Platform.PixelFormat.Bgra8888, Avalonia.Platform.AlphaFormat.Premul);
+
+            // Copy SKBitmap pixel data into WriteableBitmap
+            int totalBytes = skBitmap.Height * skBitmap.RowBytes;
+            byte[] pixelBytes = new byte[totalBytes];
+            System.Runtime.InteropServices.Marshal.Copy(skBitmap.GetPixels(), pixelBytes, 0, totalBytes);
+
+            using (var fb = writeable.Lock())
             {
-                skBitmap.Encode(skiaStream, SKEncodedImageFormat.Png, 100);
-                skiaStream.Seek(0, SeekOrigin.Begin);
-        
-                return WriteableBitmap.Decode(skiaStream);
+                System.Runtime.InteropServices.Marshal.Copy(pixelBytes, 0, fb.Address, totalBytes);
             }
+
+            return writeable;
         }
+
+
 
 
     }
