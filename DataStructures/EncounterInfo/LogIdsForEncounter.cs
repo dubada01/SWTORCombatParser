@@ -707,6 +707,7 @@ public static class LogIdFactory
                             {
                                 { "Story 8", new List<long>() { 4824927605620736L } },
                                 { "Veteran 8", new List<long>() { 4847325860069376L } },
+                                { "Master 8", new List<long>() { 4847325860069376L,4861868619333632L,4831241207545856L, 4845470434197504L,4831722243883008L, 4831533265321984L, 4829566170300416L} },
                             }
                         }
                     };
@@ -915,13 +916,13 @@ public static class LogIdFactory
                             }
                         }
                     };
-                    encounter.RequiredAbilitiesForKill = new Dictionary<string, Dictionary<string, string>>()
+                    encounter.RequiredAbilitiesForKill = new Dictionary<string, Dictionary<string, ulong>>()
                     {
                         {
-                            "Trandosians", new Dictionary<string, string>()
+                            "Trandosians", new Dictionary<string, ulong>()
                             {
-                                {"Master 8", "4381085685252096"},
-                                {"Master 16","4381085685252096"}
+                                {"Master 8", 4381085685252096},
+                                {"Master 16",4381085685252096}
                             }
                         }
                     };

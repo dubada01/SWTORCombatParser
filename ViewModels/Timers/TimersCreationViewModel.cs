@@ -25,6 +25,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using ReactiveUI;
+using SWTORCombatParser.DataStructures.AbilityInfo;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 using SWTORCombatParser.DataStructures.ChallengeInfo;
 
@@ -228,6 +229,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             Task.Run(() =>
             {
+                AbilityLoader.SetAbsorbAbilities();
                 ChallengeLoader.TryLoadChallenges();
                 BossTimerLoader.TryLoadBossTimers();
                 HotTimerLoader.TryLoadHots();

@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Plotting;
 using SWTORCombatParser.ViewModels.Home_View_Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -73,14 +74,14 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                     Type = PlotType.DamageTaken
                 };
                 _seriesToPlot.Add(series);
-                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l => l.Ability == abilityName && (l.Source.LogId == objSource.LogId || objSource.IsCharacter)).OrderBy(l => l.TimeStamp).ToList();
-                if (applicableData == null || applicableData.Count == 0)
+                IOrderedEnumerable<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l => l.Ability == abilityName && (l.Source.LogId == objSource.LogId || objSource.IsCharacter)).OrderBy(l => l.TimeStamp);
+                if (applicableData == null || !applicableData.Any())
                     continue;
                 var minTime = applicableData.MinBy(b=>b.TimeStamp).TimeStamp;
                 var maxTime = applicableData.MaxBy(b=>b.TimeStamp).TimeStamp;
                 List<ParsedLogEntry> hpData = GetCorrectData(PlotType.HPPercent, combatToPlot, entity).Where(l=>l.TimeStamp >= minTime.AddSeconds(-5) && l.TimeStamp <= maxTime.AddSeconds(5)).OrderBy(l => l.TimeStamp).ToList();
 
-                if (applicableData == null || applicableData.Count == 0)
+                if (applicableData == null || !applicableData.Any())
                     continue;
                 double[] plotXvals;
                 double[] plotYvals;
@@ -130,7 +131,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             Dispatcher.UIThread.Invoke(GraphView.Refresh);
         }
 
-        private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
+        private ConcurrentQueue<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
         {
             switch (type)
             {
@@ -145,7 +146,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 case PlotType.SheildedDamageTaken:
                     return combatToPlot.ShieldingProvidedLogs[selectedParticipant];
                 case PlotType.HPPercent:
-                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant).ToList();
+                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant);
 
             }
             return null;

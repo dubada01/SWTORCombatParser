@@ -379,6 +379,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             TryAddEncounter(startTime);
             if (!LiveParseActive)
                 return;
+            CombatIdentifier.ResetCombat();
             Logging.LogInfo("NEW real time combat started at " + startTime.ToString());
             AddOngoingCombat(location);
             UpdateVisibleEncounters();
@@ -389,7 +390,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             _totalLogsDuringCombat[combatStartTime] = obj;
             _usingHistoricalData = false;
-            var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), true);
+            var combatInfo = CombatIdentifier.GenerateCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), isRealtime:true);
             //only process combats if they were property created
             if(combatInfo.StartTime == DateTime.MinValue)
             {
@@ -409,17 +410,14 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
         private void CombatStopped(List<ParsedLogEntry> obj, DateTime combatStartTime)
         {
-            if (obj.Count == 0)
-                return;
-
-
-            _totalLogsDuringCombat[combatStartTime] = obj;
+            if(_usingHistoricalData)
+                _totalLogsDuringCombat[combatStartTime] = obj;
 
             if (!_usingHistoricalData)
             {
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(obj, true, combatEndUpdate: true);
+                var combatInfo = CombatIdentifier.GenerateCombatFromLogs(obj, isRealtime:true, combatEndUpdate: true);
                 //only process combats if they were property created
                 if(combatInfo.StartTime == DateTime.MinValue)
                 {
@@ -453,7 +451,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 if (combatLogs.Count == 0)
                     continue;
                 Logging.LogInfo("Processing combat with start time " + combatStartTime + " and " + combatLogs.Count + " log entries");
-                var combatInfo = CombatIdentifier.GenerateNewCombatFromLogs(combatLogs, false, true, combatEndUpdate:true);
+                var combatInfo = CombatIdentifier.GenerateCombatSnapshotFromLogs(combatLogs, false, true, combatEndUpdate:true);
                 //only process combats if they were property created
                 if(combatInfo.StartTime == DateTime.MinValue)
                 {

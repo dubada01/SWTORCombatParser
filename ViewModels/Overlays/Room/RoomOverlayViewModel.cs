@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             MainContent = _roomOverlay;
             _settings = RoomOverlayLoader.GetRoomOverlaySettings();
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
-            EncounterTimerTrigger.EncounterDetected += OnBossEncounterDetected;
+            EncounterTimerTrigger.BossCombatDetected += OnBossBossCombatDetected;
             
             
             ImagePath = new Bitmap(
@@ -53,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             _isTriggered = false;
         }
 
-        private void OnBossEncounterDetected(string arg1, string arg2, string arg3)
+        private void OnBossBossCombatDetected(string arg1, string arg2, string arg3)
         {
             if (!Active || _isTriggered)
                 return;

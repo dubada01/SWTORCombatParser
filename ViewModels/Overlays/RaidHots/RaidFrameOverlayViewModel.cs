@@ -87,6 +87,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             _raidFrameView.AreaClicked += CellClicked;
             MainContent = _raidFrameView;
             BackgroundLockedOpacity = 0;
+            BackgroundUnLockedOpacity = 0.05;
             SettingsType = OverlaySettingsType.Character;
         }
         
@@ -507,17 +508,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     }
 
 
-                    var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.SourceTimer.IsHot && t.TargetAddendem != null).Select(t => t.TargetAddendem);
+                    var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.Value.SourceTimer.IsHot && t.Value.TargetAddendem != null).Select(t => t.Value.TargetAddendem);
                     foreach (var player in playersWithHotTimer)
                     {
                         var playerCell = GetCellThatMatchesName(player);
                         if (playerCell != null && !playerCell.HasHOT)
                         {
-                            var timer = TimerController.GetActiveTimers().First(t => t.TargetAddendem == player);
-                            if (timer.TimerValue > 0)
-                                playerCell.AddHOT(timer);
+                            var timer = TimerController.GetActiveTimers().First(t => t.Value.TargetAddendem == player);
+                            if (timer.Value.TimerValue > 0)
+                                playerCell.AddHOT(timer.Value);
                             else
-                                timer.Complete(false);
+                                timer.Value.Complete(false);
                         }
                     }
 

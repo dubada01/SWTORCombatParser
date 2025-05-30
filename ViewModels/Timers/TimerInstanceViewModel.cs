@@ -38,7 +38,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         private double barHeight;
         private double defaultBarHeight = 30;
         private bool _stubTimer;
-
+        private bool _hasAudioPlayed = false;
+        private readonly DispatcherTimer _tickTimer;
         public event Action<TimerInstanceViewModel, bool> TimerExpired = delegate { };
         public event Action TimerRefreshed = delegate { };
         public event Action TimerStarted = delegate { };
@@ -104,14 +105,14 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             var result = async () =>
             {
-                if (!string.IsNullOrEmpty(SourceTimer.Effect) && IconGetter.HasIcon(SourceTimer.Effect))
+                if (!string.IsNullOrEmpty(SourceTimer.Effect) && ulong.TryParse(SourceTimer.Effect, out var parsedEffect) && IconGetter.HasIcon(parsedEffect))
                 {
-                    return await IconGetter.GetIconForId(SourceTimer.Effect);
+                    return await IconGetter.GetIconForId(parsedEffect);
                 }
 
-                if (!string.IsNullOrEmpty(SourceTimer.Ability) && IconGetter.HasIcon(SourceTimer.Ability))
+                if (!string.IsNullOrEmpty(SourceTimer.Ability) && ulong.TryParse(SourceTimer.Ability, out var parsedAbility) &&IconGetter.HasIcon(parsedAbility))
                 {
-                    return await IconGetter.GetIconForId(SourceTimer.Ability);
+                    return await IconGetter.GetIconForId(parsedAbility);
                 }
                 return null;
             };
@@ -227,8 +228,31 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 await LoadInfoIconAsync();
             });
+            _tickTimer = new DispatcherTimer(
+                TimeSpan.FromMilliseconds(_updateIntervalMs),
+                DispatcherPriority.Normal,
+                (s, e) => OnTick()
+            );
         }
+        private void OnTick()
+        {
+            // Early exit if someone stopped the timer:
+            if (!isActive)
+            {
+                _tickTimer.Stop();
+                return;
+            }
 
+            // 1) Do the same work you had in UpdateTimeBasedTimer()
+            UpdateTimeBasedTimer();
+
+            // 2) If we’ve run out, stop & complete:
+            if (TimerValue <= 0)
+            {
+                _tickTimer.Stop();
+                Complete(true);
+            }
+        }
 
         public void Reset(DateTime timeStampOfReset)
         {
@@ -256,57 +280,57 @@ namespace SWTORCombatParser.ViewModels.Timers
             this.RaisePropertyChanged(nameof(TimerDuration));
             this.RaisePropertyChanged(nameof(TimerValue));
         }
-        public async void TriggerTimeTimer(DateTime timeStampWhenTrigged)
+        // 3) Replace your old async-loop with this:
+        public void TriggerTimeTimer(DateTime timeStampWhenTriggered)
         {
-
             if (!SourceTimer.IsAlert)
             {
                 if (SourceTimer.HideUntilSec == 0)
-                {
                     DisplayTimer = true;
-                }
-                DisplayTimerValue = true;
-                var offset = (TimeUtility.CorrectedTime - timeStampWhenTrigged).TotalSeconds * -1;
 
-                TimerValue = MaxTimerValue + offset;
+                DisplayTimerValue = true;
+
+                var offset = (TimeUtility.CorrectedTime - timeStampWhenTriggered).TotalSeconds * -1;
+                TimerValue    = MaxTimerValue + offset;
                 _lastUpdateTime = TimeUtility.CorrectedTime;
+
                 this.RaisePropertyChanged(nameof(CurrentRatio));
                 this.RaisePropertyChanged(nameof(TimerValue));
-                isActive = true;
+
+                isActive    = true;
                 TimerStarted();
-                while (TimerValue > 0 && isActive)
-                {
-                    UpdateTimeBasedTimer();
-                    await Task.Delay(_updateIntervalMs);
-                }
-                if (isActive)
-                    Complete(true);
+
+                // start the tick loop
+                _tickTimer.Interval = TimeSpan.FromMilliseconds(_updateIntervalMs);
+                _tickTimer.Start();
             }
             else
             {
+                // (unchanged) alert‐sound branch
                 if (SourceTimer.UseAudio && _audioLoaded)
                 {
                     Dispatcher.UIThread.Invoke(() =>
                     {
-                        #if WINDOWS
+#if WINDOWS
                         _mediaPlayer.Play();
-                        #endif
-                        #if MACOS
-                        Bass.ChannelPlay(stream,false);
-                        #endif
+#endif
+#if MACOS
+                        Bass.ChannelPlay(stream, false);
+#endif
                     });
-
                 }
-                DisplayTimer = true;
+
+                DisplayTimer      = true;
                 DisplayTimerValue = false;
-                isActive = true;
-                if (SourceTimer.TriggerType != TimerKeyType.HasEffect && !SourceTimer.IsSubTimer)
+                isActive          = true;
+
+                // single‐shot completion after one interval
+                Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     await Task.Delay(_updateIntervalMs);
                     Complete(true);
-                }
+                });
             }
-
         }
         public async void TriggerHPTimer(double currentHP)
         {
@@ -350,7 +374,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                 Complete(true);
         }
 
-        private bool _hasAudioPlayed = false;
+
+
         private void UpdateTimeBasedTimer()
         {
             var deltaTime = (TimeUtility.CorrectedTime - _lastUpdateTime).TotalSeconds;
@@ -440,8 +465,9 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void Dispose()
         {
-            TimerValue = 0;
             isActive = false;
+            _tickTimer.Stop();
+            TimerValue = 0;
         }
     }
 }

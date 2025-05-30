@@ -53,7 +53,7 @@
                         <RowDefinition Height="{Binding DetailsHeight}"/>
                     </Grid.RowDefinitions>
                     <Viewbox MaxHeight="18" Margin="0,5,0,5" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource LargeFontSize}" Foreground="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToEncounterColorConverter}}" FontWeight="DemiBold" Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Path=Info.Name}"></TextBlock>
+                        <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource LargeFontSize}" Foreground="{Binding Path=Info, Converter={StaticResource BooleanToEncounterColorConverter}}" FontWeight="DemiBold" Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Path=Info.Name}"></TextBlock>
                     </Viewbox>
                     <Viewbox IsVisible="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,0,5,0" MaxHeight="13" Grid.Row="1" HorizontalAlignment="Center">
                         <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Foreground="Gray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Difficulty"></TextBlock>

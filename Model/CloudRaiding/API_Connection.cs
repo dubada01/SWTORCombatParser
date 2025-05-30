@@ -224,6 +224,52 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new int[100];
             }
         }
+        public static async Task<int[]> GetLeaderboardPercentilesForRole(string bossName, string encounter, LeaderboardEntryType entryType, string role)
+        {
+            if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
+                return new int[100];
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
+
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBossForRole");
+                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), role });
+                    var content = new StringContent(str, Encoding.UTF8, "application/json");
+                    var response = await connection.PostAsync(uri, content);
+                    var body = await response.Content.ReadFromJsonAsync<int[]>();
+                    return body;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return new int[100];
+            }
+        }
+        public static async Task<int[]> GetLeaderboardPercentilesForDiscipline(string bossName, string encounter, LeaderboardEntryType entryType, string discipline)
+        {
+            if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
+                return new int[100];
+            try
+            {
+                using (HttpClient connection = new HttpClient())
+                {
+
+                    Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBossForDiscipline");
+                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), discipline });
+                    var content = new StringContent(str, Encoding.UTF8, "application/json");
+                    var response = await connection.PostAsync(uri, content);
+                    var body = await response.Content.ReadFromJsonAsync<int[]>();
+                    return body;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.LogError(e.Message);
+                return new int[100];
+            }
+        }
         public static async Task<PercentileInfo> GetPercentileForBoss(string bossName, string encounter, LeaderboardEntryType entryType, string playerName, string className, double value, string participantClass, bool filterClass)
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))

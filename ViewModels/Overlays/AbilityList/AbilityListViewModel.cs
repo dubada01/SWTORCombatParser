@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -72,7 +73,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         {
             if (CombatLogStateBuilder.CurrentState.LocalPlayer == null)
                 return;
-            var abilities = new List<ParsedLogEntry>();
+            var abilities = new ConcurrentQueue<ParsedLogEntry>();
             if(combat.AbilitiesActivated.TryGetValue(CombatLogStateBuilder.CurrentState.LocalPlayer, out abilities))
             {
                 var abilitiesUsedlist = abilities.AsEnumerable().Reverse().ToList();
@@ -114,7 +115,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
 
         }
 
-        private async Task<Bitmap> GetIconFromId(string abilityId)
+        private async Task<Bitmap> GetIconFromId(ulong abilityId)
         {
             //TODO Get actual icons
             return await IconGetter.GetIconForId(abilityId);

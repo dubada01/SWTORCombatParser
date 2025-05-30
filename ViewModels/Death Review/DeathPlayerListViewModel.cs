@@ -136,7 +136,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 var info = entityInfo.FirstOrDefault(e => e.Entity.LogId == participant.Entity.LogId);
                 if (info != null)
                 {
-                    participant.HPPercent = info.CurrentHP / info.MaxHP;
+                    participant.HPPercent = info.CurrentHP / (double)info.MaxHP;
                 }
             }
         }

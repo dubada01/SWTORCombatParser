@@ -5,6 +5,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -34,7 +35,7 @@ namespace SWTORCombatParser.Model.Timers
         private readonly Dictionary<Guid, TimerInstanceViewModel> _activeTimerInstancesForTimer = new Dictionary<Guid, TimerInstanceViewModel>();
         private (string, string, string) _currentBossInfo;
         private Entity _currentTarget;
-        private List<TimerInstanceViewModel> _activeTimers;
+        private ConcurrentDictionary<string,TimerInstanceViewModel> _activeTimers;
         private DateTime _startTime;
         private EncounterInfo _currentEncounter;
         private TimerInstance parentTimer;
@@ -160,7 +161,7 @@ namespace SWTORCombatParser.Model.Timers
             timer.Dispose();
         }
 
-        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, List<TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string, string, string) bossData, Entity currentTarget)
+        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, ConcurrentDictionary<string,TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string, string, string) bossData, Entity currentTarget)
         {
             lock (_timerChangeLock)
             {
@@ -341,10 +342,10 @@ namespace SWTORCombatParser.Model.Timers
         private void UpdateCharges(ParsedLogEntry log, TimerTargetInfo targetInfo)
         {
             var timerToUpdate = _activeTimerInstancesForTimer.FirstOrDefault(t =>
-                t.Value.TargetId == targetInfo.Id && (t.Value.SourceTimer.Effect == log.Effect.EffectName || t.Value.SourceTimer.Effect == log.Effect.EffectId)).Value;
+                t.Value.TargetId == targetInfo.Id && (t.Value.SourceTimer.Effect == log.Effect.EffectName || t.Value.SourceTimer.Effect == log.Effect.EffectId.ToString())).Value;
             if (timerToUpdate == null)
                 return;
-            if (log.Effect.EffectId == "985226842996736" && log.Effect.EffectType == EffectType.Apply)
+            if (log.Effect.EffectId == 985226842996736 && log.Effect.EffectType == EffectType.Apply)
                 timerToUpdate.Charges = 7;
             else
                 timerToUpdate.Charges = (int)log.Value.DblValue;

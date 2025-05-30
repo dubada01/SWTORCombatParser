@@ -16,7 +16,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
     }
     public class BossInfo
     {
-        private List<string> targetsRequiredForKill = new List<string>();
+        private List<long> targetsRequiredForKill = new List<long>();
         private string encounterName;
         public bool IsOpenWorld { get; set; }
         public string EncounterName
@@ -27,9 +27,9 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 encounterName = value;
             }
         }
-        public List<string> TargetIds { get; set; } = new List<string>();
-        public string AbilityRequiredForKill { get; set; }
-        public List<string> TargetsRequiredForKill
+        public List<long> TargetIds { get; set; } = new List<long>();
+        public ulong AbilityRequiredForKill { get; set; }
+        public List<long> TargetsRequiredForKill
         {
             get
             {
@@ -61,7 +61,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         private string _numberOfPlayer = "4";
         private Dictionary<string, Dictionary<string, List<long>>> requiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>();
         private string name;
-        private Dictionary<string, Dictionary<string, string>> requiredAbilitiesForKill;
+        private Dictionary<string, Dictionary<string, ulong>> requiredAbilitiesForKill;
 
         public static EncounterInfo GetCopy(EncounterInfo source)
         {
@@ -104,7 +104,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
         public EncounterType EncounterType { get; set; }
         public string LogName { get; set; }
         public bool IsOpenWorld { get; set; }
-        public string LogId { get; set; }
+        public ulong LogId { get; set; }
         public string NamePlus => GetNamePlus();
         public string Name
         {
@@ -120,7 +120,7 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
             get => bossNames;
             set => bossNames = value ?? new List<string>();
         }
-        public Dictionary<string, Dictionary<string, string>> RequiredAbilitiesForKill { get => requiredAbilitiesForKill; set => requiredAbilitiesForKill = value ?? new Dictionary<string, Dictionary<string, string>>(); }
+        public Dictionary<string, Dictionary<string, ulong>> RequiredAbilitiesForKill { get => requiredAbilitiesForKill; set => requiredAbilitiesForKill = value ?? new Dictionary<string, Dictionary<string, ulong>>(); }
         public Dictionary<string, Dictionary<string, List<long>>> RequiredIdsForKill { get => requiredIdsForKill; set => requiredIdsForKill = value ?? new Dictionary<string, Dictionary<string, List<long>>>(); }
         public Dictionary<string, Dictionary<string, List<long>>> BossIds
         {
@@ -141,8 +141,8 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                 return BossIds.Select(bi => new BossInfo()
                 {
                     EncounterName = bi.Key,
-                    TargetIds = bi.Value[GetKey(bi.Value, bi.Value.Keys.ToList())].Select(id => id.ToString()).ToList(),
-                    TargetsRequiredForKill = RequiredIdsForKill[bi.Key][GetKey(bi.Value, bi.Value.Keys.ToList())].Select(id => id.ToString()).ToList(),
+                    TargetIds = bi.Value[GetKey(bi.Value, bi.Value.Keys.ToList())].Select(id => id).ToList(),
+                    TargetsRequiredForKill = RequiredIdsForKill[bi.Key][GetKey(bi.Value, bi.Value.Keys.ToList())].Select(id => id).ToList(),
                     AbilityRequiredForKill = GetAbilityForKill(bi),
                 }).ToList();
             }
@@ -151,17 +151,17 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
             return BossNames.Select(b => new BossInfo()
             {
                 EncounterName = b.Contains("~?~") ? b.Split("~?~")[0] : b,
-                TargetIds = b.Contains("~?~") ? b.Split("~?~")[1].Split('|').Select(n => n.Replace("*", "")).ToList() : new List<string>() { b },
+                TargetIds = new List<long>()
 
             }).ToList();
         }
 
-        private string GetAbilityForKill(KeyValuePair<string, Dictionary<string, List<long>>> bi)
+        private ulong GetAbilityForKill(KeyValuePair<string, Dictionary<string, List<long>>> bi)
         {
             if (!RequiredAbilitiesForKill.ContainsKey(bi.Key))
-                return "";
+                return 0;
             if (!RequiredAbilitiesForKill[bi.Key].ContainsKey(GetKey(bi.Value, bi.Value.Keys.ToList())))
-                return "";
+                return 0;
             return RequiredAbilitiesForKill[bi.Key][GetKey(bi.Value, bi.Value.Keys.ToList())];
         }
 

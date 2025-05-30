@@ -34,25 +34,26 @@ namespace SWTORCombatParser.Model.Timers
         public static void UpdateTimersActive(bool timersActive, string timerSource)
         {
             var currentActives = GetAllTimersActiveInfo();
-
-            currentActives[timerSource] = timersActive;
-            SaveActiveTimersInfo(currentActives);
+            if (currentActives != null)
+            {
+                currentActives[timerSource] = timersActive;
+                SaveActiveTimersInfo(currentActives);
+            }
         }
         public static bool GetTimersActive(string currentCharacter)
         {
             var activeInfo = GetAllTimersActiveInfo();
-            if (!activeInfo.ContainsKey(currentCharacter))
+            if (activeInfo != null && activeInfo.TryAdd(currentCharacter, false))
             {
-                activeInfo[currentCharacter] = false;
                 SaveActiveTimersInfo(activeInfo);
             }
-            return activeInfo[currentCharacter];
+            return activeInfo != null && activeInfo[currentCharacter];
         }
         private static void SaveActiveTimersInfo(Dictionary<string, bool> activesInfo)
         {
             File.WriteAllText(activePath, JsonConvert.SerializeObject(activesInfo));
         }
-        private static Dictionary<string, bool> GetAllTimersActiveInfo()
+        private static Dictionary<string, bool>? GetAllTimersActiveInfo()
         {
             return JsonConvert.DeserializeObject<Dictionary<string, bool>>(File.ReadAllText(activePath));
         }

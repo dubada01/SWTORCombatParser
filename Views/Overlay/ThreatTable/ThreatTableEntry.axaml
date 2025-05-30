@@ -16,7 +16,7 @@
             <TextBlock Margin="5,0,0,0" FontFamily="{StaticResource MainFont}" Foreground="{Binding EnemyNameColor}" FontSize="{StaticResource LargerFontSize}" Text="{Binding EnemyName}"></TextBlock>
             <Border Margin="3,3,2,3" CornerRadius="3" Grid.Row="1" Background="{StaticResource Gray2}" HorizontalAlignment="Stretch"/>
             <Image Grid.Row="1" HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="3,0,0,0" Width="10" Source="avares://Orbs/resources/tankIcon.png" IsVisible="{Binding TopIsTank}"></Image>
-            <TextBlock Grid.Row="1" FontWeight="{Binding TopFontWeight}" HorizontalAlignment="Left" Margin="15,5,0,5" VerticalAlignment="Center" FontSize="{StaticResource LargeFontSize}" Text="{Binding TopPlayerName}"></TextBlock>
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="2" FontWeight="{Binding TopFontWeight}" HorizontalAlignment="Left" Margin="15,5,0,5" VerticalAlignment="Center" FontSize="{StaticResource LargeFontSize}" Text="{Binding TopPlayerName}"></TextBlock>
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding ColumnRatio}"/>
@@ -24,7 +24,7 @@
                 </Grid.ColumnDefinitions>
                 <Border Margin="3,3,0,3" CornerRadius="3" Grid.Column="0" Background="{Binding RemainderColor}" HorizontalAlignment="Stretch"/>
                 <Image HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="3,0,0,0" Width="10" Source="avares://Orbs/resources/tankIcon.png" IsVisible="{Binding BottomIstank}"></Image>
-                <TextBlock Grid.Column="0" FontSize="{StaticResource LargeFontSize}" FontWeight="{Binding BottomFontWeight}" HorizontalAlignment="Left" Margin="15,5,0,5" VerticalAlignment="Center" Text="{Binding SecondPlayerName}"></TextBlock>
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" FontSize="{StaticResource LargeFontSize}" FontWeight="{Binding BottomFontWeight}" HorizontalAlignment="Left" Margin="15,5,0,5" VerticalAlignment="Center" Text="{Binding SecondPlayerName}"></TextBlock>
             </Grid>
 
         </Grid>

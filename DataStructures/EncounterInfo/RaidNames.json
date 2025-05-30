@@ -122,7 +122,7 @@
   },
   {
     "LogName": "Toborro's Palace Courtyard",
-    "LogId": "",
+    "LogId": "0",
     "Name": "Toborro's Palace",
     "EncounterType": 2,
     "BossNames": [
@@ -171,7 +171,7 @@
     "Name": "Propagator Core",
     "EncounterType": 2,
     "BossNames": [
-      "Propagator Core XR-53"
+      "Propagator Core XR-53~?~Propagator Core XR-53|Collection Droid|Defender Construct|Imperfect Construct|Rampaging Construct|Supplicant Construct|Prey Seeker Droid"
     ]
   },
   {

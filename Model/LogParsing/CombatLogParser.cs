@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Utilities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace SWTORCombatParser.Model.LogParsing
             _7_0LogParsing.SetStartDate(logDate);
             _fileEncoding = Encoding.GetEncoding(1252);
         }
-        public static ParsedLogEntry ParseLine(string logEntry, long lineIndex, DateTime previousLogTime, bool realTime = true)
+        public static ParsedLogEntry ParseLine(ReadOnlySpan<char> logEntry, long lineIndex, DateTime previousLogTime, bool realTime = true)
         {
             try
             {
@@ -32,65 +33,36 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             catch (Exception e)
             {
-                Logging.LogError("Log parsing error: ++" + logEntry + "++\r\n" + JsonConvert.SerializeObject(e));
+                Logging.LogError("Log parsing error: ++" + logEntry.ToString() + "++\r\n" + JsonConvert.SerializeObject(e));
                 return new ParsedLogEntry() { LogBytes = _fileEncoding.GetByteCount(logEntry), Error = ErrorType.IncompleteLine };
             }
         }
         private static bool GetAllLines(StreamReader sr, List<string> lines)
         {
-            bool hasValidEnd = false;
-            StringBuilder newLine = new StringBuilder();
-            bool lastValueWasbsR = false;
-            while (!sr.EndOfStream)
+            string? line;
+            while ((line = sr.ReadLine()) != null)
             {
-                char[] readChars = new char[2500];
-                sr.Read(readChars, 0, 2500);
+                lines.Add(line);
+            }
+            // 2) Peek at the very last byte on disk
+            bool endedWithNewline = false;
+            if (sr.BaseStream is FileStream fs)
+            {
+                long prevPos = fs.Position;
+                long length  = fs.Length;
 
-                for (var c = 0; c < readChars.Length; c++)
+                if (length > 0)
                 {
-                    if (readChars[c] == '\0')
-                    {
-                        lastValueWasbsR = false;
-                        break;
-                    }
-                    if (readChars[c] == '\r')
-                    {
-                        lastValueWasbsR = true;
-                        continue;
-                    }
-                    if (readChars[c] == '\n' && lastValueWasbsR)
-                    {
-                        lastValueWasbsR = false;
-                        if (readChars[2499] == '\0' || sr.EndOfStream)
-                        {
-                            if (c == readChars.Length - 1 || readChars[c + 1] == '\0')
-                            {
-                                lines.Add(newLine.ToString() + "\r\n");
-                                break;
-                            }
-                            else
-                            {
-                                if (newLine.Length == 0)
-                                    continue;
-                                lines.Add(newLine.ToString() + "\r\n");
-                                newLine.Clear();
-                            }
-                        }
-                        if (newLine.Length == 0)
-                            continue;
-                        lines.Add(newLine.ToString() + "\r\n");
-                        newLine.Clear();
-
-                    }
-                    else
-                    {
-                        newLine.Append(readChars[c]);
-                        lastValueWasbsR = false;
-                    }
+                    fs.Seek(length - 1, SeekOrigin.Begin);
+                    endedWithNewline = fs.ReadByte() == '\n';
                 }
+
+                // restore reader to its previous state
+                fs.Seek(prevPos, SeekOrigin.Begin);
+                sr.DiscardBufferedData();
             }
 
-            return hasValidEnd;
+            return endedWithNewline;
         }
         public static List<string> ExtractSpecificLines(CombatLogFile combatLog, int startLog, int endLog, bool includeAreaEntered = true)
         {
@@ -121,11 +93,14 @@ namespace SWTORCombatParser.Model.LogParsing
 
             var logLines = new List<string>();
             var worked = GetAllLines(combatLog.Data, logLines);
-
+            if (!worked)
+            {
+                logLines = logLines.Take(logLines.Count - 1).ToList();
+            }
             var numberOfLines = logLines.Count;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
-            List<ParsedLogEntry> incompleteLines = new List<ParsedLogEntry>();
-            Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = 50 }, i =>
+            ConcurrentBag<ParsedLogEntry> incompleteLines = new ConcurrentBag<ParsedLogEntry>();
+            Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
             {
 
                 if (logLines[i] == "")
@@ -154,32 +129,27 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return orderdedLog.ToList();
         }
-        private static List<string> GetInfoComponents(string log)
+        private static List<string> GetInfoComponents(ReadOnlySpan<char> span)
         {
-            var substrings = new List<string>();
-            int startIndex = -1;
-            int numberOfOpens = 0;
-            for (int i = 0; i < log.Length; i++)
+            var results = new List<string>();
+            int depth = 0, start = -1;
+
+            for (int i = 0; i < span.Length; i++)
             {
-                if (log[i] == '[')
+                char c = span[i];
+                if (c == '[')
                 {
-                    numberOfOpens++;
-                    if (numberOfOpens == 1)
-                        startIndex = i + 1;
+                    if (depth++ == 0) start = i + 1;
                 }
-                else if (log[i] == ']' && startIndex != -1)
+                else if (c == ']' && depth-- == 1)
                 {
-                    numberOfOpens--;
-                    if (numberOfOpens == 0)
-                    {
-                        substrings.Add(log.Substring(startIndex, i - startIndex));
-                        startIndex = -1;
-                    }
+                    results.Add(span.Slice(start, i - start).ToString());
                 }
             }
 
-            return substrings;
+            return results;
         }
+
         private static void UpdateStateAndLogs(List<ParsedLogEntry> orderdedLog, bool realTime)
         {
             foreach (var line in orderdedLog)

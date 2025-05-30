@@ -16,12 +16,11 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public static class CombatLogLoader
     {
-        public static string LoggingPath
+        public static string LoggingPath { get; set; }
+
+        public static void RefreshSWTORCombatLogsDirectory()
         {
-            get
-            {
-                return Settings.ReadSettingOfType<string>("combat_logs_path");
-            }
+            LoggingPath = Settings.ReadSettingOfType<string>("combat_logs_path");
         }
         public static string GetLogDirectory()
         {

@@ -9,38 +9,38 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
 {
     public static class EncounterLoader
     {
-        public static string GetLeaderboardFriendlyDifficulty(string difficultyId)
+        public static string GetLeaderboardFriendlyDifficulty(ulong difficultyId)
         {
             switch (difficultyId)
             {
-                case "836045448953651":
-                case "836045448953653":
-                case "836045448953658 ":
+                case 836045448953651:
+                case 836045448953653:
+                case 836045448953658:
                     return "Story";
-                case "836045448953652":
-                case "836045448953654":
-                case "836045448953657":
+                case 836045448953652:
+                case 836045448953654:
+                case 836045448953657:
                     return "Veteran";
-                case "836045448953655":
-                case "836045448953656":
-                case "836045448953659":
+                case 836045448953655:
+                case 836045448953656:
+                case 836045448953659:
                     return "Master";
                 default:
                     return "";
             }
         }
 
-        public static string GetLeaderboardFriendlyPlayers(string difficultyId)
+        public static string GetLeaderboardFriendlyPlayers(ulong difficultyId)
         {
             switch (difficultyId)
             {
-                case "836045448953651":
-                case "836045448953652":
-                case "836045448953655":
+                case 836045448953651:
+                case 836045448953652:
+                case 836045448953655:
                     return "8 Player";
-                case "836045448953653":
-                case "836045448953656":
-                case "836045448953654":
+                case 836045448953653:
+                case 836045448953656:
+                case 836045448953654:
                     return "16 Player";
                 default:
                     return "";
@@ -85,8 +85,8 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                         owb => new BossInfo {
                             EncounterName ="Open World", 
                             IsOpenWorld = true, 
-                            TargetIds = OpenWorldBosses.Select(owbId=>owbId.BossId.ToString()).ToList(),
-                            TargetsRequiredForKill = OpenWorldBosses.Select(owbId => owbId.BossId.ToString()).ToList()
+                            TargetIds = OpenWorldBosses.Select(owbId=>owbId.BossId).ToList(),
+                            TargetsRequiredForKill = OpenWorldBosses.Select(owbId => owbId.BossId).ToList()
                         }).ToList(),    
                 });
             }

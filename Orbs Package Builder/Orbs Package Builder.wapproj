@@ -58,10 +58,10 @@
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
-    <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-    <PackageCertificateThumbprint>41F00175757EA4142AF2A84B54BB9525142F66B7</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>05BAC36E90D03B79A70D40432FCEB7BD4412569C</PackageCertificateThumbprint>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>

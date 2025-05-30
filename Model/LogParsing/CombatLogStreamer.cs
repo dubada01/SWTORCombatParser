@@ -101,25 +101,27 @@ namespace SWTORCombatParser.Model.LogParsing
             var currentLogs = CombatLogParser.ParseAllLines(file, true);
             numberOfProcessedLines = currentLogs.Count;
             Logging.LogInfo("Found " + currentLogs.Count + " log entries in " + _logToMonitor);
-            int[] characters = new int[currentLogs.Count];
-            Parallel.For(0, currentLogs.Count, i =>
-            {
-                characters[i] = currentLogs[i].LogBytes;
-            });
-            _numberOfProcessedBytes = characters.Sum();
+            // Single-pass, no extra array
+            long total = 0;
+            foreach (var log in currentLogs)
+                total += log.LogBytes + 2;
+            _numberOfProcessedBytes = total;
             Logging.LogInfo("Processed " + _numberOfProcessedBytes + " bytes of data in " + _logToMonitor);
             ParseHistoricalLog(currentLogs);
+            if(currentLogs.Count > 0)
+                EncounterTimerTrigger.SetPvpStateAfterHistorical(currentLogs.Last().TimeStamp);
         }
 
         public void StopMonitoring()
         {
             _monitorLog = false;
-            EndCombat();
+            EndCombat(true);
             _currentCombatLogs.Clear();
         }
 
         private void ResetMonitoring()
         {
+            CombatLogLoader.RefreshSWTORCombatLogsDirectory();
             _numberOfProcessedBytes = 0;
             numberOfProcessedLines = 0;
             _currentCombatStartTime = DateTime.MinValue;
@@ -151,6 +153,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 {
                     return;
                 }
+
                 ParseLogFile();
             }
         }
@@ -158,127 +161,131 @@ namespace SWTORCombatParser.Model.LogParsing
 private void ParseLogFile()
 {
     var logUpdateTime = TimeUtility.CorrectedTime;
-
-    // 1) Remember where we started in the file
     long originalCursor = _numberOfProcessedBytes;
 
-    // 2) Read everything we can—capturing absolute startOffsets but NOT yet
-    //    updating _numberOfProcessedBytes.
-    List<string> lines       = new();
-    List<long>   startOffsets = new();
-    using var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-    using var sr = new StreamReader(fs, _fileEncoding);
-    GetNewlines2(sr, lines, startOffsets);
-    // note: GetNewlines2 should only use a temporary local offset var,
-    //       *not* write into _numberOfProcessedBytes itself.
+    // 1) Read all new lines since last cursor
+    var lines        = new List<string>();
+    var startOffsets = new List<long>();
+    using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+    using (var sr = new StreamReader(fs, _fileEncoding))
+    {
+        GetNewlines2(sr, lines, startOffsets);
+    }
 
     if (lines.Count == 0)
         return;
 
-    // 3) Try to parse every line
+    // 2) Parse each, collect only those in‐combat this frame
+    var newLogs         = new List<ParsedLogEntry>();
     int successfulLines = 0;
+
     for (int i = 0; i < lines.Count; i++)
     {
         numberOfProcessedLines++;
-        var result = ProcessNewLine(lines[i], numberOfProcessedLines, Path.GetFileName(_logToMonitor), logUpdateTime);
+
+        var result = ProcessNewLine(
+            lines[i],
+            numberOfProcessedLines,
+            /*logFilePath*/ _logToMonitor,
+            logUpdateTime,
+            out var parsed);
 
         if (result == ProcessedLineResult.Incomplete)
         {
-            // rollback line count
+            // rollback to the byte offset of the bad line
             numberOfProcessedLines -= (lines.Count - i);
-
-            // jump the cursor back to the start of this bad line
             _numberOfProcessedBytes = startOffsets[i];
-
             Logging.LogError($"Incomplete parse on line #{i}, rolling back to byte offset {_numberOfProcessedBytes}");
             break;
         }
 
         successfulLines++;
+        if (_isInCombat)
+            newLogs.Add(parsed);
     }
 
-    // 4) If every line succeeded, *then* advance the cursor by the total bytes
-    //    of all lines we just consumed.
+    // 3) Advance cursor if everything succeeded
     if (successfulLines == lines.Count)
     {
-        long newBytes = lines.Sum(l => _fileEncoding.GetByteCount(l));
-        _numberOfProcessedBytes = originalCursor + newBytes;
+        long consumedBytes = lines.Sum(l => _fileEncoding.GetByteCount(l));
+        _numberOfProcessedBytes = originalCursor + consumedBytes;
     }
 
-    // 5) Fire update if needed
-    if (_isInCombat)
+    // 4) Fire one Update with only this frame’s logs
+    if (_isInCombat && newLogs.Count > 0)
     {
-        var updateMessage = new CombatStatusUpdate {
+        var updateMsg = new CombatStatusUpdate
+        {
             Type            = UpdateType.Update,
-            Logs            = _currentCombatLogs,
+            Logs            = newLogs,
             CombatStartTime = _currentCombatStartTime
         };
-        CombatUpdated.InvokeSafely(updateMessage);
+        CombatUpdated.InvokeSafely(updateMsg);
     }
 }
 
 
-private void GetNewlines2(
-    StreamReader sr,
-    List<string> lines,
-    List<long> lineStartOffsets)
-{
-    // 0) Reposition the reader to where we left off last time
-    sr.DiscardBufferedData();
-    sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
-
-    long localOffset = _numberOfProcessedBytes;   // snapshot, never write back directly
-    bool seenCR = false;
-    var newLine = new StringBuilder();
-    char[] buffer = new char[2500];
-    int readCount;
-
-    while ((readCount = sr.Read(buffer, 0, buffer.Length)) > 0)
-    {
-        for (int i = 0; i < readCount; i++)
+        private void GetNewlines2(
+            StreamReader sr,
+            List<string> lines,
+            List<long> lineStartOffsets)
         {
-            char c = buffer[i];
-            if (c == '\0')
+            // 0) Reposition the reader to where we left off last time
+            sr.DiscardBufferedData();
+            sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
+
+            long localOffset = _numberOfProcessedBytes; // snapshot, never write back directly
+            bool seenCR = false;
+            var newLine = new StringBuilder();
+            char[] buffer = new char[2500];
+            int readCount;
+
+            while ((readCount = sr.Read(buffer, 0, buffer.Length)) > 0)
             {
-                seenCR = false;
-                break;
+                for (int i = 0; i < readCount; i++)
+                {
+                    char c = buffer[i];
+                    if (c == '\0')
+                    {
+                        seenCR = false;
+                        break;
+                    }
+
+                    if (c == '\r')
+                    {
+                        seenCR = true;
+                        continue;
+                    }
+
+                    if (c == '\n' && seenCR)
+                    {
+                        // complete line (including CRLF)
+                        var complete = newLine.ToString() + "\r\n";
+                        lines.Add(complete);
+                        lineStartOffsets.Add(localOffset);
+
+                        // advance our local offset by the byte‐count of that line
+                        int bc = _fileEncoding.GetByteCount(complete);
+                        localOffset += bc;
+
+                        newLine.Clear();
+                        seenCR = false;
+                        continue;
+                    }
+
+                    if (seenCR)
+                    {
+                        // stray CR, treat it as part of the content
+                        newLine.Append('\r');
+                        seenCR = false;
+                    }
+
+                    newLine.Append(c);
+                }
             }
 
-            if (c == '\r')
-            {
-                seenCR = true;
-                continue;
-            }
-
-            if (c == '\n' && seenCR)
-            {
-                // complete line (including CRLF)
-                var complete = newLine.ToString() + "\r\n";
-                lines.Add(complete);
-                lineStartOffsets.Add(localOffset);
-
-                // advance our local offset by the byte‐count of that line
-                int bc = _fileEncoding.GetByteCount(complete);
-                localOffset += bc;
-
-                newLine.Clear();
-                seenCR = false;
-                continue;
-            }
-
-            if (seenCR)
-            {
-                // stray CR, treat it as part of the content
-                newLine.Append('\r');
-                seenCR = false;
-            }
-
-            newLine.Append(c);
+            // any trailing partial line stays in 'newLine' for next pass
         }
-    }
-
-    // any trailing partial line stays in 'newLine' for next pass
-}
 
 
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
@@ -293,14 +300,18 @@ private void GetNewlines2(
                     LocalPlayerIdentified.InvokeSafely(t.Source);
                     localPlayerIdentified = true;
                 }
+
                 CheckForCombatState(t, false, false);
                 if (_isInCombat)
                 {
                     _currentCombatLogs.Add(t);
                 }
             }
+
             Logging.LogInfo("Parsed existing log - " + _logToMonitor);
-            DateTime combatEndTime = _currentCombatLogs.Count == 0 ? TimeUtility.CorrectedTime : _currentCombatLogs.Max(l => l.TimeStamp);
+            DateTime combatEndTime = _currentCombatLogs.Count == 0
+                ? TimeUtility.CorrectedTime
+                : _currentCombatLogs.Max(l => l.TimeStamp);
             HistoricalLogsFinished.InvokeSafely(combatEndTime, localPlayerIdentified);
         }
 
@@ -323,6 +334,7 @@ private void GetNewlines2(
                 ResetMonitoring();
                 return true;
             }
+
             var fileInfo = new FileInfo(_logToMonitor);
             if (fileInfo.LastWriteTime == _lastUpdateTime)
                 return false;
@@ -330,34 +342,43 @@ private void GetNewlines2(
             return true;
         }
 
-        private ProcessedLineResult ProcessNewLine(string line, long lineIndex, string logName, DateTime logUpdateTime)
+        private ProcessedLineResult ProcessNewLine(
+            string             line,
+            long               lineIndex,
+            string             logFilePath,
+            DateTime           logUpdateTime,
+            out ParsedLogEntry parsedLine)
         {
-            var parsedLine = CombatLogParser.ParseLine(line, lineIndex, _mostRecentLogTime);
+            // 1) Parse
+            parsedLine = CombatLogParser.ParseLine(line, lineIndex, _mostRecentLogTime);
+
+            // 2) If incomplete, bail
             if (parsedLine.Error == ErrorType.IncompleteLine)
-            {
                 return ProcessedLineResult.Incomplete;
-            }
-            
+
+            // 3) Update timestamp tracking
             _mostRecentLogTime = parsedLine.TimeStamp;
-            var logTimeOffset = Math.Abs((parsedLine.TimeStamp - logUpdateTime).TotalMilliseconds);
+
+            // 4) Fire timing events
+            var logTimeOffset   = Math.Abs((parsedLine.TimeStamp - logUpdateTime).TotalMilliseconds);
             var totalTimeOffset = Math.Abs((parsedLine.TimeStamp - TimeUtility.CorrectedTime).TotalMilliseconds);
             NewLogTimeOffsetMs.InvokeSafely(logTimeOffset);
             NewTotalTimeOffsetMs.InvokeSafely(totalTimeOffset);
 
+            // 5) Local‐player detection
             if (parsedLine.Source.IsLocalPlayer)
                 LocalPlayerIdentified.InvokeSafely(parsedLine.Source);
-            parsedLine.LogName = Path.GetFileName(logName);
-            CheckForCombatState(parsedLine, true, true);
+
+            // 6) Record which file this came from
+            parsedLine.LogName = Path.GetFileName(logFilePath);
+
+            // 7) Combat entry/exit detection
+            CheckForCombatState(parsedLine, /*shouldUpdateOnNewCombat*/ true, /*isRealtime*/ true);
+
+            // 8) Fire the single‐line event
             NewLineStreamed.InvokeSafely(parsedLine);
-            if (_isInCombat && !_isWaitingForExitCombatTimout)
-            {
-                _currentCombatLogs.Add(parsedLine);
-            }
-            if (_isInCombat && _isWaitingForExitCombatTimout)
-            {
-                _currentCombatLogs.Add(parsedLine);
-                _waitingForExitCombatTimeout.Add(parsedLine);
-            }
+
+            // 9) Return success
             return ProcessedLineResult.Success;
         }
 
@@ -366,28 +387,24 @@ private void GetNewlines2(
             var currentCombatState = CombatDetector.CheckForCombatState(parsedLine, isrealtime);
             if (currentCombatState == CombatState.ExitedByEntering)
             {
-                EndCombat(parsedLine);
+                EndCombat(isrealtime,parsedLine);
                 EnterCombat(parsedLine, shouldUpdateOnNewCombat, isrealtime);
             }
+
             if (currentCombatState == CombatState.EnteredCombat)
             {
                 EnterCombat(parsedLine, shouldUpdateOnNewCombat, isrealtime);
             }
+
             if (currentCombatState == CombatState.ExitedCombat)
             {
-                EndCombat(parsedLine);
-            }
-            if (currentCombatState == CombatState.ExitCombatDetected)
-            {
-                _isWaitingForExitCombatTimout = true;
+                EndCombat(isrealtime, parsedLine);
             }
         }
 
-        private void OnExitCombatTimedOut(CombatState state)
+        private void OnExitCombatTimedOut(CombatState state, bool realTime)
         {
-            _isWaitingForExitCombatTimout = false;
-            _waitingForExitCombatTimeout.Clear();
-            EndCombat();
+            EndCombat(realTime);
         }
 
         private void EnterCombat(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat, bool isrealtime)
@@ -397,43 +414,46 @@ private void GetNewlines2(
             _isInCombat = true;
             _currentCombatStartTime = parsedLine.TimeStamp;
             _currentCombatLogs.Add(parsedLine);
-            var updateMessage = new CombatStatusUpdate
+
+            var startMsg = new CombatStatusUpdate
             {
                 Type = UpdateType.Start,
                 CombatStartTime = _currentCombatStartTime,
                 CombatLocation = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(parsedLine.TimeStamp).Name
             };
+
             if (shouldUpdateOnNewCombat)
             {
                 EncounterTimerTrigger.CurrentEncounter = ("", "", "");
                 CombatStarted.InvokeSafely();
-                CombatUpdated.InvokeSafely(updateMessage);
+                CombatUpdated.InvokeSafely(startMsg);
             }
         }
 
-        private void EndCombat(ParsedLogEntry parsedLine = null)
+        private void EndCombat(bool isRealTime, ParsedLogEntry parsedLine = null)
         {
             Logging.LogInfo("Parsing... Ending combat");
-            
-            _isWaitingForExitCombatTimout = false;
             if (!_isInCombat)
                 return;
-            if (_waitingForExitCombatTimeout.Count > 0)
-            {
-                _currentCombatLogs.AddRange(_waitingForExitCombatTimeout);
-            }
+            var logsToSend = isRealTime ? new List<ParsedLogEntry>() : _currentCombatLogs;
             if (parsedLine != null)
-            {
-                _currentCombatLogs.Add(parsedLine);
-            }
+                logsToSend.Add(parsedLine);
 
             _isInCombat = false;
 
             if (string.IsNullOrEmpty(_logToMonitor))
                 return;
-            var updateMessage = new CombatStatusUpdate { Type = UpdateType.Stop, Logs = _currentCombatLogs, CombatStartTime = _currentCombatStartTime };
-            Logging.LogInfo("Sending combat state change notification: " + updateMessage.Type + " at " + updateMessage.CombatStartTime + " with location " + updateMessage.CombatLocation);
-            CombatUpdated.InvokeSafely(updateMessage);
+
+            // On Stop we still send the *full* combat for any teardown needs
+            var stopMsg = new CombatStatusUpdate
+            {
+                Type = UpdateType.Stop,
+                Logs = logsToSend,
+                CombatStartTime = _currentCombatStartTime
+            };
+            Logging.LogInfo($"Sending combat state change notification: {stopMsg.Type} at {stopMsg.CombatStartTime} with location {stopMsg.CombatLocation}");
+            CombatUpdated.InvokeSafely(stopMsg);
         }
+
     }
 }

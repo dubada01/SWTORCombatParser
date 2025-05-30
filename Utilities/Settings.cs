@@ -51,6 +51,9 @@ public static class Settings
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName) && settingName == "stub_logs")
             settingList[settingName] = false;
+        // options are: data_grid, details, plot, log
+        if (!settingList.ContainsKey(settingName) && settingName == "current_tab")
+            settingList[settingName] = "data_grid";
         if (!settingList.ContainsKey(settingName) && settingName == "grid_sort")
             settingList[settingName] = "Damage_+_1";
         if (!settingList.ContainsKey(settingName) && settingName == "offline_mode")
@@ -59,10 +62,12 @@ public static class Settings
             settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "force_log_updates")
             settingList[settingName] = false;
+        if (!settingList.ContainsKey(settingName) && settingName == "threat_table_ids")
+            settingList[settingName] = JToken.FromObject(new List<long>());
         if (!settingList.ContainsKey(settingName) && settingName == "combat_logs_path")
             settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic/CombatLogs");
         if (!settingList.ContainsKey(settingName) && settingName == "Hotkeys")
-            settingList[settingName] =JToken.FromObject(new HotkeySettings {
+            settingList[settingName] = JToken.FromObject(new HotkeySettings {
                 HOTRefreshEnabled = true, HOTRefreshHotkeyMod1 = 2,  HOTRefreshHotkeyMod2 = 1, HOTRefreshHotkeyStroke = 0x52,
                 UILockEnabled = true, UILockHotkeyMod1 = 2, UILockHotkeyMod2 = 1, UILockHotkeyStroke = 0x4c});
         if (settingList.TryGetValue(settingName, out var settingValue))

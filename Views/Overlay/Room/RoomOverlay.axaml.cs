@@ -15,7 +15,7 @@ namespace SWTORCombatParser.Views.Overlay.Room
     public partial class RoomOverlay : UserControl
     {
         private bool _loaded;
-        private Dictionary<string, Ellipse> _currentHazards = new Dictionary<string, Ellipse>();
+        private Dictionary<long, Ellipse> _currentHazards = new Dictionary<long, Ellipse>();
         public RoomOverlay(BaseOverlayViewModel viewmodel)
         {
             DataContext = viewmodel;
@@ -67,7 +67,7 @@ namespace SWTORCombatParser.Views.Overlay.Room
             var bottomRight = transform.Value.Transform(new Point(child.Bounds.Width, child.Bounds.Height));
             return new Rect(topLeft, bottomRight);
         }
-        internal void DrawHazard(double xFraction, double yFraction, double widthFraction, string hazardId)
+        internal void DrawHazard(double xFraction, double yFraction, double widthFraction, long hazardId)
         {
             Dispatcher.UIThread.Invoke(() =>
             {
@@ -96,7 +96,7 @@ namespace SWTORCombatParser.Views.Overlay.Room
             });
             _currentHazards.Clear();
         }
-        internal void ClearSpecificHazard(string hazardId)
+        internal void ClearSpecificHazard(long hazardId)
         {
             Dispatcher.UIThread.Invoke(() => {
                 Ellipse hazard;

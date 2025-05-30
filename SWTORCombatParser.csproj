@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.0.19.1</VersionPrefix>
+    <VersionPrefix>2.1.9.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -9,8 +9,9 @@
     <AssemblyName>Orbs</AssemblyName>
     <Nullable>enable</Nullable>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
 
@@ -19,6 +20,14 @@
     <Prefer32Bit>false</Prefer32Bit>
 	<PlatformTarget>AnyCPU</PlatformTarget>
 	<DebugType>full</DebugType>
+  </PropertyGroup>
+
+
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>full</DebugType>
   </PropertyGroup>
   <!-- Define 'WINDOWS' symbol when building on Windows -->
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
@@ -55,6 +64,20 @@
     <Prefer32Bit>false</Prefer32Bit>
     <DebugType>full</DebugType>
   </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PlatformTarget>x64</PlatformTarget>
+        <Prefer32Bit>false</Prefer32Bit>
+        <OutputPath>bin\x64\Release\net8.0\win-x64\</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PlatformTarget>x64</PlatformTarget>
+        <Prefer32Bit>false</Prefer32Bit>
+        <OutputPath>bin\x64\Debug\net8.0\win-x64\</OutputPath>
+    </PropertyGroup>
   <ItemGroup>
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
@@ -319,14 +342,14 @@
 
   <ItemGroup>
     <PackageReference Include="AnimatedImage.Avalonia" Version="2.0.0" />
-    <PackageReference Include="Avalonia" Version="11.2.6" />
-    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.6" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.6" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.2.6" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.2.6" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.6" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.6" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.6" />
+    <PackageReference Include="Avalonia" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
     <PackageReference Include="LibVLCSharp" Version="3.9.2" />
     <PackageReference Include="ManagedBass" Version="3.1.1" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />

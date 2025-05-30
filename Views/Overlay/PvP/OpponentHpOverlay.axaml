@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.PvP"
         x:DataType="vm:OpponentOverlayViewModel"
         mc:Ignorable="d"
-        Height="150" Width="250" Background="{x:Null}">
+        Background="{x:Null}">
 
     <Grid x:Name="MainArea" IsVisible="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip.Tip="PvP Opponent HP">
         <Viewbox>

@@ -3,6 +3,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Timer = SWTORCombatParser.DataStructures.Timer;
@@ -18,7 +19,7 @@ namespace SWTORCombatParser.Model.Timers
     }
     public static class TriggerDetection
     {
-        public static TriggerType CheckForTriggerNoLog(Timer SourceTimer, DateTime startTime, List<TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
+        public static TriggerType CheckForTriggerNoLog(Timer SourceTimer, DateTime startTime, ConcurrentDictionary<string,TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
         {
             DateTime timeStamp = TimeUtility.CorrectedTime;
             switch (SourceTimer.TriggerType)
@@ -30,14 +31,14 @@ namespace SWTORCombatParser.Model.Timers
                 case TimerKeyType.VariableCheck:
                     return CheckForVariable(SourceTimer);
                 case TimerKeyType.IsTimerTriggered:
-                    return activeTimers.Any(t => t.SourceTimer.Id == SourceTimer.SeletedTimerIsActiveId) ? TriggerType.Start : TriggerType.End;
+                    return activeTimers.Any(t => t.Key == SourceTimer.SeletedTimerIsActiveId) ? TriggerType.Start : TriggerType.End;
                 case TimerKeyType.And:
                 case TimerKeyType.Or:
                     return CheckForDualEffect(SourceTimer, null, SourceTimer.TriggerType, startTime, activeTimers, alreadyDetectedEntities, currentTarget, fromClause1, fromClause2);
             }
             return TriggerType.None;
         }
-        public static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime, List<TimerInstanceViewModel> activeTimers, Entity currentTarget, List<long> alreadyDetectedEntities = null)
+        public static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime, ConcurrentDictionary<string,TimerInstanceViewModel> activeTimers, Entity currentTarget, List<long> alreadyDetectedEntities = null)
         {
             DateTime timeStamp = log.TimeStamp;
             switch (SourceTimer.TriggerType)
@@ -81,7 +82,7 @@ namespace SWTORCombatParser.Model.Timers
                 case TimerKeyType.VariableCheck:
                     return CheckForVariable(SourceTimer);
                 case TimerKeyType.IsTimerTriggered:
-                    return activeTimers.Any(t => t.SourceTimer.Id == SourceTimer.SeletedTimerIsActiveId) ? TriggerType.Start : TriggerType.End;
+                    return activeTimers.Any(t => t.Key == SourceTimer.SeletedTimerIsActiveId) ? TriggerType.Start : TriggerType.End;
                 case TimerKeyType.EffectCharges:
                     return CheckForCharges(log, SourceTimer, SourceTimer.ChargesSetVariable, SourceTimer.ChargesSetVariableName, currentTarget);
             }
@@ -219,11 +220,11 @@ namespace SWTORCombatParser.Model.Timers
                 {
                     return TriggerType.Start;
                 }
-                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId)) && log.Effect.EffectType == EffectType.Event && DoesAbilityMatchOrContain(log, effect))
+                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId.ToString())) && log.Effect.EffectType == EffectType.Event && DoesAbilityMatchOrContain(log, effect))
                 {
                     return TriggerType.Refresh;
                 }
-                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId)) && log.Effect.EffectType == EffectType.Apply && (log.Ability != effect && log.AbilityId != effect))
+                if ((abilitiesThatRefresh.Contains(log.Ability) || abilitiesThatRefresh.Contains(log.AbilityId.ToString())) && log.Effect.EffectType == EffectType.Apply && (log.Ability != effect && log.AbilityId.ToString() != effect))
                 {
                     return TriggerType.Refresh;
                 }
@@ -236,7 +237,7 @@ namespace SWTORCombatParser.Model.Timers
             if (userProvided.Contains(","))
             {
                 var effectList = userProvided.Split(',').Select(a => a.Trim()).ToList();
-                if (effectList.Any(effect => log.Effect.EffectName == effect || log.Effect.EffectId == effect))
+                if (effectList.Any(effect => log.Effect.EffectName == effect || log.Effect.EffectId.ToString() == effect))
                 {
                     return true;
                 }
@@ -245,7 +246,7 @@ namespace SWTORCombatParser.Model.Timers
                     return false;
                 }
             }
-            if (log.Effect.EffectName == userProvided || log.Effect.EffectId == userProvided)
+            if (log.Effect.EffectName == userProvided || log.Effect.EffectId.ToString() == userProvided)
             {
                 return true;
             }
@@ -256,7 +257,7 @@ namespace SWTORCombatParser.Model.Timers
             if (userProvided.Contains(","))
             {
                 var abilityList = userProvided.Split(',').Select(a => a.Trim()).ToList();
-                if (abilityList.Any(ability => log.Ability == ability || log.AbilityId == ability))
+                if (abilityList.Any(ability => log.Ability == ability || log.AbilityId.ToString() == ability))
                 {
                     return true;
                 }
@@ -265,7 +266,7 @@ namespace SWTORCombatParser.Model.Timers
                     return false;
                 }
             }
-            if (log.Ability == userProvided || log.AbilityId == userProvided)
+            if (log.Ability == userProvided || log.AbilityId.ToString() == userProvided)
             {
                 return true;
             }
@@ -280,7 +281,7 @@ namespace SWTORCombatParser.Model.Timers
                 if (ability.Contains(","))
                 {
                     var abilityList = ability.Split(',').Select(a => a.Trim()).ToList();
-                    if (abilityList.Any(ability => log.Ability == ability || log.AbilityId == ability))
+                    if (abilityList.Any(ability => log.Ability == ability || log.AbilityId.ToString() == ability))
                     {
                         if (log.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
                             return TriggerType.Start;
@@ -288,7 +289,7 @@ namespace SWTORCombatParser.Model.Timers
                             return TriggerType.End;
                     }
                 }
-                if (log.Ability == ability || log.AbilityId == ability)
+                if (log.Ability == ability || log.AbilityId.ToString() == ability)
                 {
                     if (log.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
                         return TriggerType.Start;
@@ -303,14 +304,14 @@ namespace SWTORCombatParser.Model.Timers
         {
             if (EntityIsValid(log.Source, source, currentTarget) && EntityIsValid(log.Target, target, currentTarget))
             {
-                if (log.Ability == ability || log.AbilityId == ability)
+                if (log.Ability == ability || log.AbilityId.ToString() == ability)
                 {
                     if (log.Effect.EffectId == _7_0LogParsing.AbilityActivateId)
                         return TriggerType.Start;
                     if (log.Effect.EffectId == _7_0LogParsing.InterruptCombatId)
                         return TriggerType.End;
                 }
-                if (log.Effect.EffectName == ability || log.Effect.EffectId == ability)
+                if (log.Effect.EffectName == ability || log.Effect.EffectId.ToString() == ability)
                 {
                     if (log.Effect.EffectType == EffectType.Apply)
                     {
@@ -369,7 +370,7 @@ namespace SWTORCombatParser.Model.Timers
 
         public static TriggerType CheckForDamageTaken(ParsedLogEntry log, string source, string target, string ability, Entity currentTarget)
         {
-            if (log.Effect.EffectType == EffectType.Apply && (log.Ability == ability || log.AbilityId == ability) && log.Effect.EffectId == _7_0LogParsing._damageEffectId && EntityIsValid(log.Source, source, currentTarget) && EntityIsValid(log.Target, target, currentTarget))
+            if (log.Effect.EffectType == EffectType.Apply && (log.Ability == ability || log.AbilityId.ToString() == ability) && log.Effect.EffectId == _7_0LogParsing._damageEffectId && EntityIsValid(log.Source, source, currentTarget) && EntityIsValid(log.Target, target, currentTarget))
             {
                 return TriggerType.Start;
             }
@@ -378,11 +379,12 @@ namespace SWTORCombatParser.Model.Timers
 
         public static TriggerType CheckForHasEffect(DateTime timeStamp, string target, string effectId)
         {
-
+            if(!ulong.TryParse(effectId, out var parsedId))
+                return TriggerType.None;
             var effectsActiveOnTarget =
                 CombatLogStateBuilder.CurrentState.GetInstancesOfEffectOnEntityAtTime(timeStamp, target,
-                    effectId);
-            if (effectsActiveOnTarget != null && effectsActiveOnTarget.Count > 0 && effectsActiveOnTarget.Any(e => e.EffectName == effectId || e.EffectId == effectId))
+                    parsedId);
+            if (effectsActiveOnTarget != null && effectsActiveOnTarget.Count > 0 && effectsActiveOnTarget.Any(e => e.EffectName == effectId || e.EffectId.ToString() == effectId))
                 return TriggerType.Start;
             return TriggerType.End;
 
@@ -412,7 +414,7 @@ namespace SWTORCombatParser.Model.Timers
             return TriggerType.None;
         }
 
-        public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime, List<TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
+        public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime, ConcurrentDictionary<string,TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
         {
             var clause1State = log != null ? CheckForTrigger(log, sourceTimer.Clause1, startTime, activeTimers, currentTarget, alreadyDetectedEntities) == TriggerType.Start : CheckForTriggerNoLog(sourceTimer.Clause1, startTime, activeTimers, alreadyDetectedEntities, currentTarget, fromClause1, fromClause2) == TriggerType.Start;
             var clause2State = log != null ? CheckForTrigger(log, sourceTimer.Clause2, startTime, activeTimers, currentTarget, alreadyDetectedEntities) == TriggerType.Start : CheckForTriggerNoLog(sourceTimer.Clause2, startTime, activeTimers, alreadyDetectedEntities, currentTarget, fromClause1, fromClause2) == TriggerType.Start;

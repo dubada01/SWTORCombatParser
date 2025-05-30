@@ -33,10 +33,10 @@ namespace SWTORCombatParser.Model.Challenge
                     value = combat.TotalInterrupts[participant];
                     break;
                 case ChallengeType.AbilityCount:
-                    value = combat.GetLogsInvolvingEntity(participant).Count(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (l.Ability == activeChallenge.Value || l.AbilityId == activeChallenge.Value));
+                    value = combat.GetLogsInvolvingEntity(participant).Count(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (l.Ability == activeChallenge.Value || (long.TryParse(activeChallenge.Value, out var _) && l.AbilityId == ulong.Parse(activeChallenge.Value))));
                     break;
                 case ChallengeType.EffectStacks:
-                    value = activeChallenge.UseMaxValue ? combat.GetMaxEffectStacks(activeChallenge.Value, participant) : combat.GetCurrentEffectStacks(activeChallenge.Value, participant);
+                    value = activeChallenge.UseMaxValue ? combat.GetMaxEffectStacks(ulong.TryParse(activeChallenge.Value, out var challenge) ? challenge : 0, participant) : combat.GetCurrentEffectStacks(ulong.TryParse(activeChallenge.Value, out var _challenge) ? _challenge : 0, participant);
                     break;
                 case ChallengeType.MetricDuringPhase:
                     if (combat.DurationMS > 0 && phaseCombat.AllEntities.Contains(participant))

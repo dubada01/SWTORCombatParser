@@ -29,6 +29,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     private UserControl _mainContent;
     private bool _inConversation;
     private static double _defaultLockedOpacity = 0.066;
+    private static double _defaultUnLockedOpacity = 0.75;
     private bool _isHidden = true;
 
     public UserControl MainContent
@@ -43,6 +44,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     }
 
     public double BackgroundLockedOpacity { get; set; } = _defaultLockedOpacity;
+    public double BackgroundUnLockedOpacity { get; set; } = _defaultUnLockedOpacity;
     public void UpdateVisibility()
     {
         if (_overlayWindow == null)
@@ -90,7 +92,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             _inConversation = true;
             UpdateVisibility();
         }
-        if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && obj.Source.IsLocalPlayer && _inConversation)
+        if ((obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove) || (obj.Effect.EffectType == EffectType.AreaEntered) && obj.Source.IsLocalPlayer && _inConversation)
         {
             _inConversation = false;
             UpdateVisibility();
@@ -110,7 +112,11 @@ public abstract class BaseOverlayViewModel:ReactiveObject
 
     public void SetAutoScaleHeight()
     {
-        _overlayWindow.SizeToContent = SizeToContent.Height;
+        Dispatcher.UIThread.Invoke(() =>
+        {        
+            _overlayWindow.SizeToContent = SizeToContent.Height;
+        });
+
     }
     public void SetRole(string role)
     {

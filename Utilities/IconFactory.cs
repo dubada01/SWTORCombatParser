@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace SWTORCombatParser.Utilities
     public static class IconFactory
     {
         public static Bitmap _unknownIcon;
-        private static Dictionary<string, Bitmap> _classColoredBitmaps = new Dictionary<string, Bitmap>();
+        private static ConcurrentDictionary<string, Bitmap> _classColoredBitmaps = new ConcurrentDictionary<string, Bitmap>();
         public static void Init()
         {
             Task.Run(() =>

@@ -7,6 +7,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using SWTORCombatParser.Views.Overlay.ThreatTable;
 
@@ -17,8 +18,8 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
     private readonly ThreatTableOverlayView _threatTableView;
     private readonly OverlayInfo _settings;
     private object updateLock = new object();
-    private List<ThreatTableEntryViewModel> entryViewModels = new List<ThreatTableEntryViewModel>();
     public ObservableCollection<ThreatTableEntry> ThreatEntries { get; set; } = new ObservableCollection<ThreatTableEntry>();
+    private List<long> _userAddedIds = new List<long>();
     public ThreatTableOverlayViewModel(string overlayName) : base(overlayName)
     {
         _threatTableView = new ThreatTableOverlayView(this);
@@ -26,47 +27,67 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
         CombatSelectionMonitor.OnInProgressCombatSelected += HandleNewCombatInfo;
         CombatSelectionMonitor.CombatSelected += HandleNewCombatInfo;
         CombatSelectionMonitor.PhaseSelected += HandleNewCombatInfo;
+        _userAddedIds = Settings.ReadSettingOfType<List<long>>("threat_table_ids");
     }
 
     public void HandleNewCombatInfo(Combat combat)
     {
-        // Group by LogId
-        var groupedByLogId = combat.PlayerThreatPerEnemy.Keys
-            .GroupBy(e => e.LogId)
-            .ToDictionary(g => g.Key, g => g.ToList());
-        var entityIndexById = new Dictionary<long, int>();
-        foreach (var group in groupedByLogId.Values)
+        lock (updateLock)
         {
-            for (int i = 0; i < group.Count; i++)
+            // Group by LogId
+            var groupedByLogId = combat.PlayerThreatPerEnemy.Keys
+                .GroupBy(e => e.LogId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+            var entityIndexById = new Dictionary<long, int>();
+            foreach (var group in groupedByLogId.Values)
             {
-                entityIndexById[group[i].Id] = i + 1;
+                for (int i = 0; i < group.Count; i++)
+                {
+                    entityIndexById[group[i].Id] = i + 1;
+                }
+            }
+            var logIdCountByEntity = groupedByLogId.ToDictionary(g => g.Key, g => g.Value.Count);
+            var topDpsEnemies = GetTop3DamageEnemies(combat);
+            var enemies = combat.PlayerThreatPerEnemy.Keys
+                .Where(k => GetThreatPriorityScore(k, combat,topDpsEnemies) > 0)
+                .OrderByDescending(k=>GetThreatPriorityScore(k, combat,topDpsEnemies));
+            foreach (var key in enemies)
+            {
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    if (ThreatEntries.Any(e => e.ViewModel.EnemyId == key.Id))
+                    {
+                        var existingEnemy = ThreatEntries.First(e => e.ViewModel.EnemyId == key.Id);
+                        if (CombatLogStateBuilder.CurrentState.WasEnemyDeadAtTime(key, combat.EndTime))
+                        {
+                            ThreatEntries.Remove(existingEnemy);
+                        }
+                        else
+                        {
+                            existingEnemy.ViewModel.UpdateEntry(combat, entityIndexById, logIdCountByEntity);
+                        }
+                        return;
+                    }
+
+                    if (ThreatEntries.Count() > 3 || CombatLogStateBuilder.CurrentState.WasEnemyDeadAtTime(key, combat.EndTime))
+                        return;
+                    var newEntry = new ThreatTableEntryViewModel(key.Id);
+                    newEntry.UpdateEntry(combat, entityIndexById, logIdCountByEntity);
+                    if(!string.IsNullOrEmpty(newEntry.EnemyName))
+                        ThreatEntries.Add(new ThreatTableEntry(newEntry));
+                });
+            }
+
+            var allIds = ThreatEntries.Select(v => v.ViewModel.EnemyId).ToList();
+            foreach (var existingId in allIds)
+            {
+                if (!enemies.All(e => e.Id != existingId)) continue;
+                {
+                    var entityToRemove = ThreatEntries.First(e=>e.ViewModel.EnemyId == existingId);
+                    Dispatcher.UIThread.Invoke(() => { ThreatEntries.Remove(entityToRemove); });
+                }
             }
         }
-        var logIdCountByEntity = groupedByLogId.ToDictionary(g => g.Key, g => g.Value.Count);
-        ThreatEntries.Clear();
-        entryViewModels.Clear();
-        var topDpsEnemies = GetTop3DamageEnemies(combat);
-        var enemies = combat.PlayerThreatPerEnemy.Keys
-            .Where(k => GetThreatPriorityScore(k, combat,topDpsEnemies) > 0 && (k.IsBoss || !CombatLogStateBuilder.CurrentState.WasEnemyDeadAtTime(k,combat.EndTime)))
-            .OrderByDescending(k=>GetThreatPriorityScore(k, combat,topDpsEnemies));
-        foreach (var key in enemies)
-        {
-            if (entryViewModels.Any(e => e.EnemyId == key.Id))
-                continue;
-            var newEntry = new ThreatTableEntryViewModel(key.Id);
-            entryViewModels.Add(newEntry);
-        }
-
-        foreach (var entry in entryViewModels)
-        {
-            entry.UpdateEntry(combat,entityIndexById,logIdCountByEntity);
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                ThreatEntries.Add(new ThreatTableEntry(entry));
-            });
-
-        }
-
     }
     private int GetThreatPriorityScore(Entity enemy, Combat combat, HashSet<Entity> topDpsEnemies)
     {
@@ -81,7 +102,11 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
 
         if (topDpsEnemies.Contains(enemy))
             score += 10;
-
+        
+        if (_userAddedIds.Contains(enemy.LogId))
+            score += 800;
+        if ((combat.EndTime - combat.LogsInvolvingEntity[enemy].Last().TimeStamp).TotalSeconds > 10)
+            score = 0;
         return score;
     }
     private HashSet<Entity> GetTop3DamageEnemies(Combat combat)

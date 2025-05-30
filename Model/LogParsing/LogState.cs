@@ -30,7 +30,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public bool HasAbsorbBeenCounted { get; set; }
         public string Name { get; set; }
         public string EffectName { get; set; }
-        public string EffectId { get; set; }
+        public ulong EffectId { get; set; }
         public CombatModfierType Type { get; set; }
         public Dictionary<DateTime, int> ChargesAtTime { get; set; } = new();
         public int GetEffectStackForTimestamp(DateTime targetTime)
@@ -72,9 +72,8 @@ namespace SWTORCombatParser.Model.LogParsing
         public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new();
 
         public LogVersion LogVersion { get; set; } = LogVersion.Legacy;
-        public List<ParsedLogEntry> RawLogs { get; set; } = new();
         public string CurrentLocation { get; set; }
-        public ConcurrentDictionary<string, ConcurrentDictionary<Guid, CombatModifier>> Modifiers { get; set; } = new();
+        public ConcurrentDictionary<ulong, ConcurrentDictionary<Guid, CombatModifier>> Modifiers { get; set; } = new();
         public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new();
         public PositionData CurrentLocalCharacterPosition => LocalPlayer == null ? new PositionData() : CurrentCharacterPositions[LocalPlayer];
         public Entity LocalPlayer { get; internal set; }
@@ -110,7 +109,10 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 return true;
             }
-            if (!enemyDeathInfo.Any(d => d.Key > timestamp))
+
+            if (timestamp > enemyDeathInfo.Max(v => v.Key))
+                return false;
+            if (!enemyDeathInfo.Any(d => d.Key < timestamp))
                 return true;
             var updateTimes = enemyDeathInfo.Keys.ToList();
             for (var i = 0; i < updateTimes.Count; i++)
@@ -222,14 +224,14 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (!PlayerTargetsInfo.TryGetValue(player, out var targets))
                 return new EntityInfo();
-            var targetKeys = targets.Keys.ToList();
+            var targetKeys = targets.Keys;
             return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v => v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : new EntityInfo();
         }
         public EntityInfo GetEnemyTargetAtTime(Entity enemy, DateTime time)
         {
             if (!EnemyTargetsInfo.TryGetValue(enemy, out var targets))
                 return new EntityInfo();
-            var targetKeys = targets.Keys.ToList();
+            var targetKeys = targets.Keys;
             return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v => v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : new EntityInfo();
         }
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
@@ -258,9 +260,9 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public List<CombatModifier> GetCurrentlyActiveRaidHOTS(DateTime time)
         {
-            string koltoShellsId = "985226842996736";
-            string traumaProbeId = "999516199190528";
-            List<string> longRunningHotIds = new List<string>() { koltoShellsId, traumaProbeId };
+            ulong koltoShellsId = 985226842996736;
+            ulong traumaProbeId = 999516199190528;
+            List<ulong> longRunningHotIds = new List<ulong>() { koltoShellsId, traumaProbeId };
             List<CombatModifier> activeHots = new List<CombatModifier>();
             foreach (var hotId in longRunningHotIds)
             {
@@ -268,7 +270,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return activeHots;
         }
-        public List<CombatModifier> GetInstancesOfEffectAtTime(DateTime time, string effect)
+        public List<CombatModifier> GetInstancesOfEffectAtTime(DateTime time, ulong effect)
         {
             if (!Modifiers.TryGetValue(effect, out var instancesOfEffect))
                 return new List<CombatModifier>();
@@ -276,7 +278,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 m.Value.StartTime <= time && (m.Value.StopTime > time || m.Value.StopTime == DateTime.MinValue)).Select(kvp => kvp.Value).ToList();
             return activeModifiersOnPlayer;
         }
-        public List<CombatModifier> GetInstancesOfEffectOnEntityAtTime(DateTime time, string entity, string effect)
+        public List<CombatModifier> GetInstancesOfEffectOnEntityAtTime(DateTime time, string entity, ulong effect)
         {
             if (!Modifiers.TryGetValue(effect, out var instancesOfEffect))
                 return new List<CombatModifier>();

@@ -6,6 +6,7 @@ using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.ViewModels.Challenges;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace SWTORCombatParser.Model.Challenge
     {
         private ObservableCollection<ChallengeInstanceViewModel> _challenges;
         private List<DataStructures.Challenge> _activeChallenges = new List<DataStructures.Challenge>();
-        private List<DataStructures.Challenge> _allChallenges = new List<DataStructures.Challenge>();
+        private ConcurrentDictionary<Guid,DataStructures.Challenge> _allChallenges = new ConcurrentDictionary<Guid, DataStructures.Challenge>();
         private string _currentBossName;
         private Combat _currentSelectedCombat;
         private EncounterInfo _currentEncounter;
@@ -29,7 +30,7 @@ namespace SWTORCombatParser.Model.Challenge
             CombatLogStreamer.CombatStarted += ResetChallenges;
             CombatLogStreamer.NewLineStreamed += CheckForActiveChallenge;
 
-            EncounterTimerTrigger.EncounterDetected += SetBossInfo;
+            EncounterTimerTrigger.BossCombatDetected += SetBossInfo;
             CombatLogStateBuilder.AreaEntered += EncounterChanged;
             RefreshChallenges();
         }
@@ -40,9 +41,15 @@ namespace SWTORCombatParser.Model.Challenge
                 _challenges.ForEach(c => c.UpdatePhase(null));
             foreach (var phaseChallenge in _challenges.Where(c => c.Type == ChallengeType.MetricDuringPhase))
             {
-                phaseChallenge.UpdatePhase(phaseChallenge.SourceChallenge.PhaseId == Guid.Empty ?
-                    new List<PhaseInstance>() :
-                    PhaseManager.ActivePhases.Where(p => p.SourcePhase.Id == phaseChallenge.SourceChallenge.PhaseId).ToList());
+                phaseChallenge.UpdatePhase(
+                    new ConcurrentDictionary<Guid, PhaseInstance>(
+                        phaseChallenge.SourceChallenge.PhaseId == Guid.Empty
+                            ? []
+                            : PhaseManager.ActivePhases
+                                .Where(p => p.SourcePhase.Id == phaseChallenge.SourceChallenge.PhaseId)
+                                .Select(p => new KeyValuePair<Guid, PhaseInstance>(p.Id, p))
+                    )
+                );
             }
         }
 
@@ -62,29 +69,57 @@ namespace SWTORCombatParser.Model.Challenge
 
         public void RefreshChallenges()
         {
-            lock(_updateLock)
-                _allChallenges = DefaultChallengeManager.GetAllDefaults().SelectMany(c => c.Challenges).Where(c => c.IsEnabled).ToList();
+            // build your new dictionary outside the lock
+            var newDict = new ConcurrentDictionary<Guid, DataStructures.Challenge>(
+                DefaultChallengeManager.GetAllDefaults()
+                    .SelectMany(set => set.Challenges)
+                    .Where(ch => ch.IsEnabled)
+                    .Select(ch => new KeyValuePair<Guid, DataStructures.Challenge>(ch.Id, ch))
+            );
+
+            lock (_updateLock)
+            {
+                _allChallenges = newDict;
+            }
         }
         private void CheckForActiveChallenge(ParsedLogEntry obj)
         {
+            var toAddViewModels = new List<DataStructures.Challenge>();
+
             lock (_updateLock)
             {
-                foreach (var challenge in _allChallenges)
+                foreach (var kvp in _allChallenges)
                 {
-                    if (IsLogForChallenge(obj, challenge) && (_currentBossName == challenge.Source.Split('|')[1]) ||
-                        (challenge.ChallengeType == ChallengeType.MetricDuringPhase && PhaseManager.ActivePhases.Any(p => challenge.PhaseId == p.SourcePhase.Id)))
+                    var challenge = kvp.Value;
+
+                    bool logMatch      = IsLogForChallenge(obj, challenge);
+                    bool bossMatch     = _currentBossName == challenge.Source.Split('|')[1];
+                    bool phaseMatch    = challenge.ChallengeType == ChallengeType.MetricDuringPhase
+                                         && PhaseManager.ActivePhases.Any(p => p.SourcePhase.Id == challenge.PhaseId);
+
+                    // require the log to match, plus either boss or phase criteria
+                    if ((logMatch && bossMatch) || phaseMatch)
                     {
-                        if (!_activeChallenges.Any(c => c.Id == challenge.Id))
+                        if (_activeChallenges.All(c => c.Id != kvp.Key))
                         {
                             _activeChallenges.Add(challenge);
-                            Dispatcher.UIThread.Invoke(() =>
-                            {
-                                _challenges.Add(new ChallengeInstanceViewModel(challenge) { Scale = _currentScale });
-                            });
+                            toAddViewModels.Add(challenge);
                         }
                     }
                 }
             }
+
+            // now update the UI *after* releasing _updateLock
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                foreach (var c in toAddViewModels)
+                {
+                    _challenges.Add(new ChallengeInstanceViewModel(c)
+                    {
+                        Scale = _currentScale
+                    });
+                }
+            });
         }
         private bool IsLogForChallenge(ParsedLogEntry log, DataStructures.Challenge challenge)
         {
@@ -92,15 +127,15 @@ namespace SWTORCombatParser.Model.Challenge
             {
                 case ChallengeType.DamageOut:
                     {
-                        return (log.Ability == challenge.Value || log.AbilityId == challenge.Value || string.IsNullOrEmpty(challenge.Value)) && (log.Target.Name == challenge.ChallengeTarget || log.Target.LogId.ToString() == challenge.ChallengeTarget || string.IsNullOrEmpty(challenge.ChallengeTarget));
+                        return (log.Ability == challenge.Value || log.AbilityId.ToString() == challenge.Value || string.IsNullOrEmpty(challenge.Value)) && (log.Target.Name == challenge.ChallengeTarget || log.Target.LogId.ToString() == challenge.ChallengeTarget || string.IsNullOrEmpty(challenge.ChallengeTarget));
                     }
                 case ChallengeType.DamageIn:
                     {
-                        return (log.Ability == challenge.Value || log.AbilityId == challenge.Value || string.IsNullOrEmpty(challenge.Value)) && (log.Source.Name == challenge.ChallengeSource || log.Source.LogId.ToString() == challenge.ChallengeSource || string.IsNullOrEmpty(challenge.ChallengeSource));
+                        return (log.Ability == challenge.Value || log.AbilityId.ToString() == challenge.Value || string.IsNullOrEmpty(challenge.Value)) && (log.Source.Name == challenge.ChallengeSource || log.Source.LogId.ToString() == challenge.ChallengeSource || string.IsNullOrEmpty(challenge.ChallengeSource));
                     }
                 case ChallengeType.AbilityCount:
                     {
-                        return (log.Ability == challenge.Value || log.AbilityId == challenge.Value);
+                        return (log.Ability == challenge.Value || log.AbilityId.ToString() == challenge.Value);
                     }
                 case ChallengeType.InterruptCount:
                     {
@@ -108,7 +143,7 @@ namespace SWTORCombatParser.Model.Challenge
                     }
                 case ChallengeType.EffectStacks:
                     {
-                        return log.Effect.EffectName == challenge.Value || log.Effect.EffectId == challenge.Value;
+                        return log.Effect.EffectName == challenge.Value || log.Effect.EffectId.ToString() == challenge.Value;
                     }
                 default:
                     {
@@ -127,7 +162,8 @@ namespace SWTORCombatParser.Model.Challenge
                 _currentBossName = obj.EncounterBossDifficultyParts.Item1;
                 _currentSelectedCombat = obj;
                 ResetChallenges();
-                foreach (var log in obj.AllLogs)
+                var snapshot = obj.AllLogs.ToList(); // Preserves insertion/enumeration order
+                foreach (var log in snapshot)
                 {
                     CheckForActiveChallenge(log);
                 }

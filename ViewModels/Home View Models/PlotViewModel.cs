@@ -7,6 +7,7 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.CombatMetaData;
 using SWTORCombatParser.Views.Home_Views;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -448,24 +449,24 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 GraphView.Refresh();
             });
         }
-        private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
+        private ConcurrentQueue<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
         {
             if (combatToPlot == null)
-                return new List<ParsedLogEntry>();
+                return new ConcurrentQueue<ParsedLogEntry>();
             switch (type)
             {
                 case PlotType.DamageOutput:
-                    return combatToPlot.OutgoingDamageLogs.ContainsKey(selectedParticipant) ? combatToPlot.OutgoingDamageLogs[selectedParticipant] : new List<ParsedLogEntry>();
+                    return combatToPlot.OutgoingDamageLogs.ContainsKey(selectedParticipant) ? combatToPlot.OutgoingDamageLogs[selectedParticipant] : new ConcurrentQueue<ParsedLogEntry>();
                 case PlotType.DamageTaken:
-                    return combatToPlot.IncomingDamageLogs.ContainsKey(selectedParticipant) ? combatToPlot.IncomingDamageLogs[selectedParticipant] : new List<ParsedLogEntry>();
+                    return combatToPlot.IncomingDamageLogs.ContainsKey(selectedParticipant) ? combatToPlot.IncomingDamageLogs[selectedParticipant] : new ConcurrentQueue<ParsedLogEntry>();
                 case PlotType.HealingOutput:
-                    return combatToPlot.OutgoingHealingLogs.ContainsKey(selectedParticipant) ? combatToPlot.OutgoingHealingLogs[selectedParticipant] : new List<ParsedLogEntry>();
+                    return combatToPlot.OutgoingHealingLogs.ContainsKey(selectedParticipant) ? combatToPlot.OutgoingHealingLogs[selectedParticipant] : new ConcurrentQueue<ParsedLogEntry>();
                 case PlotType.HealingTaken:
-                    return combatToPlot.IncomingHealingLogs.ContainsKey(selectedParticipant) ? combatToPlot.IncomingHealingLogs[selectedParticipant] : new List<ParsedLogEntry>();
+                    return combatToPlot.IncomingHealingLogs.ContainsKey(selectedParticipant) ? combatToPlot.IncomingHealingLogs[selectedParticipant] : new ConcurrentQueue<ParsedLogEntry>();
                 case PlotType.SheildedDamageTaken:
-                    return combatToPlot.ShieldingProvidedLogs.ContainsKey(selectedParticipant) ? combatToPlot.ShieldingProvidedLogs[selectedParticipant] : new List<ParsedLogEntry>();
+                    return combatToPlot.ShieldingProvidedLogs.ContainsKey(selectedParticipant) ? combatToPlot.ShieldingProvidedLogs[selectedParticipant] : new ConcurrentQueue<ParsedLogEntry>();
                 case PlotType.HPPercent:
-                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant).ToList();
+                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant);
 
             }
             return null;

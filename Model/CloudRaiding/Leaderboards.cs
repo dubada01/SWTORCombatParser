@@ -15,7 +15,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
     {
         Off,
         AllDiciplines,
-        LocalDicipline
+        LocalDicipline,
+        LocalRole
     }
     public class StandingsUpdateInfo
     {
@@ -48,6 +49,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             LeaderboardSettings.SaveLeaderboardSettings(type);
             CurrentLeaderboardType = type;
             TopLeaderboards.Clear();
+            LeaderboardPercentiles.Clear();
             LeaderboardTypeChanged.InvokeSafely(CurrentLeaderboardType);
             if (CurrentCombat == null)
                 return;
@@ -111,9 +113,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             lock (_updateLock)
             {
+                LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
                 if (CurrentLeaderboardType == LeaderboardType.Off)
                 {
-                    LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
                     LeaderboardStandingsAvailable.InvokeSafely(LeaderboardStandings);
                     return;
                 }
@@ -137,6 +139,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                     {
                         if (participantClassInfo != className)
+                        {
+                            LeaderboardStandings[participant] = null;
+                            continue;
+                        }
+                    }
+                    if (CurrentLeaderboardType == LeaderboardType.LocalRole)
+                    {
+                        if (participantClass == null || localPlayerClass == null || participantClass.Role != localPlayerClass.Role)
                         {
                             LeaderboardStandings[participant] = null;
                             continue;
@@ -181,9 +191,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
             if (string.IsNullOrEmpty(bossName))
                 return;
             var encounterName = newCombat.ParentEncounter.Name;
+            var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
+            var playerClass = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
             Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), type =>
             {
-                LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentiles(bossName, encounterName, type).Result;
+                if(CurrentLeaderboardType == LeaderboardType.AllDiciplines || localPlayerClass == null)
+                    LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentiles(bossName, encounterName, type).Result;
+                if(CurrentLeaderboardType == LeaderboardType.LocalRole)
+                    LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentilesForRole(bossName, encounterName, type, localPlayerClass.Role.ToString()).Result;
+                if(CurrentLeaderboardType == LeaderboardType.LocalDicipline)
+                    LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentilesForDiscipline(bossName, encounterName, type, playerClass).Result;
             });
         }
         public static void Reset()

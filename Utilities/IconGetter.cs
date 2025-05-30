@@ -11,16 +11,16 @@ namespace SWTORCombatParser.Utilities
 {
     public static class IconGetter
     {
-        public static ConcurrentDictionary<string, Bitmap> IconDict = new ConcurrentDictionary<string, Bitmap>();
-        public static Dictionary<string, string> _abilityToIconDict = new Dictionary<string, string>();
+        public static ConcurrentDictionary<ulong, Bitmap> IconDict = new ConcurrentDictionary<ulong, Bitmap>();
+        public static Dictionary<ulong, string> _abilityToIconDict = new Dictionary<ulong, string>();
 
         public static void Init()
         {
             var lines = File.ReadAllLines("DataStructures/ability_to_icon.csv");
-            _abilityToIconDict = lines.ToDictionary(kvp => kvp.Split(',')[0], kvp => kvp.Split(',')[1]);
+            _abilityToIconDict = lines.Where(line=>!line.Contains("ability_id")).ToDictionary(kvp => ulong.Parse(kvp.Split(',')[0]), kvp => kvp.Split(',')[1]);
         }
 
-        public static bool HasIcon(string abilityId)
+        public static bool HasIcon(ulong abilityId)
         {
             return _abilityToIconDict.ContainsKey(abilityId);
         }
@@ -29,12 +29,12 @@ namespace SWTORCombatParser.Utilities
         {
             if (log == null || log.AbilityId == null)
             {
-                return await LoadImageAsync(GetIconPathForId(""), "");
+                return await LoadImageAsync(GetIconPathForId(0), 0);
             }
             return await GetIconForId(log.AbilityId);
         }
 
-        public static string GetIconPathForId(string id)
+        public static string GetIconPathForId(ulong id)
         {
             string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
             if (_abilityToIconDict.TryGetValue(id, out var path))
@@ -42,22 +42,22 @@ namespace SWTORCombatParser.Utilities
             return Path.Combine(appDataPath, "resources", "icons", ".png");
         }
 
-        public static async Task<Bitmap> InitIcon(string id)
+        public static async Task<Bitmap> InitIcon(ulong id)
         {
             var path = GetIconPathForId(id);
             if (File.Exists(path))
                 return await LoadImageAsync(path, id);
-            return await LoadImageAsync(GetIconPathForId(""), id);
+            return await LoadImageAsync(GetIconPathForId(0), id);
         }
 
-        public static async Task<Bitmap> GetIconForId(string id)
+        public static async Task<Bitmap> GetIconForId(ulong id)
         {
             if (IconDict.TryGetValue(id, out var cachedImage))
                 return cachedImage;
             return await LoadImageAsync(GetIconPathForId(id), id);
         }
 
-        public static async Task<Bitmap> LoadImageAsync(string imagePath, string abilityId)
+        public static async Task<Bitmap> LoadImageAsync(string imagePath, ulong abilityId)
         {
             try
             {

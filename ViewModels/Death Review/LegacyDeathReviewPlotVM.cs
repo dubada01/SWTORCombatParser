@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -222,7 +223,7 @@ public class LegacyDeathReviewPlotVM
         _crossHair.IsVisible = true;
         _crossHair.HorizontalLine.IsVisible = false;
     }
-    private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
+    private ConcurrentQueue<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
     {
         switch (type)
         {
@@ -237,7 +238,7 @@ public class LegacyDeathReviewPlotVM
             case PlotType.SheildedDamageTaken:
                 return combatToPlot.ShieldingProvidedLogs[selectedParticipant];
             case PlotType.HPPercent:
-                return combatToPlot.GetLogsInvolvingEntity(selectedParticipant).ToList();
+                return combatToPlot.GetLogsInvolvingEntity(selectedParticipant);
 
         }
         return null;

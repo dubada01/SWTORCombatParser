@@ -141,17 +141,32 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         }
         private void UpdateUI()
         {
-            var orderedSelectedColumns = _columnOrder.Where(o => _selectedColumnTypes.Contains(o)).ToList();
-            var newPlayers = _allSelectedCombats.SelectMany(c => c.CharacterParticipants).Distinct().Select((pm, i) => Dispatcher.UIThread.Invoke(() => { return new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns); })).ToList();
-            Dispatcher.UIThread.Invoke(PartyMembers.Clear);
+            var orderedSelectedColumns = _columnOrder
+                .Where(o => _selectedColumnTypes.Contains(o))
+                .ToList();
+
+            // Take snapshot of distinct participants first — no UI thread involved here
+            var participantsSnapshot = _allSelectedCombats
+                .SelectMany(c => c.CharacterParticipants)
+                .Distinct()
+                .ToList();
+
+            // Create viewmodels on UI thread in a separate step
+            var newPlayers = participantsSnapshot
+                .Select((pm, i) => new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns))
+                .ToList();
+
             Dispatcher.UIThread.Invoke(() =>
             {
+                PartyMembers.Clear();
                 foreach (var member in newPlayers)
                 {
                     PartyMembers.Add(member);
                 }
+
+                PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, null, _allSelectedCombats, orderedSelectedColumns));
             });
-            PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, null, _allSelectedCombats, orderedSelectedColumns));
+
             ColumnsRefreshed();
         }
         public List<string> AvailableColumns => _columnOrder.Select(GetNameFromType).Where(c => _selectedColumnTypes.All(h => GetNameFromType(h) != c)).ToList();

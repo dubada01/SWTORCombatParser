@@ -2,6 +2,7 @@
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -166,10 +167,10 @@ namespace SWTORCombatParser.ViewModels.Overviews
             var combinedLogs = matchingEntities
                 .SelectMany(entity => combat.IncomingDamageLogs.ContainsKey(entity)
                     ? combat.IncomingDamageLogs[entity]
-                    : new List<ParsedLogEntry>());
+                    : new ConcurrentQueue<ParsedLogEntry>());
 
             // Group data by entity name and average values
-            var splitOutData = GetDataSplitOut(combat, combinedLogs.ToList());
+            var splitOutData = GetDataSplitOut(combat, combinedLogs);
 
             // Update _sumTotal with the average
             _sumTotal = splitOutData.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
@@ -189,10 +190,10 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 .Select(kvp => kvp.Key);
 
             var healing = matchingEntities
-                .SelectMany(entity => combat.OutgoingHealingLogs.ContainsKey(entity) ? combat.OutgoingHealingLogs[entity] : new List<ParsedLogEntry>());
+                .SelectMany(entity => combat.OutgoingHealingLogs.ContainsKey(entity) ? combat.OutgoingHealingLogs[entity] : new ConcurrentQueue<ParsedLogEntry>());
 
             var shielding = matchingEntities
-                .SelectMany(entity => combat.ShieldingProvidedLogs.ContainsKey(entity) ? combat.ShieldingProvidedLogs[entity] : new List<ParsedLogEntry>());
+                .SelectMany(entity => combat.ShieldingProvidedLogs.ContainsKey(entity) ? combat.ShieldingProvidedLogs[entity] : new ConcurrentQueue<ParsedLogEntry>());
 
             var both = healing.Concat(shielding);
             var splitOutdata = GetDataSplitOut(combat, both.ToList());
@@ -211,7 +212,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         .Select(kvp => kvp.Key);
 
     var combinedLogs = matchingEntities
-        .SelectMany(entity => combat.OutgoingDamageLogs.ContainsKey(entity) ? combat.OutgoingDamageLogs[entity] : new List<ParsedLogEntry>());
+        .SelectMany(entity => combat.OutgoingDamageLogs.ContainsKey(entity) ? combat.OutgoingDamageLogs[entity] : new ConcurrentQueue<ParsedLogEntry>());
 
     var splitOutdata = GetDataSplitOut(combat, combinedLogs.ToList());
     _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
@@ -229,7 +230,7 @@ private async Task DisplayHealingReceived(Combat combat, List<CombatInfoInstance
         .Select(kvp => kvp.Key);
 
     var combinedLogs = matchingEntities
-        .SelectMany(entity => combat.IncomingHealingLogs.ContainsKey(entity) ? combat.IncomingHealingLogs[entity] : new List<ParsedLogEntry>());
+        .SelectMany(entity => combat.IncomingHealingLogs.ContainsKey(entity) ? combat.IncomingHealingLogs[entity] : new ConcurrentQueue<ParsedLogEntry>());
 
     var splitOutdata = GetDataSplitOut(combat, combinedLogs.ToList());
     _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
@@ -258,7 +259,7 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
         await PoppulateRowsThreat(orderedKey, list);
     }
 }
-        private async Task PoppulateRowsThreat(KeyValuePair<string, List<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
+        private async Task PoppulateRowsThreat(KeyValuePair<string, ConcurrentQueue<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
         {
             list.Add(new CombatInfoInstance
             {
@@ -274,7 +275,7 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
                 Icon = await GetIconForRow(orderedKey.Value.FirstOrDefault())
             });
         }
-        private async Task PoppulateRows(KeyValuePair<string, List<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
+        private async Task PoppulateRows(KeyValuePair<string, ConcurrentQueue<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
         {
             list.Add(new CombatInfoInstance
             {
@@ -307,9 +308,9 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
                     return null;
             }
         }
-        private Dictionary<string, List<ParsedLogEntry>> GetDataSplitOut(Combat combat, List<ParsedLogEntry> logsInScope)
+        private Dictionary<string, ConcurrentQueue<ParsedLogEntry>> GetDataSplitOut(Combat combat, IEnumerable<ParsedLogEntry> logsInScope)
         {
-            Dictionary<string, List<ParsedLogEntry>> splitOutdata = new Dictionary<string, List<ParsedLogEntry>>();
+            Dictionary<string, ConcurrentQueue<ParsedLogEntry>> splitOutdata = new Dictionary<string, ConcurrentQueue<ParsedLogEntry>>();
             switch (SortingOption)
             {
                 case SortingOption.ByAbility:

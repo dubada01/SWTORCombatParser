@@ -107,6 +107,24 @@ namespace SWTORCombatParser.ViewModels
                 this.RaiseAndSetIfChanged(ref selectedTabIndex, value);
                 UpdateDataForNewTab();
                 SelectedTab = ContentTabs[value];
+                switch (SelectedTabIndex)
+                {
+                    case 0:
+                        Settings.WriteSetting("current_tab","data_grid");
+                        break;
+                    case 1:
+                        Settings.WriteSetting("current_tab","plot");
+                        break;
+                    case 2:
+                        Settings.WriteSetting("current_tab","details");
+                        break;
+                    case 3:
+                        Settings.WriteSetting("current_tab","log");
+                        break;
+                    default:
+                        break;
+                }
+                
             }
             
         }
@@ -211,8 +229,15 @@ namespace SWTORCombatParser.ViewModels
              
             _phaseBarViewModel = new PhaseBarViewModel();
             PhasesBar = new PhaseBar(_phaseBarViewModel);
-
-            SelectedTabIndex = 0;
+            var selectedTab = Settings.ReadSettingOfType<string>("current_tab");
+            SelectedTabIndex = selectedTab switch
+            {
+                "data-grid" => 0,
+                "details" => 2,
+                "plot" => 1,
+                "log" => 3,
+                _ => SelectedTabIndex
+            };
             ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
             ParselyUploader.UploadStarted += HandleParselyUploadStart;
 
@@ -232,7 +257,7 @@ namespace SWTORCombatParser.ViewModels
             }
             list.ForEach(p => p.PhaseEnd = p.PhaseEnd == DateTime.MinValue ? UnfilteredDisplayedCombat.EndTime : p.PhaseEnd);
             var logsDuringPhases = UnfilteredDisplayedCombat.AllLogs.Where(l => list.Any(p => p.ContainsTime(l.TimeStamp))).ToList();
-            var newCombat = CombatIdentifier.GenerateNewCombatFromLogs(logsDuringPhases);
+            var newCombat = CombatIdentifier.GenerateCombatSnapshotFromLogs(logsDuringPhases);
             CombatSelectionMonitor.SelectPhase(newCombat);
             UpdateViewsWithSelectedCombat(newCombat);
         }

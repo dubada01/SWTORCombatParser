@@ -107,9 +107,9 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                     l =>
                     new DisplayableLogEntry(l.SecondsSinceCombatStart.ToString(CultureInfo.InvariantCulture),
                     l.Source.Name,
-                    string.Intern(l.Source.LogId.ToString()),
+                    l.Source.LogId,
                     l.Target.Name,
-                    string.Intern(l.Target.LogId.ToString()),
+                    l.Target.LogId,
                     l.Ability,
                     l.AbilityId,
                     l.Effect.EffectName,
@@ -215,7 +215,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 
         private bool IsLogDeathRecap(ParsedLogEntry log)
         {
-            if (log.Effect.EffectId == "836045448938502")
+            if (log.Effect.EffectId == 836045448938502)
                 return false;
             if (log.Effect.EffectId == _7_0LogParsing._healEffectId)
                 return false;

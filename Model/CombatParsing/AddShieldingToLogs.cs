@@ -4,6 +4,7 @@ using SWTORCombatParser.DataStructures.AbilityInfo;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,7 +23,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         public static void AddShieldLogsByTarget(Dictionary<Entity, List<ParsedLogEntry>> allPriticipantSheildingLogs, Combat combat)
         {
             var start = TimeUtility.CorrectedTime;
-            var currentAbsorbAbilities = AbilityLoader.GetAbosrbAbilities().Values.Select(v => v.name).ToList();
+            var currentAbsorbAbilities = AbilityLoader.AbsorbAbilities.Values.Select(v => v.name).ToList();
             var state = CombatLogStateBuilder.CurrentState;
             var modifiers = state.Modifiers;
             var allShieldLogs = allPriticipantSheildingLogs.Values.SelectMany(l => l).ToList();
@@ -71,7 +72,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 var shieldEvents = _totalSheildingProvided[source];
                 var logs = combat.GetLogsInvolvingEntity(source).ToList();
                 logs.RemoveAll(l => l.Effect.EffectType == EffectType.AbsorbShield);
-                combat.ShieldingProvidedLogs[source] = new List<ParsedLogEntry>();
+                combat.ShieldingProvidedLogs[source] = new ConcurrentQueue<ParsedLogEntry>();
                 combat.TotalProvidedSheilding[source] = 0;
                 foreach (var sheild in shieldEvents)
                 {
@@ -98,7 +99,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                         }
                     };
                     combat.AllLogs.Add(sheildLog);
-                    combat.ShieldingProvidedLogs[source].Add(sheildLog);
+                    combat.ShieldingProvidedLogs[source].Enqueue(sheildLog);
                     combat.TotalProvidedSheilding[source] += sheild.ShieldValue;
                 }
             }

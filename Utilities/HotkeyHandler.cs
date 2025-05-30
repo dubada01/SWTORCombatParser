@@ -32,7 +32,7 @@ namespace SWTORCombatParser.Utilities
         public HotkeyHandler()
         {
             // Initialize the global hook
-            _hook = new SimpleReactiveGlobalHook();
+            _hook = new SimpleReactiveGlobalHook(GlobalHookType.Keyboard);
         }
 
         public void Init()
@@ -112,7 +112,6 @@ namespace SWTORCombatParser.Utilities
                 return;
 
             var key = args.Data.KeyCode;
-
             // If the pressed key is a modifier, add it to the active modifiers
             if (_modifierKeys.Contains(key))
             {

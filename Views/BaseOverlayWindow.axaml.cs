@@ -171,7 +171,7 @@ public partial class BaseOverlayWindow : Window
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             ToggleClickThroughCrossPlatform(canClickThrough);
-            BackgroundArea.Opacity = canClickThrough ? _viewModel.BackgroundLockedOpacity : 0.75;
+            BackgroundArea.Opacity = canClickThrough ? _viewModel.BackgroundLockedOpacity : _viewModel.BackgroundUnLockedOpacity;
             OverlayIdText.IsVisible = !canClickThrough;
             CloseButton.IsVisible = !canClickThrough;
         });
@@ -180,13 +180,16 @@ public partial class BaseOverlayWindow : Window
 
     private void RemoveFromAltTab()
     {
-        var visualRoot = this.GetVisualRoot() as TopLevel;
-        if (visualRoot != null && visualRoot.TryGetPlatformHandle() is { } platformHandle)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            var hwnd = platformHandle.Handle;
-            SetWindowLong(hwnd, GWL_EXSTYLE,
-                GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
-        }
+            var visualRoot = this.GetVisualRoot() as TopLevel;
+            if (visualRoot != null && visualRoot.TryGetPlatformHandle() is { } platformHandle)
+            {
+                var hwnd = platformHandle.Handle;
+                SetWindowLong(hwnd, GWL_EXSTYLE,
+                    GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+            }
+        });
     }
     
     public void ToggleClickThroughCrossPlatform(bool canClickThrough)
@@ -202,83 +205,97 @@ public partial class BaseOverlayWindow : Window
     // Platform-specific method for Windows
     private void MakeWindowClickThroughWindows(bool isClickThrough)
     {
-        // Get the native window handle using Avalonia's GetPlatformHandle method
-        var platformHandle = this.TryGetPlatformHandle();
-        if (platformHandle == null)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            return;
-        }
+            // Get the native window handle using Avalonia's GetPlatformHandle method
+            var platformHandle = this.TryGetPlatformHandle();
+            if (platformHandle == null)
+            {
+                return;
+            }
 
-        var hWnd = platformHandle.Handle;
+            var hWnd = platformHandle.Handle;
 
-        // Get the current extended style
-        int extendedStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+            // Get the current extended style
+            int extendedStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
 
-        if (isClickThrough)
-        {
-            // Make the window click-through
-            SetWindowLong(hWnd, GWL_EXSTYLE, extendedStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-        }
-        else
-        {
-            // Make the window clickable again by removing the WS_EX_TRANSPARENT flag
-            SetWindowLong(hWnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);
-        }
+            if (isClickThrough)
+            {
+                // Make the window click-through
+                SetWindowLong(hWnd, GWL_EXSTYLE, extendedStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+            }
+            else
+            {
+                // Make the window clickable again by removing the WS_EX_TRANSPARENT flag
+                SetWindowLong(hWnd, GWL_EXSTYLE, extendedStyle & ~WS_EX_TRANSPARENT);
+            }
+        });
+
     }
 
     private void MakeWindowClickThroughMac(bool isClickThrough)
     {
-        // Get the native NSWindow handle using Avalonia's GetPlatformHandle method
-        var platformHandle = this.TryGetPlatformHandle();
-        if (platformHandle == null)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            return;
-        }
+            // Get the native NSWindow handle using Avalonia's GetPlatformHandle method
+            var platformHandle = this.TryGetPlatformHandle();
+            if (platformHandle == null)
+            {
+                return;
+            }
 
-        IntPtr nsWindowHandle = platformHandle.Handle;
+            IntPtr nsWindowHandle = platformHandle.Handle;
 
-        // Get the selector for 'setIgnoresMouseEvents:'
-        var setIgnoresMouseEventsSelector = sel_registerName("setIgnoresMouseEvents:");
+            // Get the selector for 'setIgnoresMouseEvents:'
+            var setIgnoresMouseEventsSelector = sel_registerName("setIgnoresMouseEvents:");
 
-        // Call the 'setIgnoresMouseEvents' method with the boolean argument
-        objc_msgSend(nsWindowHandle, setIgnoresMouseEventsSelector, isClickThrough);
+            // Call the 'setIgnoresMouseEvents' method with the boolean argument
+            objc_msgSend(nsWindowHandle, setIgnoresMouseEventsSelector, isClickThrough);
+        });
+
     }
     // Platform-specific method for Ubuntu
     private void MakeWindowClickThroughUbuntu(bool isClickThrough)
     {
-        // Get the native window handle using Avalonia's GetPlatformHandle method
-        var platformHandle = this.TryGetPlatformHandle();
-        if (platformHandle == null)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            return;
-        }
+            // Get the native window handle using Avalonia's GetPlatformHandle method
+            var platformHandle = this.TryGetPlatformHandle();
+            if (platformHandle == null)
+            {
+                return;
+            }
 
-        IntPtr x11WindowHandle = platformHandle.Handle;
+            IntPtr x11WindowHandle = platformHandle.Handle;
 
-        IntPtr display = XOpenDisplay(IntPtr.Zero);
-        if (display == IntPtr.Zero)
-        {
-            throw new Exception("Unable to open X11 display.");
-        }
+            IntPtr display = XOpenDisplay(IntPtr.Zero);
+            if (display == IntPtr.Zero)
+            {
+                throw new Exception("Unable to open X11 display.");
+            }
 
-        // Set the window to be click-through
-        var prop = XInternAtom(display, "_NET_WM_WINDOW_TYPE", false);
-        var type = isClickThrough
-            ? XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", false)
-            : XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", false);
+            // Set the window to be click-through
+            var prop = XInternAtom(display, "_NET_WM_WINDOW_TYPE", false);
+            var type = isClickThrough
+                ? XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", false)
+                : XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", false);
 
-        XChangeProperty(display, x11WindowHandle, prop, 4, 32, PropModeReplace, ref type, 1);
-        XCloseDisplay(display);
+            XChangeProperty(display, x11WindowHandle, prop, 4, 32, PropModeReplace, ref type, 1);
+            XCloseDisplay(display);
+        });
     }
 
     private void RemoveShadowAndBorderMac()
     {
-        var platformHandle = this.TryGetPlatformHandle();
-        if (platformHandle == null) return;
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var platformHandle = this.TryGetPlatformHandle();
+            if (platformHandle == null) return;
 
-        IntPtr nsWindowHandle = platformHandle.Handle;
-        var setHasShadowSelector = sel_registerName("setHasShadow:");
-        objc_msgSend(nsWindowHandle, setHasShadowSelector, false);
+            IntPtr nsWindowHandle = platformHandle.Handle;
+            var setHasShadowSelector = sel_registerName("setHasShadow:");
+            objc_msgSend(nsWindowHandle, setHasShadowSelector, false);
+        });
     }
 
 
@@ -310,7 +327,10 @@ public partial class BaseOverlayWindow : Window
 
     private void Border_MouseEnter(object? sender, PointerEventArgs e)
     {
-        Cursor = new Cursor(StandardCursorType.DragMove);
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            Cursor = new Cursor(StandardCursorType.DragMove);
+        });
     }
 
     private void Border_MouseMoved(object? sender, PointerEventArgs e)
@@ -334,8 +354,11 @@ public partial class BaseOverlayWindow : Window
 
     private void Grid_MouseLeave(object? sender, PointerEventArgs e)
     {
-        Cursor = new Cursor(StandardCursorType.Arrow);
-        UpdateState();
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            Cursor = new Cursor(StandardCursorType.Arrow);
+            UpdateState();
+        });
     }
 
     private void Button_Click(object? sender, RoutedEventArgs e)
@@ -345,7 +368,7 @@ public partial class BaseOverlayWindow : Window
 
     private void Thumb_MouseEnter(object? sender, PointerEventArgs e)
     {
-        Cursor = new Cursor(StandardCursorType.BottomRightCorner);
+        Dispatcher.UIThread.Invoke(() => { Cursor = new Cursor(StandardCursorType.BottomRightCorner); });
     }
     private Point startDrag;
     private double initialWidth;
@@ -363,20 +386,22 @@ public partial class BaseOverlayWindow : Window
     {
         if(!_isDragging)
             return;
-    
-        var currentPosition = e.GetPosition(this);
-        var delta = currentPosition - startDrag;
-    
-        var newWidth = initialWidth + delta.X;
-        var newHeight = initialHeight + delta.Y;
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            var currentPosition = e.GetPosition(this);
+            var delta = currentPosition - startDrag;
 
-        // Ensure we don't set negative dimensions.
-        if(newWidth > 0)
-            SetValue(WidthProperty, newWidth);
-        if(newHeight > 0)
-            SetValue(HeightProperty, newHeight);
+            var newWidth = initialWidth + delta.X;
+            var newHeight = initialHeight + delta.Y;
 
-        UpdateState();
+            // Ensure we don't set negative dimensions.
+            if (newWidth > 0)
+                SetValue(WidthProperty, newWidth);
+            if (newHeight > 0)
+                SetValue(HeightProperty, newHeight);
+
+            UpdateState();
+        });
     }
 
     private void Drag_Stopped(object? sender, PointerReleasedEventArgs e)

@@ -22,11 +22,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _opponentOverlayViewModel.CloseRequested += () => OpponentClosed();
             _opponentOverlayViewModel.OverlayStateChanged += UpdateOverlay;
             opponentHPEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP").Acive;
-
+            _opponentOverlayViewModel.OverlayEnabled = opponentHPEnabled;
+            
             _miniMapViewModel = new MiniMapViewModel("PvP_MiniMap");
             _miniMapViewModel.CloseRequested += () => MapClosed();
             _miniMapViewModel.OverlayStateChanged += UpdateOverlay;
             miniMapEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap").Acive;
+            _miniMapViewModel.OverlayEnabled = miniMapEnabled;
             MiniMapRangeBuffer = 15;
 
 

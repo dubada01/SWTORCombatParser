@@ -6,7 +6,9 @@ using SWTORCombatParser.ViewModels.Phases;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using Newtonsoft.Json;
 using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.Phases
@@ -35,6 +37,7 @@ namespace SWTORCombatParser.Model.Phases
     }
     public class PhaseInstance
     {
+        public Guid Id { get; set; }
         public Phase SourcePhase { get; set; }
         public DateTime PhaseStart { get; set; }
         public DateTime PhaseEnd { get; set; }
@@ -86,7 +89,7 @@ namespace SWTORCombatParser.Model.Phases
         private static double phaseDuration;
 
         private static IEnumerable<Phase> _loadedPhases { get; set; }
-        public static List<PhaseInstance> ActivePhases
+        public static ObservableCollection<PhaseInstance> ActivePhases
         {
             get
             {
@@ -115,7 +118,7 @@ namespace SWTORCombatParser.Model.Phases
         public static event Action<List<PhaseInstance>> SelectedPhasesUpdated = delegate { };
 
         private static int _processedLines = 0;
-        private static List<PhaseInstance> activePhases = new List<PhaseInstance>();
+        private static ObservableCollection<PhaseInstance> activePhases = new ObservableCollection<PhaseInstance>();
 
         public static void Init()
         {
@@ -130,7 +133,7 @@ namespace SWTORCombatParser.Model.Phases
                 _loadedPhases = DefaultPhaseManager.GetExisitingPhases();
             };
 
-            EncounterTimerTrigger.EncounterDetected += SetBossInfo;
+            EncounterTimerTrigger.BossCombatDetected += SetBossInfo;
         }
         private static void SetBossInfo(string encounterName, string bossName, string difficulty)
         {
@@ -164,10 +167,9 @@ namespace SWTORCombatParser.Model.Phases
                 }
                 if (update.Logs != null && update.Logs.Count > 0)
                 {
-                    foreach (var line in update.Logs.Skip(_processedLines))
+                    foreach (var line in update.Logs)
                     {
                         HandleNewLine(line);
-                        _processedLines++;
                     }
                 }
                 PhaseInstancesUpdated.InvokeSafely(ActivePhases.ToList());
@@ -263,8 +265,8 @@ namespace SWTORCombatParser.Model.Phases
             if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
                 return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
-            if (((entry.TargetInfo.CurrentHP / entry.TargetInfo.MaxHP) * 100d <= argsToUse.HPPercentage && argsToUse.EntityIds.Contains(entry.Target.LogId)) ||
-                ((entry.SourceInfo.CurrentHP / entry.SourceInfo.MaxHP) * 100d <= argsToUse.HPPercentage) && argsToUse.EntityIds.Contains(entry.Source.LogId))
+            if (((entry.TargetInfo.CurrentHP / (double)entry.TargetInfo.MaxHP) * 100d <= argsToUse.HPPercentage && argsToUse.EntityIds.Contains(entry.Target.LogId)) ||
+                ((entry.SourceInfo.CurrentHP / (double)entry.SourceInfo.MaxHP) * 100d <= argsToUse.HPPercentage) && argsToUse.EntityIds.Contains(entry.Source.LogId))
             {
                 if (starting)
                 {
@@ -287,7 +289,7 @@ namespace SWTORCombatParser.Model.Phases
             if (activaePhaseOfSameType != null && starting)
                 return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
-            if ((argsToUse.AbilityIds.Contains(entry.AbilityId) || argsToUse.AbilityIds.Contains(entry.Ability)) && entry.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (argsToUse.EntityIds.Contains(entry.Source.LogId) || argsToUse.EntityIds.Count == 0))
+            if ((argsToUse.AbilityIds.Contains(entry.AbilityId.ToString()) || argsToUse.AbilityIds.Contains(entry.Ability)) && entry.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (argsToUse.EntityIds.Contains(entry.Source.LogId) || argsToUse.EntityIds.Count == 0))
             {
                 if (starting)
                     StartPhase(entry, phase);
@@ -301,7 +303,7 @@ namespace SWTORCombatParser.Model.Phases
             if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
                 return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
-            if ((argsToUse.AbilityIds.Contains(entry.AbilityId) || argsToUse.AbilityIds.Contains(entry.Ability)) && entry.Effect.EffectId == _7_0LogParsing.AbilityCancelId && (argsToUse.EntityIds.Contains(entry.Source.LogId) || argsToUse.EntityIds.Count == 0))
+            if ((argsToUse.AbilityIds.Contains(entry.AbilityId.ToString()) || argsToUse.AbilityIds.Contains(entry.Ability)) && entry.Effect.EffectId == _7_0LogParsing.AbilityCancelId && (argsToUse.EntityIds.Contains(entry.Source.LogId) || argsToUse.EntityIds.Count == 0))
             {
                 if (starting)
                     StartPhase(entry, phase);
@@ -318,7 +320,7 @@ namespace SWTORCombatParser.Model.Phases
             if (activaePhaseOfSameType != null && starting)
                 return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
-            if ((argsToUse.EffectIds.Contains(entry.Effect.EffectName) || argsToUse.EffectIds.Contains(entry.Effect.EffectId)) && entry.Effect.EffectType == EffectType.Apply && (argsToUse.EntityIds.Contains(entry.Target.LogId) || argsToUse.EntityIds.Count == 0))
+            if ((argsToUse.EffectIds.Contains(entry.Effect.EffectName) || argsToUse.EffectIds.Contains(entry.Effect.EffectId.ToString())) && entry.Effect.EffectType == EffectType.Apply && (argsToUse.EntityIds.Contains(entry.Target.LogId) || argsToUse.EntityIds.Count == 0))
             {
                 if (starting)
                     StartPhase(entry, phase);
@@ -333,7 +335,7 @@ namespace SWTORCombatParser.Model.Phases
             if (activePhase != null && starting && activePhase.SourcePhase.EndTrigger != PhaseTrigger.Default)
                 return;
             var argsToUse = starting ? phase.StartArgs : phase.EndArgs;
-            if ((argsToUse.EffectIds.Contains(entry.Effect.EffectName) || argsToUse.EffectIds.Contains(entry.Effect.EffectId)) && entry.Effect.EffectType == EffectType.Remove && (argsToUse.EntityIds.Contains(entry.Target.LogId) || argsToUse.EntityIds.Count == 0))
+            if ((argsToUse.EffectIds.Contains(entry.Effect.EffectName) || argsToUse.EffectIds.Contains(entry.Effect.EffectId.ToString())) && entry.Effect.EffectType == EffectType.Remove && (argsToUse.EntityIds.Contains(entry.Target.LogId) || argsToUse.EntityIds.Count == 0))
             {
                 if (starting)
                     StartPhase(entry, phase);
@@ -370,6 +372,7 @@ namespace SWTORCombatParser.Model.Phases
         {
             var phaseInstance = new PhaseInstance()
             {
+                Id = Guid.NewGuid(),
                 PhaseStart = entry.TimeStamp,
                 SourcePhase = phase
             };

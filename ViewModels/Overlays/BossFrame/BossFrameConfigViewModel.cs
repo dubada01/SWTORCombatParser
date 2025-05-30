@@ -134,9 +134,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             if (encounterInfo.BossNames.Count == 0)
                 return;
             var currentEncounterBossTargets = encounterInfo.BossInfos.SelectMany(b => b.TargetIds).ToList();
-            if (currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) || currentEncounterBossTargets.Contains(log.Target.LogId.ToString()))
+            if (currentEncounterBossTargets.Contains(log.Source.LogId) || currentEncounterBossTargets.Contains(log.Target.LogId))
             {
-                EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) ? log.SourceInfo : log.TargetInfo;
+                EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId) ? log.SourceInfo : log.TargetInfo;
 
                 if (BossesDetected.All(b => b.CurrentBoss.LogId != boss.Entity.LogId) && boss.CurrentHP > 0)
                 {

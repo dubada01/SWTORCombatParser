@@ -80,7 +80,7 @@ public static class AvaloniaTimelineBuilder
                     HistoricalLogsParsed(DateTime.Now, false);
                 else
                 {
-                    if(CombatIdentifier.CurrentCombat!=null)
+                    if(CombatIdentifier.CurrentCombat!=null && CombatIdentifier.CurrentCombat.StartTime != DateTime.MinValue)
                         ShowTimelineNonLive(CombatIdentifier.CurrentCombat);
                 }
 
@@ -178,16 +178,15 @@ public static class AvaloniaTimelineBuilder
         else
         {
             _timeTrackingLive = false;
-            _inBossInstance = false;
-            _timelineWindowViewModel.InBossInstance = false;
-            HideTimelineOverlay();
+            //HideTimelineOverlay();
         }
+        _inBossInstance = obj.IsBossEncounter;
+        _timelineWindowViewModel.InBossInstance = obj.IsBossEncounter;
     }
 
     private static void BuildTimelineFromEncounter(bool showLive = true)
     {
         _inBossInstance = true;
-        _timelineWindowViewModel.InBossInstance = true;
         _lastEncounterStartTime = CombatLogStateBuilder.CurrentState.EncounterEnteredInfo.FirstOrDefault(kvp=>kvp.Value == _currentEncounter).Key;
         var timeTrialLeaderboardEntries = _currentEncounter.BossInfos.Select(async bi =>
         {

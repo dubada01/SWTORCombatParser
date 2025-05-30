@@ -9,6 +9,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Threading;
 using DateTime = System.DateTime;
 
@@ -34,7 +35,7 @@ namespace SWTORCombatParser.Views.Overlay.PvP
             Dispatcher.UIThread.Invoke(() =>
             {
                 var icon = opponent.IsLocalPlayer ? CharImage : opponentImages[opponentIndex];
-                icon.Icon.Source = new Bitmap(GetUriFromMenaceType(opponent.IsEnemy, opponent.IsTarget, opponent.IsLocalPlayer).ToString());
+                icon.Icon.Source = GetImageFromMenaceType(opponent.IsEnemy, opponent.IsTarget, opponent.IsLocalPlayer);
                 icon.SelectionAdornment.IsVisible = opponent.IsTarget;
 
                 //icon.PlayerName.Text = opponent.Name;
@@ -75,18 +76,18 @@ namespace SWTORCombatParser.Views.Overlay.PvP
             }
         }
 
-        private Uri GetUriFromMenaceType(EnemyState isEnemy, bool isTaget, bool isLocalPlayer)
+        private Bitmap GetImageFromMenaceType(EnemyState isEnemy, bool isTaget, bool isLocalPlayer)
         {
             if (isLocalPlayer)
-                return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/PlayerLocation.png"));
+                return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/PlayerLocation.png")));
             if (isEnemy == EnemyState.Enemy)
             {
-                return isTaget ?
-                    new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/TargetedEnemyLocation.png")) :
-                    new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/EnemyLocation.png"));
+                return isTaget
+                    ? new Bitmap(
+                        AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/TargetedEnemyLocation.png")))
+                    : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/EnemyLocation.png")));
             }
-
-            return new Uri(System.IO.Path.Combine(Environment.CurrentDirectory, "resources/RoomOverlays/UnknownPlayerLocation.png"));
+            return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/UnknownPlayerLocation.png")));
         }
 
         private void HideAllOpponents()

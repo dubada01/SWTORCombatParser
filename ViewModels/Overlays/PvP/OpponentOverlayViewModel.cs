@@ -6,6 +6,7 @@ using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.PvP;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
 using ReactiveUI;
@@ -25,7 +26,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
         private object _combatUpdateLock = new object();
         private bool _showFrame;
-        private List<OpponentHPBarViewModel> _opponentHpBars = new List<OpponentHPBarViewModel>();
+        private ObservableCollection<OpponentHPBarViewModel> _opponentHpBars = new ObservableCollection<OpponentHPBarViewModel>();
         public override bool ShouldBeVisible => _showFrame;
 
         public OpponentOverlayViewModel(string overlayName) : base(overlayName)
@@ -42,7 +43,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         public event Action<string, bool> OverlayStateChanged = delegate { };
 
-        public List<OpponentHPBarViewModel> OpponentHpBars
+        public ObservableCollection<OpponentHPBarViewModel> OpponentHpBars
         {
             get => _opponentHpBars;
             set => this.RaiseAndSetIfChanged(ref _opponentHpBars, value);
@@ -79,9 +80,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 _mostRecentCombat = null;
             }
 
-            ResetUI();
+
             Dispatcher.UIThread.Invoke(() =>
-            {
+            {           
+                ResetUI();
                 ShowFrame = false;
                 _dTimer.Stop();
                 _dTimer.Tick -= CheckForNewState;
@@ -137,6 +139,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             lock (_combatUpdateLock)
             {
+                if (newLine.Effect.EffectType == EffectType.AreaEntered)
+                {
+                    OnPvpCombatEnded();
+                    return;
+                }
                 if (_mostRecentCombat == null)
                     return;
                 _lastUpdate = newLine.TimeStamp;
@@ -145,21 +152,21 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 if (newLine.Source == newLine.Target && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
-                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / newLine.SourceInfo.MaxHP;
+                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / (double)newLine.SourceInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
                 if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.Name != null && newLine.Source.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
-                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / newLine.SourceInfo.MaxHP;
+                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / (double)newLine.SourceInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
                 if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Target, newLine.TimeStamp) && newLine.Target.Name != null && newLine.Target.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Target.Name] = _lastUpdate;
-                    _currentHps[newLine.Target.Name] = newLine.TargetInfo.CurrentHP / newLine.TargetInfo.MaxHP;
+                    _currentHps[newLine.Target.Name] = newLine.TargetInfo.CurrentHP / (double)newLine.TargetInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
@@ -176,13 +183,30 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private void CheckForNewState(object sender, EventArgs e)
         {
             var sorted = (from entry in _currentHps orderby entry.Key ascending select entry).ToList();
-            var bars = new List<OpponentHPBarViewModel>();
             foreach (var opponent in sorted)
             {
-                var newBar = new OpponentHPBarViewModel(opponent.Key) { Value = opponent.Value, InRange = IsInRangeOfLocalPlayer(opponent.Key), IsCurrentInfo = IsCurrentInfo(opponent.Key), IsTargeted = IsCurrentTarget(opponent.Key), Menace = GetMenaceType(opponent.Key) };
-                bars.Add(newBar);
+                var opponentToUpdate = OpponentHpBars.FirstOrDefault(x => x.PlayerName == opponent.Key);
+                if (opponentToUpdate == null)
+                {
+                    var newOpponent = new OpponentHPBarViewModel(opponent.Key)
+                    {
+                        Value = opponent.Value,
+                        InRange = IsInRangeOfLocalPlayer(opponent.Key),
+                        IsCurrentInfo = IsCurrentInfo(opponent.Key),
+                        IsTargeted = IsCurrentTarget(opponent.Key),
+                        Menace = GetMenaceType(opponent.Key)
+                    };
+                    OpponentHpBars.Add(newOpponent);
+                }
+                else
+                {
+                    opponentToUpdate.Value = opponent.Value;
+                    opponentToUpdate.InRange = IsInRangeOfLocalPlayer(opponent.Key);
+                    opponentToUpdate.IsCurrentInfo = IsCurrentInfo(opponent.Key);
+                    opponentToUpdate.IsTargeted = IsCurrentTarget(opponent.Key);
+                    opponentToUpdate.Menace = GetMenaceType(opponent.Key);
+                }
             }
-            OpponentHpBars = bars;
         }
 
         private bool IsCurrentInfo(string opponentKey)

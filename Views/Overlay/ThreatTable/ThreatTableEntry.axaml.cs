@@ -7,8 +7,10 @@ namespace SWTORCombatParser.Views.Overlay.ThreatTable;
 
 public partial class ThreatTableEntry : UserControl
 {
+    public ThreatTableEntryViewModel ViewModel { get; set; }
     public ThreatTableEntry(ThreatTableEntryViewModel entry)
     {
+        ViewModel = entry;
         DataContext = entry;
         InitializeComponent();
     }

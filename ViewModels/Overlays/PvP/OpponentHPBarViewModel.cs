@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -10,7 +12,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         Healer,
         Dps
     }
-    public class OpponentHPBarViewModel : INotifyPropertyChanged
+    public class OpponentHPBarViewModel : ReactiveObject
     {
         private bool inRange;
         private GridLength remainderWidth;
@@ -26,8 +28,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             get => _isCurrentInfo;
             set
             {
-                _isCurrentInfo = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref _isCurrentInfo, value);
             }
         }
 
@@ -35,40 +36,35 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             get => inRange; set
             {
-                inRange = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref inRange, value);
             }
         }
         public GridLength RemainderWidth
         {
             get => remainderWidth; set
             {
-                remainderWidth = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref remainderWidth, value);
             }
         }
         public GridLength BarWidth
         {
             get => barWidth; set
             {
-                barWidth = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref barWidth, value);
             }
         }
         public MenaceTypes Menace
         {
             get => menace; set
             {
-                menace = value;
-                OnPropertyChanged("IsMenace");
+                this.RaiseAndSetIfChanged(ref menace, value);
             }
         }
         public bool IsTargeted
         {
             get => isTargeted; set
             {
-                isTargeted = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref isTargeted, value);
             }
         }
         public double Value
@@ -91,12 +87,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         public OpponentHPBarViewModel(string playerName)
         {
             PlayerName = playerName;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

@@ -18,6 +18,7 @@ using Avalonia.Markup.Xaml;
 using LibVLCSharp.Shared;
 using ManagedBass;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser
 {
@@ -54,13 +55,13 @@ namespace SWTORCombatParser
             if (processCollection.Count(pc => pc.ProcessName.ToLower() == "orbs") == 1)
             {
                 ConvertToAppData.ConvertFromProgramDataToAppData();
+                CombatLogLoader.RefreshSWTORCombatLogsDirectory();
                 var task = TimeUtility.StartUpdateTask();
                 Task.Run(async () =>
                 {
                     await ExtractIconsIfNecessaryAsync();
                     IconGetter.Init();
                 });
-                CombatIdentifier.Initialize();
                 var mainWindow = new MainWindow();
                 var mainWindowVM = new MainWindowViewModel(mainWindow.HotkeyHandler);
                 mainWindow.DataContext = mainWindowVM;

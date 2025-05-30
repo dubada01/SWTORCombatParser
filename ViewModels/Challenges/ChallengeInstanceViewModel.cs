@@ -20,7 +20,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         private SolidColorBrush challengeColor;
         private double scale = 1;
-        private List<PhaseInstance> _phaseOfInterest = new List<PhaseInstance>();
+        private ConcurrentDictionary<Guid,PhaseInstance> _phaseOfInterest = new ConcurrentDictionary<Guid,PhaseInstance>();
                 private double defaultValueWidth = 60;
         public double Scale
         {
@@ -54,7 +54,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             Type = sourceChallenge.ChallengeType;
             challengeColor = SourceChallenge.BackgroundBrush;
         }
-        public void UpdatePhase(List<PhaseInstance> phases)
+        public void UpdatePhase(ConcurrentDictionary<Guid,PhaseInstance> phases)
         {
             _phaseOfInterest = phases;
         }
