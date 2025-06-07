@@ -317,7 +317,7 @@ public static class TimerController
             var currentTarget = CombatLogStateBuilder.CurrentState.GetLocalPlayerTargetAtTime(log.TimeStamp).Entity;
             foreach (var timer in _filteredTimers)
             {
-                if (!timer.TrackOutsideOfCombat && !CombatDetector.InCombat)
+                if (!timer.TrackOutsideOfCombat && !CombatLogStreamer.InCombat)
                     continue;
                 timer.CheckForTrigger(log, _startTime, _currentDiscipline, _currentlyActiveTimers, _currentEncounter, _currentBoss, currentTarget);
             }

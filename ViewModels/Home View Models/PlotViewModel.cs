@@ -406,7 +406,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         public void UpdatePlotAxis(AxisLimits limits)
         {
-            if (CombatDetector.InCombat)
+            if (CombatLogStreamer.InCombat)
                 return;
             _combatMetaDataViewModel.UpdateBasedOnVisibleData(limits);
         }

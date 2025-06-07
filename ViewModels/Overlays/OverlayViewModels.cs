@@ -16,6 +16,7 @@ using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Overlay;
 using SWTORCombatParser.Views.Timers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -25,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using MoreLinq;
 using ReactiveUI;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
@@ -33,7 +35,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
     public class OverlayViewModel :ReactiveObject
     {
 
-        private List<OverlayInstanceViewModel> _currentOverlays = new();
+        private ConcurrentDictionary<OverlayType,OverlayInstanceViewModel> _currentOverlays = new();
         private Dictionary<string, OverlayInfo> _overlayDefaults = new();
         private string _currentCharacterRole = Role.DPS.ToString();
         private string _currentCharacterDiscipline = "";
@@ -103,7 +105,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     SizeScalarString = minScalar.ToString();
                     return;
                 }
-                _currentOverlays.ForEach(overlay => overlay.SizeScalar = sizeScalar);
+                _currentOverlays.ForEach(overlay => overlay.Value.SizeScalar = sizeScalar);
 
                 SetOverlaysScale();
 
@@ -355,8 +357,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
         private void UpdateOverlays()
         {
-            Dispatcher.UIThread.Invoke(() =>
-            {
+
                 _overlayDefaults = DefaultCharacterOverlays.GetCharacterDefaults(_currentCharacterRole);
                 if (_overlayDefaults.Count == 0)
                     return;
@@ -372,8 +373,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     if (_overlayDefaults[enumVal.ToString()].Acive)
                         CreateOverlay(GetType(enumVal), false);
                 }
-                _currentOverlays.ForEach(o => o.RoleChanged(_currentCharacterRole));
-            });
+                _currentOverlays.ForEach(o => o.Value.RoleChanged(_currentCharacterRole));
+           
         }
         private void FinishHistoricalParse(DateTime combatEndTime, bool localPlayerIdentified)
         {
@@ -448,9 +449,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void CreateOverlay(OverlayOptionViewModel type, bool canDelete)
         {
             OverlayOptionViewModel overlayType = type;
-            if (_currentOverlays.Any(o => o.CreatedType == overlayType.Type) && canDelete)
+            if (_currentOverlays.ContainsKey(overlayType.Type) && canDelete)
             {
-                var currentOverlay = _currentOverlays.First(o => o.CreatedType == overlayType.Type);
+                var currentOverlay = _currentOverlays[overlayType.Type];
                 currentOverlay.RequestClose();
                 RemoveOverlay(currentOverlay);
                 return;
@@ -464,12 +465,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
             viewModel.OverlaysMoveable = !OverlaysLocked;
             viewModel.Active = true;
             viewModel.ShowOverlayWindow();
-            _currentOverlays.Add(viewModel);
+            _currentOverlays[overlayType.Type] = viewModel;
         }
 
         private void OverlayHidden(OverlayInstanceViewModel overlay)
         {
-            _currentOverlays.Remove(overlay);
+            _currentOverlays.Remove(overlay.CreatedType, out _);
             SetSelected(false, overlay.CreatedType);
         }
         private void RemoveOverlay(OverlayInstanceViewModel obj)
@@ -484,7 +485,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void ResetOverlays()
         {
-            foreach (var overlay in _currentOverlays.ToList())
+            foreach (var overlay in _currentOverlays.Values.ToList())
             {
                 SetSelected(false, overlay.CreatedType);
                 overlay.RequestClose();
@@ -650,9 +651,9 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void ToggleOverlayLock()
         {
             if (!OverlaysLocked)
-                _currentOverlays.ForEach(o => o.UnlockOverlays());
+                _currentOverlays.ForEach(o => o.Value.UnlockOverlays());
             else
-                _currentOverlays.ForEach(o => o.LockOverlays());
+                _currentOverlays.ForEach(o => o.Value.LockOverlays());
             DefaultCharacterOverlays.SetLockedStateCharacter(OverlaysLocked, _currentCharacterRole);
         }
     }

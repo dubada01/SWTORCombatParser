@@ -553,7 +553,9 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 return 0;
             var cleanseTime = removedEffectLog.TimeStamp;
             var effectInQuestion = removedEffectLog.Effect.EffectId;
-            var modifiersForCleansedEffect = CombatLogStateBuilder.CurrentState.Modifiers[effectInQuestion];
+            var hasModifier = CombatLogStateBuilder.CurrentState.Modifiers.TryGetValue(effectInQuestion, out var modifiersForCleansedEffect);
+            if (!hasModifier)
+                return 0;
             var orderedModifiers = modifiersForCleansedEffect.Values.ToList().OrderBy(l => l.StartTime);
             var removedMod = orderedModifiers.LastOrDefault(l => l.StopTime == DateTime.MinValue || l.StopTime == cleanseTime);
             if (removedMod != null)

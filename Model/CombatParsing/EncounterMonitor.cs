@@ -17,11 +17,16 @@ public static class EncounterMonitor
         EncounterUpdated?.InvokeSafely(_currentEncounterInfo);
     }
 
+    public static EncounterCombat GetCurrentEncounter()
+    {
+        return _currentEncounterInfo;
+    }
     public static void SetCurrentEncounter(EncounterCombat encounterInfo)
     {
         if (_currentEncounterInfo != null && encounterInfo.Combats.Any() && _currentEncounterInfo.Combats.First().StartTime == encounterInfo.Combats.First().StartTime)
             return;
         _currentEncounterInfo = encounterInfo;
-        FireEncounterUpdated();
+        if(encounterInfo.Combats.Any())
+            FireEncounterUpdated();
     }
 }

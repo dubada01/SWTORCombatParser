@@ -46,6 +46,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public List<string> PlayerClasses { get; set; }
         public List<string> PlayerNames { get; set; }
         public int TimeToKill { get; set; }
+        public string Software_Version { get; set; }
     }
 
     public class TimeTrialLeaderboardEntry

@@ -66,7 +66,7 @@ public class TenSecondRecapViewModel:ReactiveObject
                 return;
             this.RaiseAndSetIfChanged(ref _selectedPlayer, value);
             _inScopePlayers = _selectedPlayer.Name == _allPlayers ? _currentCombat.CharacterParticipants : new List<Entity>() { _selectedPlayer };
-            RefreshInScopeEntities();
+            _ = RefreshInScopeEntities();
             UpdateBuffsAndDebuffs();
         }
     }
@@ -94,7 +94,7 @@ public class TenSecondRecapViewModel:ReactiveObject
                 return;
             this.RaiseAndSetIfChanged(ref _selectedBoss, value);
             _inScopeBosses = _selectedBoss.Name == _allBosses ? _currentCombat.AllEntities.Where(e => e.IsBoss).ToList() : new List<Entity>() { _selectedBoss };
-            RefreshInScopeEntities();
+            _ = RefreshInScopeEntities();
             UpdateBuffsAndDebuffs();
         }
     }
@@ -124,7 +124,7 @@ public class TenSecondRecapViewModel:ReactiveObject
     {        
         if(combat.AllLogs.Count == 0)
             return;
-        Task.Run(() =>
+        Task.Run(async () =>
         {
             _currentCombat = combat;
             _currentSelectedTime = combat.EndTime.AddSeconds(-_timeOffset);
@@ -141,8 +141,8 @@ public class TenSecondRecapViewModel:ReactiveObject
             SelectedBoss = AvailableBosses.First();
             SelectedPlayer = AvailablePlayers.First();
         
-            _deathLogsViewModel.SelectCombat(combat);
-            _deathLogsViewModel.UpdateLogs(true);
+            await _deathLogsViewModel.SelectCombat(combat);
+            await _deathLogsViewModel.UpdateLogs(true);
         });
     }
     
@@ -200,10 +200,10 @@ public class TenSecondRecapViewModel:ReactiveObject
         var allEffectsOnEntity = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(_currentSelectedTime,entity);
         return allEffectsOnEntity;
     }
-    private void RefreshInScopeEntities()
+    private async Task RefreshInScopeEntities()
     {
         var allEntities = _inScopeBosses.Concat(_inScopePlayers).Where(e=>e.Name != _allPlayers && e.Name != _allBosses).ToList();
         _deathLogsViewModel.SetViewableEntities(allEntities);
-        _deathLogsViewModel.UpdateLogs(true);
+        await _deathLogsViewModel.UpdateLogs(true);
     }
 }

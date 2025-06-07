@@ -24,7 +24,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         }
         public void CombatSelected(Combat combatSelected)
         {
-            _challengeUpdater.CombatSelected(combatSelected);
+            _challengeUpdater.HandleReplayCombat(combatSelected);
         }
         public void CombatUpdated(Combat combat)
         {

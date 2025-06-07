@@ -15,6 +15,7 @@ using System.Reactive.Linq;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Threading;
 using ReactiveUI;
 using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Overlay;
@@ -100,7 +101,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public OverlayInstanceViewModel(OverlayType type) : base(type.ToString())
         {
             SettingsType = OverlaySettingsType.Character;
-            MainContent = new InfoOverlay(this);
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                MainContent = new InfoOverlay(this);
+            });
+
             CloseRequested += OverlayClosing;
             CreatedType = type;
             Type = type;

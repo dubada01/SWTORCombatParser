@@ -18,18 +18,17 @@ namespace SWTORCombatParser.Model.CombatParsing
         public static event Action<Combat> CombatFinished = delegate { };
         public static Combat CurrentCombat { get; set; }
 
-        private static object _modlock = new object();
         /// <summary>
         /// Completely resets the internal Combat state.
         /// Call this at the start of a new fight.
         /// </summary>
         public static void ResetCombat()
         {
-            lock (_modlock)
-            {
-                CurrentCombat = new Combat();
-            }
+
+            CurrentCombat = new Combat();
+
         }
+
         /// <summary>
         /// Merges logs into the current Combat. If `reset` is true, calls ResetCombat() first.
         /// Use this both for initial bootstrapping (reset=true) or incremental updates (reset=false).
@@ -41,90 +40,74 @@ namespace SWTORCombatParser.Model.CombatParsing
             bool quietOverlays = false,
             bool combatEndUpdate = false,
             bool isPhaseCombat = false,
-            bool isOverallCombat = false)
+            bool isOverallCombat = false,int overallCombatDuration = 0)
         {
             var combatToUpdate = combatShell ?? CurrentCombat;
 
             var isFirstUpdate = false;
             if (logs == null || (logs.Count == 0 && !combatEndUpdate))
                 return combatToUpdate;
-            if(logs.Count == 0 && combatEndUpdate)
+            if (logs.Count == 0 && combatEndUpdate)
                 CombatFinished.InvokeSafely(combatToUpdate);
 
-            lock (_modlock)
-            {
-                var orderedLogs = logs.OrderBy(l => l.TimeStamp).ToList();
-                
-                // Determine encounter time from the very first valid timestamp
-                var firstTime = combatToUpdate.StartTime == default 
-                    ? orderedLogs.FirstOrDefault(l => l.TimeStamp != DateTime.MinValue)?.TimeStamp
-                    : combatToUpdate.StartTime;
-                if(!firstTime.HasValue)
-                    return combatToUpdate;
-                var encounter = GetEncounterInfo(firstTime.Value);
 
-                // If this was a reset bootstrap, set StartTime
-                
-                if (combatToUpdate.StartTime == DateTime.MinValue)
-                {
-                    combatToUpdate.StartTime = firstTime.Value;
-                    isFirstUpdate = true;
-                }
+            var orderedLogs = logs.OrderBy(l => l.TimeStamp).ToList();
 
-                var totalCombatsDurationSeconds = 0d;
-                var lastCombatStartTime = DateTime.MinValue;
-                var inCombat = false;
-                foreach (var log in orderedLogs)
-                {
-                    combatToUpdate.AllLogs.Add(log);
-                    MergeEntityLog(log.Source, log, combatToUpdate);
-                    if(log.Source != log.Target)
-                        MergeEntityLog(log.Target, log, combatToUpdate);
-
-                    if (log.Source.IsCharacter || log.Source.IsCompanion)
-                        AddParticipant(log.Source, log.TimeStamp, combatToUpdate);
-                    if (log.Target.IsCharacter || log.Target.IsCompanion)
-                        AddParticipant(log.Target, log.TimeStamp, combatToUpdate);
-                    AddTarget(log, combatToUpdate);
-
-                    // Always update EndTime to the latest
-                    if(!isOverallCombat)
-                        combatToUpdate.EndTime = log.TimeStamp;
-                    if (isOverallCombat)
-                    {
-                        if (log.Effect.EffectId == _7_0LogParsing.EnterCombatId)
-                        {
-                            lastCombatStartTime = log.TimeStamp;
-                            inCombat = true;
-                        }
-
-                        if (inCombat && (log.Effect.EffectId == _7_0LogParsing.ExitCombatId ||
-                            log.Effect.EffectType == EffectType.AreaEntered))
-                        {
-                            totalCombatsDurationSeconds += (log.TimeStamp - lastCombatStartTime).TotalSeconds;
-                        }
-                    }
-                }
-                if(isOverallCombat)
-                    combatToUpdate.EndTime = combatToUpdate.StartTime.AddSeconds(totalCombatsDurationSeconds);
-                
-                foreach (var entity in combatToUpdate.AllEntities)
-                {
-                    if (!combatToUpdate.LogsInvolvingEntity.ContainsKey(entity))
-                        combatToUpdate.LogsInvolvingEntity = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
-                }
-                // Always refresh boss/encounter info
-                if (encounter != null && encounter.BossInfos != null)
-                {
-                    combatToUpdate.ParentEncounter = encounter;
-                    combatToUpdate.EncounterBossDifficultyParts = GetCurrentBossInfo(combatToUpdate.AllLogs, encounter);
-                    combatToUpdate.BossInfo = GetCurrentBossInfoObject(combatToUpdate.AllLogs, encounter);
-                    UpdateBossEntities(combatToUpdate.AllLogs, encounter);
-                }
-
-                PostMetadata(isRealtime, combatEndUpdate, orderedLogs, isFirstUpdate, combatToUpdate);
+            // Determine encounter time from the very first valid timestamp
+            var firstTime = combatToUpdate.StartTime == default
+                ? orderedLogs.FirstOrDefault(l => l.TimeStamp != DateTime.MinValue)?.TimeStamp
+                : combatToUpdate.StartTime;
+            if (!firstTime.HasValue)
                 return combatToUpdate;
+            var encounter = GetEncounterInfo(firstTime.Value);
+
+            // If this was a reset bootstrap, set StartTime
+
+            if (combatToUpdate.StartTime == DateTime.MinValue)
+            {
+                combatToUpdate.StartTime = firstTime.Value;
+                isFirstUpdate = true;
             }
+
+            foreach (var log in orderedLogs)
+            {
+                combatToUpdate.AllLogs.Add(log);
+                MergeEntityLog(log.Source, log, combatToUpdate);
+                if (log.Source != log.Target)
+                    MergeEntityLog(log.Target, log, combatToUpdate);
+
+                if (log.Source.IsCharacter || log.Source.IsCompanion)
+                    AddParticipant(log.Source, log.TimeStamp, combatToUpdate);
+                if (log.Target.IsCharacter || log.Target.IsCompanion)
+                    AddParticipant(log.Target, log.TimeStamp, combatToUpdate);
+                AddTarget(log, combatToUpdate);
+
+                // Always update EndTime to the latest
+                if (!isOverallCombat)
+                    combatToUpdate.EndTime = log.TimeStamp;
+            }
+
+            if (isOverallCombat)
+                combatToUpdate.EndTime = combatToUpdate.StartTime.AddSeconds(overallCombatDuration);
+
+            foreach (var entity in combatToUpdate.AllEntities)
+            {
+                if (!combatToUpdate.LogsInvolvingEntity.ContainsKey(entity))
+                    combatToUpdate.LogsInvolvingEntity = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
+            }
+
+            // Always refresh boss/encounter info
+            if (encounter != null && encounter.BossInfos != null)
+            {
+                combatToUpdate.ParentEncounter = encounter;
+                combatToUpdate.EncounterBossDifficultyParts = GetCurrentBossInfo(combatToUpdate.AllLogs, encounter);
+                combatToUpdate.BossInfo = GetCurrentBossInfoObject(combatToUpdate.AllLogs, encounter);
+                UpdateBossEntities(combatToUpdate.AllLogs, encounter);
+            }
+
+            PostMetadata(isRealtime, combatEndUpdate, orderedLogs, isFirstUpdate, combatToUpdate);
+            return combatToUpdate;
+
         }
 
         /// <summary>
@@ -153,11 +136,12 @@ namespace SWTORCombatParser.Model.CombatParsing
             bool isRealtime = false,
             bool quietOverlays = false,
             bool combatEndUpdate = false,
-            bool isPhaseCombat = false)
+            bool isPhaseCombat = false,
+            int overallCombatDuration = 0)
         {
             var combatShell = new Combat();
             // build into CurrentCombat without capturing its return
-            GenerateCombatFromLogs(logs, combatShell: combatShell, isRealtime, quietOverlays, combatEndUpdate, isPhaseCombat, true);
+            GenerateCombatFromLogs(logs, combatShell: combatShell, isRealtime, quietOverlays, combatEndUpdate, isPhaseCombat, true,overallCombatDuration);
             // return only the snapshot instance
             return combatShell;
         }

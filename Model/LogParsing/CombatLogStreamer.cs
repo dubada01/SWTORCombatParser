@@ -28,6 +28,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public static event Action<DateTime, bool> HistoricalLogsFinished = delegate { };
         public static event Action HistoricalLogsStarted = delegate { };
         public static event Action<ParsedLogEntry> NewLineStreamed = delegate { };
+        public static bool InCombat => _isInCombat;
 
         // Instance events
         public event Action<Entity> LocalPlayerIdentified = delegate { };
@@ -35,7 +36,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public event Action<double> NewTotalTimeOffsetMs = delegate { };
         public event Action<string> ErrorParsingLogs = delegate { };
 
-        private bool _isInCombat = false;
+        private static bool _isInCombat = false;
         private bool _isWaitingForExitCombatTimout;
 
         private int numberOfProcessedLines = 0;
@@ -49,13 +50,17 @@ namespace SWTORCombatParser.Model.LogParsing
         private Encoding _fileEncoding;
         private bool _forceUpdateOfLogs = false;
         private DateTime _mostRecentLogTime;
+        private DateTime _staleCheckTime;
+        private int _staleCheckIntervalSec = 5;
+        private CombatDetector _combatDetector;
 
         public CombatLogStreamer()
         {
+            _combatDetector = new CombatDetector();
             _forceUpdateOfLogs = Settings.ReadSettingOfType<bool>("force_log_updates");
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             _fileEncoding = Encoding.GetEncoding(1252);
-            CombatDetector.AlertExitCombatTimedOut += OnExitCombatTimedOut;
+            _combatDetector.AlertExitCombatTimedOut += OnExitCombatTimedOut;
             _7_0LogParsing.SetupRegex();
         }
 
@@ -149,7 +154,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             else
             {
-                if (!CheckIfStale())
+                if (DateTime.Now > _staleCheckTime && !CheckIfStale())
                 {
                     return;
                 }
@@ -327,6 +332,7 @@ private void ParseLogFile()
 
         private bool CheckIfStale()
         {
+            _staleCheckTime = DateTime.Now.AddSeconds(_staleCheckIntervalSec);
             var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
             if (mostRecentFile != _logToMonitor)
             {
@@ -384,7 +390,7 @@ private void ParseLogFile()
 
         private void CheckForCombatState(ParsedLogEntry parsedLine, bool shouldUpdateOnNewCombat, bool isrealtime)
         {
-            var currentCombatState = CombatDetector.CheckForCombatState(parsedLine, isrealtime);
+            var currentCombatState = _combatDetector.CheckForCombatState(parsedLine, isrealtime);
             if (currentCombatState == CombatState.ExitedByEntering)
             {
                 EndCombat(isrealtime,parsedLine);

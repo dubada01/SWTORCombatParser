@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
@@ -44,7 +45,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 handler => _plotViewModel.XValueSelected -= handler).Sample(TimeSpan.FromSeconds(0.1)).Subscribe(newPos => { SeekToPosition(newPos); });
 
             _playerListViewModel = new DeathPlayerListViewModel();
-            _playerListViewModel.ParticipantSelected += UpdateSelectedPlayers;
+            _playerListViewModel.ParticipantSelected += list => _ = UpdateSelectedPlayers(list);
             DeathPlayerListView = new DeathPlayerList(_playerListViewModel);
         }
 
@@ -59,10 +60,10 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             _playerListViewModel.SetEntityHPS(mostRecentInfos);
         }
 
-        private void UpdateSelectedPlayers(List<Entity> obj)
+        private async Task UpdateSelectedPlayers(List<Entity> obj)
         {
             _deathLogsViewModel.SetViewableEntities(obj);
-            var startTime = _deathLogsViewModel.UpdateLogs(true);
+            var startTime = await _deathLogsViewModel.UpdateLogs(true);
 
             _plotViewModel.Reset();
             _plotViewModel.PlotCombat(_currentCombat, obj, startTime);

@@ -648,15 +648,16 @@ namespace SWTORCombatParser.DataStructures
         public Combat GetPhaseCopy(ConcurrentDictionary<Guid,PhaseInstance> phases)
         {
             List<ParsedLogEntry> phaseLogs = new List<ParsedLogEntry>();
+            var snapshot = AllLogs.ToList();
             foreach (var phase in phases)
             {
                 if (phase.Value.PhaseEnd == DateTime.MinValue)
                 {
-                    phaseLogs.AddRange(AllLogs.Where(l => l.TimeStamp > phase.Value.PhaseStart));
+                    phaseLogs.AddRange(snapshot.Where(l => l.TimeStamp > phase.Value.PhaseStart));
                 }
                 else
                 {
-                    phaseLogs.AddRange(AllLogs.Where(l => phase.Value.ContainsTime(l.TimeStamp)));
+                    phaseLogs.AddRange(snapshot.Where(l => phase.Value.ContainsTime(l.TimeStamp)));
                 }
 
             }

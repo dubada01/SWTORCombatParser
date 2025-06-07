@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SWTORCombatParser.Model.CloudRaiding
@@ -22,7 +23,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 PlayerClasses = combat.CharacterParticipants.Select(c=>GetClass(c,combat.StartTime)).ToList(),
                 PlayerNames = combat.CharacterParticipants.Select(c=>c.Name).ToList(),
                 EncounterName = combat.ParentEncounter.Name,
-                EncounterTimestamp = combat.StartTime.ToUniversalTime()
+                EncounterTimestamp = combat.StartTime.ToUniversalTime(),
+                Software_Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown Version"
             });
         }
 

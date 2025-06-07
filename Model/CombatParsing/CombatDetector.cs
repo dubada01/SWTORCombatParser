@@ -21,27 +21,27 @@ namespace SWTORCombatParser.Model.CombatParsing
         OutOfCombat,
         ExitedByEntering,
     }
-    public static class CombatDetector
+    public class CombatDetector
     {
-        private static List<long> _bossesKilledThisCombat = new List<long>();
-        private static List<long> _bossesSeenThisCombat = new List<long>();
-        private static List<ulong> _combatResNames = new List<ulong> { 812826855735296, 808287075303424, 807217628446720, 814875555135488, 2940764107571200, 2940854301884416};
-        private static ulong _boonOfSpiritId = 3502674678906880;
-        private static bool _bossCombat;
-        private static BossInfo _currentBossInfo;
-        public static bool InCombat;
-        private static bool _justRevived;
-        private static List<Entity> revivedPlayers = new List<Entity>();
-        private static DateTime _inCombatStartTime;
+        private List<long> _bossesKilledThisCombat = new List<long>();
+        private List<long> _bossesSeenThisCombat = new List<long>();
+        private List<ulong> _combatResNames = new List<ulong> { 812826855735296, 808287075303424, 807217628446720, 814875555135488, 2940764107571200, 2940854301884416};
+        private ulong _boonOfSpiritId = 3502674678906880;
+        private bool _bossCombat;
+        private BossInfo _currentBossInfo;
+        public bool InCombat;
+        private bool _justRevived;
+        private List<Entity> revivedPlayers = new List<Entity>();
+        private DateTime _inCombatStartTime;
 
-        private static Timer _timeoutTimer = new Timer();
-        private static DateTime _exitCombatDetectedTime;
-        private static bool _checkLogsForTimtout;
-        private static EncounterInfo _currentEncounter;
+        private Timer _timeoutTimer = new Timer();
+        private DateTime _exitCombatDetectedTime;
+        private bool _checkLogsForTimtout;
+        private EncounterInfo _currentEncounter;
 
-        public static event Action<CombatState, bool> AlertExitCombatTimedOut = delegate { };
+        public event Action<CombatState, bool> AlertExitCombatTimedOut = delegate { };
 
-        public static void Reset()
+        public void Reset()
         {
             _inCombatStartTime = DateTime.MinValue;
             _exitCombatDetectedTime = DateTime.MinValue;
@@ -54,7 +54,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             _timeoutTimer.Stop();
             revivedPlayers = new List<Entity>();
         }
-        public static CombatState CheckForCombatState(ParsedLogEntry line, bool isRealTime = false)
+        public CombatState CheckForCombatState(ParsedLogEntry line, bool isRealTime = false)
         {
             if (_checkLogsForTimtout)
             {
@@ -200,7 +200,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 return CombatState.OutOfCombat;
 
         }
-        private static CombatState ExitCombatDetected(ParsedLogEntry log, bool isRealTime, double timeOutSec)
+        private CombatState ExitCombatDetected(ParsedLogEntry log, bool isRealTime, double timeOutSec)
         {
             if (isRealTime)
             {
@@ -217,7 +217,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             return CombatState.ExitCombatDetected;
         }
-        private static void RestartTimer()
+        private void RestartTimer()
         {
             if (_timeoutTimer.Enabled)
             {
@@ -225,7 +225,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             _timeoutTimer.Start(); // Start or restart the timer
         }
-        private static void ExitCombatTimedOut(bool realtime)
+        private void ExitCombatTimedOut(bool realtime)
         {
             _checkLogsForTimtout = false;
             _justRevived = false;
@@ -235,7 +235,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             AlertExitCombatTimedOut.InvokeSafely(CombatState.ExitCombatDelayTimedOut,realtime);
         }
 
-        private static CombatState EndCombat()
+        private CombatState EndCombat()
         {
             _checkLogsForTimtout = false;
             _justRevived = false;

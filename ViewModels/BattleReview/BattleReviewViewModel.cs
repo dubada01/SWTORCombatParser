@@ -166,7 +166,6 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 AvailableEntities.Insert(0, allEntity);
                 allEntity.DefaultSeleted();
                 _eventViewModel.SetViewableEntities(AvailableEntities.Where(e => e.Selected).Select(e => e.Entity).ToList());
-                UpdateVisuals();
             }
         }
         private void UpdateSelectedEntities(Entity entity, bool selection)

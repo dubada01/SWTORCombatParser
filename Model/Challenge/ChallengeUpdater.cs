@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Threading;
 
 namespace SWTORCombatParser.Model.Challenge
@@ -23,12 +24,10 @@ namespace SWTORCombatParser.Model.Challenge
         private Combat _currentSelectedCombat;
         private EncounterInfo _currentEncounter;
         private double _currentScale = 1;
-        private object _selectionLock = new object();
-        private object _updateLock = new object();
         public ChallengeUpdater()
         {
             CombatLogStreamer.CombatStarted += ResetChallenges;
-            CombatLogStreamer.NewLineStreamed += CheckForActiveChallenge;
+            CombatLogStreamer.NewLineStreamed += HandleLiveLog;
 
             EncounterTimerTrigger.BossCombatDetected += SetBossInfo;
             CombatLogStateBuilder.AreaEntered += EncounterChanged;
@@ -77,49 +76,107 @@ namespace SWTORCombatParser.Model.Challenge
                     .Select(ch => new KeyValuePair<Guid, DataStructures.Challenge>(ch.Id, ch))
             );
 
-            lock (_updateLock)
-            {
+
                 _allChallenges = newDict;
-            }
+            
         }
-        private void CheckForActiveChallenge(ParsedLogEntry obj)
+        /// <summary>
+        /// Called for **live parsing** (one log at a time).  
+        /// Internally it finds any brand‐new challenges in that single log and immediately marshals them to the UI.
+        /// </summary>
+        public void HandleLiveLog(ParsedLogEntry log)
         {
-            var toAddViewModels = new List<DataStructures.Challenge>();
+            // 1) Get all brand‐new matches out of this one line
+            var newMatches = FindNewChallengesFromLog(log);
+            if (!newMatches.Any()) return;
 
-            lock (_updateLock)
+            // 2) Convert to ViewModels (using current scale)
+            var newViewModels = newMatches
+                .Select(ch => new ChallengeInstanceViewModel(ch) { Scale = _currentScale })
+                .ToList();
+
+            // 3) Immediately push them onto the UI thread
+            Dispatcher.UIThread.Invoke(() =>
             {
-                foreach (var kvp in _allChallenges)
+                foreach (var vm in newViewModels)
+                    _challenges.Add(vm);
+            });
+        }
+        /// <summary>
+        /// Called when the user “selects” an existing Combat.  
+        /// This will scan _all_ logs in that Combat, collect every newly‐activated challenge,
+        /// then do exactly one Dispatch → UI update at the end.
+        /// </summary>
+        public void HandleReplayCombat(Combat replayedCombat)
+        {
+            Task.Run(() =>
+            {
+                // 1) Reset state
+                _currentBossName = replayedCombat.EncounterBossDifficultyParts.Item1;
+                _currentSelectedCombat = replayedCombat;
+                ResetChallenges();
+
+                // 2) Scan every log, accumulate new ViewModels in a local buffer
+                var buffer = new List<ChallengeInstanceViewModel>();
+                foreach (var logLine in replayedCombat.AllLogs)
                 {
-                    var challenge = kvp.Value;
+                    var newlyFound = FindNewChallengesFromLog(logLine);
+                    if (newlyFound.Count == 0) 
+                        continue;
 
-                    bool logMatch      = IsLogForChallenge(obj, challenge);
-                    bool bossMatch     = _currentBossName == challenge.Source.Split('|')[1];
-                    bool phaseMatch    = challenge.ChallengeType == ChallengeType.MetricDuringPhase
-                                         && PhaseManager.ActivePhases.Any(p => p.SourcePhase.Id == challenge.PhaseId);
-
-                    // require the log to match, plus either boss or phase criteria
-                    if ((logMatch && bossMatch) || phaseMatch)
-                    {
-                        if (_activeChallenges.All(c => c.Id != kvp.Key))
+                    buffer.AddRange(
+                        newlyFound.Select(ch => new ChallengeInstanceViewModel(ch)
                         {
-                            _activeChallenges.Add(challenge);
-                            toAddViewModels.Add(challenge);
-                        }
+                            Scale = _currentScale
+                        })
+                    );
+                }
+
+                // 3) One‐time UI dispatch: add all buffered VMs
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    foreach (var vm in buffer)
+                        _challenges.Add(vm);
+                });
+
+                // 4) Finally update metrics for each active challenge
+                UpdateCombats(replayedCombat);
+            });
+        }
+        /// <summary>
+        /// Scans one ParsedLogEntry against all known challenges.
+        /// If a match is found and it wasn’t already in _activeChallenges,
+        /// it adds it here and returns that challenge.
+        /// </summary>
+        private IReadOnlyList<DataStructures.Challenge> FindNewChallengesFromLog(ParsedLogEntry log)
+        {
+            var newlyActivated = new List<DataStructures.Challenge>();
+
+            // Take a snapshot of phases to avoid enumerating PhaseManager.ActivePhases each time
+            var phaseSnapshot = PhaseManager.ActivePhases.ToList();
+
+            foreach (var kvp in _allChallenges)
+            {
+                var challenge = kvp.Value;
+
+                bool logMatch   = IsLogForChallenge(log, challenge);
+                bool bossMatch  = (_currentBossName == challenge.Source.Split('|')[1]);
+                bool phaseMatch = (challenge.ChallengeType == ChallengeType.MetricDuringPhase)
+                                  && phaseSnapshot.Any(p => p.SourcePhase.Id == challenge.PhaseId);
+
+                // require (logMatch AND bossMatch) OR phaseMatch
+                if ((logMatch && bossMatch) || phaseMatch)
+                {
+                    // Only add if it's not already in the “active” list
+                    if (_activeChallenges.All(c => c.Id != kvp.Key))
+                    {
+                        _activeChallenges.Add(challenge);
+                        newlyActivated.Add(challenge);
                     }
                 }
             }
 
-            // now update the UI *after* releasing _updateLock
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                foreach (var c in toAddViewModels)
-                {
-                    _challenges.Add(new ChallengeInstanceViewModel(c)
-                    {
-                        Scale = _currentScale
-                    });
-                }
-            });
+            return newlyActivated;
         }
         private bool IsLogForChallenge(ParsedLogEntry log, DataStructures.Challenge challenge)
         {
@@ -155,21 +212,7 @@ namespace SWTORCombatParser.Model.Challenge
         {
             _challenges = activeChallengeInstances;
         }
-        public void CombatSelected(Combat obj)
-        {
-            lock (_selectionLock)
-            {
-                _currentBossName = obj.EncounterBossDifficultyParts.Item1;
-                _currentSelectedCombat = obj;
-                ResetChallenges();
-                var snapshot = obj.AllLogs.ToList(); // Preserves insertion/enumeration order
-                foreach (var log in snapshot)
-                {
-                    CheckForActiveChallenge(log);
-                }
-                UpdateCombats(obj);
-            }
-        }
+
         private void ResetChallenges()
         {
             _activeChallenges.Clear();

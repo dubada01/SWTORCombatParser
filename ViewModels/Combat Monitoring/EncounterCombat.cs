@@ -199,7 +199,12 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             lock (combatAddLock)
             {
-                var overallCombat = CombatIdentifier.GenerateOverallCombat(Combats.SelectMany(c => c.AllLogs).ToList(), true);
+                var overallCombat = CombatIdentifier.GenerateOverallCombat(Combats.SelectMany(c => c.AllLogs).ToList(), 
+                    true, 
+                    false, 
+                    false, 
+                    false, 
+                    Combats.Sum(c=>c.DurationSeconds));
                 if(overallCombat.StartTime == DateTime.MinValue)
                     return overallCombat;
                 overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);

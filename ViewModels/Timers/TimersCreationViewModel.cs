@@ -499,7 +499,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public void SetClass(Entity player, SWTORClass swtorclass)
         {
-            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive() || SelectedTimerSource == swtorclass.Discipline || CombatDetector.InCombat)
+            if (!player.IsLocalPlayer || !CombatMonitorViewModel.IsLiveParseActive() || SelectedTimerSource == swtorclass.Discipline || CombatLogStreamer.InCombat)
                 return;
             if (!DisciplineTimersList.Contains(swtorclass.Discipline))
             {
