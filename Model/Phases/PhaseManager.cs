@@ -116,8 +116,7 @@ namespace SWTORCombatParser.Model.Phases
 
         public static event Action<List<PhaseInstance>> PhaseInstancesUpdated = delegate { };
         public static event Action<List<PhaseInstance>> SelectedPhasesUpdated = delegate { };
-
-        private static int _processedLines = 0;
+        
         private static ObservableCollection<PhaseInstance> activePhases = new ObservableCollection<PhaseInstance>();
 
         public static void Init()
@@ -148,10 +147,9 @@ namespace SWTORCombatParser.Model.Phases
                 ResetPhases();
                 _combatStartTime = combat.StartTime;
                 _currentBossName = combat.EncounterBossDifficultyParts.Item1;
-                foreach (var line in combat.AllLogs.Skip(_processedLines))
+                foreach (var line in combat.AllLogs.OrderBy(l=>l.Key))
                 {
-                    HandleNewLine(line);
-                    _processedLines++;
+                    HandleNewLine(line.Value);
                 }
                 PhaseInstancesUpdated.InvokeSafely(ActivePhases.ToList());
             }
@@ -186,7 +184,6 @@ namespace SWTORCombatParser.Model.Phases
 
         private static void ResetPhases()
         {
-            _processedLines = 0;
             _combatStartToggled = false;
             _detectedEntities.Clear();
             ActivePhases.Clear();

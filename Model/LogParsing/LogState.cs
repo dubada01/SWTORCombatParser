@@ -220,9 +220,9 @@ namespace SWTORCombatParser.Model.LogParsing
                 return new EntityInfo();
             return GetPlayerTargetAtTime(LocalPlayer, time);
         }
-        public EntityInfo GetPlayerTargetAtTime(Entity player, DateTime time)
+        public EntityInfo GetPlayerTargetAtTime(Entity? player, DateTime time)
         {
-            if (!PlayerTargetsInfo.TryGetValue(player, out var targets))
+            if (player == null || !PlayerTargetsInfo.TryGetValue(player, out var targets))
                 return new EntityInfo();
             var targetKeys = targets.Keys;
             return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v => v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : new EntityInfo();

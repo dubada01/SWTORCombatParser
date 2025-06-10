@@ -21,10 +21,10 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             var combat = combatToPopulate;
 
-            var cleanseLogs = combat.AllLogs.Where(l =>
+            var cleanseLogs = combat.AllLogs.Values.Where(l =>
 l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && l.Target.IsCharacter);
-            combat.Initiator = combat.AllLogs.FirstOrDefault(l =>
-                l.Effect.EffectType == EffectType.TargetChanged && !l.Source.IsCharacter)?.Target;
+            combat.Initiator = combat.AllLogs.OrderBy(kvp=>kvp.Key).FirstOrDefault(l =>
+                l.Value.Effect.EffectType == EffectType.TargetChanged && !l.Value.Source.IsCharacter).Value?.Target;
             //Parallel.ForEach(combatToPopulate.AllEntities, entitiy =>
             foreach (var entity in combatToPopulate.AllEntities)
             {
@@ -469,7 +469,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 
                     // incremental average speed
                     double speed = GetSpeedFromLog(log,
-                        combat.AllLogs.Where(l =>
+                        combat.AllLogs.Values.Where(l =>
                             l.Effect.EffectType == EffectType.Remove &&
                             _cleanseAbilityIds.Contains(l.AbilityId) &&
                             l.Target.LogId == src.LogId));

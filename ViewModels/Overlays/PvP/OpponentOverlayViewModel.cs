@@ -59,9 +59,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             {
                 Dispatcher.UIThread.Invoke(() =>
                 {
+                    ResetUI();
                     ShowFrame = true;
                     _mostRecentCombat = null;
-                    ResetUI();
                     _dTimer.Start();
                     _dTimer.Interval = TimeSpan.FromSeconds(0.1);
                     _dTimer.Tick += CheckForNewState;
@@ -99,7 +99,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         public bool OverlayEnabled
         {
-            get { return _isActive; }
+            get => _isActive;
             set
             {
                 this.RaiseAndSetIfChanged(ref _isActive, value);
@@ -139,7 +139,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             lock (_combatUpdateLock)
             {
-                if (newLine.Effect.EffectType == EffectType.AreaEntered)
+                if (newLine.Effect.EffectType == EffectType.AreaEntered && !EncounterTimerTrigger.CurrentEncounterIsPVP)
                 {
                     OnPvpCombatEnded();
                     return;

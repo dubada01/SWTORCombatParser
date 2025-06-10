@@ -82,6 +82,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     var sheildLog = new ParsedLogEntry
                     {
                         TimeStamp = sheild.ShieldingTime,
+                        LogLineNumber = combat.AllLogs.Count + 1,
                         Ability = sheild.SheildName,
                         Effect = new Effect()
                         {
@@ -98,7 +99,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                             ValueType = DamageType.heal
                         }
                     };
-                    combat.AllLogs.Add(sheildLog);
+                    combat.AllLogs[sheildLog.TimeStamp]=(sheildLog);
                     combat.ShieldingProvidedLogs[source].Enqueue(sheildLog);
                     combat.TotalProvidedSheilding[source] += sheild.ShieldValue;
                 }

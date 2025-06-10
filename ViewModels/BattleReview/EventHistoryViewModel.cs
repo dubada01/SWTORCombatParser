@@ -54,9 +54,9 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             _startTime = combatSeleted.StartTime;
             _currentlySelectedCombat = combatSeleted;
-            foreach (var log in _currentlySelectedCombat.AllLogs)
+            foreach (var log in _currentlySelectedCombat.AllLogs.OrderBy(kvp=>kvp.Key))
             {
-                log.SecondsSinceCombatStart = (log.TimeStamp - _startTime).TotalSeconds;
+                log.Value.SecondsSinceCombatStart = (log.Value.TimeStamp - _startTime).TotalSeconds;
             }
             return await UpdateLogs(inverted);
         }
@@ -129,7 +129,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 });
 
                 LogsToDisplay = new ObservableCollection<DisplayableLogEntry>(logs);
-                _distinctEntities = _currentlySelectedCombat.AllLogs.Select(l => l.Source).Distinct().ToList();
+                _distinctEntities = _currentlySelectedCombat.AllLogs.Values.Select(l => l.Source).Distinct().ToList();
 
                 return firstDeath;
             });
@@ -142,12 +142,12 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 try
                 {
                     Regex re = new Regex(!string.IsNullOrEmpty(_logFilter) ? _logFilter : "", RegexOptions.IgnoreCase);
-                    _displayedLogs = _currentlySelectedCombat?.AllLogs.Where(l=>LogFilter(l, re)).ToList() ?? new List<ParsedLogEntry>();
+                    _displayedLogs = _currentlySelectedCombat?.AllLogs.Values.Where(l=>LogFilter(l, re)).ToList() ?? new List<ParsedLogEntry>();
                 }
                 catch (Exception e)
                 {
                     Logging.LogError(e.Message);
-                    _displayedLogs = _currentlySelectedCombat?.AllLogs.ToList() ?? new List<ParsedLogEntry>();
+                    _displayedLogs = _currentlySelectedCombat?.AllLogs.Values.ToList() ?? new List<ParsedLogEntry>();
                 }
             });
         }
@@ -271,16 +271,16 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             List<EntityInfo> returnList = new List<EntityInfo>();
             foreach (var entity in _distinctEntities)
             {
-                var closestLog = _currentlySelectedCombat.AllLogs.Where(e => e.Source.LogId == entity.LogId || e.Target.LogId == entity.LogId).MinBy(l => Math.Abs(l.SecondsSinceCombatStart - seekTime));
-                if (closestLog == null)
+                var closestLog = _currentlySelectedCombat.AllLogs.OrderBy(kvp=>kvp.Key).Where(e => e.Value.Source.LogId == entity.LogId || e.Value.Target.LogId == entity.LogId).MinBy(l => Math.Abs(l.Value.SecondsSinceCombatStart - seekTime));
+                if (closestLog.Value == null)
                     return returnList;
-                if (closestLog.Source.LogId == entity.LogId)
+                if (closestLog.Value.Source.LogId == entity.LogId)
                 {
-                    returnList.Add(closestLog.SourceInfo);
+                    returnList.Add(closestLog.Value.SourceInfo);
                 }
                 else
                 {
-                    returnList.Add(closestLog.TargetInfo);
+                    returnList.Add(closestLog.Value.TargetInfo);
                 }
             }
 

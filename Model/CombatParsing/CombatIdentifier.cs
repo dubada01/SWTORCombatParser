@@ -71,7 +71,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             foreach (var log in orderedLogs)
             {
-                combatToUpdate.AllLogs.Add(log);
+                combatToUpdate.AllLogs[log.TimeStamp] = log;
                 MergeEntityLog(log.Source, log, combatToUpdate);
                 if (log.Source != log.Target)
                     MergeEntityLog(log.Target, log, combatToUpdate);
@@ -100,9 +100,9 @@ namespace SWTORCombatParser.Model.CombatParsing
             if (encounter != null && encounter.BossInfos != null)
             {
                 combatToUpdate.ParentEncounter = encounter;
-                combatToUpdate.EncounterBossDifficultyParts = GetCurrentBossInfo(combatToUpdate.AllLogs, encounter);
-                combatToUpdate.BossInfo = GetCurrentBossInfoObject(combatToUpdate.AllLogs, encounter);
-                UpdateBossEntities(combatToUpdate.AllLogs, encounter);
+                combatToUpdate.EncounterBossDifficultyParts = GetCurrentBossInfo(combatToUpdate.AllLogs.Values, encounter);
+                combatToUpdate.BossInfo = GetCurrentBossInfoObject(combatToUpdate.AllLogs.Values, encounter);
+                UpdateBossEntities(combatToUpdate.AllLogs.Values, encounter);
             }
 
             PostMetadata(isRealtime, combatEndUpdate, orderedLogs, isFirstUpdate, combatToUpdate);
@@ -364,7 +364,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             return CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStartTime);
         }
-        public static (string, string, string) GetCurrentBossInfo(HashSet<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        public static (string, string, string) GetCurrentBossInfo(IEnumerable<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
                 return ("", "", "");
@@ -403,7 +403,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             return ("", "", "");
         }
-        public static BossInfo GetCurrentBossInfoObject(HashSet<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        public static BossInfo GetCurrentBossInfoObject(IEnumerable<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
                 return new BossInfo();
@@ -453,7 +453,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             return bossNamesFound.Distinct().ToList();
         }
-        private static void UpdateBossEntities(HashSet<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        private static void UpdateBossEntities(IEnumerable<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return;

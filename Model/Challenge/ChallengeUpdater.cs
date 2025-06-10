@@ -118,9 +118,9 @@ namespace SWTORCombatParser.Model.Challenge
 
                 // 2) Scan every log, accumulate new ViewModels in a local buffer
                 var buffer = new List<ChallengeInstanceViewModel>();
-                foreach (var logLine in replayedCombat.AllLogs)
+                foreach (var logLine in replayedCombat.AllLogs.OrderBy(kvp=>kvp.Key))
                 {
-                    var newlyFound = FindNewChallengesFromLog(logLine);
+                    var newlyFound = FindNewChallengesFromLog(logLine.Value);
                     if (newlyFound.Count == 0) 
                         continue;
 

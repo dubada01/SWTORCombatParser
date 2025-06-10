@@ -173,8 +173,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private string GetPVPCombatText(Combat combat)
         {
             return
-                $"Team Kills: {combat.AllLogs.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}\r\n" +
-                $"Team Deaths: {combat.AllLogs.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}";
+                $"Team Kills: {combat.AllLogs.Values.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}\r\n" +
+                $"Team Deaths: {combat.AllLogs.Values.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}";
         }
 
         public void HideTrash()
@@ -199,7 +199,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             lock (combatAddLock)
             {
-                var overallCombat = CombatIdentifier.GenerateOverallCombat(Combats.SelectMany(c => c.AllLogs).ToList(), 
+                var overallCombat = CombatIdentifier.GenerateOverallCombat(Combats.SelectMany(c => c.AllLogs.Values.OrderBy(l=>l.TimeStamp)).ToList(), 
                     true, 
                     false, 
                     false, 

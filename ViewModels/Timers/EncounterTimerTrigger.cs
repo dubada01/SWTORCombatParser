@@ -10,6 +10,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public static (string, string, string) CurrentEncounter { get; set; } = ("", "", "");
         public static event Action<string, string, string> BossCombatDetected = delegate { };
         public static event Action PvPEncounterEntered = delegate { };
+        public static bool CurrentEncounterIsPVP = false;
         public static event Action NonPvpEncounterEntered = delegate { };
         public static void FireBossCombatDetected(string encounterName, string bossName, string difficulty, bool isRealtime)
         {
@@ -22,10 +23,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         public static void FirePvpEncounterDetected()
         {
             PvPEncounterEntered.InvokeSafely();
+            CurrentEncounterIsPVP = true;
         }
         public static void FireNonPvpEncounterDetected()
         {
             NonPvpEncounterEntered.InvokeSafely();
+            CurrentEncounterIsPVP = false;
         }
 
         public static void SetPvpStateAfterHistorical(DateTime timeAfterHistory)

@@ -442,7 +442,7 @@
     "SourcePt2": "IZAX",
     "PhaseSource": "The Gods from the Machine|IZAX",
     "Name": "Anchors",
-    "StartTrigger": 6,
+    "StartTrigger": 4,
     "EndTrigger": 0,
     "StartArgs": {
       "EntityIds": [],

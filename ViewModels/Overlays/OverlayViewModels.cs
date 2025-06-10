@@ -445,27 +445,30 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
         }
         public ReactiveCommand<OverlayOptionViewModel,Unit> GenerateOverlay => ReactiveCommand.Create<OverlayOptionViewModel>(v => CreateOverlay(v, true));
-
+        private readonly object _overlayCreationLock = new object();
         private void CreateOverlay(OverlayOptionViewModel type, bool canDelete)
         {
-            OverlayOptionViewModel overlayType = type;
-            if (_currentOverlays.ContainsKey(overlayType.Type) && canDelete)
+            lock (_overlayCreationLock)
             {
-                var currentOverlay = _currentOverlays[overlayType.Type];
-                currentOverlay.RequestClose();
-                RemoveOverlay(currentOverlay);
-                return;
+                OverlayOptionViewModel overlayType = type;
+                if (_currentOverlays.TryGetValue(overlayType.Type, out var currentOverlay))
+                {
+                    if (!canDelete) return;
+                    currentOverlay.RequestClose();
+                    RemoveOverlay(currentOverlay);
+                    return;
+                }
+                overlayType.IsSelected = true;
+                var viewModel = new OverlayInstanceViewModel(overlayType.Type);
+                viewModel.SetRole(_currentCharacterRole);
+                viewModel.OverlayClosed += OverlayHidden;
+                viewModel.SizeScalar = SizeScalar;
+                viewModel.Refresh(CombatIdentifier.CurrentCombat);
+                viewModel.OverlaysMoveable = !OverlaysLocked;
+                viewModel.Active = true;
+                viewModel.ShowOverlayWindow();
+                _currentOverlays[overlayType.Type] = viewModel;
             }
-            overlayType.IsSelected = true;
-            var viewModel = new OverlayInstanceViewModel(overlayType.Type);
-            viewModel.SetRole(_currentCharacterRole);
-            viewModel.OverlayClosed += OverlayHidden;
-            viewModel.SizeScalar = SizeScalar;
-            viewModel.Refresh(CombatIdentifier.CurrentCombat);
-            viewModel.OverlaysMoveable = !OverlaysLocked;
-            viewModel.Active = true;
-            viewModel.ShowOverlayWindow();
-            _currentOverlays[overlayType.Type] = viewModel;
         }
 
         private void OverlayHidden(OverlayInstanceViewModel overlay)

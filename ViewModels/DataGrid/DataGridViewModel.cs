@@ -139,36 +139,82 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             else
                 _selectedColumnTypes = _defaultColumns;
         }
+
         private void UpdateUI()
         {
             var orderedSelectedColumns = _columnOrder
                 .Where(o => _selectedColumnTypes.Contains(o))
                 .ToList();
 
-            // Take snapshot of distinct participants first — no UI thread involved here
+            // Snapshot of distinct participants
             var participantsSnapshot = _allSelectedCombats
                 .SelectMany(c => c.CharacterParticipants)
                 .Distinct()
                 .ToList();
 
-            // Create viewmodels on UI thread in a separate step
-            var newPlayers = participantsSnapshot
-                .Select((pm, i) => new MemberInfoViewModel(i, pm, _allSelectedCombats, orderedSelectedColumns))
-                .ToList();
-
             Dispatcher.UIThread.Invoke(() =>
             {
-                PartyMembers.Clear();
-                foreach (var member in newPlayers)
+                // Remove totals row temporarily if present
+                var hadTotalsRow = PartyMembers.LastOrDefault()?.IsTotalsRow == true;
+                if (hadTotalsRow)
+                    PartyMembers.RemoveAt(PartyMembers.Count - 1);
+
+                // Track by participant LogId
+                var existingMap = PartyMembers
+                    .Where(vm => vm._entity != null)
+                    .ToDictionary(vm => vm._entity.LogId);
+
+                var newPartyList = new List<MemberInfoViewModel>();
+
+                for (int i = 0; i < participantsSnapshot.Count; i++)
                 {
-                    PartyMembers.Add(member);
+                    var participant = participantsSnapshot[i];
+                    if (existingMap.TryGetValue(participant.LogId, out var existingVm))
+                    {
+                        // Optional: refresh existing VM state here if needed
+                        existingVm.Update(_allSelectedCombats, orderedSelectedColumns);
+                        newPartyList.Add(existingVm);
+                        existingMap.Remove(participant.LogId); // Mark as retained
+                    }
+                    else
+                    {
+                        newPartyList.Add(new MemberInfoViewModel(i, participant, _allSelectedCombats,
+                            orderedSelectedColumns));
+                    }
                 }
 
-                PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, null, _allSelectedCombats, orderedSelectedColumns));
+                // Remove any leftover VMs that were not reused
+                foreach (var leftover in existingMap.Values)
+                    PartyMembers.Remove(leftover);
+
+                // Update PartyMembers list order
+                for (int i = 0; i < newPartyList.Count; i++)
+                {
+                    var vm = newPartyList[i];
+                    if (i >= PartyMembers.Count)
+                        PartyMembers.Add(vm);
+                    else if (!ReferenceEquals(PartyMembers[i], vm))
+                        PartyMembers[i] = vm; // Or use Move operation if needed
+                }
+
+                // Remove any extra VMs past the new list size
+                while (PartyMembers.Count > newPartyList.Count)
+                    PartyMembers.RemoveAt(PartyMembers.Count - 1);
+
+                // Re-add totals row at the end
+                if (hadTotalsRow || PartyMembers.All(vm => vm._entity != null))
+                {
+                    PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, null, _allSelectedCombats,
+                        orderedSelectedColumns)
+                    {
+                        IsTotalsRow = true // you’ll need this flag in your ViewModel
+                    });
+                }
             });
 
             ColumnsRefreshed();
         }
+
         public List<string> AvailableColumns => _columnOrder.Select(GetNameFromType).Where(c => _selectedColumnTypes.All(h => GetNameFromType(h) != c)).ToList();
         public string SelectedNewColumn
         {

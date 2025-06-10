@@ -90,7 +90,7 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
         var currentBossHP = 0d;
 
         // Group logs for relevant bosses by boss name
-        var logsByBoss = CombatInstance.AllLogs
+        var logsByBoss = CombatInstance.AllLogs.Values
             .Where(log => bossNames.Contains(log.Source.Name) || bossNames.Contains(log.Target.Name))
             .GroupBy(log => bossNames.FirstOrDefault(boss => boss == log.Source.Name || boss == log.Target.Name));
 

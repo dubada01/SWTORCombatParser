@@ -80,7 +80,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             _currentCombat = selectedCombat;
             _deathLogsViewModel.SelectCombat(selectedCombat, true);
             Reset();
-            var playersThatDidNotStuck = selectedCombat.AllLogs.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(l.Source.Name) && l.Target.IsCharacter).Select(l => l.Target).DistinctBy(p => p.LogId).ToList();
+            var playersThatDidNotStuck = selectedCombat.AllLogs.Values.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(l.Source.Name) && l.Target.IsCharacter).Select(l => l.Target).DistinctBy(p => p.LogId).ToList();
             var selectedParticipants = _playerListViewModel.UpdateParticipantsData(selectedCombat, playersThatDidNotStuck);
             if (playersThatDidNotStuck.Any())
             {

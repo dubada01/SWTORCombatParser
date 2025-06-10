@@ -256,7 +256,7 @@ namespace SWTORCombatParser.ViewModels
                 return;
             }
             list.ForEach(p => p.PhaseEnd = p.PhaseEnd == DateTime.MinValue ? UnfilteredDisplayedCombat.EndTime : p.PhaseEnd);
-            var logsDuringPhases = UnfilteredDisplayedCombat.AllLogs.Where(l => list.Any(p => p.ContainsTime(l.TimeStamp))).ToList();
+            var logsDuringPhases = UnfilteredDisplayedCombat.AllLogs.Values.OrderBy(t=>t.TimeStamp).Where(l => list.Any(p => p.ContainsTime(l.TimeStamp))).ToList();
             var newCombat = CombatIdentifier.GenerateCombatSnapshotFromLogs(logsDuringPhases);
             CombatSelectionMonitor.SelectPhase(newCombat);
             UpdateViewsWithSelectedCombat(newCombat);

@@ -59,7 +59,7 @@ public class AlertsWindowViewModel : TimersWindowViewModel
         {
             _currentTimers.Remove(removedTimer);
         }
-        SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
+        SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t?.TimerValue ?? 0));
         callback(removedTimer);
         if (SwtorTimers.Count == 0)
         {

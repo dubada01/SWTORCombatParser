@@ -8,6 +8,7 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using SWTORCombatParser.Utilities.Converters;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
@@ -19,10 +20,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private string floatValueString = "0.00";
         public Entity _entity;
         private List<Combat> _info = new List<Combat>();
-        private readonly SWTORClass _playerClass;
+        private SWTORClass _playerClass;
+        private readonly OverlayTypeToReadableNameConverter _nameConverter;
 
         public MemberInfoViewModel(int order, Entity e, List<Combat> info, List<OverlayType> selectedColumns)
         {
+            _nameConverter = new OverlayTypeToReadableNameConverter();
             _info = info;
             _entity = e;
 
@@ -42,7 +45,38 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             if (selectedColumns.Count < 10)
                 StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
         }
+        public void Update(List<Combat> newInfo, List<OverlayType> selectedColumns)
+        {
+            _info = newInfo;
+            if (_entity != null)
+            {
+                IsTotalsRow = false;
+                IsLocalPlayer = _entity.IsLocalPlayer;
+                _playerClass = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, newInfo.Last().StartTime);
 
+                foreach (var column in selectedColumns)
+                {
+                    if(!StatsSlots.Any(s=>s.Header == _nameConverter.Convert(column,null,null,System.Globalization.CultureInfo.InvariantCulture).ToString()))
+                    {
+                        StatsSlots.Insert(selectedColumns.IndexOf(column),new StatsSlotViewModel(column,entity:_entity){Value = GetValue(column)});
+                    }
+                }
+                for (var columnIndex = 0; columnIndex < StatsSlots.Count; columnIndex++)
+                {
+                    var column = StatsSlots[columnIndex];
+                    if (column.Header != "Name" && selectedColumns.All(c => column.OverlayType != c))
+                    {
+                        StatsSlots.Remove(column);
+                    }
+                    else
+                    {
+                        column.Value = GetValue(column.OverlayType);
+                    }
+                }
+            }
+            if (selectedColumns.Count < 10)
+                StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
+        }
         public bool IsTotalsRow { get; set; }
     
         public bool IsLocalPlayer { get; set; }
