@@ -122,7 +122,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     [log.TimeStamp] = false
                 };
             }
-            if (log.Effect.EffectId == _7_0LogParsing.DeathCombatId)
+            if (log.Effect.EffectId == _7_0LogParsing.DeathCombatId && log.Target == e)
                 CurrentState.EnemyDeathChangeInfo[e][log.TimeStamp] = true;
         }
         private static void UpdatePlayerClassState(ParsedLogEntry parsedLine, bool realTime)

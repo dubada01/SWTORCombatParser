@@ -42,7 +42,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             DeathPlotView = new LegacyDeathPlot(_plotViewModel);
             Observable.FromEvent<double>(
                 handler => _plotViewModel.XValueSelected += handler,
-                handler => _plotViewModel.XValueSelected -= handler).Sample(TimeSpan.FromSeconds(0.1)).Subscribe(newPos => { SeekToPosition(newPos); });
+                handler => _plotViewModel.XValueSelected -= handler).Sample(TimeSpan.FromSeconds(0.1)).Subscribe(SeekToPosition);
 
             _playerListViewModel = new DeathPlayerListViewModel();
             _playerListViewModel.ParticipantSelected += list => _ = UpdateSelectedPlayers(list);

@@ -7,17 +7,24 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class MechanicsTimersModuleViewModel : INotifyPropertyChanged
+    public class MechanicsTimersModuleViewModel : ReactiveObject
     {
         private EntityInfo _bossInfo;
         private bool isActive = true;
         private object timerLock = new object();
         private double _currentScale;
+        private ObservableCollection<TimerInstanceViewModel> _upcomingMechanics = new();
 
-        public ObservableCollection<TimerInstanceViewModel> UpcomingMechanics { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
+        public ObservableCollection<TimerInstanceViewModel> UpcomingMechanics
+        {
+            get => _upcomingMechanics;
+            set => this.RaiseAndSetIfChanged(ref _upcomingMechanics, value);
+        }
+
         public MechanicsTimersModuleViewModel(EntityInfo bossInfo, double scale)
         {
             _currentScale = scale;
@@ -52,7 +59,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     var ordered = unorderedUpcomingMechs.OrderByDescending(t => t.SourceTimer.HPPercentage);
 
                     UpcomingMechanics = new ObservableCollection<TimerInstanceViewModel>(ordered);
-                    OnPropertyChanged("UpcomingMechanics");
                 });
             }
             callback(obj);
@@ -68,12 +74,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             });
             callback(obj);
 
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

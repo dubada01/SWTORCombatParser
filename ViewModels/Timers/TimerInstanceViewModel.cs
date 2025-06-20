@@ -228,6 +228,9 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 await LoadInfoIconAsync();
             });
+            if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield ||
+                SourceTimer.TriggerType == TimerKeyType.EntityHP)
+                return;
             _tickTimer = new DispatcherTimer(
                 TimeSpan.FromMilliseconds(_updateIntervalMs),
                 DispatcherPriority.Normal,
@@ -328,11 +331,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                 Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     await Task.Delay(_updateIntervalMs);
-                    Complete(true);
+                    await Complete(true);
                 });
             }
         }
-        public async void TriggerHPTimer(double currentHP)
+        public async Task TriggerHPTimer(double currentHP)
         {
             DisplayTimer = true;
             DisplayTimerValue = true;
@@ -348,11 +351,11 @@ namespace SWTORCombatParser.ViewModels.Timers
                 await Task.Delay(_updateIntervalMs);
             }
             if (isActive)
-                Complete(true);
+                await Complete(true);
 
         }
 
-        public async void TriggerAbsorbTimer(double maxAbsorb)
+        public async Task TriggerAbsorbTimer(double maxAbsorb)
         {
             DisplayTimer = true;
             DisplayTimerValue = false;
@@ -371,7 +374,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 await Task.Delay(_updateIntervalMs);
             }
             if (isActive)
-                Complete(true);
+                await Complete(true);
         }
 
 
@@ -418,12 +421,12 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (SourceTimer.HideUntilSec > 0 && !DisplayTimer && TimerValue <= SourceTimer.HideUntilSec)
                 DisplayTimer = true;
         }
-        public void Complete(bool endedNatrually, bool force = false)
+        public async Task Complete(bool endedNatrually, bool force = false)
         {
             if (!isActive) return;
             if (SourceTimer.IsHot && !force)
             {
-                DelayRemoval(endedNatrually);
+                await DelayRemoval(endedNatrually);
                 return;
             }
             isActive = false;
@@ -431,7 +434,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             TimerBackground = _defaultTimerBackground;
             TimerExpired(this, endedNatrually);
         }
-        private async void DelayRemoval(bool endedNatrually)
+        private async Task DelayRemoval(bool endedNatrually)
         {
             await Task.Delay(1500);
             if (isActive)

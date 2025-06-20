@@ -110,17 +110,17 @@ namespace SWTORCombatParser.DataStructures
                 return false;
             }
         }
-        public ConcurrentDictionary<DateTime,ParsedLogEntry> AllLogs { get; set; } = new();
-        public Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>> LogsInvolvingEntity = new();
+        public ConcurrentDictionary<long,ParsedLogEntry> AllLogs { get; set; } = new();
+        public Dictionary<long, ConcurrentQueue<ParsedLogEntry>> LogsInvolvingEntity = new();
 
         public ConcurrentQueue<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
         {
-            if (string.IsNullOrEmpty(e.Name) || !LogsInvolvingEntity.ContainsKey(e))
+            if (string.IsNullOrEmpty(e.Name) || !LogsInvolvingEntity.TryGetValue(e.LogId, out var entity))
             {
                 return new ConcurrentQueue<ParsedLogEntry>();
             }
 
-            return LogsInvolvingEntity[e];
+            return entity;
         }
         public bool WasPlayerKilled(Entity player)
         {
@@ -402,26 +402,26 @@ namespace SWTORCombatParser.DataStructures
         }
         public void SetBurstDamage()
         {
-            AllBurstDamages = CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.DamageOutput));
+            AllBurstDamages = new ConcurrentDictionary<Entity, List<Point>>(CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.DamageOutput)));
         }
         public void SetBurstDamageTaken()
         {
-            AllBurstDamageTakens = CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.DamageTaken));
+            AllBurstDamageTakens = new ConcurrentDictionary<Entity, List<Point>>(CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.DamageTaken)));
         }
         public void SetBurstHealing()
         {
-            AllBurstHealings = CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingOutput));
+            AllBurstHealings = new ConcurrentDictionary<Entity, List<Point>>(CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingOutput)));
         }
         public void SetBurstHealingTaken()
         {
-            AllBurstHealingReceived = CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingTaken));
+            AllBurstHealingReceived = new ConcurrentDictionary<Entity, List<Point>>(CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingTaken)));
         }
         public ConcurrentDictionary<Entity, double> AverageDamageSavedDuringCooldown = new();
         public ConcurrentDictionary<Entity, double> TotalAbilites = new();
         public ConcurrentDictionary<Entity, double> TotalThreat = new();
-        public Dictionary<Entity, List<Point>> AllBurstDamages { get; set; } = new();
-        public Dictionary<Entity, double> MaxBurstDamage => AllBurstDamages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
-        public Dictionary<Entity, double> TotalDamage => TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value + TotalFocusDamage[kvp.Key]);
+        public ConcurrentDictionary<Entity, List<Point>> AllBurstDamages { get; set; } = new();
+        public ConcurrentDictionary<Entity, double> MaxBurstDamage => new( AllBurstDamages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y)));
+        public ConcurrentDictionary<Entity, double> TotalDamage => new(TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value + TotalFocusDamage[kvp.Key]));
         public Dictionary<Entity, double> MaxSingleTargetDamage => TotalDamage.ToDictionary(kvp => kvp.Key, kvp => GetMaxTotalDamageToSingleTargetByPlayer(kvp.Key));
         public ConcurrentDictionary<Entity, double> TotalFluffDamage = new();
         public ConcurrentDictionary<Entity, double> TotalFocusDamage = new();
@@ -429,7 +429,7 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, double> TotalEffectiveFluffDamage = new();
         public ConcurrentDictionary<Entity, double> TotalEffectiveFocusDamage = new();
         public ConcurrentDictionary<Entity, double> TotalCompanionDamage = new();
-        public Dictionary<Entity, List<Point>> AllBurstHealings { get; set; } = new();
+        public ConcurrentDictionary<Entity, List<Point>> AllBurstHealings { get; set; } = new();
         public Dictionary<Entity, double> MaxBurstHeal => AllBurstHealings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
         public ConcurrentDictionary<Entity, double> TotalHealing = new();
         public Dictionary<Entity, double> MaxSingleTargetHealing => TotalHealing.ToDictionary(kvp => kvp.Key, kvp => GetMaxTotalHealingToSingleTargetByPlayer(kvp.Key));
@@ -438,11 +438,11 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, double> TotalEffectiveCompanionHealing = new();
         public ConcurrentDictionary<Entity, double> TotalTankSheilding = new();
         public ConcurrentDictionary<Entity, double> TotalProvidedSheilding = new();
-        public Dictionary<Entity, List<Point>> AllBurstDamageTakens { get; set; } = new();
+        public ConcurrentDictionary<Entity, List<Point>> AllBurstDamageTakens { get; set; } = new();
         public Dictionary<Entity, double> MaxBurstDamageTaken => AllBurstDamageTakens.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
         public ConcurrentDictionary<Entity, double> TotalDamageTaken = new();
 
-        public Dictionary<Entity, List<Point>> AllBurstHealingReceived { get; set; } = new();
+        public ConcurrentDictionary<Entity, List<Point>> AllBurstHealingReceived { get; set; } = new();
         public Dictionary<Entity, double> MaxBurstHealingReceived => AllBurstHealingReceived.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y));
         public Dictionary<Entity, double> CurrentHealthDeficit => TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => Math.Max(0, TotalEffectiveDamageTaken[kvp.Key] - TotalEffectiveHealingReceived[kvp.Key]));
         public ConcurrentDictionary<Entity, double> TimeSpentBelowFullHealth = new();
@@ -648,24 +648,18 @@ namespace SWTORCombatParser.DataStructures
         public Combat GetPhaseCopy(ConcurrentDictionary<Guid,PhaseInstance> phases)
         {
             List<ParsedLogEntry> phaseLogs = new List<ParsedLogEntry>();
-            var snapshot = AllLogs.OrderBy(kvp => kvp.Key);
+            var snapshot = AllLogs.ToArray().OrderBy(kvp => kvp.Key);
             foreach (var phase in phases)
             {
-                if (phase.Value.PhaseEnd == DateTime.MinValue)
-                {
-                    phaseLogs.AddRange(snapshot.Where(l => l.Key > phase.Value.PhaseStart).Select(kvp=>kvp.Value));
-                }
-                else
-                {
-                    phaseLogs.AddRange(snapshot.Where(l => phase.Value.ContainsTime(l.Key)).Select(kvp=>kvp.Value));
-                }
-
+                phaseLogs.AddRange(phase.Value.PhaseEnd == DateTime.MinValue
+                    ? snapshot.Where(l => l.Value.TimeStamp > phase.Value.PhaseStart).Select(kvp => kvp.Value)
+                    : snapshot.Where(l => phase.Value.ContainsTime(l.Value.TimeStamp)).Select(kvp => kvp.Value));
             }
 
             if (!phaseLogs.Any())
                 return new Combat();
             var duration = phases.Sum(p => ((p.Value.PhaseEnd == DateTime.MinValue ? CombatIdentifier.CurrentCombat.EndTime : p.Value.PhaseEnd) - p.Value.PhaseStart).TotalSeconds);
-            var phaseCombat = CombatIdentifier.GenerateCombatSnapshotFromLogs(phaseLogs.ToList(), isPhaseCombat: true);
+            var phaseCombat = CombatIdentifier.GenerateCombatSnapshotFromLogs(phaseLogs,combatEndUpdate:true);
             var tempDuration = duration * 1000;
             if (tempDuration < phaseCombat.DurationMS)
                 phaseCombat.DurationOverride = tempDuration;

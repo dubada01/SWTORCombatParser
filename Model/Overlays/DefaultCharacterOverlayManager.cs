@@ -48,6 +48,8 @@ namespace SWTORCombatParser.Model.Overlays
         InstantaneousDPS,
         InstantaneousEHPS,
         InstantaneousDPTS,
+        FluffDPS,
+        EHPSNoShielding
     }
 
     public class AvaloniaPointConverter : JsonConverter<Point>

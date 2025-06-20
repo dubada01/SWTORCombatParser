@@ -548,7 +548,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 
         private static double GetSpeedFromLog(ParsedLogEntry cl, IEnumerable<ParsedLogEntry> effectRemoveLogs)
         {
-            var removedEffectLog = effectRemoveLogs.FirstOrDefault(l => l.LogLineNumber > cl.LogLineNumber);
+            var removedEffectLog = effectRemoveLogs.OrderBy(l=>l.LogLineNumber).FirstOrDefault(l => l.LogLineNumber > cl.LogLineNumber);
             if (removedEffectLog == null)
                 return 0;
             var cleanseTime = removedEffectLog.TimeStamp;

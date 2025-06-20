@@ -244,12 +244,12 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
 {
     var selectedLogId = _selectedEntity.LogId;
     var matchingEntities = combat.LogsInvolvingEntity
-        .Where(kvp => kvp.Key.LogId == selectedLogId)
+        .Where(kvp => kvp.Key == selectedLogId)
         .Select(kvp => kvp.Key);
 
     var combinedLogs = matchingEntities
-        .SelectMany(entity => combat.LogsInvolvingEntity.ContainsKey(entity)
-            ? combat.LogsInvolvingEntity[entity].Where(l => l.Source == entity && l.Threat != 0)
+        .SelectMany(entity => combat.LogsInvolvingEntity.TryGetValue(entity, out var value)
+            ? value.Where(l => l.Source.LogId == entity && l.Threat != 0)
             : new List<ParsedLogEntry>());
 
     var splitOutdata = GetDataSplitOut(combat, combinedLogs.ToList());

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reactive;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -145,7 +146,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     {
                         BossesDetected.Add(new BossFrameViewModel(boss, isDuplicate, CurrentScale));
                         this.RaisePropertyChanged(nameof(ShowFrame));
-                        InCombatWithBoss(true);
+                        InCombatWithBoss.InvokeSafely(true);
                         UpdateVisibility();
                     });
                 }
@@ -160,7 +161,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                         {
                             BossesDetected.Remove(activeBoss);
                             this.RaisePropertyChanged(nameof(ShowFrame));
-                            InCombatWithBoss(BossesDetected.Count > 0);
+                            InCombatWithBoss.InvokeSafely(BossesDetected.Count > 0);
                             UpdateVisibility();
                         });
 
@@ -190,7 +191,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             Dispatcher.UIThread.Invoke(() =>
             {
                 BossesDetected.Clear();
-                InCombatWithBoss(false);
+                InCombatWithBoss.InvokeSafely(false);
                 this.RaisePropertyChanged(nameof(ShowFrame));
                 UpdateVisibility();
             });

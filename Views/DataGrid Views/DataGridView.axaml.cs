@@ -194,7 +194,9 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                             CellStyleClasses = { "rightAlign","static" },
                             CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
                             {
-                                var statToDisplay = member.StatsSlots.First(s => s.Header == statSlot.Header);
+                                var statToDisplay = member.StatsSlots.FirstOrDefault(s => s.Header == statSlot.Header);
+                                if (statToDisplay == null)
+                                    return new TextBlock();
                                 var textBox = new TextBlock
                                 {
                                     Text = statToDisplay.Value,
@@ -317,7 +319,6 @@ namespace SWTORCombatParser.Views.DataGrid_Views
         {
             // Instantiate the CustomComparer with the new direction
             CustomComparer comparer = new CustomComparer(_sortProperty, _sortDirection);
-            Debug.WriteLine($"Sorting {_sortProperty} on {_sortDirection}");
             // Sort the items
             var items = DynamicDataGrid.ItemsSource as IEnumerable<MemberInfoViewModel>;
             if (items != null)

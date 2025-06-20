@@ -71,7 +71,8 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             OverlayType.EHPS,OverlayType.SingleTargetEHPS,OverlayType.EffectiveHealing,OverlayType.HPS,OverlayType.RawHealing, OverlayType.BurstEHPS, OverlayType.HealReactionTime,OverlayType.CleanseCount,OverlayType.CleanseSpeed,
             OverlayType.DamageTaken, OverlayType.BurstDamageTaken, OverlayType.Mitigation, OverlayType.ShieldAbsorb, OverlayType.ProvidedAbsorb, OverlayType.DamageAvoided, OverlayType.ThreatPerSecond,OverlayType.DamageSavedDuringCD,
             OverlayType.InterruptCount, OverlayType.APM};
-        private List<Combat> _allSelectedCombats = new();
+
+        private Combat? _currentCombat;
         private List<OverlayType> _selectedColumnTypes = _defaultColumns;
         private static List<OverlayType> _defaultColumns = new() { OverlayType.DPS, OverlayType.Damage, OverlayType.EHPS, OverlayType.EffectiveHealing, OverlayType.DamageTaken, OverlayType.APM };
         private ObservableCollection<MemberInfoViewModel> partyMembers = new();
@@ -83,7 +84,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             IconFactory.Init();
             DataGridDefaults.Init();
-            CombatLogStateBuilder.PlayerDiciplineChanged += UpdateColumns;
+            //CombatLogStateBuilder.PlayerDiciplineChanged += UpdateColumns;
             CombatLogStreamer.HistoricalLogsFinished += UpdateLocalPlayer;
         }
 
@@ -116,15 +117,14 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         
         public void UpdateCombat(Combat updatedCombat)
         {
-            _allSelectedCombats.Clear();
-            _allSelectedCombats.Add(updatedCombat);
+            _currentCombat = updatedCombat;
+            UpdateLocalPlayer(updatedCombat.EndTime, true);
             this.RaisePropertyChanged(nameof(CanAddColumns));
             UpdateUI();
         }
         public void Reset()
         {
             _localPlayer = "";
-            _allSelectedCombats.Clear();
             UpdateUI();
         }
 
@@ -142,76 +142,76 @@ namespace SWTORCombatParser.ViewModels.DataGrid
 
         private void UpdateUI()
         {
-            var orderedSelectedColumns = _columnOrder
-                .Where(o => _selectedColumnTypes.Contains(o))
+            if (_currentCombat is null)
+                return;
+
+            var orderedColumns = _columnOrder
+                .Where(_selectedColumnTypes.Contains)
                 .ToList();
 
-            // Snapshot of distinct participants
-            var participantsSnapshot = _allSelectedCombats
-                .SelectMany(c => c.CharacterParticipants)
-                .Distinct()
+            // *** deterministic participant order (keeps DataGrid rows stable) ***
+            var participantsSnapshot = _currentCombat.CharacterParticipants
+                .DistinctBy(p => p.LogId) // avoid duplicates
+                .OrderBy(p => p.Name) // …or .OrderByDescending(p => p.TotalDps)
                 .ToList();
 
             Dispatcher.UIThread.Invoke(() =>
             {
-                // Remove totals row temporarily if present
+                // --- 1. pull any totals row off the list -------------------------
                 var hadTotalsRow = PartyMembers.LastOrDefault()?.IsTotalsRow == true;
                 if (hadTotalsRow)
                     PartyMembers.RemoveAt(PartyMembers.Count - 1);
 
-                // Track by participant LogId
-                var existingMap = PartyMembers
+                // --- 2. quick lookup of existing VMs by LogId --------------------
+                var vmById = PartyMembers
                     .Where(vm => vm._entity != null)
-                    .ToDictionary(vm => vm._entity.LogId);
+                    .ToDictionary(vm => vm._entity!.LogId);
 
-                var newPartyList = new List<MemberInfoViewModel>();
+                // --- 3. create / refresh / reorder -------------------------------
+                var newList = new List<MemberInfoViewModel>();
 
                 for (int i = 0; i < participantsSnapshot.Count; i++)
                 {
-                    var participant = participantsSnapshot[i];
-                    if (existingMap.TryGetValue(participant.LogId, out var existingVm))
+                    var p = participantsSnapshot[i];
+
+                    if (vmById.TryGetValue(p.LogId, out var existing))
                     {
-                        // Optional: refresh existing VM state here if needed
-                        existingVm.Update(_allSelectedCombats, orderedSelectedColumns);
-                        newPartyList.Add(existingVm);
-                        existingMap.Remove(participant.LogId); // Mark as retained
+                        existing.Update(_currentCombat, orderedColumns);
+                        vmById.Remove(p.LogId); // mark as consumed
+                        newList.Add(existing);
                     }
                     else
                     {
-                        newPartyList.Add(new MemberInfoViewModel(i, participant, _allSelectedCombats,
-                            orderedSelectedColumns));
+                        newList.Add(new MemberInfoViewModel(i, p, _currentCombat, orderedColumns));
                     }
                 }
 
-                // Remove any leftover VMs that were not reused
-                foreach (var leftover in existingMap.Values)
-                    PartyMembers.Remove(leftover);
+                // --- 4. dispose VMs for players that disappeared -----------------
+                foreach (var orphan in vmById.Values)
+                    PartyMembers.Remove(orphan);
 
-                // Update PartyMembers list order
-                for (int i = 0; i < newPartyList.Count; i++)
+                // --- 5. update list order in-place to avoid CollectionChanged churn
+                for (int i = 0; i < newList.Count; i++)
                 {
-                    var vm = newPartyList[i];
                     if (i >= PartyMembers.Count)
-                        PartyMembers.Add(vm);
-                    else if (!ReferenceEquals(PartyMembers[i], vm))
-                        PartyMembers[i] = vm; // Or use Move operation if needed
+                        PartyMembers.Add(newList[i]);
+                    else if (!ReferenceEquals(PartyMembers[i], newList[i]))
+                        PartyMembers[i] = newList[i];
                 }
 
-                // Remove any extra VMs past the new list size
-                while (PartyMembers.Count > newPartyList.Count)
+                while (PartyMembers.Count > newList.Count)
                     PartyMembers.RemoveAt(PartyMembers.Count - 1);
 
-                // Re-add totals row at the end
+                // --- 6. append (or rebuild) the totals row -----------------------
                 if (hadTotalsRow || PartyMembers.All(vm => vm._entity != null))
                 {
-                    PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, null, _allSelectedCombats,
-                        orderedSelectedColumns)
+                    PartyMembers.Add(new MemberInfoViewModel(
+                        PartyMembers.Count, null, _currentCombat, orderedColumns)
                     {
-                        IsTotalsRow = true // you’ll need this flag in your ViewModel
+                        IsTotalsRow = true
                     });
                 }
             });
-
             ColumnsRefreshed();
         }
 

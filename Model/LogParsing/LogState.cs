@@ -111,7 +111,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
 
             if (timestamp > enemyDeathInfo.Max(v => v.Key))
-                return false;
+                return enemyDeathInfo.MaxBy(v => v.Key).Value;
             if (!enemyDeathInfo.Any(d => d.Key < timestamp))
                 return true;
             var updateTimes = enemyDeathInfo.Keys.ToList();

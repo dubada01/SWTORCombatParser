@@ -147,7 +147,7 @@ namespace SWTORCombatParser.Model.Phases
                 ResetPhases();
                 _combatStartTime = combat.StartTime;
                 _currentBossName = combat.EncounterBossDifficultyParts.Item1;
-                foreach (var line in combat.AllLogs.OrderBy(l=>l.Key))
+                foreach (var line in combat.AllLogs.ToArray().OrderBy(l=>l.Key))
                 {
                     HandleNewLine(line.Value);
                 }
@@ -165,7 +165,7 @@ namespace SWTORCombatParser.Model.Phases
                 }
                 if (update.Logs != null && update.Logs.Count > 0)
                 {
-                    foreach (var line in update.Logs)
+                    foreach (var line in update.Logs.OrderBy(l=>l.LogLineNumber))
                     {
                         HandleNewLine(line);
                     }

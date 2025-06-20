@@ -40,7 +40,7 @@ namespace SWTORCombatParser.Model.Challenge
                     break;
                 case ChallengeType.MetricDuringPhase:
                     if (combat.DurationMS > 0 && phaseCombat.AllEntities.Contains(participant))
-                        value = MetricGetter.GetValueForMetric(activeChallenge.PhaseMetric, new List<Combat> { phaseCombat }, participant);
+                        value = MetricGetter.GetValueForMetric(activeChallenge.PhaseMetric,  phaseCombat, participant);
                     break;
             }
             return value;

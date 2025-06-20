@@ -25,6 +25,7 @@ using SWTORCombatParser.Views.Overviews;
 using SWTORCombatParser.Views.Phases;
 using SWTORCombatParser.Views.SettingsView;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -255,11 +256,10 @@ namespace SWTORCombatParser.ViewModels
                 }
                 return;
             }
-            list.ForEach(p => p.PhaseEnd = p.PhaseEnd == DateTime.MinValue ? UnfilteredDisplayedCombat.EndTime : p.PhaseEnd);
-            var logsDuringPhases = UnfilteredDisplayedCombat.AllLogs.Values.OrderBy(t=>t.TimeStamp).Where(l => list.Any(p => p.ContainsTime(l.TimeStamp))).ToList();
-            var newCombat = CombatIdentifier.GenerateCombatSnapshotFromLogs(logsDuringPhases);
-            CombatSelectionMonitor.SelectPhase(newCombat);
-            UpdateViewsWithSelectedCombat(newCombat);
+            var phaseList = new ConcurrentDictionary<Guid, PhaseInstance>(list.ToDictionary(_=>  Guid.NewGuid(), kvp=> kvp));
+            var phaseCombat = UnfilteredDisplayedCombat.GetPhaseCopy(phaseList);
+            CombatSelectionMonitor.SelectPhase(phaseCombat);
+            UpdateViewsWithSelectedCombat(phaseCombat);
         }
         public SolidColorBrush UploadButtonBackground
         {
@@ -538,7 +538,8 @@ namespace SWTORCombatParser.ViewModels
                     _plotViewModel.UpdateParticipants(selectedCombat);
                     _plotViewModel.AddCombatPlot(selectedCombat);
                     _tableViewModel.AddCombat(selectedCombat);
-                    _deathViewModel.SetCombat(selectedCombat);
+                    if(_deathView.IsVisible) 
+                        _deathViewModel.SetCombat(selectedCombat);
                     _reviewViewModel.CombatSelected(selectedCombat);
                     _dataGridViewModel.UpdateCombat(selectedCombat);
 

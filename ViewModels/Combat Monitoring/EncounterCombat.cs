@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -83,7 +84,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             combatsAreVisible = true;
             ExpandIconSource = expandIcon;
         }
-        public Combat OverallCombat => GetOverallCombat();
         public ObservableCollection<Combat> Combats
         {
             get => combats; set
@@ -195,14 +195,12 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     pastCombat.IsVisible = true;
             }
         }
-        private Combat GetOverallCombat()
+        public async Task<Combat> GetOverallCombat()
         {
             lock (combatAddLock)
             {
-                var overallCombat = CombatIdentifier.GenerateOverallCombat(Combats.SelectMany(c => c.AllLogs.Values.OrderBy(l=>l.TimeStamp)).ToList(), 
+                var overallCombat = CombatIdentifier.GenerateOverallCombat(Combats.SelectMany(c => c.AllLogs.Values.OrderBy(l=>l.TimeStamp)), 
                     true, 
-                    false, 
-                    false, 
                     false, 
                     Combats.Sum(c=>c.DurationSeconds));
                 if(overallCombat.StartTime == DateTime.MinValue)

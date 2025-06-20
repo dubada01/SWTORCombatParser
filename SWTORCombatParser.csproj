@@ -1,83 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.1.11.0</VersionPrefix>
+    <VersionPrefix>2.1.14.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AssemblyName>Orbs</AssemblyName>
     <Nullable>enable</Nullable>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
-
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-	<PlatformTarget>AnyCPU</PlatformTarget>
-	<DebugType>full</DebugType>
+  <!-- macOS Debug -->
+  <PropertyGroup Condition="'$(OS)' == 'Unix' And '$(Configuration)' == 'Debug'">
+    <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
-
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Prefer32Bit>false</Prefer32Bit>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>full</DebugType>
-  </PropertyGroup>
-  <!-- Define 'WINDOWS' symbol when building on Windows -->
+  <!-- Windows OS detection -->
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <DefineConstants>WINDOWS;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
-  <!-- Define 'MACOS' symbol when building on macOS -->
-  <PropertyGroup Condition="'$(OS)' == 'Unix'">
-<!--    <DefineConstants>LINUX;$(DefineConstants)</DefineConstants>-->
-<!--    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>-->
-    
-    <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
-    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
-   </PropertyGroup>
- 
-   
-   
-   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-     <!-- Include Windows-specific packages -->
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
     <PackageReference Include="System.Drawing.Common" Version="9.0.3" />
     <PackageReference Include="SkiaSharp.Views.Desktop.Common" Version="3.116.1" />
-     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(OS)' == 'Unix'">
-    <!-- Include Windows-specific packages -->
     <None Include="libbass.dylib">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugType>full</DebugType>
-  </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <PlatformTarget>x64</PlatformTarget>
-        <Prefer32Bit>false</Prefer32Bit>
-        <OutputPath>bin\x64\Release\net8.0\win-x64\</OutputPath>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <PlatformTarget>x64</PlatformTarget>
-        <Prefer32Bit>false</Prefer32Bit>
-        <OutputPath>bin\x64\Debug\net8.0\win-x64\</OutputPath>
-    </PropertyGroup>
   <ItemGroup>
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
@@ -172,6 +128,10 @@
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </Content>
   <Content Include="resources\Audio\TimerAudio\*.*">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <None Remove="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json" />
+  <Content Include="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </Content>
 </ItemGroup>

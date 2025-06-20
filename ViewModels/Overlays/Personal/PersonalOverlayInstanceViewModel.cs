@@ -186,7 +186,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             {
                 return;
             }
-            metricValue = MetricGetter.GetValueForMetric(SelectedMetric, new List<Combat> { _currentcombat }, CombatLogStateBuilder.CurrentState.LocalPlayer);
+            metricValue = MetricGetter.GetValueForMetric(SelectedMetric,  _currentcombat, CombatLogStateBuilder.CurrentState.LocalPlayer);
             OnPropertyChanged("MetricValue");
         }
 

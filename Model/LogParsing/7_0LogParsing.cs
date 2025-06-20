@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -238,181 +239,241 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static Value ParseValueNumber(string damageValueString, ulong effectId)
         {
-
-            var newValue = new Value();
-            if (damageValueString == "(0 -)" || damageValueString == "")
-                return newValue;
-            var valueParts = ParseDamageValueString(damageValueString);
-
-            if (valueParts.Count == 0)
-                return newValue;
-
-            if (valueParts.Count == 1) //fully effective heal
+            try
             {
-                newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.ValueType = effectId == _healEffectId ? DamageType.heal : DamageType.none;
-                newValue.EffectiveDblValue = newValue.DblValue > 0 ? newValue.DblValue : 0;
-            }
-            if (valueParts.Count == 2) // partially effective heal
-            {
-                newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.ValueType = DamageType.heal;
-                var effectiveHeal = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-                newValue.EffectiveDblValue = effectiveHeal > 0 ? effectiveHeal : 0;
-            }
-            if (valueParts.Count == 3) // fully effective damage or parry
-            {
-                newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.EffectiveDblValue = newValue.DblValue;
-                newValue.MitigatedDblValue = newValue.DblValue;
-                newValue.ValueTypeId = long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId) ? valId : 0;
-                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                var newValue = new Value();
+                if (damageValueString == "(0 -)" || damageValueString == "")
+                    return newValue;
+                var valueParts = ParseDamageValueString(damageValueString);
 
-            }
-            
-            if (valueParts.Count == 4) // partially effective damage
-            {
-                if (valueParts[3] == "-") // handle weird space pvp stuff
+                if (valueParts.Count == 0)
+                    return newValue;
+
+                if (valueParts.Count == 1) //fully effective heal
                 {
-                    newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.ValueTypeId = long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId) ? valId : 0;
-                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                    newValue.WasCrit = valueParts[0].Contains("*");
+                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.ValueType = effectId == _healEffectId ? DamageType.heal : DamageType.none;
+                    newValue.EffectiveDblValue = newValue.DblValue > 0 ? newValue.DblValue : 0;
                 }
-                else
+
+                if (valueParts.Count == 2) // partially effective heal
                 {
-                    if (valueParts[3].Contains(_reflectedId.ToString())) // damage reflected
+                    newValue.WasCrit = valueParts[0].Contains("*");
+                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.ValueType = DamageType.heal;
+                    var effectiveHeal = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                    newValue.EffectiveDblValue = effectiveHeal > 0 ? effectiveHeal : 0;
+                }
+
+                if (valueParts.Count == 3) // fully effective damage or parry
+                {
+                    newValue.WasCrit = valueParts[0].Contains("*");
+                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.EffectiveDblValue = newValue.DblValue;
+                    newValue.MitigatedDblValue = newValue.DblValue;
+                    newValue.ValueTypeId =
+                        long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId)
+                            ? valId
+                            : 0;
+                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+
+                }
+
+                if (valueParts.Count == 4) // partially effective damage
+                {
+                    if (valueParts[3] == "-") // handle weird space pvp stuff
+                    {
+                        newValue.EffectiveDblValue =
+                            double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                        newValue.ValueTypeId =
+                            long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId)
+                                ? valId
+                                : 0;
+                        newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                    }
+                    else
+                    {
+                        if (valueParts[3].Contains(_reflectedId.ToString())) // damage reflected
+                        {
+                            newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""),
+                                CultureInfo.InvariantCulture);
+                            newValue.EffectiveDblValue = newValue.DblValue;
+                            return newValue;
+                        }
+
+                        newValue.WasCrit = valueParts[0].Contains("*");
+                        newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                        newValue.EffectiveDblValue =
+                            double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                        newValue.MitigatedDblValue = newValue.EffectiveDblValue;
+                        newValue.ValueTypeId =
+                            long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId)
+                                ? valId
+                                : 0;
+                        newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                    }
+                }
+
+                if (valueParts.Count == 5) //reflected damage
+                {
+                    if (valueParts[3].Contains(_reflectedId.ToString()))
+                    {
+                        newValue.WasCrit = valueParts[0].Contains("*");
+                        newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                        newValue.MitigatedDblValue = newValue.DblValue;
+                        newValue.ValueTypeId = _reflectedId;
+                        newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                    }
+                    else
+                    {
+                        var cleanedValue = valueParts[0].Replace("*", "").Replace("~", "");
+                        newValue.DblValue = double.Parse(cleanedValue, CultureInfo.InvariantCulture);
+                        newValue.EffectiveDblValue = double.Parse(cleanedValue, CultureInfo.InvariantCulture);
+                        newValue.ValueTypeId =
+                            long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId)
+                                ? valId
+                                : 0;
+                        newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                    }
+                }
+
+                if (valueParts.Count == 6) // absorbed damage tank-weird or partially effective reflected damage
+                {
+                    if (valueParts[5].Contains(_reflectedId.ToString())) // damage reflected
                     {
                         newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                        newValue.EffectiveDblValue = newValue.DblValue;
+                        newValue.EffectiveDblValue =
+                            double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                        newValue.MitigatedDblValue = newValue.EffectiveDblValue;
                         return newValue;
                     }
+
+                    var modifier = new Value
+                    {
+                        ValueType = GetValueTypeById(
+                            long.TryParse(valueParts[5].Replace("{", "").Replace("}", ""), out var modId) ? modId : 0),
+                    };
+                    if (double.TryParse(valueParts[3].Replace("(", ""), out double value))
+                        modifier.DblValue = value;
+                    modifier.EffectiveDblValue = modifier.DblValue;
+                    newValue.Modifier = modifier;
+                    newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
+                    newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
+
+                    newValue.WasCrit = valueParts[0].Contains("*");
+                    newValue.MitigatedDblValue = double.Parse(valueParts[0].Replace("~", "").Replace("*", ""),
+                        CultureInfo.InvariantCulture);
+                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.ValueTypeId =
+                        long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId)
+                            ? valId
+                            : 0;
+                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                    if (modifier.ValueType == DamageType.absorbed)
+                        newValue.EffectiveDblValue = newValue.DblValue;
+                    else
+                        newValue.EffectiveDblValue = newValue.MitigatedDblValue;
+                }
+
+                if (valueParts.Count == 7) // absorbed damage non-tank
+                {
+                    var modifier = new Value
+                    {
+                        ValueType = GetValueTypeById(
+                            long.TryParse(valueParts[6].Replace("{", "").Replace("}", ""), out var modValId)
+                                ? modValId
+                                : 0),
+                        DblValue = double.Parse(valueParts[4].Replace("(", ""), CultureInfo.InvariantCulture)
+                    };
+                    modifier.EffectiveDblValue = modifier.DblValue;
+                    newValue.Modifier = modifier;
+                    newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
+                    newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
+
+                    newValue.WasCrit = valueParts[0].Contains("*");
+                    newValue.MitigatedDblValue =
+                        double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.ValueTypeId =
+                        long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId)
+                            ? valId
+                            : 0;
+                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                    if (modifier.ValueType == DamageType.absorbed)
+                        newValue.EffectiveDblValue = newValue.DblValue;
+                    else
+                        newValue.EffectiveDblValue = newValue.MitigatedDblValue;
+                }
+
+                if (valueParts.Count == 8) // tank shielding sheilds more than damage
+                {
+
+                    var modifier = new Value
+                    {
+                        ValueType = GetValueTypeById(
+                            long.TryParse(valueParts[4].Replace("{", "").Replace("}", ""), out var modId) ? modId : 0),
+                        DblValue = double.Parse(valueParts[5].Replace("(", ""), CultureInfo.InvariantCulture)
+                    };
+
+                    modifier.EffectiveDblValue = modifier.DblValue;
+                    newValue.Modifier = modifier;
+                    newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
+                    newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
+
+                    newValue.WasCrit = valueParts[0].Contains("*");
+                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture) +
+                                        modifier.EffectiveDblValue;
+                    newValue.EffectiveDblValue =
+                        double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.MitigatedDblValue = newValue.EffectiveDblValue;
+                    newValue.ValueTypeId =
+                        long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var result)
+                            ? result
+                            : 0;
+                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+
+                }
+
+                if (valueParts.Count == 9) // tank shielding shields less than or equal to damage
+                {
+
+                    var modifier = new Value
+                    {
+                        ValueType = GetValueTypeById(
+                            long.TryParse(valueParts[5].Replace("{", "").Replace("}", ""), out var result)
+                                ? result
+                                : 0),
+                        DblValue = double.Parse(valueParts[6].Replace("(", ""), CultureInfo.InvariantCulture)
+                    };
+
+                    modifier.EffectiveDblValue =
+                        Math.Min(double.Parse(valueParts[0].Replace("*", "")), modifier.DblValue);
+                    newValue.Modifier = modifier;
+                    newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
+                    newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
+
                     newValue.WasCrit = valueParts[0].Contains("*");
                     newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                    newValue.EffectiveDblValue =
+                        double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
                     newValue.MitigatedDblValue = newValue.EffectiveDblValue;
-                    newValue.ValueTypeId = long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId) ? valId : 0;
+                    newValue.ValueTypeId =
+                        long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valueIdParsed)
+                            ? valueIdParsed
+                            : 0;
                     newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
                 }
+
+                newValue.ValueTypeId = 0;
+                newValue.DisplayValue = _interner.Intern(newValue.EffectiveDblValue.ToString("#,##0"));
+                return newValue;
             }
-            if (valueParts.Count == 5) //reflected damage
+            catch (Exception ex)
             {
-                if (valueParts[3].Contains(_reflectedId.ToString()))
-                {
-                    newValue.WasCrit = valueParts[0].Contains("*");
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.MitigatedDblValue = newValue.DblValue;
-                    newValue.ValueTypeId = _reflectedId;
-                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-                }
-                else
-                {
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("~", ""), CultureInfo.InvariantCulture);
-                    newValue.ValueTypeId = long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId) ? valId : 0;
-                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-                }
+                Logging.LogError("Failed to properly parse value: "+damageValueString);
+                return new Value();
             }
-            if (valueParts.Count == 6)// absorbed damage tank-weird or partially effective reflected damage
-            {
-                if (valueParts[5].Contains(_reflectedId.ToString())) // damage reflected
-                {
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-                    newValue.MitigatedDblValue = newValue.EffectiveDblValue;
-                    return newValue;
-                }
-                var modifier = new Value
-                {
-                    ValueType = GetValueTypeById( long.TryParse(valueParts[5].Replace("{", "").Replace("}", ""), out var modId) ? modId : 0),
-                };
-                if (double.TryParse(valueParts[3].Replace("(", ""), out double value))
-                    modifier.DblValue = value;
-                modifier.EffectiveDblValue = modifier.DblValue;
-                newValue.Modifier = modifier;
-                newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
-                newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
-
-                newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.MitigatedDblValue = double.Parse(valueParts[0].Replace("~", "").Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.ValueTypeId = long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId) ? valId : 0;
-                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-                if (modifier.ValueType == DamageType.absorbed)
-                    newValue.EffectiveDblValue = newValue.DblValue;
-                else
-                    newValue.EffectiveDblValue = newValue.MitigatedDblValue;
-            }
-            if (valueParts.Count == 7) // absorbed damage non-tank
-            {
-                var modifier = new Value
-                {
-                    ValueType = GetValueTypeById(long.TryParse(valueParts[6].Replace("{", "").Replace("}", ""), out var modValId) ? modValId : 0),
-                    DblValue = double.Parse(valueParts[4].Replace("(", ""), CultureInfo.InvariantCulture)
-                };
-                modifier.EffectiveDblValue = modifier.DblValue;
-                newValue.Modifier = modifier;
-                newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
-                newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
-
-                newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.MitigatedDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.ValueTypeId = long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId) ? valId : 0;
-                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-                if (modifier.ValueType == DamageType.absorbed)
-                    newValue.EffectiveDblValue = newValue.DblValue;
-                else
-                    newValue.EffectiveDblValue = newValue.MitigatedDblValue;
-            }
-            if (valueParts.Count == 8) // tank shielding sheilds more than damage
-            {
-
-                var modifier = new Value
-                {
-                    ValueType = GetValueTypeById(long.TryParse(valueParts[4].Replace("{", "").Replace("}", ""), out var modId) ? modId : 0),
-                    DblValue = double.Parse(valueParts[5].Replace("(", ""), CultureInfo.InvariantCulture)
-                };
-
-                modifier.EffectiveDblValue = modifier.DblValue;
-                newValue.Modifier = modifier;
-                newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
-                newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
-
-                newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture) + modifier.EffectiveDblValue;
-                newValue.EffectiveDblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.MitigatedDblValue = newValue.EffectiveDblValue;
-                newValue.ValueTypeId = long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var result) ? result : 0;
-                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-
-            }
-            if (valueParts.Count == 9) // tank shielding shields less than or equal to damage
-            {
-
-                var modifier = new Value
-                {
-                    ValueType = GetValueTypeById(long.TryParse(valueParts[5].Replace("{", "").Replace("}", ""), out var result) ? result : 0),
-                    DblValue = double.Parse(valueParts[6].Replace("(", ""), CultureInfo.InvariantCulture)
-                };
-
-                modifier.EffectiveDblValue = Math.Min(double.Parse(valueParts[0].Replace("*", "")), modifier.DblValue);
-                newValue.Modifier = modifier;
-                newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
-                newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
-
-                newValue.WasCrit = valueParts[0].Contains("*");
-                newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                newValue.EffectiveDblValue = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-                newValue.MitigatedDblValue = newValue.EffectiveDblValue;
-                newValue.ValueTypeId = long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valueIdParsed) ? valueIdParsed : 0;
-                newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-            }
-            newValue.ValueTypeId = 0;
-            newValue.DisplayValue = _interner.Intern(newValue.EffectiveDblValue.ToString("#,##0"));
-            return newValue;
         }
         private static EntityInfo ParseEntity(ReadOnlySpan<char> value)
         {

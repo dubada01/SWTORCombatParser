@@ -82,6 +82,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
                 catch (Exception e)
                 {
+                    LoadingWindowFactory.HideLoading();
                     Logging.LogError("Error during log monitoring: " + e.Message);
                     _monitorLog = false;
                     _currentCombatLogs.Clear();

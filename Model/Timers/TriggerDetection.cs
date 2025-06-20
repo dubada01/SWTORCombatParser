@@ -152,11 +152,11 @@ namespace SWTORCombatParser.Model.Timers
             var value = -100d;
             if (log.Source.Id == targetId)
             {
-                value = log.SourceInfo.CurrentHP / log.SourceInfo.MaxHP * 100;
+                value = log.SourceInfo.CurrentHP / (double)log.SourceInfo.MaxHP * 100d;
             }
             if (log.Target.Id == targetId)
             {
-                value = (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP) * 100d;
+                value = log.TargetInfo.CurrentHP / (double)log.TargetInfo.MaxHP * 100d;
             }
             return value;
         }
@@ -176,7 +176,7 @@ namespace SWTORCombatParser.Model.Timers
         {
             if (EntityIsValid(log.Target, target, currentTarget))
             {
-                var targetHPPercent = (log.TargetInfo.CurrentHP / log.TargetInfo.MaxHP) * 100;
+                var targetHPPercent = (log.TargetInfo.CurrentHP / (double)log.TargetInfo.MaxHP) * 100d;
                 if (targetHPPercent <= hPPercentage)
                     return TriggerType.End;
                 if (targetHPPercent <= hpPercentageUpper && targetHPPercent > hPPercentage)
@@ -184,7 +184,7 @@ namespace SWTORCombatParser.Model.Timers
             }
             if (EntityIsValid(log.Source, target, currentTarget))
             {
-                var sourceHPPercentage = (log.SourceInfo.CurrentHP / log.SourceInfo.MaxHP) * 100;
+                var sourceHPPercentage = (log.SourceInfo.CurrentHP / (double)log.SourceInfo.MaxHP) * 100d;
                 if (sourceHPPercentage <= hPPercentage)
                     return TriggerType.End;
                 if (sourceHPPercentage <= hpPercentageUpper && sourceHPPercentage > hPPercentage)

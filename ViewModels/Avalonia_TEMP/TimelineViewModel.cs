@@ -28,7 +28,6 @@ public class TimelineElement
     public class TimelineWindowViewModel : BaseOverlayViewModel
     {
         private object lockObj = new object();
-        private Combat encounterCombat;
         public event Action<TimeSpan> OnUpdateTimeline = delegate { };
         public event Action<TimeSpan> OnInit = delegate { };
         public event Action<string,string,string> AreaEntered = delegate { };
@@ -70,18 +69,24 @@ public class TimelineElement
 
         private void UpdateEncounterLevelInfo(EncounterCombat obj)
         {
-            if (obj == null || obj.Combats.Count == 0)
+            _ = Task.Run(async () =>
             {
-                Dispatcher.UIThread.Invoke(() =>
+                var isActive = await Dispatcher.UIThread.InvokeAsync(() => MainContent.IsVisible);
+                if (!isActive || !AvaloniaTimelineBuilder.TimelineEnabled)
+                    return;
+
+                if (obj == null || obj.Combats.Count == 0)
                 {
-                    _metricViewModel.Reset();
+                    await Dispatcher.UIThread.InvokeAsync(() => _metricViewModel?.Reset());
+                    return;
+                }
+
+                var overallCombat = await obj.GetOverallCombat();
+
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    _metricViewModel?.UpdateCombat(overallCombat);
                 });
-                return;
-            }
-            encounterCombat = obj.OverallCombat;
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                _metricViewModel.UpdateCombat(encounterCombat);
             });
         }
 

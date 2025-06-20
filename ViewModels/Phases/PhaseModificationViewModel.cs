@@ -36,7 +36,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         private string multiTargetOption;
         private bool endhasMultiTarget;
         private string endmultiTargetOption;
-        private ObservableCollection<RefreshOptionViewModel> _multiValueOptions;
+        private ObservableCollection<RefreshOptionViewModel> _multiValueOptions = new ObservableCollection<RefreshOptionViewModel>();
 
         public event Action<Phase> OnCancelEdit = delegate { };
 
@@ -286,6 +286,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                     {
                         MultiTargetOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.EntityIds.Select(e => new RefreshOptionViewModel { Name = e.ToString() }));
                         MultiTargetOptions.ToList().ForEach(t => t.RemoveRequested += RemoveCustomTarget);
+                        this.RaisePropertyChanged("MultiTargetOptions");
                         break;
                     }
                 case PhaseTrigger.EntityHP:
@@ -300,6 +301,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                         SelectedTarget = phaseEdited.StartArgs.EntityIds.Any() ? phaseEdited.StartArgs.EntityIds.First().ToString() : "";
                         MultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.EffectIds.Select(e => new RefreshOptionViewModel { Name = e }));
                         MultiValueOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveRefreshOption);
+                        this.RaisePropertyChanged("MultiValueOptions");
                         break;
                     }
                 case PhaseTrigger.AbilityUsage:
@@ -308,6 +310,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                         SelectedTarget = phaseEdited.StartArgs.EntityIds.Any() ? phaseEdited.StartArgs.EntityIds.First().ToString() : "";
                         MultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.AbilityIds.Select(e => new RefreshOptionViewModel { Name = e }));
                         MultiValueOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveRefreshOption);
+                        this.RaisePropertyChanged("MultiValueOptions");
                         break;
                     }
                 case PhaseTrigger.CombatDuration:
@@ -327,6 +330,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                     {
                         EndMultiTargetOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.EndArgs.EntityIds.Select(e => new RefreshOptionViewModel { Name = e.ToString() }));
                         EndMultiTargetOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveCustomTarget);
+                        this.RaisePropertyChanged("EndMultiTargetOptions");
                         break;
                     }
                 case PhaseTrigger.EntityHP:
@@ -341,6 +345,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                         EndSelectedTarget = phaseEdited.EndArgs.EntityIds.Any() ? phaseEdited.EndArgs.EntityIds.First().ToString() : "";
                         EndMultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.EndArgs.EffectIds.Select(e => new RefreshOptionViewModel { Name = e }));
                         EndMultiValueOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveRefreshOption);
+                        this.RaisePropertyChanged("EndMultiValueOptions");
                         break;
                     }
                 case PhaseTrigger.AbilityUsage:
@@ -349,6 +354,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                         EndSelectedTarget = phaseEdited.EndArgs.EntityIds.Any() ? phaseEdited.EndArgs.EntityIds.First().ToString() : "";
                         EndMultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.EndArgs.AbilityIds.Select(e => new RefreshOptionViewModel { Name = e }));
                         EndMultiValueOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveRefreshOption);
+                        this.RaisePropertyChanged("EndMultiValueOptions");
                         break;
                     }
                 case PhaseTrigger.CombatDuration:

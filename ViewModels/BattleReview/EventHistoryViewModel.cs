@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             get => selectedIndex; set
             {
-                if (selectedIndex != value && HasFocus)
+                if (selectedIndex != value && HasFocus && value >= 0)
                 {
                     LogPositionChanged(_displayedLogs[value].SecondsSinceCombatStart, GetInfosNearLog(_displayedLogs[value].SecondsSinceCombatStart));
                 }

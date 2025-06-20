@@ -210,9 +210,19 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
         public async void LiveParseError(string errorMessage)
         {
-            var box =MessageBoxManager.GetMessageBoxStandard("Error",
-                "There was an unexepected error while parsing the combat log. Please message Zarnuro on Discord with the following error message for support if this issue persists.\r\n\r\n" + errorMessage);
-           await box.ShowAsync();
+            try
+            {
+                await Dispatcher.UIThread.Invoke(async () =>
+                {
+                    var box =MessageBoxManager.GetMessageBoxStandard("Error",
+                        "There was an unexpected error while parsing the combat log. Please message Zarnuro on Discord with the following error message for support if this issue persists.\r\n\r\n" + errorMessage);
+                    await box.ShowAsync();
+                });
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
         }
         public void DisableLiveParse()
         {
@@ -365,7 +375,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 Logging.LogInfo("Processing combat with start time " + combatStartTime + " and " +
                                 combatLogs.Count + " log entries");
                 var combatInfo =
-                    CombatIdentifier.GenerateCombatSnapshotFromLogs(combatLogs, false, true, combatEndUpdate: true);
+                    CombatIdentifier.GenerateCombatSnapshotFromLogs(combatLogs, combatEndUpdate: true);
                 //only process combats if they were property created
                 if (combatInfo.StartTime == DateTime.MinValue)
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -178,7 +179,10 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
         }
        
         IsCurrentLocalTarget = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(CombatLogStateBuilder.CurrentState.LocalPlayer, fullCombat.EndTime).Entity.Id == EnemyId;
-        
+        var playerTargetName = CombatLogStateBuilder.CurrentState
+            .GetPlayerTargetAtTime(CombatLogStateBuilder.CurrentState.LocalPlayer, fullCombat.EndTime).Entity.Name;
+        Debug.WriteLine($"Current Target: {playerTargetName} {(IsCurrentLocalTarget?"Matches":"DoesntMatch")} {EnemyId} with name {EnemyName}");
+        this.RaisePropertyChanged(nameof(EnemyBackground));
         this.RaisePropertyChanged(nameof(ColumnRatio));
         this.RaisePropertyChanged(nameof(RemainderRatio));
         this.RaisePropertyChanged(nameof(RemainderColor));

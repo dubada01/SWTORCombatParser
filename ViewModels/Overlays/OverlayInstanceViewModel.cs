@@ -407,9 +407,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void UpdateMetric(OverlayType type, OverlayMetricInfo metricToUpdate, Combat obj, Entity participant)
         {
+            var originalType = type;
+            if (type == OverlayType.DPS)
+                type = OverlayType.FluffDPS;
+            if(type == OverlayType.EHPS)
+                type = OverlayType.EHPSNoShielding;
             var value = MetricGetter.GetValueForMetric(type, obj, participant);
             metricToUpdate.Value = value;
-            metricToUpdate.Type = type;
+            metricToUpdate.Type = originalType;
         }
     }
 }

@@ -50,7 +50,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             ValueAlignment = HorizontalAlignment.Right;
             ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(OverlayType, null, null, System.Globalization.CultureInfo.InvariantCulture);
         }
-        
+
+        public void UpdateIcon(string iconName)
+        {
+            var coloredIcon = IconFactory.GetClassIcon(iconName);
+            RoleIcon = coloredIcon;
+        }
         public string Value { get; set; }
 
         public SolidColorBrush ForegroundColor { get; set; }

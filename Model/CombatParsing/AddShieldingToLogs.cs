@@ -10,14 +10,6 @@ using System.Linq;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
-    public class ShieldingEvent
-    {
-        public Entity Source;
-        public Entity Target;
-        public string SheildName;
-        public double ShieldValue;
-        public DateTime ShieldingTime;
-    }
     public static class AddShieldingToLogs
     {
         public static void AddShieldLogsByTarget(Dictionary<Entity, List<ParsedLogEntry>> allPriticipantSheildingLogs, Combat combat)
@@ -47,12 +39,12 @@ namespace SWTORCombatParser.Model.CombatParsing
                         var source = absorb.Source;
                         _totalSheildingProvided[source] = _totalSheildingProvided.TryGetValue(source,out var val) ? val : new List<ShieldingEvent>();
 
-                        var activeAbsorb = _totalSheildingProvided[source].FirstOrDefault(shield => shield.ShieldingTime == absorb.StopTime && shield.SheildName == absorb.Name && shield.Target == target);
+                        var activeAbsorb = _totalSheildingProvided[source].FirstOrDefault(shield => shield.ShieldingTime == absorb.StopTime && shield.ShieldName == absorb.Name && shield.Target == target);
                         if (activeAbsorb == null)
                         {
                             _totalSheildingProvided[source].Add(new ShieldingEvent
                             {
-                                SheildName = absorb.Name,
+                                ShieldName = absorb.Name,
                                 ShieldingTime = absorb.StopTime,
                                 ShieldValue = ammount,
                                 Source = source,
@@ -82,8 +74,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                     var sheildLog = new ParsedLogEntry
                     {
                         TimeStamp = sheild.ShieldingTime,
-                        LogLineNumber = combat.AllLogs.Count + 1,
-                        Ability = sheild.SheildName,
+                        LogLineNumber = combat.AllLogs.Keys.Max() + 1,
+                        Ability = sheild.ShieldName,
                         Effect = new Effect()
                         {
                             EffectType = EffectType.AbsorbShield,
@@ -99,7 +91,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                             ValueType = DamageType.heal
                         }
                     };
-                    combat.AllLogs[sheildLog.TimeStamp]=(sheildLog);
+                    combat.AllLogs[sheildLog.LogLineNumber]=(sheildLog);
                     combat.ShieldingProvidedLogs[source].Enqueue(sheildLog);
                     combat.TotalProvidedSheilding[source] += sheild.ShieldValue;
                 }

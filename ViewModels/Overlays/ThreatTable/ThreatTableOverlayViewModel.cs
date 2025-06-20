@@ -81,7 +81,7 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
             var allIds = ThreatEntries.Select(v => v.ViewModel.EnemyId).ToList();
             foreach (var existingId in allIds)
             {
-                if (!enemies.All(e => e.Id != existingId)) continue;
+                if (enemies.Any(e => e.Id == existingId)) continue;
                 {
                     var entityToRemove = ThreatEntries.First(e=>e.ViewModel.EnemyId == existingId);
                     Dispatcher.UIThread.Invoke(() => { ThreatEntries.Remove(entityToRemove); });
@@ -105,7 +105,7 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
         
         if (_userAddedIds.Contains(enemy.LogId))
             score += 800;
-        if ((combat.EndTime - combat.LogsInvolvingEntity[enemy].Last().TimeStamp).TotalSeconds > 10)
+        if ((combat.EndTime - combat.LogsInvolvingEntity[enemy.LogId].Last().TimeStamp).TotalSeconds > 10)
             score = 0;
         return score;
     }

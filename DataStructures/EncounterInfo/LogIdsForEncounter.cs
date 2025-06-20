@@ -764,6 +764,7 @@ public static class LogIdFactory
                                 { "Veteran 8", new List<long>() {4108140513591296L, 4126527268585472L, 4158786767945728L } },
                                 { "Veteran 16", new List<long>() { 4108140513591296L,4126527268585472L, 4158859782389760L } },
                                 { "Master 8", new List<long>() {4108140513591296L, 4126527268585472L, 4158786767945728L } },
+                                { "Master 16", new List<long>() {4108140513591296L,4126527268585472L, 4158859782389760L } },
                             }
                         }
                         ,
@@ -786,7 +787,8 @@ public static class LogIdFactory
                                 { "Story 16", new List<long>() { 4158791062913024L } },
                                 { "Veteran 8", new List<long>() { 4158786767945728L } },
                                 { "Veteran 16", new List<long>() { 4158859782389760L } },
-                                { "Master 8", new List<long>() { 4108140513591296L } },
+                                { "Master 8", new List<long>() { 4158786767945728L } },
+                                { "Master 16", new List<long>() { 4158859782389760L } },
                             }
                         },
                                                 {
@@ -796,6 +798,8 @@ public static class LogIdFactory
                                 { "Story 16", new List<long>() { 4163133274849280L } },
                                 { "Veteran 8", new List<long>() {  4163128979881984L } },
                                 { "Veteran 16", new List<long>() {  4163137569816576L } },
+                                { "Master 8", new List<long>() {  4163128979881984L } },
+                                { "Master 16", new List<long>() {  4163137569816576L } }
                             }
                         }
                     };
