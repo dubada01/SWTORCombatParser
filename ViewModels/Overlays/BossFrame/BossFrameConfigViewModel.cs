@@ -20,7 +20,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private System.Timers.Timer _timer;
         private bool _inCombat;
         public override bool ShouldBeVisible => ShowFrame;
-        public BrossFrameView _bossFrame { get; set; }
+        public BossFrameView _bossFrame { get; set; }
         public static event Action<bool> InCombatWithBoss = delegate { };
         public bool BossFrameEnabled
         {
@@ -82,7 +82,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             };
             CombatLogStreamer.CombatUpdated += OnNewLog;
             CombatLogStreamer.NewLineStreamed += HandleNewLog;
-            _bossFrame = new BrossFrameView(this);
+            _bossFrame = new BossFrameView(this);
             MainContent = _bossFrame;
             SetAutoScaleHeight();
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
