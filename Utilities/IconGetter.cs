@@ -22,7 +22,7 @@ namespace SWTORCombatParser.Utilities
 
         public static bool HasIcon(ulong abilityId)
         {
-            return _abilityToIconDict.ContainsKey(abilityId);
+            return abilityId != 0 && _abilityToIconDict.ContainsKey(abilityId);
         }
 
         public static async Task<Bitmap> GetIconPathForLog(ParsedLogEntry log)

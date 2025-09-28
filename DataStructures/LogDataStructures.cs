@@ -52,8 +52,8 @@ namespace SWTORCombatParser.DataStructures
             EffectBackground = _transparentBackground;
             ValueBackground = _transparentBackground;
 
-            AbilityTextMargin = _abilityId != 0 && IconGetter.HasIcon(_abilityId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
-            EffectTextMargin = _effectId != 0 && IconGetter.HasIcon(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
+            AbilityIconMargin = IconGetter.HasIcon(_abilityId) ? new Thickness(5, 0, 0, 0) : new Thickness(0, 0, 0, 0);
+            EffectIconMargin = IconGetter.HasIcon(_effectId) ? new Thickness(5, 0, 0, 0) : new Thickness(0, 0, 0, 0);
             if (effectId == _7_0LogParsing.DeathCombatId)
             {
                 EffectBackground = _deathBackground;
@@ -98,8 +98,8 @@ namespace SWTORCombatParser.DataStructures
         public Bitmap AbilityIcon { get; set; }
         public string EffectName { get; }
         public Bitmap EffectIcon { get; set; }
-        public Thickness EffectTextMargin { get; set; }
-        public Thickness AbilityTextMargin { get; set; }
+        public Thickness EffectIconMargin { get; set; }
+        public Thickness AbilityIconMargin { get; set; }
         public string Value { get; }
         public string Threat { get; set; }
         public bool WasValueCrit { get; }
