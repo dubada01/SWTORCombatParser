@@ -189,7 +189,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (parsedLine.Error == ErrorType.IncompleteLine ||
                 parsedLine.Effect.EffectType == EffectType.AbsorbShield ||
                 parsedLine.Effect.EffectId == _7_0LogParsing._damageEffectId ||
-                parsedLine.Effect.EffectId == _7_0LogParsing._healEffectId || parsedLine.Effect.EffectId == null)
+                parsedLine.Effect.EffectId == _7_0LogParsing._healEffectId)
                 return;
             if (parsedLine.Effect.EffectType != EffectType.Apply &&
                 parsedLine.Effect.EffectType != EffectType.Remove &&

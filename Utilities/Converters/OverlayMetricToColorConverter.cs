@@ -51,11 +51,6 @@ namespace SWTORCombatParser.Utilities.Converters
                 type = secondaryType;
             }
 
-            if (type == null)
-            {
-                return Brushes.Transparent;
-            }
-
             // Retrieve the intended color based on the type
             if (!MetricColorLoader.CurrentMetricBrushDict.TryGetValue(type, out var intendedColor))
             {

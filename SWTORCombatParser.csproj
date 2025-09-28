@@ -37,8 +37,6 @@
       CS1998;
       <!-- CS0067 [  4]: Event is never used -->
       CS0067;
-      <!-- CS0472 [  4]: Comparison to null is constant -->
-      CS0472;
       <!-- CS8620 [  2]: Argument cannot be used for parameter due to differences in nullability -->
       CS8620;
       <!-- CS8605 [  2]: Unboxing a possibly null value -->
