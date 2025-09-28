@@ -19,7 +19,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public RoomOverlayViewModel _roomOverlayViewModel;
         public ThreatTableOverlayViewModel _threatTableOverlayViewModel;
         public BossFrameSetup BossFrameView { get; set; }
-        public RoomSetup RoomOverlaySetup { get; set; }
+        public RoomSetupView RoomOverlaySetup { get; set; }
         public PvpOverlaySetupView PvpOverlays { get; set; }
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public OthersOverlaySetupViewModel()
@@ -28,7 +28,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             BossFrameView = new BossFrameSetup(_bossFrameViewModel);
 
             _roomOverlayViewModel = new RoomOverlayViewModel("RoomHazard");
-            RoomOverlaySetup = new RoomSetup(_roomOverlayViewModel);
+            RoomOverlaySetup = new RoomSetupView(_roomOverlayViewModel);
             
             _threatTableOverlayViewModel = new ThreatTableOverlayViewModel("ThreatTable");
 

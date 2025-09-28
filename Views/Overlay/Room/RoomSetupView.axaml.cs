@@ -3,11 +3,11 @@ using SWTORCombatParser.ViewModels.Overlays.Room;
 namespace SWTORCombatParser.Views.Overlay.Room
 {
     /// <summary>
-    /// Interaction logic for RoomSetup.xaml
+    /// Interaction logic for RoomSetupView.xaml
     /// </summary>
-    public partial class RoomSetup : UserControl
+    public partial class RoomSetupView : UserControl
     {
-        public RoomSetup(RoomOverlayViewModel viewModel)
+        public RoomSetupView(RoomOverlayViewModel viewModel)
         {
             DataContext = viewModel;
             InitializeComponent();
