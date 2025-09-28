@@ -7,7 +7,7 @@ using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.BattleReview;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using SWTORCombatParser.ViewModels.DataGrid;
 using SWTORCombatParser.ViewModels.Death_Review;
 using SWTORCombatParser.ViewModels.HistoricalLogs;

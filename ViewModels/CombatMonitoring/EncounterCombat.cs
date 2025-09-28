@@ -16,7 +16,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 using ReactiveUI;
 
-namespace SWTORCombatParser.ViewModels.Combat_Monitoring
+namespace SWTORCombatParser.ViewModels.CombatMonitoring
 {
     public class EncounterCombat : ReactiveObject
     {

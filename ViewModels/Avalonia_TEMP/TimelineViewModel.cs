@@ -9,7 +9,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.Timeline;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using SWTORCombatParser.ViewModels.DataGrid;
 using SWTORCombatParser.Views.DataGrid_Views;
 using SWTORCombatParser.Views.Overlay.Timeline;

@@ -13,8 +13,9 @@ using Avalonia.Media;
 using MsBox.Avalonia;
 using ReactiveUI;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 
-namespace SWTORCombatParser.ViewModels.Combat_Monitoring
+namespace SWTORCombatParser.ViewModels.CombatMonitoring
 {
     public class PastCombat :ReactiveObject
     {

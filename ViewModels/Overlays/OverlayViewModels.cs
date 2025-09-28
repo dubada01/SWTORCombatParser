@@ -7,7 +7,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Challenges;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using SWTORCombatParser.ViewModels.Overlays.AbilityList;
 using SWTORCombatParser.ViewModels.Overlays.Notes;
 using SWTORCombatParser.ViewModels.Overlays.Personal;

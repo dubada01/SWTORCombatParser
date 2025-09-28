@@ -3,7 +3,7 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using System;
 
-namespace SWTORCombatParser.ViewModels.Combat_Monitoring
+namespace SWTORCombatParser.ViewModels.CombatMonitoring
 {
     public static class CombatSelectionMonitor
     {

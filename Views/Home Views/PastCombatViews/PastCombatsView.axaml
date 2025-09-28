@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:pastCombatViews="clr-namespace:SWTORCombatParser.Views.Home_Views.PastCombatViews"
-             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Combat_Monitoring"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.CombatMonitoring"
                 x:DataType="vm:CombatMonitorViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">

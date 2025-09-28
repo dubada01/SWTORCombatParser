@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 
 namespace SWTORCombatParser.Model.CombatParsing;
 

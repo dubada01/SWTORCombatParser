@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:pastCombatViews="clr-namespace:SWTORCombatParser.Views.Home_Views.PastCombatViews"
-                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Combat_Monitoring"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.CombatMonitoring"
                 x:DataType="vm:EncounterCombat"
              mc:Ignorable="d" 
              d:DesignHeight="250" d:DesignWidth="400">

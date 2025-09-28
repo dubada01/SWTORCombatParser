@@ -10,7 +10,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using SWTORCombatParser.Views.Timers;
 using System;
 using System.Collections.Generic;

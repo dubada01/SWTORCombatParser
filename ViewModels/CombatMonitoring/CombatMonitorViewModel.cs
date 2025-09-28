@@ -26,7 +26,7 @@ using MsBox.Avalonia;
 using ReactiveUI;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 
-namespace SWTORCombatParser.ViewModels.Combat_Monitoring
+namespace SWTORCombatParser.ViewModels.CombatMonitoring
 {
     public class CombatMonitorViewModel :ReactiveObject, INotifyPropertyChanged
     {
