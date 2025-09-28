@@ -44,7 +44,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         public event Action<Challenge, bool> OnNewChallenge = delegate { };
         public event Action<Challenge> OnCancelEdit = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public bool CanBeRate
         {

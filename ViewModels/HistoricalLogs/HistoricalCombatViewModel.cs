@@ -135,7 +135,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         }
 
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public void Dispose()
         {

@@ -25,7 +25,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         public DeathPlayerList DeathPlayerListView { get; set; }
         private DeathPlayerListViewModel _playerListViewModel;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private Combat _currentCombat;
 
         public DeathReviewViewModel()

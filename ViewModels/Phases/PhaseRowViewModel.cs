@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             DeleteRequested(this);
         }
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

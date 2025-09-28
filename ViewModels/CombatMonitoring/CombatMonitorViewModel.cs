@@ -49,7 +49,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
         public event Action<double> OnNewTotalTimeOffsetMs = delegate { };
         public event Action<string> OnNewLog = delegate { };
         public event Action<Entity> LocalPlayerId = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         public string CurrentlySelectedLogName { get; set; }
         public bool ShowTrash
         {

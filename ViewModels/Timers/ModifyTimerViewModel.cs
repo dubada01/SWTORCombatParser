@@ -66,7 +66,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public event Action<Timer, bool, bool> OnNewTimer = delegate { };
         public event Action<Timer> OnCancelEdit = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public bool TimerNameInError;
         public SolidColorBrush TimerNameHelpTextColor => TimerNameInError ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.LightGray);

@@ -24,7 +24,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         private Phase _phaseEdited;
         private IEnumerable<Phase> _savedChallengeData;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         public static event Action PhasesUpdated = delegate { };
         public EncounterSelectionView EncounterSelectionView { get; set; }
         public PhaseListViewModel()

@@ -9,7 +9,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
     public class LegendItemViewModel : INotifyPropertyChanged
     {
         public event Action<bool, bool> LegenedToggled = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         public string Name { get; set; }
         public Color Color { get; set; }
         public SolidColorBrush LegendColor => new(Avalonia.Media.Color.FromArgb(255, Color.R, Color.G, Color.B));

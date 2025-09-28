@@ -172,7 +172,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public ObservableCollection<TimerInstanceViewModel> DCDSOnPlayer { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
         public int Columns { get; internal set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         public bool AlreadyHasTimer(string timerName) => Dispatcher.UIThread.Invoke(() =>
                                                                   {
                                                                       return RaidHotsOnPlayer.Any(t => t.TimerName == timerName);

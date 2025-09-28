@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public event Action<string> RequestedNewHeader = delegate { };
         public event Action<DataGridHeaderViewModel> RequestRemoveHeader = delegate { };
         public event Action<SortingDirection, string> SortingDirectionChanged = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public List<string> AvailableHeaderNames { get; set; }
         public string SelectedNewHeader

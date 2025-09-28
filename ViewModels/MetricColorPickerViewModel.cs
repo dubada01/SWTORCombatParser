@@ -18,7 +18,7 @@ namespace SWTORCombatParser.ViewModels
 
         public OverlayType OverlayType { get; set; }
         public event Action CloseRequested = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public SolidColorBrush MetricBrush
         {
