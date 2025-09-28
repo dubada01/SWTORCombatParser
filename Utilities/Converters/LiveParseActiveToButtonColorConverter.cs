@@ -7,9 +7,9 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class LiveParseActiveToButtonColorConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            switch ((bool)value)
+            switch ((bool)(value ?? false))
             {
                 case true:
                     return new SolidColorBrush(Color.Parse("#FFa53434"));
@@ -18,7 +18,7 @@ namespace SWTORCombatParser.Utilities.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

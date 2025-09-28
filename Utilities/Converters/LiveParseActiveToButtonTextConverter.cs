@@ -6,9 +6,9 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class LiveParseActiveToButtonTextConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            switch ((bool)value)
+            switch ((bool)(value ?? false))
             {
                 case true:
                     return "Stop Parsing";
@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Utilities.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

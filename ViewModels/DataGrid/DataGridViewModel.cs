@@ -29,7 +29,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             Direction = direction;
         }
 
-        public int Compare(MemberInfoViewModel x, MemberInfoViewModel y)
+        public int Compare(MemberInfoViewModel? x, MemberInfoViewModel? y)
         {
             // Handle nulls if necessary
             if (x == null && y == null) return 0;

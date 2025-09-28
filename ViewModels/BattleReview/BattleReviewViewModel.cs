@@ -191,9 +191,9 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 
     internal class EntityComparison : IEqualityComparer<AvailableEntity>
     {
-        public bool Equals(AvailableEntity x, AvailableEntity y)
+        public bool Equals(AvailableEntity? x, AvailableEntity? y)
         {
-            return x.Entity.Name == y.Entity.Name;
+            return x?.Entity.Name == y?.Entity.Name;
         }
 
         public int GetHashCode([DisallowNull] AvailableEntity obj)

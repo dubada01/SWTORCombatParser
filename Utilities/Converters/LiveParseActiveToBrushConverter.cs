@@ -8,19 +8,19 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     class LiveParseActiveToBrushConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            switch ((bool)value)
+            if (value is bool isActive)
             {
-                case true:
-                    //return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF34A547"));
-                    return new SolidColorBrush(ResourceFinder.GetColorFromResourceName("ParticipantHPSColor"));
-                case false:
-                    return (SolidColorBrush)App.Current.FindResource("Gray4Brush");
+                return isActive
+                    ? new SolidColorBrush(ResourceFinder.GetColorFromResourceName("ParticipantHPSColor"))
+                    : App.Current?.FindResource("Gray4Brush") as SolidColorBrush ?? new SolidColorBrush(Colors.Gray);
             }
+
+            return new SolidColorBrush(Colors.Gray);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

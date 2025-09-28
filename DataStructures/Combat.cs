@@ -16,9 +16,9 @@ namespace SWTORCombatParser.DataStructures
 {
     public class RichAbilityComparer : IEqualityComparer<RichAbility>
     {
-        public bool Equals(RichAbility x, RichAbility y)
+        public bool Equals(RichAbility? x, RichAbility? y)
         {
-            if (x == null || y == null)
+            if (x is null || y is null)
                 return false;
 
             return x.AbilityId == y.AbilityId && (x.AbilitySource.LogId == y.AbilitySource.LogId || x.AbilitySource.IsCharacter);

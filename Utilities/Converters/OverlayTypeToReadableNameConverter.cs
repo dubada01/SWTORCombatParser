@@ -43,12 +43,12 @@ namespace SWTORCombatParser.Utilities.Converters
             {OverlayType.CleanseCount, "Cleanse Count" },
             {OverlayType.CleanseSpeed, "Cleanse Speed" }
 };
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value.GetType() == typeof(List<OverlayType>))
+            if (value is List<OverlayType> overlayTypes)
             {
                 List<string> typeStrings = new List<string>();
-                foreach (var type in (List<OverlayType>)value)
+                foreach (var type in overlayTypes)
                 {
                     typeStrings.Add(GetStringForType(type));
                 }
@@ -57,27 +57,30 @@ namespace SWTORCombatParser.Utilities.Converters
             return GetStringForType(value);
         }
 
-        private static string GetStringForType(object value)
+        private static string GetStringForType(object? value)
         {
-            OverlayType oType = (OverlayType)value;
-            if (overlayTypeToString.ContainsKey(oType))
+            if (value is OverlayType oType && overlayTypeToString.ContainsKey(oType))
             {
                 return overlayTypeToString[oType];
             }
-            return oType.ToString();
-        }
-        private static OverlayType GetTypeForString(object value)
-        {
-            string oType = (string)value;
-            Dictionary<string, OverlayType> stringToOverlayType = overlayTypeToString.ToDictionary(x => x.Value, x => x.Key);
-            if (stringToOverlayType.ContainsKey(oType))
-            {
-                return stringToOverlayType[oType];
-            }
-            return Enum.Parse<OverlayType>(oType);
+            return value?.ToString() ?? string.Empty;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        private static OverlayType GetTypeForString(object? value)
+        {
+            if (value is string oType)
+            {
+                Dictionary<string, OverlayType> stringToOverlayType = overlayTypeToString.ToDictionary(x => x.Value, x => x.Key);
+                if (stringToOverlayType.ContainsKey(oType))
+                {
+                    return stringToOverlayType[oType];
+                }
+                return Enum.Parse<OverlayType>(oType);
+            }
+            throw new ArgumentException("Invalid value for conversion.");
+        }
+
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             return GetTypeForString(value);
         }

@@ -7,21 +7,23 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class BooleanToInverseBooleanConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is bool)
+            if (value is bool booleanValue)
             {
-                return !(bool)value;
+                return !booleanValue;
             }
+
             return value;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is bool)
+            if (value is bool booleanValue)
             {
-                return !(bool)value;
+                return !booleanValue;
             }
+
             return value;
         }
     }

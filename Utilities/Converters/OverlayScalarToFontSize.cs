@@ -6,14 +6,18 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class OverlayScalarToFontSize : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            var defaultFontSize = (string)parameter == "Large" ? 20 : 18;
-            var scalarValue = (double)value;
-            return scalarValue * defaultFontSize;
+            var defaultFontSize = parameter?.ToString() == "Large" ? 20 : 18;
+            if (value is double scalarValue)
+            {
+                return scalarValue * defaultFontSize;
+            }
+
+            return defaultFontSize;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
