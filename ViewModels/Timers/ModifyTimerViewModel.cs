@@ -678,7 +678,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }
-                catch (FormatException e) { }
+                catch (FormatException) { }
                 ;
 
                 OnPropertyChanged();

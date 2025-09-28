@@ -375,7 +375,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 GraphView.Plot.Axes.AutoScale();
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 GraphView.Plot.Axes.SetLimits(bottom: 0, top: 0);
             }

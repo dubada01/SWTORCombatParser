@@ -239,8 +239,8 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static Value ParseValueNumber(string damageValueString, ulong effectId)
         {
-            try
-            {
+      try
+      {
                 var newValue = new Value();
                 if (damageValueString == "(0 -)" || damageValueString == "")
                     return newValue;
@@ -469,8 +469,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 newValue.DisplayValue = _interner.Intern(newValue.EffectiveDblValue.ToString("#,##0"));
                 return newValue;
             }
-            catch (Exception ex)
-            {
+            catch (Exception)
+      {
                 Logging.LogError("Failed to properly parse value: " + damageValueString);
                 return new Value();
             }

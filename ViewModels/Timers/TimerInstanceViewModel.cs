@@ -210,7 +210,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                         _playAtTime = swtorTimer.AudioStartTime;
                     _audioLoaded = true;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Logging.LogError("Failed to open audio file for timer at: " + _audioPath);
                 }

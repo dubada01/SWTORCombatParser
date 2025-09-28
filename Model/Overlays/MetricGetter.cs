@@ -282,7 +282,7 @@ public static class MetricGetter
 
             return value;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return 0;
         }

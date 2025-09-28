@@ -369,7 +369,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }
-                catch (FormatException e) { }
+                catch (FormatException) { }
                 ;
 
                 OnPropertyChanged();

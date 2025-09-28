@@ -38,7 +38,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     CreateNoWindow = true
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {

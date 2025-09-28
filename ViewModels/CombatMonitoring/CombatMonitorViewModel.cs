@@ -219,7 +219,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
                     await box.ShowAsync();
                 });
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
