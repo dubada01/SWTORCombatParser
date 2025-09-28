@@ -63,8 +63,12 @@ namespace SWTORCombatParser.Views.Overlay.Room
         private static Rect GetBoundingBox(Control child, Control parent)
         {
             var transform = child.TransformToVisual(parent);
+            if (transform == null)
+            {
+                throw new System.InvalidOperationException("Transform returned null.");
+            }
             var topLeft = transform.Value.Transform(new Point(0, 0));
-            var bottomRight = transform.Value.Transform(new Point(child.Bounds.Width, child.Bounds.Height));
+            var bottomRight = transform.Value.Transform(new Point(child.Bounds.Width, child.Bounds.Height));                
             return new Rect(topLeft, bottomRight);
         }
         internal void DrawHazard(double xFraction, double yFraction, double widthFraction, long hazardId)

@@ -25,7 +25,7 @@ namespace SWTORCombatParser.Views
 
         private void SaveShowAgainChoice()
         {
-            ShouldShowPopup.SaveShouldShowPopup("InstanceRunning", ShowAgainCheck.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("InstanceRunning", ShowAgainCheck.IsChecked ?? false);
         }
     }
 }

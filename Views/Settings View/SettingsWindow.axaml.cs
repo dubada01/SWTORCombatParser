@@ -105,25 +105,25 @@ namespace SWTORCombatParser.Views.SettingsView
 
         private void ToggleOffline(object? sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting("offline_mode", OfflineMode.IsChecked.Value);
+            Settings.WriteSetting("offline_mode", OfflineMode.IsChecked ?? false);
         }
 
         private void ToggleLogForce(object? sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting("force_log_updates", ForceLogUpdates.IsChecked.Value);
+            Settings.WriteSetting("force_log_updates", ForceLogUpdates.IsChecked ?? false);
         }
 
         private void ToggleBackground(object? sender, RoutedEventArgs e)
         {
-            ShouldShowPopup.SaveShouldShowPopup("BackgroundDisabled", !RunInBackground.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("BackgroundDisabled", !RunInBackground.IsChecked ?? false);
         }
         private void ToggleWarning(object? sender, RoutedEventArgs e)
         {
-            ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", !RunInBackground.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", !RunInBackground.IsChecked ?? false);
         }
         private void UpdatedDisplayTargeted(object? sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting("overlay_show_targeted", ShowTargeted.IsChecked.Value);
+            Settings.WriteSetting("overlay_show_targeted", ShowTargeted.IsChecked ?? false);
         }
         private void ToggleHotkeyEnabled(object? sender, RoutedEventArgs e)
         {
