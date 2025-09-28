@@ -27,7 +27,7 @@ namespace SWTORCombatParser.Utilities
 
         public static async Task<Bitmap> GetIconPathForLog(ParsedLogEntry log)
         {
-            if (log == null || log.AbilityId == null)
+            if (log == null)
             {
                 return await LoadImageAsync(GetIconPathForId(0), 0);
             }
