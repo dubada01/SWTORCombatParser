@@ -29,7 +29,7 @@
         "SelectedCancelTimerId": null,
         "SeletedTimerIsActiveId": null,
         "TrackOutsideOfCombat": false,
-        "ExperiationTimerId": null,
+        "ExpirationTimerId": null,
         "CombatTimeElapsed": 0.0,
         "Ability": "3258922399956992",
         "Effect": "",

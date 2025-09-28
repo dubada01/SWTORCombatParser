@@ -872,7 +872,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             TrackOutsideOfCombat = timerToEdit.TrackOutsideOfCombat;
             if (timerToEdit.TriggerType == TimerKeyType.TimerExpired)
             {
-                SelectedExternalTimerId = timerToEdit.ExperiationTimerId;
+                SelectedExternalTimerId = timerToEdit.ExpirationTimerId;
                 SelectedExternalTimerName = string.IsNullOrEmpty(SelectedExternalTimerId) ? _missingTimerValue : (!string.IsNullOrEmpty(SelectedExternalTimerId) && AvailableTimersForCharacter.All(t => t.Id != SelectedExternalTimerId)) ? _missingTimerValue : AvailableTimersForCharacter.First(t => t.Id == SelectedExternalTimerId).Name;
             }
             if (timerToEdit.TriggerType == TimerKeyType.IsTimerTriggered)
@@ -1031,7 +1031,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 HPPercentageUpper = HPPercentageUpper,
                 AbsorbValue = AbsorbValue,
                 TriggerType = SelectedTriggerType,
-                ExperiationTimerId = SelectedExternalTimerId,
+                ExpirationTimerId = SelectedExternalTimerId,
                 SeletedTimerIsActiveId = SelectedExternalTimerId,
                 Ability = Ability,
                 Effect = Effect,

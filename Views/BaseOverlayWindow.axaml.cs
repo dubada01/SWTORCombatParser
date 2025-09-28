@@ -171,7 +171,7 @@ public partial class BaseOverlayWindow : Window
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             ToggleClickThroughCrossPlatform(canClickThrough);
-            BackgroundArea.Opacity = canClickThrough ? _viewModel.BackgroundLockedOpacity : _viewModel.BackgroundUnLockedOpacity;
+            BackgroundArea.Opacity = canClickThrough ? _viewModel.BackgroundLockedOpacity : _viewModel.BackgroundUnlockedOpacity;
             OverlayIdText.IsVisible = !canClickThrough;
             CloseButton.IsVisible = !canClickThrough;
         });

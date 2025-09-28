@@ -237,7 +237,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             };
 
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidHot).IsSelected = _otherOverlayViewModel._raidHotsConfigViewModel.RaidHotsEnabled;
-            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.ChallengesEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidChallenge).IsSelected = _challengesViewModel.AreChallengesEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidBoss).IsSelected = _otherOverlayViewModel._bossFrameViewModel.BossFrameEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.ThreatTable).IsSelected = _otherOverlayViewModel._threatTableOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidTimer).IsSelected = _timersViewModel.EncounterTimersActive;
@@ -436,7 +436,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                     _otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled = !_otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled;
                     break;
                 case UtilityOverlayType.RaidChallenge:
-                    _challengesViewModel.ChallengesEnabled = !_challengesViewModel.ChallengesEnabled;
+                    _challengesViewModel.AreChallengesEnabled = !_challengesViewModel.AreChallengesEnabled;
                     break;
                 case UtilityOverlayType.AbilityList:
                     _abilityListSetup.AbilityListEnabled = !_abilityListSetup.AbilityListEnabled;

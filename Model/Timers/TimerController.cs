@@ -165,10 +165,10 @@ public static class TimerController
                     }
                 }
 
-                if (!string.IsNullOrEmpty(timerInstance.ExperiationTimerId))
+                if (!string.IsNullOrEmpty(timerInstance.ExpirationTimerId))
                 {
                     var trigger =
-                        _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.ExperiationTimerId);
+                        _availableTimers.FirstOrDefault(t => t.SourceTimer.Id == timerInstance.ExpirationTimerId);
                     if (trigger != null)
                     {
                         //timerInstance.ExpirationTimer = trigger;
@@ -285,7 +285,7 @@ public static class TimerController
         lock (_timerLock)
         {
             var id = t.SourceTimer.Id;
-            var timersThatCare = _filteredTimers.Where(x => x.ExperiationTimerId == id);
+            var timersThatCare = _filteredTimers.Where(x => x.ExpirationTimerId == id);
             toNotify = timersThatCare.ToArray();
         }
 

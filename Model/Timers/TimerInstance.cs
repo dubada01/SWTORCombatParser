@@ -20,31 +20,74 @@ namespace SWTORCombatParser.Model.Timers
     }
     public class TimerInstance
     {
-        private bool historicalParseEnded;
-        private bool _singleUseTriggerUsed;
-        private List<long> _alreadyDetectedEntities = new List<long>();
+        // Fields
+        private bool _hasHistoricalParseEnded;
+        private bool _isSingleUseTriggerUsed;
+        private readonly List<long> _alreadyDetectedEntities = new();
         private AbsorbShieldManager? _absorbShieldManager;
-        private TimerInstance expirationTimer;
-        private TimerInstance cancelTimer;
-        private IDisposable _expirationSub;
-        public event Action<TimerInstanceViewModel> NewTimerInstance = delegate { };
-        public event Action Triggered = delegate { };
-        public event Action<string> ReorderRequested = delegate { };
-        public event Action<TimerInstanceViewModel, bool> TimerOfTypeExpired = delegate { };
-        public Timer SourceTimer;
-        private readonly Dictionary<Guid, TimerInstanceViewModel> _activeTimerInstancesForTimer = new Dictionary<Guid, TimerInstanceViewModel>();
+        private TimerInstance _expirationTimer;
+        private TimerInstance _cancelTimer;
+        private IDisposable _expirationSubscription;
+        private readonly Dictionary<Guid, TimerInstanceViewModel> _activeTimerInstances = new();
         private (string, string, string) _currentBossInfo;
         private Entity _currentTarget;
         private ConcurrentDictionary<string, TimerInstanceViewModel> _activeTimers;
         private DateTime _startTime;
         private EncounterInfo _currentEncounter;
-        private TimerInstance parentTimer;
-        private object _timerChangeLock = new object();
-        private bool _combatStarted;
+        private TimerInstance _parentTimer;
+        private readonly object _timerChangeLock = new();
+        private bool _isCombatStarted;
 
+        // Properties
         public bool TrackOutsideOfCombat { get; set; }
         public bool IsEnabled { get; set; }
-        public string ExperiationTimerId { get; set; }
+        public string ExpirationTimerId { get; set; }
+        public string CancellationTimerId { get; set; }
+        public string ParentTimerId { get; set; }
+        public Timer SourceTimer { get; }
+
+        public TimerInstance CancelTimer
+        {
+            get => _cancelTimer;
+            set
+            {
+                _cancelTimer = value;
+                _cancelTimer.Triggered += () => Cancel();
+            }
+        }
+
+        public TimerInstance ParentTimer
+        {
+            get => _parentTimer;
+            set
+            {
+                _parentTimer = value;
+                _parentTimer.Triggered += () => Cancel();
+                _parentTimer.ReorderRequested += Cancel;
+            }
+        }
+
+        // Events
+        public event Action<TimerInstanceViewModel> NewTimerInstance = delegate { };
+        public event Action Triggered = delegate { };
+        public event Action<string> ReorderRequested = delegate { };
+        public event Action<TimerInstanceViewModel, bool> TimerOfTypeExpired = delegate { };
+
+        // Constructor
+        public TimerInstance(Timer sourceTimer)
+        {
+            SourceTimer = sourceTimer;
+            ExpirationTimerId = sourceTimer.ExpirationTimerId;
+            CancellationTimerId = sourceTimer.SelectedCancelTimerId;
+            ParentTimerId = sourceTimer.ParentTimerId;
+            IsEnabled = sourceTimer.IsEnabled;
+            TrackOutsideOfCombat = sourceTimer.TrackOutsideOfCombat;
+            CombatLogStreamer.CombatUpdated += UpdateCombatState;
+            CombatLogStreamer.HistoricalLogsFinished += FinishedHistoricalLogs;
+            CombatLogStreamer.HistoricalLogsStarted += StartedHistoricalLogs;
+        }
+
+        // Methods
         public void TryTriggerParent()
         {
             if (!SourceTimer.IsSubTimer)
@@ -69,7 +112,8 @@ namespace SWTORCombatParser.Model.Timers
                 }
             }
         }
-        public void ExpirationTimerEnded(TimerInstanceViewModel vm, bool endedNatrually)
+
+        public void ExpirationTimerEnded(TimerInstanceViewModel vm, bool endedNaturally)
         {
             if (SourceTimer.ShouldModifyVariable)
             {
@@ -77,86 +121,102 @@ namespace SWTORCombatParser.Model.Timers
                 if (!SourceTimer.UseVisualsAndModify)
                     return;
             }
-            if (endedNatrually && CheckEncounterAndBoss(this, _currentEncounter))
+            if (endedNaturally && CheckEncounterAndBoss(this, _currentEncounter))
             {
                 TryTriggerParent();
             }
         }
-        public string CancellationTimerId { get; set; }
-        public TimerInstance CancelTimer
-        {
-            get => cancelTimer; set
-            {
-                cancelTimer = value;
-                cancelTimer.Triggered += () =>
-                {
-                    Cancel();
-                };
-            }
-        }
-        public string ParentTimerId { get; set; }
-        public TimerInstance ParentTimer
-        {
-            get => parentTimer; set
-            {
-                parentTimer = value;
-                parentTimer.Triggered += () =>
-                {
-                    Cancel();
-                };
-                parentTimer.ReorderRequested += Cancel;
-            }
-        }
 
-        public TimerInstance(Timer sourceTimer)
-        {
-            SourceTimer = sourceTimer;
-            ExperiationTimerId = sourceTimer.ExperiationTimerId;
-            CancellationTimerId = sourceTimer.SelectedCancelTimerId;
-            ParentTimerId = sourceTimer.ParentTimerId;
-            IsEnabled = sourceTimer.IsEnabled;
-            TrackOutsideOfCombat = sourceTimer.TrackOutsideOfCombat;
-            CombatLogStreamer.CombatUpdated += UpdateCombatState;
-            CombatLogStreamer.HistoricalLogsFinished += FinishedHistoricalLogs;
-            CombatLogStreamer.HistoricalLogsStarted += StartedHistoricalLogs;
-        }
-
-
-        private void StartedHistoricalLogs()
-        {
-            historicalParseEnded = false;
-        }
-
-        private void FinishedHistoricalLogs(DateTime arg1, bool arg2)
-        {
-            historicalParseEnded = true;
-        }
         public void CombatEnd()
         {
             _currentBossInfo = ("", "", "");
-            _combatStarted = false;
+            _isCombatStarted = false;
         }
+
         public void Cancel(string id = "")
         {
             if (SourceTimer.TriggerType == TimerKeyType.EntityHP)
-                _singleUseTriggerUsed = true;
+                _isSingleUseTriggerUsed = true;
             lock (_timerChangeLock)
             {
-                var currentActiveTimers = _activeTimerInstancesForTimer.Values.ToList();
+                var currentActiveTimers = _activeTimerInstances.Values.ToList();
                 currentActiveTimers.ForEach(t => t.Complete(false));
             }
         }
 
         public void UnCancel()
         {
-            _singleUseTriggerUsed = false;
+            _isSingleUseTriggerUsed = false;
         }
-        private void CompleteTimer(TimerInstanceViewModel timer, bool endedNatrually)
+
+        private void StartedHistoricalLogs()
         {
-            TimerOfTypeExpired.InvokeSafely(timer, endedNatrually);
+            _hasHistoricalParseEnded = false;
+        }
+
+        private void FinishedHistoricalLogs(DateTime arg1, bool arg2)
+        {
+            _hasHistoricalParseEnded = true;
+        }
+
+        private void UpdateCombatState(CombatStatusUpdate obj)
+        {
+            if (obj.Type == UpdateType.Stop && _hasHistoricalParseEnded)
+            {
+                _currentBossInfo = ("", "", "");
+                _alreadyDetectedEntities.Clear();
+            }
+        }
+
+        private void ModifyVariable(Timer sourceTimer)
+        {
+            switch (sourceTimer.ModifyVariableAction)
+            {
+                case VariableModifications.Add:
+                    OrbsVariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
+                    break;
+                case VariableModifications.Subtract:
+                    OrbsVariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue > 0 ? sourceTimer.VariableModificationValue * -1 : sourceTimer.VariableModificationValue);
+                    break;
+                case VariableModifications.Set:
+                    OrbsVariableManager.SetVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
+                    break;
+            }
+        }
+
+        private bool CheckEncounterAndBoss(TimerInstance t, EncounterInfo encounter)
+        {
+            var timerEncounter = t.SourceTimer.SpecificEncounter;
+            var supportedDifficulties = new List<string>();
+            if (t.SourceTimer.ActiveForStory)
+                supportedDifficulties.Add("Story");
+            if (t.SourceTimer.ActiveForVeteran)
+                supportedDifficulties.Add("Veteran");
+            if (t.SourceTimer.ActiveForMaster)
+                supportedDifficulties.Add("Master");
+            var timerBoss = t.SourceTimer.SpecificBoss;
+            if (timerEncounter == "All")
+                return true;
+            if (string.IsNullOrEmpty(_currentBossInfo.Item1))
+            {
+                return false;
+            }
+            if (encounter.Name == timerEncounter && (supportedDifficulties.Contains(encounter.Difficutly)) && _currentBossInfo.Item1.ToLower() == timerBoss.ToLower())
+                return true;
+            return false;
+        }
+
+        public void CancelTimerEnded(TimerInstanceViewModel vm)
+        {
+            Cancel();
+        }
+
+        private void CompleteTimer(TimerInstanceViewModel timer, bool endedNaturally)
+        {
+            TimerOfTypeExpired.InvokeSafely(timer, endedNaturally);
             lock (_timerChangeLock)
             {
-                _activeTimerInstancesForTimer.Remove(timer.TimerId);
+                _activeTimerInstances.Remove(timer.TimerId);
             }
             timer.Dispose();
         }
@@ -176,7 +236,7 @@ namespace SWTORCombatParser.Model.Timers
                 if (SourceTimer.Name.Contains("Other's") &&
                     currentDiscipline is not ("Bodyguard" or "Combat Medic"))
                     return;
-                if (!IsEnabled || _singleUseTriggerUsed || SourceTimer.TriggerType == TimerKeyType.CombatStart)
+                if (!IsEnabled || _isSingleUseTriggerUsed || SourceTimer.TriggerType == TimerKeyType.CombatStart)
                     return;
 
                 if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield)
@@ -184,8 +244,8 @@ namespace SWTORCombatParser.Model.Timers
                     var damage = _absorbShieldManager?.CheckForDamage(log);
                     if (damage.HasValue)
                     {
-                        if (_activeTimerInstancesForTimer.Count > 0)
-                            _activeTimerInstancesForTimer.FirstOrDefault().Value.DamageDoneToAbsorb += damage.Value;
+                        if (_activeTimerInstances.Count > 0)
+                            _activeTimerInstances.FirstOrDefault().Value.DamageDoneToAbsorb += damage.Value;
                     }
                 }
 
@@ -199,10 +259,10 @@ namespace SWTORCombatParser.Model.Timers
 
                 var targetInfo = GetTargetInfo(log, SourceTimer, wasTriggered, currentTarget);
 
-                if (_activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id) && SourceTimer.DontRefresh)
+                if (_activeTimerInstances.Any(t => t.Value.TargetId == targetInfo.Id) && SourceTimer.DontRefresh)
                     return;
 
-                if (SourceTimer.ShouldModifyVariable && (wasTriggered == TriggerType.Start || (wasTriggered == TriggerType.Refresh && _activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id))))
+                if (SourceTimer.ShouldModifyVariable && (wasTriggered == TriggerType.Start || (wasTriggered == TriggerType.Refresh && _activeTimerInstances.Any(t => t.Value.TargetId == targetInfo.Id))))
                 {
                     ModifyVariable(SourceTimer);
                     if (!SourceTimer.UseVisualsAndModify)
@@ -217,17 +277,17 @@ namespace SWTORCombatParser.Model.Timers
 
 
                 if (wasTriggered == TriggerType.Start &&
-    _activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id) &&
+    _activeTimerInstances.Any(t => t.Value.TargetId == targetInfo.Id) &&
     (SourceTimer.TriggerType == TimerKeyType.AbilityUsed || SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or || SourceTimer.TriggerType == TimerKeyType.EffectGained))
                 {
-                    var timerToRefresh = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id).Value;
+                    var timerToRefresh = _activeTimerInstances.First(t => t.Value.TargetId == targetInfo.Id).Value;
                     timerToRefresh.Reset(log.TimeStamp);
                     ReorderRequested.InvokeSafely(SourceTimer.Id);
                 }
 
                 if (wasTriggered == TriggerType.Refresh && SourceTimer.CanBeRefreshed)
                 {
-                    var timerToRestart = _activeTimerInstancesForTimer
+                    var timerToRestart = _activeTimerInstances
                         .FirstOrDefault(t => t.Value.TargetId == targetInfo.Id)
                         .Value;
                     if (timerToRestart != null)
@@ -237,7 +297,7 @@ namespace SWTORCombatParser.Model.Timers
                         timerToRestart.Reset(log.TimeStamp);
                         ReorderRequested.InvokeSafely(SourceTimer.Id);
                     }
-                    if (!_activeTimerInstancesForTimer.Any())
+                    if (!_activeTimerInstances.Any())
                     {
                         CreateTimerInstance(log.TimeStamp, targetInfo.Name, targetInfo.Id);
                     }
@@ -246,7 +306,7 @@ namespace SWTORCombatParser.Model.Timers
                 if (SourceTimer.TriggerType == TimerKeyType.EntityHP && wasTriggered == TriggerType.Start)
                 {
                     var currentHP = TriggerDetection.GetCurrentTargetHPPercent(log, targetInfo.Id);
-                    var hpTimer = _activeTimerInstancesForTimer.FirstOrDefault(t =>
+                    var hpTimer = _activeTimerInstances.FirstOrDefault(t =>
                             t.Value.SourceTimer.TriggerType == TimerKeyType.EntityHP &&
                             t.Value.TargetId == targetInfo.Id)
                         .Value;
@@ -255,7 +315,7 @@ namespace SWTORCombatParser.Model.Timers
                         hpTimer.CurrentMonitoredHP = currentHP;
                     }
 
-                    if (_activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
+                    if (_activeTimerInstances.All(t => t.Value.TargetId != targetInfo.Id))
                     {
                         CreateHPTimerInstance(currentHP, targetInfo.Name, targetInfo.Id);
                     }
@@ -263,7 +323,7 @@ namespace SWTORCombatParser.Model.Timers
 
                 if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.Start)
                 {
-                    if (_activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
+                    if (_activeTimerInstances.All(t => t.Value.TargetId != targetInfo.Id))
                     {
                         _absorbShieldManager = new AbsorbShieldManager(log.Source);
                         CreateAbsorbTimerInstance(SourceTimer.AbsorbValue, SourceTimer.Ability, log.Source.Id);
@@ -271,26 +331,26 @@ namespace SWTORCombatParser.Model.Timers
                 }
                 if (SourceTimer.TriggerType == TimerKeyType.AbsorbShield && wasTriggered == TriggerType.End)
                 {
-                    if (_activeTimerInstancesForTimer.Any(t => t.Value.TargetId == targetInfo.Id))
+                    if (_activeTimerInstances.Any(t => t.Value.TargetId == targetInfo.Id))
                     {
-                        var absorbTimer = _activeTimerInstancesForTimer.First(t => t.Value.TargetId == targetInfo.Id);
+                        var absorbTimer = _activeTimerInstances.First(t => t.Value.TargetId == targetInfo.Id);
                         absorbTimer.Value.Complete(true);
                     }
                     _absorbShieldManager = null;
                 }
                 if (wasTriggered == TriggerType.Start &&
-                    _activeTimerInstancesForTimer.All(t => t.Value.TargetId != targetInfo.Id))
+                    _activeTimerInstances.All(t => t.Value.TargetId != targetInfo.Id))
                 {
                     if (SourceTimer.TriggerType == TimerKeyType.FightDuration)
                     {
-                        _singleUseTriggerUsed = true;
+                        _isSingleUseTriggerUsed = true;
                     }
 
                     if (SourceTimer.TriggerType != TimerKeyType.FightDuration)
                     {
                         if (SourceTimer.TriggerType == TimerKeyType.And || SourceTimer.TriggerType == TimerKeyType.Or)
                         {
-                            if (_activeTimerInstancesForTimer.Count == 0)
+                            if (_activeTimerInstances.Count == 0)
                                 CreateTimerInstance(log.TimeStamp, targetInfo.Name, targetInfo.Id);
                         }
                         else
@@ -300,7 +360,7 @@ namespace SWTORCombatParser.Model.Timers
 
                 if (wasTriggered == TriggerType.End)
                 {
-                    var endedTimer = _activeTimerInstancesForTimer.FirstOrDefault(t => t.Value.TargetId == targetInfo.Id).Value;
+                    var endedTimer = _activeTimerInstances.FirstOrDefault(t => t.Value.TargetId == targetInfo.Id).Value;
 
                     if (endedTimer == null)
                     {
@@ -323,25 +383,9 @@ namespace SWTORCombatParser.Model.Timers
 
         }
 
-        private void ModifyVariable(Timer sourceTimer)
-        {
-            switch (sourceTimer.ModifyVariableAction)
-            {
-                case VariableModifications.Add:
-                    OrbsVariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
-                    break;
-                case VariableModifications.Subtract:
-                    OrbsVariableManager.AddToVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue > 0 ? sourceTimer.VariableModificationValue * -1 : sourceTimer.VariableModificationValue);
-                    break;
-                case VariableModifications.Set:
-                    OrbsVariableManager.SetVariable(sourceTimer.ModifyVariableName, sourceTimer.VariableModificationValue);
-                    break;
-            }
-        }
-
         private void UpdateCharges(ParsedLogEntry log, TimerTargetInfo targetInfo)
         {
-            var timerToUpdate = _activeTimerInstancesForTimer.FirstOrDefault(t =>
+            var timerToUpdate = _activeTimerInstances.FirstOrDefault(t =>
                 t.Value.TargetId == targetInfo.Id && (t.Value.SourceTimer.Effect == log.Effect.EffectName || t.Value.SourceTimer.Effect == log.Effect.EffectId.ToString())).Value;
             if (timerToUpdate == null)
                 return;
@@ -411,44 +455,14 @@ namespace SWTORCombatParser.Model.Timers
             {
                 _currentBossInfo = bossInfoParts;
                 var currentEnecounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStart);
-                if (CheckEncounterAndBoss(this, currentEnecounter) && _activeTimerInstancesForTimer.Count == 0)
+                if (CheckEncounterAndBoss(this, currentEnecounter) && _activeTimerInstances.Count == 0)
                 {
                     CreateTimerNoTarget(combatStart);
                 }
             }
             _currentBossInfo = bossInfoParts;
         }
-        private void UpdateCombatState(CombatStatusUpdate obj)
-        {
-            if (obj.Type == UpdateType.Stop && historicalParseEnded)
-            {
-                _currentBossInfo = ("", "", "");
-                _alreadyDetectedEntities.Clear();
-            }
-        }
-        private bool CheckEncounterAndBoss(TimerInstance t, EncounterInfo encounter)
-        {
-            var timerEncounter = t.SourceTimer.SpecificEncounter;
-            var supportedDifficulties = new List<string>();
-            if (t.SourceTimer.ActiveForStory)
-                supportedDifficulties.Add("Story");
-            if (t.SourceTimer.ActiveForVeteran)
-                supportedDifficulties.Add("Veteran");
-            if (t.SourceTimer.ActiveForMaster)
-                supportedDifficulties.Add("Master");
-            var timerBoss = t.SourceTimer.SpecificBoss;
-            if (timerEncounter == "All")
-                return true;
-            if (string.IsNullOrEmpty(_currentBossInfo.Item1))
-            {
-                return false;
-            }
-            if (encounter.Name == timerEncounter && (supportedDifficulties.Contains(encounter.Difficutly)) && _currentBossInfo.Item1.ToLower() == timerBoss.ToLower())
-                return true;
-            return false;
-        }
-
-        public void CreateTimerNoTarget(DateTime startTime)
+        private void CreateTimerNoTarget(DateTime startTime)
         {
             var timerVM = new TimerInstanceViewModel(SourceTimer);
             timerVM.StartTime = startTime;
@@ -456,7 +470,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TimerExpired += CompleteTimer;
             lock (_timerChangeLock)
             {
-                _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+                _activeTimerInstances[timerVM.TimerId] = timerVM;
             }
             timerVM.TriggerTimeTimer(startTime);
             Triggered.InvokeSafely();
@@ -472,7 +486,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TargetId = targetId;
             lock (_timerChangeLock)
             {
-                _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+                _activeTimerInstances[timerVM.TimerId] = timerVM;
             }
             timerVM.TriggerTimeTimer(startTime);
             if (charges != 0)
@@ -489,7 +503,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TargetId = targetId;
             lock (_timerChangeLock)
             {
-                _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+                _activeTimerInstances[timerVM.TimerId] = timerVM;
             }
             timerVM.TriggerHPTimer(currentHP);
             Triggered.InvokeSafely();
@@ -505,7 +519,7 @@ namespace SWTORCombatParser.Model.Timers
             timerVM.TargetId = targetId;
             lock (_timerChangeLock)
             {
-                _activeTimerInstancesForTimer[timerVM.TimerId] = timerVM;
+                _activeTimerInstances[timerVM.TimerId] = timerVM;
             }
             timerVM.TriggerAbsorbTimer(maxAbsorb);
             Triggered.InvokeSafely();

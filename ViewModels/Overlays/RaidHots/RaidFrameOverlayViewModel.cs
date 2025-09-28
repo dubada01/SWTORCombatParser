@@ -87,7 +87,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             _raidFrameView.AreaClicked += CellClicked;
             MainContent = _raidFrameView;
             BackgroundLockedOpacity = 0;
-            BackgroundUnLockedOpacity = 0.05;
+            BackgroundUnlockedOpacity = 0.05;
             SettingsType = OverlaySettingsType.Character;
         }
 
