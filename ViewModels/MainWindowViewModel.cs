@@ -70,7 +70,7 @@ namespace SWTORCombatParser.ViewModels
         private int selectedTabIndex;
         
         public string Title { get; set; }
-        public ObservableCollection<TabInstance> ContentTabs { get; set; } = new ObservableCollection<TabInstance>();
+        public ObservableCollection<TabInstanceViewModel> ContentTabs { get; set; } = new ObservableCollection<TabInstanceViewModel>();
         public PastCombatsView PastCombatsView { get; set; }
 
         public PhaseBar PhasesBar { get; set; }
@@ -78,7 +78,7 @@ namespace SWTORCombatParser.ViewModels
         public Combat UnfilteredDisplayedCombat { get; set; }
         private bool _allViewsUpToDate;
         private int activeRowSpan;
-        private TabInstance _selectedTab;
+        private TabInstanceViewModel _selectedTab;
         private bool _logLoaded;
         private bool _viewingLogs;
         private readonly BattleReviewView _logView;
@@ -86,15 +86,15 @@ namespace SWTORCombatParser.ViewModels
         private readonly ChallengeSetupView _challengeView;
         private readonly RaidwideBattleReviewWindow _deathView;
 
-        public TabInstance SelectedTab
+        public TabInstanceViewModel SelectedTab
         {
             get => _selectedTab;
             set
             {
                 this.RaiseAndSetIfChanged(ref _selectedTab, value);
-                foreach (var tabInstance in ContentTabs)
+                foreach (var TabInstanceViewModel in ContentTabs)
                 {
-                    tabInstance.Unselect();
+                    TabInstanceViewModel.Unselect();
                 }
                 _selectedTab.Select();
             }
@@ -184,20 +184,20 @@ namespace SWTORCombatParser.ViewModels
 
             _dataGridViewModel = new DataGridViewModel();
             var dataGridView = new DataGridView(_dataGridViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = dataGridView, HeaderText = "Raid Data", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/grid.png") });
+            ContentTabs.Add(new TabInstanceViewModel() { TabContent = dataGridView, HeaderText = "Raid Data", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/grid.png") });
 
             _plotViewModel = new PlotViewModel();
             var graphView = new GraphView(_plotViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Plot", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/chart.png") });
+            ContentTabs.Add(new TabInstanceViewModel() { TabContent = graphView, HeaderText = "Plot", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/chart.png") });
 
 
             _tableViewModel = new TableViewModel();
             var tableView = new OverviewView(_tableViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Details" , TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/bar-graph.png") });
+            ContentTabs.Add(new TabInstanceViewModel() { TabContent = tableView, HeaderText = "Details" , TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/bar-graph.png") });
 
             _reviewViewModel = new BattleReviewViewModel();
             _logView = new BattleReviewView(_reviewViewModel);
-            ContentTabs.Add(new TabInstance()
+            ContentTabs.Add(new TabInstanceViewModel()
             {
                 TabContent = _logView, HeaderText = "Log Review",
                 TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/google-docs.png")

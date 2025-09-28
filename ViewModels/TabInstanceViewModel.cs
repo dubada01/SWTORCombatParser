@@ -9,12 +9,12 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class TabInstance :ReactiveObject
+    public class TabInstanceViewModel :ReactiveObject
     {
         private Bitmap _overlayLockIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png");
         private Bitmap _tabIcon;
         private SolidColorBrush _tabSelectedColor = new SolidColorBrush(Colors.DarkGray);
-        public event Action<TabInstance> RequestTabClose = delegate { };
+        public event Action<TabInstanceViewModel> RequestTabClose = delegate { };
         public ReactiveCommand<Unit,Unit> CloseTabCommand => ReactiveCommand.Create(CloseTab);
 
         private void CloseTab()
