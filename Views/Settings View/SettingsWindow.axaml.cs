@@ -68,7 +68,7 @@ namespace SWTORCombatParser.Views.SettingsView
             BackgroundWarning.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring");
             ShowTargeted.IsChecked = Settings.ReadSettingOfType<bool>("overlay_show_targeted");
         }
-        private async void ResetMessages(object sender, RoutedEventArgs e)
+        private async void ResetMessages(object? sender, RoutedEventArgs e)
         {
             var newMessages = await UpdateMessageService.GetAllUpdateMessages();
             if (newMessages.Count > 0)
@@ -98,26 +98,26 @@ namespace SWTORCombatParser.Views.SettingsView
             var path = Settings.ReadSettingOfType<string>("combat_logs_path");
             LogPath.Text = path;
         }
-        private void UpdatePath(object sender, TextChangedEventArgs e)
+        private void UpdatePath(object? sender, TextChangedEventArgs e)
         {
             Settings.WriteSetting<string>("combat_logs_path", LogPath.Text);
         }
 
-        private void ToggleOffline(object sender, RoutedEventArgs e)
+        private void ToggleOffline(object? sender, RoutedEventArgs e)
         {
             Settings.WriteSetting("offline_mode", OfflineMode.IsChecked.Value);
         }
 
-        private void ToggleLogForce(object sender, RoutedEventArgs e)
+        private void ToggleLogForce(object? sender, RoutedEventArgs e)
         {
             Settings.WriteSetting("force_log_updates", ForceLogUpdates.IsChecked.Value);
         }
 
-        private void ToggleBackground(object sender, RoutedEventArgs e)
+        private void ToggleBackground(object? sender, RoutedEventArgs e)
         {
             ShouldShowPopup.SaveShouldShowPopup("BackgroundDisabled", !RunInBackground.IsChecked.Value);
         }
-        private void ToggleWarning(object sender, RoutedEventArgs e)
+        private void ToggleWarning(object? sender, RoutedEventArgs e)
         {
             ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", !RunInBackground.IsChecked.Value);
         }
@@ -125,7 +125,7 @@ namespace SWTORCombatParser.Views.SettingsView
         {
             Settings.WriteSetting("overlay_show_targeted", ShowTargeted.IsChecked.Value);
         }
-        private void ToggleHotkeyEnabled(object sender, RoutedEventArgs e)
+        private void ToggleHotkeyEnabled(object? sender, RoutedEventArgs e)
         {
             var current = Settings.ReadSettingOfType<HotkeySettings>("Hotkeys");
             if (((CheckBox)sender).Name == "RefreshEnabled")
@@ -149,7 +149,7 @@ namespace SWTORCombatParser.Views.SettingsView
             HideEnabled.IsChecked = current.OverlayHideEnabled;
         }
 
-        private void Cancel(object sender, RoutedEventArgs e)
+        private void Cancel(object? sender, RoutedEventArgs e)
         {
             Close();
         }

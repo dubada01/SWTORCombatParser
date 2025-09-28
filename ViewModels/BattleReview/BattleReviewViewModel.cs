@@ -88,7 +88,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 
             }
         }
-        private void TimerCallback(object state)
+        private void TimerCallback(object? state)
         {
 
             // Perform the filter update on the appropriate thread if required

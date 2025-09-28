@@ -18,7 +18,7 @@ namespace SWTORCombatParser.Views
             ShowAgainCheck.Unchecked += CheckChanged;
             SaveShowAgainChoice();
         }
-        private void CheckChanged(object sender, RoutedEventArgs e)
+        private void CheckChanged(object? sender, RoutedEventArgs e)
         {
             SaveShowAgainChoice();
         }

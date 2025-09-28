@@ -34,7 +34,7 @@ namespace SWTORCombatParser.Views.Phases
         {
             Close();
         }
-        private void Cancel(object sender, RoutedEventArgs e)
+        private void Cancel(object? sender, RoutedEventArgs e)
         {
             _vm.Cancel();
             Close();

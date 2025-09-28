@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Views
         {
             InitializeComponent();
         }
-        private void Close(object sender, RoutedEventArgs e)
+        private void Close(object? sender, RoutedEventArgs e)
         {
             Close();
         }

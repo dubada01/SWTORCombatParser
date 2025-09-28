@@ -181,7 +181,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             return (DateTime.Now - lastInfoTime).TotalSeconds < 5;
         }
 
-        private void CheckForNewState(object sender, EventArgs e)
+        private void CheckForNewState(object? sender, EventArgs e)
         {
             if (_lastUpdatedPlayer.Count == 0)
                 return;

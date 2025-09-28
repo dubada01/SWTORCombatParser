@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Model.Overlays
         {
             _timer.Start();
         }
-        private void CheckForNewState(object sender, EventArgs e)
+        private void CheckForNewState(object? sender, EventArgs e)
         {
             var elapsedTime = (TimeUtility.CorrectedTime - _startTime).TotalSeconds;
             var triggerdUpdate = _overlaySettings.UpateObjects.FirstOrDefault(u => u.DisplayTimeSecondsElapsed <= elapsedTime && u.TriggerTimeSecondeElapsed > elapsedTime);

@@ -135,7 +135,7 @@ namespace SWTORCombatParser.Views.Home_Views
             };
             _seriesToPlot.Add(series);
         }
-        private void NotifySizeChanged(object sender, SizeChangedEventArgs e)
+        private void NotifySizeChanged(object? sender, SizeChangedEventArgs e)
         {
             _plotViewModel.UserControlWidth = this.Width;
         }

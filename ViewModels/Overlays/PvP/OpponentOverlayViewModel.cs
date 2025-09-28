@@ -180,7 +180,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             }
         }
 
-        private void CheckForNewState(object sender, EventArgs e)
+        private void CheckForNewState(object? sender, EventArgs e)
         {
             var sorted = (from entry in _currentHps orderby entry.Key ascending select entry).ToList();
             foreach (var opponent in sorted)

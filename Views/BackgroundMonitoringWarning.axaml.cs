@@ -36,11 +36,11 @@ namespace SWTORCombatParser.Views
             }
         }
 
-        private void CheckChanged(object sender, RoutedEventArgs e)
+        private void CheckChanged(object? sender, RoutedEventArgs e)
         {
             SaveShowAgainChoice();
         }
-        private void DisableCheckChanged(object sender, RoutedEventArgs e)
+        private void DisableCheckChanged(object? sender, RoutedEventArgs e)
         {
             SaveDisabledChoice();
         }

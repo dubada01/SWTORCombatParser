@@ -119,7 +119,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
             this.RaisePropertyChanged(nameof(RaidNote));
         }
 
-        private void TrySaveRaidNotes(object sender, ElapsedEventArgs e)
+        private void TrySaveRaidNotes(object? sender, ElapsedEventArgs e)
         {
             if (!AreDictionariesEqual(_savedRaidNotes, RaidNotes))
             {

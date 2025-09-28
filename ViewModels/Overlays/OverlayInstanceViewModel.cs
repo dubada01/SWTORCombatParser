@@ -195,7 +195,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             UpdateLeaderboardValues(obj);
         }
 
-        private void UpdateStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> obj)
+        private void UpdateStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?> obj)
         {
             AddLeaderboardStandings(obj);
         }

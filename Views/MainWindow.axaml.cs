@@ -56,7 +56,7 @@ namespace SWTORCombatParser.Views
             //base.OnOpened(e);
         }
 
-        private async void CheckForUpdates(object sender, RoutedEventArgs e)
+        private async void CheckForUpdates(object? sender, RoutedEventArgs e)
         {
             var newMessages = await UpdateMessageService.GetUpdateMessages();
             if (newMessages.Count > 0)
@@ -71,7 +71,7 @@ namespace SWTORCombatParser.Views
 
         }
 
-        private void MainWindow_Closed(object sender, EventArgs e)
+        private void MainWindow_Closed(object? sender, EventArgs e)
         {
             // Unregister the hotkey when the window is closed to clean up
             HotkeyHandler.UnregisterHotKey(1);

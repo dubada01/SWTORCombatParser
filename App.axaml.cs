@@ -126,7 +126,7 @@ namespace SWTORCombatParser
             }
         }
 
-        private void ShowClicked(object sender, EventArgs e)
+        private void ShowClicked(object? sender, EventArgs e)
         {
             if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopApp)
             {
@@ -136,7 +136,7 @@ namespace SWTORCombatParser
             }
         }
 
-        private void ExitClicked(object sender, EventArgs e)
+        private void ExitClicked(object? sender, EventArgs e)
         {
             if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopApp)
             {
