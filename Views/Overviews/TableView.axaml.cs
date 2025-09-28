@@ -1,14 +1,13 @@
-﻿
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 
 namespace SWTORCombatParser.Views.Overviews
 {
     /// <summary>
     /// Interaction logic for TableViewInstance.xaml
     /// </summary>
-    public partial class TableViewInstance : UserControl
+    public partial class TableView : UserControl
     {
-        public TableViewInstance()
+        public TableView()
         {
             InitializeComponent();
         }

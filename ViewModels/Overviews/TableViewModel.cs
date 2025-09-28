@@ -8,11 +8,11 @@ namespace SWTORCombatParser.ViewModels.Overviews
         private SortingOption selectedOrdering;
         private int _selectedTabIndex;
 
-        public TableViewInstance DamageContent { get; set; }
-        public TableViewInstance HealingContent { get; set; }
-        public TableViewInstance DamageTakenContent { get; set; }
-        public TableViewInstance HealingReceivedContent { get; set; }
-        public TableViewInstance ThreatContent { get; set; }
+        public TableView DamageContent { get; set; }
+        public TableView HealingContent { get; set; }
+        public TableView DamageTakenContent { get; set; }
+        public TableView HealingReceivedContent { get; set; }
+        public TableView ThreatContent { get; set; }
         public override bool SortOptionVisibility => true;
 
         public override int SelectedTabIndex
@@ -51,23 +51,23 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         public TableViewModel()
         {
-            DamageContent = new TableViewInstance();
+            DamageContent = new TableView();
             DamageVM = new TableInstanceViewModel(OverviewDataType.Damage);
             DamageContent.DataContext = DamageVM;
 
-            HealingContent = new TableViewInstance();
+            HealingContent = new TableView();
             HealingVM = new TableInstanceViewModel(OverviewDataType.Healing);
             HealingContent.DataContext = HealingVM;
 
-            DamageTakenContent = new TableViewInstance();
+            DamageTakenContent = new TableView();
             DamageTakenVM = new TableInstanceViewModel(OverviewDataType.DamageTaken);
             DamageTakenContent.DataContext = DamageTakenVM;
 
-            HealingReceivedContent = new TableViewInstance();
+            HealingReceivedContent = new TableView();
             HealingReceivedVM = new TableInstanceViewModel(OverviewDataType.HealingReceived);
             HealingReceivedContent.DataContext = HealingReceivedVM;
 
-            ThreatContent = new TableViewInstance();
+            ThreatContent = new TableView();
             ThreatVM = new TableInstanceViewModel(OverviewDataType.Threat);
             ThreatContent.DataContext = ThreatVM;
 

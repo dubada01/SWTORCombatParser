@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Overviews.TableViewInstance"
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overviews.TableView"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
