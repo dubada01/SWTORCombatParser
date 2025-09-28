@@ -120,7 +120,7 @@
     <None Remove="UWP Images\**" />
     <Compile Remove="ViewModels\BattleReview\MapViewModel.cs" />
     <Compile Remove="ViewModels\BattleReview\ReviewPlotViewModel.cs" />
-    <Compile Remove="Views\Battle Review\MapView.xaml.cs" />
+  <Compile Remove="Views\BattleReview\MapView.xaml.cs" />
     <Page Update="Views\Timers\AlertInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -257,7 +257,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 
-    <Page Remove="Views\Battle Review\MapView.xaml" />
+  <Page Remove="Views\BattleReview\MapView.xaml" />
     <Content Include="DataStructures\Timers\Boss Timers\Raids\Athiss\Athiss.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -460,7 +460,7 @@
     <AvaloniaXaml Remove="Views\Leaderboard View\**" />
     <AvaloniaXaml Remove="ViewModels\Leaderboard\**" />
     <AvaloniaXaml Remove="Views\Overviews\HistogramInstanceView.axaml" />
-    <AvaloniaXaml Remove="Views\Battle Review\MapView.axaml" />
+  <AvaloniaXaml Remove="Views\BattleReview\MapView.axaml" />
     <AvaloniaXaml Remove="Views\Home Views\HistoricalRangeWiget.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\StatSlotView.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\DataGridRowView.axaml" />
