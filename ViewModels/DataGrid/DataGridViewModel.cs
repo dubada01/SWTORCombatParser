@@ -249,7 +249,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         }
         private string GetNameFromType(OverlayType type)
         {
-            return (string)new OverlayTypeToReadableNameConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
+            return (string)new OverlayTypeToReadableNameConverter().Convert(type, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 }

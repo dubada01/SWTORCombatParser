@@ -67,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 foreach (var column in selectedColumns)
                 {
                     if (!StatsSlots.Any(s =>
-                            s.Header == _nameConverter.Convert(column, null, null,
+                            s.Header == _nameConverter.Convert(column, typeof(string), null,
                                 System.Globalization.CultureInfo.InvariantCulture).ToString()))
                     {
                         StatsSlots.Insert(selectedColumns.IndexOf(column),
