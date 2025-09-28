@@ -380,7 +380,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
 
         }
-        private void AddLeaderboardStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> leaderboardInfo)
+        private void AddLeaderboardStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?> leaderboardInfo)
         {
             foreach (var metricBar in _metricBarsDict)
             {
