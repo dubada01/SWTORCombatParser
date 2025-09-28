@@ -71,7 +71,7 @@ namespace SWTORCombatParser.Model.Overlays
         private ulong _nailDetonationId = 4125006850163036;
         private ulong _prepareTheFieldEffectId = 4181979591344128;
         private List<long> _currentHazards = new List<long>();
-        public NAHUT_Hazard(RoomOverlay roomView, RoomOverlaySettings settings): base(roomView)
+        public NAHUT_Hazard(RoomOverlay roomView, RoomOverlaySettings settings) : base(roomView)
         {
             _settings = settings;
             _roomOverlay = roomView;
@@ -79,11 +79,11 @@ namespace SWTORCombatParser.Model.Overlays
 
         private void UpdatePositions(ParsedLogEntry entry)
         {
-            if(entry.Source.IsLocalPlayer || entry.Target.IsLocalPlayer)
+            if (entry.Source.IsLocalPlayer || entry.Target.IsLocalPlayer)
             {
                 UpdateCharacterPosition();
             }
-            if(entry.Source.LogId == _pinId && _currentHazards.All(p => p != entry.Source.Id))
+            if (entry.Source.LogId == _pinId && _currentHazards.All(p => p != entry.Source.Id))
             {
                 DrawNewHazard(entry.SourceInfo.Position, "PIN", entry.Source.Id);
             }
@@ -91,11 +91,11 @@ namespace SWTORCombatParser.Model.Overlays
             {
                 DrawNewHazard(entry.SourceInfo.Position, "NAIL", entry.Source.Id);
             }
-            if(entry.Effect.EffectId == _reseedId || (entry.Effect.EffectId == _prepareTheFieldEffectId && entry.Effect.EffectType == EffectType.Apply))
+            if (entry.Effect.EffectId == _reseedId || (entry.Effect.EffectId == _prepareTheFieldEffectId && entry.Effect.EffectType == EffectType.Apply))
             {
                 ClearAllHazards();
             }
-            if(entry.Effect.EffectId == _pinDetonationId || entry.Effect.EffectId == _nailDetonationId)
+            if (entry.Effect.EffectId == _pinDetonationId || entry.Effect.EffectId == _nailDetonationId)
             {
                 RemoveHazard(entry.Source.Id);
             }
@@ -110,7 +110,7 @@ namespace SWTORCombatParser.Model.Overlays
             var location = position;
             var xFraction = (location.X - roomLeft) / roomWidth;
             var yFraction = (location.Y - roomTop) / roomHeight;
-            var widthFraction = (v == "PIN" ? 8 : 12)/roomWidth;
+            var widthFraction = (v == "PIN" ? 8 : 12) / roomWidth;
             _currentHazards.Add(hazardId);
             _roomOverlay.DrawHazard(xFraction, yFraction, widthFraction, hazardId);
         }
@@ -121,7 +121,7 @@ namespace SWTORCombatParser.Model.Overlays
         }
         private void RemoveHazard(long hazardId)
         {
-            _currentHazards.RemoveAll(p=> p == hazardId);
+            _currentHazards.RemoveAll(p => p == hazardId);
             _roomOverlay.ClearSpecificHazard(hazardId);
         }
         private void UpdateCharacterPosition()
@@ -149,7 +149,7 @@ namespace SWTORCombatParser.Model.Overlays
     }
     public abstract class RoomHazard
     {
-        private  RoomOverlay _currentRoomView;
+        private RoomOverlay _currentRoomView;
         protected RoomHazard(RoomOverlay roomView)
         {
             _currentRoomView = roomView;

@@ -47,7 +47,7 @@ namespace SWTORCombatParser.Views.Challenges
         }
 
         private void StopDrag(object? sender, PointerReleasedEventArgs e)
-        
+
         {
             _isDragging = false;
         }

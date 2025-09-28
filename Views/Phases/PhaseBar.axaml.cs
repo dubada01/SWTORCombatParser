@@ -129,10 +129,10 @@ namespace SWTORCombatParser.Views.Phases
                             CommandParameter = phase
                         };
 
-// Assign tooltip using ToolTip.SetTip
+                        // Assign tooltip using ToolTip.SetTip
                         ToolTip.SetTip(button, $"{phase.SourcePhase.Name}: {(phase.PhaseStart - startTime).TotalSeconds} - {(phase.PhaseEnd - startTime).TotalSeconds}");
 
-// Add style class
+                        // Add style class
                         button.Classes.Add("RoundCornerButton");
 
 

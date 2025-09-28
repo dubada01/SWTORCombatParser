@@ -114,7 +114,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             get => partyMembers; set => this.RaiseAndSetIfChanged(ref partyMembers, value);
         }
-        
+
         public void UpdateCombat(Combat updatedCombat)
         {
             _currentCombat = updatedCombat;
@@ -222,13 +222,13 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             set
             {
                 _selectedNewColumn = value;
-                if(!string.IsNullOrEmpty(_selectedNewColumn))
+                if (!string.IsNullOrEmpty(_selectedNewColumn))
                     AddHeader(_selectedNewColumn);
                 _selectedNewColumn = "";
                 this.RaisePropertyChanged();
             }
         }
-        
+
         public void AddHeader(string obj)
         {
             _selectedColumnTypes.Add(_columnOrder.FirstOrDefault(c => GetNameFromType(c) == obj));

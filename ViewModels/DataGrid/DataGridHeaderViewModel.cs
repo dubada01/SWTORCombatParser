@@ -48,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public bool IsRealHeader { get; set; } = true;
         public string Text { get; set; }
         public bool IsName { get; set; }
-        public ReactiveCommand<Unit,Unit> ToggleSortingCommand => ReactiveCommand.Create(ToggleSorting);
+        public ReactiveCommand<Unit, Unit> ToggleSortingCommand => ReactiveCommand.Create(ToggleSorting);
 
         private void ToggleSorting()
         {
@@ -72,7 +72,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             }
         }
 
-        public ReactiveCommand<Unit,Unit> HeaderClickedCommand => ReactiveCommand.Create(HeaderClicked);
+        public ReactiveCommand<Unit, Unit> HeaderClickedCommand => ReactiveCommand.Create(HeaderClicked);
 
         private void HeaderClicked()
         {

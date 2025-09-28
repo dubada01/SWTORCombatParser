@@ -14,7 +14,7 @@ using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class TimerRowInstanceViewModel :ReactiveObject, INotifyPropertyChanged
+    public class TimerRowInstanceViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private bool _isEnabled;
         private SolidColorBrush _rowBackground;
@@ -41,7 +41,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             ? Brushes.SeaGreen
             : Brushes.Transparent;
         public Bitmap AudioImageSource => SourceTimer.UseAudio ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/audioIcon.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/mutedIcon.png")));
-        public Bitmap VisibilityImageSource => !SourceTimer.IsSubTimer ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/view.png"))) :new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/hidden.png")));
+        public Bitmap VisibilityImageSource => !SourceTimer.IsSubTimer ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/view.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/hidden.png")));
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public string DurationSec => SourceTimer.IsAlert ? "Alert" : SourceTimer.DurationSec.ToString();
@@ -57,7 +57,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
 
         public SolidColorBrush TimerForeground => new SolidColorBrush(SourceTimer.TimerColor);
-        public ReactiveCommand<object,Unit> ToggleAudioCommand => ReactiveCommand.Create<object>(ToggleAudio);
+        public ReactiveCommand<object, Unit> ToggleAudioCommand => ReactiveCommand.Create<object>(ToggleAudio);
 
         private void ToggleAudio(object obj)
         {
@@ -70,7 +70,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             });
 
         }
-        public ReactiveCommand<object,Unit> ToggleVisibilityCommand => ReactiveCommand.Create<object>(ToggleVisiblity);
+        public ReactiveCommand<object, Unit> ToggleVisibilityCommand => ReactiveCommand.Create<object>(ToggleVisiblity);
 
         private void ToggleVisiblity(object obj)
         {
@@ -80,23 +80,23 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("VisibilityImageSource");
         }
 
-        public ReactiveCommand<object,Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
+        public ReactiveCommand<object, Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
         private void Edit(object t)
         {
             EditRequested(this);
         }
-        public ReactiveCommand<object,Unit> ShareCommand =>ReactiveCommand.Create<object>(Share);
+        public ReactiveCommand<object, Unit> ShareCommand => ReactiveCommand.Create<object>(Share);
         private void Share(object t)
         {
             ShareRequested(this);
         }
-        public ReactiveCommand<object,Unit> CopyCommand => ReactiveCommand.Create<object>(Copy);
+        public ReactiveCommand<object, Unit> CopyCommand => ReactiveCommand.Create<object>(Copy);
 
         private void Copy(object obj)
         {
             CopyRequested(this);
         }
-        public ReactiveCommand<object,Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
+        public ReactiveCommand<object, Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
         private void Delete(object t)
         {
             DeleteRequested(this);

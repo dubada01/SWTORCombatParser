@@ -13,7 +13,7 @@ using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Death_Review;
 
-public class BarInfo:ReactiveObject
+public class BarInfo : ReactiveObject
 {
     private SolidColorBrush _barColor = (SolidColorBrush)Application.Current.Resources["ParticipantDTPSBrush"];
     private bool _isSelected;
@@ -46,15 +46,15 @@ public enum BarType
     Ability,
     Player
 }
-public class DamageTakenBarsViewModel:ReactiveObject
+public class DamageTakenBarsViewModel : ReactiveObject
 {
     private BarType _barType;
     private Combat _currentCombat;
     private string _currentPlayer = "All Players";
     private string _currentAbility;
-    
-    private Dictionary<RichAbility,double> _abilityDamageTaken = new Dictionary<RichAbility, double>();
-    private Dictionary<Entity,double> _playerDamageTaken = new Dictionary<Entity, double>();
+
+    private Dictionary<RichAbility, double> _abilityDamageTaken = new Dictionary<RichAbility, double>();
+    private Dictionary<Entity, double> _playerDamageTaken = new Dictionary<Entity, double>();
     private List<BarInfo> _barInfo = new List<BarInfo>();
     private string _titleString;
     private Entity _currentSource;
@@ -85,11 +85,11 @@ public class DamageTakenBarsViewModel:ReactiveObject
         TitleString = abilityString;
         UpdateBars();
     }
-    public Dictionary<RichAbility,double> GetDamageTakenByAbility()
+    public Dictionary<RichAbility, double> GetDamageTakenByAbility()
     {
         return _abilityDamageTaken;
     }
-    public Dictionary<Entity,double> GetDamageTakenByPlayer()
+    public Dictionary<Entity, double> GetDamageTakenByPlayer()
     {
         return _playerDamageTaken;
     }
@@ -114,7 +114,7 @@ public class DamageTakenBarsViewModel:ReactiveObject
 
     private void UpdateBars()
     {
-        switch(_barType)
+        switch (_barType)
         {
             case BarType.Ability:
                 UpdateAbilityBars();
@@ -128,14 +128,14 @@ public class DamageTakenBarsViewModel:ReactiveObject
     private void UpdatePlayerBars()
     {
         BarInfo = new List<BarInfo>();
-        if(string.IsNullOrEmpty(_currentAbility))
+        if (string.IsNullOrEmpty(_currentAbility))
             return;
         _playerDamageTaken = new Dictionary<Entity, double>();
         foreach (var player in _currentCombat.CharacterParticipants)
         {
-            _playerDamageTaken[player] =  _currentSource.IsCharacter ?  
-                (_currentCombat.GetDamageIncomingByAbilityForPlayer(_currentAbility, player)/_currentCombat.DurationSeconds) :  
-                (_currentCombat.GetDamageIncomingByAbilityForPlayerFromSource(_currentAbility, player,_currentSource)/_currentCombat.DurationSeconds);
+            _playerDamageTaken[player] = _currentSource.IsCharacter ?
+                (_currentCombat.GetDamageIncomingByAbilityForPlayer(_currentAbility, player) / _currentCombat.DurationSeconds) :
+                (_currentCombat.GetDamageIncomingByAbilityForPlayerFromSource(_currentAbility, player, _currentSource) / _currentCombat.DurationSeconds);
         }
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
@@ -172,28 +172,28 @@ public class DamageTakenBarsViewModel:ReactiveObject
         _abilityDamageTaken = new Dictionary<RichAbility, double>(new RichAbilityComparer());
         if (_currentPlayer == "All Players")
         {
-            foreach(var player in _currentCombat.CharacterParticipants)
+            foreach (var player in _currentCombat.CharacterParticipants)
             {
                 var abilityResults = _currentCombat.GetIncomingDamageByAbilityRich(player);
-                foreach(var ability in abilityResults)
+                foreach (var ability in abilityResults)
                 {
-                    if(_abilityDamageTaken.ContainsKey(ability.Key))
-                        _abilityDamageTaken[ability.Key] += (ability.Value.Sum(e=>e.Value.EffectiveDblValue)/_currentCombat.DurationSeconds);
+                    if (_abilityDamageTaken.ContainsKey(ability.Key))
+                        _abilityDamageTaken[ability.Key] += (ability.Value.Sum(e => e.Value.EffectiveDblValue) / _currentCombat.DurationSeconds);
                     else
-                        _abilityDamageTaken[ability.Key] = (ability.Value.Sum(e=>e.Value.EffectiveDblValue)/_currentCombat.DurationSeconds);
+                        _abilityDamageTaken[ability.Key] = (ability.Value.Sum(e => e.Value.EffectiveDblValue) / _currentCombat.DurationSeconds);
                 }
             }
         }
         else
         {
-            var player = _currentCombat.CharacterParticipants.First(e=>e.Name == _currentPlayer);
+            var player = _currentCombat.CharacterParticipants.First(e => e.Name == _currentPlayer);
             var abilityResults = _currentCombat.GetIncomingDamageByAbilityRich(player);
-            foreach(var ability in abilityResults)
+            foreach (var ability in abilityResults)
             {
-                if(_abilityDamageTaken.ContainsKey(ability.Key))
-                    _abilityDamageTaken[ability.Key] += ability.Value.Sum(e=>e.Value.EffectiveDblValue);
+                if (_abilityDamageTaken.ContainsKey(ability.Key))
+                    _abilityDamageTaken[ability.Key] += ability.Value.Sum(e => e.Value.EffectiveDblValue);
                 else
-                    _abilityDamageTaken[ability.Key] = ability.Value.Sum(e=>e.Value.EffectiveDblValue);
+                    _abilityDamageTaken[ability.Key] = ability.Value.Sum(e => e.Value.EffectiveDblValue);
             }
         }
         Dispatcher.UIThread.InvokeAsync(async () =>
@@ -231,7 +231,7 @@ public class DamageTakenBarsViewModel:ReactiveObject
 
     public void BarSelected(BarInfo barInfo)
     {
-        if(_barType == BarType.Player)
+        if (_barType == BarType.Player)
             return;
         foreach (var bar in BarInfo)
         {

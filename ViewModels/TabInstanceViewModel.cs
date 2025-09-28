@@ -9,20 +9,20 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class TabInstanceViewModel :ReactiveObject
+    public class TabInstanceViewModel : ReactiveObject
     {
         private Bitmap _overlayLockIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png");
         private Bitmap _tabIcon;
         private SolidColorBrush _tabSelectedColor = new SolidColorBrush(Colors.DarkGray);
         public event Action<TabInstanceViewModel> RequestTabClose = delegate { };
-        public ReactiveCommand<Unit,Unit> CloseTabCommand => ReactiveCommand.Create(CloseTab);
+        public ReactiveCommand<Unit, Unit> CloseTabCommand => ReactiveCommand.Create(CloseTab);
 
         private void CloseTab()
         {
             RequestTabClose(this);
         }
 
-        public ReactiveCommand<Unit,Unit> ToggleLockedCommand => ReactiveCommand.Create(ToggleLocked);
+        public ReactiveCommand<Unit, Unit> ToggleLockedCommand => ReactiveCommand.Create(ToggleLocked);
 
         private void ToggleLocked()
         {
@@ -63,7 +63,7 @@ namespace SWTORCombatParser.ViewModels
             get => _tabIcon;
             set => this.RaiseAndSetIfChanged(ref _tabIcon, value);
         }
-        
+
 
         public string HeaderText { get; set; }
         public UserControl TabContent { get; set; }

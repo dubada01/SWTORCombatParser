@@ -61,7 +61,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 UpdateSecondColumnWidth(value);
             }
         }
-       public GridLength SecondColumnWidth
+        public GridLength SecondColumnWidth
         {
             get => _secondColumnWidth;
             set
@@ -179,7 +179,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                     var maxDuration = (endTime - startTime).TotalSeconds;
                     var effectStart = (effect.StartTime - startTime).TotalSeconds;
                     var effectEnd = (effect.StopTime - startTime).TotalSeconds;
-                    GraphView.Plot.Add.HorizontalSpan(Math.Max(effectStart, 0), Math.Min(effectEnd, maxDuration), color: new Color(255,255,197,50 ));
+                    GraphView.Plot.Add.HorizontalSpan(Math.Max(effectStart, 0), Math.Min(effectEnd, maxDuration), color: new Color(255, 255, 197, 50));
                 }
                 GraphView.Refresh();
             }
@@ -273,11 +273,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                         plot.Tooltip.Values.ToList().ForEach(v => v.IsVisible = false);
                     if (plot.Points.Count > 0 && plot.Points.ContainsKey(_currentCombat.StartTime) && GraphView.Plot.GetPlottables().ToList().Contains(plot.Points[_currentCombat.StartTime]))
                     {
-                        UpdateSeriesAnnotation(plot.Points[_currentCombat.StartTime], plot.Tooltip[_currentCombat.StartTime], plot.Name, plot.Abilities[_currentCombat.StartTime], true,position);
+                        UpdateSeriesAnnotation(plot.Points[_currentCombat.StartTime], plot.Tooltip[_currentCombat.StartTime], plot.Name, plot.Abilities[_currentCombat.StartTime], true, position);
                     }
                     if (plot.EffectivePoints.Count > 0 && plot.EffectivePoints.ContainsKey(_currentCombat.StartTime) && GraphView.Plot.GetPlottables().ToList().Contains(plot.EffectivePoints[_currentCombat.StartTime]))
                     {
-                        UpdateSeriesAnnotation(plot.EffectivePoints[_currentCombat.StartTime], plot.EffectiveTooltip[_currentCombat.StartTime], plot.Name + "Raw", plot.Abilities[_currentCombat.StartTime], false,position);
+                        UpdateSeriesAnnotation(plot.EffectivePoints[_currentCombat.StartTime], plot.EffectiveTooltip[_currentCombat.StartTime], plot.Name + "Raw", plot.Abilities[_currentCombat.StartTime], false, position);
                     }
 
                 }
@@ -322,23 +322,23 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 var seriesName = series.Name;
                 if (series.Type != PlotType.HPPercent)
                 {
-                     var normalLine = GraphView.Plot.Add.Scatter(plotXvals, plotYvals,color: series.Color);
-                     normalLine.LineStyle = LineStyle.None;
-                     normalLine.MarkerShape = GetMarkerFromNumberOfComparisons(1);
-                     normalLine.LegendText = seriesName;
-                     normalLine.MarkerSize = 5;
-                     series.Points[combatToPlot.StartTime] = normalLine;
-                     
+                    var normalLine = GraphView.Plot.Add.Scatter(plotXvals, plotYvals, color: series.Color);
+                    normalLine.LineStyle = LineStyle.None;
+                    normalLine.MarkerShape = GetMarkerFromNumberOfComparisons(1);
+                    normalLine.LegendText = seriesName;
+                    normalLine.MarkerSize = 5;
+                    series.Points[combatToPlot.StartTime] = normalLine;
+
                     series.Points[combatToPlot.StartTime].IsVisible = series.Legend.Checked;
                 }
                 if (plotXValRates.Length > 1)
                 {
-                     var rateLine = GraphView.Plot.Add.ScatterLine(plotXValRates, plotYvaRates, color: series.Color);
-                     rateLine.MarkerShape = MarkerShape.None;
-                     rateLine.MarkerSize = 7;
-                     rateLine.LineWidth = 1.5f;
-                     series.Line[combatToPlot.StartTime] = rateLine;
-                     
+                    var rateLine = GraphView.Plot.Add.ScatterLine(plotXValRates, plotYvaRates, color: series.Color);
+                    rateLine.MarkerShape = MarkerShape.None;
+                    rateLine.MarkerSize = 7;
+                    rateLine.LineWidth = 1.5f;
+                    series.Line[combatToPlot.StartTime] = rateLine;
+
                     if (series.Type == PlotType.HPPercent)
                         series.Line[combatToPlot.StartTime].Axes.YAxis = GraphView.Plot.Axes.Right;
                 }
@@ -355,7 +355,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                     series.EffectivePoints[combatToPlot.StartTime].IsVisible = series.Legend.EffectiveChecked;
                     if (plotXValRates.Length > 1)
                     {
-                        var rawRate = GraphView.Plot.Add.ScatterLine(plotXValRates, rawYValRates,color: Color.FromARGB(Avalonia.Media.Color.FromUInt32(series.Color.ARGB).Lerp(Colors.White, 0.33f).ToUInt32()));
+                        var rawRate = GraphView.Plot.Add.ScatterLine(plotXValRates, rawYValRates, color: Color.FromARGB(Avalonia.Media.Color.FromUInt32(series.Color.ARGB).Lerp(Colors.White, 0.33f).ToUInt32()));
                         rawRate.MarkerShape = MarkerShape.None;
                         rawRate.MarkerSize = 7;
                         rawRate.LineWidth = 1.5f;
@@ -415,8 +415,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             if (!plot.IsVisible)
                 return;
             var coords = GraphView.Plot.GetCoordinates((float)mousePos.X, (float)mousePos.Y);
-            var point = plot.Data.GetNearest(coords, GraphView.Plot.LastRender,30);
-            if(point.Index == -1)
+            var point = plot.Data.GetNearest(coords, GraphView.Plot.LastRender, 30);
+            if (point.Index == -1)
                 return;
             annotation.IsVisible = plot.IsVisible;
             var abilities = annotationTexts;
@@ -425,8 +425,8 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             else
                 annotation.Text = abilities[point.Index].Item1;
 
-            annotation.TipCoordinates = new Coordinates(point.X,point.Y);
-            annotation.TextCoordinates = GraphView.Plot.GetCoordinates((float)mousePos.X+5, (float)mousePos.Y);
+            annotation.TipCoordinates = new Coordinates(point.X, point.Y);
+            annotation.TextCoordinates = GraphView.Plot.GetCoordinates((float)mousePos.X + 5, (float)mousePos.Y);
 
 
             pointSelected[name] = point.Index;
@@ -476,12 +476,12 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             var backgroundcolor = ResourceFinder.GetColorFromResourceName("Gray4");
             if (series.Legend.HasEffective)
             {
-                series.EffectiveTooltip[startTime] = GraphView.Plot.Add.Callout("test", new Coordinates(0,0), new Coordinates(0,0));
+                series.EffectiveTooltip[startTime] = GraphView.Plot.Add.Callout("test", new Coordinates(0, 0), new Coordinates(0, 0));
                 series.EffectiveTooltip[startTime].LabelBorderColor = series.Color;
                 series.EffectiveTooltip[startTime].ArrowFillColor = series.Color;
                 series.EffectiveTooltip[startTime].LabelPadding = 1;
                 series.EffectiveTooltip[startTime].FontSize = 11;
-                series.EffectiveTooltip[startTime].TextBackgroundColor = new Color(backgroundcolor.R, backgroundcolor.G, backgroundcolor.B,backgroundcolor.A);
+                series.EffectiveTooltip[startTime].TextBackgroundColor = new Color(backgroundcolor.R, backgroundcolor.G, backgroundcolor.B, backgroundcolor.A);
                 series.EffectiveTooltip[startTime].TextColor = Color.FromARGB(Colors.WhiteSmoke.ToUInt32());
                 series.EffectiveTooltip[startTime].IsVisible = false;
                 series.EffectiveTooltip[startTime].ArrowWidth = 2;
@@ -489,7 +489,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 series.EffectiveTooltip[startTime].ArrowheadLength = 3;
             }
 
-            series.Tooltip[startTime] = GraphView.Plot.Add.Callout("test", new Coordinates(0,0), new Coordinates(0,0));
+            series.Tooltip[startTime] = GraphView.Plot.Add.Callout("test", new Coordinates(0, 0), new Coordinates(0, 0));
             series.Tooltip[startTime].ArrowWidth = 2;
             series.Tooltip[startTime].ArrowheadWidth = 5;
             series.Tooltip[startTime].ArrowheadLength = 3;
@@ -497,7 +497,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             series.Tooltip[startTime].LabelBorderColor = series.Color;
             series.Tooltip[startTime].ArrowFillColor = series.Color;
             series.Tooltip[startTime].FontSize = 11;
-            series.Tooltip[startTime].TextBackgroundColor = new Color( backgroundcolor.R, backgroundcolor.G, backgroundcolor.B,backgroundcolor.A);
+            series.Tooltip[startTime].TextBackgroundColor = new Color(backgroundcolor.R, backgroundcolor.G, backgroundcolor.B, backgroundcolor.A);
             series.Tooltip[startTime].TextColor = Color.FromARGB(Colors.WhiteSmoke.ToUInt32());
             series.Tooltip[startTime].IsVisible = false;
         }

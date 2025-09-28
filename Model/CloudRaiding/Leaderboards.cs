@@ -20,7 +20,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     }
     public class StandingsUpdateInfo
     {
-        public DateTime UpdateTime { get; set; } 
+        public DateTime UpdateTime { get; set; }
         public double Value { get; set; }
     }
     public static class Leaderboards
@@ -67,7 +67,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 Task.Run(() =>
                 {
-                    if(reloadLb)
+                    if (reloadLb)
                         Reset();
                     StartGetTopLeaderboardEntries(combat);
                     StartGetPlayerLeaderboardStandings(combat);
@@ -163,11 +163,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         }
                         else
                         {
-                            percentileForValue = percentiles[0] > currentValue ? 0 : percentiles.IndexOf(percentiles.First(p => p >= currentValue))+1;
+                            percentileForValue = percentiles[0] > currentValue ? 0 : percentiles.IndexOf(percentiles.First(p => p >= currentValue)) + 1;
                         }
-                         
 
-                        LeaderboardStandings[participant][enumVal] =(percentileForValue, false);            
+
+                        LeaderboardStandings[participant][enumVal] = (percentileForValue, false);
                     });
                 }
                 LeaderboardStandingsAvailable.InvokeSafely(LeaderboardStandings);
@@ -195,11 +195,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var playerClass = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
             Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), type =>
             {
-                if(CurrentLeaderboardType == LeaderboardType.AllDiciplines || localPlayerClass == null)
+                if (CurrentLeaderboardType == LeaderboardType.AllDiciplines || localPlayerClass == null)
                     LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentiles(bossName, encounterName, type).Result;
-                if(CurrentLeaderboardType == LeaderboardType.LocalRole)
+                if (CurrentLeaderboardType == LeaderboardType.LocalRole)
                     LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentilesForRole(bossName, encounterName, type, localPlayerClass.Role.ToString()).Result;
-                if(CurrentLeaderboardType == LeaderboardType.LocalDicipline)
+                if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                     LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentilesForDiscipline(bossName, encounterName, type, playerClass).Result;
             });
         }
@@ -209,7 +209,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 LeaderboardPercentiles = new ConcurrentDictionary<LeaderboardEntryType, int[]>();
                 TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
-                LeaderboardStandings = new Dictionary<Entity,ConcurrentDictionary<LeaderboardEntryType,(double, bool)>>();
+                LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
             }
         }
 
@@ -256,9 +256,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
             }
             //todo refactor this to be more efficient when the avalonia code is integrated
-            if(combat.WasBossKilled && !combat.ParentEncounter.IsOpenWorld)
+            if (combat.WasBossKilled && !combat.ParentEncounter.IsOpenWorld)
                 AvaloniaTimelineBuilder.UploadBossKill(combat.EncounterBossDifficultyParts.Item1, combat.ParentEncounter.Name, combat.ParentEncounter.Difficutly, combat.ParentEncounter.NumberOfPlayer, combat.StartTime, combat.EndTime);
-            
+
             bool updatedAny = boardEntries.Count == 0 ? false : await API_Connection.TryAddLeaderboardEntries(boardEntries);
             UpdateOverlaysWithNewLeaderboard(combat, updatedAny);
         }

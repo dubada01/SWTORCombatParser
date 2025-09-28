@@ -17,7 +17,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseListViewModel :ReactiveObject, INotifyPropertyChanged
+    public class PhaseListViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private string selectedTimerSource;
@@ -55,7 +55,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         }
 
         public ObservableCollection<PhaseRowViewModel> PhaseRows { get; private set; }
-        public ReactiveCommand<object,Unit> AddPhaseCommand => ReactiveCommand.Create<object>(CreateNewPhase);
+        public ReactiveCommand<object, Unit> AddPhaseCommand => ReactiveCommand.Create<object>(CreateNewPhase);
 
         private void CreateNewPhase(object obj)
         {

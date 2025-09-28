@@ -10,12 +10,12 @@ using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseBarViewModel:ReactiveObject
+    public class PhaseBarViewModel : ReactiveObject
     {
         public event Action<List<PhaseInstance>> PhaseInstancesUpdated = delegate { };
-        public ReactiveCommand<Unit,Unit> ConfigurePhasesCommand { get; }
+        public ReactiveCommand<Unit, Unit> ConfigurePhasesCommand { get; }
 
-        public ReactiveCommand<PhaseInstance,Unit> PhaseSelectionToggled { get; }
+        public ReactiveCommand<PhaseInstance, Unit> PhaseSelectionToggled { get; }
 
         private void TogglePhaseSelection(PhaseInstance instance)
         {

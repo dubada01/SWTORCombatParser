@@ -70,12 +70,13 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 if (value == logFilter)
                     return;
                 logFilter = value;
-                System.Threading.Tasks.Task.Run(() => {
+                System.Threading.Tasks.Task.Run(() =>
+                {
                     lock (lockObject)
                     {
                         if (!updatePending)
                         {
-                            
+
                             // Start or reset the timer
                             timer.Change(500, Timeout.Infinite);
                             updatePending = true;
@@ -102,7 +103,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         public EventHistoryView EventViewContent
         {
             get => _eventViewContent;
-            set => this.RaiseAndSetIfChanged(ref _eventViewContent,value);
+            set => this.RaiseAndSetIfChanged(ref _eventViewContent, value);
         }
 
         public List<AvailableEntity> AvailableEntities
@@ -133,7 +134,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             _currentlySelectedCombats = combat;
 
-            var entities = combat.AllEntities.DistinctBy(e=>e.LogId).Select(e => new AvailableEntity { Entity = e, Selected = false }).ToList();
+            var entities = combat.AllEntities.DistinctBy(e => e.LogId).Select(e => new AvailableEntity { Entity = e, Selected = false }).ToList();
             entities.ForEach(l => l.EntitiySelectionUpdated += UpdateSelectedEntities);
             ResetEntities(entities);
             UpdateVisuals();

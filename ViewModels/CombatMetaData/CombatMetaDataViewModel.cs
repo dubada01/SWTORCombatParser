@@ -14,7 +14,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
-    public class CombatEfffectViewModel :ReactiveObject, INotifyPropertyChanged
+    public class CombatEfffectViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private Entity characterName = new Entity();
         private Combat _currentCombat;
@@ -89,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 OnPropertyChanged();
             }
         }
-        public ReactiveCommand<Unit,Unit> ClearCombatEffectsCommand => ReactiveCommand.Create(ClearCombatEffects);
+        public ReactiveCommand<Unit, Unit> ClearCombatEffectsCommand => ReactiveCommand.Create(ClearCombatEffects);
 
         private void ClearCombatEffects()
         {

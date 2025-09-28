@@ -12,7 +12,7 @@ using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.ViewModels.Overlays.ThreatTable;
 
-public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
+public class ThreatTableEntryViewModel(long keyId) : ReactiveObject
 {
 
     private string _topPlayerName;
@@ -26,7 +26,7 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
     private bool _bottomIsLocal;
     private bool _topIsTank;
     private bool _bottomIsTank;
-    
+
     public long EnemyId = keyId;
     private IImmutableSolidColorBrush _remainderColor;
     private bool _isCurrentLocalTarget;
@@ -50,7 +50,7 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
         get => _enemyName;
         set => this.RaiseAndSetIfChanged(ref _enemyName, value);
     }
-    public bool TopIsTank {get => _topIsTank; set => this.RaiseAndSetIfChanged(ref _topIsTank, value);  }    
+    public bool TopIsTank { get => _topIsTank; set => this.RaiseAndSetIfChanged(ref _topIsTank, value); }
     public bool TopIsLocal { get => _topIsLocal; set => this.RaiseAndSetIfChanged(ref _topIsLocal, value); }
     public FontWeight TopFontWeight => TopIsLocal ? FontWeight.Bold : FontWeight.Normal;
     public string TopPlayerName
@@ -70,7 +70,7 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
         get => _topPlayerThreat;
         set => this.RaiseAndSetIfChanged(ref _topPlayerThreat, value);
     }
-    public bool BottomIstank {get => _bottomIsTank; set => this.RaiseAndSetIfChanged(ref _bottomIsTank, value); }
+    public bool BottomIstank { get => _bottomIsTank; set => this.RaiseAndSetIfChanged(ref _bottomIsTank, value); }
 
     public bool BottomIsLocal { get => _bottomIsLocal; set => this.RaiseAndSetIfChanged(ref _bottomIsLocal, value); }
     public FontWeight BottomFontWeight => BottomIsLocal ? FontWeight.Bold : FontWeight.Normal;
@@ -79,7 +79,7 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
         get => _secondPlayerName;
         set => this.RaiseAndSetIfChanged(ref _secondPlayerName, value);
     }
-    
+
     public IImmutableSolidColorBrush SecondPlayerColor
     {
         get => _secondPlayerColor;
@@ -92,7 +92,7 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
         set => this.RaiseAndSetIfChanged(ref _secondPlayerThreat, value);
     }
     public GridLength ColumnRatio => new GridLength(_ratio, GridUnitType.Star);
-    public GridLength RemainderRatio => new GridLength(1-_ratio, GridUnitType.Star);
+    public GridLength RemainderRatio => new GridLength(1 - _ratio, GridUnitType.Star);
 
     public IImmutableSolidColorBrush RemainderColor
     {
@@ -102,8 +102,8 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
 
     private double DeltaThreat => TopPlayerThreat - SecondPlayerThreat;
     private double _ratio => TopPlayerThreat == 0 ? 0 : SecondPlayerThreat / TopPlayerThreat;
-    
-    
+
+
 
     public void UpdateEntry(Combat fullCombat, Dictionary<long, int> entityIndexById, Dictionary<long, int> logIdCountByEntity)
     {
@@ -132,9 +132,9 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
         {
             TopPlayerName = topTwo[0].Key.Name;
             TopPlayerThreat = topTwo[0].Value;
-            if(topTwo[0].Key.IsLocalPlayer)
+            if (topTwo[0].Key.IsLocalPlayer)
                 TopIsLocal = true;
-            if(topTwo.Count > 1 && topTwo[1].Key.IsLocalPlayer)
+            if (topTwo.Count > 1 && topTwo[1].Key.IsLocalPlayer)
                 BottomIsLocal = true;
             if (CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(topTwo[0].Key, fullCombat.EndTime).Role ==
                 Role.Tank)
@@ -177,11 +177,11 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
         {
             RemainderColor = Brushes.DimGray;
         }
-       
+
         IsCurrentLocalTarget = CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(CombatLogStateBuilder.CurrentState.LocalPlayer, fullCombat.EndTime).Entity.Id == EnemyId;
         var playerTargetName = CombatLogStateBuilder.CurrentState
             .GetPlayerTargetAtTime(CombatLogStateBuilder.CurrentState.LocalPlayer, fullCombat.EndTime).Entity.Name;
-        Debug.WriteLine($"Current Target: {playerTargetName} {(IsCurrentLocalTarget?"Matches":"DoesntMatch")} {EnemyId} with name {EnemyName}");
+        Debug.WriteLine($"Current Target: {playerTargetName} {(IsCurrentLocalTarget ? "Matches" : "DoesntMatch")} {EnemyId} with name {EnemyName}");
         this.RaisePropertyChanged(nameof(EnemyBackground));
         this.RaisePropertyChanged(nameof(ColumnRatio));
         this.RaisePropertyChanged(nameof(RemainderRatio));

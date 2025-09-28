@@ -32,7 +32,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
         private List<Combat> _encounterNonCombats = new List<Combat>();
         private Bitmap _expandIconSource = collapseIcon;
         public EncounterInfo Info { get; set; }
-        public string PPHInfo => Info.IsBossEncounter && combats.Count > 1 ? $"PPH {Combats.Count / (combats.OrderBy(c=>c.StartTime).Last().StartTime - combats.OrderBy(c=>c.StartTime).First().StartTime).TotalHours:N2}" : "";
+        public string PPHInfo => Info.IsBossEncounter && combats.Count > 1 ? $"PPH {Combats.Count / (combats.OrderBy(c => c.StartTime).Last().StartTime - combats.OrderBy(c => c.StartTime).First().StartTime).TotalHours:N2}" : "";
         public int NumberOfBossBattles => EncounterCombats.Count(c => !c.IsTrash);
         public int NumberOfTrashBattles => EncounterCombats.Count(c => c.IsTrash);
         public GridLength DetailsHeight => Info.IsBossEncounter ? new GridLength(0.5, GridUnitType.Star) : new GridLength(0, GridUnitType.Star);
@@ -60,7 +60,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
 
         private void OpenOrbsLeaderboard()
         {
-            Process.Start(new ProcessStartInfo{FileName = $"https://orbs-stats.com/encounterView/{Uri.EscapeDataString(Info.Name)}", UseShellExecute = true});
+            Process.Start(new ProcessStartInfo { FileName = $"https://orbs-stats.com/encounterView/{Uri.EscapeDataString(Info.Name)}", UseShellExecute = true });
         }
 
         public void Collapse()
@@ -91,7 +91,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
                 this.RaiseAndSetIfChanged(ref combats, value);
             }
         }
-        
+
         public ObservableCollection<PastCombat> EncounterCombats
         {
             get => _encounterCombats;
@@ -138,7 +138,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
             currentcombat.Combat = combat;
             return currentcombat;
         }
-        
+
         public void AddCombat(Combat combat, bool isReplacingOngoing)
         {
             lock (combatAddLock)
@@ -163,8 +163,8 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
                     EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
                 });
             }
-            if(isReplacingOngoing)
-               EncounterMonitor.FireEncounterUpdated();
+            if (isReplacingOngoing)
+                EncounterMonitor.FireEncounterUpdated();
             this.RaisePropertyChanged(nameof(PPHInfo));
             this.RaisePropertyChanged(nameof(NumberOfBossBattles));
             this.RaisePropertyChanged(nameof(NumberOfTrashBattles));
@@ -199,11 +199,11 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
         {
             lock (combatAddLock)
             {
-                var overallCombat = CombatIdentifier.GenerateOverallCombat(Combats.SelectMany(c => c.AllLogs.Values.OrderBy(l=>l.TimeStamp)), 
-                    true, 
-                    false, 
-                    Combats.Sum(c=>c.DurationSeconds));
-                if(overallCombat.StartTime == DateTime.MinValue)
+                var overallCombat = CombatIdentifier.GenerateOverallCombat(Combats.SelectMany(c => c.AllLogs.Values.OrderBy(l => l.TimeStamp)),
+                    true,
+                    false,
+                    Combats.Sum(c => c.DurationSeconds));
+                if (overallCombat.StartTime == DateTime.MinValue)
                     return overallCombat;
                 overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);
                 return overallCombat;

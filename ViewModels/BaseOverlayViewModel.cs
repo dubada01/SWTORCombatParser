@@ -12,7 +12,7 @@ using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels;
 
-public abstract class BaseOverlayViewModel:ReactiveObject
+public abstract class BaseOverlayViewModel : ReactiveObject
 {
     public BaseOverlayWindow _overlayWindow;
     internal bool _active;
@@ -20,7 +20,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     private string _currentRole = "Default";
     public event Action<bool> ActiveChanged = delegate { };
     public event Action CloseRequested = delegate { };
-    public event Action<Point,Point> OnNewPositionAndSize = delegate { }; 
+    public event Action<Point, Point> OnNewPositionAndSize = delegate { };
     public event Action<bool> OnLocking = delegate { };
     public Point OverlayScaledSize { get; set; }
     public Point OverlayPosition { get; set; }
@@ -85,7 +85,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
 
     private void ToggleVisibilityFromConversation(ParsedLogEntry obj)
     {
-        if(_overlayWindow == null)
+        if (_overlayWindow == null)
             return;
         if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && obj.Source.IsLocalPlayer && !_inConversation)
         {
@@ -98,7 +98,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
             UpdateVisibility();
             _overlayWindow.ToggleClickThroughCrossPlatform(!OverlaysMoveable);
         }
-        
+
     }
 
     // A method to explicitly create the window once the derived class has been constructed
@@ -113,7 +113,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     public void SetAutoScaleHeight()
     {
         Dispatcher.UIThread.Invoke(() =>
-        {        
+        {
             _overlayWindow.SizeToContent = SizeToContent.Height;
         });
 
@@ -163,7 +163,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
 
     public void HideOverlayWindow()
     {
-        if(_isHidden)
+        if (_isHidden)
             return;
         Dispatcher.UIThread.Invoke(() =>
         {
@@ -191,11 +191,11 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     }
     public void UpdateWindowProperties(Point position, Point size)
     {
-        if(SettingsType == OverlaySettingsType.Global)
+        if (SettingsType == OverlaySettingsType.Global)
             DefaultGlobalOverlays.SetDefault(_overlayName, position, size);
-        if(SettingsType == OverlaySettingsType.Character)
-            DefaultCharacterOverlays.SetCharacterDefaults(_overlayName, position, size,_currentRole);
-        
+        if (SettingsType == OverlaySettingsType.Character)
+            DefaultCharacterOverlays.SetCharacterDefaults(_overlayName, position, size, _currentRole);
+
     }
     public void UpdateWindowSizeWithScale(Point position, Point size)
     {
@@ -204,10 +204,10 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     }
     public void UpdateActiveState(bool state)
     {
-        if(SettingsType == OverlaySettingsType.Global)
+        if (SettingsType == OverlaySettingsType.Global)
             DefaultGlobalOverlays.SetActive(_overlayName, state);
-        if(SettingsType == OverlaySettingsType.Character)
-            DefaultCharacterOverlays.SetActiveStateCharacter(_overlayName, state,_currentRole);
+        if (SettingsType == OverlaySettingsType.Character)
+            DefaultCharacterOverlays.SetActiveStateCharacter(_overlayName, state, _currentRole);
     }
     public void CloseButtonClicked()
     {

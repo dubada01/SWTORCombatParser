@@ -35,7 +35,7 @@ namespace SWTORCombatParser.Views.Overlay.Room
             {
                 var imageBounds = RoomImage.Bounds;
                 var transformToVisual = RoomImage.TransformToVisual(ImageCanvas);
-                var visualOffset = transformToVisual?.Transform(new Point(0,0)) ?? default;
+                var visualOffset = transformToVisual?.Transform(new Point(0, 0)) ?? default;
 
                 // Get DPI scale (1.0 = 96 DPI)
                 var scale = VisualRoot?.RenderScaling ?? 1.0;
@@ -98,9 +98,10 @@ namespace SWTORCombatParser.Views.Overlay.Room
         }
         internal void ClearSpecificHazard(long hazardId)
         {
-            Dispatcher.UIThread.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() =>
+            {
                 Ellipse hazard;
-                if(_currentHazards.TryGetValue(hazardId, out hazard))
+                if (_currentHazards.TryGetValue(hazardId, out hazard))
                 {
                     ImageCanvas.Children.Remove(hazard);
                 }

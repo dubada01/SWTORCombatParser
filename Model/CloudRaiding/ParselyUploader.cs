@@ -20,7 +20,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     {
         private static string parselyURL = "https://parsely.io/api/upload2";
         internal static event Action<bool, string> UploadCompleted = delegate { };
-        internal static event Action UploadStarted = delegate { };  
+        internal static event Action UploadStarted = delegate { };
         internal static async Task<string> UploadCurrentCombat(string currentlySelectedLogName)
         {
             if (string.IsNullOrEmpty(currentlySelectedLogName) || !File.Exists(currentlySelectedLogName))
@@ -64,7 +64,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             if (response.Contains("NOT OK") || response.Contains("error"))
                             {
                                 UploadCompleted(false, "");
-                                return new LogUploadResponse { WasSuccess = false, ErrorMessage = response};
+                                return new LogUploadResponse { WasSuccess = false, ErrorMessage = response };
                             }
                             XmlDocument xdoc = new XmlDocument();
                             xdoc.LoadXml(response);

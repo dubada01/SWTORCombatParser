@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Model.Overlays
                 {
                     g.CopyFromScreen(x, y, 0, 0, bmp.Size, CopyPixelOperation.SourceCopy);
                 }
-        
+
                 // Save the bitmap to a memory stream and decode it using SKBitmap
                 using (var ms = new MemoryStream())
                 {

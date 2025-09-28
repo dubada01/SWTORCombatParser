@@ -50,7 +50,7 @@ using SWTORCombatParser.Views.Timers;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class MainWindowViewModel :ReactiveObject
+    public class MainWindowViewModel : ReactiveObject
     {
         private readonly PlotViewModel _plotViewModel;
         private readonly BattleReviewViewModel _reviewViewModel;
@@ -68,7 +68,7 @@ namespace SWTORCombatParser.ViewModels
 
         private readonly Dictionary<Guid, HistoricalCombatViewModel> _activeHistoricalCombatOverviews = new Dictionary<Guid, HistoricalCombatViewModel>();
         private int selectedTabIndex;
-        
+
         public string Title { get; set; }
         public ObservableCollection<TabInstanceViewModel> ContentTabs { get; set; } = new ObservableCollection<TabInstanceViewModel>();
         public PastCombatsView PastCombatsView { get; set; }
@@ -111,30 +111,30 @@ namespace SWTORCombatParser.ViewModels
                 switch (SelectedTabIndex)
                 {
                     case 0:
-                        Settings.WriteSetting("current_tab","data_grid");
+                        Settings.WriteSetting("current_tab", "data_grid");
                         break;
                     case 1:
-                        Settings.WriteSetting("current_tab","plot");
+                        Settings.WriteSetting("current_tab", "plot");
                         break;
                     case 2:
-                        Settings.WriteSetting("current_tab","details");
+                        Settings.WriteSetting("current_tab", "details");
                         break;
                     case 3:
-                        Settings.WriteSetting("current_tab","log");
+                        Settings.WriteSetting("current_tab", "log");
                         break;
                     default:
                         break;
                 }
-                
+
             }
-            
+
         }
 
         public int ActiveRowSpan
         {
             get => activeRowSpan;
             set => this.RaiseAndSetIfChanged(ref activeRowSpan, value);
-        
+
         }
 
         public MainWindowViewModel(HotkeyHandler hotkeyHandler)
@@ -143,7 +143,7 @@ namespace SWTORCombatParser.ViewModels
             Leaderboards.Init();
 
             Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
-            
+
             DefaultPhaseLoader.LoadBuiltinPhases();
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
@@ -193,17 +193,18 @@ namespace SWTORCombatParser.ViewModels
 
             _tableViewModel = new TableViewModel();
             var tableView = new OverviewView(_tableViewModel);
-            ContentTabs.Add(new TabInstanceViewModel() { TabContent = tableView, HeaderText = "Details" , TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/bar-graph.png") });
+            ContentTabs.Add(new TabInstanceViewModel() { TabContent = tableView, HeaderText = "Details", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/bar-graph.png") });
 
             _reviewViewModel = new BattleReviewViewModel();
             _logView = new BattleReviewView(_reviewViewModel);
             ContentTabs.Add(new TabInstanceViewModel()
             {
-                TabContent = _logView, HeaderText = "Log Review",
+                TabContent = _logView,
+                HeaderText = "Log Review",
                 TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/google-docs.png")
             });
-            
-            
+
+
             _overlayViewModel = new OverlayViewModel();
             _overlayViewModel.OverlayLockStateChanged += () => this.RaisePropertyChanged(nameof(OverlayLockIcon));
             _timersView = new TimersCreationView();
@@ -227,7 +228,7 @@ namespace SWTORCombatParser.ViewModels
                 s.Cancel = true;
                 _deathView.Hide();
             };
-             
+
             _phaseBarViewModel = new PhaseBarViewModel();
             PhasesBar = new PhaseBar(_phaseBarViewModel);
             var selectedTab = Settings.ReadSettingOfType<string>("current_tab");
@@ -256,7 +257,7 @@ namespace SWTORCombatParser.ViewModels
                 }
                 return;
             }
-            var phaseList = new ConcurrentDictionary<Guid, PhaseInstance>(list.ToDictionary(_=>  Guid.NewGuid(), kvp=> kvp));
+            var phaseList = new ConcurrentDictionary<Guid, PhaseInstance>(list.ToDictionary(_ => Guid.NewGuid(), kvp => kvp));
             var phaseCombat = UnfilteredDisplayedCombat.GetPhaseCopy(phaseList);
             CombatSelectionMonitor.SelectPhase(phaseCombat);
             UpdateViewsWithSelectedCombat(phaseCombat);
@@ -265,7 +266,7 @@ namespace SWTORCombatParser.ViewModels
         {
             get => uploadButtonBackground; set => this.RaiseAndSetIfChanged(ref uploadButtonBackground, value);
         }
-        public ReactiveCommand<Unit,Unit> OpenSettingsWindowCommand => ReactiveCommand.Create(OpenSettingsWindow);
+        public ReactiveCommand<Unit, Unit> OpenSettingsWindowCommand => ReactiveCommand.Create(OpenSettingsWindow);
 
         private void OpenSettingsWindow()
         {
@@ -273,7 +274,7 @@ namespace SWTORCombatParser.ViewModels
             var settingsWindow = new SettingsWindow();
             //settingsWindow.Owner = App.Current.MainWindow;
             settingsWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            settingsWindow.Closing += (e,s) => 
+            settingsWindow.Closing += (e, s) =>
             {
                 HotkeyHandler.UpdateKeys();
             };
@@ -292,8 +293,8 @@ namespace SWTORCombatParser.ViewModels
             get => _logLoaded;
             set => this.RaiseAndSetIfChanged(ref _logLoaded, value);
         }
-        
-        public ReactiveCommand<Unit,Unit> OpenOverlaySettingsCommand => ReactiveCommand.Create(OpenOverlaySettings);
+
+        public ReactiveCommand<Unit, Unit> OpenOverlaySettingsCommand => ReactiveCommand.Create(OpenOverlaySettings);
 
         private void OpenOverlaySettings()
         {
@@ -310,7 +311,7 @@ namespace SWTORCombatParser.ViewModels
         {
             _overlayViewModel.OverlaysLocked = !_overlayViewModel.OverlaysLocked;
         }
-        public ReactiveCommand<Unit,Unit> ShowTimerWindowCommand => ReactiveCommand.Create(ShowTimerWindow);
+        public ReactiveCommand<Unit, Unit> ShowTimerWindowCommand => ReactiveCommand.Create(ShowTimerWindow);
 
         private void ShowTimerWindow()
         {
@@ -331,7 +332,7 @@ namespace SWTORCombatParser.ViewModels
                 _deathView.Show(desktop.MainWindow);
             }
         }
-        public ReactiveCommand<Unit,Unit> ShowChallengeWindowCommand => ReactiveCommand.Create(ShowChallengeWindow);
+        public ReactiveCommand<Unit, Unit> ShowChallengeWindowCommand => ReactiveCommand.Create(ShowChallengeWindow);
 
         private void ShowChallengeWindow()
         {
@@ -346,21 +347,21 @@ namespace SWTORCombatParser.ViewModels
             ? ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png")
             : ImageHelper.LoadFromResource("avares://Orbs/resources/unlockedIcon.png");
         public ReactiveCommand<Unit, Task> OpenPastCombatsCommand => _combatMonitorViewModel.LoadSpecificLogCommand;
-        public ReactiveCommand<Unit,Unit> OpenParselyCommand => ReactiveCommand.Create(OpenParsely);
+        public ReactiveCommand<Unit, Unit> OpenParselyCommand => ReactiveCommand.Create(OpenParsely);
 
         public ReactiveCommand<Unit, Unit> OpenOrbsStatsCommand => ReactiveCommand.Create(OpenOrbsStats);
-            
+
         private void OpenOrbsStats()
         {
             Process.Start(new ProcessStartInfo
-                { FileName = "https://orbs-stats.com", UseShellExecute = true });
+            { FileName = "https://orbs-stats.com", UseShellExecute = true });
         }
         public ReactiveCommand<Unit, Unit> OpenBuyMeACoffeeCommand => ReactiveCommand.Create(OpenBuyMeACoffee);
-            
+
         private void OpenBuyMeACoffee()
         {
             Process.Start(new ProcessStartInfo
-                { FileName = "https://buymeacoffee.com/dubatech", UseShellExecute = true });
+            { FileName = "https://buymeacoffee.com/dubatech", UseShellExecute = true });
         }
 
         public bool CanOpenParsely
@@ -371,7 +372,7 @@ namespace SWTORCombatParser.ViewModels
         {
             Process.Start(new ProcessStartInfo(parselyLink) { UseShellExecute = true });
         }
-        public ReactiveCommand<Unit,Unit> OpenParselyConfigCommand => ReactiveCommand.Create(OpenParselyConfig);
+        public ReactiveCommand<Unit, Unit> OpenParselyConfigCommand => ReactiveCommand.Create(OpenParselyConfig);
 
         private void OpenParselyConfig()
         {
@@ -382,8 +383,8 @@ namespace SWTORCombatParser.ViewModels
                 parselySettingsWindow.ShowDialog(desktop.MainWindow);
             }
         }
-        public ReactiveCommand<Unit,Unit> OpenPhaseConfigCommand => _phaseBarViewModel.ConfigurePhasesCommand;
-        public ReactiveCommand<Unit,Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
+        public ReactiveCommand<Unit, Unit> OpenPhaseConfigCommand => _phaseBarViewModel.ConfigurePhasesCommand;
+        public ReactiveCommand<Unit, Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
 
         public HotkeyHandler HotkeyHandler { get; internal set; }
 
@@ -510,9 +511,9 @@ namespace SWTORCombatParser.ViewModels
                             _dataGridViewModel.UpdateCombat(updatedCombat);
                             break;
                     }
-                    if(_viewingLogs)
+                    if (_viewingLogs)
                         _reviewViewModel.CombatSelected(updatedCombat);
-                    
+
                 });
                 _allViewsUpToDate = false;
             }
@@ -538,7 +539,7 @@ namespace SWTORCombatParser.ViewModels
                     _plotViewModel.UpdateParticipants(selectedCombat);
                     _plotViewModel.AddCombatPlot(selectedCombat);
                     _tableViewModel.AddCombat(selectedCombat);
-                    if(_deathView.IsVisible) 
+                    if (_deathView.IsVisible)
                         _deathViewModel.SetCombat(selectedCombat);
                     _reviewViewModel.CombatSelected(selectedCombat);
                     _dataGridViewModel.UpdateCombat(selectedCombat);

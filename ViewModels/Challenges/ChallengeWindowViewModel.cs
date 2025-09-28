@@ -30,7 +30,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             _challengeUpdater.UpdateCombats(combat);
         }
-        public ChallengeWindowViewModel(string overlayName):base(overlayName)
+        public ChallengeWindowViewModel(string overlayName) : base(overlayName)
         {
             _challengeUpdater = new ChallengeUpdater();
             _challengeUpdater.SetCollection(ActiveChallengeInstances);
@@ -41,7 +41,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             Active = DefaultBossFrameManager.GetDefaults().RaidChallenges;
             MainContent = new ChallengeWindow(this);
         }
-        
+
         private void CheckForArea(DateTime arg1, bool arg2)
         {
             var currentArea = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(TimeUtility.CorrectedTime);
@@ -77,7 +77,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             OverlaysMoveable = !value;
         }
-        
+
         internal void SetScale(double sizeScalar)
         {
             _challengeUpdater.UpdateScale(sizeScalar);

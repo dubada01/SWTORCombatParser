@@ -33,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
             if (_hasSetLeaderboard)
                 return;
             _hasSetLeaderboard = true;
-            Leaderboards.UpdateOverlaysWithNewLeaderboard(combat,true);
+            Leaderboards.UpdateOverlaysWithNewLeaderboard(combat, true);
         }
         public static event Action<Combat> CombatDeselected = delegate { };
         public static void DeselectCombat(Combat combat)

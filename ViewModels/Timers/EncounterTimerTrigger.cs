@@ -17,7 +17,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             if (CurrentEncounter.Item1 == encounterName && CurrentEncounter.Item2 == bossName && CurrentEncounter.Item3 == difficulty)
                 return;
             CurrentEncounter = (encounterName, bossName, difficulty);
-            if(isRealtime)
+            if (isRealtime)
                 BossCombatDetected.InvokeSafely(encounterName, bossName, difficulty);
         }
         public static void FirePvpEncounterDetected()
@@ -34,7 +34,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public static void SetPvpStateAfterHistorical(DateTime timeAfterHistory)
         {
             var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(timeAfterHistory);
-            if(currentEncounter.IsPvpEncounter)
+            if (currentEncounter.IsPvpEncounter)
                 FirePvpEncounterDetected();
             else
                 FireNonPvpEncounterDetected();

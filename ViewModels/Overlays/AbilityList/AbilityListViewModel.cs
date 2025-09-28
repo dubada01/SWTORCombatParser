@@ -17,25 +17,29 @@ using SWTORCombatParser.Views.Overlay.AbilityList;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
 {
-    public class AbilityInfo:ReactiveObject
+    public class AbilityInfo : ReactiveObject
     {
         private double fontSize;
         private Bitmap icon;
 
-        public Bitmap Icon { get => icon; set
+        public Bitmap Icon
+        {
+            get => icon; set
             {
                 this.RaiseAndSetIfChanged(ref icon, value);
-            } 
+            }
         }
         public string UseTime { get; set; }
         public string AbilityName { get; set; }
-        public double FontSize { get => fontSize; set 
-            { 
+        public double FontSize
+        {
+            get => fontSize; set
+            {
                 this.RaiseAndSetIfChanged(ref fontSize, value);
             }
         }
     }
-    public class AbilityListViewModel:BaseOverlayViewModel
+    public class AbilityListViewModel : BaseOverlayViewModel
     {
         private double defaultBarHeight = 35;
         private double defaultFontSize = 18;
@@ -51,7 +55,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
                 this.RaiseAndSetIfChanged(ref abilityInfoList, value);
             }
         }
-        public AbilityListViewModel(string overlayName):base(overlayName)
+        public AbilityListViewModel(string overlayName) : base(overlayName)
         {
             MainContent = new AbilityListView(this);
             CombatLogStreamer.CombatStarted += Reset;
@@ -59,12 +63,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
             CombatSelectionMonitor.PhaseSelected += UpdateList;
             _updateSub = Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.CombatSelected += manager,
 manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateList);
-            this.WhenAnyValue(x=>x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(BarHeight)));
-            this.WhenAnyValue(x=>x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(FontSize)));
+            this.WhenAnyValue(x => x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(BarHeight)));
+            this.WhenAnyValue(x => x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(FontSize)));
         }
         private void Reset()
         {
-            Dispatcher.UIThread.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() =>
+            {
                 AbilityInfoList.Clear();
             });
 
@@ -74,7 +79,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
             if (CombatLogStateBuilder.CurrentState.LocalPlayer == null)
                 return;
             var abilities = new ConcurrentQueue<ParsedLogEntry>();
-            if(combat.AbilitiesActivated.TryGetValue(CombatLogStateBuilder.CurrentState.LocalPlayer, out abilities))
+            if (combat.AbilitiesActivated.TryGetValue(CombatLogStateBuilder.CurrentState.LocalPlayer, out abilities))
             {
                 var abilitiesUsedlist = abilities.AsEnumerable().Reverse().ToList();
                 var newlyAddedAbilities = abilitiesUsedlist.Take((abilitiesUsedlist.Count - AbilityInfoList.Count));
@@ -96,19 +101,19 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
                     }
                     else
                     {
-                        iconGetTasks.Add(Task.Run(async() =>
-                        { 
+                        iconGetTasks.Add(Task.Run(async () =>
+                        {
                             var fetchedIcon = await GetIconFromId(newAbility.AbilityId);
                             newAbilityInfo.Icon = fetchedIcon;
                         }));
                     }
-                    newAbilityInfos.Insert(0,newAbilityInfo);
+                    newAbilityInfos.Insert(0, newAbilityInfo);
                 }
                 Dispatcher.UIThread.Invoke(() =>
                 {
-                    foreach(var newAbility in newAbilityInfos)
+                    foreach (var newAbility in newAbilityInfos)
                     {
-                        AbilityInfoList.Insert(0,newAbility);
+                        AbilityInfoList.Insert(0, newAbility);
                     }
                 });
             }
@@ -125,13 +130,13 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
 
         public double FontSize => Math.Max(8, defaultFontSize * SizeScalar);
         public double BarHeight => defaultBarHeight * SizeScalar;
-        public Thickness BarMargin => new Thickness(0,BarHeight/4,0,0);
+        public Thickness BarMargin => new Thickness(0, BarHeight / 4, 0, 0);
         public double SizeScalar
         {
             get => sizeScalar; set
             {
                 this.RaiseAndSetIfChanged(ref sizeScalar, value);
-                foreach(var ability in AbilityInfoList)
+                foreach (var ability in AbilityInfoList)
                 {
                     ability.FontSize = FontSize;
                 }

@@ -28,7 +28,7 @@ namespace SWTORCombatParser.Views.Overlay.PvP
             InitializeComponent();
             HideAllOpponents();
         }
-       
+
 
         private void UpdateIconPosition(double xFraction, double yFraction, double facing, OpponentMapInfo opponent, int opponentIndex)
         {

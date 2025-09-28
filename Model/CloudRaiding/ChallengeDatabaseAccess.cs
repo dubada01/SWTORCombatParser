@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace SWTORCombatParser.Model.CloudRaiding
 {
     public class ChallengeDatabaseAccess
-    {        
+    {
         private static JsonSerializerSettings _settings = new JsonSerializerSettings
         {
             Culture = CultureInfo.InvariantCulture
@@ -42,7 +42,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 return;
             }
-                try
+            try
             {
                 using (HttpClient connection = new HttpClient())
                 {
@@ -72,7 +72,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 {
                     Uri uri = new Uri($"{_apiPath}/challenges/get?challengeId={timerId}");
                     var response = await connection.GetAsync(uri);
-                    return await response.Content.ReadFromJsonAsync<DataStructures.Challenge> ();
+                    return await response.Content.ReadFromJsonAsync<DataStructures.Challenge>();
                 }
             }
             catch (Exception e)

@@ -50,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             get => _selectedParticipants;
             set => this.RaiseAndSetIfChanged(ref _selectedParticipants, value);
         }
-        
+
         public DeathPlayerListViewModel()
         {
 
@@ -120,7 +120,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 participantViewModel.SelectionChanged += SelectParticipant;
             }
             AvailableParticipants = new ObservableCollection<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
-            var initiallySelectedPlayer =  AvailableParticipants.FirstOrDefault(a => playersDiedNatrually.Contains(a.Entity));
+            var initiallySelectedPlayer = AvailableParticipants.FirstOrDefault(a => playersDiedNatrually.Contains(a.Entity));
             if (initiallySelectedPlayer != null)
             {
                 initiallySelectedPlayer.IsSelected = true;

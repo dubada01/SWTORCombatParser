@@ -28,7 +28,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public OverlayType OverlayType { get; set; }
         public StatsSlotViewModel(OverlayType type, string name = "", string iconName = "", bool isLocalPlayer = false, Entity entity = null)
         {
-            Header = new OverlayTypeToReadableNameConverter().Convert(type,null,null,System.Globalization.CultureInfo.InvariantCulture).ToString();
+            Header = new OverlayTypeToReadableNameConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture).ToString();
             OverlayType = type;
             IsTotal = entity == null || name == "Totals";
             if (!string.IsNullOrEmpty(name) && name != "Totals")

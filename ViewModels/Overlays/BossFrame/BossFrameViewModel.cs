@@ -40,7 +40,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         public void LogWithBoss(EntityInfo bossInfo, DateTime timeStamp)
         {
-            UpdateUI(bossInfo,timeStamp);
+            UpdateUI(bossInfo, timeStamp);
         }
 
         private void UpdateUI(EntityInfo bossInfo, DateTime timeStamp)
@@ -48,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             _hpVM.UpdateHP(bossInfo.CurrentHP);
             _hpVM.UpdateTarget(CombatLogStateBuilder.CurrentState.GetEnemyTargetAtTime(bossInfo.Entity, timeStamp).Entity.Name);
         }
-    
+
         internal void UpdateBossFrameScale(double currentScale)
         {
             _scale = currentScale;

@@ -95,7 +95,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             ChallengesEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
         }
         public string ImportId { get; set; }
-        public ReactiveCommand<object,Unit> ImportCommand => ReactiveCommand.Create<object>(Import);
+        public ReactiveCommand<object, Unit> ImportCommand => ReactiveCommand.Create<object>(Import);
 
         private async void Import(object obj)
         {
@@ -119,7 +119,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 await ChallengeDatabaseAccess.AddChallenge(obj.SourceChallenge);
             }
         }
-        public ReactiveCommand<Unit,Unit> AllChallengeCommand => ReactiveCommand.Create(CreateNewChallenge);
+        public ReactiveCommand<Unit, Unit> AllChallengeCommand => ReactiveCommand.Create(CreateNewChallenge);
 
         private void CreateNewChallenge()
         {

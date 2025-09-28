@@ -28,12 +28,12 @@ namespace SWTORCombatParser
         public static extern IntPtr libvlc_new(int argc, string[] argv);
         public override void Initialize()
         {
-            #if WINDOWS
+#if WINDOWS
             Core.Initialize();
-            #endif
-            #if MACOS
+#endif
+#if MACOS
             Bass.Init();
-            #endif
+#endif
             AvaloniaXamlLoader.Load(this);
         }
         public override void OnFrameworkInitializationCompleted()
@@ -65,7 +65,7 @@ namespace SWTORCombatParser
                 var mainWindow = new MainWindow();
                 var mainWindowVM = new MainWindowViewModel(mainWindow.HotkeyHandler);
                 mainWindow.DataContext = mainWindowVM;
-                if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
                     desktop.MainWindow = mainWindow;
                 }
@@ -97,7 +97,7 @@ namespace SWTORCombatParser
             if (!Directory.Exists(iconsPath) || Directory.GetDirectories(iconsPath).Length > 0)
             {
                 var zipFilePath = Path.Combine(Environment.CurrentDirectory, "resources", "packagedIcons.zip");
-                if(!File.Exists(zipFilePath))
+                if (!File.Exists(zipFilePath))
                     throw new FileNotFoundException("Could not find the packaged icons zip file");
 
                 // Check if the directory exists and has subdirectories

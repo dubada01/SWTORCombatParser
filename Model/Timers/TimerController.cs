@@ -25,7 +25,7 @@ public static class TimerController
     private static string _currentDiscipline;
     private static List<TimerInstance> _availableTimers = new List<TimerInstance>();
     private static List<TimerInstance> _filteredTimers = new List<TimerInstance>();
-    private static ConcurrentDictionary<string,TimerInstanceViewModel> _currentlyActiveTimers = new();
+    private static ConcurrentDictionary<string, TimerInstanceViewModel> _currentlyActiveTimers = new();
     private static bool _timersEnabled;
     private static EncounterInfo _currentEncounter;
     private static object _timerLock = new object();
@@ -67,10 +67,10 @@ public static class TimerController
         if (bossinfo != _currentBoss && !string.IsNullOrEmpty(bossinfo.Item1))
         {
             _currentBoss = bossinfo;
-            
+
             //todo DELETE THIS. Using it to test the avalonia UI and trigger a new combat with a boss starting;
             AvaloniaTimelineBuilder.StartBoss(_currentBoss.Item1);
-            
+
             FilterTimers();
         }
     }
@@ -198,8 +198,8 @@ public static class TimerController
 
             _hideTimerSubs = _availableTimers.Select(t =>
                 Observable
-                    .FromEvent<Action<TimerInstanceViewModel,bool>, (TimerInstanceViewModel timer, bool ended)>(
-                        h => (p1,p2) => h((p1,p2)),
+                    .FromEvent<Action<TimerInstanceViewModel, bool>, (TimerInstanceViewModel timer, bool ended)>(
+                        h => (p1, p2) => h((p1, p2)),
                         h => t.TimerOfTypeExpired += h,
                         h => t.TimerOfTypeExpired -= h
                     )
@@ -217,7 +217,7 @@ public static class TimerController
                     .ObserveOn(TaskPoolScheduler.Default)
                     .Subscribe(ReorderRequest)).ToList();
             FilterTimers();
-            if(initializing)
+            if (initializing)
                 TimersInitialized();
         });
 
@@ -254,7 +254,7 @@ public static class TimerController
 
         return result;
     }
-    public static ConcurrentDictionary<string,TimerInstanceViewModel> GetActiveTimers()
+    public static ConcurrentDictionary<string, TimerInstanceViewModel> GetActiveTimers()
     {
         return _currentlyActiveTimers;
     }

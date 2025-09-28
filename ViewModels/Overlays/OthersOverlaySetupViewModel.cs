@@ -29,7 +29,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 
             _roomOverlayViewModel = new RoomOverlayViewModel("RoomHazard");
             RoomOverlaySetup = new RoomSetupView(_roomOverlayViewModel);
-            
+
             _threatTableOverlayViewModel = new ThreatTableOverlayViewModel("ThreatTable");
 
             RaidHotsConfig = new RaidHOTsSteup();

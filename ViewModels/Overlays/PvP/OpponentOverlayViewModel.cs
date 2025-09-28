@@ -51,7 +51,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private void OnPvpCombatStarted()
         {
-            
+
             if (!OverlayEnabled || _isTriggered)
                 return;
             _isTriggered = true;
@@ -82,7 +82,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
 
             Dispatcher.UIThread.Invoke(() =>
-            {           
+            {
                 ResetUI();
                 ShowFrame = false;
                 _dTimer.Stop();

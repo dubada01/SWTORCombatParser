@@ -44,7 +44,7 @@ namespace SWTORCombatParser.DataStructures
         VariableCheck,
         EffectCharges
     }
-    
+
     public class Timer
     {
         private bool isEnabled;
@@ -98,7 +98,7 @@ namespace SWTORCombatParser.DataStructures
         public bool IsPeriodic { get; set; }
         public int Repeats { get; set; }
         public bool CanBeRefreshed { get; set; }
-        public bool DontRefresh { get;set; }
+        public bool DontRefresh { get; set; }
         public List<string> AbilitiesThatRefresh { get; set; } = new List<string>();
         public bool IsAlert { get; set; }
         public string AlertText { get; set; }

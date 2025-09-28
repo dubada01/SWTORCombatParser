@@ -37,7 +37,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                         if (ammount <= 0)
                             continue;
                         var source = absorb.Source;
-                        _totalSheildingProvided[source] = _totalSheildingProvided.TryGetValue(source,out var val) ? val : new List<ShieldingEvent>();
+                        _totalSheildingProvided[source] = _totalSheildingProvided.TryGetValue(source, out var val) ? val : new List<ShieldingEvent>();
 
                         var activeAbsorb = _totalSheildingProvided[source].FirstOrDefault(shield => shield.ShieldingTime == absorb.StopTime && shield.ShieldName == absorb.Name && shield.Target == target);
                         if (activeAbsorb == null)
@@ -91,7 +91,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                             ValueType = DamageType.heal
                         }
                     };
-                    combat.AllLogs[sheildLog.LogLineNumber]=(sheildLog);
+                    combat.AllLogs[sheildLog.LogLineNumber] = (sheildLog);
                     combat.ShieldingProvidedLogs[source].Enqueue(sheildLog);
                     combat.TotalProvidedSheilding[source] += sheild.ShieldValue;
                 }

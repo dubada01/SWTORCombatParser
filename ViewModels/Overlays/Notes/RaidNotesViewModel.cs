@@ -10,7 +10,7 @@ using SWTORCombatParser.Views.Overlay.Notes;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes
 {
-    public class RaidNotesViewModel:BaseOverlayViewModel
+    public class RaidNotesViewModel : BaseOverlayViewModel
     {
         private string raidNote = string.Empty;
         private Dictionary<string, string> _savedRaidNotes = new Dictionary<string, string>();
@@ -111,7 +111,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         }
         private void UpdateNotes()
         {
-            if(!RaidNotes.ContainsKey(SelectedRaid))
+            if (!RaidNotes.ContainsKey(SelectedRaid))
             {
                 RaidNotes[SelectedRaid] = "";
             }
@@ -121,10 +121,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
 
         private void TrySaveRaidNotes(object sender, ElapsedEventArgs e)
         {
-            if(!AreDictionariesEqual(_savedRaidNotes, RaidNotes))
+            if (!AreDictionariesEqual(_savedRaidNotes, RaidNotes))
             {
                 RaidNotesReader.SetNotes(RaidNotes);
-                _savedRaidNotes = RaidNotes.ToDictionary(kvp=>kvp.Key, kvp=>kvp.Value);
+                _savedRaidNotes = RaidNotes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             }
         }
         internal void OverlayDisabled()

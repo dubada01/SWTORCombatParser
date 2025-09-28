@@ -12,7 +12,7 @@ using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
-    public class ParticipantSelectionViewModel:ReactiveObject
+    public class ParticipantSelectionViewModel : ReactiveObject
     {
         private bool viewEnemies;
         private int rows;

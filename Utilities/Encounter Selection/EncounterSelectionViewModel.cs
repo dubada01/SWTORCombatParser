@@ -32,7 +32,7 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
             get => selectedEncounter;
             set
             {
-                if(value == null)
+                if (value == null)
                     return;
                 if (value.Name.Contains("--"))
                     return;

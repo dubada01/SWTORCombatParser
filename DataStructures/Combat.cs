@@ -46,7 +46,7 @@ namespace SWTORCombatParser.DataStructures
     public class Combat
     {
         public Entity Initiator { get; set; }
-    
+
         public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.IsLocalPlayer);
         public List<Entity> CharacterParticipants = new();
         public Dictionary<Entity, SWTORClass> CharacterClases = new();
@@ -79,11 +79,11 @@ namespace SWTORCombatParser.DataStructures
                     return true;
                 if (RequiredDeadTargetsForKill.Count > 0)
                 {
-                    if(BossInfo.IsOpenWorld)
+                    if (BossInfo.IsOpenWorld)
                     {
                         // Check if all required targets are killed using efficient HashSet lookup
                         var openWorldBosses = new HashSet<long>(RequiredDeadTargetsForKill);
-                        if(AllLogs.Values.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId)
+                        if (AllLogs.Values.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId)
                         .Select(l => l.Target.LogId).Any(kill => openWorldBosses.Contains(kill)))
                         {
                             return true;
@@ -110,7 +110,7 @@ namespace SWTORCombatParser.DataStructures
                 return false;
             }
         }
-        public ConcurrentDictionary<long,ParsedLogEntry> AllLogs { get; set; } = new();
+        public ConcurrentDictionary<long, ParsedLogEntry> AllLogs { get; set; } = new();
         public Dictionary<long, ConcurrentQueue<ParsedLogEntry>> LogsInvolvingEntity = new();
 
         public ConcurrentQueue<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
@@ -133,7 +133,7 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, ConcurrentQueue<ParsedLogEntry>> IncomingHealingLogs = new();
         public ConcurrentDictionary<Entity, ConcurrentQueue<ParsedLogEntry>> ShieldingProvidedLogs = new();
         public ConcurrentDictionary<Entity, ConcurrentQueue<ParsedLogEntry>> AbilitiesActivated = new();
-        public ConcurrentDictionary<Entity, Dictionary<Entity, double>> PlayerThreatPerEnemy  = new();
+        public ConcurrentDictionary<Entity, Dictionary<Entity, double>> PlayerThreatPerEnemy = new();
         public List<Point> GetBurstValues(Entity entity, PlotType typeOfData)
         {
             var logs = new ConcurrentQueue<ParsedLogEntry>();
@@ -160,7 +160,7 @@ namespace SWTORCombatParser.DataStructures
 
             var peaks = PlotMaker.GetPeaksOfMean(twentySecondAverage, 20);
             var validPeaks = peaks.Where(p => p.Item1 > 10);
-            return validPeaks.Select(p => new Point(p.Item1,p.Item2)).ToList();
+            return validPeaks.Select(p => new Point(p.Item1, p.Item2)).ToList();
 
         }
         public double GetCurrentEffectStacks(ulong effect, Entity target)
@@ -314,39 +314,39 @@ namespace SWTORCombatParser.DataStructures
         }
         public Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>> GetByTarget(IEnumerable<ParsedLogEntry> logsToCheck)
         {
-                var returnDict = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
-                var distinctTargets = logsToCheck.Select(l => l.Target).Where(v => v.Name != null).DistinctBy(e => e.LogId);
-                foreach (var target in distinctTargets)
-                {
-                    returnDict[target] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Target.LogId == target.LogId));
-                }
-                return returnDict;
-            
+            var returnDict = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
+            var distinctTargets = logsToCheck.Select(l => l.Target).Where(v => v.Name != null).DistinctBy(e => e.LogId);
+            foreach (var target in distinctTargets)
+            {
+                returnDict[target] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Target.LogId == target.LogId));
+            }
+            return returnDict;
+
         }
         public Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>> GetBySource(IEnumerable<ParsedLogEntry> logsToCheck)
         {
-                var returnDict = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
-                var distinctSources = logsToCheck.Select(l => l.Source).Where(v => v.Name != null)
-                    .DistinctBy(e => e.LogId);
-                foreach (var source in distinctSources)
-                {
-                    returnDict[source] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Source.LogId == source.LogId));
-                }
+            var returnDict = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
+            var distinctSources = logsToCheck.Select(l => l.Source).Where(v => v.Name != null)
+                .DistinctBy(e => e.LogId);
+            foreach (var source in distinctSources)
+            {
+                returnDict[source] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Source.LogId == source.LogId));
+            }
 
-                return returnDict;
-            
+            return returnDict;
+
         }
         public Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>> GetByTargetName(IEnumerable<ParsedLogEntry> logsToCheck)
         {
-                var returnDict = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
-                var distinctTargets = logsToCheck.Select(l => l.Target).Where(v => v.Name != null)
-                    .DistinctBy(e => e.Name);
-                foreach (var target in distinctTargets)
-                {
-                    returnDict[target] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Target.Name == target.Name));
-                }
+            var returnDict = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
+            var distinctTargets = logsToCheck.Select(l => l.Target).Where(v => v.Name != null)
+                .DistinctBy(e => e.Name);
+            foreach (var target in distinctTargets)
+            {
+                returnDict[target] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Target.Name == target.Name));
+            }
 
-                return returnDict;
+            return returnDict;
         }
         public Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>> GetBySourceName(IEnumerable<ParsedLogEntry> logsToCheck)
         {
@@ -360,30 +360,30 @@ namespace SWTORCombatParser.DataStructures
         }
         public Dictionary<string, ConcurrentQueue<ParsedLogEntry>> GetByAbility(IEnumerable<ParsedLogEntry> logsToCheck)
         {
-                var returnDict = new Dictionary<string, ConcurrentQueue<ParsedLogEntry>>();
-                var distinctAbilities = logsToCheck.Select(l => l.Ability).Distinct();
-                foreach (var ability in distinctAbilities)
-                {
-                    returnDict[ability] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Ability == ability));
-                }
+            var returnDict = new Dictionary<string, ConcurrentQueue<ParsedLogEntry>>();
+            var distinctAbilities = logsToCheck.Select(l => l.Ability).Distinct();
+            foreach (var ability in distinctAbilities)
+            {
+                returnDict[ability] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Ability == ability));
+            }
 
-                return returnDict;
-            
+            return returnDict;
+
         }
         public Dictionary<RichAbility, ConcurrentQueue<ParsedLogEntry>> GetByAbilityRich(ConcurrentQueue<ParsedLogEntry> logsToCheck)
         {
-                var returnDict = new Dictionary<RichAbility, ConcurrentQueue<ParsedLogEntry>>();
-                var distinctAbilities = logsToCheck
-                    .Select(l => new RichAbility()
-                        { AbilityId = l.AbilityId, AbilitySource = l.Source, AbilityName = l.Ability }).DistinctBy(ra =>
-                        !ra.AbilitySource.IsCharacter ? ra.AbilityId + ra.AbilitySource.Name : ra.AbilityId.ToString());
-                foreach (var ability in distinctAbilities)
-                {
-                    returnDict[ability] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck
-                        .Where(l => l.AbilityId == ability.AbilityId && l.Source == ability.AbilitySource));
-                }
+            var returnDict = new Dictionary<RichAbility, ConcurrentQueue<ParsedLogEntry>>();
+            var distinctAbilities = logsToCheck
+                .Select(l => new RichAbility()
+                { AbilityId = l.AbilityId, AbilitySource = l.Source, AbilityName = l.Ability }).DistinctBy(ra =>
+                    !ra.AbilitySource.IsCharacter ? ra.AbilityId + ra.AbilitySource.Name : ra.AbilityId.ToString());
+            foreach (var ability in distinctAbilities)
+            {
+                returnDict[ability] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck
+                    .Where(l => l.AbilityId == ability.AbilityId && l.Source == ability.AbilitySource));
+            }
 
-                return returnDict;
+            return returnDict;
         }
         public bool HasBurstValues()
         {
@@ -420,7 +420,7 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, double> TotalAbilites = new();
         public ConcurrentDictionary<Entity, double> TotalThreat = new();
         public ConcurrentDictionary<Entity, List<Point>> AllBurstDamages { get; set; } = new();
-        public ConcurrentDictionary<Entity, double> MaxBurstDamage => new( AllBurstDamages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y)));
+        public ConcurrentDictionary<Entity, double> MaxBurstDamage => new(AllBurstDamages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count == 0 ? 0 : kvp.Value.Max(v => v.Y)));
         public ConcurrentDictionary<Entity, double> TotalDamage => new(TotalFluffDamage.ToDictionary(kvp => kvp.Key, kvp => kvp.Value + TotalFocusDamage[kvp.Key]));
         public Dictionary<Entity, double> MaxSingleTargetDamage => TotalDamage.ToDictionary(kvp => kvp.Key, kvp => GetMaxTotalDamageToSingleTargetByPlayer(kvp.Key));
         public ConcurrentDictionary<Entity, double> TotalFluffDamage = new();
@@ -612,12 +612,12 @@ namespace SWTORCombatParser.DataStructures
                     kvp =>
                     {
                         var entity = kvp.Key;
-                        var heals   = kvp.Value.ToArray().Reverse();
+                        var heals = kvp.Value.ToArray().Reverse();
                         var shields = ShieldingProvidedLogs.TryGetValue(entity, out var q)
                             ? q.ToArray().Reverse()
                             : Enumerable.Empty<ParsedLogEntry>();
 
-                        var sumHeal   = heals.TakeWhile(e => e.TimeStamp >= startTime).Sum(e => e.Value.EffectiveDblValue);
+                        var sumHeal = heals.TakeWhile(e => e.TimeStamp >= startTime).Sum(e => e.Value.EffectiveDblValue);
                         var sumShield = shields.TakeWhile(e => e.TimeStamp >= startTime).Sum(e => e.Value.EffectiveDblValue);
 
                         return (sumHeal + sumShield) / windowSeconds;
@@ -645,7 +645,7 @@ namespace SWTORCombatParser.DataStructures
         public ConcurrentDictionary<Entity, double> MaxEffectiveHeal = new();
         public ConcurrentDictionary<Entity, double> MaxIncomingHeal = new();
         public ConcurrentDictionary<Entity, double> MaxIncomingEffectiveHeal = new();
-        public Combat GetPhaseCopy(ConcurrentDictionary<Guid,PhaseInstance> phases)
+        public Combat GetPhaseCopy(ConcurrentDictionary<Guid, PhaseInstance> phases)
         {
             List<ParsedLogEntry> phaseLogs = new List<ParsedLogEntry>();
             var snapshot = AllLogs.ToArray().OrderBy(kvp => kvp.Key);
@@ -659,7 +659,7 @@ namespace SWTORCombatParser.DataStructures
             if (!phaseLogs.Any())
                 return new Combat();
             var duration = phases.Sum(p => ((p.Value.PhaseEnd == DateTime.MinValue ? CombatIdentifier.CurrentCombat.EndTime : p.Value.PhaseEnd) - p.Value.PhaseStart).TotalSeconds);
-            var phaseCombat = CombatIdentifier.GenerateCombatSnapshotFromLogs(phaseLogs,combatEndUpdate:true);
+            var phaseCombat = CombatIdentifier.GenerateCombatSnapshotFromLogs(phaseLogs, combatEndUpdate: true);
             var tempDuration = duration * 1000;
             if (tempDuration < phaseCombat.DurationMS)
                 phaseCombat.DurationOverride = tempDuration;

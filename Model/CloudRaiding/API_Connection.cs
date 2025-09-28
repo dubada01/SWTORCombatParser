@@ -211,7 +211,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 {
 
                     Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBoss");
-                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString()});
+                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString() });
                     var content = new StringContent(str, Encoding.UTF8, "application/json");
                     var response = await connection.PostAsync(uri, content);
                     var body = await response.Content.ReadFromJsonAsync<int[]>();
@@ -280,7 +280,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 {
 
                     Uri uri = new Uri($"{_apiPath}/leaderboard/getPercentileForBossAndValue");
-                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), playerName, className, participantClass,  value.ToString() , filterClass.ToString()});
+                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), playerName, className, participantClass, value.ToString(), filterClass.ToString() });
                     var content = new StringContent(str, Encoding.UTF8, "application/json");
                     var response = await connection.PostAsync(uri, content);
                     var body = await response.Content.ReadFromJsonAsync<PercentileInfo>();

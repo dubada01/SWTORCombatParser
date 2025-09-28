@@ -129,7 +129,7 @@ namespace SWTORCombatParser.Views.Home_Views
                 Dispatcher.UIThread.Invoke(() =>
                 {
                     _plot.Plot.Axes.AutoScale();
-                    _plot.Plot.Axes.SetLimits(bottom:0);
+                    _plot.Plot.Axes.SetLimits(bottom: 0);
                     _plot.Refresh();
                 });
             };

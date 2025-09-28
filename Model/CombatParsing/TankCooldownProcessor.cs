@@ -37,8 +37,8 @@ namespace SWTORCombatParser.Model.CombatParsing
         // ------------------------------------------------------------------
         public static void AddDamageSavedDuringCooldown(Combat combat)
         {
-            var state       = CombatLogStateBuilder.CurrentState;
-            var damageLogs  = combat.IncomingDamageLogs;               // IReadOnlyDictionary<Entity, List<ParsedLogEntry>>
+            var state = CombatLogStateBuilder.CurrentState;
+            var damageLogs = combat.IncomingDamageLogs;               // IReadOnlyDictionary<Entity, List<ParsedLogEntry>>
 
             // ------------------------------------------------------------------
             // 1) Build a mapping Target → List<CombatModifier> (defensive CDs)
@@ -93,12 +93,12 @@ namespace SWTORCombatParser.Model.CombatParsing
                     var dmg = hit.Value.MitigatedDblValue;
                     if (IsWithinAnyCooldown(hit.TimeStamp, cds))
                     {
-                        b.InsideSum   += dmg;
+                        b.InsideSum += dmg;
                         b.InsideCount += 1;
                     }
                     else
                     {
-                        b.OutsideSum   += dmg;
+                        b.OutsideSum += dmg;
                         b.OutsideCount += 1;
                     }
                     buckets[ability] = b;
@@ -125,10 +125,10 @@ namespace SWTORCombatParser.Model.CombatParsing
         // ------------------------------------------------------------------
         private struct DamageBucket
         {
-            public double InsideSum   { get; set; }
-            public int    InsideCount { get; set; }
-            public double OutsideSum  { get; set; }
-            public int    OutsideCount{ get; set; }
+            public double InsideSum { get; set; }
+            public int InsideCount { get; set; }
+            public double OutsideSum { get; set; }
+            public int OutsideCount { get; set; }
         }
 
         /// <summary>

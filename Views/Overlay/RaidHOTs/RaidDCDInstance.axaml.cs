@@ -18,7 +18,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             InitializeComponent();
             Loaded += TimerBarControl_AttachedToVisualTree;
         }
-        
+
         private async void TimerBarControl_AttachedToVisualTree(object? sender, RoutedEventArgs routedEventArgs)
         {
             var timerBar = this.FindControl<Border>("TimerBar");

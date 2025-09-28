@@ -20,7 +20,7 @@ namespace SWTORCombatParser.ViewModels.Update
         {
             UpdateMessageService.ClearMessage(message.MessageId);
             CurrentUpdateMessages?.Remove(message);
-            if(CurrentUpdateMessages.Count == 0)
+            if (CurrentUpdateMessages.Count == 0)
             {
                 OnEmpty();
             }

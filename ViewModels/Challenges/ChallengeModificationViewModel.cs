@@ -13,7 +13,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeModificationViewModel : ReactiveObject,INotifyPropertyChanged
+    public class ChallengeModificationViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private string selectedSource;
         private ChallengeType selectedChallengeType;
@@ -252,7 +252,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             if (_isEditing)
                 OnCancelEdit(_editedChallenge);
         }
-        public ReactiveCommand<Unit,Unit> SaveCommand => ReactiveCommand.Create(Save);
+        public ReactiveCommand<Unit, Unit> SaveCommand => ReactiveCommand.Create(Save);
         private void Save()
         {
             OnNewChallenge(new Challenge()
@@ -369,7 +369,8 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }
-                catch (FormatException e) { };
+                catch (FormatException e) { }
+                ;
 
                 OnPropertyChanged();
             }

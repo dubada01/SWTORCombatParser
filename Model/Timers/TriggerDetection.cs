@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Model.Timers
     }
     public static class TriggerDetection
     {
-        public static TriggerType CheckForTriggerNoLog(Timer SourceTimer, DateTime startTime, ConcurrentDictionary<string,TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
+        public static TriggerType CheckForTriggerNoLog(Timer SourceTimer, DateTime startTime, ConcurrentDictionary<string, TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
         {
             DateTime timeStamp = TimeUtility.CorrectedTime;
             switch (SourceTimer.TriggerType)
@@ -38,7 +38,7 @@ namespace SWTORCombatParser.Model.Timers
             }
             return TriggerType.None;
         }
-        public static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime, ConcurrentDictionary<string,TimerInstanceViewModel> activeTimers, Entity currentTarget, List<long> alreadyDetectedEntities = null)
+        public static TriggerType CheckForTrigger(ParsedLogEntry log, Timer SourceTimer, DateTime startTime, ConcurrentDictionary<string, TimerInstanceViewModel> activeTimers, Entity currentTarget, List<long> alreadyDetectedEntities = null)
         {
             DateTime timeStamp = log.TimeStamp;
             switch (SourceTimer.TriggerType)
@@ -115,7 +115,7 @@ namespace SWTORCombatParser.Model.Timers
                     }
                     else
                     {
-                        if(log.Effect.EffectType == EffectType.Remove)
+                        if (log.Effect.EffectType == EffectType.Remove)
                         {
                             OrbsVariableManager.SetVariable(varaibleToSet, 0);
                         }
@@ -123,7 +123,7 @@ namespace SWTORCombatParser.Model.Timers
                         {
                             OrbsVariableManager.SetVariable(varaibleToSet, (int)log.Value.DblValue);
                         }
-                        
+
                     }
                 }
             }
@@ -379,7 +379,7 @@ namespace SWTORCombatParser.Model.Timers
 
         public static TriggerType CheckForHasEffect(DateTime timeStamp, string target, string effectId)
         {
-            if(!ulong.TryParse(effectId, out var parsedId))
+            if (!ulong.TryParse(effectId, out var parsedId))
                 return TriggerType.None;
             var effectsActiveOnTarget =
                 CombatLogStateBuilder.CurrentState.GetInstancesOfEffectOnEntityAtTime(timeStamp, target,
@@ -414,7 +414,7 @@ namespace SWTORCombatParser.Model.Timers
             return TriggerType.None;
         }
 
-        public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime, ConcurrentDictionary<string,TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
+        public static TriggerType CheckForDualEffect(Timer sourceTimer, ParsedLogEntry log, TimerKeyType sourceTimerTriggerType, DateTime startTime, ConcurrentDictionary<string, TimerInstanceViewModel> activeTimers, List<long> alreadyDetectedEntities, Entity currentTarget, bool fromClause1, bool fromClause2)
         {
             var clause1State = log != null ? CheckForTrigger(log, sourceTimer.Clause1, startTime, activeTimers, currentTarget, alreadyDetectedEntities) == TriggerType.Start : CheckForTriggerNoLog(sourceTimer.Clause1, startTime, activeTimers, alreadyDetectedEntities, currentTarget, fromClause1, fromClause2) == TriggerType.Start;
             var clause2State = log != null ? CheckForTrigger(log, sourceTimer.Clause2, startTime, activeTimers, currentTarget, alreadyDetectedEntities) == TriggerType.Start : CheckForTriggerNoLog(sourceTimer.Clause2, startTime, activeTimers, alreadyDetectedEntities, currentTarget, fromClause1, fromClause2) == TriggerType.Start;

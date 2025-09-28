@@ -170,7 +170,7 @@ namespace SWTORCombatParser.Utilities
             if (mask.HasFlag(SharpHook.Native.ModifierMask.Ctrl))
             {
                 keys.Add(SharpHook.Native.KeyCode.VcLeftControl);
-               // keys.Add(SharpHook.Native.KeyCode.VcRightControl);
+                // keys.Add(SharpHook.Native.KeyCode.VcRightControl);
             }
             if (mask.HasFlag(SharpHook.Native.ModifierMask.Alt))
             {
@@ -217,7 +217,7 @@ namespace SWTORCombatParser.Utilities
             if (((modifier1 | modifier2) & 0x0004) != 0) // MOD_SHIFT
                 result |= SharpHook.Native.ModifierMask.Shift;
 
-            
+
 
             return result;
         }

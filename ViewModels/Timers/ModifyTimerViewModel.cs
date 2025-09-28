@@ -31,7 +31,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         CurrentTarget,
         Custom
     }
-    public class ModifyTimerViewModel :ReactiveObject, INotifyPropertyChanged
+    public class ModifyTimerViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private TimerKeyType selectedTriggerType;
         private bool isAlert;
@@ -122,7 +122,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ReactiveCommand<Unit,Task> LoadAudioCommand => ReactiveCommand.Create(LoadAudio);
+        public ReactiveCommand<Unit, Task> LoadAudioCommand => ReactiveCommand.Create(LoadAudio);
 
         private async Task LoadAudio()
         {
@@ -309,7 +309,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 customSource = value;
             }
         }
-        public ReactiveCommand<object,Unit> SaveSourceCommand => ReactiveCommand.Create<object>(SaveSource);
+        public ReactiveCommand<object, Unit> SaveSourceCommand => ReactiveCommand.Create<object>(SaveSource);
 
         internal void SaveSource(object obj = null)
         {
@@ -393,7 +393,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public bool DisplayTargetToggle => HasTarget;
 
-        public ReactiveCommand<object,Unit> SaveTargetCommand => ReactiveCommand.Create<object>(SaveTarget);
+        public ReactiveCommand<object, Unit> SaveTargetCommand => ReactiveCommand.Create<object>(SaveTarget);
 
         internal void SaveTarget(object obj = null)
         {
@@ -444,7 +444,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ReactiveCommand<object,Unit> SaveRefreshOptionCommand => ReactiveCommand.Create<object>(SaveRefreshCommand);
+        public ReactiveCommand<object, Unit> SaveRefreshOptionCommand => ReactiveCommand.Create<object>(SaveRefreshCommand);
 
         private void SaveRefreshCommand(object obj)
         {
@@ -473,7 +473,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ReactiveCommand<object,Unit> AddCustomVariableCommand => ReactiveCommand.Create<object>(AddCustomVariable);
+        public ReactiveCommand<object, Unit> AddCustomVariableCommand => ReactiveCommand.Create<object>(AddCustomVariable);
 
         private void AddCustomVariable(object obj)
         {
@@ -678,13 +678,14 @@ namespace SWTORCombatParser.ViewModels.Timers
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }
-                catch (FormatException e) { };
+                catch (FormatException e) { }
+                ;
 
                 OnPropertyChanged();
             }
         }
         public bool IsSubTrigger { get; set; }
-        public ReactiveCommand<object,Unit> AddOrEditACommand => ReactiveCommand.Create<object>(AddOrEditA);
+        public ReactiveCommand<object, Unit> AddOrEditACommand => ReactiveCommand.Create<object>(AddOrEditA);
 
         private void AddOrEditA(object obj)
         {
@@ -705,7 +706,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var window = new TimerModificationWindow(vm);
             window.Show();
         }
-        public ReactiveCommand<object,Unit> AddOrEditBCommand => ReactiveCommand.Create<object>(AddOrEditB);
+        public ReactiveCommand<object, Unit> AddOrEditBCommand => ReactiveCommand.Create<object>(AddOrEditB);
 
         private void AddOrEditB(object obj)
         {
@@ -1005,7 +1006,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnCancelEdit.InvokeSafely(_editedTimer);
         }
 
-        public ReactiveCommand<object,Unit> SaveCommand => ReactiveCommand.Create<object>(Save);
+        public ReactiveCommand<object, Unit> SaveCommand => ReactiveCommand.Create<object>(Save);
 
         private void Save(object obj)
         {

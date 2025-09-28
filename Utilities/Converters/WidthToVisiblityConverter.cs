@@ -6,7 +6,7 @@ using Avalonia.Data.Converters;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
-    internal class WidthToVisiblityConverter:IValueConverter
+    internal class WidthToVisiblityConverter : IValueConverter
     {
         public double CollapseBelowWidth { get; set; } = 800; // Default width threshold
 

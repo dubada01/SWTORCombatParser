@@ -35,13 +35,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 DefaultBossFrameManager.SetActiveState(bossFrameEnabled);
             }
         }
-        public ReactiveCommand<Unit,Unit> IncreaseCommand => ReactiveCommand.Create(Increase);
+        public ReactiveCommand<Unit, Unit> IncreaseCommand => ReactiveCommand.Create(Increase);
 
         private void Increase()
         {
             CurrentScale += 0.1;
         }
-        public ReactiveCommand<Unit,Unit> DecreaseCommand => ReactiveCommand.Create(Decrease);
+        public ReactiveCommand<Unit, Unit> DecreaseCommand => ReactiveCommand.Create(Decrease);
 
         private void Decrease()
         {
@@ -167,7 +167,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
                     }
                     else
-                        activeBoss.LogWithBoss(boss,log.TimeStamp);
+                        activeBoss.LogWithBoss(boss, log.TimeStamp);
                 }
             }
         }

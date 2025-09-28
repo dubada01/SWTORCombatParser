@@ -13,9 +13,9 @@ namespace SWTORCombatParser.Model.CombatParsing
     public static class CombatMetaDataParse
     {
         private static readonly HashSet<ulong> _interruptAbilityIds = new HashSet<ulong> { 963120646324224, 987747988799488, 875086701658112, 997020823191552, 3433285187272704, 812105301229568, 807750204391424, 2204391964672000, 3029313448312832, 3029339218116608, 875060931854336, 2204499338854400 };
-        private static HashSet<ulong> stunAbilityIds = new HashSet<ulong> { 814214130171904, 814802540691456,3908961405239296, 1962284658196480, 808244125630464, 807754499358720, 958439131971584, 807178973741056, 1679250608357376, 1261925816074240 };
-        
-        private static readonly HashSet<ulong> _cleanseAbilityIds = new HashSet<ulong> { 985007799664640, 3413249164836864, 992541172301824, 981455861710848, 3412806783205376, 952181364621312, 992541172302291, 985007799664916,981455861711254};
+        private static HashSet<ulong> stunAbilityIds = new HashSet<ulong> { 814214130171904, 814802540691456, 3908961405239296, 1962284658196480, 808244125630464, 807754499358720, 958439131971584, 807178973741056, 1679250608357376, 1261925816074240 };
+
+        private static readonly HashSet<ulong> _cleanseAbilityIds = new HashSet<ulong> { 985007799664640, 3413249164836864, 992541172301824, 981455861710848, 3412806783205376, 952181364621312, 992541172302291, 985007799664916, 981455861711254 };
         private static HashSet<ulong> abilityIdsThatCanInterrupt => new HashSet<ulong>(_interruptAbilityIds.Concat(stunAbilityIds));
         public static void PopulateMetaData(Combat combatToPopulate)
         {
@@ -23,7 +23,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             var cleanseLogs = combat.AllLogs.Values.Where(l =>
 l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && l.Target.IsCharacter);
-            combat.Initiator = combat.AllLogs.OrderBy(kvp=>kvp.Key).FirstOrDefault(l =>
+            combat.Initiator = combat.AllLogs.OrderBy(kvp => kvp.Key).FirstOrDefault(l =>
                 l.Value.Effect.EffectType == EffectType.TargetChanged && !l.Value.Source.IsCharacter).Value?.Target;
             //Parallel.ForEach(combatToPopulate.AllEntities, entitiy =>
             foreach (var entity in combatToPopulate.AllEntities)
@@ -34,64 +34,64 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 var incomingLogs = logsInScope.Where(log => log.Target == entity);
 
                 var logEntriesForEntity = outgoingLogs as ParsedLogEntry[] ?? outgoingLogs.ToArray();
-// 1) outgoing damage
+                // 1) outgoing damage
                 combat.OutgoingDamageLogs[entity] = new ConcurrentQueue<ParsedLogEntry>(
                     logEntriesForEntity
                         .Where(l =>
                             l.Effect.EffectType == EffectType.Apply &&
-                            l.Effect.EffectId   == _7_0LogParsing._damageEffectId &&
-                            l.Source.Name       != l.Target.Name
+                            l.Effect.EffectId == _7_0LogParsing._damageEffectId &&
+                            l.Source.Name != l.Target.Name
                         )
                 );
 
-// 2) outgoing healing
+                // 2) outgoing healing
                 combat.OutgoingHealingLogs[entity] = new ConcurrentQueue<ParsedLogEntry>(
                     logEntriesForEntity
                         .Where(l =>
                             l.Effect.EffectType == EffectType.Apply &&
-                            l.Effect.EffectId   == _7_0LogParsing._healEffectId
+                            l.Effect.EffectId == _7_0LogParsing._healEffectId
                         )
                 );
 
-// 3) abilities-activated
+                // 3) abilities-activated
                 combat.AbilitiesActivated[entity] = new ConcurrentQueue<ParsedLogEntry>(
                     logEntriesForEntity
                         .Where(l =>
                             l.Effect.EffectType == EffectType.Event &&
-                            l.Effect.EffectId   == _7_0LogParsing.AbilityActivateId
+                            l.Effect.EffectId == _7_0LogParsing.AbilityActivateId
                         )
                 );
                 var incomingList = incomingLogs as ParsedLogEntry[] ?? incomingLogs.ToArray();
 
-// 4) incoming damage
+                // 4) incoming damage
                 combat.IncomingDamageLogs[entity] = new ConcurrentQueue<ParsedLogEntry>(
                     incomingList
                         .Where(l =>
                             l.Effect.EffectType == EffectType.Apply &&
-                            l.Effect.EffectId   == _7_0LogParsing._damageEffectId
+                            l.Effect.EffectId == _7_0LogParsing._damageEffectId
                         )
                 );
 
-// 5) incoming healing
+                // 5) incoming healing
                 combat.IncomingHealingLogs[entity] = new ConcurrentQueue<ParsedLogEntry>(
                     incomingList
                         .Where(l =>
                             l.Effect.EffectType == EffectType.Apply &&
-                            l.Effect.EffectId   == _7_0LogParsing._healEffectId
+                            l.Effect.EffectId == _7_0LogParsing._healEffectId
                         )
                 );
 
-// 6) big-hit timestamps (still a List<DateTime>)
+                // 6) big-hit timestamps (still a List<DateTime>)
                 var bigDamageTimestamps = GetTimestampOfBigHits(incomingList
                     .Where(l =>
                         l.Effect.EffectType == EffectType.Apply &&
-                        l.Effect.EffectId   == _7_0LogParsing._damageEffectId
+                        l.Effect.EffectId == _7_0LogParsing._damageEffectId
                     )
                     .ToList()
                 );
                 combat.BigDamageTimestamps[entity] = bigDamageTimestamps;
 
-// 7) mitigated-damage
+                // 7) mitigated-damage
                 combat.IncomingDamageMitigatedLogs[entity] = new ConcurrentQueue<ParsedLogEntry>(
                     combat.IncomingDamageLogs[entity]
                         .Where(l => l.Value.Modifier != null)
@@ -154,7 +154,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 combat.TotalInterrupts[entity] = interruptLogs.Count();
                 combat.TotalCleanses[entity] = mycleanseLogs.Count();
                 combat.TotalThreat[entity] = 0;
-// Step 1: Build PlayerThreatPerEnemy[enemy][player]
+                // Step 1: Build PlayerThreatPerEnemy[enemy][player]
                 if (!entity.IsCharacter)
                 {
                     if (!combat.PlayerThreatPerEnemy.ContainsKey(entity))
@@ -172,8 +172,8 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     }
                 }
 
-// Step 2: Later — after all enemies processed — rebuild TotalThreat[player]
-                
+                // Step 2: Later — after all enemies processed — rebuild TotalThreat[player]
+
                 foreach (var enemyKvp in combat.PlayerThreatPerEnemy)
                 {
                     foreach (var playerKvp in enemyKvp.Value)
@@ -189,7 +189,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                         combat.TotalThreat[player] += threat;
                     }
                 }
-                
+
                 combat.MaxDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0
                     ? 0
                     : combat.OutgoingDamageLogs[entity].Max(l => l.Value.DblValue);
@@ -248,12 +248,12 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 
         public static void ApplyIncrementalMetaData(Combat combat, IEnumerable<ParsedLogEntry> newLogs)
         {
-// lazy‐init every dictionary/list for brand‐new entities
+            // lazy‐init every dictionary/list for brand‐new entities
             void EnsureEntity(Entity e)
             {
-                if(!combat.AllEntities.Contains(e))
+                if (!combat.AllEntities.Contains(e))
                     combat.AllEntities.Add(e);
-                
+
                 // per‐entity buckets of parsed logs
                 if (!combat.TotalAbilites.ContainsKey(e))
                 {
@@ -296,7 +296,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 
                     combat.TotalCompanionHealing[e] = 0;
                     combat.TotalEffectiveCompanionHealing[e] = 0;
-                    
+
                     combat.TotalTankSheilding[e] = 0;
                     combat.TotalAbilites[e] = 0;
                     combat.TotalInterrupts[e] = 0;
@@ -328,9 +328,9 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
             if (combat.ParentEncounter?.BossIds != null)
             {
                 foreach (var diffMap in combat.ParentEncounter.BossIds.Values)
-                foreach (var list in diffMap.Values)
-                foreach (var id in list)
-                    bossIds.Add(id);
+                    foreach (var list in diffMap.Values)
+                        foreach (var id in list)
+                            bossIds.Add(id);
             }
 
             // 2) Fold in each new log entry
@@ -345,7 +345,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 // ensure we have a slot for both source and target
                 EnsureEntity(src);
                 EnsureEntity(tgt);
-                
+
                 // any log with a positive threat value, regardless of effect type:
                 var thr = log.Threat;
                 if (thr > 0)
@@ -364,7 +364,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     }
 
                 }
-                
+
                 // ─── OUTGOING DAMAGE ─────────────────────────────────────────────────────
                 if (et == EffectType.Apply
                     && eid == _7_0LogParsing._damageEffectId
@@ -406,7 +406,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                         combat.IncomingDamageMitigatedLogs[tgt].Enqueue(log);
                         combat.TotalSheildAndAbsorb[tgt] += val.Modifier.EffectiveDblValue;
                     }
-// inside your “incoming damage” block, where you spot a shield modifier:
+                    // inside your “incoming damage” block, where you spot a shield modifier:
                     if (val.Modifier != null && val.Modifier.ValueType == DamageType.shield)
                     {
                         combat.ShieldingProvidedLogs[tgt].Enqueue(log);
@@ -519,36 +519,36 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     abilityTimes);
                 combat.TankDamageRecoveryTimes[healer] = tankRx;
             }
-            
+
             // ─── 5) **Recompute “avoided damage”** ─────────────────────────────────────
             // for each target that got new damage logs, recalc the full avoidance sum,
             // take the delta vs. the old value, and apply it here.
             var damagedEntities = newLogs
                 .Where(l => l.Effect.EffectType == EffectType.Apply
-                            && l.Effect.EffectId   == _7_0LogParsing._damageEffectId)
+                            && l.Effect.EffectId == _7_0LogParsing._damageEffectId)
                 .Select(l => l.Target)
                 .Distinct();
 
             foreach (var entity in damagedEntities)
             {
                 // new full sum of all avoided (parry/deflect/dodge/resist)
-                var parriedSums   = CalculateEstimatedAvoidedDamage(combat, entity);
-                var newEstimated  = parriedSums.Sum(kvp => kvp.Value);
+                var parriedSums = CalculateEstimatedAvoidedDamage(combat, entity);
+                var newEstimated = parriedSums.Sum(kvp => kvp.Value);
                 var prevEstimated = combat.TotalEstimatedAvoidedDamage[entity];
-                var diff          = newEstimated - prevEstimated;
+                var diff = newEstimated - prevEstimated;
 
                 if (diff != 0)
                 {
                     combat.TotalEstimatedAvoidedDamage[entity] = newEstimated;
                     // keep “damage taken” in sync with initial PopulateMetaData’s +avoided logic
-                    combat.TotalDamageTaken[entity]           += diff;
+                    combat.TotalDamageTaken[entity] += diff;
                 }
             }
         }
 
         private static double GetSpeedFromLog(ParsedLogEntry cl, IEnumerable<ParsedLogEntry> effectRemoveLogs)
         {
-            var removedEffectLog = effectRemoveLogs.OrderBy(l=>l.LogLineNumber).FirstOrDefault(l => l.LogLineNumber > cl.LogLineNumber);
+            var removedEffectLog = effectRemoveLogs.OrderBy(l => l.LogLineNumber).FirstOrDefault(l => l.LogLineNumber > cl.LogLineNumber);
             if (removedEffectLog == null)
                 return 0;
             var cleanseTime = removedEffectLog.TimeStamp;
@@ -572,7 +572,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
             {
                 if (!delays.ContainsKey(target))
                     delays[target] = new List<double>();
-                if (!reactionTimeStamps.TryGetValue(target,out var reactionsForTarget))
+                if (!reactionTimeStamps.TryGetValue(target, out var reactionsForTarget))
                     continue;
                 foreach (var hit in bigHitTimestamps[target])
                 {

@@ -28,7 +28,7 @@ using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.CombatMonitoring
 {
-    public class CombatMonitorViewModel :ReactiveObject, INotifyPropertyChanged
+    public class CombatMonitorViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private ConcurrentDictionary<DateTime, List<ParsedLogEntry>> _totalLogsDuringCombat = new ConcurrentDictionary<DateTime, List<ParsedLogEntry>>();
         private static bool _liveParseActive;
@@ -91,7 +91,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
             }
         }
         public string AutoLiveParseText => _autoParseEnabled ? "Disable Auto Parse" : "Enable Auto Parse";
-        public ReactiveCommand<Unit,Unit> AutoLiveParseCommand => ReactiveCommand.Create(AutoLiveParseToggle);
+        public ReactiveCommand<Unit, Unit> AutoLiveParseCommand => ReactiveCommand.Create(AutoLiveParseToggle);
 
         private void AutoLiveParseToggle()
         {
@@ -111,7 +111,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
         public CombatMonitorViewModel()
         {
             _autoParseEnabled = Settings.ReadSettingOfType<bool>("Auto_Parse");
-            
+
             _combatLogStreamer = new CombatLogStreamer();
             _combatLogStreamer.NewLogTimeOffsetMs += UpdateLogOffset;
             _combatLogStreamer.NewTotalTimeOffsetMs += UpdateTotalOffset;
@@ -155,7 +155,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
                 ClearCombats();
             });
         }
-        public ReactiveCommand<Unit,Unit> ToggleLiveParseCommand => ReactiveCommand.Create(ToggleLiveParse);
+        public ReactiveCommand<Unit, Unit> ToggleLiveParseCommand => ReactiveCommand.Create(ToggleLiveParse);
 
         private void ToggleLiveParse()
         {
@@ -214,7 +214,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
             {
                 await Dispatcher.UIThread.Invoke(async () =>
                 {
-                    var box =MessageBoxManager.GetMessageBoxStandard("Error",
+                    var box = MessageBoxManager.GetMessageBoxStandard("Error",
                         "There was an unexpected error while parsing the combat log. Please message Zarnuro on Discord with the following error message for support if this issue persists.\r\n\r\n" + errorMessage);
                     await box.ShowAsync();
                 });
@@ -241,7 +241,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
         }
 
 
-        public ReactiveCommand<Unit,Task> LoadSpecificLogCommand => ReactiveCommand.Create(LoadSpecificLog);
+        public ReactiveCommand<Unit, Task> LoadSpecificLogCommand => ReactiveCommand.Create(LoadSpecificLog);
         private async Task LoadSpecificLog()
         {
             var openFileDialog = new OpenFileDialog();
@@ -263,7 +263,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var result = await openFileDialog.ShowAsync(desktop.MainWindow);
-                if (result!= null && result.Length > 0)
+                if (result != null && result.Length > 0)
                 {
                     OnMonitoringStateChanged(false);
                     CurrentlySelectedLogName = result[0];
@@ -309,9 +309,9 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
         {
             _totalLogsDuringCombat[combatStartTime] = obj;
             _usingHistoricalData = false;
-            var combatInfo = CombatIdentifier.GenerateCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), isRealtime:true);
+            var combatInfo = CombatIdentifier.GenerateCombatFromLogs(_totalLogsDuringCombat[combatStartTime].ToList(), isRealtime: true);
             //only process combats if they were property created
-            if(combatInfo.StartTime == DateTime.MinValue)
+            if (combatInfo.StartTime == DateTime.MinValue)
             {
                 return;
             }
@@ -329,16 +329,16 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
 
         private void CombatStopped(List<ParsedLogEntry> obj, DateTime combatStartTime)
         {
-            if(_usingHistoricalData)
+            if (_usingHistoricalData)
                 _totalLogsDuringCombat[combatStartTime] = obj;
 
             if (!_usingHistoricalData)
             {
                 Logging.LogInfo("Real time combat started at " + combatStartTime.ToString() + " has STOPPED");
                 CurrentEncounter?.RemoveOngoing();
-                var combatInfo = CombatIdentifier.GenerateCombatFromLogs(obj, isRealtime:true, combatEndUpdate: true);
+                var combatInfo = CombatIdentifier.GenerateCombatFromLogs(obj, isRealtime: true, combatEndUpdate: true);
                 //only process combats if they were property created
-                if(combatInfo.StartTime == DateTime.MinValue)
+                if (combatInfo.StartTime == DateTime.MinValue)
                 {
                     return;
                 }

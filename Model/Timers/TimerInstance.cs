@@ -35,7 +35,7 @@ namespace SWTORCombatParser.Model.Timers
         private readonly Dictionary<Guid, TimerInstanceViewModel> _activeTimerInstancesForTimer = new Dictionary<Guid, TimerInstanceViewModel>();
         private (string, string, string) _currentBossInfo;
         private Entity _currentTarget;
-        private ConcurrentDictionary<string,TimerInstanceViewModel> _activeTimers;
+        private ConcurrentDictionary<string, TimerInstanceViewModel> _activeTimers;
         private DateTime _startTime;
         private EncounterInfo _currentEncounter;
         private TimerInstance parentTimer;
@@ -161,7 +161,7 @@ namespace SWTORCombatParser.Model.Timers
             timer.Dispose();
         }
 
-        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, ConcurrentDictionary<string,TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string, string, string) bossData, Entity currentTarget)
+        public void CheckForTrigger(ParsedLogEntry log, DateTime startTime, string currentDiscipline, ConcurrentDictionary<string, TimerInstanceViewModel> activeTimers, EncounterInfo currentEncounter, (string, string, string) bossData, Entity currentTarget)
         {
             lock (_timerChangeLock)
             {
@@ -386,7 +386,7 @@ namespace SWTORCombatParser.Model.Timers
             {
                 var sourceTarget =
                     CombatLogStateBuilder.CurrentState.GetPlayerTargetAtTime(log.Source, log.TimeStamp).Entity;
-                if(string.IsNullOrEmpty(currentTarget.Name))
+                if (string.IsNullOrEmpty(currentTarget.Name))
                     return new TimerTargetInfo()
                     {
                         Name = sourceTarget.Name,

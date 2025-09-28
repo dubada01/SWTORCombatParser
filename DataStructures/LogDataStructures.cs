@@ -18,7 +18,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.DataStructures
 {
-    public class DisplayableLogEntry:ReactiveObject
+    public class DisplayableLogEntry : ReactiveObject
     {
         private long _sourceId;
         private long _targetId;
@@ -28,10 +28,10 @@ namespace SWTORCombatParser.DataStructures
         private readonly static SolidColorBrush _deathBackground = new(Brushes.IndianRed.Color);
         private readonly static SolidColorBrush _deathBackgroundWithSource = new(Brushes.Crimson.Color);
         private readonly static SolidColorBrush _revivedBackground = new(Brushes.CornflowerBlue.Color);
-        private readonly static SolidColorBrush _damageBackground = new (Color.Parse("#613b3b"));
+        private readonly static SolidColorBrush _damageBackground = new(Color.Parse("#613b3b"));
         private readonly string _logPath;
         private readonly long _lineNumber;
-        public DisplayableLogEntry(string sec, string source, long sourceId, string target, long targetId, string ability, ulong abilityId, string effectName, ulong effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat,string logPath, long lineNumber)
+        public DisplayableLogEntry(string sec, string source, long sourceId, string target, long targetId, string ability, ulong abilityId, string effectName, ulong effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat, string logPath, long lineNumber)
         {
             _sourceId = sourceId;
             _targetId = targetId;
@@ -159,7 +159,7 @@ namespace SWTORCombatParser.DataStructures
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     // Open the file in TextEdit on macOS
-                    Process.Start("open", $"-a TextEdit \"{Path.Combine(logsDirectory,_logPath)}\"");
+                    Process.Start("open", $"-a TextEdit \"{Path.Combine(logsDirectory, _logPath)}\"");
                 }
                 else
                 {
@@ -220,7 +220,8 @@ namespace SWTORCombatParser.DataStructures
                 return ": " + effectName;
         }
 
-        public List<string> Strings() {
+        public List<string> Strings()
+        {
             return [
                 Effect.EffectName,
                 Effect.EffectId.ToString(),
@@ -245,7 +246,7 @@ namespace SWTORCombatParser.DataStructures
         None,
         IncompleteLine
     }
-    public class Entity:IEquatable<Entity>
+    public class Entity : IEquatable<Entity>
     {
         public static Entity EmptyEntity = new Entity();
         public string Name { get; set; }

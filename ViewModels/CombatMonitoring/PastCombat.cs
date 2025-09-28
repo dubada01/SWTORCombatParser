@@ -17,7 +17,7 @@ using SWTORCombatParser.ViewModels.CombatMonitoring;
 
 namespace SWTORCombatParser.ViewModels.CombatMonitoring
 {
-    public class PastCombat :ReactiveObject
+    public class PastCombat : ReactiveObject
     {
         private bool isSelected;
         private bool isVisible = false;
@@ -46,9 +46,9 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
         public string CombatLabel { get; set; }
         public string CombatDuration
         {
-            get => combatDuration; set => this.RaiseAndSetIfChanged(ref  combatDuration, value);
+            get => combatDuration; set => this.RaiseAndSetIfChanged(ref combatDuration, value);
         }
-        public ReactiveCommand<Unit,Unit> DisplayWipeReviewCommand => ReactiveCommand.Create(DisplayWipeReview);
+        public ReactiveCommand<Unit, Unit> DisplayWipeReviewCommand => ReactiveCommand.Create(DisplayWipeReview);
 
         private void DisplayWipeReview()
         {
@@ -59,17 +59,17 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
             }
         }
 
-        public ReactiveCommand<Unit,Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
+        public ReactiveCommand<Unit, Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
 
         private async void UploadToParsely()
         {
-            var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Keys.Where(v=>v!=0).Min(), (int)Combat.AllLogs.Keys.Max(),Combat.LogFileName);
+            var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Keys.Where(v => v != 0).Min(), (int)Combat.AllLogs.Keys.Max(), Combat.LogFileName);
             var response = await ParselyUploader.TryUploadText(lines, Path.Combine(Settings.ReadSettingOfType<string>("combat_logs_path"), Combat.LogFileName));
             if (!response.WasSuccess)
             {
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
-                    var box = MessageBoxManager.GetMessageBoxStandard("Error", response.ErrorMessage,windowStartupLocation: WindowStartupLocation.CenterOwner);
+                    var box = MessageBoxManager.GetMessageBoxStandard("Error", response.ErrorMessage, windowStartupLocation: WindowStartupLocation.CenterOwner);
                     await box.ShowWindowDialogAsync(desktop.MainWindow);
 
                 }

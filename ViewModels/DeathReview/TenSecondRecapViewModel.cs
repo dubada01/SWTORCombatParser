@@ -20,8 +20,8 @@ public class EffectAndStack
     public int EffectStacks { get; set; }
     public Bitmap Icon { get; set; }
 }
-public class TenSecondRecapViewModel:ReactiveObject
-{    
+public class TenSecondRecapViewModel : ReactiveObject
+{
     private EventHistoryViewModel _deathLogsViewModel;
     private double _currentSliderValue;
     private Combat _currentCombat;
@@ -39,22 +39,22 @@ public class TenSecondRecapViewModel:ReactiveObject
     private DateTime _currentSelectedTime = DateTime.MinValue;
     private List<Entity> _availablePlayers;
 
-    public string CurrentTimeOffset => (-_timeOffset * (1-_currentSliderValue)).ToString("N2");
+    public string CurrentTimeOffset => (-_timeOffset * (1 - _currentSliderValue)).ToString("N2");
     public double CurrentSliderValue
     {
         get => _currentSliderValue;
         set
         {
-            if(_currentCombat == null)
+            if (_currentCombat == null)
                 return;
-            _currentSelectedTime = _currentCombat.EndTime.AddSeconds(-_timeOffset * (1-value));
+            _currentSelectedTime = _currentCombat.EndTime.AddSeconds(-_timeOffset * (1 - value));
             this.RaiseAndSetIfChanged(ref _currentSliderValue, value);
             this.RaisePropertyChanged(nameof(CurrentTimeOffset));
             UpdateBuffsAndDebuffs();
             _deathLogsViewModel.Seek((_currentSelectedTime - _currentCombat.StartTime).TotalSeconds);
         }
     }
-    
+
     // PLAYER INFO
 
     public Entity SelectedPlayer
@@ -62,7 +62,7 @@ public class TenSecondRecapViewModel:ReactiveObject
         get => _selectedPlayer;
         set
         {
-            if(value == null)
+            if (value == null)
                 return;
             this.RaiseAndSetIfChanged(ref _selectedPlayer, value);
             _inScopePlayers = _selectedPlayer.Name == _allPlayers ? _currentCombat.CharacterParticipants : new List<Entity>() { _selectedPlayer };
@@ -82,15 +82,15 @@ public class TenSecondRecapViewModel:ReactiveObject
         get => _selectedPlayerDebuffs;
         set => this.RaiseAndSetIfChanged(ref _selectedPlayerDebuffs, value);
     }
-    
-    
+
+
     // BOSS INFO
     public Entity SelectedBoss
     {
         get => _selectedBoss;
         set
-        {            
-            if(value == null)
+        {
+            if (value == null)
                 return;
             this.RaiseAndSetIfChanged(ref _selectedBoss, value);
             _inScopeBosses = _selectedBoss.Name == _allBosses ? _currentCombat.AllEntities.Where(e => e.IsBoss).ToList() : new List<Entity>() { _selectedBoss };
@@ -121,31 +121,31 @@ public class TenSecondRecapViewModel:ReactiveObject
         DeathLogsView = new EventHistoryView(_deathLogsViewModel);
     }
     public void SetCombat(Combat combat)
-    {        
-        if(combat.AllLogs.Count == 0)
+    {
+        if (combat.AllLogs.Count == 0)
             return;
         Task.Run(async () =>
         {
             _currentCombat = combat;
             _currentSelectedTime = combat.EndTime.AddSeconds(-_timeOffset);
             CurrentSliderValue = 0;
-        
+
             var players = _currentCombat.CharacterParticipants.ToList();
             players.Insert(0, new Entity() { Name = _allPlayers });
             AvailablePlayers = players;
-        
+
             var bosses = _currentCombat.AllEntities.Where(e => e.IsBoss).ToList();
             bosses.Insert(0, new Entity() { Name = _allBosses });
             AvailableBosses = bosses;
-        
+
             SelectedBoss = AvailableBosses.First();
             SelectedPlayer = AvailablePlayers.First();
-        
+
             await _deathLogsViewModel.SelectCombat(combat);
             await _deathLogsViewModel.UpdateLogs(true);
         });
     }
-    
+
     private void UpdateBuffsAndDebuffs()
     {
         if (SelectedPlayer != null && SelectedPlayer.Name != _allPlayers)
@@ -154,10 +154,10 @@ public class TenSecondRecapViewModel:ReactiveObject
             {
                 SelectedPlayerDebuffs = await GetDefuffsForPlayer(SelectedPlayer);
             });
-            
+
         }
         if (SelectedBoss != null && SelectedBoss.Name != _allBosses)
-        {           
+        {
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 SelectedBossBuffs = await GetBuffsForBoss(SelectedBoss);
@@ -197,12 +197,12 @@ public class TenSecondRecapViewModel:ReactiveObject
     }
     private List<CombatModifier> GetEffectsOnEntityAtTime(Entity entity)
     {
-        var allEffectsOnEntity = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(_currentSelectedTime,entity);
+        var allEffectsOnEntity = CombatLogStateBuilder.CurrentState.GetEffectsWithTarget(_currentSelectedTime, entity);
         return allEffectsOnEntity;
     }
     private async Task RefreshInScopeEntities()
     {
-        var allEntities = _inScopeBosses.Concat(_inScopePlayers).Where(e=>e.Name != _allPlayers && e.Name != _allBosses).ToList();
+        var allEntities = _inScopeBosses.Concat(_inScopePlayers).Where(e => e.Name != _allPlayers && e.Name != _allBosses).ToList();
         _deathLogsViewModel.SetViewableEntities(allEntities);
         await _deathLogsViewModel.UpdateLogs(true);
     }

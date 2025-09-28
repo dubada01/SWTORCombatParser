@@ -26,13 +26,13 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
     {
         _recapViewModel = new TenSecondRecapViewModel();
         _recapView = new TenSecondRecapView(_recapViewModel);
-        
+
         _damageTakenViewModel = new DamageTakenViewModel();
         _damageTakenView = new DamageTakenView(_damageTakenViewModel);
 
         _legacyDeathReviewVM = new DeathReviewViewModel();
         _legacyDeathReviewView = new DeathReviewPage(_legacyDeathReviewVM);
-        
+
         CurrentReviewContent = _damageTakenView;
     }
 
@@ -44,9 +44,9 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
             _selectedTabIndex = value;
             if (_selectedTabIndex == 2)
                 CurrentReviewContent = _legacyDeathReviewView;
-            if(_selectedTabIndex == 1)
+            if (_selectedTabIndex == 1)
                 CurrentReviewContent = _recapView;
-            if(_selectedTabIndex == 0)
+            if (_selectedTabIndex == 0)
                 CurrentReviewContent = _damageTakenView;
         }
     }
@@ -58,9 +58,9 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
     }
 
     public string EncounterName => CombatInstance?.BossInfo?.EncounterName;
-    public string CompletionText => CombatInstance != null && CombatInstance.AllLogs.Count > 0 ? CombatInstance.WasBossKilled ? 
-        "Cleared in " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") + " started by " + CombatInstance.Initiator?.Name : 
-        "Wipe at "+ PercentComplete.ToString("N2") + "% at " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") + " started by " + CombatInstance.Initiator?.Name : "";
+    public string CompletionText => CombatInstance != null && CombatInstance.AllLogs.Count > 0 ? CombatInstance.WasBossKilled ?
+        "Cleared in " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") + " started by " + CombatInstance.Initiator?.Name :
+        "Wipe at " + PercentComplete.ToString("N2") + "% at " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") + " started by " + CombatInstance.Initiator?.Name : "";
     public double PercentComplete => GetEncounterPercentComplete();
     public Combat CombatInstance { get; set; }
 
@@ -80,10 +80,10 @@ public class RaidwideBattleReviewViewModel : ReactiveObject
         this.RaisePropertyChanged(nameof(CompletionText));
         this.RaisePropertyChanged(nameof(EncounterName));
     }
-    
+
     private double GetEncounterPercentComplete()
     {
-        if(CombatInstance == null)
+        if (CombatInstance == null)
             return 0;
         var bossNames = CombatInstance.ParentEncounter.BossNames;
         var totalBossHP = 0d;

@@ -9,7 +9,7 @@ namespace SWTORCombatParser.DataStructures.Updates
         public string ValidForBuild { get; set; }
         public double DurationHrs { get; set; }
         public string UpdateMessageHeader { get; set; }
-        public string UpdateMessageBody { get; set;}
+        public string UpdateMessageBody { get; set; }
         public bool IsSoftwareUpdateMessage { get; set; }
     }
 }

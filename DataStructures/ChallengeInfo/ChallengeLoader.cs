@@ -14,7 +14,7 @@ namespace SWTORCombatParser.DataStructures.ChallengeInfo
         {
             List<DefaultChallengeData> challengeData = new List<DefaultChallengeData>();
 
-            var builtInChallenges = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(Path.Combine( Environment.CurrentDirectory, @"DataStructures/ChallengeInfo/BuiltInChallenges.json")));
+            var builtInChallenges = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, @"DataStructures/ChallengeInfo/BuiltInChallenges.json")));
             var bossTimerDeserialized = builtInChallenges.ToObject<List<DefaultChallengeData>>();
             challengeData.AddRange(bossTimerDeserialized);
 

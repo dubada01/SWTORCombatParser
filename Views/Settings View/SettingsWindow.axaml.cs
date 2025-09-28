@@ -51,7 +51,7 @@ namespace SWTORCombatParser.Views.SettingsView
 
         private async void UpdateCombatLogsPath(object? sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFolderDialog(){Title = "Select New Combat Logs Path"};
+            var dialog = new OpenFolderDialog() { Title = "Select New Combat Logs Path" };
             var result = await dialog.ShowAsync(this);
             if (string.IsNullOrEmpty(result))
                 return;
@@ -83,9 +83,9 @@ namespace SWTORCombatParser.Views.SettingsView
         }
         private async void ShowEmergencyDialog(object? sender, RoutedEventArgs e)
         {
-            var warning = MessageBoxManager.GetMessageBoxStandard("This will completely reset all your overlay positions for all roles.\r\nIf so, click yes and restart Orbs","Are you sure?",ButtonEnum.YesNo);
+            var warning = MessageBoxManager.GetMessageBoxStandard("This will completely reset all your overlay positions for all roles.\r\nIf so, click yes and restart Orbs", "Are you sure?", ButtonEnum.YesNo);
             var result = await warning.ShowWindowDialogAsync(this);
-            if(result != ButtonResult.No)
+            if (result != ButtonResult.No)
             {
                 return;
             }
@@ -128,7 +128,7 @@ namespace SWTORCombatParser.Views.SettingsView
         private void ToggleHotkeyEnabled(object sender, RoutedEventArgs e)
         {
             var current = Settings.ReadSettingOfType<HotkeySettings>("Hotkeys");
-            if(((CheckBox)sender).Name == "RefreshEnabled")
+            if (((CheckBox)sender).Name == "RefreshEnabled")
                 current.HOTRefreshEnabled = !current.HOTRefreshEnabled;
             if (((CheckBox)sender).Name == "LockEnabled")
                 current.UILockEnabled = !current.UILockEnabled;

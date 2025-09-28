@@ -56,7 +56,7 @@ namespace SWTORCombatParser.Views.Battle_Review
             if (_previousIndex >= 0 && DataArea.SelectedIndex > _previousIndex)
             {
                 // Moving down: Ensure the selected item stays near the bottom of the viewport
-                offset = -1*(rowsInViewport / 2); // Center the selected item in the viewport
+                offset = -1 * (rowsInViewport / 2); // Center the selected item in the viewport
             }
             else
             {

@@ -146,7 +146,7 @@ namespace SWTORCombatParser.Model.Challenge
         public static void ClearBuiltInChallenges(int currentRev)
         {
             var currentDefaults = GetAllDefaults();
-            foreach(var challengeSource in currentDefaults)
+            foreach (var challengeSource in currentDefaults)
             {
                 challengeSource.Challenges.RemoveAll(challenge => challenge.BuiltInRev < currentRev && challenge.IsBuiltIn);
             }
@@ -213,7 +213,7 @@ namespace SWTORCombatParser.Model.Challenge
         }
         public static List<DefaultChallengeData> GetAllDefaults()
         {
-            lock(_fileLock)
+            lock (_fileLock)
             {
                 var stringInfo = File.ReadAllText(infoPath);
                 if (string.IsNullOrEmpty(stringInfo))
@@ -235,7 +235,7 @@ namespace SWTORCombatParser.Model.Challenge
         }
         private static void SaveResults(string source, DefaultChallengeData data)
         {
-            lock(_fileLock)
+            lock (_fileLock)
             {
                 var stringInfo = File.ReadAllText(infoPath);
                 var currentDefaults = JsonConvert.DeserializeObject<List<DefaultChallengeData>>(stringInfo);
@@ -269,7 +269,7 @@ namespace SWTORCombatParser.Model.Challenge
         }
         private static void UpdateConfig(string textToWrite)
         {
-            lock ( _fileLock)
+            lock (_fileLock)
             {
                 string tempFileName = infoPath + ".temp";
 

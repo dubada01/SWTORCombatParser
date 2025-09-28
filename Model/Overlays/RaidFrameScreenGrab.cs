@@ -30,14 +30,14 @@ namespace SWTORCombatParser.Model.Overlays
             CurrentCompressionFactor = Math.Min((300d / height), 1f);
             return Dispatcher.UIThread.Invoke(() =>
             {
-                SKBitmap bmp =  screenCapturer.CaptureScreenArea((int)topLeft.X, (int)topLeft.Y, width, height);
+                SKBitmap bmp = screenCapturer.CaptureScreenArea((int)topLeft.X, (int)topLeft.Y, width, height);
                 if (bmp == null || bmp.Width == 0 || bmp.Height == 0)
                 {
                     throw new Exception("Failed to capture screen area or invalid bitmap dimensions.");
                 }
                 RemoveOverlayNames(bmp, rowsCount);
                 return CompressByReducingPixelsToStream(bmp);
-                
+
             });
         }
 
@@ -72,7 +72,7 @@ namespace SWTORCombatParser.Model.Overlays
                     {
                         // Calculate the pixel's 1D index in the pixels array
                         int index = currentY * bmp.Width + x;
-                    
+
                         // Set the pixel to transparent
                         pixels[index] = SKColors.Transparent;
                     }

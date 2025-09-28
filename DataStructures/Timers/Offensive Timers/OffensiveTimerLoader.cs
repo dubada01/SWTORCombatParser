@@ -11,7 +11,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Offensive_Timers
     {
         public static void TryLoadOffensives()
         {
-            var timerToLoad = JsonConvert.DeserializeObject<JObject>(File.ReadAllText( Path.Combine(Environment.CurrentDirectory, @"DataStructures/Timers/Offensive Timers/timers.json")));
+            var timerToLoad = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, @"DataStructures/Timers/Offensive Timers/timers.json")));
             var timers = (timerToLoad["Timers"] as JArray).ToObject<List<Timer>>();
             List<Timer> copiedTimers = new List<Timer>();
             foreach (var timer in timers)

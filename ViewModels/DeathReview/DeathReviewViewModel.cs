@@ -86,7 +86,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             {
                 _deathLogsViewModel.SetViewableEntities(selectedParticipants.ToList());
             }
-            
+
             //_plotViewModel.Reset();
             //_plotViewModel.PlotCombat(_currentCombat, selectedParticipants, startTime);
         }

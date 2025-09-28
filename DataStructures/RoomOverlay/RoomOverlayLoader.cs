@@ -35,7 +35,7 @@ namespace SWTORCombatParser.DataStructures.RoomOverlay
                 settings.Add(nahut);
                 modified = true;
             }
-            if(modified)
+            if (modified)
                 File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settings));
             return settings;
         }

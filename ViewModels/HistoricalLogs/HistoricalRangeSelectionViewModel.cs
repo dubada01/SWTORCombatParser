@@ -11,7 +11,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {
-    public class HistoricalRangeSelectionViewModel :ReactiveObject
+    public class HistoricalRangeSelectionViewModel : ReactiveObject
     {
         private DateTime fromDate = DateTime.Today.AddDays(-1);
         private DateTime toDate = DateTime.Today;
@@ -53,7 +53,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
 
             }
         }
-        public ReactiveCommand<Unit,Unit> FetchHistoryBetweenDatesCommand => ReactiveCommand.Create(FetchHistoryBetweenDates);
+        public ReactiveCommand<Unit, Unit> FetchHistoryBetweenDatesCommand => ReactiveCommand.Create(FetchHistoryBetweenDates);
 
         private void FetchHistoryBetweenDates()
         {

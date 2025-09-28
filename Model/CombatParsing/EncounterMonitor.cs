@@ -26,7 +26,7 @@ public static class EncounterMonitor
         if (_currentEncounterInfo != null && encounterInfo.Combats.Any() && _currentEncounterInfo.Combats.First().StartTime == encounterInfo.Combats.First().StartTime)
             return;
         _currentEncounterInfo = encounterInfo;
-        if(encounterInfo.Combats.Any())
+        if (encounterInfo.Combats.Any())
             FireEncounterUpdated();
     }
 }

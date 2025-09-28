@@ -158,7 +158,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             if (type == Type)
                 this.RaisePropertyChanged(nameof(Type));
-            if(type == SecondaryType)
+            if (type == SecondaryType)
                 this.RaisePropertyChanged(nameof(SecondaryType));
         }
         private IDisposable _updateSub;
@@ -318,7 +318,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void RefreshBarViews(Combat combatToDisplay)
         {
             OverlayMetricInfo metricToUpdate;
-            
+
             if (combatToDisplay.CharacterParticipants.Count == 0)
                 return;
             foreach (var participant in combatToDisplay.CharacterParticipants)
@@ -333,7 +333,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 else
                 {
-                    metricToUpdate = new OverlayMetricInfo() { ClassIcon =  IconFactory.GetClassIcon(swtorClass.Discipline),Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
+                    metricToUpdate = new OverlayMetricInfo() { ClassIcon = IconFactory.GetClassIcon(swtorClass.Discipline), Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
                     _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
                 var primaryType = Type;
@@ -410,7 +410,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var originalType = type;
             if (type == OverlayType.DPS)
                 type = OverlayType.FluffDPS;
-            if(type == OverlayType.EHPS)
+            if (type == OverlayType.EHPS)
                 type = OverlayType.EHPSNoShielding;
             var value = MetricGetter.GetValueForMetric(type, obj, participant);
             metricToUpdate.Value = value;

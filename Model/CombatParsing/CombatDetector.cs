@@ -25,7 +25,7 @@ namespace SWTORCombatParser.Model.CombatParsing
     {
         private List<long> _bossesKilledThisCombat = new List<long>();
         private List<long> _bossesSeenThisCombat = new List<long>();
-        private List<ulong> _combatResNames = new List<ulong> { 812826855735296, 808287075303424, 807217628446720, 814875555135488, 2940764107571200, 2940854301884416};
+        private List<ulong> _combatResNames = new List<ulong> { 812826855735296, 808287075303424, 807217628446720, 814875555135488, 2940764107571200, 2940854301884416 };
         private ulong _boonOfSpiritId = 3502674678906880;
         private bool _bossCombat;
         private BossInfo _currentBossInfo;
@@ -166,7 +166,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (line.Effect.EffectId == _7_0LogParsing.ExitCombatId && InCombat)
             {
-                ExitCombatDetected(line, isRealTime, _bossCombat ? 3:0.5);
+                ExitCombatDetected(line, isRealTime, _bossCombat ? 3 : 0.5);
             }
             if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && InCombat)
             {
@@ -174,7 +174,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 if (bossKilled)
                 {
                     _bossesKilledThisCombat.Add(line.Target.LogId);
-                    if (_currentBossInfo.TargetsRequiredForKill.All(n => _bossesKilledThisCombat.Contains(n)) || (_currentBossInfo.IsOpenWorld && _currentBossInfo.TargetIds.Any(t=>t == line.Target.LogId)))
+                    if (_currentBossInfo.TargetsRequiredForKill.All(n => _bossesKilledThisCombat.Contains(n)) || (_currentBossInfo.IsOpenWorld && _currentBossInfo.TargetIds.Any(t => t == line.Target.LogId)))
                     {
                         return EndCombat();
                     }
@@ -206,7 +206,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             {
                 _checkLogsForTimtout = true;
                 _timeoutTimer.Interval = TimeSpan.FromSeconds(timeOutSec).TotalMilliseconds;
-                _timeoutTimer.Elapsed += (s,a) => ExitCombatTimedOut(isRealTime);
+                _timeoutTimer.Elapsed += (s, a) => ExitCombatTimedOut(isRealTime);
                 _timeoutTimer.AutoReset = false;
                 _timeoutTimer.Start();
             }
@@ -232,7 +232,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             _timeoutTimer.Stop();
             InCombat = false;
             Reset();
-            AlertExitCombatTimedOut.InvokeSafely(CombatState.ExitCombatDelayTimedOut,realtime);
+            AlertExitCombatTimedOut.InvokeSafely(CombatState.ExitCombatDelayTimedOut, realtime);
         }
 
         private CombatState EndCombat()

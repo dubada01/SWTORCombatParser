@@ -83,16 +83,16 @@ namespace SWTORCombatParser.Model.LogParsing
             ReadOnlySpan<char> secondPartSpan = (lastBracketIndex >= 0 && lastBracketIndex + 1 < logEntry.Length)
                 ? logEntry.Slice(lastBracketIndex + 1)
                 : ReadOnlySpan<char>.Empty;
-            
+
             // Regex still requires string, so convert only the small tail section
             string secondPart = secondPartSpan.ToString();
-            
+
             var value = valueRegex.Match(secondPart);
             var threat = threatRegex.Matches(secondPart);
 
             if (logEntryInfos.Count < 5)
                 return new ParsedLogEntry() { LogBytes = _fileEncoding.GetByteCount(logEntry), Error = ErrorType.IncompleteLine };
-            
+
             var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat[0].Value, previousLogTime);
             parsedLine.LogBytes = _fileEncoding.GetByteCount(logEntry);
             parsedLine.LogLineNumber = lineIndex;
@@ -136,9 +136,9 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             newEntry.Value = ParseValues(value, newEntry.Effect);
 
-            if(newEntry.Effect.EffectType != EffectType.AreaEntered)
-                newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : double.Parse(threat.Replace("<", "").Replace(">", ""), CultureInfo.InvariantCulture); 
-            
+            if (newEntry.Effect.EffectType != EffectType.AreaEntered)
+                newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : double.Parse(threat.Replace("<", "").Replace(">", ""), CultureInfo.InvariantCulture);
+
             if (newEntry.Effect.EffectType == EffectType.ModifyThreat)
             {
                 newEntry.Value.DisplayValue = _interner.Intern(newEntry.Threat.ToString(CultureInfo.InvariantCulture));
@@ -471,7 +471,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             catch (Exception ex)
             {
-                Logging.LogError("Failed to properly parse value: "+damageValueString);
+                Logging.LogError("Failed to properly parse value: " + damageValueString);
                 return new Value();
             }
         }
@@ -707,100 +707,100 @@ namespace SWTORCombatParser.Model.LogParsing
             return ulong.TryParse(value.Substring(braceStart + 1, braceEnd - braceStart - 1).Trim(), out var ability) ? ability : 0;
         }
         private static Effect ParseEffect(ReadOnlySpan<char> value)
-{
-    // Find the first and second colons
-    int firstColon = value.IndexOf(':');
-    if (firstColon < 0)
-        return null;
-
-    int secondColon = value.Slice(firstColon + 1).IndexOf(':');
-    ReadOnlySpan<char> typeSpan, nameSpan;
-
-    if (secondColon < 0)
-    {
-        typeSpan = value.Slice(0, firstColon);
-        nameSpan = value.Slice(firstColon + 1);
-    }
-    else
-    {
-        secondColon += firstColon + 1;
-        typeSpan = value.Slice(0, firstColon);
-        var namePart1 = value.Slice(firstColon + 1, secondColon - firstColon - 1);
-        var namePart2 = value.Slice(secondColon + 1);
-        nameSpan = string.Concat(namePart1, namePart2);
-    }
-
-    // Extract type ID from inside braces
-    var braceStart = typeSpan.IndexOf('{');
-    var braceEnd = typeSpan.IndexOf('}');
-    ReadOnlySpan<char> typeId = (braceStart >= 0 && braceEnd > braceStart)
-        ? typeSpan.Slice(braceStart + 1, braceEnd - braceStart - 1).Trim()
-        : default;
-
-    var effectType = GetEffectTypeById(typeId);
-
-    var newEffect = new Effect { EffectType = effectType };
-
-    // Split nameSpan on `{`
-    int nameBrace1 = nameSpan.IndexOf('{');
-    int nameBrace2 = nameSpan.Slice(nameBrace1 + 1).IndexOf('{');
-    nameBrace2 = nameBrace2 >= 0 ? nameBrace2 + nameBrace1 + 1 : -1;
-
-    ReadOnlySpan<char> namePart = nameSpan.Slice(0, nameBrace1).Trim();
-    ReadOnlySpan<char> effectId = ReadOnlySpan<char>.Empty;
-    ReadOnlySpan<char> secondId = ReadOnlySpan<char>.Empty;
-    ReadOnlySpan<char> difficulty = ReadOnlySpan<char>.Empty;
-
-    if (nameBrace1 >= 0)
-    {
-        var afterBrace = nameSpan.Slice(nameBrace1 + 1);
-        int endBrace = afterBrace.IndexOf('}');
-        if (endBrace >= 0)
         {
-            effectId = afterBrace.Slice(0, endBrace).Trim();
-            var afterId = afterBrace.Slice(endBrace + 1).Trim();
-            if (effectType == EffectType.AreaEntered)
+            // Find the first and second colons
+            int firstColon = value.IndexOf(':');
+            if (firstColon < 0)
+                return null;
+
+            int secondColon = value.Slice(firstColon + 1).IndexOf(':');
+            ReadOnlySpan<char> typeSpan, nameSpan;
+
+            if (secondColon < 0)
             {
-                difficulty = afterId;
+                typeSpan = value.Slice(0, firstColon);
+                nameSpan = value.Slice(firstColon + 1);
+            }
+            else
+            {
+                secondColon += firstColon + 1;
+                typeSpan = value.Slice(0, firstColon);
+                var namePart1 = value.Slice(firstColon + 1, secondColon - firstColon - 1);
+                var namePart2 = value.Slice(secondColon + 1);
+                nameSpan = string.Concat(namePart1, namePart2);
             }
 
-            if (nameBrace2 > 0)
+            // Extract type ID from inside braces
+            var braceStart = typeSpan.IndexOf('{');
+            var braceEnd = typeSpan.IndexOf('}');
+            ReadOnlySpan<char> typeId = (braceStart >= 0 && braceEnd > braceStart)
+                ? typeSpan.Slice(braceStart + 1, braceEnd - braceStart - 1).Trim()
+                : default;
+
+            var effectType = GetEffectTypeById(typeId);
+
+            var newEffect = new Effect { EffectType = effectType };
+
+            // Split nameSpan on `{`
+            int nameBrace1 = nameSpan.IndexOf('{');
+            int nameBrace2 = nameSpan.Slice(nameBrace1 + 1).IndexOf('{');
+            nameBrace2 = nameBrace2 >= 0 ? nameBrace2 + nameBrace1 + 1 : -1;
+
+            ReadOnlySpan<char> namePart = nameSpan.Slice(0, nameBrace1).Trim();
+            ReadOnlySpan<char> effectId = ReadOnlySpan<char>.Empty;
+            ReadOnlySpan<char> secondId = ReadOnlySpan<char>.Empty;
+            ReadOnlySpan<char> difficulty = ReadOnlySpan<char>.Empty;
+
+            if (nameBrace1 >= 0)
             {
-                var second = nameSpan.Slice(nameBrace2 + 1);
-                int secondEndBrace = second.IndexOf('}');
-                if (secondEndBrace > 0)
-                    secondId = second.Slice(0, secondEndBrace);
+                var afterBrace = nameSpan.Slice(nameBrace1 + 1);
+                int endBrace = afterBrace.IndexOf('}');
+                if (endBrace >= 0)
+                {
+                    effectId = afterBrace.Slice(0, endBrace).Trim();
+                    var afterId = afterBrace.Slice(endBrace + 1).Trim();
+                    if (effectType == EffectType.AreaEntered)
+                    {
+                        difficulty = afterId;
+                    }
+
+                    if (nameBrace2 > 0)
+                    {
+                        var second = nameSpan.Slice(nameBrace2 + 1);
+                        int secondEndBrace = second.IndexOf('}');
+                        if (secondEndBrace > 0)
+                            secondId = second.Slice(0, secondEndBrace);
+                    }
+                }
             }
+            newEffect.EffectId = ulong.TryParse(effectId, out var parsedEffect) ? parsedEffect : 0;
+            switch (effectType)
+            {
+                case EffectType.DisciplineChanged:
+                    newEffect.EffectName = _interner.Intern(nameSpan.ToString());
+                    break;
+
+                case EffectType.AreaEntered:
+                    newEffect.EffectName = _interner.Intern($"{namePart.ToString()} {difficulty.ToString()}");
+                    newEffect.SecondEffectId = secondId.IsEmpty ? 0 : ulong.TryParse(secondId, out var secondParsedEffect) ? secondParsedEffect : 0;
+                    break;
+
+                default:
+                    newEffect.EffectName = _interner.Intern(namePart.ToString());
+                    break;
+            }
+
+            if (effectType == EffectType.Event)
+            {
+                if (newEffect.EffectId == TargetSetId || newEffect.EffectId == TargetClearedId)
+                    newEffect.EffectType = EffectType.TargetChanged;
+
+                if (newEffect.EffectId == ModifyThreatId || newEffect.EffectId == TauntId)
+                    newEffect.EffectType = EffectType.ModifyThreat;
+            }
+
+            return newEffect;
         }
-    }
-    newEffect.EffectId = ulong.TryParse(effectId, out var parsedEffect) ? parsedEffect : 0;
-    switch (effectType)
-    {
-        case EffectType.DisciplineChanged:
-            newEffect.EffectName = _interner.Intern(nameSpan.ToString());
-            break;
-
-        case EffectType.AreaEntered:
-            newEffect.EffectName = _interner.Intern($"{namePart.ToString()} {difficulty.ToString()}");
-            newEffect.SecondEffectId = secondId.IsEmpty ? 0 : ulong.TryParse(secondId, out var secondParsedEffect) ? secondParsedEffect : 0;
-            break;
-
-        default:
-            newEffect.EffectName = _interner.Intern(namePart.ToString());
-            break;
-    }
-
-    if (effectType == EffectType.Event)
-    {
-        if (newEffect.EffectId == TargetSetId || newEffect.EffectId == TargetClearedId)
-            newEffect.EffectType = EffectType.TargetChanged;
-
-        if (newEffect.EffectId == ModifyThreatId || newEffect.EffectId == TauntId)
-            newEffect.EffectType = EffectType.ModifyThreat;
-    }
-
-    return newEffect;
-}
 
         private static DamageType GetValueTypeById(long val)
         {

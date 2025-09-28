@@ -393,7 +393,7 @@ public static class MetricGetter
             case OverlayType.EHPSNoShielding:
                 value = combat.EHPS[participant];
                 break;
-            
+
         }
 
         return value;

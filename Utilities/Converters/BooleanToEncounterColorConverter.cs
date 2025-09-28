@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Utilities.Converters
             EncounterInfo encounter = (EncounterInfo)value;
             if (encounter.IsBossEncounter)
                 return new SolidColorBrush(Colors.DarkGoldenrod);
-            if(encounter.IsPvpEncounter)
+            if (encounter.IsPvpEncounter)
                 return new SolidColorBrush(Colors.OrangeRed);
             return new SolidColorBrush(Colors.Gray);
         }

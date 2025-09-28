@@ -58,12 +58,12 @@ namespace SWTORCombatParser.Model.Overlays
         }
         private static void SaveDefaults(Dictionary<string, OverlayInfo> data)
         {
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(data,_settings));
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(data, _settings));
         }
         private static void InitDefaults(string type)
         {
             var currentDefaults = ReadDefaultsFromFile();
-            currentDefaults[type] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point(250,100), Acive = false };
+            currentDefaults[type] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point(250, 100), Acive = false };
             SaveDefaults(currentDefaults);
         }
         private static Dictionary<string, OverlayInfo> ReadDefaultsFromFile()

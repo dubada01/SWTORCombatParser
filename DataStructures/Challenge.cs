@@ -31,10 +31,10 @@ namespace SWTORCombatParser.DataStructures
         {
             // Deserialize the color from a hex string
             var colorString = (string)reader.Value;
-            if(colorString == null)
+            if (colorString == null)
                 return Dispatcher.UIThread.Invoke(() => new SolidColorBrush(Colors.White));
             var color = Color.Parse(colorString);
-            var colorBrush =  Dispatcher.UIThread.Invoke(() => new SolidColorBrush(color));
+            var colorBrush = Dispatcher.UIThread.Invoke(() => new SolidColorBrush(color));
             return colorBrush;
         }
     }
@@ -56,9 +56,9 @@ namespace SWTORCombatParser.DataStructures
             {
                 var returnBrush = Dispatcher.UIThread.Invoke(() =>
                 {
-                    if(backgroundBrush != null)
+                    if (backgroundBrush != null)
                         return backgroundBrush;
-                    var splitColor = BackgroundColor.Split(',').Select(v=>byte.Parse(v.Trim())).ToList();
+                    var splitColor = BackgroundColor.Split(',').Select(v => byte.Parse(v.Trim())).ToList();
                     return new SolidColorBrush(Color.FromRgb(splitColor[0], splitColor[1], splitColor[2]));
                 });
                 return returnBrush;

@@ -28,7 +28,7 @@ namespace SWTORCombatParser.Utilities
             listOfEncounters.AddRange(lairs);
             listOfEncounters.Add(new EncounterInfo { Name = "--Flashpoints--" });
             listOfEncounters.AddRange(flashpoints);
-            listOfEncounters.Add(new EncounterInfo { Name = "--Open World--"});
+            listOfEncounters.Add(new EncounterInfo { Name = "--Open World--" });
             listOfEncounters.Add(encounters.First(e => e.Name == "Open World"));
             return listOfEncounters;
         }
@@ -72,7 +72,7 @@ namespace SWTORCombatParser.Utilities
             var encounterSelected = encounters.FirstOrDefault(e => e.Name == encounter);
             var rawBossNamesForFight = encounterSelected.BossNames.FirstOrDefault(bn =>
                 bn.Contains("~?~") ? bn.Split("~?~")[0] == bossFight : bn == bossFight);
-            if(rawBossNamesForFight
+            if (rawBossNamesForFight
                 == null) return new List<string>();
             if (rawBossNamesForFight.Contains("~?~"))
             {

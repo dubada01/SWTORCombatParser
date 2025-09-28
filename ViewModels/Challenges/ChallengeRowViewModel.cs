@@ -9,7 +9,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeRowViewModel:ReactiveObject
+    public class ChallengeRowViewModel : ReactiveObject
     {
         private bool _isEnabled;
         private SolidColorBrush _rowBackground;
@@ -43,17 +43,17 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         public SolidColorBrush ChallengeBackground => SourceChallenge.BackgroundBrush;
 
-        public ReactiveCommand<object,Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
+        public ReactiveCommand<object, Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
         private void Edit(object t)
         {
             EditRequested(this);
         }
-        public ReactiveCommand<object,Unit> ShareCommand => ReactiveCommand.Create<object>(Share);
+        public ReactiveCommand<object, Unit> ShareCommand => ReactiveCommand.Create<object>(Share);
         private void Share(object t)
         {
             ShareRequested(this);
         }
-        public ReactiveCommand<object,Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
+        public ReactiveCommand<object, Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
         private void Delete(object t)
         {
             DeleteRequested(this);

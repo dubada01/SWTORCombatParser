@@ -113,7 +113,7 @@ namespace SWTORCombatParser.Model.Timers
         public static void AddSources(List<DefaultTimersData> sources)
         {
             var defaults = GetAllDefaults();
-            foreach(var source in sources)
+            foreach (var source in sources)
             {
                 if (source.TimerSource == "")
                     return;

@@ -77,9 +77,9 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 IOrderedEnumerable<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l => l.Ability == abilityName && (l.Source.LogId == objSource.LogId || objSource.IsCharacter)).OrderBy(l => l.TimeStamp);
                 if (applicableData == null || !applicableData.Any())
                     continue;
-                var minTime = applicableData.MinBy(b=>b.TimeStamp).TimeStamp;
-                var maxTime = applicableData.MaxBy(b=>b.TimeStamp).TimeStamp;
-                List<ParsedLogEntry> hpData = GetCorrectData(PlotType.HPPercent, combatToPlot, entity).Where(l=>l.TimeStamp >= minTime.AddSeconds(-5) && l.TimeStamp <= maxTime.AddSeconds(5)).OrderBy(l => l.TimeStamp).ToList();
+                var minTime = applicableData.MinBy(b => b.TimeStamp).TimeStamp;
+                var maxTime = applicableData.MaxBy(b => b.TimeStamp).TimeStamp;
+                List<ParsedLogEntry> hpData = GetCorrectData(PlotType.HPPercent, combatToPlot, entity).Where(l => l.TimeStamp >= minTime.AddSeconds(-5) && l.TimeStamp <= maxTime.AddSeconds(5)).OrderBy(l => l.TimeStamp).ToList();
 
                 if (applicableData == null || !applicableData.Any())
                     continue;
@@ -121,13 +121,13 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 {
                     foreach (var marker in deathMarkers)
                     {
-                        GraphView.Plot.Add.ImageMarker(new Coordinates(marker,GraphView.Plot.Axes.GetLimits().Top/5),new Image(_skullImage),0.03f);;
+                        GraphView.Plot.Add.ImageMarker(new Coordinates(marker, GraphView.Plot.Axes.GetLimits().Top / 5), new Image(_skullImage), 0.03f); ;
                     }
                 }
             }
             GraphView.Plot.Axes.AutoScale();
             GraphView.Plot.Axes.SetLimits(bottom: 0);
-            GraphView.Plot.Axes.SetLimitsY(new AxisLimits(0,0,0,1),GraphView.Plot.Axes.Right);
+            GraphView.Plot.Axes.SetLimitsY(new AxisLimits(0, 0, 0, 1), GraphView.Plot.Axes.Right);
             Dispatcher.UIThread.Invoke(GraphView.Refresh);
         }
 

@@ -41,7 +41,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             get => selectedOrdering; set
             {
                 selectedOrdering = value;
-                
+
                 DamageVM.SortingOption = selectedOrdering;
                 DamageTakenVM.SortingOption = selectedOrdering;
                 HealingVM.SortingOption = selectedOrdering;

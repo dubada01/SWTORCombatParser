@@ -67,9 +67,17 @@ public static class Settings
         if (!settingList.ContainsKey(settingName) && settingName == "combat_logs_path")
             settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic/CombatLogs");
         if (!settingList.ContainsKey(settingName) && settingName == "Hotkeys")
-            settingList[settingName] = JToken.FromObject(new HotkeySettings {
-                HOTRefreshEnabled = true, HOTRefreshHotkeyMod1 = 2,  HOTRefreshHotkeyMod2 = 1, HOTRefreshHotkeyStroke = 0x52,
-                UILockEnabled = true, UILockHotkeyMod1 = 2, UILockHotkeyMod2 = 1, UILockHotkeyStroke = 0x4c});
+            settingList[settingName] = JToken.FromObject(new HotkeySettings
+            {
+                HOTRefreshEnabled = true,
+                HOTRefreshHotkeyMod1 = 2,
+                HOTRefreshHotkeyMod2 = 1,
+                HOTRefreshHotkeyStroke = 0x52,
+                UILockEnabled = true,
+                UILockHotkeyMod1 = 2,
+                UILockHotkeyMod2 = 1,
+                UILockHotkeyStroke = 0x4c
+            });
         if (settingList.TryGetValue(settingName, out var settingValue))
         {
             try

@@ -13,7 +13,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
-    public class RaidHotsConfigViewModel :ReactiveObject
+    public class RaidHotsConfigViewModel : ReactiveObject
     {
         private string raidFrameRows = "4";
         private string raidFrameColumns = "2";
@@ -31,8 +31,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             RaidFrameOverlayManager.Init();
             HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
-            _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame") { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Editable = _isRaidFrameEditable};
-            _currentOverlayViewModel.CloseRequested += ()=> RaidHotsEnabled = false;
+            _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame") { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Editable = _isRaidFrameEditable };
+            _currentOverlayViewModel.CloseRequested += () => RaidHotsEnabled = false;
             raidHotsEnabled = _currentOverlayViewModel.Active;
             CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
             {
@@ -67,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
         }
 
-        public ReactiveCommand<Unit,Unit> ManuallyRefreshPlayersCommand => ReactiveCommand.Create(AutoDetection);
+        public ReactiveCommand<Unit, Unit> ManuallyRefreshPlayersCommand => ReactiveCommand.Create(AutoDetection);
         public bool RaidFrameEditable => _isRaidFrameEditable;
         public string ToggleEditText
         {
@@ -83,7 +83,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 if (value.Any(v => !char.IsDigit(v)))
                     return;
-                this.RaiseAndSetIfChanged(ref raidFrameRows,value);
+                this.RaiseAndSetIfChanged(ref raidFrameRows, value);
                 if (raidFrameRows == "")
                     return;
                 _currentOverlayViewModel.Rows = int.Parse(RaidFrameRows);
@@ -159,7 +159,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(_currentOverlayViewModel.OverlayPosition,
                     (int)_currentOverlayViewModel.OverlayScaledSize.X, (int)_currentOverlayViewModel.OverlayScaledSize.Y, _currentOverlayViewModel.Rows);
                 var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.OverlayPosition,
-                    raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns,(int)_currentOverlayViewModel.OverlayScaledSize.Y, (int)_currentOverlayViewModel.OverlayScaledSize.X).Result;
+                    raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, (int)_currentOverlayViewModel.OverlayScaledSize.Y, (int)_currentOverlayViewModel.OverlayScaledSize.X).Result;
                 raidFrameBitmap.Dispose();
                 Dispatcher.UIThread.Invoke(() =>
                 {

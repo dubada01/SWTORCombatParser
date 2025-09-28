@@ -69,7 +69,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public string TargetAddendem { get; set; }
         public long TargetId { get; set; }
         public string TimerName => GetTimerName();
-        
+
         public double MaxTimerValue
         {
             get => _maxTimerValue;
@@ -86,11 +86,11 @@ namespace SWTORCombatParser.ViewModels.Timers
         public SolidColorBrush TimerForeground => new SolidColorBrush(TimerColor);
         public bool _isAboutToExpire = false;
 
-        private static SolidColorBrush _defaultTimerBackground = Dispatcher.UIThread.Invoke(() => { return new SolidColorBrush(Colors.WhiteSmoke);}); 
-        private static SolidColorBrush _aboutToExpireBackground = Dispatcher.UIThread.Invoke(() => { return new SolidColorBrush(Colors.OrangeRed);}); 
+        private static SolidColorBrush _defaultTimerBackground = Dispatcher.UIThread.Invoke(() => { return new SolidColorBrush(Colors.WhiteSmoke); });
+        private static SolidColorBrush _aboutToExpireBackground = Dispatcher.UIThread.Invoke(() => { return new SolidColorBrush(Colors.OrangeRed); });
         public SolidColorBrush TimerBackground { get; set; } = _defaultTimerBackground;
 
-        
+
         //TODO add this to settings config so that it is loaded each time a timer is created
         public bool ShowIcon { get; set; }
         private Bitmap? _infoIcon;
@@ -110,7 +110,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                     return await IconGetter.GetIconForId(parsedEffect);
                 }
 
-                if (!string.IsNullOrEmpty(SourceTimer.Ability) && ulong.TryParse(SourceTimer.Ability, out var parsedAbility) &&IconGetter.HasIcon(parsedAbility))
+                if (!string.IsNullOrEmpty(SourceTimer.Ability) && ulong.TryParse(SourceTimer.Ability, out var parsedAbility) && IconGetter.HasIcon(parsedAbility))
                 {
                     return await IconGetter.GetIconForId(parsedAbility);
                 }
@@ -212,7 +212,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 }
                 catch (Exception ex)
                 {
-                    Logging.LogError("Failed to open audio file for timer at: "+_audioPath);
+                    Logging.LogError("Failed to open audio file for timer at: " + _audioPath);
                 }
 
             }
@@ -223,7 +223,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             this.RaisePropertyChanged(nameof(CurrentRatio));
 
             _updateIntervalMs = !swtorTimer.IsAlert ? 100 : 3000;
-            
+
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
                 await LoadInfoIconAsync();
@@ -294,13 +294,13 @@ namespace SWTORCombatParser.ViewModels.Timers
                 DisplayTimerValue = true;
 
                 var offset = (TimeUtility.CorrectedTime - timeStampWhenTriggered).TotalSeconds * -1;
-                TimerValue    = MaxTimerValue + offset;
+                TimerValue = MaxTimerValue + offset;
                 _lastUpdateTime = TimeUtility.CorrectedTime;
 
                 this.RaisePropertyChanged(nameof(CurrentRatio));
                 this.RaisePropertyChanged(nameof(TimerValue));
 
-                isActive    = true;
+                isActive = true;
                 TimerStarted();
 
                 // start the tick loop
@@ -323,9 +323,9 @@ namespace SWTORCombatParser.ViewModels.Timers
                     });
                 }
 
-                DisplayTimer      = true;
+                DisplayTimer = true;
                 DisplayTimerValue = false;
-                isActive          = true;
+                isActive = true;
 
                 // single‐shot completion after one interval
                 Dispatcher.UIThread.InvokeAsync(async () =>
@@ -393,14 +393,14 @@ namespace SWTORCombatParser.ViewModels.Timers
                 Dispatcher.UIThread.Invoke(() =>
                 {
 #if WINDOWS
-                        _mediaPlayer.Play();
+                    _mediaPlayer.Play();
 #endif
 #if MACOS
                     Bass.ChannelPlay(stream,false);
 #endif
                 });
             }
-            if(SourceTimer.ChangeBackgroundNearExpiration && TimerValue <= 5 && !_isAboutToExpire)
+            if (SourceTimer.ChangeBackgroundNearExpiration && TimerValue <= 5 && !_isAboutToExpire)
             {
                 Dispatcher.UIThread.Invoke(() =>
                 {
