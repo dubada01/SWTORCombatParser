@@ -20,7 +20,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public ThreatTableOverlayViewModel _threatTableOverlayViewModel;
         public BossFrameSetup BossFrameView { get; set; }
         public RoomSetup RoomOverlaySetup { get; set; }
-        public PvpOverlaySetup PvpOverlays { get; set; }
+        public PvpOverlaySetupView PvpOverlays { get; set; }
         public RaidHOTsSteup RaidHotsConfig { get; set; }
         public OthersOverlaySetupViewModel()
         {
@@ -36,7 +36,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _raidHotsConfigViewModel = new RaidHotsConfigViewModel();
             RaidHotsConfig.DataContext = _raidHotsConfigViewModel;
 
-            PvpOverlays = new PvpOverlaySetup();
+            PvpOverlays = new PvpOverlaySetupView();
             _PvpOverlaysConfigViewModel = new AllPvPOverlaysViewModel();
             PvpOverlays.DataContext = _PvpOverlaysConfigViewModel;
 
