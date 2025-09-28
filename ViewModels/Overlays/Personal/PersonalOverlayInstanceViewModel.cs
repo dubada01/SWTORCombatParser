@@ -109,7 +109,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         public string MetricValue => SelectedMetric != OverlayType.CombatTimer ? metricValue.ToString("N0") : $"{((int)CombatDuration.TotalMinutes == 0 ? "" : (int)CombatDuration.TotalMinutes + "m")} {CombatDuration.Seconds}s";
         public TimeSpan CombatDuration { get; set; }
 
-        public PersonalOverlayInstanceViewModel(bool currentlyUnlocked, double scalar, CellInfo overlay = null)
+        public PersonalOverlayInstanceViewModel(bool currentlyUnlocked, double scalar, CellInfo? overlay = null)
         {
             currentScale = scalar;
             OverlayUnlocked = currentlyUnlocked;
@@ -191,7 +191,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

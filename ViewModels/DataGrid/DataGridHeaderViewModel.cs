@@ -78,7 +78,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             RequestRemoveHeader(this);
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

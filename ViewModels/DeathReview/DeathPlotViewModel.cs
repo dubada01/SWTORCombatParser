@@ -30,7 +30,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         private Crosshair _crossHair;
         private SKBitmap _skullImage;
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

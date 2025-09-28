@@ -85,7 +85,7 @@ namespace SWTORCombatParser.Utilities.Encounter_Selection
         {
             return (selectedEncounter.Name, selectedBoss);
         }
-        public EncounterSelectionViewModel(bool showPlayerCount = true, List<string> populatedEncounters = null)
+        public EncounterSelectionViewModel(bool showPlayerCount = true, List<string>? populatedEncounters = null)
         {
             _populatedEncounters = populatedEncounters ?? new List<string>();
             ShowPlayerCount = showPlayerCount;

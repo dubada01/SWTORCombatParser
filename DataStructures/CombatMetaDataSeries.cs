@@ -30,7 +30,7 @@ namespace SWTORCombatParser.DataStructures
         public string Name;
 
         public Color Color;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

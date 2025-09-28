@@ -29,13 +29,13 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static object _updateLock = new object();
         private static object _getLock = new object();
         public static LeaderboardType CurrentLeaderboardType;
-        public static event Action<Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>> LeaderboardStandingsAvailable = delegate { };
+        public static event Action<Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?>> LeaderboardStandingsAvailable = delegate { };
         public static event Action<Dictionary<LeaderboardEntryType, (string, double)>> TopLeaderboardEntriesAvailable = delegate { };
         public static event Action<LeaderboardType> LeaderboardTypeChanged = delegate { };
 
         public static ConcurrentDictionary<LeaderboardEntryType, int[]> LeaderboardPercentiles = new ConcurrentDictionary<LeaderboardEntryType, int[]>();
         public static ConcurrentDictionary<LeaderboardEntryType, (string, double)> TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
-        public static Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
+        public static Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?> LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?>();
         public static Combat CurrentCombat;
 
         private static double _maxParseValue = 500000;
@@ -113,7 +113,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             lock (_updateLock)
             {
-                LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
+                LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?>();
                 if (CurrentLeaderboardType == LeaderboardType.Off)
                 {
                     LeaderboardStandingsAvailable.InvokeSafely(LeaderboardStandings);
@@ -209,7 +209,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 LeaderboardPercentiles = new ConcurrentDictionary<LeaderboardEntryType, int[]>();
                 TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
-                LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
+                LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?>();
             }
         }
 
@@ -223,7 +223,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 {
                     var newValue = GetValueForLeaderboardEntry(enumVal, combat, player);
 
-                    SWTORClass playerClass;
+                    SWTORClass? playerClass;
                     if (!CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(player))
                     {
                         playerClass = null;

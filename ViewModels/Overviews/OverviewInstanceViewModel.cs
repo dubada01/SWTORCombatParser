@@ -6,7 +6,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
     public abstract class OverviewInstanceViewModel : ReactiveObject
     {
         internal OverviewDataType _type;
-        internal Entity _selectedEntity;
+        internal Entity? _selectedEntity;
         public abstract SortingOption SortingOption { get; set; }
         public OverviewInstanceViewModel(OverviewDataType type)
         {
@@ -17,7 +17,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             _selectedEntity = selectedEntity;
             UpdateParticipant();
         }
-        public Combat SelectedCombat { get; set; }
+        public Combat? SelectedCombat { get; set; }
         public abstract void UpdateData(Combat combat);
 
         internal abstract void UpdateParticipant();

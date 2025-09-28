@@ -437,7 +437,7 @@ namespace SWTORCombatParser.Model.LogParsing
             }
         }
 
-        private void EndCombat(bool isRealTime, ParsedLogEntry parsedLine = null)
+        private void EndCombat(bool isRealTime, ParsedLogEntry? parsedLine = null)
         {
             Logging.LogInfo("Parsing... Ending combat");
             if (!_isInCombat)

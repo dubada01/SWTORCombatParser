@@ -19,12 +19,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private SolidColorBrush _oddRow = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
         private string valueStringFormat = "#,##0";
         private string floatValueString = "0.00";
-        public Entity _entity;
+        public Entity? _entity;
         private Combat? _info;
         private SWTORClass _playerClass;
         private readonly OverlayTypeToReadableNameConverter _nameConverter;
 
-        public MemberInfoViewModel(int order, Entity e, Combat info, List<OverlayType> selectedColumns)
+        public MemberInfoViewModel(int order, Entity? e, Combat info, List<OverlayType> selectedColumns)
         {
             _nameConverter = new OverlayTypeToReadableNameConverter();
             _info = info;

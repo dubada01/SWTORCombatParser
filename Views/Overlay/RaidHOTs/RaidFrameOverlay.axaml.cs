@@ -18,7 +18,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
     /// </summary>
     public partial class RaidFrameOverlay : UserControl
     {
-        private MouseHookHandler _mouseHookHandler;
+        private MouseHookHandler? _mouseHookHandler;
         private bool _inCombat;
         private bool _isSubscribed;
         public bool _manuallyEditing = false;

@@ -112,7 +112,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         }
         public ChallengeType Type { get; set; }
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

@@ -23,7 +23,7 @@ namespace SWTORCombatParser.Model.Timers
         private bool historicalParseEnded;
         private bool _singleUseTriggerUsed;
         private List<long> _alreadyDetectedEntities = new List<long>();
-        private AbsorbShieldManager _absorbShieldManager;
+        private AbsorbShieldManager? _absorbShieldManager;
         private TimerInstance expirationTimer;
         private TimerInstance cancelTimer;
         private IDisposable _expirationSub;

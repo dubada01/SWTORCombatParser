@@ -36,11 +36,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
         private List<CombatMetaDataSeries> _seriesToPlot = new List<CombatMetaDataSeries>();
-        private Combat _currentCombat = new Combat();
+        private Combat? _currentCombat = new Combat();
         private CombatEfffectViewModel _combatMetaDataViewModel;
         private ParticipantSelectionViewModel _participantsViewModel;
         private object graphLock = new object();
-        private Entity _selectedParticipant;
+        private Entity? _selectedParticipant;
         private string averageWindowDuration = "10";
         private double _averageWindowDurationDouble = 10;
         private AvaPlot GraphView;

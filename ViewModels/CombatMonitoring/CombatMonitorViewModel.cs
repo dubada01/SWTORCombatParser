@@ -60,7 +60,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
             }
         }
         public ObservableCollection<EncounterCombat> PastEncounters { get; set; } = new ObservableCollection<EncounterCombat>();
-        public EncounterCombat CurrentEncounter;
+        public EncounterCombat? CurrentEncounter;
 
         public double CurrentLogOffsetMs
         {
@@ -501,7 +501,7 @@ namespace SWTORCombatParser.ViewModels.CombatMonitoring
                     break;
             }
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

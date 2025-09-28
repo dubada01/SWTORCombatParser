@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private DispatcherTimer _dTimer;
         private bool _isTriggered;
         private DateTime _lastUpdate;
-        private Combat _mostRecentCombat;
+        private Combat? _mostRecentCombat;
         private Dictionary<string, double> _currentHps = new Dictionary<string, double>();
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
         private object _combatUpdateLock = new object();

@@ -8,7 +8,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
 {
     public class DeathChallengeViewModel : INotifyPropertyChanged
     {
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

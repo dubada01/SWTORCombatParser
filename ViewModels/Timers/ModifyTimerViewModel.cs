@@ -311,7 +311,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public ReactiveCommand<object, Unit> SaveSourceCommand => ReactiveCommand.Create<object>(SaveSource);
 
-        internal void SaveSource(object obj = null)
+        internal void SaveSource(object? obj = null)
         {
             addedCustomSources.Add(CustomSource);
             AvailableSources.Add(CustomSource);
@@ -395,7 +395,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public ReactiveCommand<object, Unit> SaveTargetCommand => ReactiveCommand.Create<object>(SaveTarget);
 
-        internal void SaveTarget(object obj = null)
+        internal void SaveTarget(object? obj = null)
         {
             addedCustomTargets.Add(CustomTarget);
             AvailableTargets.Add(CustomTarget);
@@ -1662,7 +1662,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             OnPropertyChanged("AvailableSources");
             OnPropertyChanged("AvailableTargets");
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

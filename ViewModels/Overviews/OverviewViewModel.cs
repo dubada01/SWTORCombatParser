@@ -10,7 +10,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
 {
     public abstract class OverviewViewModel : ReactiveObject
     {
-        private Combat _currentCombat;
+        private Combat? _currentCombat;
         private ObservableCollection<Entity> _availableParticipants = new ObservableCollection<Entity>();
         private Entity selectedEntity;
 

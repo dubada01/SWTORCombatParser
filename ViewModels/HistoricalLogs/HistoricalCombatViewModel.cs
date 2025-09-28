@@ -14,7 +14,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
     {
         private List<EncounterInfo> _allEncountersDuringHistory;
         private List<string> _allBossFightsDuringHisotry;
-        private Entity selectedLocalEntity;
+        private Entity? selectedLocalEntity;
         private EncounterInfo selectedEncounter;
         private string selectedBoss;
         private double maxCombatLength = 400;
@@ -40,7 +40,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
         }
         public List<Combat> CombatsDuringHistory { get; set; }
         public List<Entity> LocalPlayersDuringHistory { get; set; }
-        public Entity SelectedLocalEntity
+        public Entity? SelectedLocalEntity
         {
             get => selectedLocalEntity;
             set
@@ -142,7 +142,7 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             CombatsDuringHistory.Clear();
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

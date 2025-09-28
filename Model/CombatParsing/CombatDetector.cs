@@ -28,7 +28,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private List<ulong> _combatResNames = new List<ulong> { 812826855735296, 808287075303424, 807217628446720, 814875555135488, 2940764107571200, 2940854301884416 };
         private ulong _boonOfSpiritId = 3502674678906880;
         private bool _bossCombat;
-        private BossInfo _currentBossInfo;
+        private BossInfo? _currentBossInfo;
         public bool InCombat;
         private bool _justRevived;
         private List<Entity> revivedPlayers = new List<Entity>();
@@ -37,7 +37,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private Timer _timeoutTimer = new Timer();
         private DateTime _exitCombatDetectedTime;
         private bool _checkLogsForTimtout;
-        private EncounterInfo _currentEncounter;
+        private EncounterInfo? _currentEncounter;
 
         public event Action<CombatState, bool> AlertExitCombatTimedOut = delegate { };
 
