@@ -18,19 +18,19 @@ namespace SWTORCombatParser.DataStructures
     }
     public class SolidColorBrushConverter : JsonConverter<SolidColorBrush>
     {
-        public override void WriteJson(JsonWriter writer, SolidColorBrush value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, SolidColorBrush? value, JsonSerializer serializer)
         {
             Dispatcher.UIThread.Invoke(() =>
             {
                 // Serialize the color as a string (e.g., "#FF0000FF" for blue)
-                writer.WriteValue(value.Color.ToString());
+                writer.WriteValue(value?.Color.ToString());
             });
         }
 
-        public override SolidColorBrush ReadJson(JsonReader reader, Type objectType, SolidColorBrush existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override SolidColorBrush? ReadJson(JsonReader reader, Type objectType, SolidColorBrush? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             // Deserialize the color from a hex string
-            var colorString = (string)reader.Value;
+            var colorString = (string?)reader.Value;
             if (colorString == null)
                 return Dispatcher.UIThread.Invoke(() => new SolidColorBrush(Colors.White));
             var color = Color.Parse(colorString);
