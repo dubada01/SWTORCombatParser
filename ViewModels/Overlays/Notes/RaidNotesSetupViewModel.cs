@@ -23,7 +23,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         }
         private void SetVisibilityForInstanceState()
         {
-            Dispatcher.UIThread.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() =>
+            {
                 if (inInstance && RaidNotesEnabled)
                 {
                     _viewModel.ShowOverlayWindow();
@@ -39,7 +40,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
         {
             get => raidNotesEnabled; set
             {
-                raidNotesEnabled = value; 
+                raidNotesEnabled = value;
                 if (raidNotesEnabled)
                 {
                     _viewModel.IsEnabled = true;
@@ -68,7 +69,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
             else
             {
                 _viewModel.UnlockOverlays();
-                if(RaidNotesEnabled)
+                if (RaidNotesEnabled)
                     _viewModel.ShowOverlayWindow();
             }
         }

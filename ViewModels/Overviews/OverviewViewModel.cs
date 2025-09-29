@@ -10,7 +10,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
 {
     public abstract class OverviewViewModel : ReactiveObject
     {
-        private Combat _currentCombat;
+        private Combat? _currentCombat;
         private ObservableCollection<Entity> _availableParticipants = new ObservableCollection<Entity>();
         private Entity selectedEntity;
 
@@ -52,9 +52,9 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             get => selectedEntity; set
             {
-                if(value == null)
+                if (value == null)
                     return;
-                if(AvailableParticipants.All(e => e.LogId != value.LogId))
+                if (AvailableParticipants.All(e => e.LogId != value.LogId))
                     return;
                 this.RaiseAndSetIfChanged(ref selectedEntity, value);
                 if (selectedEntity == null)
@@ -86,7 +86,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             }
             else
             {
-                AvailableParticipants = new ObservableCollection<Entity>(_currentCombat.AllEntities.DistinctBy(l=>l.LogId));
+                AvailableParticipants = new ObservableCollection<Entity>(_currentCombat.AllEntities.DistinctBy(l => l.LogId));
                 if (!AvailableParticipants.Any(p => p.IsLocalPlayer))
                 {
                     SelectedEntity = AvailableParticipants.FirstOrDefault();

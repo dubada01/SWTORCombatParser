@@ -32,7 +32,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 var currentLeaderboardSetting = JsonConvert.DeserializeObject<LeaderboardType>(File.ReadAllText(_leaderboardSettingsPath));
                 return currentLeaderboardSetting;
             }
-            catch(Exception e)
+            catch (Exception)
             {
                 File.WriteAllText(_leaderboardSettingsPath, JsonConvert.SerializeObject(LeaderboardType.Off));
                 return LeaderboardType.Off;

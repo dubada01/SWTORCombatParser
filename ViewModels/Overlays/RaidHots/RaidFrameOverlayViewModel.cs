@@ -73,7 +73,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public bool SizeSet = false;
         private readonly RaidFrameOverlay _raidFrameView;
 
-        public RaidFrameOverlayViewModel(string overlayName):base(overlayName)
+        public RaidFrameOverlayViewModel(string overlayName) : base(overlayName)
         {
             TimerController.TimerTriggered += CheckForRaidHOT;
             TimerController.TimerTriggered += CheckForDefensive;
@@ -87,10 +87,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             _raidFrameView.AreaClicked += CellClicked;
             MainContent = _raidFrameView;
             BackgroundLockedOpacity = 0;
-            BackgroundUnLockedOpacity = 0.05;
+            BackgroundUnlockedOpacity = 0.05;
             SettingsType = OverlaySettingsType.Character;
         }
-        
+
         private void OnStartCombat(CombatStatusUpdate update)
         {
             if (update.Type == UpdateType.Start)
@@ -103,7 +103,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
 
         }
-        public ReactiveCommand<Unit,Unit> RefreshFramesCommand => ReactiveCommand.Create(AutoDetection);
+        public ReactiveCommand<Unit, Unit> RefreshFramesCommand => ReactiveCommand.Create(AutoDetection);
         private void AutoDetection()
         {
             if (!CanDetect)
@@ -135,7 +135,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
             });
         }
-        public ReactiveCommand<Button,Unit> SetFramesToManualCorrect => ReactiveCommand.Create<Button>(FramesToManualCorrect);
+        public ReactiveCommand<Button, Unit> SetFramesToManualCorrect => ReactiveCommand.Create<Button>(FramesToManualCorrect);
 
         private void FramesToManualCorrect(Button clicked)
         {
@@ -143,7 +143,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             _isManuallyModifiying = true;
             _raidFrameView._manuallyEditing = true;
             this.RaisePropertyChanged(nameof(DisplayGrid));
-            
+
             // Create a new window
             var window = new Window
             {
@@ -178,7 +178,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             var cursorPosition = (_raidFrameView.GetVisualRoot() as Window).Position;
             window.Position = new PixelPoint((int)cursorPosition.X + 7, (int)cursorPosition.Y + 45);
         }
-        public ReactiveCommand<Unit,Unit> SetFramesToNormal => ReactiveCommand.Create(FramesToNormal);
+        public ReactiveCommand<Unit, Unit> SetFramesToNormal => ReactiveCommand.Create(FramesToNormal);
         private void FramesToNormal()
         {
             Editable = true;
@@ -186,7 +186,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             _raidFrameView._manuallyEditing = false;
             this.RaisePropertyChanged(nameof(DisplayGrid));
         }
-        
+
         private void SetCurrentEncounter(DateTime arg1, bool arg2)
         {
             NewEncounterEntered(CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(arg1));
@@ -202,7 +202,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         public void CellClicked(double xFract, double yFract)
         {
-            if(!_isManuallyModifiying)
+            if (!_isManuallyModifiying)
                 return;
             var cellX = (int)(xFract * columns);
             var cellY = (int)(yFract * rows);
@@ -315,7 +315,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void ToggleHide()
         {
-            if(Active)
+            if (Active)
                 ShowOverlayWindow();
             else
             {
@@ -403,7 +403,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public void UpdateNames(List<PlacedName> orderedNames)
         {
             CurrentNames = GuessAtPlayerNameFromLog(orderedNames);
-            
+
             UpdateCells();
         }
 
@@ -583,7 +583,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             get => _raidHotCells;
             set => this.RaiseAndSetIfChanged(ref _raidHotCells, value);
         }
-        
+
         internal void FirePlayerChanged(string name)
         {
             SizeSet = false;

@@ -13,18 +13,18 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     class OverlayMetricToColorConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (parameter != null && (bool)parameter == true)
+            if (parameter != null && (bool)(parameter ?? false) == true)
             {
                 return Brushes.DarkGoldenrod;
             }
 
-            var intendedColor = MetricColorLoader.CurrentMetricBrushDict[(OverlayType)value];
+            var intendedColor = MetricColorLoader.CurrentMetricBrushDict[(OverlayType)(value ?? OverlayType.None)];
             return intendedColor;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
@@ -41,19 +41,14 @@ namespace SWTORCombatParser.Utilities.Converters
             {
                 return Brushes.Transparent; // Return a default value when any binding is unset
             }
-            var type = (OverlayType)values[0];
-            var secondaryType = (OverlayType)values[1];
+            var type = values[0] is OverlayType overlayType ? overlayType : OverlayType.None;
+            var secondaryType = values[1] is OverlayType secondaryOverlayType ? secondaryOverlayType : OverlayType.None;
             var player = values[2] as Entity; // Replace 'Player' with your actual player class
 
             // Determine which type to use based on the ConverterParameter
             if (parameter is string secondaryString && secondaryString == "Secondary")
             {
                 type = secondaryType;
-            }
-
-            if (type == null || player == null)
-            {
-                return Brushes.Transparent;
             }
 
             // Retrieve the intended color based on the type
@@ -63,7 +58,7 @@ namespace SWTORCombatParser.Utilities.Converters
             }
 
             // Darken the brush if the player is the local player
-            if (player.IsLocalPlayer)
+            if (player != null && player.IsLocalPlayer)
             {
                 return DarkenBrush(intendedColor);
             }

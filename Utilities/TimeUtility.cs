@@ -24,7 +24,7 @@ namespace SWTORCombatParser.Utilities
                     {
                         UpdateCurrentTimeOffset();
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
 
                     }
@@ -62,7 +62,7 @@ namespace SWTORCombatParser.Utilities
 
                 return localNetworkTime;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return DateTime.Now;
             }

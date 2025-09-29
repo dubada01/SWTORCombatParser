@@ -35,10 +35,10 @@ namespace SWTORCombatParser.Views
         public MainWindow()
         {
             InitializeComponent();
-            #if DEBUG
-                this.AttachDevTools();
-            #endif
-            HotkeyHandler  = new HotkeyHandler();
+#if DEBUG
+            this.AttachDevTools();
+#endif
+            HotkeyHandler = new HotkeyHandler();
             LoadingWindowFactory.SetMainWindow(this);
 
             Closed += MainWindow_Closed;
@@ -56,10 +56,10 @@ namespace SWTORCombatParser.Views
             //base.OnOpened(e);
         }
 
-        private async void CheckForUpdates(object sender, RoutedEventArgs e)
+        private async void CheckForUpdates(object? sender, RoutedEventArgs e)
         {
             var newMessages = await UpdateMessageService.GetUpdateMessages();
-            if(newMessages.Count > 0)
+            if (newMessages.Count > 0)
             {
                 var updateWindow = new FeatureUpdateInfoWindow();
                 var updateWindowViewModel = new FeatureUpdatesViewModel(newMessages);
@@ -71,7 +71,7 @@ namespace SWTORCombatParser.Views
 
         }
 
-        private void MainWindow_Closed(object sender, EventArgs e)
+        private void MainWindow_Closed(object? sender, EventArgs e)
         {
             // Unregister the hotkey when the window is closed to clean up
             HotkeyHandler.UnregisterHotKey(1);
@@ -106,7 +106,7 @@ namespace SWTORCombatParser.Views
 
         private void Window_PointerLeave(object sender, PointerEventArgs e)
         {
-            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new PixelPoint(Position.X,Position.Y), Width = ClientSize.Width, Height = ClientSize.Height });
+            OrbsWindowManager.SaveWindowSizeAndPosition(new OrbsWindowInfo { TopLeft = new PixelPoint(Position.X, Position.Y), Width = ClientSize.Width, Height = ClientSize.Height });
         }
     }
 }

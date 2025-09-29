@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
         public string EffectiveRateLabel { get; set; }
         public string EffectiveRateValue { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public void Reset()
         {
@@ -38,7 +38,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             EffectiveRateValue = "0";
             OnPropertyChanged("EffectiveRateValue");
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public event Action<string> RequestedNewHeader = delegate { };
         public event Action<DataGridHeaderViewModel> RequestRemoveHeader = delegate { };
         public event Action<SortingDirection, string> SortingDirectionChanged = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public List<string> AvailableHeaderNames { get; set; }
         public string SelectedNewHeader
@@ -48,7 +48,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         public bool IsRealHeader { get; set; } = true;
         public string Text { get; set; }
         public bool IsName { get; set; }
-        public ReactiveCommand<Unit,Unit> ToggleSortingCommand => ReactiveCommand.Create(ToggleSorting);
+        public ReactiveCommand<Unit, Unit> ToggleSortingCommand => ReactiveCommand.Create(ToggleSorting);
 
         private void ToggleSorting()
         {
@@ -72,13 +72,13 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             }
         }
 
-        public ReactiveCommand<Unit,Unit> HeaderClickedCommand => ReactiveCommand.Create(HeaderClicked);
+        public ReactiveCommand<Unit, Unit> HeaderClickedCommand => ReactiveCommand.Create(HeaderClicked);
 
         private void HeaderClicked()
         {
             RequestRemoveHeader(this);
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

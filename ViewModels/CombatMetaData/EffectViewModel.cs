@@ -20,8 +20,8 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
         public double Duration { get; set; }
         public int Count { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

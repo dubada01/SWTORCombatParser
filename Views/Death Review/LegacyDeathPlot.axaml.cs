@@ -42,7 +42,7 @@ namespace SWTORCombatParser.Views.Death_Review
         {
             InitPlot();
         }
-        
+
         private void InitPlot()
         {
             PlotArea.Plot.XLabel("Combat Duration (s)", 12);

@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using SWTORCombatParser.ViewModels;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 
 namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
 {

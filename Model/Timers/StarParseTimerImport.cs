@@ -129,7 +129,7 @@ namespace SWTORCombatParser.Model.Timers
 
         private static string GetFileText()
         {
-            Dispatcher.UIThread.Invoke(async() =>
+            Dispatcher.UIThread.Invoke(async () =>
             {
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {

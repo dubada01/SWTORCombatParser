@@ -129,13 +129,13 @@ namespace SWTORCombatParser.Views.Home_Views
                 Dispatcher.UIThread.Invoke(() =>
                 {
                     _plot.Plot.Axes.AutoScale();
-                    _plot.Plot.Axes.SetLimits(bottom:0);
+                    _plot.Plot.Axes.SetLimits(bottom: 0);
                     _plot.Refresh();
                 });
             };
             _seriesToPlot.Add(series);
         }
-        private void NotifySizeChanged(object sender, SizeChangedEventArgs e)
+        private void NotifySizeChanged(object? sender, SizeChangedEventArgs e)
         {
             _plotViewModel.UserControlWidth = this.Width;
         }

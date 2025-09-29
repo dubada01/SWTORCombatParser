@@ -19,12 +19,12 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         private SolidColorBrush _oddRow = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
         private string valueStringFormat = "#,##0";
         private string floatValueString = "0.00";
-        public Entity _entity;
+        public Entity? _entity;
         private Combat? _info;
         private SWTORClass _playerClass;
         private readonly OverlayTypeToReadableNameConverter _nameConverter;
 
-        public MemberInfoViewModel(int order, Entity e, Combat info, List<OverlayType> selectedColumns)
+        public MemberInfoViewModel(int order, Entity? e, Combat info, List<OverlayType> selectedColumns)
         {
             _nameConverter = new OverlayTypeToReadableNameConverter();
             _info = info;
@@ -67,7 +67,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 foreach (var column in selectedColumns)
                 {
                     if (!StatsSlots.Any(s =>
-                            s.Header == _nameConverter.Convert(column, null, null,
+                            s.Header == _nameConverter.Convert(column, typeof(string), null,
                                 System.Globalization.CultureInfo.InvariantCulture).ToString()))
                     {
                         StatsSlots.Insert(selectedColumns.IndexOf(column),
@@ -92,9 +92,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             }
 
             // ──────────────────────────────────────────────────────────────
-//  RE-ORDER existing slots to match selectedColumns
-//  (keep index 0 for the "Name" column, ignore padding slots)
-// ──────────────────────────────────────────────────────────────
+            //  RE-ORDER existing slots to match selectedColumns
+            //  (keep index 0 for the "Name" column, ignore padding slots)
+            // ──────────────────────────────────────────────────────────────
             void ReorderSlots()
             {
                 // 1.  Build a quick lookup of where each OverlayType *should* live
@@ -138,10 +138,10 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 }
             }
 
-// call it right before you pad with blanks / exit the method:
+            // call it right before you pad with blanks / exit the method:
             ReorderSlots();
 
-// keep your existing padding logic
+            // keep your existing padding logic
             if (selectedColumns.Count < 10)
                 StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
             if (selectedColumns.Count < 10)
@@ -149,7 +149,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         }
 
         public bool IsTotalsRow { get; set; }
-    
+
         public bool IsLocalPlayer { get; set; }
         public string PlayerName => _entity?.Name;
         public Bitmap ClassIcon

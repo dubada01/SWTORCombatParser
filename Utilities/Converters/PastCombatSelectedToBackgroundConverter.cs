@@ -8,9 +8,9 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class PastCombatSelectedToBackgroundConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            switch ((bool)value)
+            switch ((bool)(value ?? false))
             {
                 case false:
                     return (SolidColorBrush)App.Current.FindResource("Gray4Brush");
@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Utilities.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

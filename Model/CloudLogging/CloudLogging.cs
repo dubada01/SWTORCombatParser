@@ -42,7 +42,7 @@ namespace SWTORCombatParser.Model.CloudLogging
                 return;
             try
             {
-                
+
                 var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 _appStartupId = Guid.NewGuid();
                 using (HttpClient connection = new HttpClient())

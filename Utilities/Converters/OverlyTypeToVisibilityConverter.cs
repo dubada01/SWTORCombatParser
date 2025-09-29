@@ -7,18 +7,16 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     class OverlyTypeToVisibilityConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            switch ((OverlayType)value)
+            if (value is OverlayType overlayType)
             {
-                case OverlayType.None:
-                    return false;
-                default:
-                    return true;
+                return overlayType != OverlayType.None;
             }
+            return false;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

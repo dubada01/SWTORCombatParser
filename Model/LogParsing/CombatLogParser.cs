@@ -49,7 +49,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (sr.BaseStream is FileStream fs)
             {
                 long prevPos = fs.Position;
-                long length  = fs.Length;
+                long length = fs.Length;
 
                 if (length > 0)
                 {

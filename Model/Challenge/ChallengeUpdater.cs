@@ -19,7 +19,7 @@ namespace SWTORCombatParser.Model.Challenge
     {
         private ObservableCollection<ChallengeInstanceViewModel> _challenges;
         private List<DataStructures.Challenge> _activeChallenges = new List<DataStructures.Challenge>();
-        private ConcurrentDictionary<Guid,DataStructures.Challenge> _allChallenges = new ConcurrentDictionary<Guid, DataStructures.Challenge>();
+        private ConcurrentDictionary<Guid, DataStructures.Challenge> _allChallenges = new ConcurrentDictionary<Guid, DataStructures.Challenge>();
         private string _currentBossName;
         private Combat _currentSelectedCombat;
         private EncounterInfo _currentEncounter;
@@ -77,8 +77,8 @@ namespace SWTORCombatParser.Model.Challenge
             );
 
 
-                _allChallenges = newDict;
-            
+            _allChallenges = newDict;
+
         }
         /// <summary>
         /// Called for **live parsing** (one log at a time).  
@@ -118,10 +118,10 @@ namespace SWTORCombatParser.Model.Challenge
 
                 // 2) Scan every log, accumulate new ViewModels in a local buffer
                 var buffer = new List<ChallengeInstanceViewModel>();
-                foreach (var logLine in replayedCombat.AllLogs.OrderBy(kvp=>kvp.Key))
+                foreach (var logLine in replayedCombat.AllLogs.OrderBy(kvp => kvp.Key))
                 {
                     var newlyFound = FindNewChallengesFromLog(logLine.Value);
-                    if (newlyFound.Count == 0) 
+                    if (newlyFound.Count == 0)
                         continue;
 
                     buffer.AddRange(
@@ -159,8 +159,8 @@ namespace SWTORCombatParser.Model.Challenge
             {
                 var challenge = kvp.Value;
 
-                bool logMatch   = IsLogForChallenge(log, challenge);
-                bool bossMatch  = (_currentBossName == challenge.Source.Split('|')[1]);
+                bool logMatch = IsLogForChallenge(log, challenge);
+                bool bossMatch = (_currentBossName == challenge.Source.Split('|')[1]);
                 bool phaseMatch = (challenge.ChallengeType == ChallengeType.MetricDuringPhase)
                                   && phaseSnapshot.Any(p => p.SourcePhase.Id == challenge.PhaseId);
 

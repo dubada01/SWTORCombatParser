@@ -215,7 +215,7 @@ namespace SWTORCombatParser.ViewModels.Leaderboard
             _viewModels.ForEach(vm => vm.Populate(SelectedEncounter.Name, SelectedBoss, selectedDifficulty == "Open World" ? "" : selectedDifficulty, selectedPlayerCount, SelectedEncounter.Name == "Parsing", _parsingLevels[selectedDifficulty]));
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

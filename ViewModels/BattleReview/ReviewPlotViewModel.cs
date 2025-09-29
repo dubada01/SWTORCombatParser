@@ -30,7 +30,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             Plot.AxesChanged += OnAxisUpdated;
         }
 
-        private void OnAxisUpdated(object sender, EventArgs e)
+        private void OnAxisUpdated(object? sender, EventArgs e)
         {
             var min = Plot.Plot.XAxis.Dims.Min;
             var max = Plot.Plot.XAxis.Dims.Max;

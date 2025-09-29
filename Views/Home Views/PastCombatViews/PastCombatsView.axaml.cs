@@ -1,5 +1,5 @@
 ﻿using Avalonia.Controls;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 
 namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
 {

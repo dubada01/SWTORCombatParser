@@ -6,7 +6,7 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class ContentNullOrEmptyConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
             {
@@ -16,7 +16,7 @@ namespace SWTORCombatParser.Utilities.Converters
             return true; // Keep the tooltip visible
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

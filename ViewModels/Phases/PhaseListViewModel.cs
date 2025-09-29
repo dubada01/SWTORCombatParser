@@ -17,14 +17,14 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseListViewModel :ReactiveObject, INotifyPropertyChanged
+    public class PhaseListViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private string selectedTimerSource;
         private Phase _phaseEdited;
         private IEnumerable<Phase> _savedChallengeData;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         public static event Action PhasesUpdated = delegate { };
         public EncounterSelectionView EncounterSelectionView { get; set; }
         public PhaseListViewModel()
@@ -55,7 +55,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         }
 
         public ObservableCollection<PhaseRowViewModel> PhaseRows { get; private set; }
-        public ReactiveCommand<object,Unit> AddPhaseCommand => ReactiveCommand.Create<object>(CreateNewPhase);
+        public ReactiveCommand<object, Unit> AddPhaseCommand => ReactiveCommand.Create<object>(CreateNewPhase);
 
         private void CreateNewPhase(object obj)
         {
@@ -154,7 +154,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                 }
             }
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

@@ -54,7 +54,7 @@ public static class DelegateExtensions
             }
         }
     }
-    public static void InvokeSafely<T1, T2,T3>(this Action<T1, T2,T3> eventDelegate, T1 arg1, T2 arg2, T3 arg3)
+    public static void InvokeSafely<T1, T2, T3>(this Action<T1, T2, T3> eventDelegate, T1 arg1, T2 arg2, T3 arg3)
     {
         if (eventDelegate == null)
             return;
@@ -62,7 +62,7 @@ public static class DelegateExtensions
         {
             try
             {
-                ((Action<T1, T2,T3>)handler)(arg1, arg2,arg3);
+                ((Action<T1, T2, T3>)handler)(arg1, arg2, arg3);
             }
             catch (Exception ex)
             {

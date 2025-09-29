@@ -4,7 +4,7 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,7 +33,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         public event Action CellChangedFromNone = delegate { };
         public event Action CellUpdated = delegate { };
 
-        public ReactiveCommand<Unit,Unit> RemoveCellCommand => ReactiveCommand.Create(RemoveCell);
+        public ReactiveCommand<Unit, Unit> RemoveCellCommand => ReactiveCommand.Create(RemoveCell);
 
         private void RemoveCell()
         {
@@ -106,10 +106,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             }
         }
         public CellInfo CurrentCellInfo => new CellInfo { CellType = selectedMetric, CustomVariable = selectedVariable };
-        public string MetricValue => SelectedMetric != OverlayType.CombatTimer ? metricValue.ToString("N0") : $"{((int)CombatDuration.TotalMinutes == 0 ? "" : (int)CombatDuration.TotalMinutes+"m")} {CombatDuration.Seconds}s";
+        public string MetricValue => SelectedMetric != OverlayType.CombatTimer ? metricValue.ToString("N0") : $"{((int)CombatDuration.TotalMinutes == 0 ? "" : (int)CombatDuration.TotalMinutes + "m")} {CombatDuration.Seconds}s";
         public TimeSpan CombatDuration { get; set; }
 
-        public PersonalOverlayInstanceViewModel(bool currentlyUnlocked, double scalar, CellInfo overlay = null)
+        public PersonalOverlayInstanceViewModel(bool currentlyUnlocked, double scalar, CellInfo? overlay = null)
         {
             currentScale = scalar;
             OverlayUnlocked = currentlyUnlocked;
@@ -130,7 +130,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
 
         private void TryUpdateColor(OverlayType type)
         {
-            if(type == SelectedMetric)
+            if (type == SelectedMetric)
             {
                 OnPropertyChanged("SelectedMetric");
             }
@@ -167,7 +167,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             {
                 UpdateMetricNumber();
             }
-            if(string.IsNullOrEmpty(SelectedVariable) && SelectedMetric == OverlayType.CombatTimer)
+            if (string.IsNullOrEmpty(SelectedVariable) && SelectedMetric == OverlayType.CombatTimer)
             {
                 CombatDuration = newCombat.EndTime - newCombat.StartTime;
                 OnPropertyChanged("MetricValue");
@@ -186,12 +186,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             {
                 return;
             }
-            metricValue = MetricGetter.GetValueForMetric(SelectedMetric,  _currentcombat, CombatLogStateBuilder.CurrentState.LocalPlayer);
+            metricValue = MetricGetter.GetValueForMetric(SelectedMetric, _currentcombat, CombatLogStateBuilder.CurrentState.LocalPlayer);
             OnPropertyChanged("MetricValue");
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

@@ -13,7 +13,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeModificationViewModel : ReactiveObject,INotifyPropertyChanged
+    public class ChallengeModificationViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private string selectedSource;
         private ChallengeType selectedChallengeType;
@@ -44,7 +44,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         public event Action<Challenge, bool> OnNewChallenge = delegate { };
         public event Action<Challenge> OnCancelEdit = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public bool CanBeRate
         {
@@ -193,7 +193,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 OnPropertyChanged();
             }
         }
-        public OverlayType OverlayType => (OverlayType)new OverlayTypeToReadableNameConverter().ConvertBack(SelectedMetric, null, null, System.Globalization.CultureInfo.InvariantCulture);
+        public OverlayType OverlayType => (OverlayType)new OverlayTypeToReadableNameConverter().ConvertBack(SelectedMetric, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture);
         public List<Phase> AvailablePhases
         {
             get => availablePhases; set
@@ -225,7 +225,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             AvailablePhases = DefaultPhaseManager.GetExisitingPhases().Where(p => p.PhaseSource == selectedSource).ToList();
             if (AvailablePhases.Any())
                 SelectedPhase = AvailablePhases.First();
-            AvailableMetrics = (List<string>)new OverlayTypeToReadableNameConverter().Convert(Enum.GetValues<OverlayType>().ToList(), null, null, System.Globalization.CultureInfo.InvariantCulture);
+            AvailableMetrics = (List<string>)new OverlayTypeToReadableNameConverter().Convert(Enum.GetValues<OverlayType>().ToList(), typeof(List<string>), null, System.Globalization.CultureInfo.InvariantCulture);
             SelectedMetric = AvailableMetrics.First();
         }
         public void Edit(Challenge challengeToEdit)
@@ -242,7 +242,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
             SelectedPhase = AvailablePhases.FirstOrDefault(p => p.Id == challengeToEdit.PhaseId);
             if (challengeToEdit.PhaseMetric != OverlayType.None)
-                SelectedMetric = (string)new OverlayTypeToReadableNameConverter().Convert(challengeToEdit.PhaseMetric, null, null, System.Globalization.CultureInfo.InvariantCulture);
+                SelectedMetric = (string)new OverlayTypeToReadableNameConverter().Convert(challengeToEdit.PhaseMetric, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture);
 
             SelectedColor = challengeToEdit.BackgroundBrush.Color;
             Value = challengeToEdit.Value;
@@ -252,7 +252,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             if (_isEditing)
                 OnCancelEdit(_editedChallenge);
         }
-        public ReactiveCommand<Unit,Unit> SaveCommand => ReactiveCommand.Create(Save);
+        public ReactiveCommand<Unit, Unit> SaveCommand => ReactiveCommand.Create(Save);
         private void Save()
         {
             OnNewChallenge(new Challenge()
@@ -369,12 +369,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }
-                catch (FormatException e) { };
+                catch (FormatException) { }
+                ;
 
                 OnPropertyChanged();
             }
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

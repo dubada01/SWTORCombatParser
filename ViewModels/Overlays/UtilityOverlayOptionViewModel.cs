@@ -12,7 +12,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         DisciplineTimer,
         Personal,
         PvPHP,
-        PvPMap, 
+        PvPMap,
         RoomHazard,
         AbilityList,
         RaidNotes,
@@ -27,14 +27,18 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool enabled = true;
         private string name;
         public string HelpText => Name;
-        public string Name { get => name; set 
-            { 
+        public string Name
+        {
+            get => name; set
+            {
                 name = value;
                 OnPropertyChanged();
             }
         }
-        public bool Enabled { get => enabled; set
-            { 
+        public bool Enabled
+        {
+            get => enabled; set
+            {
                 enabled = value;
                 OnPropertyChanged();
             }
@@ -48,8 +52,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
         }
         public UtilityOverlayType Type { get; set; }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

@@ -40,8 +40,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             _settings = RoomOverlayLoader.GetRoomOverlaySettings();
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
             EncounterTimerTrigger.BossCombatDetected += OnBossBossCombatDetected;
-            
-            
+
+
             ImagePath = new Bitmap(
                 AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/Empty.png")));
             _isTriggered = true;
@@ -69,15 +69,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             _currentCombatOverlaySettings = _settings.FirstOrDefault(s => s.EncounterName == _currentBossName || s.EncounterName == "Any");
             if (_currentCombatOverlaySettings != null)
             {
-                if(_currentCombatOverlaySettings.EncounterName == "IP-CPT")
+                if (_currentCombatOverlaySettings.EncounterName == "IP-CPT")
                 {
                     var hazard = new IPCPT_Hazard(_roomOverlay, _currentCombatOverlaySettings, ViewExtraInfo);
                     hazard.OnNewImagePath += OnNewImageFromHazard;
                     _currentHazard = hazard;
                 }
-                if(_currentCombatOverlaySettings.EncounterName == "NAHUT")
+                if (_currentCombatOverlaySettings.EncounterName == "NAHUT")
                 {
-                    ImagePath =new Bitmap(
+                    ImagePath = new Bitmap(
                         AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/NAHUT/NAHUT_Room.jpg")));
                     var hazard = new NAHUT_Hazard(_roomOverlay, _currentCombatOverlaySettings);
                     _currentHazard = hazard;

@@ -18,14 +18,14 @@ namespace SWTORCombatParser.Views
             ShowAgainCheck.Unchecked += CheckChanged;
             SaveShowAgainChoice();
         }
-        private void CheckChanged(object sender, RoutedEventArgs e)
+        private void CheckChanged(object? sender, RoutedEventArgs e)
         {
             SaveShowAgainChoice();
         }
 
         private void SaveShowAgainChoice()
         {
-            ShouldShowPopup.SaveShouldShowPopup("InstanceRunning", ShowAgainCheck.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("InstanceRunning", ShowAgainCheck.IsChecked ?? false);
         }
     }
 }

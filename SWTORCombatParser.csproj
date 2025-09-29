@@ -1,6 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <NoWarn>
+      AVLN3001;
+      <!-- CS8618 [830]: Non-nullable property is uninitialized -->
+      CS8618;
+      <!-- CS8602 [360]: Dereference of a possibly null reference -->
+      CS8602;
+      <!-- CS8604 [142]: Possible null reference argument for parameter -->
+      CS8604;
+      <!-- CS8603 [102]: Possible null reference return -->
+      CS8603;
+      <!-- CS8600 [ 76]: Converting null literal or possible null value to non-nullable type -->
+      CS8600;
+      <!-- CS8601 [ 66]: Possible null reference assignment -->
+      CS8601;
+      <!-- CS0618 [ 40]: Member is obsolete -->
+      CS0618;
+      <!-- CS4014 [ 38]: Call to async method is not awaited -->
+      CS4014;
+      <!-- CS0108 [ 26]: Member hides inherited member; use new keyword if hiding was intended -->
+      CS0108;
+      <!-- CS0169 [ 54]: Field is never used -->
+      CS0169;
+      <!-- CS0414 [ 18]: Field is assigned but its value is never used -->
+      CS0414;
+      <!-- CS0649 [ 12]: Field is never assigned to, and will always have its default value -->
+      CS0649;
+      <!-- CA1416 [  8]: Platform compatibility warning -->
+      CA1416;
+      <!-- CS1998 [  6]: Async method lacks 'await' operators -->
+      CS1998;
+      <!-- CS0067 [  4]: Event is never used -->
+      CS0067;
+      <!-- CS8605 [  2]: Unboxing a possibly null value -->
+      CS8605;
+      <!-- Crypto warnings -->
+      SYSLIB0041;
+      SYSLIB0045;
+    </NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <VersionPrefix>2.1.14.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -79,7 +120,7 @@
     <None Remove="UWP Images\**" />
     <Compile Remove="ViewModels\BattleReview\MapViewModel.cs" />
     <Compile Remove="ViewModels\BattleReview\ReviewPlotViewModel.cs" />
-    <Compile Remove="Views\Battle Review\MapView.xaml.cs" />
+  <Compile Remove="Views\BattleReview\MapView.xaml.cs" />
     <Page Update="Views\Timers\AlertInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -216,7 +257,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 
-    <Page Remove="Views\Battle Review\MapView.xaml" />
+  <Page Remove="Views\BattleReview\MapView.xaml" />
     <Content Include="DataStructures\Timers\Boss Timers\Raids\Athiss\Athiss.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -419,7 +460,7 @@
     <AvaloniaXaml Remove="Views\Leaderboard View\**" />
     <AvaloniaXaml Remove="ViewModels\Leaderboard\**" />
     <AvaloniaXaml Remove="Views\Overviews\HistogramInstanceView.axaml" />
-    <AvaloniaXaml Remove="Views\Battle Review\MapView.axaml" />
+  <AvaloniaXaml Remove="Views\BattleReview\MapView.axaml" />
     <AvaloniaXaml Remove="Views\Home Views\HistoricalRangeWiget.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\StatSlotView.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\DataGridRowView.axaml" />

@@ -6,7 +6,7 @@ namespace SWTORCombatParser.Utilities
 {
     public static class ObscureWindowFactory
     {
-        private static ObscuringWindow _currentWindow;
+        private static ObscuringWindow? _currentWindow;
         public static void ShowObscureWindow()
         {
             if (_currentWindow != null)

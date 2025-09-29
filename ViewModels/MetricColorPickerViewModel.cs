@@ -10,7 +10,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class MetricColorPickerViewModel:ReactiveObject, INotifyPropertyChanged
+    public class MetricColorPickerViewModel : ReactiveObject, INotifyPropertyChanged
     {
 
         private Color metricColor;
@@ -18,7 +18,7 @@ namespace SWTORCombatParser.ViewModels
 
         public OverlayType OverlayType { get; set; }
         public event Action CloseRequested = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public SolidColorBrush MetricBrush
         {
@@ -42,7 +42,7 @@ namespace SWTORCombatParser.ViewModels
             OverlayType = type;
             MetricColor = MetricColorLoader.GetMetricCurrentColor(type);
         }
-        public ReactiveCommand<Unit,Unit> SetDefaultCommand => ReactiveCommand.Create(SetDefaultColor);
+        public ReactiveCommand<Unit, Unit> SetDefaultCommand => ReactiveCommand.Create(SetDefaultColor);
 
         private void SetDefaultColor()
         {
@@ -50,13 +50,13 @@ namespace SWTORCombatParser.ViewModels
             OnPropertyChanged("MetricColor");
         }
 
-        public ReactiveCommand<Unit,Unit> CloseCommand => ReactiveCommand.Create(CloseThis);
+        public ReactiveCommand<Unit, Unit> CloseCommand => ReactiveCommand.Create(CloseThis);
 
         private void CloseThis()
         {
             CloseRequested();
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

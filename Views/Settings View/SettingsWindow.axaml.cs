@@ -51,7 +51,7 @@ namespace SWTORCombatParser.Views.SettingsView
 
         private async void UpdateCombatLogsPath(object? sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFolderDialog(){Title = "Select New Combat Logs Path"};
+            var dialog = new OpenFolderDialog() { Title = "Select New Combat Logs Path" };
             var result = await dialog.ShowAsync(this);
             if (string.IsNullOrEmpty(result))
                 return;
@@ -68,7 +68,7 @@ namespace SWTORCombatParser.Views.SettingsView
             BackgroundWarning.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring");
             ShowTargeted.IsChecked = Settings.ReadSettingOfType<bool>("overlay_show_targeted");
         }
-        private async void ResetMessages(object sender, RoutedEventArgs e)
+        private async void ResetMessages(object? sender, RoutedEventArgs e)
         {
             var newMessages = await UpdateMessageService.GetAllUpdateMessages();
             if (newMessages.Count > 0)
@@ -83,9 +83,9 @@ namespace SWTORCombatParser.Views.SettingsView
         }
         private async void ShowEmergencyDialog(object? sender, RoutedEventArgs e)
         {
-            var warning = MessageBoxManager.GetMessageBoxStandard("This will completely reset all your overlay positions for all roles.\r\nIf so, click yes and restart Orbs","Are you sure?",ButtonEnum.YesNo);
+            var warning = MessageBoxManager.GetMessageBoxStandard("This will completely reset all your overlay positions for all roles.\r\nIf so, click yes and restart Orbs", "Are you sure?", ButtonEnum.YesNo);
             var result = await warning.ShowWindowDialogAsync(this);
-            if(result != ButtonResult.No)
+            if (result != ButtonResult.No)
             {
                 return;
             }
@@ -98,37 +98,37 @@ namespace SWTORCombatParser.Views.SettingsView
             var path = Settings.ReadSettingOfType<string>("combat_logs_path");
             LogPath.Text = path;
         }
-        private void UpdatePath(object sender, TextChangedEventArgs e)
+        private void UpdatePath(object? sender, TextChangedEventArgs e)
         {
             Settings.WriteSetting<string>("combat_logs_path", LogPath.Text);
         }
 
-        private void ToggleOffline(object sender, RoutedEventArgs e)
+        private void ToggleOffline(object? sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting("offline_mode", OfflineMode.IsChecked.Value);
+            Settings.WriteSetting("offline_mode", OfflineMode.IsChecked ?? false);
         }
 
-        private void ToggleLogForce(object sender, RoutedEventArgs e)
+        private void ToggleLogForce(object? sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting("force_log_updates", ForceLogUpdates.IsChecked.Value);
+            Settings.WriteSetting("force_log_updates", ForceLogUpdates.IsChecked ?? false);
         }
 
-        private void ToggleBackground(object sender, RoutedEventArgs e)
+        private void ToggleBackground(object? sender, RoutedEventArgs e)
         {
-            ShouldShowPopup.SaveShouldShowPopup("BackgroundDisabled", !RunInBackground.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("BackgroundDisabled", !RunInBackground.IsChecked ?? false);
         }
-        private void ToggleWarning(object sender, RoutedEventArgs e)
+        private void ToggleWarning(object? sender, RoutedEventArgs e)
         {
-            ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", !RunInBackground.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", !RunInBackground.IsChecked ?? false);
         }
         private void UpdatedDisplayTargeted(object? sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting("overlay_show_targeted", ShowTargeted.IsChecked.Value);
+            Settings.WriteSetting("overlay_show_targeted", ShowTargeted.IsChecked ?? false);
         }
-        private void ToggleHotkeyEnabled(object sender, RoutedEventArgs e)
+        private void ToggleHotkeyEnabled(object? sender, RoutedEventArgs e)
         {
             var current = Settings.ReadSettingOfType<HotkeySettings>("Hotkeys");
-            if(((CheckBox)sender).Name == "RefreshEnabled")
+            if (((CheckBox)sender).Name == "RefreshEnabled")
                 current.HOTRefreshEnabled = !current.HOTRefreshEnabled;
             if (((CheckBox)sender).Name == "LockEnabled")
                 current.UILockEnabled = !current.UILockEnabled;
@@ -149,7 +149,7 @@ namespace SWTORCombatParser.Views.SettingsView
             HideEnabled.IsChecked = current.OverlayHideEnabled;
         }
 
-        private void Cancel(object sender, RoutedEventArgs e)
+        private void Cancel(object? sender, RoutedEventArgs e)
         {
             Close();
         }

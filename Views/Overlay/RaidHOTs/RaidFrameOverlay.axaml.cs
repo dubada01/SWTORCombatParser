@@ -18,7 +18,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
     /// </summary>
     public partial class RaidFrameOverlay : UserControl
     {
-        private MouseHookHandler _mouseHookHandler;
+        private MouseHookHandler? _mouseHookHandler;
         private bool _inCombat;
         private bool _isSubscribed;
         public bool _manuallyEditing = false;
@@ -70,7 +70,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         {
             StartPolling();
         }
-        
+
         private void SubscribeToClicks()
         {
             if (_isSubscribed)
@@ -83,7 +83,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
         }
 
         private void UnsubscribeFromClicks()
-        
+
         {
             if (!_isSubscribed)
                 return;
@@ -94,7 +94,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             MouseInArea(false);
         }
         public void StartPolling() => _cursorTimer.Start();
-        public void StopPolling()  => _cursorTimer.Stop();
+        public void StopPolling() => _cursorTimer.Stop();
 
         private void OnCursorTimerTick(object? sender, EventArgs e)
         {
@@ -102,18 +102,18 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             if (!_inCombat && _manuallyEditing)
             {
                 var cursorPos = GetCursorPosition();
-                var topLeft   = GetTopLeft();
-                var width     = GetWidth();
-                var height    = GetHeight();
+                var topLeft = GetTopLeft();
+                var width = GetWidth();
+                var height = GetHeight();
 
-                bool inside =  
+                bool inside =
                     cursorPos.X > topLeft.X &&
                     cursorPos.X < topLeft.X + width &&
                     cursorPos.Y > topLeft.Y &&
                     cursorPos.Y < topLeft.Y + height;
 
                 if (inside) SubscribeToClicks();
-                else        UnsubscribeFromClicks();
+                else UnsubscribeFromClicks();
             }
         }
         // Method to get the cursor position cross-platform
@@ -206,7 +206,7 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
             return 0;
         }
         private PixelPoint GetTopLeft()
-        {        
+        {
             var parentWindow = VisualRoot as BaseOverlayWindow;
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {

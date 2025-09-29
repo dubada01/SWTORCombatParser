@@ -6,11 +6,11 @@ using Avalonia.Data.Converters;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
-    internal class WidthToVisiblityConverter:IValueConverter
+    internal class WidthToVisiblityConverter : IValueConverter
     {
         public double CollapseBelowWidth { get; set; } = 800; // Default width threshold
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is double width)
             {
@@ -21,7 +21,7 @@ namespace SWTORCombatParser.Utilities.Converters
             return true;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

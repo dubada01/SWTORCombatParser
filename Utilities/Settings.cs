@@ -27,49 +27,82 @@ public static class Settings
         }
     }
 
-    public static List<T> GetListSetting<T>(string settingName)
+    private static JObject GetValidSettings()
     {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
-        if (!settingList.ContainsKey(settingName))
-            settingList[settingName] = JsonConvert.SerializeObject(new List<string>());
-        var stringsetting = settingList[settingName].ToString();
-        return JsonConvert.DeserializeObject<List<T>>(stringsetting);
+        return settingList ?? new JObject();
     }
-    public static Dictionary<T, T2> GetDictionarySetting<T, T2>(string settingName)
+
+    public static List<T>? GetListSetting<T>(string settingName)
     {
-        Init();
-        var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
-        if (!settingList.ContainsKey(settingName))
-            settingList[settingName] = JsonConvert.SerializeObject(new Dictionary<string, int>());
-        var stringsetting = settingList[settingName].ToString();
-        return JsonConvert.DeserializeObject<Dictionary<T, T2>>(stringsetting);
+        var settingList = GetValidSettings();
+        if (!settingList.ContainsKey(settingName) || settingList[settingName] == null)
+        {
+            var setting = new List<T>();
+            settingList[settingName] = JsonConvert.SerializeObject(setting);
+            return setting;
+        }
+        return JsonConvert.DeserializeObject<List<T>>(settingList[settingName]!.ToString());
+    }
+    public static Dictionary<T, T2>? GetDictionarySetting<T, T2>(string settingName) where T : notnull
+    {
+        var settingList = GetValidSettings();
+        if (!settingList.ContainsKey(settingName) || settingList[settingName] == null)
+        {
+            var setting = new Dictionary<T, T2>();
+            settingList[settingName] = JsonConvert.SerializeObject(setting);
+            return setting;
+        }
+        return JsonConvert.DeserializeObject<Dictionary<T, T2>>(settingList[settingName]!.ToString());
+    }
+    public static T? GetSettingDefault<T>(string settingName)
+    {
+        switch (settingName)
+        {
+            case "stub_logs":
+                return (T)(object)false;
+            case "current_tab":
+                return (T)(object)"data_grid";
+            case "grid_sort":
+                return (T)(object)"Damage_+_1";
+            case "offline_mode":
+                return (T)(object)false;
+            case "DynamicLayout":
+                return (T)(object)false;
+            case "force_log_updates":
+                return (T)(object)false;
+            case "threat_table_ids":
+                return (T)(object)new List<long>();
+            case "combat_logs_path":
+                return (T)(object)Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Star Wars - The Old Republic/CombatLogs");
+            case "Hotkeys":
+                return (T)(object)new HotkeySettings
+                {
+                    HOTRefreshEnabled = true,
+                    HOTRefreshHotkeyMod1 = 2,
+                    HOTRefreshHotkeyMod2 = 1,
+                    HOTRefreshHotkeyStroke = 0x52,
+                    UILockEnabled = true,
+                    UILockHotkeyMod1 = 2,
+                    UILockHotkeyMod2 = 1,
+                    UILockHotkeyStroke = 0x4c
+                };
+        }
+        return default;
     }
     public static T ReadSettingOfType<T>(string settingName)
     {
-        Init();
-        var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
-        if (!settingList.ContainsKey(settingName) && settingName == "stub_logs")
-            settingList[settingName] = false;
-        // options are: data_grid, details, plot, log
-        if (!settingList.ContainsKey(settingName) && settingName == "current_tab")
-            settingList[settingName] = "data_grid";
-        if (!settingList.ContainsKey(settingName) && settingName == "grid_sort")
-            settingList[settingName] = "Damage_+_1";
-        if (!settingList.ContainsKey(settingName) && settingName == "offline_mode")
-            settingList[settingName] = false;
-        if (!settingList.ContainsKey(settingName) && settingName == "DynamicLayout")
-            settingList[settingName] = false;
-        if (!settingList.ContainsKey(settingName) && settingName == "force_log_updates")
-            settingList[settingName] = false;
-        if (!settingList.ContainsKey(settingName) && settingName == "threat_table_ids")
-            settingList[settingName] = JToken.FromObject(new List<long>());
-        if (!settingList.ContainsKey(settingName) && settingName == "combat_logs_path")
-            settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic/CombatLogs");
-        if (!settingList.ContainsKey(settingName) && settingName == "Hotkeys")
-            settingList[settingName] = JToken.FromObject(new HotkeySettings {
-                HOTRefreshEnabled = true, HOTRefreshHotkeyMod1 = 2,  HOTRefreshHotkeyMod2 = 1, HOTRefreshHotkeyStroke = 0x52,
-                UILockEnabled = true, UILockHotkeyMod1 = 2, UILockHotkeyMod2 = 1, UILockHotkeyStroke = 0x4c});
+        var settingList = GetValidSettings();
+        if (!settingList.ContainsKey(settingName))
+        {
+            T? default_value = GetSettingDefault<T>(settingName);
+            if (default_value != null)
+            {
+                settingList[settingName] = JToken.FromObject(default_value);
+            }
+        }
+
         if (settingList.TryGetValue(settingName, out var settingValue))
         {
             try
@@ -77,12 +110,12 @@ public static class Settings
                 // Check if the type is string and handle directly
                 if (typeof(T) == typeof(string))
                 {
-                    return settingValue.ToObject<T>();
+                    return settingValue.ToObject<T>()!;
                 }
                 // Handle numeric and other simple types directly
                 else if (settingValue.Type == JTokenType.Integer || settingValue.Type == JTokenType.Float || settingValue.Type == JTokenType.Boolean)
                 {
-                    return settingValue.ToObject<T>();
+                    return settingValue.ToObject<T>()!;
                 }
                 // Handle complex types or settings stored as strings that need parsing/conversion
                 else
@@ -98,19 +131,17 @@ public static class Settings
             }
         }
 
-        return default(T);
-
+        return default;
     }
+
     public static bool HasSetting(string settingName)
     {
-        Init();
-        var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
+        var settingList = GetValidSettings();
         return settingList.ContainsKey(settingName);
     }
     public static void WriteSetting<T>(string settingName, T value)
     {
-        Init();
-        var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
+        var settingList = GetValidSettings();
 
         // Check if the value is a string
         if (value is string stringValue)

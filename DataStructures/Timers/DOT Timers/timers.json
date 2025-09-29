@@ -15,7 +15,7 @@
       "Name": "Affliction",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "808192586022912",
@@ -48,7 +48,7 @@
       "Name": "Weaken Mind",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "812861215473664",
@@ -65,8 +65,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -82,7 +81,7 @@
       "Name": "Creeping Terror",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "808424514256896",
@@ -99,8 +98,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -116,7 +114,7 @@
       "Name": "Sever Force",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "813226287693824",
@@ -133,8 +131,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -150,7 +147,7 @@
       "Name": "Force Breach",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "964675424485376",
@@ -167,8 +164,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -184,7 +180,7 @@
       "Name": "Corrosive Dart",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "3465720780292096",
@@ -201,8 +197,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -218,7 +213,7 @@
       "Name": "Vital Shot",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "2115340112756736",
@@ -235,8 +230,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -252,7 +246,7 @@
       "Name": "Corrosive Grenade Op",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "1703989619982930",
@@ -269,8 +263,8 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,    {
+    },
+    {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
       "Id": "f5aa9f22-7218-4456-917f-8e4c4b023fbf",
@@ -285,7 +279,7 @@
       "Name": "Corrosive Grenade Snipe",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "1703989619982932",
@@ -302,8 +296,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -319,7 +312,7 @@
       "Name": "Shrap Bomb",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "807698664783872",
@@ -336,8 +329,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -353,7 +345,7 @@
       "Name": "Scorch",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "3384812186370048",
@@ -370,8 +362,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -387,7 +378,7 @@
       "Name": "Plasmatize",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "3391666954174464",
@@ -404,8 +395,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -421,7 +411,7 @@
       "Name": "Incendiary Missile",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "2027022700249344",
@@ -438,8 +428,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -455,7 +444,7 @@
       "Name": "Serrated Shot",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "3394707791020290",
@@ -472,8 +461,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -489,7 +477,7 @@
       "Name": "Incendiary Round",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "3391477975613734",
@@ -506,8 +494,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -523,7 +510,7 @@
       "Name": "Shatter",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "1169953386397696",
@@ -540,8 +527,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -557,7 +543,7 @@
       "Name": "Plasma Brand",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "3429368177098752",
@@ -574,8 +560,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -591,7 +576,7 @@
       "Name": "Eviscerate",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "3426078232150278",
@@ -608,8 +593,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -625,7 +609,7 @@
       "Name": "Burning Purpose",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "3429814853697796",
@@ -642,8 +626,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -659,7 +642,7 @@
       "Name": "Draining Scream",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "807857578574081",
@@ -676,8 +659,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -693,7 +675,7 @@
       "Name": "Burning Blade",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "1280638988583168",
@@ -710,8 +692,7 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
-    }
-  ,
+    },
     {
       "TimerSource": "DOTS",
       "CharacterDiscipline": null,
@@ -727,7 +708,7 @@
       "Name": "Discharge",
       "TriggerType": 4,
       "TrackOutsideOfCombat": true,
-      "ExperiationTimerId": null,
+      "ExpirationTimerId": null,
       "CombatTimeElapsed": 0.0,
       "Ability": "",
       "Effect": "808235535695872",
@@ -745,6 +726,5 @@
       "SpecificEncounter": "All",
       "IsHot": false
     }
-
   ]
 }

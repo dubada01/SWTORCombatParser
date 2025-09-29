@@ -79,7 +79,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         public HPModuleViewModel(EntityInfo sourceBossInfo, bool isDuplicate, double scale)
         {
             UpdateScale(scale);
@@ -106,7 +106,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             Height = defaultHeight * scale;
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

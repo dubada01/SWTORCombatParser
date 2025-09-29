@@ -20,7 +20,7 @@ namespace SWTORCombatParser.Views.Overlay
         }
         private void ToggleHide()
         {
-            if(_hidden)
+            if (_hidden)
             {
                 viewModel.ShowOverlayWindow();
             }

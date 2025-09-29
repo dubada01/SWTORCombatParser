@@ -28,14 +28,14 @@ public partial class BaseOverlayWindow : Window
 {
     private bool _isDragging;
     private Point _startPoint;
-    
+
     // Windows-specific constants for P/Invoke
     const int GWL_EXSTYLE = -20;
     const int WS_EX_LAYERED = 0x00080000;
     const int WS_EX_TRANSPARENT = 0x00000020;
     const int WS_EX_TOOLWINDOW = 0x00000080;
     const int WS_EX_APPWINDOW = 0x00040000;
-    
+
 
     [DllImport("user32.dll", SetLastError = true)]
     static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -43,10 +43,10 @@ public partial class BaseOverlayWindow : Window
     [DllImport("user32.dll", SetLastError = true)]
     static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-    
-    
-    
-    
+
+
+
+
     // P/Invoke for Ubuntu X11 library
     [DllImport("libX11.so")]
     private static extern IntPtr XOpenDisplay(IntPtr display);
@@ -62,8 +62,8 @@ public partial class BaseOverlayWindow : Window
         int mode, ref IntPtr data, int nelements);
 
     private const int PropModeReplace = 0;
-    
-   
+
+
 
     // P/Invoke to interact with Objective-C runtime and Cocoa APIs
     [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "sel_registerName")]
@@ -94,7 +94,7 @@ public partial class BaseOverlayWindow : Window
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             RemoveShadowAndBorderMac();
 
-        
+
         InitializeComponent();
         Loaded += InitOverlay;
         viewModel.OnLocking += ToggleClickThrough;
@@ -125,13 +125,13 @@ public partial class BaseOverlayWindow : Window
     {
         ToggleClickThrough(!_viewModel.OverlaysMoveable);
         IdentifierText.Text = _viewModel._overlayName;
-        #if WINDOWS
+#if WINDOWS
         var renderScaling = RenderScaling;
-        #endif
-        #if MACOS
+#endif
+#if MACOS
         var renderScaling = 1;
-        #endif
-        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78 * renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78 ) * renderScaling));
+#endif
+        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78 * renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78) * renderScaling));
     }
 
     private void SetSizeAndLocation(Point position, Point size)
@@ -161,17 +161,17 @@ public partial class BaseOverlayWindow : Window
         _tempLocation = new PixelPoint((int)position.X, (int)position.Y);
         _tempSize = size;
     }
-    
+
 
 
     private void ToggleClickThrough(bool canClickThrough)
     {
-        if(_canClickThrough == canClickThrough)
+        if (_canClickThrough == canClickThrough)
             return;
         Dispatcher.UIThread.InvokeAsync(() =>
         {
             ToggleClickThroughCrossPlatform(canClickThrough);
-            BackgroundArea.Opacity = canClickThrough ? _viewModel.BackgroundLockedOpacity : _viewModel.BackgroundUnLockedOpacity;
+            BackgroundArea.Opacity = canClickThrough ? _viewModel.BackgroundLockedOpacity : _viewModel.BackgroundUnlockedOpacity;
             OverlayIdText.IsVisible = !canClickThrough;
             CloseButton.IsVisible = !canClickThrough;
         });
@@ -191,14 +191,14 @@ public partial class BaseOverlayWindow : Window
             }
         });
     }
-    
+
     public void ToggleClickThroughCrossPlatform(bool canClickThrough)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             MakeWindowClickThroughMac(canClickThrough);
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             MakeWindowClickThroughWindows(canClickThrough);
-        if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             MakeWindowClickThroughUbuntu(canClickThrough);
     }
 
@@ -308,7 +308,7 @@ public partial class BaseOverlayWindow : Window
 #if MACOS
         var renderScaling = 1;
 #endif
-        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78* renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78 ) * renderScaling));
+        _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78 * renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78) * renderScaling));
         CacheTempPositions(new Point(Position.X, Position.Y), new Point(Width, Height));
     }
 
@@ -384,7 +384,7 @@ public partial class BaseOverlayWindow : Window
 
     private void Thumb_DragDelta(object? sender, PointerEventArgs e)
     {
-        if(!_isDragging)
+        if (!_isDragging)
             return;
         Dispatcher.UIThread.Invoke(() =>
         {

@@ -10,7 +10,7 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 
 namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
@@ -55,16 +55,16 @@ public static class AvaloniaTimelineBuilder
 
     private static void CombatFinished(Combat obj)
     {
-        if(_currentEncounter == null)
+        if (_currentEncounter == null)
             return;
-        if (!_inBossInstance || !obj.IsCombatWithBoss || !_currentEncounter.BossInfos.Any(bi=>bi.EncounterName == obj.EncounterBossDifficultyParts.Item1) || _lastEncounterStartTime > obj.StartTime || !_timeTrackingLive)
+        if (!_inBossInstance || !obj.IsCombatWithBoss || !_currentEncounter.BossInfos.Any(bi => bi.EncounterName == obj.EncounterBossDifficultyParts.Item1) || _lastEncounterStartTime > obj.StartTime || !_timeTrackingLive)
             return;
 
         if (!obj.WasBossKilled)
             RemoveBoss(obj.EncounterBossDifficultyParts.Item1);
         if (obj.WasBossKilled)
         {
-            _timelineWindowViewModel.BossKilled(obj.EncounterBossDifficultyParts.Item1,(obj.StartTime - _lastEncounterStartTime),(obj.EndTime - _lastEncounterStartTime));
+            _timelineWindowViewModel.BossKilled(obj.EncounterBossDifficultyParts.Item1, (obj.StartTime - _lastEncounterStartTime), (obj.EndTime - _lastEncounterStartTime));
         }
     }
 
@@ -76,11 +76,11 @@ public static class AvaloniaTimelineBuilder
             _timelineEnabled = value;
             if (value)
             {
-                if(CombatMonitorViewModel.IsLiveParseActive())
+                if (CombatMonitorViewModel.IsLiveParseActive())
                     HistoricalLogsParsed(DateTime.Now, false);
                 else
                 {
-                    if(CombatIdentifier.CurrentCombat!=null && CombatIdentifier.CurrentCombat.StartTime != DateTime.MinValue)
+                    if (CombatIdentifier.CurrentCombat != null && CombatIdentifier.CurrentCombat.StartTime != DateTime.MinValue)
                         ShowTimelineNonLive(CombatIdentifier.CurrentCombat);
                 }
 
@@ -100,7 +100,7 @@ public static class AvaloniaTimelineBuilder
 
     public static async Task UploadBossKill(string encounterName, string flashpointOrRaidName, string difficulty, string playerCount, DateTime startTime, DateTime endTime)
     {
-        if(!_timeTrackingLive)
+        if (!_timeTrackingLive)
             return;
         var timeTrialInfo = new TimeTrialLeaderboardEntry()
         {
@@ -119,7 +119,7 @@ public static class AvaloniaTimelineBuilder
 
     public static void RemoveBoss(string bossName)
     {
-        if(_inBossInstance)
+        if (_inBossInstance)
             _timelineWindowViewModel.RemoveBoss(bossName);
     }
     public static void StartBoss(string bossName)
@@ -128,20 +128,20 @@ public static class AvaloniaTimelineBuilder
         {
             if (_currentEncounter == null)
                 return;
-            if((_currentEncounter.BossInfos.First().EncounterName == bossName || _currentEncounter.NumberOfPlayer == "4") && !_timeTrackingLive)
+            if ((_currentEncounter.BossInfos.First().EncounterName == bossName || _currentEncounter.NumberOfPlayer == "4") && !_timeTrackingLive)
                 _timeTrackingLive = true;
-            if(_currentEncounter.NumberOfPlayer != "4" && _currentEncounter.Difficutly != "Story")
+            if (_currentEncounter.NumberOfPlayer != "4" && _currentEncounter.Difficutly != "Story")
                 _timeTrackingLive = false;
-            
-            if(!_timeTrackingLive)
+
+            if (!_timeTrackingLive)
                 return;
-            _timelineWindowViewModel.StartNewBoss(bossName,DateTime.Now - _lastEncounterStartTime);
+            _timelineWindowViewModel.StartNewBoss(bossName, DateTime.Now - _lastEncounterStartTime);
             _currentBossName = bossName;
         }
     }
     private static void ShowTimelineNonLive(Combat selectedCombat)
     {
-        if(CombatMonitorViewModel.IsLiveParseActive())
+        if (CombatMonitorViewModel.IsLiveParseActive())
             return;
         var encounter = selectedCombat.ParentEncounter;
         if (encounter.IsBossEncounter)
@@ -153,7 +153,7 @@ public static class AvaloniaTimelineBuilder
 
             _currentEncounter = encounter;
             BuildTimelineFromEncounter(false);
-            
+
             _timelineWindowViewModel.BossKilled(selectedCombat.EncounterBossDifficultyParts.Item1,
                 (selectedCombat.StartTime - _lastEncounterStartTime),
                 (selectedCombat.EndTime - _lastEncounterStartTime));
@@ -165,7 +165,7 @@ public static class AvaloniaTimelineBuilder
     }
     private static void TryBuildTimeline(EncounterInfo obj)
     {
-        if(obj.IsBossEncounter && (obj.Difficutly == "Story" || obj.NumberOfPlayer == "4"))
+        if (obj.IsBossEncounter && (obj.Difficutly == "Story" || obj.NumberOfPlayer == "4"))
         {
             if (_currentEncounter != obj)
             {
@@ -187,7 +187,7 @@ public static class AvaloniaTimelineBuilder
     private static void BuildTimelineFromEncounter(bool showLive = true)
     {
         _inBossInstance = true;
-        _lastEncounterStartTime = CombatLogStateBuilder.CurrentState.EncounterEnteredInfo.FirstOrDefault(kvp=>kvp.Value == _currentEncounter).Key;
+        _lastEncounterStartTime = CombatLogStateBuilder.CurrentState.EncounterEnteredInfo.FirstOrDefault(kvp => kvp.Value == _currentEncounter).Key;
         var timeTrialLeaderboardEntries = _currentEncounter.BossInfos.Select(async bi =>
         {
             var timeTrialInfoForBoss = await API_Connection.GetTimeTrialEntriesForBoss(bi.EncounterName, _currentEncounter.Name, _currentEncounter.Difficutly, _currentEncounter.NumberOfPlayer);
@@ -208,15 +208,15 @@ public static class AvaloniaTimelineBuilder
         {
             var bossKillInfos = t.Result;
             var maxDuration = bossKillInfos.Max(b => b.EndTime);
-            DisplayTimelineOverlay(maxDuration, bossKillInfos.ToList(),showLive);
+            DisplayTimelineOverlay(maxDuration, bossKillInfos.ToList(), showLive);
         });
     }
     // In your WPF code, when you want to initialize Avalonia and open the window
-    public static void DisplayTimelineOverlay(TimeSpan maxDuration, List<BossKillInfo> previousKills,bool showLive)
+    public static void DisplayTimelineOverlay(TimeSpan maxDuration, List<BossKillInfo> previousKills, bool showLive)
     {
         Dispatcher.UIThread.Invoke(() =>
-        {        
-            _timelineWindowViewModel.ConfigureTimeline(maxDuration,previousKills,_currentEncounter.Name, _currentEncounter.Difficutly, _currentEncounter.NumberOfPlayer);
+        {
+            _timelineWindowViewModel.ConfigureTimeline(maxDuration, previousKills, _currentEncounter.Name, _currentEncounter.Difficutly, _currentEncounter.NumberOfPlayer);
             _timelineWindowViewModel.ShowOverlayWindow();
             if (showLive)
                 StartEncounterTask();
@@ -232,9 +232,9 @@ public static class AvaloniaTimelineBuilder
     }
 
     public static void UnlockOverlay()
-    {        
+    {
         _unlocked = true;
-        if(_timelineEnabled)
+        if (_timelineEnabled)
             _timelineWindowViewModel.ShowOverlayWindow();
         _timelineWindowViewModel.SetClickThrough(false);
 
@@ -243,10 +243,10 @@ public static class AvaloniaTimelineBuilder
     {
         _unlocked = false;
         _timelineWindowViewModel.SetClickThrough(true);
-        if(!_inBossInstance)
+        if (!_inBossInstance)
             _timelineWindowViewModel.HideOverlayWindow();
     }
-    
+
     private static void StartEncounterTask()
     {
         //start a task that runs and updates the timeline every second it will need to be able to be cancelled when the player leaves the instance

@@ -15,19 +15,19 @@ namespace SWTORCombatParser.Model.Notes
                 Directory.CreateDirectory(appDataPath);
             if (!File.Exists(infoPath))
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string,string>()));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, string>()));
             }
         }
-        public static void SetNotes(Dictionary<string,string> notes)
+        public static void SetNotes(Dictionary<string, string> notes)
         {
             File.WriteAllText(infoPath, JsonConvert.SerializeObject(notes));
         }
         public static string GetNoteForRaid(string raid)
         {
-            Dictionary<string,string> raidNotes = JsonConvert.DeserializeObject<Dictionary<string,string>>(File.ReadAllText(infoPath));
+            Dictionary<string, string> raidNotes = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(infoPath));
             return raidNotes[raid];
         }
-        public static Dictionary<string,string> GetAllRaidNotes()
+        public static Dictionary<string, string> GetAllRaidNotes()
         {
             return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(infoPath));
         }

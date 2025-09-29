@@ -25,14 +25,14 @@ namespace SWTORCombatParser.Utilities
             {
                 Directory.CreateDirectory(appDataPath);
             }
-            if(!File.Exists(infoPath))
+            if (!File.Exists(infoPath))
             {
                 Dictionary<string, string> metricColors = new Dictionary<string, string>();
                 foreach (var metric in Enum.GetValues<OverlayType>())
                 {
                     metricColors[metric.ToString()] = GetMetricDefaultColor(metric).ToString();
                 }
-                File.WriteAllText(infoPath,JsonConvert.SerializeObject(metricColors));
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(metricColors));
             }
             if (!File.Exists(defaultsPath))
             {
@@ -47,7 +47,7 @@ namespace SWTORCombatParser.Utilities
         public static void SetCurrentBrushDict()
         {
             var currentSettings = GetAllColors();
-            CurrentMetricBrushDict = currentSettings.ToDictionary(kvp=>Enum.Parse<OverlayType>(kvp.Key), kvp => new SolidColorBrush(Color.Parse(kvp.Value)));
+            CurrentMetricBrushDict = currentSettings.ToDictionary(kvp => Enum.Parse<OverlayType>(kvp.Key), kvp => new SolidColorBrush(Color.Parse(kvp.Value)));
         }
         public static void SetColorForMetric(OverlayType type, string color)
         {
@@ -69,7 +69,7 @@ namespace SWTORCombatParser.Utilities
                 return Colors.AliceBlue;
             }
         }
-        public static Color GetMetricCurrentColor(OverlayType type) 
+        public static Color GetMetricCurrentColor(OverlayType type)
         {
             try
             {
@@ -81,11 +81,11 @@ namespace SWTORCombatParser.Utilities
                 return Colors.AliceBlue;
             }
         }
-        private static Dictionary<string,string> GetAllColors()
+        private static Dictionary<string, string> GetAllColors()
         {
-            lock(_fileLock)
+            lock (_fileLock)
             {
-                var allColors = JsonConvert.DeserializeObject<Dictionary<string,string>>(File.ReadAllText(infoPath));
+                var allColors = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(infoPath));
                 foreach (var color in Enum.GetValues<OverlayType>())
                 {
                     if (!allColors.ContainsKey(color.ToString()))
@@ -106,7 +106,7 @@ namespace SWTORCombatParser.Utilities
         }
         private static void WriteNewColors(Dictionary<string, string> colors)
         {
-            lock(_fileLock)
+            lock (_fileLock)
             {
                 File.WriteAllText(infoPath, JsonConvert.SerializeObject(colors));
             }

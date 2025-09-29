@@ -76,22 +76,22 @@ namespace SWTORCombatParser.Model.CombatParsing
                         if (amount <= 0) continue;
 
                         var source = absorb.Source;
-                        var list   = shieldEventsBySource[source];
+                        var list = shieldEventsBySource[source];
 
                         var evt = list.FirstOrDefault(se =>
                             se.ShieldingTime == absorb.StopTime &&
-                            se.ShieldName    == absorb.Name      &&
-                            se.Target        == target);
+                            se.ShieldName == absorb.Name &&
+                            se.Target == target);
 
                         if (evt is null)
                         {
                             list.Add(new ShieldingEvent
                             {
-                                ShieldName    = absorb.Name,
+                                ShieldName = absorb.Name,
                                 ShieldingTime = absorb.StopTime,
-                                ShieldValue   = amount,
-                                Source        = source,
-                                Target        = target
+                                ShieldValue = amount,
+                                Source = source,
+                                Target = target
                             });
                         }
                         else
@@ -117,7 +117,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                                      .ToList();
 
                 var idx = 0;
-                combat.ShieldingProvidedLogs[source]   = new ConcurrentQueue<ParsedLogEntry>();
+                combat.ShieldingProvidedLogs[source] = new ConcurrentQueue<ParsedLogEntry>();
                 combat.TotalProvidedSheilding[source] = 0;
 
                 foreach (var ev in events)
@@ -128,22 +128,22 @@ namespace SWTORCombatParser.Model.CombatParsing
 
                     var p = new ParsedLogEntry
                     {
-                        TimeStamp     = ev.ShieldingTime,
+                        TimeStamp = ev.ShieldingTime,
                         LogLineNumber = nextLineNo++,
-                        Ability       = ev.ShieldName,
-                        Effect        = new Effect
+                        Ability = ev.ShieldName,
+                        Effect = new Effect
                         {
                             EffectType = EffectType.AbsorbShield,
-                            EffectId   = _7_0LogParsing._healEffectId,
+                            EffectId = _7_0LogParsing._healEffectId,
                             EffectName = "Processed Absorb"
                         },
-                        SourceInfo    = new EntityInfo { Entity = ev.Source },
-                        TargetInfo    = new EntityInfo { Entity = ev.Target },
-                        Value         = new Value
+                        SourceInfo = new EntityInfo { Entity = ev.Source },
+                        TargetInfo = new EntityInfo { Entity = ev.Target },
+                        Value = new Value
                         {
                             EffectiveDblValue = ev.ShieldValue,
-                            DisplayValue      = ev.ShieldValue.ToString("N2"),
-                            ValueType         = DamageType.heal
+                            DisplayValue = ev.ShieldValue.ToString("N2"),
+                            ValueType = DamageType.heal
                         }
                     };
 
@@ -198,7 +198,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     if (index == 0)
                         absorbs[index].HasAbsorbBeenCounted = true;
 
-                    firstPortion     = (log.Value.DblValue - modVal) - log.Value.MitigatedDblValue;
+                    firstPortion = (log.Value.DblValue - modVal) - log.Value.MitigatedDblValue;
                     remainderPortion = modVal;
                 }
 

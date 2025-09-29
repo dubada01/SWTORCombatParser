@@ -28,12 +28,12 @@ namespace SWTORCombatParser.Views.Home_Views
             CancelButton.Click += OnCancel;
         }
 
-        private void OnCancel(object sender, RoutedEventArgs e)
+        private void OnCancel(object? sender, RoutedEventArgs e)
         {
             Close();
         }
 
-        private void OnSave(object sender, RoutedEventArgs e)
+        private void OnSave(object? sender, RoutedEventArgs e)
         {
             var encryptedPassword = Crypto.EncryptStringAES(PasswordBox.Text, "parselyInfo");
             var username = UserNameBox.Text;

@@ -10,7 +10,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseModificationViewModel :ReactiveObject
+    public class PhaseModificationViewModel : ReactiveObject
     {
         private Phase _editingPhase;
         private string name;
@@ -86,7 +86,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             get => multiValueOption; set => this.RaiseAndSetIfChanged(ref multiValueOption, value);
         }
-        public ReactiveCommand<Unit,Unit> SaveRefreshOptionCommand => ReactiveCommand.Create(SaveRefreshCommand);
+        public ReactiveCommand<Unit, Unit> SaveRefreshOptionCommand => ReactiveCommand.Create(SaveRefreshCommand);
 
         private void SaveRefreshCommand()
         {
@@ -112,7 +112,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             get => multiValueOption; set => this.RaiseAndSetIfChanged(ref multiValueOption, value);
         }
-        public ReactiveCommand<Unit,Unit> EndSaveRefreshOptionCommand => ReactiveCommand.Create(EndSaveRefreshCommand);
+        public ReactiveCommand<Unit, Unit> EndSaveRefreshOptionCommand => ReactiveCommand.Create(EndSaveRefreshCommand);
 
         private void EndSaveRefreshCommand()
         {
@@ -164,7 +164,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             get => multiTargetOption; set => this.RaiseAndSetIfChanged(ref multiTargetOption, value);
         }
-        public ReactiveCommand<Unit,Unit> SaveMultiTargetOption => ReactiveCommand.Create(SaveMultiTargetCommand);
+        public ReactiveCommand<Unit, Unit> SaveMultiTargetOption => ReactiveCommand.Create(SaveMultiTargetCommand);
 
         private void SaveMultiTargetCommand()
         {
@@ -206,7 +206,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             get => endmultiTargetOption; set => this.RaiseAndSetIfChanged(ref endmultiTargetOption, value);
         }
-        public ReactiveCommand<Unit,Unit> EndSaveMultiTargetOption => ReactiveCommand.Create(EndSaveMultiTargetCommand);
+        public ReactiveCommand<Unit, Unit> EndSaveMultiTargetOption => ReactiveCommand.Create(EndSaveMultiTargetCommand);
 
         private void EndSaveMultiTargetCommand()
         {
@@ -242,7 +242,7 @@ namespace SWTORCombatParser.ViewModels.Phases
             if (_editingPhase != null)
                 OnCancelEdit(_editingPhase);
         }
-        public ReactiveCommand<Unit,Unit> SaveCommand => ReactiveCommand.Create(Save);
+        public ReactiveCommand<Unit, Unit> SaveCommand => ReactiveCommand.Create(Save);
         private void Save()
         {
             var args = new PhaseArgs
@@ -250,16 +250,16 @@ namespace SWTORCombatParser.ViewModels.Phases
                 EntityIds = MultiTargetOptions.Any() ? MultiTargetOptions.Select(o => long.Parse(o.Name)).ToList() : (!string.IsNullOrEmpty(SelectedTarget) ? new List<long> { long.Parse(SelectedTarget) } : new List<long>()),
                 AbilityIds = MultiValueOptions.Select(t => t.Name).ToList(),
                 EffectIds = MultiValueOptions.Select(t => t.Name).ToList(),
-                HPPercentage = !string.IsNullOrEmpty(Value) ? double.Parse(Value,CultureInfo.InvariantCulture) : 0,
-                CombatDuration = !string.IsNullOrEmpty(Value) ? double.Parse(Value,CultureInfo.InvariantCulture) : 0
+                HPPercentage = !string.IsNullOrEmpty(Value) ? double.Parse(Value, CultureInfo.InvariantCulture) : 0,
+                CombatDuration = !string.IsNullOrEmpty(Value) ? double.Parse(Value, CultureInfo.InvariantCulture) : 0
             };
             var endArgs = new PhaseArgs
             {
                 EntityIds = EndMultiTargetOptions.Any() ? EndMultiTargetOptions.Select(o => long.Parse(o.Name)).ToList() : (!string.IsNullOrEmpty(EndSelectedTarget) ? new List<long> { long.Parse(EndSelectedTarget) } : new List<long>()),
                 AbilityIds = EndMultiValueOptions.Select(t => t.Name).ToList(),
                 EffectIds = EndMultiValueOptions.Select(t => t.Name).ToList(),
-                HPPercentage = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue,CultureInfo.InvariantCulture) : 0,
-                CombatDuration = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue,CultureInfo.InvariantCulture) : 0
+                HPPercentage = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue, CultureInfo.InvariantCulture) : 0,
+                CombatDuration = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue, CultureInfo.InvariantCulture) : 0
             };
             OnNewPhase(new Phase()
             {

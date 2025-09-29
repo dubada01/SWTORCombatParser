@@ -23,7 +23,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _opponentOverlayViewModel.OverlayStateChanged += UpdateOverlay;
             opponentHPEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP").Acive;
             _opponentOverlayViewModel.OverlayEnabled = opponentHPEnabled;
-            
+
             _miniMapViewModel = new MiniMapViewModel("PvP_MiniMap");
             _miniMapViewModel.CloseRequested += () => MapClosed();
             _miniMapViewModel.OverlayStateChanged += UpdateOverlay;
@@ -88,14 +88,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _miniMapViewModel.UnlockOverlays();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;

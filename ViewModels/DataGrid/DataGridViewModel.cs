@@ -29,7 +29,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             Direction = direction;
         }
 
-        public int Compare(MemberInfoViewModel x, MemberInfoViewModel y)
+        public int Compare(MemberInfoViewModel? x, MemberInfoViewModel? y)
         {
             // Handle nulls if necessary
             if (x == null && y == null) return 0;
@@ -114,7 +114,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         {
             get => partyMembers; set => this.RaiseAndSetIfChanged(ref partyMembers, value);
         }
-        
+
         public void UpdateCombat(Combat updatedCombat)
         {
             _currentCombat = updatedCombat;
@@ -222,13 +222,13 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             set
             {
                 _selectedNewColumn = value;
-                if(!string.IsNullOrEmpty(_selectedNewColumn))
+                if (!string.IsNullOrEmpty(_selectedNewColumn))
                     AddHeader(_selectedNewColumn);
                 _selectedNewColumn = "";
                 this.RaisePropertyChanged();
             }
         }
-        
+
         public void AddHeader(string obj)
         {
             _selectedColumnTypes.Add(_columnOrder.FirstOrDefault(c => GetNameFromType(c) == obj));
@@ -249,7 +249,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         }
         private string GetNameFromType(OverlayType type)
         {
-            return (string)new OverlayTypeToReadableNameConverter().Convert(type, null, null, System.Globalization.CultureInfo.InvariantCulture);
+            return (string)new OverlayTypeToReadableNameConverter().Convert(type, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 }

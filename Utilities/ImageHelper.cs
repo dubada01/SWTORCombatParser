@@ -10,5 +10,5 @@ public static class ImageHelper
     {
         return new Bitmap(AssetLoader.Open(new Uri(resourceUri)));
     }
-    
+
 }

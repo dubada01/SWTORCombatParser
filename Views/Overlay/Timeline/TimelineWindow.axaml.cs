@@ -29,13 +29,13 @@ namespace SWTORCombatParser.Views.Overlay.Timeline
             viewModel = vm;
             DataContext = vm;
             InitializeComponent();
-            
+
             // Set up references and initial setup
             timelineCanvas = this.FindControl<Canvas>("TimelineCanvas");
             viewModel.OnInit += SetCurrentTimeAndUpdate;
             viewModel.OnUpdateTimeline += SetCurrentTimeAndUpdate;
             viewModel.AreaEntered += SetAreaName;
-            
+
             timelineCanvas.GetObservable(BoundsProperty).Subscribe(_ =>
             {
                 if (viewModel?.AllTimelineElements?.Count > 0)
@@ -46,7 +46,7 @@ namespace SWTORCombatParser.Views.Overlay.Timeline
         {
             EncounterName.Text = name + $" {{{difficulty} {playerCount}}}";
         }
-        
+
         // Example method to update the positions of timeline elements
         private object lockObj = new object();
         private void SetCurrentTimeAndUpdate(TimeSpan currentTime)
@@ -68,8 +68,8 @@ namespace SWTORCombatParser.Views.Overlay.Timeline
                 timelineCanvas.Children.Clear();
                 double maxDuration = viewModel.MaxDuration.TotalSeconds;
                 double canvasWidth = timelineCanvas.Bounds.Width;
-                if(maxDuration == 0)
-                    return; 
+                if (maxDuration == 0)
+                    return;
                 foreach (var element in viewModel.AllTimelineElements)
                 {
                     // Calculate the position based on element.StartTime and maxDuration

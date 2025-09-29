@@ -5,11 +5,11 @@ using SWTORCombatParser.ViewModels.Overlays.BossFrame;
 namespace SWTORCombatParser.Views.Overlay.BossFrame
 {
     /// <summary>
-    /// Interaction logic for BrossFrameView.xaml
+    /// Interaction logic for BossFrameView.xaml
     /// </summary>
-    public partial class BrossFrameView : UserControl
+    public partial class BossFrameView : UserControl
     {
-        public BrossFrameView(BossFrameConfigViewModel vm)
+        public BossFrameView(BossFrameConfigViewModel vm)
         {
             InitializeComponent();
             DataContext = vm;

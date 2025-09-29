@@ -30,7 +30,7 @@
                 <ItemsControl ItemsSource="{Binding CurrentUpdateMessages}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <update_views:UdateInstance/>
+                            <update_views:UpdateInstanceView/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

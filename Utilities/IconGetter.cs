@@ -17,17 +17,17 @@ namespace SWTORCombatParser.Utilities
         public static void Init()
         {
             var lines = File.ReadAllLines("DataStructures/ability_to_icon.csv");
-            _abilityToIconDict = lines.Where(line=>!line.Contains("ability_id")).ToDictionary(kvp => ulong.Parse(kvp.Split(',')[0]), kvp => kvp.Split(',')[1]);
+            _abilityToIconDict = lines.Where(line => !line.Contains("ability_id")).ToDictionary(kvp => ulong.Parse(kvp.Split(',')[0]), kvp => kvp.Split(',')[1]);
         }
 
         public static bool HasIcon(ulong abilityId)
         {
-            return _abilityToIconDict.ContainsKey(abilityId);
+            return abilityId != 0 && _abilityToIconDict.ContainsKey(abilityId);
         }
 
         public static async Task<Bitmap> GetIconPathForLog(ParsedLogEntry log)
         {
-            if (log == null || log.AbilityId == null)
+            if (log == null)
             {
                 return await LoadImageAsync(GetIconPathForId(0), 0);
             }
@@ -74,7 +74,7 @@ namespace SWTORCombatParser.Utilities
             catch
             {
                 string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
-                var icon =  await LoadImageAsync(Path.Combine(appDataPath, "resources", "icons", ".png"), abilityId);
+                var icon = await LoadImageAsync(Path.Combine(appDataPath, "resources", "icons", ".png"), abilityId);
                 IconDict.TryAdd(abilityId, icon);
                 return icon;
             }

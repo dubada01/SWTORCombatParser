@@ -24,7 +24,7 @@ public class AlertsWindowViewModel : TimersWindowViewModel
         TimerController.TimerTriggered += AddTimerVisual;
         MainContent = new AlertView(this);
     }
-    
+
     private object _timerChangeLock = new object();
     private List<TimerInstanceViewModel> _swtorTimers = new List<TimerInstanceViewModel>();
     private bool _alertPlaying;
@@ -42,7 +42,7 @@ public class AlertsWindowViewModel : TimersWindowViewModel
 
         lock (_timerChangeLock)
         {
-            if(_currentTimers.Any(t => t.SourceTimer.Id == obj.SourceTimer.Id))
+            if (_currentTimers.Any(t => t.SourceTimer.Id == obj.SourceTimer.Id))
             {
                 callback(obj);
                 return;
@@ -71,6 +71,6 @@ public class AlertsWindowViewModel : TimersWindowViewModel
 
     protected override void ReorderTimers(string id)
     {
-        
+
     }
 }

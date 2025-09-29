@@ -18,23 +18,23 @@ namespace SWTORCombatParser.DataStructures
     }
     public class SolidColorBrushConverter : JsonConverter<SolidColorBrush>
     {
-        public override void WriteJson(JsonWriter writer, SolidColorBrush value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, SolidColorBrush? value, JsonSerializer serializer)
         {
             Dispatcher.UIThread.Invoke(() =>
             {
                 // Serialize the color as a string (e.g., "#FF0000FF" for blue)
-                writer.WriteValue(value.Color.ToString());
+                writer.WriteValue(value?.Color.ToString());
             });
         }
 
-        public override SolidColorBrush ReadJson(JsonReader reader, Type objectType, SolidColorBrush existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override SolidColorBrush? ReadJson(JsonReader reader, Type objectType, SolidColorBrush? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             // Deserialize the color from a hex string
-            var colorString = (string)reader.Value;
-            if(colorString == null)
+            var colorString = (string?)reader.Value;
+            if (colorString == null)
                 return Dispatcher.UIThread.Invoke(() => new SolidColorBrush(Colors.White));
             var color = Color.Parse(colorString);
-            var colorBrush =  Dispatcher.UIThread.Invoke(() => new SolidColorBrush(color));
+            var colorBrush = Dispatcher.UIThread.Invoke(() => new SolidColorBrush(color));
             return colorBrush;
         }
     }
@@ -56,9 +56,9 @@ namespace SWTORCombatParser.DataStructures
             {
                 var returnBrush = Dispatcher.UIThread.Invoke(() =>
                 {
-                    if(backgroundBrush != null)
+                    if (backgroundBrush != null)
                         return backgroundBrush;
-                    var splitColor = BackgroundColor.Split(',').Select(v=>byte.Parse(v.Trim())).ToList();
+                    var splitColor = BackgroundColor.Split(',').Select(v => byte.Parse(v.Trim())).ToList();
                     return new SolidColorBrush(Color.FromRgb(splitColor[0], splitColor[1], splitColor[2]));
                 });
                 return returnBrush;

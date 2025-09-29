@@ -7,16 +7,17 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class BooleanToRaidBorderConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            bool boolVal = (bool)value;
-            if (boolVal)
+            if (value is bool boolVal && boolVal)
+            {
                 return new SolidColorBrush((Color)ResourceFinder.GetColorFromResourceName("ParticipantHPSColor"));
-            else
-                return Brushes.Transparent;
+            }
+
+            return Brushes.Transparent;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

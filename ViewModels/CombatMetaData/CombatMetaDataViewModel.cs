@@ -14,12 +14,12 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
-    public class CombatEfffectViewModel :ReactiveObject, INotifyPropertyChanged
+    public class CombatEfffectViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private Entity characterName = new Entity();
-        private Combat _currentCombat;
+        private Combat? _currentCombat;
         private List<CombatModifier> _currentCombatModifiers;
-        private EffectViewModel selectedEffect;
+        private EffectViewModel? selectedEffect;
         private DateTime _minTime;
         private DateTime _maxTime;
         private static string selfSelf = "Self -> Self";
@@ -89,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 OnPropertyChanged();
             }
         }
-        public ReactiveCommand<Unit,Unit> ClearCombatEffectsCommand => ReactiveCommand.Create(ClearCombatEffects);
+        public ReactiveCommand<Unit, Unit> ClearCombatEffectsCommand => ReactiveCommand.Create(ClearCombatEffects);
 
         private void ClearCombatEffects()
         {
@@ -104,7 +104,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
         public ObservableCollection<EffectViewModel> CombatEffects { get; set; } = new ObservableCollection<EffectViewModel>();
         public event Action<List<CombatModifier>> OnEffectSelected = delegate { };
         public event Action OnEffectsCleared = delegate { };
-        public EffectViewModel SelectedEffect
+        public EffectViewModel? SelectedEffect
         {
             get => selectedEffect; set
             {
@@ -213,8 +213,8 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             return releventMods;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

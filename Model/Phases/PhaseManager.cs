@@ -1,7 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using SWTORCombatParser.ViewModels.Phases;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
@@ -116,7 +116,7 @@ namespace SWTORCombatParser.Model.Phases
 
         public static event Action<List<PhaseInstance>> PhaseInstancesUpdated = delegate { };
         public static event Action<List<PhaseInstance>> SelectedPhasesUpdated = delegate { };
-        
+
         private static ObservableCollection<PhaseInstance> activePhases = new ObservableCollection<PhaseInstance>();
 
         public static void Init()
@@ -147,7 +147,7 @@ namespace SWTORCombatParser.Model.Phases
                 ResetPhases();
                 _combatStartTime = combat.StartTime;
                 _currentBossName = combat.EncounterBossDifficultyParts.Item1;
-                foreach (var line in combat.AllLogs.ToArray().OrderBy(l=>l.Key))
+                foreach (var line in combat.AllLogs.ToArray().OrderBy(l => l.Key))
                 {
                     HandleNewLine(line.Value);
                 }
@@ -165,7 +165,7 @@ namespace SWTORCombatParser.Model.Phases
                 }
                 if (update.Logs != null && update.Logs.Count > 0)
                 {
-                    foreach (var line in update.Logs.OrderBy(l=>l.LogLineNumber))
+                    foreach (var line in update.Logs.OrderBy(l => l.LogLineNumber))
                     {
                         HandleNewLine(line);
                     }

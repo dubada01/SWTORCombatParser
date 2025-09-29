@@ -82,12 +82,13 @@ namespace SWTORCombatParser.DataStructures.EncounterInfo
                         { "Open World", new List<long> { kvp.BossId } }
     }),
                     BossInfos = OpenWorldBosses.Select(
-                        owb => new BossInfo {
-                            EncounterName ="Open World", 
-                            IsOpenWorld = true, 
-                            TargetIds = OpenWorldBosses.Select(owbId=>owbId.BossId).ToList(),
+                        owb => new BossInfo
+                        {
+                            EncounterName = "Open World",
+                            IsOpenWorld = true,
+                            TargetIds = OpenWorldBosses.Select(owbId => owbId.BossId).ToList(),
                             TargetsRequiredForKill = OpenWorldBosses.Select(owbId => owbId.BossId).ToList()
-                        }).ToList(),    
+                        }).ToList(),
                 });
             }
             catch (Exception e)

@@ -4,5 +4,5 @@ namespace SWTORCombatParser.Model.Overlays;
 
 public interface IScreenCapture
 {
-    SKBitmap CaptureScreenArea(int x, int y, int width, int height);   
+    SKBitmap CaptureScreenArea(int x, int y, int width, int height);
 }

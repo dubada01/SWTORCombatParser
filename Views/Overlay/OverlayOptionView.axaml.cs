@@ -23,7 +23,8 @@ namespace SWTORCombatParser.Views.Overlay
             var viewModel = new MetricColorPickerViewModel(metricViewModel.Type);
 
             var view = new MetricColorPickerWindow(viewModel);
-            viewModel.CloseRequested += () => {
+            viewModel.CloseRequested += () =>
+            {
                 view.Close();
             };
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)

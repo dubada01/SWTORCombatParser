@@ -313,7 +313,7 @@ namespace SWTORCombatParser.Model.Overlays
             lock (_fileLock)
             {
                 var stringInfo = File.ReadAllText(infoPath);
-                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, OverlayInfo>>>(stringInfo) 
+                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, OverlayInfo>>>(stringInfo)
                     ?? new Dictionary<string, Dictionary<string, OverlayInfo>>();
 
                 var typedDefaults = new Dictionary<string, Dictionary<string, OverlayInfo>>();

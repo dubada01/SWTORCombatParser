@@ -44,7 +44,7 @@ namespace SWTORCombatParser.DataStructures
         VariableCheck,
         EffectCharges
     }
-    
+
     public class Timer
     {
         private bool isEnabled;
@@ -90,7 +90,7 @@ namespace SWTORCombatParser.DataStructures
         public string SelectedCancelTimerId { get; set; }
         public string SeletedTimerIsActiveId { get; set; }
         public bool TrackOutsideOfCombat { get; set; }
-        public string ExperiationTimerId { get; set; }
+        public string ExpirationTimerId { get; set; }
         public double CombatTimeElapsed { get; set; }
         public string Ability { get; set; } = "";
         public string Effect { get; set; } = "";
@@ -98,7 +98,7 @@ namespace SWTORCombatParser.DataStructures
         public bool IsPeriodic { get; set; }
         public int Repeats { get; set; }
         public bool CanBeRefreshed { get; set; }
-        public bool DontRefresh { get;set; }
+        public bool DontRefresh { get; set; }
         public List<string> AbilitiesThatRefresh { get; set; } = new List<string>();
         public bool IsAlert { get; set; }
         public string AlertText { get; set; }
@@ -195,7 +195,7 @@ namespace SWTORCombatParser.DataStructures
                 SpecificBoss = SpecificBoss,
                 SpecificEncounter = SpecificEncounter,
                 SpecificDifficulty = SpecificDifficulty,
-                ExperiationTimerId = TriggerType == TimerKeyType.TimerExpired ? ExperiationTimerId : null,
+                ExpirationTimerId = TriggerType == TimerKeyType.TimerExpired ? ExpirationTimerId : null,
                 IsEnabled = IsEnabled,
                 TrackOutsideOfCombat = TrackOutsideOfCombat,
                 CanBeRefreshed = CanBeRefreshed,

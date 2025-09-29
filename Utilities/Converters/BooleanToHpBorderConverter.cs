@@ -7,14 +7,17 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class BooleanToHpBorderConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if ((bool)value)
+            if (value is bool isHighlighted && isHighlighted)
+            {
                 return new SolidColorBrush(Colors.DarkGoldenrod);
+            }
+
             return new SolidColorBrush(Colors.WhiteSmoke);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

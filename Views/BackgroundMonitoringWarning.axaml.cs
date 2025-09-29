@@ -36,21 +36,21 @@ namespace SWTORCombatParser.Views
             }
         }
 
-        private void CheckChanged(object sender, RoutedEventArgs e)
+        private void CheckChanged(object? sender, RoutedEventArgs e)
         {
             SaveShowAgainChoice();
         }
-        private void DisableCheckChanged(object sender, RoutedEventArgs e)
+        private void DisableCheckChanged(object? sender, RoutedEventArgs e)
         {
             SaveDisabledChoice();
         }
         private void SaveShowAgainChoice()
         {
-            ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", ShowAgainCheck.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", ShowAgainCheck.IsChecked ?? false);
         }
         private void SaveDisabledChoice()
         {
-            ShouldShowPopup.SaveShouldShowPopup("BackgroundDisabled", DisableCheck.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("BackgroundDisabled", DisableCheck.IsChecked ?? false);
         }
     }
 }

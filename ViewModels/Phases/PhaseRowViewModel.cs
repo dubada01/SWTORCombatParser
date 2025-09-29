@@ -28,20 +28,20 @@ namespace SWTORCombatParser.ViewModels.Phases
                 OnPropertyChanged();
             }
         }
-        public ReactiveCommand<object,Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
+        public ReactiveCommand<object, Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
         private void Edit(object t)
         {
             EditRequested(this);
         }
 
-        public ReactiveCommand<object,Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
+        public ReactiveCommand<object, Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
         private void Delete(object t)
         {
             DeleteRequested(this);
         }
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

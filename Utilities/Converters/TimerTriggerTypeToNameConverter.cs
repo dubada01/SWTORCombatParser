@@ -10,9 +10,9 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class TimerTriggerTypeToNameConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            var types = (List<TimerKeyType>)value;
+            var types = (List<TimerKeyType>?)(value ?? new List<TimerKeyType>());
             List<string> orderedConvertedNames = new List<string>();
             foreach (TimerKeyType type in types)
             {
@@ -64,7 +64,7 @@ namespace SWTORCombatParser.Utilities.Converters
                     return "Unknown";
             }
         }
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

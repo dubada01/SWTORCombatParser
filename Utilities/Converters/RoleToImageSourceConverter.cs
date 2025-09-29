@@ -8,9 +8,9 @@ namespace SWTORCombatParser.Utilities.Converters
 {
     public class RoleToImageSourceConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            switch ((Role)value)
+            switch ((Role)(value ?? Role.Unknown))
             {
                 case Role.DPS:
                     return "../../resources/dpsIcon.png";
@@ -25,7 +25,7 @@ namespace SWTORCombatParser.Utilities.Converters
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

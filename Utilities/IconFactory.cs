@@ -22,23 +22,23 @@ namespace SWTORCombatParser.Utilities
             Task.Run(() =>
             {
                 _unknownIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/question-mark.png")));
-                foreach(var swtorClass in ClassLoader.LoadAllClasses())
+                foreach (var swtorClass in ClassLoader.LoadAllClasses())
                 {
                     var colorForClass = GetIconColorFromClass(swtorClass);
                     _classColoredBitmaps[swtorClass.Discipline] = GetColoredBitmapImage(swtorClass, colorForClass);
-                }  
+                }
             });
         }
-        
+
         public static Bitmap GetClassIcon(string className)
         {
-            if(string.IsNullOrEmpty(className))
+            if (string.IsNullOrEmpty(className))
                 return _unknownIcon;
             if (_classColoredBitmaps.ContainsKey(className))
                 return _classColoredBitmaps[className];
             return _unknownIcon;
         }
-        
+
         private static Color GetIconColorFromClass(SWTORClass classInfo)
         {
             return classInfo.Role switch
@@ -64,7 +64,7 @@ namespace SWTORCombatParser.Utilities
             }
             catch (Exception ex)
             {
-                Logging.LogError("Failed to set icon color: "+ex.Message +"\r\n" + ex.StackTrace);
+                Logging.LogError("Failed to set icon color: " + ex.Message + "\r\n" + ex.StackTrace);
                 return GetIcon(swtorClass.Name);
             }
         }

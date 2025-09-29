@@ -149,7 +149,7 @@ namespace SWTORCombatParser.Model.Overlays
 
         private static double ConvertCoordWithCompressionFactor(double value)
         {
-            #if MACOS
+#if MACOS
             var scalingFactor = 1d;
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -158,7 +158,7 @@ namespace SWTORCombatParser.Model.Overlays
                 return value/scalingFactor;
 
             }
-            #endif
+#endif
             return value / RaidFrameScreenGrab.CurrentCompressionFactor;
         }
     }

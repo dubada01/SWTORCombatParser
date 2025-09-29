@@ -13,7 +13,7 @@ namespace SWTORCombatParser.DataStructures
     public class CombatMetaDataSeries : INotifyPropertyChanged
     {
         public event Action<bool> TriggerRender = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         public LegendItemViewModel Legend { get; set; }
         public Dictionary<DateTime, Callout> Tooltip { get; internal set; } = new Dictionary<DateTime, Callout>();
         public Dictionary<DateTime, Callout> EffectiveTooltip { get; internal set; } = new Dictionary<DateTime, Callout>();
@@ -30,7 +30,7 @@ namespace SWTORCombatParser.DataStructures
         public string Name;
 
         public Color Color;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }

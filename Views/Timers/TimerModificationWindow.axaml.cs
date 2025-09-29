@@ -44,11 +44,11 @@ namespace SWTORCombatParser.Views.Timers
 
         private void CheckForForceToVisualsTab(object? sender, RoutedEventArgs routedEventArgs)
         {
-            if (!VariableCheck.IsChecked.Value)
+            if (!VariableCheck.IsChecked ?? false)
             {
                 EffectsTabStrip.SelectedIndex = 0;
             }
-            if (VariableCheck.IsChecked.Value && EffectsTabStrip.SelectedIndex == 0)
+            if (VariableCheck.IsChecked ?? false && EffectsTabStrip.SelectedIndex == 0)
             {
                 EffectsTabStrip.SelectedIndex = 1;
             }

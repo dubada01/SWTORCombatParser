@@ -6,7 +6,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Update
 {
-    internal class UpdateInstanceViewModel:ReactiveObject
+    internal class UpdateInstanceViewModel : ReactiveObject
     {
         public UpdateInstanceViewModel(UpdateMessage message)
         {
@@ -27,14 +27,14 @@ namespace SWTORCombatParser.ViewModels.Update
         public event Action<UpdateInstanceViewModel> OnClear = delegate { };
         public string HeaderText { get; set; }
         public string ContentText { get; set; }
-        public ReactiveCommand<Unit,Unit> ClearCommand => ReactiveCommand.Create(Clear);
+        public ReactiveCommand<Unit, Unit> ClearCommand => ReactiveCommand.Create(Clear);
         public void Clear()
         {
             OnClear(this);
         }
         public bool HasAction { get; set; }
         public string ActionText { get; set; } = "Update";
-        public ReactiveCommand<Unit,Unit> ActionCommand => ReactiveCommand.Create(CustomAction);
+        public ReactiveCommand<Unit, Unit> ActionCommand => ReactiveCommand.Create(CustomAction);
         public Action CustomAction { get; set; }
     }
 }

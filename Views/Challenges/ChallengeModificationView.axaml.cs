@@ -34,7 +34,7 @@ namespace SWTORCombatParser.Views.Challenges
         {
             Close();
         }
-        private void Cancel(object sender, RoutedEventArgs e)
+        private void Cancel(object? sender, RoutedEventArgs e)
         {
             _vm.Cancel();
             Close();
@@ -47,7 +47,7 @@ namespace SWTORCombatParser.Views.Challenges
         }
 
         private void StopDrag(object? sender, PointerReleasedEventArgs e)
-        
+
         {
             _isDragging = false;
         }

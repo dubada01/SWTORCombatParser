@@ -20,7 +20,7 @@ using SWTORCombatParser.ViewModels.DataGrid;
 
 namespace SWTORCombatParser.Views.DataGrid_Views
 {
-    
+
     public static class VisualTreeHelpers
     {
         /// <summary>
@@ -88,10 +88,10 @@ namespace SWTORCombatParser.Views.DataGrid_Views
         private void SetDefaultSorting(object? sender, RoutedEventArgs e)
         {
             var sortingInfo = Settings.ReadSettingOfType<string>("grid_sort");
-            
+
             if (string.IsNullOrWhiteSpace(sortingInfo) || sortingInfo.Length < 2)
                 throw new InvalidOperationException("Invalid sort settings format.");
-            
+
             string sortProperty = sortingInfo.Split("_+_")[0];
             if (!int.TryParse(sortingInfo.Split("_+_")[1], out int direction))
             {
@@ -123,7 +123,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                 for (int i = 0; i < statCount; i++)
                 {
                     var statSlot = firstRow.StatsSlots[i];
-                    if(statSlot.Header == "None")
+                    if (statSlot.Header == "None")
                     {
                         continue;
                     }
@@ -191,7 +191,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                                 // Optionally, you can set other TextBlock properties here
                                 // such as FontWeight, FontSize, etc.
                             },
-                            CellStyleClasses = { "rightAlign","static" },
+                            CellStyleClasses = { "rightAlign", "static" },
                             CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
                             {
                                 var statToDisplay = member.StatsSlots.FirstOrDefault(s => s.Header == statSlot.Header);
@@ -206,7 +206,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                                     VerticalAlignment = VerticalAlignment.Center,
                                     FontWeight = member.IsTotalsRow ? FontWeight.Bold : FontWeight.Normal,
                                     FontSize = member.IsTotalsRow ? 11 : 10,
-                                    Margin = new Thickness(0,0,5,0)
+                                    Margin = new Thickness(0, 0, 5, 0)
                                 };
                                 return textBox;
                             }),
@@ -250,7 +250,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                     UpdateColumnForSort(textColumn);
                     ForceSort();
                     SetSortIcon(textColumn);
-                    Settings.WriteSetting("grid_sort",GetSortInfo());
+                    Settings.WriteSetting("grid_sort", GetSortInfo());
                 }
             });
         }
@@ -259,7 +259,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
         {
             var direction = ((int)_sortDirection).ToString();
             var property = _sortProperty;
-            return property +"_+_"+ direction;
+            return property + "_+_" + direction;
         }
 
         private void UpdateColumnForSort(DataGridTemplateColumn textColumn)
@@ -276,7 +276,7 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                 // Update the Tag to store the current sort direction
                 textColumn.Tag = _sortDirection;
                 // Retrieve the sort property based on the binding
-// Retrieve the sort property based on the binding
+                // Retrieve the sort property based on the binding
                 _sortProperty = ((textColumn.Header as TextBlock)?.Tag as StatsSlotViewModel).Header;
             }
         }

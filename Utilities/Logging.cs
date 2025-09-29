@@ -66,7 +66,7 @@ namespace SWTORCombatParser.Utilities
             }
             catch (Exception exception)
             {
-                LogError("ERROR: Could not load logging config.\r\n"+ exception.Message);
+                LogError("ERROR: Could not load logging config.\r\n" + exception.Message);
                 //LogError("Failed to determine logging configuration. Please close and save LoggingConfig.json");
             }
 

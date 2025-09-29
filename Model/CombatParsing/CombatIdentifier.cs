@@ -38,7 +38,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             Combat? combatShell = null,
             bool isRealtime = false,
             bool combatEndUpdate = false,
-            bool isOverallCombat = false,int overallCombatDuration = 0)
+            bool isOverallCombat = false, int overallCombatDuration = 0)
         {
             var combatToUpdate = combatShell ?? CurrentCombat;
 
@@ -85,7 +85,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 if (!isOverallCombat)
                     combatToUpdate.EndTime = log.TimeStamp;
             }
-            
+
             if (isOverallCombat)
                 combatToUpdate.EndTime = combatToUpdate.StartTime.AddSeconds(overallCombatDuration);
 
@@ -136,16 +136,16 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             var combatShell = new Combat();
             // build into CurrentCombat without capturing its return
-            GenerateCombatFromLogs(logs, combatShell: combatShell, isRealtime,  combatEndUpdate, true,overallCombatDuration);
+            GenerateCombatFromLogs(logs, combatShell: combatShell, isRealtime, combatEndUpdate, true, overallCombatDuration);
             // return only the snapshot instance
             return combatShell;
         }
- /// <summary>
+        /// <summary>
         /// Shared post-merge logic: metadata, shields, cooldowns, events.
         /// </summary>
         private static void PostMetadata(bool isRealtime, bool combatEndUpdate, List<ParsedLogEntry> newLogs, bool isFirstUpdate, Combat combatToUpdate)
         {
-            if(isFirstUpdate)
+            if (isFirstUpdate)
                 CombatMetaDataParse.PopulateMetaData(combatToUpdate);
             else
                 CombatMetaDataParse.ApplyIncrementalMetaData(combatToUpdate, newLogs);
@@ -175,7 +175,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         }
 
         private static void MergeEntityLog(Entity e, ParsedLogEntry log, Combat combatToUpdate)
-        {            
+        {
             if (!combatToUpdate.LogsInvolvingEntity.TryGetValue(e.LogId, out var list))
             {
                 list = new ConcurrentQueue<ParsedLogEntry>();
@@ -211,7 +211,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 }
             }
         }
-        
+
         private static EncounterInfo GetEncounterInfo(DateTime combatStartTime)
         {
             return CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStartTime);
@@ -224,7 +224,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             var validLogs = logs.Where(l => !(l.Effect.EffectType == EffectType.TargetChanged && l.Source.IsCharacter) && !string.IsNullOrEmpty(l.Target.Name)).ToList();
             if (currentEncounter.Name.Contains("Open World"))
             {
-                if (validLogs.Select(l => l.Target).DistinctBy(t => t.LogId).Any(t => EncounterLoader.OpenWorldBosses.Any(owb=>owb.BossId == t.LogId)))
+                if (validLogs.Select(l => l.Target).DistinctBy(t => t.LogId).Any(t => EncounterLoader.OpenWorldBosses.Any(owb => owb.BossId == t.LogId)))
                 {
                     var dummyTarget = validLogs.Select(l => l.TargetInfo).First(t => EncounterLoader.OpenWorldBosses.Any(owb => owb.BossId == t.Entity.LogId));
                     var owb = EncounterLoader.OpenWorldBosses.First(owb => owb.BossId == dummyTarget.Entity.LogId);

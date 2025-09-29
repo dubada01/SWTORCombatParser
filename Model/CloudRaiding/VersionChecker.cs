@@ -38,11 +38,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     CreateNoWindow = true
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                 {
-                    var warning = MessageBoxManager.GetMessageBoxStandard("An error occurred while trying to open the Microsoft Store. Make sure the Microsoft Store is installed and the Package Family Name is correct.","Are you sure?");
+                    var warning = MessageBoxManager.GetMessageBoxStandard("An error occurred while trying to open the Microsoft Store. Make sure the Microsoft Store is installed and the Package Family Name is correct.", "Are you sure?");
                     await warning.ShowAsync();
                 }
             }

@@ -20,7 +20,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private System.Timers.Timer _timer;
         private bool _inCombat;
         public override bool ShouldBeVisible => ShowFrame;
-        public BrossFrameView _bossFrame { get; set; }
+        public BossFrameView _bossFrame { get; set; }
         public static event Action<bool> InCombatWithBoss = delegate { };
         public bool BossFrameEnabled
         {
@@ -35,13 +35,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 DefaultBossFrameManager.SetActiveState(bossFrameEnabled);
             }
         }
-        public ReactiveCommand<Unit,Unit> IncreaseCommand => ReactiveCommand.Create(Increase);
+        public ReactiveCommand<Unit, Unit> IncreaseCommand => ReactiveCommand.Create(Increase);
 
         private void Increase()
         {
             CurrentScale += 0.1;
         }
-        public ReactiveCommand<Unit,Unit> DecreaseCommand => ReactiveCommand.Create(Decrease);
+        public ReactiveCommand<Unit, Unit> DecreaseCommand => ReactiveCommand.Create(Decrease);
 
         private void Decrease()
         {
@@ -82,7 +82,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             };
             CombatLogStreamer.CombatUpdated += OnNewLog;
             CombatLogStreamer.NewLineStreamed += HandleNewLog;
-            _bossFrame = new BrossFrameView(this);
+            _bossFrame = new BossFrameView(this);
             MainContent = _bossFrame;
             SetAutoScaleHeight();
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
@@ -167,7 +167,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
                     }
                     else
-                        activeBoss.LogWithBoss(boss,log.TimeStamp);
+                        activeBoss.LogWithBoss(boss, log.TimeStamp);
                 }
             }
         }

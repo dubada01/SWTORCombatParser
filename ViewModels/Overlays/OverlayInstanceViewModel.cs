@@ -4,7 +4,7 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -158,7 +158,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             if (type == Type)
                 this.RaisePropertyChanged(nameof(Type));
-            if(type == SecondaryType)
+            if (type == SecondaryType)
                 this.RaisePropertyChanged(nameof(SecondaryType));
         }
         private IDisposable _updateSub;
@@ -195,7 +195,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             UpdateLeaderboardValues(obj);
         }
 
-        private void UpdateStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> obj)
+        private void UpdateStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?> obj)
         {
             AddLeaderboardStandings(obj);
         }
@@ -318,7 +318,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void RefreshBarViews(Combat combatToDisplay)
         {
             OverlayMetricInfo metricToUpdate;
-            
+
             if (combatToDisplay.CharacterParticipants.Count == 0)
                 return;
             foreach (var participant in combatToDisplay.CharacterParticipants)
@@ -333,7 +333,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 else
                 {
-                    metricToUpdate = new OverlayMetricInfo() { ClassIcon =  IconFactory.GetClassIcon(swtorClass.Discipline),Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
+                    metricToUpdate = new OverlayMetricInfo() { ClassIcon = IconFactory.GetClassIcon(swtorClass.Discipline), Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
                     _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
                 var primaryType = Type;
@@ -380,7 +380,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
 
         }
-        private void AddLeaderboardStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> leaderboardInfo)
+        private void AddLeaderboardStandings(Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>?> leaderboardInfo)
         {
             foreach (var metricBar in _metricBarsDict)
             {
@@ -410,7 +410,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             var originalType = type;
             if (type == OverlayType.DPS)
                 type = OverlayType.FluffDPS;
-            if(type == OverlayType.EHPS)
+            if (type == OverlayType.EHPS)
                 type = OverlayType.EHPSNoShielding;
             var value = MetricGetter.GetValueForMetric(type, obj, participant);
             metricToUpdate.Value = value;

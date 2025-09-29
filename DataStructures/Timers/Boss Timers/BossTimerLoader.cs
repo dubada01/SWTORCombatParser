@@ -16,7 +16,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
             List<DefaultTimersData> bossTimerData = new List<DefaultTimersData>();
             foreach (var file in Directory.EnumerateFiles(Path.Combine(Environment.CurrentDirectory, @"DataStructures/Timers/Boss Timers/Raids"), "*", SearchOption.AllDirectories))
             {
-                if(file.Contains("Propagator"))
+                if (file.Contains("Propagator"))
                     Debug.WriteLine("Here");
                 var bossTimers = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(file));
                 if (bossTimers == null)
@@ -36,7 +36,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
             {
                 if (source.Timers.Count == 0)
                     continue;
-                if(source.TimerSource.Contains("Propagator"))
+                if (source.TimerSource.Contains("Propagator"))
                     Debug.WriteLine("Here");
                 source.IsBossSource = true;
                 foreach (var timer in source.Timers)

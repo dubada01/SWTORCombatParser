@@ -1,7 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.PvP;
 using System;
@@ -36,7 +36,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private DispatcherTimer _dTimer;
         private bool _isTriggered;
         private DateTime _lastUpdate;
-        private Combat _mostRecentCombat;
+        private Combat? _mostRecentCombat;
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
         private bool _showFrame;
 
@@ -181,7 +181,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             return (DateTime.Now - lastInfoTime).TotalSeconds < 5;
         }
 
-        private void CheckForNewState(object sender, EventArgs e)
+        private void CheckForNewState(object? sender, EventArgs e)
         {
             if (_lastUpdatedPlayer.Count == 0)
                 return;

@@ -1,7 +1,7 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.PvP;
 using System;
@@ -21,7 +21,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private DispatcherTimer _dTimer;
         private bool _isTriggered;
         private DateTime _lastUpdate;
-        private Combat _mostRecentCombat;
+        private Combat? _mostRecentCombat;
         private Dictionary<string, double> _currentHps = new Dictionary<string, double>();
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
         private object _combatUpdateLock = new object();
@@ -51,7 +51,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private void OnPvpCombatStarted()
         {
-            
+
             if (!OverlayEnabled || _isTriggered)
                 return;
             _isTriggered = true;
@@ -82,7 +82,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
 
             Dispatcher.UIThread.Invoke(() =>
-            {           
+            {
                 ResetUI();
                 ShowFrame = false;
                 _dTimer.Stop();
@@ -180,7 +180,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             }
         }
 
-        private void CheckForNewState(object sender, EventArgs e)
+        private void CheckForNewState(object? sender, EventArgs e)
         {
             var sorted = (from entry in _currentHps orderby entry.Key ascending select entry).ToList();
             foreach (var opponent in sorted)

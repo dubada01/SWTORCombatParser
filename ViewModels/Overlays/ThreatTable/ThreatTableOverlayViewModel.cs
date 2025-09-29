@@ -8,12 +8,12 @@ using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using SWTORCombatParser.ViewModels.CombatMonitoring;
 using SWTORCombatParser.Views.Overlay.ThreatTable;
 
 namespace SWTORCombatParser.ViewModels.Overlays.ThreatTable;
 
-public class ThreatTableOverlayViewModel :BaseOverlayViewModel
+public class ThreatTableOverlayViewModel : BaseOverlayViewModel
 {
     private readonly ThreatTableOverlayView _threatTableView;
     private readonly OverlayInfo _settings;
@@ -49,8 +49,8 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
             var logIdCountByEntity = groupedByLogId.ToDictionary(g => g.Key, g => g.Value.Count);
             var topDpsEnemies = GetTop3DamageEnemies(combat);
             var enemies = combat.PlayerThreatPerEnemy.Keys
-                .Where(k => GetThreatPriorityScore(k, combat,topDpsEnemies) > 0)
-                .OrderByDescending(k=>GetThreatPriorityScore(k, combat,topDpsEnemies));
+                .Where(k => GetThreatPriorityScore(k, combat, topDpsEnemies) > 0)
+                .OrderByDescending(k => GetThreatPriorityScore(k, combat, topDpsEnemies));
             foreach (var key in enemies)
             {
                 Dispatcher.UIThread.Invoke(() =>
@@ -73,7 +73,7 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
                         return;
                     var newEntry = new ThreatTableEntryViewModel(key.Id);
                     newEntry.UpdateEntry(combat, entityIndexById, logIdCountByEntity);
-                    if(!string.IsNullOrEmpty(newEntry.EnemyName))
+                    if (!string.IsNullOrEmpty(newEntry.EnemyName))
                         ThreatEntries.Add(new ThreatTableEntry(newEntry));
                 });
             }
@@ -83,7 +83,7 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
             {
                 if (enemies.Any(e => e.Id == existingId)) continue;
                 {
-                    var entityToRemove = ThreatEntries.First(e=>e.ViewModel.EnemyId == existingId);
+                    var entityToRemove = ThreatEntries.First(e => e.ViewModel.EnemyId == existingId);
                     Dispatcher.UIThread.Invoke(() => { ThreatEntries.Remove(entityToRemove); });
                 }
             }
@@ -102,7 +102,7 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
 
         if (topDpsEnemies.Contains(enemy))
             score += 10;
-        
+
         if (_userAddedIds.Contains(enemy.LogId))
             score += 800;
         if ((combat.EndTime - combat.LogsInvolvingEntity[enemy.LogId].Last().TimeStamp).TotalSeconds > 10)
@@ -112,7 +112,7 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
     private HashSet<Entity> GetTop3DamageEnemies(Combat combat)
     {
         return combat.DPS
-            .Where(kvp=>!kvp.Key.IsCharacter)
+            .Where(kvp => !kvp.Key.IsCharacter)
             .OrderByDescending(kvp => kvp.Value)
             .Take(3)
             .Select(kvp => kvp.Key)
