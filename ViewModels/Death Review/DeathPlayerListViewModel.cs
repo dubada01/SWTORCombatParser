@@ -101,7 +101,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         {
             AvailableParticipants.Clear();
             SelectedParticipants.Clear();
-            var entitiesToView = info.CharacterParticipants;
+            var entitiesToView = info.CharacterParticipants.Values;
             foreach (var participant in entitiesToView)
             {
                 ParticipantViewModel participantViewModel = GenerateInstance(participant, playersDiedNatrually.Contains(participant));

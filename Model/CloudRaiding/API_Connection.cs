@@ -74,47 +74,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return false;
             }
         }
-        public static async Task<List<string>> GetEncountersWithEntries()
-        {
-            List<string> entriesFound = new List<string>();
-            if (Settings.ReadSettingOfType<bool>("offline_mode"))
-                return entriesFound;
-            try
-            {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getEncounterWithEntries");
-                    var response = await connection.GetAsync(uri);
-                    var body = await response.Content.ReadFromJsonAsync<List<string>>();
-                    return body;
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError(e.Message);
-                return entriesFound;
-            }
-        }
-        public static async Task<string> GetEncounterForBossName(string bossName)
-        {
-            if (Settings.ReadSettingOfType<bool>("offline_mode"))
-                return "";
-            try
-            {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getEncounterForBoss?bossName={HttpUtility.UrlEncode(bossName)}");
-                    var response = await connection.GetAsync(uri);
-                    var body = await response.Content.ReadAsStringAsync();
-                    return body;
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError(e.Message);
-                return "";
-            }
-        }
         public static async Task<Version> GetMostRecentVersion()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
@@ -133,49 +92,6 @@ namespace SWTORCombatParser.Model.CloudRaiding
             {
                 Logging.LogError(e.Message);
                 return new Version();
-            }
-        }
-        public static async Task<LeaderboardValueStats> GetCurrentStatsForBossOfType(string boss, string encounter, string type)
-        {
-            if (Settings.ReadSettingOfType<bool>("offline_mode"))
-                return new LeaderboardValueStats();
-            try
-            {
-                using (HttpClient connection = new HttpClient())
-                {
-                    var str = JsonConvert.SerializeObject(new List<string> { boss, encounter, type });
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getValueStatsForBossOfType");
-                    var response = await connection.PostAsync(uri, content);
-                    var body = await response.Content.ReadFromJsonAsync<LeaderboardValueStats>();
-                    return body;
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError(e.Message);
-                return new LeaderboardValueStats();
-            }
-        }
-        public static async Task<List<string>> GetBossesFromEncounterWithEntries(string encounter)
-        {
-            List<string> bossesFound = new List<string>();
-            if (Settings.ReadSettingOfType<bool>("offline_mode"))
-                return bossesFound;
-            try
-            {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getBossesFromEncounterWithEntries?encounter={HttpUtility.UrlEncode(encounter)}");
-                    var response = await connection.GetAsync(uri);
-                    var body = await response.Content.ReadFromJsonAsync<List<string>>();
-                    return body;
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError(e.Message);
-                return bossesFound;
             }
         }
         public static async Task<LeaderboardTop> GetTopBossEntry(string bossName, string encounter, LeaderboardEntryType entryType, string className, bool filterClass)
@@ -270,66 +186,46 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new int[100];
             }
         }
-        public static async Task<PercentileInfo> GetPercentileForBoss(string bossName, string encounter, LeaderboardEntryType entryType, string playerName, string className, double value, string participantClass, bool filterClass)
-        {
-            if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
-                return new PercentileInfo();
-            try
-            {
-                using (HttpClient connection = new HttpClient())
-                {
-
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getPercentileForBossAndValue");
-                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), playerName, className, participantClass,  value.ToString() , filterClass.ToString()});
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    var response = await connection.PostAsync(uri, content);
-                    var body = await response.Content.ReadFromJsonAsync<PercentileInfo>();
-                    return body;
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError(e.Message);
-                return new PercentileInfo();
-            }
-        }
-        public static async Task<List<LeaderboardEntry>> GetEntriesForBossOfType(string bossName, string encounter, LeaderboardEntryType entryType)
-        {
-            List<LeaderboardEntry> entriesFound = new List<LeaderboardEntry>();
-            if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
-                return entriesFound;
-            try
-            {
-                using (HttpClient connection = new HttpClient())
-                {
-
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getEntriesForBossOfTypeLimited");
-                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString() });
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    var response = await connection.PostAsync(uri, content);
-                    var body = await response.Content.ReadFromJsonAsync<List<LeaderboardEntry>>();
-                    return body;
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError(e.Message);
-                return entriesFound;
-            }
-        }
-        public static async Task<List<TimeTrialLeaderboardEntry>> GetTimeTrialEntriesForBoss(string bossName, string encounterName, string difficulty, string playerCount)
+        public static async Task<List<TimeTrialLeaderboardEntry>> GetTimeTrialEntriesForBoss(
+            string bossName,
+            string encounterName,
+            string difficulty,
+            string playerCount)
         {
             List<TimeTrialLeaderboardEntry> entriesFound = new List<TimeTrialLeaderboardEntry>();
             if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
                 return entriesFound;
+
             try
             {
                 using (HttpClient connection = new HttpClient())
                 {
-                    Uri uri = new Uri($"{_apiPath}/trial_leaderboard/getEntriesForBoss?bossfightName={HttpUtility.UrlEncode(bossName)}&encounter={HttpUtility.UrlEncode(encounterName)}&difficulty={HttpUtility.UrlEncode(difficulty)}&playerCount={HttpUtility.UrlEncode(playerCount)}");
+                    Uri uri = new Uri($"{_apiPath}/trial_leaderboard/getEntriesForBoss" +
+                                      $"?bossfightName={HttpUtility.UrlEncode(bossName)}" +
+                                      $"&encounter={HttpUtility.UrlEncode(encounterName)}" +
+                                      $"&difficulty={HttpUtility.UrlEncode(difficulty)}" +
+                                      $"&playerCount={HttpUtility.UrlEncode(playerCount)}");
+
                     var response = await connection.GetAsync(uri);
+
+                    // Check CloudFront cache status
+                    if (response.Headers.TryGetValues("X-Cache", out var values))
+                    {
+                        string xCache = string.Join(",", values);
+                        if (xCache.Contains("Hit", StringComparison.OrdinalIgnoreCase))
+                            Logging.LogInfo($"CloudFront cache HIT: {xCache}");
+                        else if (xCache.Contains("Miss", StringComparison.OrdinalIgnoreCase))
+                            Logging.LogInfo($"CloudFront cache MISS: {xCache}");
+                        else
+                            Logging.LogInfo($"CloudFront cache status: {xCache}");
+                    }
+                    else
+                    {
+                        Logging.LogInfo("CloudFront cache header not present.");
+                    }
+
                     var body = await response.Content.ReadFromJsonAsync<List<TimeTrialLeaderboardEntry>>();
-                    return body;
+                    return body ?? entriesFound;
                 }
             }
             catch (Exception e)

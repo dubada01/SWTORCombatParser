@@ -64,7 +64,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
         {
             if (_currentCombat == null)
                 return;
-            AvailableOthers = _currentCombat.AllEntities.Where(e => e != SelectedParticipant).Select(e => e.Name).ToList();
+            AvailableOthers = _currentCombat.AllEntities.Values.Where(e => e != SelectedParticipant).Select(e => e.Name).ToList();
             AvailableOthers.Insert(0, "Enemies");
             AvailableOthers.Insert(0, "Friends");
             AvailableOthers.Insert(0, "All");
@@ -195,16 +195,16 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             if (SelectedOther == "Enemies")
             {
                 if (SelectedEffectType.Split("->")[0].Trim() == "Other")
-                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Contains(m.Source)).ToList();
+                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Values.Contains(m.Source)).ToList();
                 if (SelectedEffectType.Split("->")[0].Trim() != "Other")
-                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Contains(m.Target)).ToList();
+                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Values.Contains(m.Target)).ToList();
             }
             if (SelectedOther == "Friends")
             {
                 if (SelectedEffectType.Split("->")[0].Trim() == "Other")
-                    return releventMods.Where(m => _currentCombat.CharacterParticipants.Contains(m.Source)).ToList();
+                    return releventMods.Where(m => _currentCombat.CharacterParticipants.Values.Contains(m.Source)).ToList();
                 if (SelectedEffectType.Split("->")[0].Trim() != "Other")
-                    return releventMods.Where(m => _currentCombat.CharacterParticipants.Contains(m.Target)).ToList();
+                    return releventMods.Where(m => _currentCombat.CharacterParticipants.Values.Contains(m.Target)).ToList();
             }
             if (SelectedEffectType.Split("->")[0].Trim() == "Other")
                 return releventMods.Where(m => m.Source.Name == SelectedOther).ToList();

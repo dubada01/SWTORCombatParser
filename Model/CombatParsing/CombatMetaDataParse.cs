@@ -26,7 +26,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
             combat.Initiator = combat.AllLogs.OrderBy(kvp=>kvp.Key).FirstOrDefault(l =>
                 l.Value.Effect.EffectType == EffectType.TargetChanged && !l.Value.Source.IsCharacter).Value?.Target;
             //Parallel.ForEach(combatToPopulate.AllEntities, entitiy =>
-            foreach (var entity in combatToPopulate.AllEntities)
+            foreach (var entity in combatToPopulate.AllEntities.Values)
             {
                 var logsInScope = combat.GetLogsInvolvingEntity(entity);
 
@@ -233,8 +233,8 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
             if ((combat.DurationSeconds % 50) == 0 || !combat.HasBurstValues() || combat.AllBurstDamages.Keys.Count != combat.CharacterParticipants.Count)
                 combat.SetBurstValues();
 
-            var healers = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == Role.Healer);
-            var tanks = combat.CharacterParticipants.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == Role.Tank);
+            var healers = combat.CharacterParticipants.Values.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == Role.Healer);
+            var tanks = combat.CharacterParticipants.Values.Where(p => CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(p, combat.EndTime).Role == Role.Tank);
 
             foreach (var healer in healers)
             {
@@ -251,9 +251,8 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 // lazy‐init every dictionary/list for brand‐new entities
             void EnsureEntity(Entity e)
             {
-                if(!combat.AllEntities.Contains(e))
-                    combat.AllEntities.Add(e);
-                
+                combat.AllEntities.TryAdd(e.LogId, e);
+
                 // per‐entity buckets of parsed logs
                 if (!combat.TotalAbilites.ContainsKey(e))
                 {
@@ -491,12 +490,12 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 
             // 4) Recompute healers’ reaction times (uses the full
             //    BigDamageTimestamps and AbilitiesActivated lists):
-            var healers = combat.CharacterParticipants
+            var healers = combat.CharacterParticipants.Values
                 .Where(p => CombatLogStateBuilder.CurrentState
                     .GetCharacterClassAtTime(p, combat.EndTime)
                     .Role == Role.Healer);
 
-            var tanks = combat.CharacterParticipants
+            var tanks = combat.CharacterParticipants.Values
                 .Where(p => CombatLogStateBuilder.CurrentState
                     .GetCharacterClassAtTime(p, combat.EndTime)
                     .Role == Role.Tank)

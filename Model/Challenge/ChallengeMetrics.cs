@@ -39,7 +39,7 @@ namespace SWTORCombatParser.Model.Challenge
                     value = activeChallenge.UseMaxValue ? combat.GetMaxEffectStacks(ulong.TryParse(activeChallenge.Value, out var challenge) ? challenge : 0, participant) : combat.GetCurrentEffectStacks(ulong.TryParse(activeChallenge.Value, out var _challenge) ? _challenge : 0, participant);
                     break;
                 case ChallengeType.MetricDuringPhase:
-                    if (combat.DurationMS > 0 && phaseCombat.AllEntities.Contains(participant))
+                    if (combat.DurationMS > 0 && phaseCombat.AllEntities.Values.Contains(participant))
                         value = MetricGetter.GetValueForMetric(activeChallenge.PhaseMetric,  phaseCombat, participant);
                     break;
             }

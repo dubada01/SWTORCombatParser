@@ -81,9 +81,10 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
             }
             validLines.Add(areaEnteredLog);
-            for (int i = startLog; i <= endLog; i++)
+            for (int i = startLog; i < endLog; i++)
             {
-                validLines.Add(logLines[i]);
+                if(logLines.Count < i)
+                    validLines.Add(logLines[i]);
             }
             return validLines;
         }

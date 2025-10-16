@@ -128,7 +128,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
                 var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
                 var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
-                foreach (var participant in newCombat.CharacterParticipants)
+                foreach (var participant in newCombat.CharacterParticipants.Values)
                 {
                     if (!LeaderboardStandings.ContainsKey(participant))
                     {
@@ -219,7 +219,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             List<LeaderboardEntry> boardEntries = new List<LeaderboardEntry>();
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
-                foreach (var player in combat.CharacterParticipants)
+                foreach (var player in combat.CharacterParticipants.Values)
                 {
                     var newValue = GetValueForLeaderboardEntry(enumVal, combat, player);
 

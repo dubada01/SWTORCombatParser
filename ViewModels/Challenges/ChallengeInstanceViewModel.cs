@@ -79,7 +79,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             if (_phaseOfInterest != null && _phaseOfInterest.Any())
                 phaseCombat = combatToDisplay.GetPhaseCopy(_phaseOfInterest);
             List<Task> metricUpdateTasks = new List<Task>();
-            foreach (var participant in combatToDisplay.AllEntities)
+            foreach (var participant in combatToDisplay.AllEntities.Values)
             {
                 ChallengeOverlayMetricInfo metricToUpdate;
                 if (_metricBarsDict.Any(m => m.Key.Item1 == participant.Name))

@@ -89,7 +89,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             if (isOverallCombat)
                 combatToUpdate.EndTime = combatToUpdate.StartTime.AddSeconds(overallCombatDuration);
 
-            foreach (var entity in combatToUpdate.AllEntities.Select(e => e.LogId))
+            foreach (var entity in combatToUpdate.AllEntities.Values.Select(e => e.LogId))
             {
                 if (!combatToUpdate.LogsInvolvingEntity.ContainsKey(entity))
                     combatToUpdate.LogsInvolvingEntity = new Dictionary<long, ConcurrentQueue<ParsedLogEntry>>();
@@ -186,9 +186,9 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         private static void AddParticipant(Entity e, DateTime timestamp, Combat combatToUpdate)
         {
-            if (combatToUpdate.CharacterParticipants.All(p => p.LogId != e.LogId))
+            if (combatToUpdate.CharacterParticipants.All(p => p.Value.LogId != e.LogId))
             {
-                combatToUpdate.CharacterParticipants.Add(e);
+                combatToUpdate.CharacterParticipants[e.LogId] = e;
                 combatToUpdate.CharacterClases[e] = CombatLogStateBuilder.CurrentState
                     .GetCharacterClassAtTime(e, timestamp);
             }
@@ -200,14 +200,14 @@ namespace SWTORCombatParser.Model.CombatParsing
             {
                 if (log.Target != null && (!log.Target.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(log.Target, combatToUpdate.StartTime)) && !log.Target.IsCompanion && log.Target.Name != null)
                 {
-                    if (combatToUpdate.Targets.All(t => t.Id != log.Target.Id))
-                        combatToUpdate.Targets.Add(log.Target);
+                    if (combatToUpdate.Targets.All(t => t.Value.Id != log.Target.Id))
+                        combatToUpdate.Targets[log.Target.LogId] =  log.Target;
                 }
 
                 if (log.Source != null && (!log.Source.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(log.Source, combatToUpdate.StartTime)) && !log.Source.IsCompanion && log.Source.Name != null)
                 {
-                    if (combatToUpdate.Targets.All(t => t.Id != log.Source.Id))
-                        combatToUpdate.Targets.Add(log.Source);
+                    if (combatToUpdate.Targets.All(t => t.Value.Id != log.Source.Id))
+                        combatToUpdate.Targets[log.Source.LogId] =  log.Source;
                 }
             }
         }

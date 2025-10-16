@@ -10,7 +10,7 @@ public static class MetricGetter
     public static double GetValueForMetric(OverlayType type, List<Combat> combats, Entity participant)
     {
         double value = 0;
-        if (!combats.Any(c => c.CharacterParticipants.Contains(participant)))
+        if (!combats.Any(c => c.CharacterParticipants.ContainsKey(participant.LogId)))
             return value;
         switch (type)
         {
@@ -290,7 +290,7 @@ public static class MetricGetter
     public static double GetValueForMetric(OverlayType type, Combat combat, Entity participant)
     {
         double value = 0;
-        if (!combat.CharacterParticipants.Contains(participant))
+        if (!combat.CharacterParticipants.ContainsKey(participant.LogId))
             return value;
         switch (type)
         {

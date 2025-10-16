@@ -6678,7 +6678,7 @@
         "IsBuiltInDefensive": false,
         "IsBuiltInOffensive": false,
         "IsImportedFromSP": false,
-        "TimerRev": 10,
+        "TimerRev": 11,
         "IsUserAddedTimer": false,
         "IsMechanic": true,
         "Clause1": null,

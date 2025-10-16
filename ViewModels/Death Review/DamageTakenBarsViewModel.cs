@@ -131,7 +131,7 @@ public class DamageTakenBarsViewModel:ReactiveObject
         if(string.IsNullOrEmpty(_currentAbility))
             return;
         _playerDamageTaken = new Dictionary<Entity, double>();
-        foreach (var player in _currentCombat.CharacterParticipants)
+        foreach (var player in _currentCombat.CharacterParticipants.Values)
         {
             _playerDamageTaken[player] =  _currentSource.IsCharacter ?  
                 (_currentCombat.GetDamageIncomingByAbilityForPlayer(_currentAbility, player)/_currentCombat.DurationSeconds) :  
@@ -172,7 +172,7 @@ public class DamageTakenBarsViewModel:ReactiveObject
         _abilityDamageTaken = new Dictionary<RichAbility, double>(new RichAbilityComparer());
         if (_currentPlayer == "All Players")
         {
-            foreach(var player in _currentCombat.CharacterParticipants)
+            foreach(var player in _currentCombat.CharacterParticipants.Values)
             {
                 var abilityResults = _currentCombat.GetIncomingDamageByAbilityRich(player);
                 foreach(var ability in abilityResults)
@@ -186,7 +186,7 @@ public class DamageTakenBarsViewModel:ReactiveObject
         }
         else
         {
-            var player = _currentCombat.CharacterParticipants.First(e=>e.Name == _currentPlayer);
+            var player = _currentCombat.CharacterParticipants.Values.First(e=>e.Name == _currentPlayer);
             var abilityResults = _currentCombat.GetIncomingDamageByAbilityRich(player);
             foreach(var ability in abilityResults)
             {

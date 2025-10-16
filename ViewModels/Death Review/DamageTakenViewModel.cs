@@ -40,7 +40,7 @@ public class DamageTakenViewModel
     {
         _specificAbilityDamageTakenViewModel.SetAbility(obj.Text,obj.Source);
         _deathPlotViewModel.Reset();
-        _deathPlotViewModel.PlotCombat(_currentCombat,_currentCombat.CharacterParticipants,obj.Text, obj.Source);
+        _deathPlotViewModel.PlotCombat(_currentCombat,_currentCombat.CharacterParticipants.Values,obj.Text, obj.Source);
     }
 
     public void SetCombat(Combat combat)
@@ -59,7 +59,7 @@ public class DamageTakenViewModel
             var mostDamagingAbility = abilityDamage.MaxBy(e => e.Value).Key;
             _specificAbilityDamageTakenViewModel.SetAbility(mostDamagingAbility.AbilityName, mostDamagingAbility.AbilitySource);
             _deathPlotViewModel.Reset();
-            _deathPlotViewModel.PlotCombat(combat,combat.CharacterParticipants,mostDamagingAbility.AbilityName, mostDamagingAbility.AbilitySource);
+            _deathPlotViewModel.PlotCombat(combat,combat.CharacterParticipants.Values,mostDamagingAbility.AbilityName, mostDamagingAbility.AbilitySource);
         }
     }
 }

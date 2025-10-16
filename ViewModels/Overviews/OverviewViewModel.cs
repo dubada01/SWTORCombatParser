@@ -86,7 +86,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             }
             else
             {
-                AvailableParticipants = new ObservableCollection<Entity>(_currentCombat.AllEntities.DistinctBy(l=>l.LogId));
+                AvailableParticipants = new ObservableCollection<Entity>(_currentCombat.AllEntities.Values);
                 if (!AvailableParticipants.Any(p => p.IsLocalPlayer))
                 {
                     SelectedEntity = AvailableParticipants.FirstOrDefault();

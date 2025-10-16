@@ -30,7 +30,7 @@ public class TenSecondRecapViewModel:ReactiveObject
     private List<Entity> _inScopeBosses = new List<Entity>();
     private List<EffectAndStack> _selectedPlayerDebuffs;
     private List<EffectAndStack> _selectedBossBuffs;
-    private List<Entity> _inScopePlayers = new List<Entity>();
+    private IEnumerable<Entity> _inScopePlayers = new List<Entity>();
     private List<Entity> _availableBosses;
     private readonly string _allPlayers = "All Players";
     private readonly string _allBosses = "All Bosses";
@@ -65,7 +65,7 @@ public class TenSecondRecapViewModel:ReactiveObject
             if(value == null)
                 return;
             this.RaiseAndSetIfChanged(ref _selectedPlayer, value);
-            _inScopePlayers = _selectedPlayer.Name == _allPlayers ? _currentCombat.CharacterParticipants : new List<Entity>() { _selectedPlayer };
+            _inScopePlayers = _selectedPlayer.Name == _allPlayers ? _currentCombat.CharacterParticipants.Values : new List<Entity>() { _selectedPlayer };
             _ = RefreshInScopeEntities();
             UpdateBuffsAndDebuffs();
         }
@@ -93,7 +93,10 @@ public class TenSecondRecapViewModel:ReactiveObject
             if(value == null)
                 return;
             this.RaiseAndSetIfChanged(ref _selectedBoss, value);
-            _inScopeBosses = _selectedBoss.Name == _allBosses ? _currentCombat.AllEntities.Where(e => e.IsBoss).ToList() : new List<Entity>() { _selectedBoss };
+            _inScopeBosses = _selectedBoss.Name == _allBosses ? _currentCombat.AllEntities.Values.Where(e => e.IsBoss).ToList() :
+            [
+                _selectedBoss
+            ];
             _ = RefreshInScopeEntities();
             UpdateBuffsAndDebuffs();
         }
@@ -130,11 +133,11 @@ public class TenSecondRecapViewModel:ReactiveObject
             _currentSelectedTime = combat.EndTime.AddSeconds(-_timeOffset);
             CurrentSliderValue = 0;
         
-            var players = _currentCombat.CharacterParticipants.ToList();
+            var players = _currentCombat.CharacterParticipants.Values.ToList();
             players.Insert(0, new Entity() { Name = _allPlayers });
             AvailablePlayers = players;
         
-            var bosses = _currentCombat.AllEntities.Where(e => e.IsBoss).ToList();
+            var bosses = _currentCombat.AllEntities.Values.Where(e => e.IsBoss).ToList();
             bosses.Insert(0, new Entity() { Name = _allBosses });
             AvailableBosses = bosses;
         

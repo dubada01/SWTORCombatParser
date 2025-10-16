@@ -150,7 +150,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
                 .ToList();
 
             // *** deterministic participant order (keeps DataGrid rows stable) ***
-            var participantsSnapshot = _currentCombat.CharacterParticipants
+            var participantsSnapshot = _currentCombat.CharacterParticipants.Values
                 .DistinctBy(p => p.LogId) // avoid duplicates
                 .OrderBy(p => p.Name) // …or .OrderByDescending(p => p.TotalDps)
                 .ToList();

@@ -111,7 +111,7 @@ public class ThreatTableEntryViewModel(long keyId) :ReactiveObject
         BottomIstank = false;
         TopIsLocal = false;
         BottomIsLocal = false;
-        var entity = fullCombat.AllEntities.FirstOrDefault(e => e.Id == EnemyId);
+        var entity = fullCombat.AllEntities.Values.FirstOrDefault(e => e.Id == EnemyId);
         if (entity == null)
             return;
         EnemyIsBoss = entity.IsBoss;

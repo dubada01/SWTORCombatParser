@@ -69,7 +69,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 viewEnemies = value;
                 UpdateParticipantsData(SelectedCombat);
-                var entitiesToShow = ViewEnemies ? SelectedCombat.AllEntities.Where(e => e.IsBoss || e.IsCharacter).ToList() : SelectedCombat.CharacterParticipants;
+                var entitiesToShow = ViewEnemies ? SelectedCombat.AllEntities.Values.Where(e => e.IsBoss || e.IsCharacter).ToList() : SelectedCombat.CharacterParticipants.Values;
                 ViewEnemiesToggled(entitiesToShow.Count);
                 if (!viewEnemies && SelectedParticipant.IsBoss)
                     SetSelection(entitiesToShow.First(e => e.IsLocalPlayer));
@@ -127,10 +127,10 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == viewModel.Entity?.LogId;
             return viewModel;
         }
-        public List<Entity> UpdateParticipantsData(Combat info)
+        public IEnumerable<Entity> UpdateParticipantsData(Combat info)
         {
             SelectedCombat = info;
-            var entitiesToView = ViewEnemies ? info.AllEntities.Where(e => e.IsBoss || e.IsCharacter).ToList() : info.CharacterParticipants;
+            var entitiesToView = ViewEnemies ? info.AllEntities.Values.Where(e => e.IsBoss || e.IsCharacter).ToList() : info.CharacterParticipants.Values;
             var names = entitiesToView.Select(e => e.Name);
             if (AvailableParticipants.Count() == names.Count() && AvailableParticipants.All(ap => names.Contains(ap.PlayerName))) return entitiesToView;
             AvailableParticipants.Clear();

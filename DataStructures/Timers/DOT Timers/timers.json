@@ -744,6 +744,39 @@
       "SpecificBoss": "All",
       "SpecificEncounter": "All",
       "IsHot": false
+    },
+    {
+      "TimerSource": "DOTS",
+      "CharacterDiscipline": null,
+      "Id": "dc1a0abb-58eb-4f8a-8193-9653ae516798",
+      "ShareId": null,
+      "IsEnabled": true,
+      "Source": "Local Player",
+      "SourceIsLocal": true,
+      "Target": "Any",
+      "TargetIsLocal": false,
+      "HPPercentage": 0.0,
+      "HPPercentageDisplayBuffer": 5.0,
+      "Name": "Serrated Bolt",
+      "TriggerType": 4,
+      "TrackOutsideOfCombat": true,
+      "ExperiationTimerId": null,
+      "CombatTimeElapsed": 0.0,
+      "Ability": "",
+      "Effect": "3418278571540480",
+      "IsPeriodic": false,
+      "Repeats": 0,
+      "CanBeRefreshed": true,
+      "AbilitiesThatRefresh": [
+        "3418278571540480"
+      ],
+      "IsAlert": false,
+      "AlertDuration": 0.0,
+      "DurationSec": 15.0,
+      "TimerColor": "#fc9d03",
+      "SpecificBoss": "All",
+      "SpecificEncounter": "All",
+      "IsHot": false
     }
 
   ]

@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia.Threading;
+using DynamicData;
 using ScottPlot.Avalonia;
 using ScottPlot.Plottables;
 using SkiaSharp;
@@ -25,7 +26,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
         private List<CombatMetaDataSeries> _seriesToPlot = new List<CombatMetaDataSeries>();
-        private List<Entity> _currentPlayers = new List<Entity>();
+        private IEnumerable<Entity> _currentPlayers = new List<Entity>();
         private object graphLock = new object();
         private Crosshair _crossHair;
         private SKBitmap _skullImage;
@@ -61,16 +62,17 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             }
             Dispatcher.UIThread.Invoke(() => { GraphView.Refresh(); });
         }
-        public void PlotCombat(Combat combatToPlot, List<Entity> viewableEntities, string abilityName, Entity objSource)
+        public void PlotCombat(Combat combatToPlot, IEnumerable<Entity> viewableEntities, string abilityName, Entity objSource)
         {
             _currentPlayers = viewableEntities;
             var pallete = new ScottPlot.Palettes.Nord();
-            foreach (var entity in _currentPlayers)
+            var currentPlayers = _currentPlayers as Entity[] ?? _currentPlayers.ToArray();
+            foreach (var entity in currentPlayers)
             {
                 CombatMetaDataSeries series = new CombatMetaDataSeries
                 {
                     Name = entity.Name,
-                    Color = pallete.GetColor(_currentPlayers.IndexOf(entity)),
+                    Color = pallete.GetColor(currentPlayers.IndexOf(entity)),
                     Type = PlotType.DamageTaken
                 };
                 _seriesToPlot.Add(series);

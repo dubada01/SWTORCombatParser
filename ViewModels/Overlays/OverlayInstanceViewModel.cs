@@ -321,7 +321,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             
             if (combatToDisplay.CharacterParticipants.Count == 0)
                 return;
-            foreach (var participant in combatToDisplay.CharacterParticipants)
+            foreach (var participant in combatToDisplay.CharacterParticipants.Values)
             {
                 var swtorClass =
                     CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(participant, combatToDisplay.StartTime);

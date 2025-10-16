@@ -89,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             GraphView = plot;
         }
-        private Entity SelectedParticipant => _selectedParticipant != null && (_currentCombat != null && !_currentCombat.AllEntities.Any(c => c.Id == _selectedParticipant.Id)) ? _currentCombat.CharacterParticipants.First() : _selectedParticipant;
+        private Entity SelectedParticipant => _selectedParticipant != null && (_currentCombat != null && _currentCombat.AllEntities.Values.All(c => c.Id != _selectedParticipant.Id)) ? _currentCombat.CharacterParticipants.First().Value : _selectedParticipant;
         private void SelectParticipant(Entity obj)
         {
             if (_selectedParticipant == obj)
@@ -187,25 +187,25 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
         internal void UpdateParticipants(Combat combat)
         {
-            if (_selectedParticipant != null && !combat.AllEntities.Any(e => e.Id == _selectedParticipant.Id))
+            if (_selectedParticipant != null && combat.AllEntities.Values.All(e => e.Id != _selectedParticipant.Id))
             {
-                if (combat.AllEntities.Any(e => e.LogId == _selectedParticipant.LogId))
+                if (combat.AllEntities.Values.Any(e => e.LogId == _selectedParticipant.LogId))
                 {
-                    _selectedParticipant = combat.AllEntities.First(e => e.LogId == _selectedParticipant.LogId);
+                    _selectedParticipant = combat.AllEntities.Values.First(e => e.LogId == _selectedParticipant.LogId);
                 }
                 else
                     _selectedParticipant = null;
             }
 
             var setParticipants = _participantsViewModel.UpdateParticipantsData(combat);
-            UpdateParticipantUI(setParticipants.Count);
+            UpdateParticipantUI(setParticipants.Count());
         }
 
         public void UpdateLivePlot(Combat updatedCombat)
         {
 
             var updatedParticipants = _participantsViewModel.UpdateParticipantsData(updatedCombat);
-            UpdateParticipantUI(updatedParticipants.Count);
+            UpdateParticipantUI(updatedParticipants.Count());
             lock (graphLock)
             {
                 ResetEffectVisuals();

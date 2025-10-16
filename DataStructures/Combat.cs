@@ -47,11 +47,15 @@ namespace SWTORCombatParser.DataStructures
     {
         public Entity Initiator { get; set; }
     
-        public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.IsLocalPlayer);
-        public List<Entity> CharacterParticipants = new();
+        public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.Value.IsLocalPlayer).Value;
+        public ConcurrentDictionary<long,Entity> CharacterParticipants = new();
         public Dictionary<Entity, SWTORClass> CharacterClases = new();
-        public List<Entity> Targets = new();
-        public List<Entity> AllEntities => new List<Entity>().Concat(Targets).Concat(CharacterParticipants).ToList();
+        public ConcurrentDictionary<long,Entity> Targets = new();
+        public ConcurrentDictionary<long, Entity> AllEntities =>
+            new(Targets.Concat(CharacterParticipants)
+                .GroupBy(kvp => kvp.Key)
+                .Select(g => g.First()));
+
         public DateTime StartTime;
         public DateTime EndTime;
         public string LogFileName => AllLogs.Values.First(l => !string.IsNullOrEmpty(l.LogName)).LogName;
@@ -69,7 +73,7 @@ namespace SWTORCombatParser.DataStructures
         public List<long> RequiredDeadTargetsForKill => BossInfo.TargetsRequiredForKill;
         public ulong RequiredAbilityForKill => BossInfo.AbilityRequiredForKill;
         public bool IsCombatWithBoss => !string.IsNullOrEmpty(EncounterBossInfo);
-        public bool IsPvPCombat => Targets.Any(t => t.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
+        public bool IsPvPCombat => Targets.Any(t => t.Value.IsCharacter) && CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(StartTime).IsPvpEncounter;
         public bool BossKillOverride { get; set; }
         public bool WasBossKilled
         {
@@ -400,21 +404,45 @@ namespace SWTORCombatParser.DataStructures
             ];
             Task.WaitAll(tasks.ToArray());
         }
-        public void SetBurstDamage()
+
+        private void SetBurstDamage()
         {
-            AllBurstDamages = new ConcurrentDictionary<Entity, List<Point>>(CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.DamageOutput)));
+            AllBurstDamages = new ConcurrentDictionary<Entity, List<Point>>(
+                CharacterParticipants.ToDictionary(
+                    kvp => kvp.Value, 
+                    kvp => GetBurstValues(kvp.Value, PlotType.DamageOutput)
+                )
+            );
         }
-        public void SetBurstDamageTaken()
+
+        private void SetBurstDamageTaken()
         {
-            AllBurstDamageTakens = new ConcurrentDictionary<Entity, List<Point>>(CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.DamageTaken)));
+            AllBurstDamageTakens = new ConcurrentDictionary<Entity, List<Point>>(
+                CharacterParticipants.ToDictionary(
+                    kvp => kvp.Value, 
+                    kvp => GetBurstValues(kvp.Value, PlotType.DamageTaken)
+                )
+            );
         }
-        public void SetBurstHealing()
+
+        private void SetBurstHealing()
         {
-            AllBurstHealings = new ConcurrentDictionary<Entity, List<Point>>(CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingOutput)));
+            AllBurstHealings = new ConcurrentDictionary<Entity, List<Point>>(
+                CharacterParticipants.ToDictionary(
+                    kvp => kvp.Value, 
+                    kvp => GetBurstValues(kvp.Value, PlotType.HealingOutput)
+                )
+            );
         }
-        public void SetBurstHealingTaken()
+
+        private void SetBurstHealingTaken()
         {
-            AllBurstHealingReceived = new ConcurrentDictionary<Entity, List<Point>>(CharacterParticipants.ToDictionary(player => player, player => GetBurstValues(player, PlotType.HealingTaken)));
+            AllBurstHealingReceived = new ConcurrentDictionary<Entity, List<Point>>(
+                CharacterParticipants.ToDictionary(
+                    kvp => kvp.Value, 
+                    kvp => GetBurstValues(kvp.Value, PlotType.HealingTaken)
+                )
+            );
         }
         public ConcurrentDictionary<Entity, double> AverageDamageSavedDuringCooldown = new();
         public ConcurrentDictionary<Entity, double> TotalAbilites = new();
@@ -454,7 +482,7 @@ namespace SWTORCombatParser.DataStructures
         private Dictionary<Entity, Dictionary<Entity, double>> GetTankDamageRecoveryTimesPerTarget()
         {
             Dictionary<Entity, Dictionary<Entity, double>> returnDict = new Dictionary<Entity, Dictionary<Entity, double>>();
-            foreach (var player in CharacterParticipants)
+            foreach (var player in CharacterParticipants.Values)
             {
                 if (TankDamageRecoveryTimes.ContainsKey(player))
                 {
@@ -472,11 +500,11 @@ namespace SWTORCombatParser.DataStructures
         private Dictionary<Entity, Dictionary<Entity, double>> GetDamageRecoveryTimesPerTarget()
         {
             Dictionary<Entity, Dictionary<Entity, double>> returnDict = new Dictionary<Entity, Dictionary<Entity, double>>();
-            foreach (var player in CharacterParticipants)
+            foreach (var player in CharacterParticipants.Values)
             {
-                if (AllDamageRecoveryTimes.ContainsKey(player))
+                if (AllDamageRecoveryTimes.TryGetValue(player, out var time))
                 {
-                    returnDict[player] = AllDamageRecoveryTimes[player].ToDictionary(
+                    returnDict[player] = time.ToDictionary(
                         kvp => kvp.Key,
                         kvp => kvp.Value.Any(v => !double.IsNaN(v)) ? kvp.Value.Where(v => !double.IsNaN(v)).Average() : double.NaN);
                 }
@@ -491,11 +519,11 @@ namespace SWTORCombatParser.DataStructures
         {
             var minReactionTime = 2;
             Dictionary<Entity, Dictionary<Entity, double>> returnDict = new Dictionary<Entity, Dictionary<Entity, double>>();
-            foreach (var player in CharacterParticipants)
+            foreach (var player in CharacterParticipants.Values)
             {
-                if (AllDamageRecoveryTimes.ContainsKey(player))
+                if (AllDamageRecoveryTimes.TryGetValue(player, out var time))
                 {
-                    returnDict[player] = AllDamageRecoveryTimes[player].ToDictionary(
+                    returnDict[player] = time.ToDictionary(
                         kvp => kvp.Key,
                         kvp => kvp.Value.Any(v => !double.IsNaN(v)) ? kvp.Value.Count(c => !double.IsNaN(c) && c < minReactionTime) : double.NaN);
                 }
@@ -511,7 +539,7 @@ namespace SWTORCombatParser.DataStructures
         private Dictionary<Entity, double> GetTotalDamageRecoveryTimes()
         {
             Dictionary<Entity, double> returnDict = new Dictionary<Entity, double>();
-            foreach (var player in CharacterParticipants)
+            foreach (var player in CharacterParticipants.Values)
             {
 
                 returnDict[player] = AverageDamageRecoveryTimePerTarget[player].Any(kvp => !double.IsNaN(kvp.Value)) ? AverageDamageRecoveryTimePerTarget[player].Where(kvp => !double.IsNaN(kvp.Value)).Average(
@@ -525,7 +553,7 @@ namespace SWTORCombatParser.DataStructures
         private Dictionary<Entity, double> GetTotalHighSpeedReactions()
         {
             Dictionary<Entity, double> returnDict = new Dictionary<Entity, double>();
-            foreach (var player in CharacterParticipants)
+            foreach (var player in CharacterParticipants.Values)
             {
 
                 returnDict[player] = NumberOfFastResponseTimePerTarget[player].Any(kvp => !double.IsNaN(kvp.Value)) ? NumberOfFastResponseTimePerTarget[player].Where(kvp => !double.IsNaN(kvp.Value)).Sum(
@@ -539,7 +567,7 @@ namespace SWTORCombatParser.DataStructures
         private Dictionary<Entity, double> GetTotalTankDamageRecoveryTimes()
         {
             Dictionary<Entity, double> returnDict = new Dictionary<Entity, double>();
-            foreach (var player in CharacterParticipants)
+            foreach (var player in CharacterParticipants.Values)
             {
 
                 returnDict[player] = AverageTankDamageRecoveryTimePerTarget[player].Any(kvp => !double.IsNaN(kvp.Value)) ? AverageTankDamageRecoveryTimePerTarget[player].Where(kvp => !double.IsNaN(kvp.Value)).Average(
