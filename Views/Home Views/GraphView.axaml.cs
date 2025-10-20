@@ -59,7 +59,7 @@ namespace SWTORCombatParser.Views.Home_Views
             _plot.Plot.Grid.MajorLineColor = new Color(100, 120, 120, 120);
             _plot.Plot.Grid.MinorLineColor = Color.FromARGB(Colors.LightGray.ToUInt32());
             _plot.Plot.Axes.Color(Color.FromARGB(Colors.WhiteSmoke.ToUInt32()));
-            _plot.Plot.FigureBackground.Image = new Image(SKBitmapFromFile.Load("avares://Orbs/resources/SwtorLogo.png"));
+            _plot.Plot.FigureBackground.Image = new Image(SKBitmapFromFile.Load("avares://Orbs-FlashpointRace/resources/SwtorLogo.png"));
             _plot.Plot.FigureBackground.ImagePosition = ImagePosition.Center;
         }
         // Initialize with current axis limits

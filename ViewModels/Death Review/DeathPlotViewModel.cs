@@ -39,7 +39,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         public DeathPlotViewModel()
         {
             _skullImage =
-                SKBitmapFromFile.Load("avares://Orbs/resources/skull_Icon.png");
+                SKBitmapFromFile.Load("avares://Orbs-FlashpointRace/resources/skull_Icon.png");
         }
 
         public AvaPlot GraphView { get; set; }

@@ -79,15 +79,15 @@ namespace SWTORCombatParser.Views.Overlay.PvP
         private Bitmap GetImageFromMenaceType(EnemyState isEnemy, bool isTaget, bool isLocalPlayer)
         {
             if (isLocalPlayer)
-                return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/PlayerLocation.png")));
+                return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/PlayerLocation.png")));
             if (isEnemy == EnemyState.Enemy)
             {
                 return isTaget
                     ? new Bitmap(
-                        AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/TargetedEnemyLocation.png")))
-                    : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/EnemyLocation.png")));
+                        AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/TargetedEnemyLocation.png")))
+                    : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/EnemyLocation.png")));
             }
-            return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/UnknownPlayerLocation.png")));
+            return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/UnknownPlayerLocation.png")));
         }
 
         private void HideAllOpponents()

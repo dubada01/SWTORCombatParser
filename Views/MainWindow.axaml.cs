@@ -80,24 +80,12 @@ namespace SWTORCombatParser.Views
 
         private void Window_Closing(object sender, WindowClosingEventArgs e)
         {
-            if (!ActuallyClosing && ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled"))
-            {
-                e.Cancel = true;
-                if (ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring"))
-                {
-                    LoadingWindowFactory.ShowBackgroundNotice();
-                }
-                LoadingWindowFactory.MainWindowHidden = true;
-                MainWindowClosing.FireHidden();
-                Hide();
-            }
-            else
-            {
-                SwtorDetector.StopMonitoring();
-                MainWindowClosing.FireClosing();
-                Environment.Exit(0);
-            }
+
+            SwtorDetector.StopMonitoring();
+            MainWindowClosing.FireClosing();
+            Environment.Exit(0);
         }
+
         protected override void OnOpened(EventArgs e)
         {
             base.OnOpened(e);

@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.1.15.0</VersionPrefix>
+    <VersionPrefix>1.0.15.2</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
+    <ApplicationIcon>ICON-LARGER.ico</ApplicationIcon>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <AssemblyName>Orbs</AssemblyName>
+    <AssemblyName>Orbs-FlashpointRace</AssemblyName>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -119,6 +119,14 @@
         <AvaloniaResource Remove="MacOSBuilds\**" />
         <AvaloniaResource Remove="Orbs.dmgcanvas\**" />
         <AvaloniaResource Remove="TestCombatLogs\**" />
+        <None Remove="FLASHPOINT-RACE.gif" />
+        <AvaloniaResource Include="FLASHPOINT-RACE.gif">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AvaloniaResource>
+        <None Remove="BACKGROUND.gif" />
+        <AvaloniaResource Include="BACKGROUND.gif">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AvaloniaResource>
     </ItemGroup>
 <ItemGroup>
   <Content Include="resources\packagedIcons.zip">
@@ -134,6 +142,7 @@
   <Content Include="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </Content>
+  <None Remove="FLASHPOINT-RACE-EVENT-2.webp" />
 </ItemGroup>
   <ItemGroup>
     <Content Include="BossMechanicSkimmerConfig.json">
@@ -302,6 +311,7 @@
 
   <ItemGroup>
     <PackageReference Include="AnimatedImage.Avalonia" Version="2.0.0" />
+    <PackageReference Include="AnimatedImage.Native" Version="2.1.2" />
     <PackageReference Include="Avalonia" Version="11.3.1" />
     <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.0" />
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.0" />

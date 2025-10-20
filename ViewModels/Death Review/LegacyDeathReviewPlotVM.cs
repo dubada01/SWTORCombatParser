@@ -34,7 +34,7 @@ public class LegacyDeathReviewPlotVM
     public LegacyDeathReviewPlotVM()
     {
 // Load the original bitmap
-        var originalBitmap = SKBitmapFromFile.Load("avares://Orbs/resources/skull_Icon.png");
+        var originalBitmap = SKBitmapFromFile.Load("avares://Orbs-FlashpointRace/resources/skull_Icon.png");
 
 // Define the target dimensions
         var targetInfo = new SKImageInfo(15, 15);

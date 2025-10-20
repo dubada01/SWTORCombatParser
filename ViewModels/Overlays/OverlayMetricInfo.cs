@@ -28,7 +28,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private string valueStringFormat = "#,##0";
         private double sizeScalar = 1;
         public Bitmap ClassIcon { get; set; }
-        public Bitmap MedalIconPath { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/redX.png")));
+        public Bitmap MedalIconPath { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/redX.png")));
         public string InfoText => $"{Type}: {(int)Value}" + (SecondaryType != OverlayType.None ? $"\n{SecondaryType}: {(int)SecondaryValue}" : "");
         public double SizeScalar
         {

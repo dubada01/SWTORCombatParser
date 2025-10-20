@@ -59,7 +59,7 @@ namespace SWTORCombatParser.Views.Death_Review
             PlotArea.Plot.Grid.MajorLineColor = new Color(100, 120, 120, 120);
             PlotArea.Plot.Grid.MinorLineColor = Colors.LightGray;
             PlotArea.Plot.Axes.Color(Colors.WhiteSmoke);
-            var bitmap = SKBitmapFromFile.Load("avares://Orbs/resources/SwtorLogo.png");
+            var bitmap = SKBitmapFromFile.Load("avares://Orbs-FlashpointRace/resources/SwtorLogo.png");
             PlotArea.Plot.FigureBackground.Image = new Image(bitmap);
             PlotArea.Plot.FigureBackground.ImagePosition = ImagePosition.Center;
             PlotArea.Plot.PlotControl.UserInputProcessor.Disable();

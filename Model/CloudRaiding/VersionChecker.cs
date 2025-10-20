@@ -17,6 +17,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
             var maxVersion = await API_Connection.GetMostRecentVersion();
+            if(maxVersion.Major == 0)
+                throw new Exception("Could not get most recent version");
             if (maxVersion > currentVersion)
                 AppIsUpToDate = false;
             else

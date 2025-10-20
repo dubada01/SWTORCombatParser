@@ -43,7 +43,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             
             
             ImagePath = new Bitmap(
-                AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/Empty.png")));
+                AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/IP-CPT/Empty.png")));
             _isTriggered = true;
             UpdateVisibility();
             Dispatcher.UIThread.Invoke(() =>
@@ -58,7 +58,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             if (!Active || _isTriggered)
                 return;
             ImagePath = new Bitmap(
-                AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/Empty.png")));
+                AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/IP-CPT/Empty.png")));
             _isTriggered = true;
             UpdateVisibility();
             _currentBossName = arg2;
@@ -78,7 +78,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 if(_currentCombatOverlaySettings.EncounterName == "NAHUT")
                 {
                     ImagePath =new Bitmap(
-                        AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/NAHUT/NAHUT_Room.jpg")));
+                        AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/NAHUT/NAHUT_Room.jpg")));
                     var hazard = new NAHUT_Hazard(_roomOverlay, _currentCombatOverlaySettings);
                     _currentHazard = hazard;
                 }
@@ -99,7 +99,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         }
         public bool IsActive { get => _isActive; set => this.RaiseAndSetIfChanged(ref _isActive, value); }
         public Bitmap CharImagePath => new Bitmap(
-            AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/PlayerLocation.png")));
+            AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/PlayerLocation.png")));
         public Bitmap ImagePath
         {
             get => imagePath; set

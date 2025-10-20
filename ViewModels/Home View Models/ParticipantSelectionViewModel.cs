@@ -140,7 +140,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 participantViewModel.SelectionChanged += SelectParticipant;
                 var imagePath = IconFactory._unknownIcon;
                 if (participant.IsCompanion)
-                    imagePath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/LocalPlayerIcon.png")));
+                    imagePath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/LocalPlayerIcon.png")));
                 if (info.CharacterClases.ContainsKey(participant))
                 {
                     var swtorClass = info.CharacterClases[participant];
@@ -166,11 +166,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             switch (sWTORClass.Role)
             {
                 case Role.DPS:
-                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/dpsIcon.png")));
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/dpsIcon.png")));
                 case Role.Healer:
-                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/healingIcon.png")));
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/healingIcon.png")));
                 case Role.Tank:
-                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/tankIcon.png")));
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/tankIcon.png")));
                 default:
                     return IconFactory._unknownIcon;
             }

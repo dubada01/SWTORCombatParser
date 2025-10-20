@@ -11,7 +11,7 @@ namespace SWTORCombatParser.ViewModels
 {
     public class TabInstance :ReactiveObject
     {
-        private Bitmap _overlayLockIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png");
+        private Bitmap _overlayLockIcon = ImageHelper.LoadFromResource("avares://Orbs-FlashpointRace/resources/lockedIcon.png");
         private Bitmap _tabIcon;
         private SolidColorBrush _tabSelectedColor = new SolidColorBrush(Colors.DarkGray);
         public event Action<TabInstance> RequestTabClose = delegate { };
@@ -37,8 +37,8 @@ namespace SWTORCombatParser.ViewModels
                 return;
             var tabViewModel = TabContent.DataContext as OverlayViewModel;
             OverlayLockIcon = tabViewModel.OverlaysLocked
-                ? ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png")
-                : ImageHelper.LoadFromResource("avares://Orbs/resources/unlockedIcon.png");
+                ? ImageHelper.LoadFromResource("avares://Orbs-FlashpointRace/resources/lockedIcon.png")
+                : ImageHelper.LoadFromResource("avares://Orbs-FlashpointRace/resources/unlockedIcon.png");
         }
 
         public SolidColorBrush TabSelectedColor

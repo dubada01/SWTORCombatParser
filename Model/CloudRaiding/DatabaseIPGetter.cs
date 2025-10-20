@@ -2,10 +2,10 @@
 {
     public static class DatabaseIPGetter
     {
-        private static string _debugLocalPort = "32771";
+        private static string _debugLocalPort = "5020";
         private static string _prodPort = "443";
 
-        private static string _debugLocalURL = "localhost";
+        private static string _debugLocalURL = "localhost:5020";
         private static string _prodURL = "api.orbs-stats.com/api";
 
 

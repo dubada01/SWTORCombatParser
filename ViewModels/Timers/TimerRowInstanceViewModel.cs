@@ -40,8 +40,8 @@ namespace SWTORCombatParser.ViewModels.Timers
         public IImmutableSolidColorBrush AudioButtonBorderColor => !string.IsNullOrEmpty(SourceTimer.CustomAudioPath)
             ? Brushes.SeaGreen
             : Brushes.Transparent;
-        public Bitmap AudioImageSource => SourceTimer.UseAudio ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/audioIcon.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/mutedIcon.png")));
-        public Bitmap VisibilityImageSource => !SourceTimer.IsSubTimer ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/view.png"))) :new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/hidden.png")));
+        public Bitmap AudioImageSource => SourceTimer.UseAudio ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/audioIcon.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/mutedIcon.png")));
+        public Bitmap VisibilityImageSource => !SourceTimer.IsSubTimer ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/view.png"))) :new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/hidden.png")));
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public string DurationSec => SourceTimer.IsAlert ? "Alert" : SourceTimer.DurationSec.ToString();

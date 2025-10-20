@@ -52,7 +52,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button  HorizontalAlignment="Center" Command="{Binding EditCommand}">
-                                        <Image Height="15" Source="avares://Orbs/resources/editIcon.png"></Image>
+                                        <Image Height="15" Source="avares://Orbs-FlashpointRace/resources/editIcon.png"></Image>
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -61,7 +61,7 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button HorizontalAlignment="Center" Command="{Binding ShareCommand}">
-                                        <Image Height="15" Source="avares://Orbs/resources/shareIcon.png"></Image>
+                                        <Image Height="15" Source="avares://Orbs-FlashpointRace/resources/shareIcon.png"></Image>
                                     </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

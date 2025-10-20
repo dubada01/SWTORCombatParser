@@ -43,8 +43,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             set => this.RaiseAndSetIfChanged(ref _expandIconSource, value);
         }
 
-        private static readonly Bitmap collapseIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/ExpandUp.png")));
-        private static readonly Bitmap expandIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/ExpandDown.png")));
+        private static readonly Bitmap collapseIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/ExpandUp.png")));
+        private static readonly Bitmap expandIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/ExpandDown.png")));
         internal void ToggleCombatVisibility()
         {
             if (combatsAreVisible)

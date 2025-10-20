@@ -163,7 +163,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private IDisposable _updateSub;
         private bool _usingLeaderboard;
-        private Bitmap _overlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/SwtorLogo_opaque.png")));
+        private Bitmap _overlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/SwtorLogo_opaque.png")));
         private ObservableCollection<OverlayMetricInfo> _metricBars = new ObservableCollection<OverlayMetricInfo>();
         private OverlayType _type;
 
@@ -178,10 +178,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 UsingLeaderboard = true;
             }
             if (obj == LeaderboardType.AllDiciplines)
-                OverlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/SwtorLogo_opaque.png")));
+                OverlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/SwtorLogo_opaque.png")));
             else
             {
-                OverlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/LocalPlayerIcon.png")));
+                OverlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/LocalPlayerIcon.png")));
             }
         }
 
@@ -266,7 +266,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 IsLeaderboardValue = true,
                 RelativeLength = 1,
                 SizeScalar = SizeScalar,
-                MedalIconPath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/crownIcon.png")))
+                MedalIconPath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/crownIcon.png")))
             };
             _metricBarsDict.TryAdd((characterName, true), metricbar);
             OrderMetricBars();

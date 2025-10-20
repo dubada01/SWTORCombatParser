@@ -47,7 +47,7 @@ namespace SWTORCombatParser.Model.Overlays
             {
                 _currentUpdate = triggerdUpdate;
                 var imageToUse = _viewExtraInfo && _currentUpdate.ImageOverlayPathExtra != "" ? _currentUpdate.ImageOverlayPathExtra : _currentUpdate.ImageOverlayPath;
-                OnNewImagePath(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/" + imageToUse));
+                OnNewImagePath(new Uri("avares://Orbs-FlashpointRace/resources/RoomOverlays/IP-CPT/" + imageToUse));
             }
             var roomTop = _overlaySettings.Top;
             var roomLeft = _overlaySettings.Left;

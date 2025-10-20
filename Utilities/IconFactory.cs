@@ -21,7 +21,7 @@ namespace SWTORCombatParser.Utilities
         {
             Task.Run(() =>
             {
-                _unknownIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/question-mark.png")));
+                _unknownIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/question-mark.png")));
                 foreach(var swtorClass in ClassLoader.LoadAllClasses())
                 {
                     var colorForClass = GetIconColorFromClass(swtorClass);
@@ -53,7 +53,7 @@ namespace SWTORCombatParser.Utilities
         {
             if (string.IsNullOrEmpty(className))
                 return _unknownIcon;
-            var iconForClass = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/Class Icons/" + className.ToLower() + ".png")));
+            var iconForClass = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/Class Icons/" + className.ToLower() + ".png")));
             return iconForClass;
         }
         private static Bitmap GetColoredBitmapImage(SWTORClass swtorClass, Color color)

@@ -56,13 +56,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task<bool> TryAddBossEncounter(GameEncounter gameEncounter)
         {
-            if (Settings.ReadSettingOfType<bool>("offline_mode"))
-                return false;
             try
             {
                 using (HttpClient connection = new HttpClient())
                 {
-                    Uri uri = new Uri($"{_apiPath}/stats/encounter/add");
+                    Uri uri = new Uri($"{_apiPath}/stats/encounter/add-alto");
                     var response = await connection.PostAsJsonAsync(uri, gameEncounter);
                     var body = await response.Content.ReadFromJsonAsync<bool>();
                     return body;

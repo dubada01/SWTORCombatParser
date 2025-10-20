@@ -31,11 +31,7 @@
         </Style>
     </UserControl.Styles>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Button VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}"
+        <Button Margin="0,3,0,10" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}"
                 Classes="RoundedCorner"
                 Padding="8,5,8,8"
                 FontSize="18"
@@ -49,38 +45,6 @@
                 </ContextMenu>
             </Button.ContextMenu>
         </Button>
-
-        <Border Grid.Row="1" BorderThickness="0,1.5,1.5,0" CornerRadius="3" BorderBrush="{StaticResource Gray3}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" FontSize="{StaticResource TitleFontSize}" Margin="5,5,5,0" FontFamily="{StaticResource MainFont}" Foreground="LightGray" Text="Battles" FontWeight="Bold" ></TextBlock>
-                    <Viewbox Grid.Column="1" MaxHeight="60" MaxWidth="100" Margin="5,5,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <StackPanel Orientation="Horizontal">
-                            <CheckBox IsChecked="{Binding ShowTrash}" VerticalAlignment="Center" HorizontalAlignment="Right"></CheckBox>
-                            <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="1,0,0,0" Foreground="LightGray" Text="Show Trash" FontWeight="Bold" ></TextBlock>
-
-                        </StackPanel>
-                    </Viewbox>
-                </Grid>
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <ItemsControl  Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding PastEncounters}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <pastCombatViews:EncounterCombatView/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
-        </Border>
     </Grid>
 
 </UserControl>

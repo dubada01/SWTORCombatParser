@@ -52,15 +52,7 @@ namespace SWTORCombatParser.ViewModels
 {
     public class MainWindowViewModel :ReactiveObject
     {
-        private readonly PlotViewModel _plotViewModel;
-        private readonly BattleReviewViewModel _reviewViewModel;
         private readonly CombatMonitorViewModel _combatMonitorViewModel;
-        private readonly OverlayViewModel _overlayViewModel;
-        private readonly OverviewViewModel _tableViewModel;
-        private readonly DataGridViewModel _dataGridViewModel;
-        private readonly RaidwideBattleReviewViewModel _deathViewModel;
-        //private readonly LeaderboardViewModel _leaderboardViewModel;
-        private readonly PhaseBarViewModel _phaseBarViewModel;
         private Entity localEntity;
         private string parselyLink = "https://parsely.io/";
         private bool canOpenParsely;
@@ -80,11 +72,6 @@ namespace SWTORCombatParser.ViewModels
         private int activeRowSpan;
         private TabInstance _selectedTab;
         private bool _logLoaded;
-        private bool _viewingLogs;
-        private readonly BattleReviewView _logView;
-        private readonly TimersCreationView _timersView;
-        private readonly ChallengeSetupView _challengeView;
-        private readonly RaidwideBattleReviewWindow _deathView;
 
         public TabInstance SelectedTab
         {
@@ -106,26 +93,6 @@ namespace SWTORCombatParser.ViewModels
             set
             {
                 this.RaiseAndSetIfChanged(ref selectedTabIndex, value);
-                UpdateDataForNewTab();
-                SelectedTab = ContentTabs[value];
-                switch (SelectedTabIndex)
-                {
-                    case 0:
-                        Settings.WriteSetting("current_tab","data_grid");
-                        break;
-                    case 1:
-                        Settings.WriteSetting("current_tab","plot");
-                        break;
-                    case 2:
-                        Settings.WriteSetting("current_tab","details");
-                        break;
-                    case 3:
-                        Settings.WriteSetting("current_tab","log");
-                        break;
-                    default:
-                        break;
-                }
-                
             }
             
         }
@@ -142,30 +109,14 @@ namespace SWTORCombatParser.ViewModels
             HotkeyHandler = hotkeyHandler;
             Leaderboards.Init();
 
-            Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
+            Title = $"HMB Racer Tool v{Assembly.GetExecutingAssembly().GetName().Version}";
             
+            MetricColorLoader.Init();
             DefaultPhaseLoader.LoadBuiltinPhases();
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
-            MetricColorLoader.Init();
-            MetricColorLoader.SetCurrentBrushDict();
-            TimerController.TimersInitialized += OrbsVariableManager.RefreshVariables;
-            TimerController.Init();
-            RaidNotesReader.Init();
-            SwtorDetector.SwtorProcessStateChanged += ProcessChanged;
 
-            PhaseManager.Init();
-            PhaseManager.SelectedPhasesUpdated += FilterForPhase;
 
-            MainWindowClosing.Hiding += () =>
-            {
-                if (!SwtorDetector.SwtorRunning)
-                    _overlayViewModel!.HideOverlays();
-                if (SwtorDetector.SwtorRunning && !_combatMonitorViewModel!.LiveParseActive)
-                    _combatMonitorViewModel.EnableLiveParse();
-                if (SwtorDetector.SwtorRunning)
-                    _overlayViewModel!.OverlaysLocked = true;
-            };
             _combatMonitorViewModel = new CombatMonitorViewModel();
             CombatSelectionMonitor.CombatSelected += SelectCombat;
             Observable.FromEvent<double>(
@@ -182,85 +133,8 @@ namespace SWTORCombatParser.ViewModels
 
             PastCombatsView = new PastCombatsView(_combatMonitorViewModel);
 
-            _dataGridViewModel = new DataGridViewModel();
-            var dataGridView = new DataGridView(_dataGridViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = dataGridView, HeaderText = "Raid Data", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/grid.png") });
-
-            _plotViewModel = new PlotViewModel();
-            var graphView = new GraphView(_plotViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = graphView, HeaderText = "Plot", TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/chart.png") });
-
-
-            _tableViewModel = new TableViewModel();
-            var tableView = new OverviewView(_tableViewModel);
-            ContentTabs.Add(new TabInstance() { TabContent = tableView, HeaderText = "Details" , TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/bar-graph.png") });
-
-            _reviewViewModel = new BattleReviewViewModel();
-            _logView = new BattleReviewView(_reviewViewModel);
-            ContentTabs.Add(new TabInstance()
-            {
-                TabContent = _logView, HeaderText = "Log Review",
-                TabIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/google-docs.png")
-            });
-            
-            
-            _overlayViewModel = new OverlayViewModel();
-            _overlayViewModel.OverlayLockStateChanged += () => this.RaisePropertyChanged(nameof(OverlayLockIcon));
-            _timersView = new TimersCreationView();
-            _timersView.DataContext = _overlayViewModel._timersViewModel;
-            _timersView.Closing += (e, s) =>
-            {
-                s.Cancel = true;
-                _timersView.Hide();
-            };
-            _challengeView = new ChallengeSetupView();
-            _challengeView.DataContext = _overlayViewModel._challengesViewModel;
-            _challengeView.Closing += (e, s) =>
-            {
-                s.Cancel = true;
-                _challengeView.Hide();
-            };
-            _deathViewModel = new RaidwideBattleReviewViewModel();
-            _deathView = new RaidwideBattleReviewWindow(_deathViewModel);
-            _deathView.Closing += (e, s) =>
-            {
-                s.Cancel = true;
-                _deathView.Hide();
-            };
-             
-            _phaseBarViewModel = new PhaseBarViewModel();
-            PhasesBar = new PhaseBar(_phaseBarViewModel);
-            var selectedTab = Settings.ReadSettingOfType<string>("current_tab");
-            SelectedTabIndex = selectedTab switch
-            {
-                "data-grid" => 0,
-                "details" => 2,
-                "plot" => 1,
-                "log" => 3,
-                _ => SelectedTabIndex
-            };
-            ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
-            ParselyUploader.UploadStarted += HandleParselyUploadStart;
-
         }
-        private void FilterForPhase(List<PhaseInstance> list)
-        {
-            if (UnfilteredDisplayedCombat == null || CurrentlyDisplayedCombat == null)
-                return;
-            if (list.Count == 0)
-            {
-                if (CurrentlyDisplayedCombat.DurationMS != UnfilteredDisplayedCombat.DurationMS)
-                {
-                    CombatSelectionMonitor.SelectPhase(UnfilteredDisplayedCombat);
-                    UpdateViewsWithSelectedCombat(UnfilteredDisplayedCombat);
-                }
-                return;
-            }
-            var phaseList = new ConcurrentDictionary<Guid, PhaseInstance>(list.ToDictionary(_=>  Guid.NewGuid(), kvp=> kvp));
-            var phaseCombat = UnfilteredDisplayedCombat.GetPhaseCopy(phaseList);
-            CombatSelectionMonitor.SelectPhase(phaseCombat);
-            UpdateViewsWithSelectedCombat(phaseCombat);
-        }
+
         public SolidColorBrush UploadButtonBackground
         {
             get => uploadButtonBackground; set => this.RaiseAndSetIfChanged(ref uploadButtonBackground, value);
@@ -293,84 +167,10 @@ namespace SWTORCombatParser.ViewModels
             set => this.RaiseAndSetIfChanged(ref _logLoaded, value);
         }
         
-        public ReactiveCommand<Unit,Unit> OpenOverlaySettingsCommand => ReactiveCommand.Create(OpenOverlaySettings);
-
-        private void OpenOverlaySettings()
-        {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                var overlaySettingsView = new OverlayView(_overlayViewModel);
-                overlaySettingsView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                overlaySettingsView.Show(desktop.MainWindow);
-            }
-        }
-        public ReactiveCommand<Unit, Unit> ToggleOverlayLockCommand => ReactiveCommand.Create(ToggleOverlayLock);
-
-        private void ToggleOverlayLock()
-        {
-            _overlayViewModel.OverlaysLocked = !_overlayViewModel.OverlaysLocked;
-        }
-        public ReactiveCommand<Unit,Unit> ShowTimerWindowCommand => ReactiveCommand.Create(ShowTimerWindow);
-
-        private void ShowTimerWindow()
-        {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                _overlayViewModel._timersViewModel.RefreshEncounterSelection();
-                _timersView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                _timersView.Show(desktop.MainWindow);
-            }
-        }
         public void ShowDeathReviewForCombat(Combat viewModelCombat)
         {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                _deathViewModel.Reset();
-                _deathViewModel.SetCombat(viewModelCombat);
-                _deathView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                _deathView.Show(desktop.MainWindow);
-            }
-        }
-        public ReactiveCommand<Unit,Unit> ShowChallengeWindowCommand => ReactiveCommand.Create(ShowChallengeWindow);
-
-        private void ShowChallengeWindow()
-        {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                _overlayViewModel._challengesViewModel.RefreshEncounterSelection();
-                _challengeView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                _challengeView.Show(desktop.MainWindow);
-            }
-        }
-        public Bitmap OverlayLockIcon => _overlayViewModel.OverlaysLocked
-            ? ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png")
-            : ImageHelper.LoadFromResource("avares://Orbs/resources/unlockedIcon.png");
-        public ReactiveCommand<Unit, Task> OpenPastCombatsCommand => _combatMonitorViewModel.LoadSpecificLogCommand;
-        public ReactiveCommand<Unit,Unit> OpenParselyCommand => ReactiveCommand.Create(OpenParsely);
-
-        public ReactiveCommand<Unit, Unit> OpenOrbsStatsCommand => ReactiveCommand.Create(OpenOrbsStats);
-            
-        private void OpenOrbsStats()
-        {
-            Process.Start(new ProcessStartInfo
-                { FileName = "https://orbs-stats.com", UseShellExecute = true });
-        }
-        public ReactiveCommand<Unit, Unit> OpenBuyMeACoffeeCommand => ReactiveCommand.Create(OpenBuyMeACoffee);
-            
-        private void OpenBuyMeACoffee()
-        {
-            Process.Start(new ProcessStartInfo
-                { FileName = "https://buymeacoffee.com/dubatech", UseShellExecute = true });
         }
 
-        public bool CanOpenParsely
-        {
-            get => canOpenParsely; set => this.RaiseAndSetIfChanged(ref canOpenParsely, value);
-        }
-        private void OpenParsely()
-        {
-            Process.Start(new ProcessStartInfo(parselyLink) { UseShellExecute = true });
-        }
         public ReactiveCommand<Unit,Unit> OpenParselyConfigCommand => ReactiveCommand.Create(OpenParselyConfig);
 
         private void OpenParselyConfig()
@@ -382,34 +182,9 @@ namespace SWTORCombatParser.ViewModels
                 parselySettingsWindow.ShowDialog(desktop.MainWindow);
             }
         }
-        public ReactiveCommand<Unit,Unit> OpenPhaseConfigCommand => _phaseBarViewModel.ConfigurePhasesCommand;
-        public ReactiveCommand<Unit,Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
 
         public HotkeyHandler HotkeyHandler { get; internal set; }
 
-        private void HandleParselyUploadComplete(bool status, string link)
-        {
-            if (status)
-            {
-                UploadButtonBackground = new SolidColorBrush(Colors.MediumSeaGreen);
-                parselyLink = link;
-                CanOpenParsely = true;
-            }
-            else
-            {
-                parselyLink = "https://parsely.io/";
-                UploadButtonBackground = new SolidColorBrush(Colors.Salmon);
-                CanOpenParsely = false;
-            }
-            Task.Run(() =>
-            {
-                Thread.Sleep(2000);
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    UploadButtonBackground = new SolidColorBrush(Colors.WhiteSmoke);
-                });
-            });
-        }
         private void HandleParselyUploadStart()
         {
             UploadButtonBackground = new SolidColorBrush(Colors.CornflowerBlue);
@@ -437,40 +212,10 @@ namespace SWTORCombatParser.ViewModels
             }
         }
 
-        private void UpdateDataForNewTab()
-        {
-            if (CurrentlyDisplayedCombat != null && _allViewsUpToDate == false)
-                SelectCombat(CurrentlyDisplayedCombat);
-        }
 
-        private void ProcessChanged(bool obj)
-        {
-            if (obj)
-            {
-                if (LoadingWindowFactory.MainWindowHidden)
-                {
-                    _combatMonitorViewModel.EnableLiveParse(true);
-                    _overlayViewModel.OverlaysLocked = true;
-                }
-            }
-            else
-            {
-                _combatMonitorViewModel.DisableLiveParse();
-                if (LoadingWindowFactory.MainWindowHidden)
-                    _overlayViewModel.HideOverlays();
-            }
-        }
+
         private void MonitoringStarted(bool state)
         {
-            if (state)
-                Dispatcher.UIThread.Invoke(delegate
-                {
-                    _plotViewModel.Reset();
-                    _tableViewModel.Reset();
-                    _deathViewModel.Reset();
-                    _dataGridViewModel.Reset();
-                    _reviewViewModel.Reset();
-                });
         }
 
         private void UpdateLogTimeOffset(IList<double> logOffsetFor2Seconds)
@@ -496,23 +241,6 @@ namespace SWTORCombatParser.ViewModels
             {
                 Dispatcher.UIThread.Invoke(delegate
                 {
-                    _overlayViewModel.CombatUpdated(updatedCombat);
-                    switch (SelectedTabIndex)
-                    {
-                        case 1:
-                            _plotViewModel.UpdateParticipants(updatedCombat);
-                            _plotViewModel.UpdateLivePlot(updatedCombat);
-                            break;
-                        case 2:
-                            _tableViewModel.AddCombat(updatedCombat);
-                            break;
-                        case 0:
-                            _dataGridViewModel.UpdateCombat(updatedCombat);
-                            break;
-                    }
-                    if(_viewingLogs)
-                        _reviewViewModel.CombatSelected(updatedCombat);
-                    
                 });
                 _allViewsUpToDate = false;
             }
@@ -534,15 +262,6 @@ namespace SWTORCombatParser.ViewModels
                 Dispatcher.UIThread.Invoke(delegate
                 {
                     CurrentlyDisplayedCombat = selectedCombat;
-                    _overlayViewModel.CombatSeleted(selectedCombat);
-                    _plotViewModel.UpdateParticipants(selectedCombat);
-                    _plotViewModel.AddCombatPlot(selectedCombat);
-                    _tableViewModel.AddCombat(selectedCombat);
-                    if(_deathView.IsVisible) 
-                        _deathViewModel.SetCombat(selectedCombat);
-                    _reviewViewModel.CombatSelected(selectedCombat);
-                    _dataGridViewModel.UpdateCombat(selectedCombat);
-
                     _allViewsUpToDate = true;
                 });
             }
@@ -560,10 +279,6 @@ namespace SWTORCombatParser.ViewModels
             {
                 if (localEntity != obj)
                 {
-                    _plotViewModel.Reset();
-                    _tableViewModel.Reset();
-                    _deathViewModel.Reset();
-                    _dataGridViewModel.Reset();
                 }
                 localEntity = obj;
             });

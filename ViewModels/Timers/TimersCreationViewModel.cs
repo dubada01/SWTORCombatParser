@@ -334,8 +334,8 @@ namespace SWTORCombatParser.ViewModels.Timers
                 t.ShowDialog(desktop.MainWindow);
             }
         }
-        public Bitmap AudioImageSource => !allMuted ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/audioIcon.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/mutedIcon.png")));
-        public Bitmap VisibilityImageSource => !allHidden ?new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/view.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/hidden.png")));
+        public Bitmap AudioImageSource => !allMuted ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/audioIcon.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/mutedIcon.png")));
+        public Bitmap VisibilityImageSource => !allHidden ?new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/view.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs-FlashpointRace/resources/hidden.png")));
         private bool allMuted = false;
         private EncounterSelectionView _encounterSelectionView;
         private List<TimerType> _timerSourcesTypes = new List<TimerType> { TimerType.Discipline, TimerType.Encounter };
