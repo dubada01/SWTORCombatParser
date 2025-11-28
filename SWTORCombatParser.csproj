@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.1.15.0</VersionPrefix>
+    <VersionPrefix>2.1.17.2</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <!-- macOS Debug -->
-  <PropertyGroup Condition="'$(OS)' == 'Unix' And '$(Configuration)' == 'Debug'">
+  <PropertyGroup Condition="'$(OS)' == 'Unix'">
     <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
     <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
   </PropertyGroup>
@@ -322,7 +322,7 @@
     <PackageReference Include="ScottPlot.Avalonia" Version="5.0.55" />
     <PackageReference Include="SharpHook" Version="5.3.9" />
     <PackageReference Include="SharpHook.Reactive" Version="5.3.9" />
-    <PackageReference Include="SkiaSharp" Version="3.116.1" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
     <PackageReference Include="System.Reactive" Version="6.0.1" />
     <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.3" />

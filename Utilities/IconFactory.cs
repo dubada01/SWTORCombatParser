@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Media;
@@ -16,29 +17,32 @@ namespace SWTORCombatParser.Utilities
     public static class IconFactory
     {
         public static Bitmap _unknownIcon;
-        private static ConcurrentDictionary<string, Bitmap> _classColoredBitmaps = new ConcurrentDictionary<string, Bitmap>();
+
+        private static ConcurrentDictionary<string, Bitmap> _classColoredBitmaps =
+            new ConcurrentDictionary<string, Bitmap>();
+
         public static void Init()
         {
             Task.Run(() =>
             {
                 _unknownIcon = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/question-mark.png")));
-                foreach(var swtorClass in ClassLoader.LoadAllClasses())
+                foreach (var swtorClass in ClassLoader.LoadAllClasses())
                 {
                     var colorForClass = GetIconColorFromClass(swtorClass);
                     _classColoredBitmaps[swtorClass.Discipline] = GetColoredBitmapImage(swtorClass, colorForClass);
-                }  
+                }
             });
         }
-        
+
         public static Bitmap GetClassIcon(string className)
         {
-            if(string.IsNullOrEmpty(className))
+            if (string.IsNullOrEmpty(className))
                 return _unknownIcon;
             if (_classColoredBitmaps.ContainsKey(className))
                 return _classColoredBitmaps[className];
             return _unknownIcon;
         }
-        
+
         private static Color GetIconColorFromClass(SWTORClass classInfo)
         {
             return classInfo.Role switch
@@ -49,13 +53,17 @@ namespace SWTORCombatParser.Utilities
                 _ => (Color)ResourceFinder.GetColorFromResourceName("Gray4")
             };
         }
+
         private static Bitmap GetIcon(string className)
         {
             if (string.IsNullOrEmpty(className))
                 return _unknownIcon;
-            var iconForClass = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/Class Icons/" + className.ToLower() + ".png")));
+            var iconForClass =
+                new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/Class Icons/" + className.ToLower() +
+                                                    ".png")));
             return iconForClass;
         }
+
         private static Bitmap GetColoredBitmapImage(SWTORClass swtorClass, Color color)
         {
             try
@@ -64,26 +72,29 @@ namespace SWTORCombatParser.Utilities
             }
             catch (Exception ex)
             {
-                Logging.LogError("Failed to set icon color: "+ex.Message +"\r\n" + ex.StackTrace);
+                Logging.LogError("Failed to set icon color: " + ex.Message + "\r\n" + ex.StackTrace);
                 return GetIcon(swtorClass.Name);
             }
         }
 
 
 
-
-        private static WriteableBitmap SetIconColor(Bitmap image, Color color)
+        private static WriteableBitmap SetIconColor(Bitmap image, Avalonia.Media.Color color)
         {
-            // Convert Avalonia Bitmap to SkiaSharp SKBitmap
-            SKBitmap skBitmap;
-            using (var imageStream = new MemoryStream())
-            {
-                image.Save(imageStream);
-                imageStream.Seek(0, SeekOrigin.Begin);
-                skBitmap = SKBitmap.Decode(imageStream);
-            }
+            // 1. Avalonia Bitmap -> Skia SKBitmap
+            using var imageStream = new MemoryStream();
+            image.Save(imageStream);
+            imageStream.Position = 0;
 
-            // Apply color transformation
+            using var decoded = SKBitmap.Decode(imageStream);
+            if (decoded == null)
+                throw new InvalidOperationException("Failed to decode image into SKBitmap.");
+
+            // 2. Force a known pixel format: BGRA8888 (matches Avalonia's Bgra8888)
+            using var skBitmap = decoded.Copy(SKColorType.Bgra8888)
+                                 ?? throw new InvalidOperationException("Failed to copy bitmap to BGRA8888.");
+
+            // 3. Apply color tint while preserving alpha
             for (int y = 0; y < skBitmap.Height; y++)
             {
                 for (int x = 0; x < skBitmap.Width; x++)
@@ -97,26 +108,39 @@ namespace SWTORCombatParser.Utilities
                 }
             }
 
-            // Create Avalonia WriteableBitmap
+            // 4. Create Avalonia WriteableBitmap with matching format
             var pixelSize = new PixelSize(skBitmap.Width, skBitmap.Height);
             var dpi = new Vector(96, 96);
-            var writeable = new WriteableBitmap(pixelSize, dpi, Avalonia.Platform.PixelFormat.Bgra8888, Avalonia.Platform.AlphaFormat.Premul);
+            var writeable = new WriteableBitmap(
+                pixelSize,
+                dpi,
+                Avalonia.Platform.PixelFormat.Bgra8888,
+                Avalonia.Platform.AlphaFormat.Premul);
 
-            // Copy SKBitmap pixel data into WriteableBitmap
-            int totalBytes = skBitmap.Height * skBitmap.RowBytes;
-            byte[] pixelBytes = new byte[totalBytes];
-            System.Runtime.InteropServices.Marshal.Copy(skBitmap.GetPixels(), pixelBytes, 0, totalBytes);
-
+            // 5. Copy pixels row-by-row (handles stride differences)
             using (var fb = writeable.Lock())
             {
-                System.Runtime.InteropServices.Marshal.Copy(pixelBytes, 0, fb.Address, totalBytes);
+                int srcStride = skBitmap.RowBytes; // bytes per row in Skia
+                int dstStride = fb.RowBytes; // bytes per row in Avalonia
+                int rowBytesToCopy = Math.Min(srcStride, dstStride);
+
+                var rowBuffer = new byte[rowBytesToCopy];
+
+                IntPtr srcBase = skBitmap.GetPixels();
+                IntPtr dstBase = fb.Address;
+
+                for (int y = 0; y < skBitmap.Height; y++)
+                {
+                    IntPtr srcRowPtr = srcBase + y * srcStride;
+                    IntPtr dstRowPtr = dstBase + y * dstStride;
+
+                    Marshal.Copy(srcRowPtr, rowBuffer, 0, rowBytesToCopy);
+                    Marshal.Copy(rowBuffer, 0, dstRowPtr, rowBytesToCopy);
+                }
             }
 
             return writeable;
         }
-
-
-
-
     }
+
 }
