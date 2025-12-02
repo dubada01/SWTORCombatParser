@@ -1,5 +1,6 @@
 ﻿#if MACOS
 using System;
+using System.Diagnostics;
 using Avalonia;
 
 namespace SWTORCombatParser.Utilities.MouseHandler

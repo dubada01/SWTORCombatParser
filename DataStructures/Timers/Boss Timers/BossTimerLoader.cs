@@ -50,6 +50,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
 
                     timer.ShowIconIfPossible = true;
                     timer.IsMechanic = true;
+                    timer.TimerRev = currentRev;
                 }
                 sourcesToAdd.Add(source);
             }
