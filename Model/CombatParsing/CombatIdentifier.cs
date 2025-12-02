@@ -236,7 +236,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     }
                     else
                     {
-                        return (owb.BossName, "1", "Open World");
+                        return (owb.BossName, "16", "Open World");
                     }
                 }
                 else
