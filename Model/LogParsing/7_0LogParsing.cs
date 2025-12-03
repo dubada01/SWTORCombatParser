@@ -1,25 +1,27 @@
-﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.CombatParsing;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
     public class CustomStringInterning
     {
-        private ConcurrentDictionary<string, string> internPool = new ConcurrentDictionary<string, string>();
+        private ConcurrentDictionary<string, string> internPool =
+            new ConcurrentDictionary<string, string>();
 
         public void Clear()
         {
             internPool.Clear();
         }
+
         public string Intern(string value)
         {
             if (internPool.TryGetValue(value, out var internedValue))
@@ -33,9 +35,11 @@ namespace SWTORCombatParser.Model.LogParsing
             }
         }
     }
+
     public static class _7_0LogParsing
     {
-        private static ConcurrentDictionary<long, Entity> _currentEntities = new ConcurrentDictionary<long, Entity>();
+        private static ConcurrentDictionary<long, Entity> _currentEntities =
+            new ConcurrentDictionary<long, Entity>();
 
         private static DateTime _dateTime;
 
@@ -70,19 +74,28 @@ namespace SWTORCombatParser.Model.LogParsing
             threatRegex = new Regex(@"\<.*?\>", RegexOptions.Compiled);
             _fileEncoding = Encoding.GetEncoding(1252);
         }
+
         public static void SetStartDate(DateTime logDate)
         {
             _dateTime = logDate;
             _interner.Clear();
         }
-        public static ParsedLogEntry ParseLog(ReadOnlySpan<char> logEntry, DateTime previousLogTime, long lineIndex, List<string> parsedLineInfo, bool realTime)
+
+        public static ParsedLogEntry ParseLog(
+            ReadOnlySpan<char> logEntry,
+            DateTime previousLogTime,
+            long lineIndex,
+            List<string> parsedLineInfo,
+            bool realTime
+        )
         {
             var logEntryInfos = parsedLineInfo;
 
             int lastBracketIndex = logEntry.LastIndexOf(']');
-            ReadOnlySpan<char> secondPartSpan = (lastBracketIndex >= 0 && lastBracketIndex + 1 < logEntry.Length)
-                ? logEntry.Slice(lastBracketIndex + 1)
-                : ReadOnlySpan<char>.Empty;
+            ReadOnlySpan<char> secondPartSpan =
+                (lastBracketIndex >= 0 && lastBracketIndex + 1 < logEntry.Length)
+                    ? logEntry.Slice(lastBracketIndex + 1)
+                    : ReadOnlySpan<char>.Empty;
 
             // Regex still requires string, so convert only the small tail section
             string secondPart = secondPartSpan.ToString();
@@ -91,16 +104,31 @@ namespace SWTORCombatParser.Model.LogParsing
             var threat = threatRegex.Matches(secondPart);
 
             if (logEntryInfos.Count < 5)
-                return new ParsedLogEntry() { LogBytes = _fileEncoding.GetByteCount(logEntry), Error = ErrorType.IncompleteLine };
+                return new ParsedLogEntry()
+                {
+                    LogBytes = _fileEncoding.GetByteCount(logEntry),
+                    Error = ErrorType.IncompleteLine,
+                };
 
-            var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat[0].Value, previousLogTime);
+            var parsedLine = ExtractInfo(
+                logEntryInfos.ToArray(),
+                value.Value,
+                threat.Count == 0 ? "" : threat[0].Value,
+                previousLogTime
+            );
             parsedLine.LogBytes = _fileEncoding.GetByteCount(logEntry);
             parsedLine.LogLineNumber = lineIndex;
             if (realTime)
                 CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, true);
             return parsedLine;
         }
-        private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat, DateTime previousLogTime)
+
+        private static ParsedLogEntry ExtractInfo(
+            string[] entryInfo,
+            string value,
+            string threat,
+            DateTime previousLogTime
+        )
         {
             var newEntry = new ParsedLogEntry();
 
@@ -110,11 +138,14 @@ namespace SWTORCombatParser.Model.LogParsing
                 _dateTime = _dateTime.AddDays(1);
 
             var date = new DateTime(_dateTime.Year, _dateTime.Month, _dateTime.Day);
-            var newDate = date.Add(new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond));
+            var newDate = date.Add(
+                new TimeSpan(0, time.Hour, time.Minute, time.Second, time.Millisecond)
+            );
             newEntry.TimeStamp = newDate;
 
             newEntry.SourceInfo = ParseEntity(entryInfo[1]);
-            newEntry.TargetInfo = entryInfo[2] == "=" ? newEntry.SourceInfo : ParseEntity(entryInfo[2]);
+            newEntry.TargetInfo =
+                entryInfo[2] == "=" ? newEntry.SourceInfo : ParseEntity(entryInfo[2]);
             newEntry.Ability = _interner.Intern(ParseAbility(entryInfo[3]));
             newEntry.AbilityId = ParseAbilityId(entryInfo[3]);
             newEntry.Effect = ParseEffect(entryInfo[4]);
@@ -137,12 +168,21 @@ namespace SWTORCombatParser.Model.LogParsing
             newEntry.Value = ParseValues(value, newEntry.Effect);
 
             if (newEntry.Effect.EffectType != EffectType.AreaEntered)
-                newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : double.Parse(threat.Replace("<", "").Replace(">", ""), CultureInfo.InvariantCulture);
+                newEntry.Threat = string.IsNullOrEmpty(threat)
+                    ? 0
+                    : double.Parse(
+                        threat.Replace("<", "").Replace(">", ""),
+                        CultureInfo.InvariantCulture
+                    );
 
             if (newEntry.Effect.EffectType == EffectType.ModifyThreat)
             {
-                newEntry.Value.DisplayValue = _interner.Intern(newEntry.Threat.ToString(CultureInfo.InvariantCulture));
-                newEntry.Value.StrValue = _interner.Intern(newEntry.Threat.ToString(CultureInfo.InvariantCulture));
+                newEntry.Value.DisplayValue = _interner.Intern(
+                    newEntry.Threat.ToString(CultureInfo.InvariantCulture)
+                );
+                newEntry.Value.StrValue = _interner.Intern(
+                    newEntry.Threat.ToString(CultureInfo.InvariantCulture)
+                );
             }
 
             return newEntry;
@@ -177,36 +217,68 @@ namespace SWTORCombatParser.Model.LogParsing
         private static Value ParseValues(string valueString, Effect currentEffect)
         {
             var cleanValueString = _interner.Intern(valueString.Replace("(", "").Replace(")", ""));
-            if (currentEffect.EffectType == EffectType.Apply && (currentEffect.EffectId == _damageEffectId || currentEffect.EffectId == _healEffectId))
+            if (
+                currentEffect.EffectType == EffectType.Apply
+                && (
+                    currentEffect.EffectId == _damageEffectId
+                    || currentEffect.EffectId == _healEffectId
+                )
+            )
                 return ParseValueNumber(valueString, currentEffect.EffectId);
-            if (currentEffect.EffectType == EffectType.Restore || currentEffect.EffectType == EffectType.Spend)
+            if (
+                currentEffect.EffectType == EffectType.Restore
+                || currentEffect.EffectType == EffectType.Spend
+            )
                 return ParseResourceEventValue(valueString);
             if (currentEffect.EffectType == EffectType.Event)
                 return new Value() { StrValue = cleanValueString, DisplayValue = cleanValueString };
-            if (currentEffect.EffectType == EffectType.Apply && currentEffect.EffectId != _damageEffectId && currentEffect.EffectId != _healEffectId)
+            if (
+                currentEffect.EffectType == EffectType.Apply
+                && currentEffect.EffectId != _damageEffectId
+                && currentEffect.EffectId != _healEffectId
+            )
                 return ParseCharges(valueString);
             if (currentEffect.EffectType == EffectType.ModifyCharges)
             {
-                return new Value { StrValue = cleanValueString, DisplayValue = cleanValueString, DblValue = double.Parse(cleanValueString.Split(' ')[0], CultureInfo.InvariantCulture) };
+                return new Value
+                {
+                    StrValue = cleanValueString,
+                    DisplayValue = cleanValueString,
+                    DblValue = double.Parse(
+                        cleanValueString.Split(' ')[0],
+                        CultureInfo.InvariantCulture
+                    ),
+                };
             }
             return new Value();
         }
+
         private static Value ParseResourceEventValue(string resourceString)
         {
             var cleanValue = resourceString.Replace("(", "").Replace(")", "");
-            return new Value() { DblValue = double.Parse(cleanValue, CultureInfo.InvariantCulture), DisplayValue = cleanValue };
+            return new Value()
+            {
+                DblValue = double.Parse(cleanValue, CultureInfo.InvariantCulture),
+                DisplayValue = cleanValue,
+            };
         }
+
         private static Value ParseCharges(string value)
         {
             var chargesValue = new Value();
             if (string.IsNullOrEmpty(value) || value == "()")
                 return chargesValue;
-            var valueParts = value.Replace("(", string.Empty).Replace(")", string.Empty).Trim().Split(' ');
+            var valueParts = value
+                .Replace("(", string.Empty)
+                .Replace(")", string.Empty)
+                .Trim()
+                .Split(' ');
             chargesValue.StrValue = _interner.Intern(valueParts[0] + " " + valueParts[1]);
             chargesValue.DisplayValue = chargesValue.StrValue;
             chargesValue.DblValue = double.Parse(valueParts[0], CultureInfo.InvariantCulture);
             return chargesValue;
         }
+
         private static List<string> ParseDamageValueString(string damageValueString)
         {
             var result = new List<string>();
@@ -237,10 +309,11 @@ namespace SWTORCombatParser.Model.LogParsing
 
             return result;
         }
+
         private static Value ParseValueNumber(string damageValueString, ulong effectId)
         {
-      try
-      {
+            try
+            {
                 var newValue = new Value();
                 if (damageValueString == "(0 -)" || damageValueString == "")
                     return newValue;
@@ -252,66 +325,93 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (valueParts.Count == 1) //fully effective heal
                 {
                     newValue.WasCrit = valueParts[0].Contains("*");
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.ValueType = effectId == _healEffectId ? DamageType.heal : DamageType.none;
+                    newValue.DblValue = double.Parse(
+                        valueParts[0].Replace("*", ""),
+                        CultureInfo.InvariantCulture
+                    );
+                    newValue.EventType =
+                        effectId == _healEffectId ? DamageType.heal : DamageType.none;
                     newValue.EffectiveDblValue = newValue.DblValue > 0 ? newValue.DblValue : 0;
                 }
 
                 if (valueParts.Count == 2) // partially effective heal
                 {
                     newValue.WasCrit = valueParts[0].Contains("*");
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.ValueType = DamageType.heal;
-                    var effectiveHeal = double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                    newValue.DblValue = double.Parse(
+                        valueParts[0].Replace("*", ""),
+                        CultureInfo.InvariantCulture
+                    );
+                    newValue.EventType = DamageType.heal;
+                    var effectiveHeal = double.Parse(
+                        valueParts[1].Replace("~", ""),
+                        CultureInfo.InvariantCulture
+                    );
                     newValue.EffectiveDblValue = effectiveHeal > 0 ? effectiveHeal : 0;
                 }
 
                 if (valueParts.Count == 3) // fully effective damage or parry
                 {
                     newValue.WasCrit = valueParts[0].Contains("*");
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.DblValue = double.Parse(
+                        valueParts[0].Replace("*", ""),
+                        CultureInfo.InvariantCulture
+                    );
                     newValue.EffectiveDblValue = newValue.DblValue;
                     newValue.MitigatedDblValue = newValue.DblValue;
-                    newValue.ValueTypeId =
-                        long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId)
-                            ? valId
-                            : 0;
-                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-
+                    newValue.EventTypeId = long.TryParse(
+                        valueParts[2].Replace("{", "").Replace("}", "").Trim(),
+                        out var valId
+                    )
+                        ? valId
+                        : 0;
+                    newValue.EventType = GetEventTypeById(newValue.EventTypeId);
                 }
 
                 if (valueParts.Count == 4) // partially effective damage
                 {
                     if (valueParts[3] == "-") // handle weird space pvp stuff
                     {
-                        newValue.EffectiveDblValue =
-                            double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                        newValue.ValueTypeId =
-                            long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId)
-                                ? valId
-                                : 0;
-                        newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                        newValue.EffectiveDblValue = double.Parse(
+                            valueParts[0].Replace("*", ""),
+                            CultureInfo.InvariantCulture
+                        );
+                        newValue.EventTypeId = long.TryParse(
+                            valueParts[2].Replace("{", "").Replace("}", "").Trim(),
+                            out var valId
+                        )
+                            ? valId
+                            : 0;
+                        newValue.EventType = GetEventTypeById(newValue.EventTypeId);
                     }
                     else
                     {
                         if (valueParts[3].Contains(_reflectedId.ToString())) // damage reflected
                         {
-                            newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""),
-                                CultureInfo.InvariantCulture);
+                            newValue.DblValue = double.Parse(
+                                valueParts[0].Replace("*", ""),
+                                CultureInfo.InvariantCulture
+                            );
                             newValue.EffectiveDblValue = newValue.DblValue;
                             return newValue;
                         }
 
                         newValue.WasCrit = valueParts[0].Contains("*");
-                        newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                        newValue.EffectiveDblValue =
-                            double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                        newValue.DblValue = double.Parse(
+                            valueParts[0].Replace("*", ""),
+                            CultureInfo.InvariantCulture
+                        );
+                        newValue.EffectiveDblValue = double.Parse(
+                            valueParts[1].Replace("~", ""),
+                            CultureInfo.InvariantCulture
+                        );
                         newValue.MitigatedDblValue = newValue.EffectiveDblValue;
-                        newValue.ValueTypeId =
-                            long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId)
-                                ? valId
-                                : 0;
-                        newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                        newValue.EventTypeId = long.TryParse(
+                            valueParts[3].Replace("{", "").Replace("}", "").Trim(),
+                            out var valId
+                        )
+                            ? valId
+                            : 0;
+                        newValue.EventType = GetEventTypeById(newValue.EventTypeId);
                     }
                 }
 
@@ -320,21 +420,32 @@ namespace SWTORCombatParser.Model.LogParsing
                     if (valueParts[3].Contains(_reflectedId.ToString()))
                     {
                         newValue.WasCrit = valueParts[0].Contains("*");
-                        newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                        newValue.DblValue = double.Parse(
+                            valueParts[0].Replace("*", ""),
+                            CultureInfo.InvariantCulture
+                        );
                         newValue.MitigatedDblValue = newValue.DblValue;
-                        newValue.ValueTypeId = _reflectedId;
-                        newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                        newValue.EventTypeId = _reflectedId;
+                        newValue.EventType = GetEventTypeById(newValue.EventTypeId);
                     }
                     else
                     {
                         var cleanedValue = valueParts[0].Replace("*", "").Replace("~", "");
-                        newValue.DblValue = double.Parse(cleanedValue, CultureInfo.InvariantCulture);
-                        newValue.EffectiveDblValue = double.Parse(cleanedValue, CultureInfo.InvariantCulture);
-                        newValue.ValueTypeId =
-                            long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId)
-                                ? valId
-                                : 0;
-                        newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                        newValue.DblValue = double.Parse(
+                            cleanedValue,
+                            CultureInfo.InvariantCulture
+                        );
+                        newValue.EffectiveDblValue = double.Parse(
+                            cleanedValue,
+                            CultureInfo.InvariantCulture
+                        );
+                        newValue.EventTypeId = long.TryParse(
+                            valueParts[3].Replace("{", "").Replace("}", "").Trim(),
+                            out var valId
+                        )
+                            ? valId
+                            : 0;
+                        newValue.EventType = GetEventTypeById(newValue.EventTypeId);
                     }
                 }
 
@@ -342,35 +453,57 @@ namespace SWTORCombatParser.Model.LogParsing
                 {
                     if (valueParts[5].Contains(_reflectedId.ToString())) // damage reflected
                     {
-                        newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                        newValue.EffectiveDblValue =
-                            double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                        newValue.DblValue = double.Parse(
+                            valueParts[0].Replace("*", ""),
+                            CultureInfo.InvariantCulture
+                        );
+                        newValue.EffectiveDblValue = double.Parse(
+                            valueParts[1].Replace("~", ""),
+                            CultureInfo.InvariantCulture
+                        );
                         newValue.MitigatedDblValue = newValue.EffectiveDblValue;
                         return newValue;
                     }
 
                     var modifier = new Value
                     {
-                        ValueType = GetValueTypeById(
-                            long.TryParse(valueParts[5].Replace("{", "").Replace("}", ""), out var modId) ? modId : 0),
+                        EventType = GetEventTypeById(
+                            long.TryParse(
+                                valueParts[5].Replace("{", "").Replace("}", ""),
+                                out var modId
+                            )
+                                ? modId
+                                : 0
+                        ),
                     };
                     if (double.TryParse(valueParts[3].Replace("(", ""), out double value))
                         modifier.DblValue = value;
                     modifier.EffectiveDblValue = modifier.DblValue;
                     newValue.Modifier = modifier;
-                    newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
-                    newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
+                    newValue.ModifierType = _interner.Intern(
+                        newValue.Modifier.EventType.ToString()
+                    );
+                    newValue.ModifierDisplayValue = _interner.Intern(
+                        modifier.EffectiveDblValue.ToString("#,##0")
+                    );
 
                     newValue.WasCrit = valueParts[0].Contains("*");
-                    newValue.MitigatedDblValue = double.Parse(valueParts[0].Replace("~", "").Replace("*", ""),
-                        CultureInfo.InvariantCulture);
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.ValueTypeId =
-                        long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var valId)
-                            ? valId
-                            : 0;
-                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-                    if (modifier.ValueType == DamageType.absorbed)
+                    newValue.MitigatedDblValue = double.Parse(
+                        valueParts[0].Replace("~", "").Replace("*", ""),
+                        CultureInfo.InvariantCulture
+                    );
+                    newValue.DblValue = double.Parse(
+                        valueParts[0].Replace("*", ""),
+                        CultureInfo.InvariantCulture
+                    );
+                    newValue.EventTypeId = long.TryParse(
+                        valueParts[2].Replace("{", "").Replace("}", "").Trim(),
+                        out var valId
+                    )
+                        ? valId
+                        : 0;
+                    newValue.EventType = GetEventTypeById(newValue.EventTypeId);
+                    if (modifier.EventType == DamageType.absorbed)
                         newValue.EffectiveDblValue = newValue.DblValue;
                     else
                         newValue.EffectiveDblValue = newValue.MitigatedDblValue;
@@ -380,27 +513,45 @@ namespace SWTORCombatParser.Model.LogParsing
                 {
                     var modifier = new Value
                     {
-                        ValueType = GetValueTypeById(
-                            long.TryParse(valueParts[6].Replace("{", "").Replace("}", ""), out var modValId)
+                        EventType = GetEventTypeById(
+                            long.TryParse(
+                                valueParts[6].Replace("{", "").Replace("}", ""),
+                                out var modValId
+                            )
                                 ? modValId
-                                : 0),
-                        DblValue = double.Parse(valueParts[4].Replace("(", ""), CultureInfo.InvariantCulture)
+                                : 0
+                        ),
+                        DblValue = double.Parse(
+                            valueParts[4].Replace("(", ""),
+                            CultureInfo.InvariantCulture
+                        ),
                     };
                     modifier.EffectiveDblValue = modifier.DblValue;
                     newValue.Modifier = modifier;
-                    newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
-                    newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
+                    newValue.ModifierType = _interner.Intern(
+                        newValue.Modifier.EventType.ToString()
+                    );
+                    newValue.ModifierDisplayValue = _interner.Intern(
+                        modifier.EffectiveDblValue.ToString("#,##0")
+                    );
 
                     newValue.WasCrit = valueParts[0].Contains("*");
-                    newValue.MitigatedDblValue =
-                        double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.ValueTypeId =
-                        long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valId)
-                            ? valId
-                            : 0;
-                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-                    if (modifier.ValueType == DamageType.absorbed)
+                    newValue.MitigatedDblValue = double.Parse(
+                        valueParts[1].Replace("~", ""),
+                        CultureInfo.InvariantCulture
+                    );
+                    newValue.DblValue = double.Parse(
+                        valueParts[0].Replace("*", ""),
+                        CultureInfo.InvariantCulture
+                    );
+                    newValue.EventTypeId = long.TryParse(
+                        valueParts[3].Replace("{", "").Replace("}", "").Trim(),
+                        out var valId
+                    )
+                        ? valId
+                        : 0;
+                    newValue.EventType = GetEventTypeById(newValue.EventTypeId);
+                    if (modifier.EventType == DamageType.absorbed)
                         newValue.EffectiveDblValue = newValue.DblValue;
                     else
                         newValue.EffectiveDblValue = newValue.MitigatedDblValue;
@@ -408,79 +559,114 @@ namespace SWTORCombatParser.Model.LogParsing
 
                 if (valueParts.Count == 8) // tank shielding sheilds more than damage
                 {
-
                     var modifier = new Value
                     {
-                        ValueType = GetValueTypeById(
-                            long.TryParse(valueParts[4].Replace("{", "").Replace("}", ""), out var modId) ? modId : 0),
-                        DblValue = double.Parse(valueParts[5].Replace("(", ""), CultureInfo.InvariantCulture)
+                        EventType = GetEventTypeById(
+                            long.TryParse(
+                                valueParts[4].Replace("{", "").Replace("}", ""),
+                                out var modId
+                            )
+                                ? modId
+                                : 0
+                        ),
+                        DblValue = double.Parse(
+                            valueParts[5].Replace("(", ""),
+                            CultureInfo.InvariantCulture
+                        ),
                     };
 
                     modifier.EffectiveDblValue = modifier.DblValue;
                     newValue.Modifier = modifier;
-                    newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
-                    newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
+                    newValue.ModifierType = _interner.Intern(
+                        newValue.Modifier.EventType.ToString()
+                    );
+                    newValue.ModifierDisplayValue = _interner.Intern(
+                        modifier.EffectiveDblValue.ToString("#,##0")
+                    );
 
                     newValue.WasCrit = valueParts[0].Contains("*");
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture) +
-                                        modifier.EffectiveDblValue;
-                    newValue.EffectiveDblValue =
-                        double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
+                    newValue.DblValue =
+                        double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture)
+                        + modifier.EffectiveDblValue;
+                    newValue.EffectiveDblValue = double.Parse(
+                        valueParts[0].Replace("*", ""),
+                        CultureInfo.InvariantCulture
+                    );
                     newValue.MitigatedDblValue = newValue.EffectiveDblValue;
-                    newValue.ValueTypeId =
-                        long.TryParse(valueParts[2].Replace("{", "").Replace("}", "").Trim(), out var result)
-                            ? result
-                            : 0;
-                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-
+                    newValue.EventTypeId = long.TryParse(
+                        valueParts[2].Replace("{", "").Replace("}", "").Trim(),
+                        out var result
+                    )
+                        ? result
+                        : 0;
+                    newValue.EventType = GetEventTypeById(newValue.EventTypeId);
                 }
 
                 if (valueParts.Count == 9) // tank shielding shields less than or equal to damage
                 {
-
                     var modifier = new Value
                     {
-                        ValueType = GetValueTypeById(
-                            long.TryParse(valueParts[5].Replace("{", "").Replace("}", ""), out var result)
+                        EventType = GetEventTypeById(
+                            long.TryParse(
+                                valueParts[5].Replace("{", "").Replace("}", ""),
+                                out var result
+                            )
                                 ? result
-                                : 0),
-                        DblValue = double.Parse(valueParts[6].Replace("(", ""), CultureInfo.InvariantCulture)
+                                : 0
+                        ),
+                        DblValue = double.Parse(
+                            valueParts[6].Replace("(", ""),
+                            CultureInfo.InvariantCulture
+                        ),
                     };
 
-                    modifier.EffectiveDblValue =
-                        Math.Min(double.Parse(valueParts[0].Replace("*", "")), modifier.DblValue);
+                    modifier.EffectiveDblValue = Math.Min(
+                        double.Parse(valueParts[0].Replace("*", "")),
+                        modifier.DblValue
+                    );
                     newValue.Modifier = modifier;
-                    newValue.ModifierType = _interner.Intern(newValue.Modifier.ValueType.ToString());
-                    newValue.ModifierDisplayValue = _interner.Intern(modifier.EffectiveDblValue.ToString("#,##0"));
+                    newValue.ModifierType = _interner.Intern(
+                        newValue.Modifier.EventType.ToString()
+                    );
+                    newValue.ModifierDisplayValue = _interner.Intern(
+                        modifier.EffectiveDblValue.ToString("#,##0")
+                    );
 
                     newValue.WasCrit = valueParts[0].Contains("*");
-                    newValue.DblValue = double.Parse(valueParts[0].Replace("*", ""), CultureInfo.InvariantCulture);
-                    newValue.EffectiveDblValue =
-                        double.Parse(valueParts[1].Replace("~", ""), CultureInfo.InvariantCulture);
+                    newValue.DblValue = double.Parse(
+                        valueParts[0].Replace("*", ""),
+                        CultureInfo.InvariantCulture
+                    );
+                    newValue.EffectiveDblValue = double.Parse(
+                        valueParts[1].Replace("~", ""),
+                        CultureInfo.InvariantCulture
+                    );
                     newValue.MitigatedDblValue = newValue.EffectiveDblValue;
-                    newValue.ValueTypeId =
-                        long.TryParse(valueParts[3].Replace("{", "").Replace("}", "").Trim(), out var valueIdParsed)
-                            ? valueIdParsed
-                            : 0;
-                    newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
+                    newValue.EventTypeId = long.TryParse(
+                        valueParts[3].Replace("{", "").Replace("}", "").Trim(),
+                        out var valueIdParsed
+                    )
+                        ? valueIdParsed
+                        : 0;
+                    newValue.EventType = GetEventTypeById(newValue.EventTypeId);
                 }
 
-                newValue.ValueTypeId = 0;
-                newValue.DisplayValue = _interner.Intern(newValue.EffectiveDblValue.ToString("#,##0"));
+                newValue.EventTypeId = 0;
+                newValue.DisplayValue = _interner.Intern(
+                    newValue.EffectiveDblValue.ToString("#,##0")
+                );
                 return newValue;
             }
             catch (Exception)
-      {
+            {
                 Logging.LogError("Failed to properly parse value: " + damageValueString);
                 return new Value();
             }
         }
+
         private static EntityInfo ParseEntity(ReadOnlySpan<char> value)
         {
-            var entityToReturn = new EntityInfo
-            {
-                IsAlive = true
-            };
+            var entityToReturn = new EntityInfo { IsAlive = true };
 
             int firstSep = value.IndexOf('|');
             if (firstSep < 0)
@@ -527,10 +713,18 @@ namespace SWTORCombatParser.Model.LogParsing
 
                 switch (j)
                 {
-                    case 0: entityInfo.Position.X = float.Parse(val, CultureInfo.InvariantCulture); break;
-                    case 1: entityInfo.Position.Y = float.Parse(val, CultureInfo.InvariantCulture); break;
-                    case 2: entityInfo.Position.Z = float.Parse(val, CultureInfo.InvariantCulture); break;
-                    case 3: entityInfo.Position.Facing = float.Parse(val, CultureInfo.InvariantCulture); break;
+                    case 0:
+                        entityInfo.Position.X = float.Parse(val, CultureInfo.InvariantCulture);
+                        break;
+                    case 1:
+                        entityInfo.Position.Y = float.Parse(val, CultureInfo.InvariantCulture);
+                        break;
+                    case 2:
+                        entityInfo.Position.Z = float.Parse(val, CultureInfo.InvariantCulture);
+                        break;
+                    case 3:
+                        entityInfo.Position.Facing = float.Parse(val, CultureInfo.InvariantCulture);
+                        break;
                 }
             }
         }
@@ -552,7 +746,6 @@ namespace SWTORCombatParser.Model.LogParsing
             entityInfo.MaxHP = uint.Parse(maxHpSpan, CultureInfo.InvariantCulture);
         }
 
-
         private static void AddEntity(EntityInfo entityToReturn, ReadOnlySpan<char> name)
         {
             const char atSymbol = '@';
@@ -567,18 +760,30 @@ namespace SWTORCombatParser.Model.LogParsing
                     var hashIndex = name.IndexOf('#');
                     if (hashIndex > 0)
                     {
-                        var characterName = name.Slice(name.IndexOf(atSymbol) + 1,
-                            hashIndex - name.IndexOf(atSymbol) - 1);
+                        var characterName = name.Slice(
+                            name.IndexOf(atSymbol) + 1,
+                            hashIndex - name.IndexOf(atSymbol) - 1
+                        );
                         var idSpan = name.Slice(hashIndex + 1);
-                        if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var playerId))
+                        if (
+                            long.TryParse(
+                                idSpan,
+                                NumberStyles.Integer,
+                                CultureInfo.InvariantCulture,
+                                out var playerId
+                            )
+                        )
                         {
-                            entityToReturn.Entity = _currentEntities.GetOrAdd(playerId, new Entity
-                            {
-                                IsCharacter = true,
-                                Name = characterName.ToString(),
-                                Id = playerId,
-                                LogId = playerId
-                            });
+                            entityToReturn.Entity = _currentEntities.GetOrAdd(
+                                playerId,
+                                new Entity
+                                {
+                                    IsCharacter = true,
+                                    Name = characterName.ToString(),
+                                    Id = playerId,
+                                    LogId = playerId,
+                                }
+                            );
                         }
 
                         return;
@@ -602,17 +807,26 @@ namespace SWTORCombatParser.Model.LogParsing
                             if (rightBraceIdx > 0)
                                 idSpan = idSpan.Slice(0, rightBraceIdx);
 
-                            if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture,
-                                    out var compId))
+                            if (
+                                long.TryParse(
+                                    idSpan,
+                                    NumberStyles.Integer,
+                                    CultureInfo.InvariantCulture,
+                                    out var compId
+                                )
+                            )
                             {
-                                entityToReturn.Entity = _currentEntities.GetOrAdd(compId, new Entity
-                                {
-                                    IsCharacter = true,
-                                    IsCompanion = true,
-                                    Name = nameOnly.ToString(),
-                                    Id = compId,
-                                    LogId = compId
-                                });
+                                entityToReturn.Entity = _currentEntities.GetOrAdd(
+                                    compId,
+                                    new Entity
+                                    {
+                                        IsCharacter = true,
+                                        IsCompanion = true,
+                                        Name = nameOnly.ToString(),
+                                        Id = compId,
+                                        LogId = compId,
+                                    }
+                                );
                             }
 
                             return;
@@ -629,15 +843,25 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (rbIdx > 0)
                     idSpan = idSpan.Slice(0, rbIdx);
 
-                if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var unknownEntityId))
+                if (
+                    long.TryParse(
+                        idSpan,
+                        NumberStyles.Integer,
+                        CultureInfo.InvariantCulture,
+                        out var unknownEntityId
+                    )
+                )
                 {
-                    entityToReturn.Entity = _currentEntities.GetOrAdd(unknownEntityId, new Entity
-                    {
-                        IsCharacter = false,
-                        Name = "Unknown",
-                        Id = unknownEntityId,
-                        LogId = unknownEntityId
-                    });
+                    entityToReturn.Entity = _currentEntities.GetOrAdd(
+                        unknownEntityId,
+                        new Entity
+                        {
+                            IsCharacter = false,
+                            Name = "Unknown",
+                            Id = unknownEntityId,
+                            LogId = unknownEntityId,
+                        }
+                    );
                 }
 
                 return;
@@ -646,15 +870,25 @@ namespace SWTORCombatParser.Model.LogParsing
             if (name.StartsWith("::".AsSpan()))
             {
                 var idSpan = name.Slice(2); // skip the ::
-                if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var starFighterId))
+                if (
+                    long.TryParse(
+                        idSpan,
+                        NumberStyles.Integer,
+                        CultureInfo.InvariantCulture,
+                        out var starFighterId
+                    )
+                )
                 {
-                    entityToReturn.Entity = _currentEntities.GetOrAdd(starFighterId, new Entity
-                    {
-                        IsCharacter = false,
-                        Name = starFighterId.ToString(),
-                        Id = starFighterId,
-                        LogId = starFighterId
-                    });
+                    entityToReturn.Entity = _currentEntities.GetOrAdd(
+                        starFighterId,
+                        new Entity
+                        {
+                            IsCharacter = false,
+                            Name = starFighterId.ToString(),
+                            Id = starFighterId,
+                            LogId = starFighterId,
+                        }
+                    );
                 }
 
                 return;
@@ -671,19 +905,24 @@ namespace SWTORCombatParser.Model.LogParsing
                 idPart = idPart.Slice(0, idEnd);
 
             var idParsed = long.Parse(idPart);
-            var logIdParsed = long.Parse(name.Slice(leftBraceIdx + 1, rightBraceIdx2 - leftBraceIdx - 1),
-                NumberStyles.Integer, CultureInfo.InvariantCulture);
+            var logIdParsed = long.Parse(
+                name.Slice(leftBraceIdx + 1, rightBraceIdx2 - leftBraceIdx - 1),
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture
+            );
             var entityName = name.Slice(0, leftBraceIdx).Trim();
 
-            entityToReturn.Entity = _currentEntities.GetOrAdd(idParsed, new Entity
-            {
-                IsCharacter = false,
-                Name = entityName.ToString(),
-                Id = idParsed,
-                LogId = logIdParsed
-            });
+            entityToReturn.Entity = _currentEntities.GetOrAdd(
+                idParsed,
+                new Entity
+                {
+                    IsCharacter = false,
+                    Name = entityName.ToString(),
+                    Id = idParsed,
+                    LogId = logIdParsed,
+                }
+            );
         }
-
 
         private static string ParseAbility(string value)
         {
@@ -704,8 +943,14 @@ namespace SWTORCombatParser.Model.LogParsing
 
             if (braceStart < 0 || braceEnd <= braceStart)
                 return 0;
-            return ulong.TryParse(value.Substring(braceStart + 1, braceEnd - braceStart - 1).Trim(), out var ability) ? ability : 0;
+            return ulong.TryParse(
+                value.Substring(braceStart + 1, braceEnd - braceStart - 1).Trim(),
+                out var ability
+            )
+                ? ability
+                : 0;
         }
+
         private static Effect ParseEffect(ReadOnlySpan<char> value)
         {
             // Find the first and second colons
@@ -714,7 +959,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 return null;
 
             int secondColon = value.Slice(firstColon + 1).IndexOf(':');
-            ReadOnlySpan<char> typeSpan, nameSpan;
+            ReadOnlySpan<char> typeSpan,
+                nameSpan;
 
             if (secondColon < 0)
             {
@@ -733,9 +979,10 @@ namespace SWTORCombatParser.Model.LogParsing
             // Extract type ID from inside braces
             var braceStart = typeSpan.IndexOf('{');
             var braceEnd = typeSpan.IndexOf('}');
-            ReadOnlySpan<char> typeId = (braceStart >= 0 && braceEnd > braceStart)
-                ? typeSpan.Slice(braceStart + 1, braceEnd - braceStart - 1).Trim()
-                : default;
+            ReadOnlySpan<char> typeId =
+                (braceStart >= 0 && braceEnd > braceStart)
+                    ? typeSpan.Slice(braceStart + 1, braceEnd - braceStart - 1).Trim()
+                    : default;
 
             var effectType = GetEffectTypeById(typeId);
 
@@ -781,8 +1028,13 @@ namespace SWTORCombatParser.Model.LogParsing
                     break;
 
                 case EffectType.AreaEntered:
-                    newEffect.EffectName = _interner.Intern($"{namePart.ToString()} {difficulty.ToString()}");
-                    newEffect.SecondEffectId = secondId.IsEmpty ? 0 : ulong.TryParse(secondId, out var secondParsedEffect) ? secondParsedEffect : 0;
+                    newEffect.EffectName = _interner.Intern(
+                        $"{namePart.ToString()} {difficulty.ToString()}"
+                    );
+                    newEffect.SecondEffectId =
+                        secondId.IsEmpty ? 0
+                        : ulong.TryParse(secondId, out var secondParsedEffect) ? secondParsedEffect
+                        : 0;
                     break;
 
                 default:
@@ -802,7 +1054,7 @@ namespace SWTORCombatParser.Model.LogParsing
             return newEffect;
         }
 
-        private static DamageType GetValueTypeById(long val)
+        private static DamageType GetEventTypeById(long val)
         {
             switch (val)
             {
@@ -834,6 +1086,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     return DamageType.unknown;
             }
         }
+
         private static EffectType GetEffectTypeById(ReadOnlySpan<char> v)
         {
             switch (v)

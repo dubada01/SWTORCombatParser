@@ -16,6 +16,7 @@ using ReactiveUI;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Views.Battle_Review;
 
 namespace SWTORCombatParser.DataStructures
 {
@@ -122,7 +123,7 @@ namespace SWTORCombatParser.DataStructures
             Value = value;
             Threat = threat.ToString();
             WasValueCrit = wasValueCrit;
-            ValueType = type;
+            EventType = type;
             ModifierType = modifiertype;
             ModifierValue = modifierValue;
 
@@ -168,7 +169,7 @@ namespace SWTORCombatParser.DataStructures
         public string ValueUnit { get; }
         public string Threat { get; set; }
         public bool WasValueCrit { get; }
-        public string ValueType { get; }
+        public string EventType { get; }
         public string ModifierType { get; }
         public string ModifierValue { get; }
         public ReactiveCommand<string, Unit> CellClickedCommand =>
@@ -177,7 +178,7 @@ namespace SWTORCombatParser.DataStructures
         {
             get
             {
-                var t = (ValueType ?? string.Empty).ToLowerInvariant();
+                var t = (EventType ?? string.Empty).ToLowerInvariant();
                 switch (t)
                 {
                     case "heal":
@@ -218,7 +219,7 @@ namespace SWTORCombatParser.DataStructures
         {
             get
             {
-                var t = (ValueType ?? string.Empty).ToLowerInvariant();
+                var t = (EventType ?? string.Empty).ToLowerInvariant();
                 switch (t)
                 {
                     // Damage Types
@@ -436,8 +437,8 @@ namespace SWTORCombatParser.DataStructures
         public string DisplayValue { get; set; }
         public string ModifierDisplayValue { get; set; }
         public string ModifierType { get; set; }
-        public DamageType ValueType { get; set; }
-        public long ValueTypeId { get; set; }
+        public DamageType EventType { get; set; }
+        public long EventTypeId { get; set; }
 
         public Value Modifier;
         public bool WasCrit { get; set; }
@@ -479,7 +480,7 @@ namespace SWTORCombatParser.DataStructures
         absorbed,
     }
 
-    public enum ValueType
+    public enum EventType
     {
         Damage,
         Location,

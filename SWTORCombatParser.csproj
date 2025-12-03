@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <NoWarn>
       AVLN3001;
@@ -38,7 +37,8 @@
       <!-- Crypto warnings -->
       SYSLIB0041;
       SYSLIB0045;
-    </NoWarn>
+    </NoWarn
+    >
   </PropertyGroup>
 
   <PropertyGroup>
@@ -120,7 +120,7 @@
     <None Remove="UWP Images\**" />
     <Compile Remove="ViewModels\BattleReview\MapViewModel.cs" />
     <Compile Remove="ViewModels\BattleReview\ReviewPlotViewModel.cs" />
-  <Compile Remove="Views\BattleReview\MapView.xaml.cs" />
+    <Compile Remove="Views\BattleReview\MapView.xaml.cs" />
     <Page Update="Views\Timers\AlertInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -153,29 +153,29 @@
     <EmbeddedResource Remove="TestCombatLogs\**" />
     <None Remove="TestCombatLogs\**" />
   </ItemGroup>
-    <ItemGroup>
-        <AvaloniaResource Include="resources\**\*.*">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </AvaloniaResource>
-        <AvaloniaResource Remove="MacOSBuilds\**" />
-        <AvaloniaResource Remove="Orbs.dmgcanvas\**" />
-        <AvaloniaResource Remove="TestCombatLogs\**" />
-    </ItemGroup>
-<ItemGroup>
-  <Content Include="resources\packagedIcons.zip">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-  <Content Include="resources\Audio\*.*">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-  <Content Include="resources\Audio\TimerAudio\*.*">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-  <None Remove="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json" />
-  <Content Include="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-</ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="resources\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </AvaloniaResource>
+    <AvaloniaResource Remove="MacOSBuilds\**" />
+    <AvaloniaResource Remove="Orbs.dmgcanvas\**" />
+    <AvaloniaResource Remove="TestCombatLogs\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\packagedIcons.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Audio\TimerAudio\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json" />
+    <Content Include="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="BossMechanicSkimmerConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -257,7 +257,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 
-  <Page Remove="Views\BattleReview\MapView.xaml" />
+    <Page Remove="Views\BattleReview\MapView.xaml" />
     <Content Include="DataStructures\Timers\Boss Timers\Raids\Athiss\Athiss.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -460,7 +460,7 @@
     <AvaloniaXaml Remove="Views\Leaderboard View\**" />
     <AvaloniaXaml Remove="ViewModels\Leaderboard\**" />
     <AvaloniaXaml Remove="Views\Overviews\HistogramInstanceView.axaml" />
-  <AvaloniaXaml Remove="Views\BattleReview\MapView.axaml" />
+    <AvaloniaXaml Remove="Views\BattleReview\MapView.axaml" />
     <AvaloniaXaml Remove="Views\Home Views\HistoricalRangeWiget.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\StatSlotView.axaml" />
     <AvaloniaXaml Remove="Views\DataGrid Views\DataGridRowView.axaml" />
@@ -484,6 +484,10 @@
   <ItemGroup>
     <AvaloniaResource Remove="Views\Leaderboard View\**" />
     <AvaloniaResource Remove="ViewModels\Leaderboard\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="Views\BattleReview\FilterFlyout.axaml" />
   </ItemGroup>
 
   <ItemGroup>

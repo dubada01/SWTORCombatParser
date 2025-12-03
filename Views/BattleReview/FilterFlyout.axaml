@@ -1,0 +1,53 @@
+<UserControl
+    x:Class="SWTORCombatParser.Views.Battle_Review.FilterFlyout"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:SWTORCombatParser.Views.Battle_Review"
+    x:Name="Root">
+    <UserControl.Styles>
+        <!-- style when the header button has the 'filtered' class -->
+        <Style Selector="Button.filtering">
+            <Setter Property="Background" Value="#2596be"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+    </UserControl.Styles>
+    <Button
+        x:Name="RootButton"
+        Classes="GridHeaderButton"
+        Focusable="False"
+        HorizontalAlignment="Right"
+        VerticalAlignment="Center"
+        Width="20"
+        Height="20"
+        Padding="0,0,0,0"
+        Margin="0,0,0,0"
+        ToolTip.Tip="Filter column">
+        <TextBlock Text="⋯" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <Button.Flyout>
+            <Flyout>
+              <StackPanel Orientation="Vertical" MinWidth="200">
+                <CheckBox
+                    x:Name="ToggleAll"
+                    Content="Toggle All"
+                    IsChecked="True"
+                    IsThreeState="True"
+                    Click="ToggleAll_Click"
+                    Margin="6,4"/>
+                  <!-- ItemsControl bound to the bindable Options property -->
+                  <ScrollViewer MaxHeight="300" Width="200">
+                      <ItemsControl ItemsSource="{Binding Options, ElementName=Root}">
+                          <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="local:FilterOption">
+                                  <CheckBox
+                                      Content="{Binding Value}"
+                                      IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                      Margin="6,4"/>
+                              </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                  </ScrollViewer>
+                </StackPanel>
+            </Flyout>
+        </Button.Flyout>
+    </Button>
+</UserControl>

@@ -17,39 +17,43 @@ namespace SWTORCombatParser.Model.CombatParsing
         public double ShieldValue;
         public DateTime ShieldingTime;
     }
+
     /// <summary>
     /// Builds synthetic absorb‑shield logs and aggregates shielding statistics.
-    /// Drop‑in replacement for the previous implementation; 
+    /// Drop‑in replacement for the previous implementation;
     /// dramatically faster on large data sets (hundreds of thousands of log rows).
     /// </summary>
     internal static class ShieldingProcessor
     {
         public static void AddShieldLogsByTarget(
             IReadOnlyDictionary<Entity, List<ParsedLogEntry>> participantShieldLogs,
-            Combat combat)
+            Combat combat
+        )
         {
             // ---------------------------------------------------------------------
             // 1. Pre‑computation look‑ups
             // ---------------------------------------------------------------------
-            var absorbNames = AbilityLoader.AbsorbAbilities.Values
-                                              .Select(a => a.name)
-                                              .ToHashSet(StringComparer.Ordinal);
+            var absorbNames = AbilityLoader
+                .AbsorbAbilities.Values.Select(a => a.name)
+                .ToHashSet(StringComparer.Ordinal);
 
             var state = CombatLogStateBuilder.CurrentState;
 
-            var modifiersByTarget = state.Modifiers
-                .SelectMany(bag => bag.Value)
+            var modifiersByTarget = state
+                .Modifiers.SelectMany(bag => bag.Value)
                 .Select(kvp => kvp.Value)
                 .Where(m => absorbNames.Contains(m.EffectName))
                 .GroupBy(m => m.Target)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            var logsByTarget = participantShieldLogs.Values
-                                                   .SelectMany(l => l)
-                                                   .GroupBy(l => l.Target);
+            var logsByTarget = participantShieldLogs
+                .Values.SelectMany(l => l)
+                .GroupBy(l => l.Target);
 
-            var shieldEventsBySource = participantShieldLogs.Keys
-                                                            .ToDictionary(k => k, _ => new List<ShieldingEvent>(32));
+            var shieldEventsBySource = participantShieldLogs.Keys.ToDictionary(
+                k => k,
+                _ => new List<ShieldingEvent>(32)
+            );
 
             // ---------------------------------------------------------------------
             // 2. Main sweep – mirrors original index‑based algorithm
@@ -65,34 +69,39 @@ namespace SWTORCombatParser.Model.CombatParsing
                 foreach (var log in targetGroup)
                 {
                     var activeAbsorbs = mods.Where(m => IsModifierActive(m, log))
-                                             .OrderBy(a => a.StartTime)
-                                             .ToList();
-                    if (activeAbsorbs.Count == 0) continue;
+                        .OrderBy(a => a.StartTime)
+                        .ToList();
+                    if (activeAbsorbs.Count == 0)
+                        continue;
 
                     for (var i = 0; i < activeAbsorbs.Count; i++)
                     {
                         var absorb = activeAbsorbs[i];
                         var amount = GetAbsorbAmount(log, activeAbsorbs, i);
-                        if (amount <= 0) continue;
+                        if (amount <= 0)
+                            continue;
 
                         var source = absorb.Source;
                         var list = shieldEventsBySource[source];
 
                         var evt = list.FirstOrDefault(se =>
-                            se.ShieldingTime == absorb.StopTime &&
-                            se.ShieldName == absorb.Name &&
-                            se.Target == target);
+                            se.ShieldingTime == absorb.StopTime
+                            && se.ShieldName == absorb.Name
+                            && se.Target == target
+                        );
 
                         if (evt is null)
                         {
-                            list.Add(new ShieldingEvent
-                            {
-                                ShieldName = absorb.Name,
-                                ShieldingTime = absorb.StopTime,
-                                ShieldValue = amount,
-                                Source = source,
-                                Target = target
-                            });
+                            list.Add(
+                                new ShieldingEvent
+                                {
+                                    ShieldName = absorb.Name,
+                                    ShieldingTime = absorb.StopTime,
+                                    ShieldValue = amount,
+                                    Source = source,
+                                    Target = target,
+                                }
+                            );
                         }
                         else
                         {
@@ -111,10 +120,11 @@ namespace SWTORCombatParser.Model.CombatParsing
             {
                 events.Sort(static (a, b) => a.ShieldingTime.CompareTo(b.ShieldingTime));
 
-                var srcLogs = combat.GetLogsInvolvingEntity(source)
-                                     .Where(l => l.Effect.EffectType != EffectType.AbsorbShield)
-                                     .OrderBy(l => l.TimeStamp)
-                                     .ToList();
+                var srcLogs = combat
+                    .GetLogsInvolvingEntity(source)
+                    .Where(l => l.Effect.EffectType != EffectType.AbsorbShield)
+                    .OrderBy(l => l.TimeStamp)
+                    .ToList();
 
                 var idx = 0;
                 combat.ShieldingProvidedLogs[source] = new ConcurrentQueue<ParsedLogEntry>();
@@ -124,7 +134,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                 {
                     while (idx < srcLogs.Count && srcLogs[idx].TimeStamp <= ev.ShieldingTime)
                         idx++;
-                    if (idx == srcLogs.Count) break;
+                    if (idx == srcLogs.Count)
+                        break;
 
                     var p = new ParsedLogEntry
                     {
@@ -135,7 +146,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                         {
                             EffectType = EffectType.AbsorbShield,
                             EffectId = _7_0LogParsing._healEffectId,
-                            EffectName = "Processed Absorb"
+                            EffectName = "Processed Absorb",
                         },
                         SourceInfo = new EntityInfo { Entity = ev.Source },
                         TargetInfo = new EntityInfo { Entity = ev.Target },
@@ -143,8 +154,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                         {
                             EffectiveDblValue = ev.ShieldValue,
                             DisplayValue = ev.ShieldValue.ToString("N2"),
-                            ValueType = DamageType.heal
-                        }
+                            EventType = DamageType.heal,
+                        },
                     };
 
                     combat.AllLogs[p.LogLineNumber] = p;
@@ -155,8 +166,8 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             // reset flags for next pass
             foreach (var bag in state.Modifiers.Values)
-                foreach (var mod in bag.Values)
-                    mod.HasAbsorbBeenCounted = false;
+            foreach (var mod in bag.Values)
+                mod.HasAbsorbBeenCounted = false;
         }
 
         // ------------------------------------------------------------------
@@ -166,11 +177,16 @@ namespace SWTORCombatParser.Model.CombatParsing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsModifierActive(CombatModifier m, ParsedLogEntry log)
         {
-            if (m.HasAbsorbBeenCounted) return false;
+            if (m.HasAbsorbBeenCounted)
+                return false;
             return m.StartTime < log.TimeStamp && m.StopTime.AddSeconds(4.25) >= log.TimeStamp;
         }
 
-        private static double GetAbsorbAmount(ParsedLogEntry log, List<CombatModifier> absorbs, int index)
+        private static double GetAbsorbAmount(
+            ParsedLogEntry log,
+            List<CombatModifier> absorbs,
+            int index
+        )
         {
             var modVal = log.Value.Modifier.DblValue;
 
@@ -202,8 +218,10 @@ namespace SWTORCombatParser.Model.CombatParsing
                     remainderPortion = modVal;
                 }
 
-                if (index == 0) return firstPortion;
-                if (index == 1) return remainderPortion;
+                if (index == 0)
+                    return firstPortion;
+                if (index == 1)
+                    return remainderPortion;
             }
             return 0;
         }

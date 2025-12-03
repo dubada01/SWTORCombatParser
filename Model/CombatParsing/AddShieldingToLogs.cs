@@ -1,35 +1,55 @@
-﻿using MoreLinq;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using MoreLinq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.AbilityInfo;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
     public static class AddShieldingToLogs
     {
-        public static void AddShieldLogsByTarget(Dictionary<Entity, List<ParsedLogEntry>> allPriticipantSheildingLogs, Combat combat)
+        public static void AddShieldLogsByTarget(
+            Dictionary<Entity, List<ParsedLogEntry>> allPriticipantSheildingLogs,
+            Combat combat
+        )
         {
             var start = TimeUtility.CorrectedTime;
-            var currentAbsorbAbilities = AbilityLoader.AbsorbAbilities.Values.Select(v => v.name).ToList();
+            var currentAbsorbAbilities = AbilityLoader
+                .AbsorbAbilities.Values.Select(v => v.name)
+                .ToList();
             var state = CombatLogStateBuilder.CurrentState;
             var modifiers = state.Modifiers;
             var allShieldLogs = allPriticipantSheildingLogs.Values.SelectMany(l => l).ToList();
 
-            Dictionary<Entity, List<ShieldingEvent>> _totalSheildingProvided = allPriticipantSheildingLogs.ToDictionary(kvp => kvp.Key, kvp => new List<ShieldingEvent>());
+            Dictionary<Entity, List<ShieldingEvent>> _totalSheildingProvided =
+                allPriticipantSheildingLogs.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => new List<ShieldingEvent>()
+                );
             var absorbTargets = allShieldLogs.Select(l => l.Target).Distinct();
 
             foreach (var target in absorbTargets)
             {
                 var logsForTarget = allShieldLogs.Where(l => l.Target == target).ToList();
-                var absorbsOnTarget = modifiers.Where(m => m.Value.Any() && currentAbsorbAbilities.Contains(m.Value.First().Value.EffectName)).SelectMany(kvp => kvp.Value).Where(mod => mod.Value.Target == target).Select(kvp => kvp.Value).ToList();
+                var absorbsOnTarget = modifiers
+                    .Where(m =>
+                        m.Value.Any()
+                        && currentAbsorbAbilities.Contains(m.Value.First().Value.EffectName)
+                    )
+                    .SelectMany(kvp => kvp.Value)
+                    .Where(mod => mod.Value.Target == target)
+                    .Select(kvp => kvp.Value)
+                    .ToList();
                 foreach (var log in logsForTarget)
                 {
-                    var activeAbsorbs = absorbsOnTarget.Where(m => IsModifierActive(m, log)).OrderBy(a => a.StartTime).ToList();
+                    var activeAbsorbs = absorbsOnTarget
+                        .Where(m => IsModifierActive(m, log))
+                        .OrderBy(a => a.StartTime)
+                        .ToList();
                     for (var i = 0; i < activeAbsorbs.Count; i++)
                     {
                         var absorb = activeAbsorbs[i];
@@ -37,19 +57,32 @@ namespace SWTORCombatParser.Model.CombatParsing
                         if (ammount <= 0)
                             continue;
                         var source = absorb.Source;
-                        _totalSheildingProvided[source] = _totalSheildingProvided.TryGetValue(source, out var val) ? val : new List<ShieldingEvent>();
+                        _totalSheildingProvided[source] = _totalSheildingProvided.TryGetValue(
+                            source,
+                            out var val
+                        )
+                            ? val
+                            : new List<ShieldingEvent>();
 
-                        var activeAbsorb = _totalSheildingProvided[source].FirstOrDefault(shield => shield.ShieldingTime == absorb.StopTime && shield.ShieldName == absorb.Name && shield.Target == target);
+                        var activeAbsorb = _totalSheildingProvided[source]
+                            .FirstOrDefault(shield =>
+                                shield.ShieldingTime == absorb.StopTime
+                                && shield.ShieldName == absorb.Name
+                                && shield.Target == target
+                            );
                         if (activeAbsorb == null)
                         {
-                            _totalSheildingProvided[source].Add(new ShieldingEvent
-                            {
-                                ShieldName = absorb.Name,
-                                ShieldingTime = absorb.StopTime,
-                                ShieldValue = ammount,
-                                Source = source,
-                                Target = target
-                            });
+                            _totalSheildingProvided[source]
+                                .Add(
+                                    new ShieldingEvent
+                                    {
+                                        ShieldName = absorb.Name,
+                                        ShieldingTime = absorb.StopTime,
+                                        ShieldValue = ammount,
+                                        Source = source,
+                                        Target = target,
+                                    }
+                                );
                         }
                         else
                         {
@@ -68,7 +101,9 @@ namespace SWTORCombatParser.Model.CombatParsing
                 combat.TotalProvidedSheilding[source] = 0;
                 foreach (var sheild in shieldEvents)
                 {
-                    var logToInsertAfter = logs.FirstOrDefault(l => l.TimeStamp > sheild.ShieldingTime);
+                    var logToInsertAfter = logs.FirstOrDefault(l =>
+                        l.TimeStamp > sheild.ShieldingTime
+                    );
                     if (logToInsertAfter == null)
                         continue;
                     var sheildLog = new ParsedLogEntry
@@ -80,7 +115,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                         {
                             EffectType = EffectType.AbsorbShield,
                             EffectId = _7_0LogParsing._healEffectId,
-                            EffectName = "Processed Absorb"
+                            EffectName = "Processed Absorb",
                         },
                         SourceInfo = new EntityInfo { Entity = source },
                         TargetInfo = new EntityInfo() { Entity = sheild.Target },
@@ -88,8 +123,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                         {
                             EffectiveDblValue = sheild.ShieldValue,
                             DisplayValue = sheild.ShieldValue.ToString("N2"),
-                            ValueType = DamageType.heal
-                        }
+                            EventType = DamageType.heal,
+                        },
                     };
                     combat.AllLogs[sheildLog.LogLineNumber] = (sheildLog);
                     combat.ShieldingProvidedLogs[source].Enqueue(sheildLog);
@@ -103,14 +138,21 @@ namespace SWTORCombatParser.Model.CombatParsing
         {
             if (modifier.HasAbsorbBeenCounted)
                 return false;
-            if (modifier.StartTime < log.TimeStamp && (modifier.StopTime.AddSeconds(4.25) >= log.TimeStamp))
+            if (
+                modifier.StartTime < log.TimeStamp
+                && (modifier.StopTime.AddSeconds(4.25) >= log.TimeStamp)
+            )
             {
                 return true;
             }
             return false;
         }
 
-        private static double GetAbsorbAmmount(ParsedLogEntry log, List<CombatModifier> absorbs, int index)
+        private static double GetAbsorbAmmount(
+            ParsedLogEntry log,
+            List<CombatModifier> absorbs,
+            int index
+        )
         {
             if (absorbs.Count == 1)
             {
@@ -132,7 +174,9 @@ namespace SWTORCombatParser.Model.CombatParsing
                 {
                     if (index == 0)
                         absorbs[index].HasAbsorbBeenCounted = true;
-                    absorbedByFirst = (log.Value.DblValue - log.Value.Modifier.DblValue) - log.Value.MitigatedDblValue;
+                    absorbedByFirst =
+                        (log.Value.DblValue - log.Value.Modifier.DblValue)
+                        - log.Value.MitigatedDblValue;
                     absorbedByRemainder = log.Value.Modifier.DblValue;
                 }
 

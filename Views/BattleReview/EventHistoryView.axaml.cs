@@ -6,7 +6,6 @@ using Avalonia.Input;
 using Avalonia.VisualTree;
 using SWTORCombatParser.ViewModels.BattleReview;
 
-
 namespace SWTORCombatParser.Views.Battle_Review
 {
     /// <summary>
@@ -15,18 +14,18 @@ namespace SWTORCombatParser.Views.Battle_Review
     public partial class EventHistoryView : UserControl
     {
         EventHistoryViewModel _eventViewModel;
+
         public EventHistoryView(EventHistoryViewModel eventViewModel)
         {
             DataContext = eventViewModel;
             _eventViewModel = eventViewModel;
             InitializeComponent();
         }
+
         private double GetRowHeight()
         {
             // Get the first rendered row in the DataGrid
-            var firstRow = DataArea.GetVisualDescendants()
-                .OfType<DataGridRow>()
-                .FirstOrDefault();
+            var firstRow = DataArea.GetVisualDescendants().OfType<DataGridRow>().FirstOrDefault();
 
             // If a row is rendered, return its actual height
             if (firstRow != null)
@@ -37,10 +36,16 @@ namespace SWTORCombatParser.Views.Battle_Review
             // Fallback to a default value if no rows are rendered
             return 0.0;
         }
+
         private int _previousIndex = -1; // Tracks the previously selected index
+
         private void Selection1List_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (DataArea.SelectedItem == null || DataArea.SelectedIndex < 0 || !_eventViewModel.DeathReview)
+            if (
+                DataArea.SelectedItem == null
+                || DataArea.SelectedIndex < 0
+                || !_eventViewModel.DeathReview
+            )
                 return;
 
             // Assume dynamic row height
@@ -65,7 +70,11 @@ namespace SWTORCombatParser.Views.Battle_Review
             }
 
             // Calculate the target index to scroll into view
-            int targetIndex = Math.Clamp(DataArea.SelectedIndex - offset, 0, DataArea.ItemsSource.Cast<object>().Count() - 1);
+            int targetIndex = Math.Clamp(
+                DataArea.SelectedIndex - offset,
+                0,
+                DataArea.ItemsSource.Cast<object>().Count() - 1
+            );
 
             // Get the item at the target index
             var items = DataArea.ItemsSource.Cast<object>().ToList();
@@ -87,6 +96,14 @@ namespace SWTORCombatParser.Views.Battle_Review
         private void DataArea_MouseLeave(object sender, PointerEventArgs e)
         {
             _eventViewModel.HasFocus = false;
+        }
+
+        private void FilterFlyout_FilterChanged(object? sender, FilterChangedEventArgs e)
+        {
+            if (DataContext is not EventHistoryViewModel vm || sender is not FilterFlyout ff)
+                return;
+            var columnName = ff.HeaderText ?? string.Empty;
+            _ = vm.ApplyColumnFilter(columnName, e.EnabledValues);
         }
     }
 }

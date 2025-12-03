@@ -101,18 +101,10 @@
                                             Content="{TemplateBinding Content}"
                                             ContentTemplate="{TemplateBinding ContentTemplate}" />
                                     <!-- Right-aligned filter button -->
-                                    <Button
+                                    <local:FilterFlyout
                                             Grid.Column="1"
-                                            Classes="GridHeaderButton"
-                                            Focusable="False"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Center"
-                                            Width="20"
-                                            Height="20"
-                                            ToolTip.Tip="Filter column">
-                                        <!-- small glyph, change to icon if you have one -->
-                                        <TextBlock Text="⋯" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Button>
+                                            HeaderText="{TemplateBinding Content}"
+                                            FilterChanged="FilterFlyout_FilterChanged"/>
                                 </Grid>
                             </Border>
                         </ControlTemplate>
@@ -303,7 +295,7 @@
                                     Margin="2,0,0,0">
                                 <TextBlock
                                         Classes="gridcell"
-                                        Text="{Binding ValueType}"
+                                        Text="{Binding EventType}"
                                         Foreground="{Binding TypeForeColor}"
                                         Margin="5,0,0,0" />
                             </Grid>
