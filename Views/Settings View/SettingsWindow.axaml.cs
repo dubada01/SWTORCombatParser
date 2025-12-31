@@ -44,10 +44,11 @@ namespace SWTORCombatParser.Views.SettingsView
 
 
 
-            ShowTargeted.IsCheckedChanged += UpdatedDisplayTargeted;
+            ShowTargeted.IsCheckedChanged += UpdateOverlaySettings;
+            ShowCombatDuration.IsCheckedChanged += UpdateOverlaySettings;
+            BossFrameCurrentTarget.IsCheckedChanged += UpdateOverlaySettings;
+            BossFrameDot.IsCheckedChanged += UpdateOverlaySettings;
         }
-
-
 
         private async void UpdateCombatLogsPath(object? sender, RoutedEventArgs e)
         {
@@ -66,7 +67,10 @@ namespace SWTORCombatParser.Views.SettingsView
             RunInBackground.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled");
             ForceLogUpdates.IsChecked = Settings.ReadSettingOfType<bool>("force_log_updates");
             BackgroundWarning.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring");
-            ShowTargeted.IsChecked = Settings.ReadSettingOfType<bool>("overlay_show_targeted");
+            ShowTargeted.IsChecked = Settings.ReadSettingOfType<bool>(Settings.RaidFrameBossTargetVisibilitySetting);
+            BossFrameDot.IsChecked = Settings.ReadSettingOfType<bool>(Settings.BossFrameDOTVisibilitySetting);
+            BossFrameCurrentTarget.IsChecked = Settings.ReadSettingOfType<bool>(Settings.BossFrameTargetSetting);
+            ShowCombatDuration.IsChecked = Settings.ReadSettingOfType<bool>(Settings.BossFrameDurationVisibilitySetting);
         }
         private async void ResetMessages(object sender, RoutedEventArgs e)
         {
@@ -92,6 +96,7 @@ namespace SWTORCombatParser.Views.SettingsView
             var currentPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
             var newPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser_Archived");
             Directory.Move(currentPath, newPath);
+            Directory.Delete(currentPath, true);
         }
         private void InitPath()
         {
@@ -121,9 +126,12 @@ namespace SWTORCombatParser.Views.SettingsView
         {
             ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", !RunInBackground.IsChecked.Value);
         }
-        private void UpdatedDisplayTargeted(object? sender, RoutedEventArgs e)
+        private void UpdateOverlaySettings(object? sender, RoutedEventArgs e)
         {
-            Settings.WriteSetting("overlay_show_targeted", ShowTargeted.IsChecked.Value);
+            Settings.WriteSetting(Settings.RaidFrameBossTargetVisibilitySetting, ShowTargeted.IsChecked.Value);
+            Settings.WriteSetting(Settings.BossFrameDOTVisibilitySetting, BossFrameDot.IsChecked.Value);
+            Settings.WriteSetting(Settings.BossFrameTargetSetting,BossFrameCurrentTarget.IsChecked.Value);
+            Settings.WriteSetting(Settings.BossFrameDurationVisibilitySetting, ShowCombatDuration.IsChecked.Value);
         }
         private void ToggleHotkeyEnabled(object sender, RoutedEventArgs e)
         {

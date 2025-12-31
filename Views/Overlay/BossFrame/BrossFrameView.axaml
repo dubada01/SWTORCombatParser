@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Background="{x:Null}">
     <Grid x:Name="MainArea" IsVisible="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip.Tip="Boss Info Frame">
-        <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,2,0,0">
+        <Viewbox IsVisible="{Binding CombatDurationVisible}" Grid.Column="1" MaxHeight="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,2,0,0">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Duration: " Foreground="{StaticResource Gray10Brush}"></TextBlock>
                 <TextBlock Text="{Binding CombatDuration}" Foreground="{StaticResource Gray12Brush}"></TextBlock>
@@ -27,7 +27,7 @@
                             <RowDefinition Height="2*"/>
                             <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
-                        <ContentPresenter Grid.Row="0" Content="{Binding DOTSContent}"></ContentPresenter>
+                        <ContentPresenter IsVisible="{Binding DOTContentEnabled}" Grid.Row="0" Content="{Binding DOTSContent}"></ContentPresenter>
                         <ContentPresenter Grid.Row="1" Content="{Binding HPContent}"></ContentPresenter>
                         <ContentPresenter Grid.Row="2" Content="{Binding MechanicsModule}"></ContentPresenter>
                     </Grid>

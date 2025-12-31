@@ -9,6 +9,16 @@ namespace SWTORCombatParser.Utilities;
 
 public static class Settings
 {
+    public static string RaidFrameBossTargetVisibilitySetting = "overlay_show_targeted";
+    
+    public static string BossFrameDurationVisibilitySetting = "overlay_show_boss_frame_duration";
+    public static string BossFrameTargetSetting = "overlay_show_boss_frame_target";
+    public static string BossFrameDOTVisibilitySetting = "overlay_show_boss_frame_dots";
+    
+    
+    
+    
+    
     private static string _appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
     private static string _settingsPath = Path.Combine(_appDataPath, "general_settings.json");
 
@@ -26,6 +36,7 @@ public static class Settings
             }
         }
     }
+    public static event Action SettingsUpdated = delegate { };
 
     public static List<T> GetListSetting<T>(string settingName)
     {
@@ -125,6 +136,7 @@ public static class Settings
         }
 
         File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settingList));
+        SettingsUpdated();
     }
 
 }

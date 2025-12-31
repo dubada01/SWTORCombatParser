@@ -137,7 +137,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             get => isTargeted; set
             {
-                var displayTargeted = Settings.ReadSettingOfType<bool>("overlay_show_targeted");
+                var displayTargeted = Settings.ReadSettingOfType<bool>(Settings.RaidFrameBossTargetVisibilitySetting);
                 if (!displayTargeted && value)
                     return;
                 isTargeted = value;

@@ -58,6 +58,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         public bool ShowFrame => BossesDetected.Any() || OverlaysMoveable;
         public ObservableCollection<BossFrameViewModel> BossesDetected { get; set; } = new ObservableCollection<BossFrameViewModel>();
+        public bool CombatDurationVisible {get; set;}
         public string CombatDuration
         {
             get => combatDuration; set => this.RaiseAndSetIfChanged(ref combatDuration, value);
@@ -92,8 +93,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             this.WhenAnyValue(x => x.OverlaysMoveable).Subscribe(_ => this.RaisePropertyChanged(nameof(ShowFrame)));
             if (currentDefaults.Acive)
                 ShowOverlayWindow();
+
+            Settings.SettingsUpdated += UpdateConfiguration;
         }
 
+        private void UpdateConfiguration()
+        {
+            CombatDurationVisible = Settings.ReadSettingOfType<bool>(Settings.BossFrameDurationVisibilitySetting);
+            this.RaisePropertyChanged(nameof(CombatDurationVisible));
+        }
 
 
         public void LockOverlays()
@@ -144,7 +152,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                     bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
                     Dispatcher.UIThread.Invoke(() =>
                     {
-                        BossesDetected.Add(new BossFrameViewModel(boss, isDuplicate, CurrentScale));
+                        var bossInfo = new BossFrameViewModel(boss, isDuplicate, CurrentScale);
+                        bossInfo.DOTContentEnabled =
+                            Settings.ReadSettingOfType<bool>(Settings.BossFrameDOTVisibilitySetting);
+                        BossesDetected.Add(bossInfo);
                         this.RaisePropertyChanged(nameof(ShowFrame));
                         InCombatWithBoss.InvokeSafely(true);
                         UpdateVisibility();

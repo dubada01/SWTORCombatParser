@@ -6,7 +6,7 @@
              x:Class="SWTORCombatParser.Views.Overlay.ThreatTable.ThreatTableEntry"
              xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.ThreatTable"
              x:DataType="vm:ThreatTableEntryViewModel">
-    <Border Margin="2,2,2,2" Background="{StaticResource Gray3}" BorderBrush="{Binding EnemyBackground}" BorderThickness="2" CornerRadius="5">
+    <Border Margin="2,2,2,2" Background="{StaticResource Gray2_75}" BorderBrush="{Binding EnemyBackground}" BorderThickness="2" CornerRadius="5">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.33*"/>

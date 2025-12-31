@@ -26,6 +26,7 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
         MainContent = _threatTableView;
         CombatSelectionMonitor.OnInProgressCombatSelected += HandleNewCombatInfo;
         CombatSelectionMonitor.CombatSelected += HandleNewCombatInfo;
+        CombatSelectionMonitor.CombatSelected += HandleNewCombatInfo;
         CombatSelectionMonitor.PhaseSelected += HandleNewCombatInfo;
         _userAddedIds = Settings.ReadSettingOfType<List<long>>("threat_table_ids");
     }

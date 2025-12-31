@@ -3,11 +3,12 @@ using SWTORCombatParser.DataStructures;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia.Controls;
+using ReactiveUI;
 
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class HPModuleViewModel : INotifyPropertyChanged
+    public class HPModuleViewModel:ReactiveObject
     {
         private double bossCurrentHP;
         private double bossMaxHP;
@@ -15,6 +16,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private double defaultHeight = 50;
         private double height;
         private string currentBossTarget;
+        private bool _currentTargetIndicatorVisible;
 
         public double Height
         {
@@ -32,6 +34,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 OnPropertyChanged();
             }
         }
+
+        public bool CurrentTargetIndicatorVisible
+        {
+            get => _currentTargetIndicatorVisible;
+            set => this.RaiseAndSetIfChanged(ref _currentTargetIndicatorVisible, value);
+        }
+
         public string CurrentBossTarget
         {
             get => currentBossTarget; set

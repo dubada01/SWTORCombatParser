@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Views.Overlay.BossFrame;
 using Avalonia.Threading;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -33,7 +34,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 _mechsVM = new MechanicsTimersModuleViewModel(bossInfo, _scale);
                 MechanicsModule.DataContext = _mechsVM;
             });
+            Settings.SettingsUpdated += UpdateConfiguration;
         }
+
+        private void UpdateConfiguration()
+        {
+            _hpVM.CurrentTargetIndicatorVisible = Settings.ReadSettingOfType<bool>(Settings.BossFrameTargetSetting);
+        }
+
+        public bool DOTContentEnabled { get; set; }
         public void UpdateBossFrameState(bool showDots)
         {
             dotModuleViewModel.SetActive(showDots);
