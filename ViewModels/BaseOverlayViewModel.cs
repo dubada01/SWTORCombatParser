@@ -30,7 +30,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     private bool _inConversation;
     private static double _defaultLockedOpacity = 0.066;
     private static double _defaultUnLockedOpacity = 0.75;
-    private bool _isHidden = true;
+    protected bool _isHidden = true;
 
     public UserControl MainContent
     {
@@ -45,7 +45,8 @@ public abstract class BaseOverlayViewModel:ReactiveObject
 
     public double BackgroundLockedOpacity { get; set; } = _defaultLockedOpacity;
     public double BackgroundUnLockedOpacity { get; set; } = _defaultUnLockedOpacity;
-    public void UpdateVisibility()
+
+    protected void UpdateVisibility()
     {
         if (_overlayWindow == null)
             return;
@@ -110,7 +111,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         }
     }
 
-    public void SetAutoScaleHeight()
+    public void SetAutoScaleWithMinHeight()
     {
         Dispatcher.UIThread.Invoke(() =>
         {        

@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
@@ -15,11 +16,18 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private bool isActive;
         private double _currentScale;
         private ObservableCollection<TimerInstanceViewModel> _activeDots = new ObservableCollection<TimerInstanceViewModel>();
+        private bool _personalDotsAreEnabled;
 
         public ObservableCollection<TimerInstanceViewModel> ActiveDOTS
         {
             get => _activeDots;
             set => this.RaiseAndSetIfChanged(ref _activeDots, value);
+        }
+
+        public bool PersonalDOTSAreEnabled
+        {
+            get => _personalDotsAreEnabled;
+            set => this.RaiseAndSetIfChanged(ref  _personalDotsAreEnabled, value);
         }
 
         public DotModuleViewModel(EntityInfo bossInfo, double scale)
@@ -30,7 +38,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             TimerController.TimerExpired += RemoveTimer;
             TimerController.TimerTriggered += AddTimerVisual;
             TimerController.ReorderRequested += ReorderTimers;
+            Settings.SettingsUpdated += CheckForPersonalDotEnabled;
+            PersonalDOTSAreEnabled = Settings.ReadSettingOfType<bool>(Settings.BossFrameDOTVisibilitySetting);
         }
+
+        private void CheckForPersonalDotEnabled(string settingName)
+        {
+            if (settingName != Settings.BossFrameDOTVisibilitySetting)
+                return;
+            PersonalDOTSAreEnabled = Settings.ReadSettingOfType<bool>(Settings.BossFrameDOTVisibilitySetting);
+        }
+
         public void SetActive(bool state)
         {
             isActive = state;

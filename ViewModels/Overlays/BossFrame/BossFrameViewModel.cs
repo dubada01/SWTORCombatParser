@@ -2,51 +2,41 @@
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Views.Overlay.BossFrame;
 using Avalonia.Threading;
+using ReactiveUI;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class BossFrameViewModel
+    public class BossFrameViewModel:ReactiveObject
     {
         private DotModuleViewModel dotModuleViewModel;
         private HPModuleViewModel _hpVM;
         private MechanicsTimersModuleViewModel _mechsVM;
         private double _scale;
+        private HPModule _hpContent;
+        private DotModuleView _dotsContent;
+        private MechanicsTimersModule _mechanicsModule;
         public Entity CurrentBoss { get; set; }
-
         public BossFrameViewModel(EntityInfo bossInfo, bool isDuplicate, double scale)
         {
             _scale = scale;
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                CurrentBoss = bossInfo.Entity;
 
-                HPContent = new HPModule();
-                _hpVM = new HPModuleViewModel(bossInfo, isDuplicate, _scale);
-                HPContent.DataContext = _hpVM;
+            CurrentBoss = bossInfo.Entity;
 
-                DOTSContent = new DotModuleView();
-                dotModuleViewModel = new DotModuleViewModel(bossInfo, _scale);
-                DOTSContent.DataContext = dotModuleViewModel;
+            HPContent = new HPModule();
+            _hpVM = new HPModuleViewModel(bossInfo, isDuplicate, _scale);
+            HPContent.DataContext = _hpVM;
 
-                MechanicsModule = new MechanicsTimersModule();
-                _mechsVM = new MechanicsTimersModuleViewModel(bossInfo, _scale);
-                MechanicsModule.DataContext = _mechsVM;
-            });
-            Settings.SettingsUpdated += UpdateConfiguration;
+            DOTSContent = new DotModuleView();
+            dotModuleViewModel = new DotModuleViewModel(bossInfo, _scale);
+            DOTSContent.DataContext = dotModuleViewModel;
+
+            MechanicsModule = new MechanicsTimersModule();
+            _mechsVM = new MechanicsTimersModuleViewModel(bossInfo, _scale);
+            MechanicsModule.DataContext = _mechsVM;
         }
 
-        private void UpdateConfiguration()
-        {
-            _hpVM.CurrentTargetIndicatorVisible = Settings.ReadSettingOfType<bool>(Settings.BossFrameTargetSetting);
-        }
-
-        public bool DOTContentEnabled { get; set; }
-        public void UpdateBossFrameState(bool showDots)
-        {
-            dotModuleViewModel.SetActive(showDots);
-        }
         public void LogWithBoss(EntityInfo bossInfo, DateTime timeStamp)
         {
             UpdateUI(bossInfo,timeStamp);
@@ -66,8 +56,22 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             dotModuleViewModel.SetScale(_scale);
         }
 
-        public HPModule HPContent { get; set; }
-        public DotModuleView DOTSContent { get; set; }
-        public MechanicsTimersModule MechanicsModule { get; set; }
+        public HPModule HPContent
+        {
+            get => _hpContent;
+            set => this.RaiseAndSetIfChanged(ref _hpContent, value);
+        }
+
+        public DotModuleView DOTSContent
+        {
+            get => _dotsContent;
+            set => this.RaiseAndSetIfChanged(ref _dotsContent, value);
+        }
+
+        public MechanicsTimersModule MechanicsModule
+        {
+            get => _mechanicsModule;
+            set => this.RaiseAndSetIfChanged(ref _mechanicsModule, value);
+        }
     }
 }

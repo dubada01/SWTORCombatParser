@@ -71,7 +71,6 @@ namespace SWTORCombatParser.Views.Overlay.Room
         {
             Dispatcher.UIThread.Invoke(() =>
             {
-
                 var imageLocation = GetBoundingBox(RoomImage, ImageCanvas);
                 Point characterLocation = new Point((imageLocation.Width * xFraction) + imageLocation.X, (imageLocation.Height * yFraction) + imageLocation.Y);
                 var newHazard = new Ellipse();

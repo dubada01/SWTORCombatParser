@@ -15,19 +15,19 @@
         Height="100"
         Topmost="True" Background="{x:Null}" BorderThickness="0" ShowInTaskbar="False">
     <Grid>
-        <Border x:Name="BackgroundArea" PointerExited="Grid_MouseLeave" Background="Black" Opacity="0.75" Grid.Row="0" CornerRadius="5"/>
-        <Grid PointerExited="Grid_MouseLeave">
+        <Border x:Name="BackgroundArea" Background="Black" Opacity="0.75" Grid.Row="0" CornerRadius="5"/>
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Rectangle Fill="Transparent" Height="25" ></Rectangle>
+            <Rectangle Fill="Transparent" Height="25" IsHitTestVisible="False"></Rectangle>
             <Grid IsVisible="{Binding OverlaysMoveable}" Height="25">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <Border Grid.ColumnSpan="2" PointerPressed="DragWindow" PointerMoved="Border_MouseMoved" PointerReleased="StopDragWindow" PointerEntered="Border_MouseEnter" Background="DimGray" Opacity="0.5" CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Border>
+                <Border Grid.ColumnSpan="2" PointerPressed="DragWindow" PointerMoved="Border_MouseMoved" PointerReleased="StopDragWindow" Cursor="DragMove" Background="DimGray" Opacity="0.5" CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Border>
                 <Viewbox Name="OverlayIdText" IsHitTestVisible="False" Margin="2,2,2,2" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock IsHitTestVisible="False" Name="IdentifierText" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke"></TextBlock> 
                 </Viewbox>
@@ -41,7 +41,7 @@
             </Grid>
             <Canvas Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="20" Width="20">
                 <Polygon Fill="{StaticResource Gray3}" Points="0,20 20,20 20,0" IsVisible="{Binding OverlaysMoveable}" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                         PointerEntered="Thumb_MouseEnter" PointerExited="Grid_MouseLeave" PointerReleased="Drag_Stopped" PointerPressed="Drag_Started" PointerMoved="Thumb_DragDelta"></Polygon>
+                         Cursor="BottomRightCorner" PointerReleased="Drag_Stopped" PointerPressed="Drag_Started" PointerMoved="Thumb_DragDelta"></Polygon>
             </Canvas>
         </Grid>
     </Grid>

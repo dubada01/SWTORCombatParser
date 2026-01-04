@@ -89,20 +89,20 @@
                     <Grid>
                         <StackPanel Margin="10,0,0,0" Grid.Row="1" Grid.Column="0" Orientation="Vertical">
                             <TextBlock Margin="0,0,0,10" FontFamily="{StaticResource MainFont}" FontSize="{StaticResource FontSizeLarge}" Text="Raid Frame Settings"></TextBlock>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Operate offline. No leaderboard or raid HOT autodetection available" Margin="0,5,0,5">
+                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Enable/Disable a blue box highlighting the character in the raid frame that the boss is targeting." Margin="0,5,0,5">
                                 <CheckBox Name="ShowTargeted" Margin="5,3,0,3" VerticalAlignment="Center"></CheckBox>
                                 <TextBlock Text="Indicate Boss Target on Raid Frame" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                             </StackPanel>
                             <TextBlock Margin="0,0,0,10" FontFamily="{StaticResource MainFont}" FontSize="{StaticResource FontSizeLarge}" Text="Boss Frame Settings"></TextBlock>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Operate offline. No leaderboard or raid HOT autodetection available" Margin="0,5,0,5">
+                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Enable/Disable viewing your personal DOTs over the name of the boss they're applied to." Margin="0,5,0,5">
                                 <CheckBox Name="BossFrameDot" Margin="5,3,0,3" VerticalAlignment="Center"></CheckBox>
                                 <TextBlock Text="Display Personal DOTs on Boss Frame" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Operate offline. No leaderboard or raid HOT autodetection available" Margin="0,5,0,5">
+                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Enable/Disable text that indicates each boss' current target." Margin="0,5,0,5">
                                 <CheckBox Name="BossFrameCurrentTarget" Margin="5,3,0,3" VerticalAlignment="Center"></CheckBox>
                                 <TextBlock Text="Indicate Boss Target on Boss Frame" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Operate offline. No leaderboard or raid HOT autodetection available" Margin="0,5,0,5">
+                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Enable/Disable a timer displaying the current combat duration." Margin="0,5,0,5">
                                 <CheckBox Name="ShowCombatDuration" Margin="5,3,0,3" VerticalAlignment="Center"></CheckBox>
                                 <TextBlock Text="Display Combat Duration on Boss Frame" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
                             </StackPanel>

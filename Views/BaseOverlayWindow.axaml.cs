@@ -101,6 +101,36 @@ public partial class BaseOverlayWindow : Window
         viewModel.CloseRequested += Hide;
         viewModel.OnNewPositionAndSize += SetSizeAndLocation;
         Opened += SetWindowParams;
+        
+        this.AddHandler(InputElement.PointerPressedEvent, (_, e) =>
+        {
+            var p = e.GetPosition(this);
+            var hit = this.InputHitTest(p);
+
+            Debug.WriteLine($"HitTest @ {p}: {hit?.GetType().Name}");
+
+            // Walk up the visual tree
+            if (hit is Visual v)
+            {
+                var depth = 0;
+                while (v != null)
+                {
+                    var indent = new string(' ', depth * 2);
+
+                    var name = (v as StyledElement)?.Name;
+                    var isHitTestVisible = (v as InputElement)?.IsHitTestVisible;
+
+                    Debug.WriteLine(
+                        $"{indent}-> {v.GetType().Name}" +
+                        (string.IsNullOrWhiteSpace(name) ? "" : $"  Name=\"{name}\"") +
+                        (isHitTestVisible is null ? "" : $"  IsHitTestVisible={isHitTestVisible}")
+                    );
+
+                    v = v.GetVisualParent();
+                    depth++;
+                }
+            }
+        }, RoutingStrategies.Tunnel);
     }
 
     private void SetWindowParams(object? sender, EventArgs e)
@@ -315,22 +345,18 @@ public partial class BaseOverlayWindow : Window
     private void DragWindow(object? sender, PointerPressedEventArgs e)
     {
         _isDragging = true;
+        e.Pointer.Capture((IInputElement)sender!);
         _startPoint = e.GetPosition(this);
+        e.Handled = true;
     }
 
     private void StopDragWindow(object? sender, PointerReleasedEventArgs e)
     {
         _isDragging = false;
+        e.Pointer.Capture(null);
         Cursor = new Cursor(StandardCursorType.Arrow);
         UpdateState();
-    }
-
-    private void Border_MouseEnter(object? sender, PointerEventArgs e)
-    {
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            Cursor = new Cursor(StandardCursorType.DragMove);
-        });
+        e.Handled = true;
     }
 
     private void Border_MouseMoved(object? sender, PointerEventArgs e)
@@ -351,25 +377,11 @@ public partial class BaseOverlayWindow : Window
             );
         }
     }
-
-    private void Grid_MouseLeave(object? sender, PointerEventArgs e)
-    {
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            Cursor = new Cursor(StandardCursorType.Arrow);
-            UpdateState();
-        });
-    }
-
     private void Button_Click(object? sender, RoutedEventArgs e)
     {
         Dispatcher.UIThread.Invoke(_viewModel.CloseButtonClicked);
     }
 
-    private void Thumb_MouseEnter(object? sender, PointerEventArgs e)
-    {
-        Dispatcher.UIThread.Invoke(() => { Cursor = new Cursor(StandardCursorType.BottomRightCorner); });
-    }
     private Point startDrag;
     private double initialWidth;
     private double initialHeight;
@@ -379,7 +391,9 @@ public partial class BaseOverlayWindow : Window
         startDrag = e.GetPosition(this);
         initialWidth = Width;
         initialHeight = Height;
+        e.Pointer.Capture((IInputElement)sender!);
         _isDragging = true;
+        e.Handled = true;
     }
 
     private void Thumb_DragDelta(object? sender, PointerEventArgs e)
@@ -399,13 +413,14 @@ public partial class BaseOverlayWindow : Window
                 SetValue(WidthProperty, newWidth);
             if (newHeight > 0)
                 SetValue(HeightProperty, newHeight);
-
-            UpdateState();
         });
     }
 
     private void Drag_Stopped(object? sender, PointerReleasedEventArgs e)
     {
+        e.Pointer.Capture(null);
         _isDragging = false;
+        UpdateState();
+        e.Handled = true;
     }
 }

@@ -38,7 +38,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width=".75*" Header="% of Max" SortMemberPath="PercentOfTotal">
+                <DataGridTemplateColumn Width=".75*" SortMemberPath="PercentOfTotal">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ProgressBar Foreground="{StaticResource GreenColorBrush}" ShowProgressText="True" MinWidth="20" FontSize="10" Maximum="100" Height="15" HorizontalAlignment="Stretch" Value="{Binding PercentOfTotal, Mode=OneWay}"></ProgressBar>
@@ -52,6 +52,7 @@
                 <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Crit %" Binding="{Binding CritPercent, StringFormat='#0.#'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
                 <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Total" Binding="{Binding Total, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
                 <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Uses" Binding="{Binding Count, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
+                <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Type" Binding="{Binding Type, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
     <DataGrid IsHitTestVisible="False" ItemsSource="{Binding Totals}" Grid.Row="1" HeadersVisibility="None">
@@ -85,6 +86,7 @@
             <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Crit %" Binding="{Binding CritPercent, StringFormat='#0.#'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
             <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Total" Binding="{Binding Total, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
             <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Uses" Binding="{Binding Count, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
+            <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Types" Binding="{Binding Type, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
         </DataGrid.Columns>
     </DataGrid>
     </Grid>

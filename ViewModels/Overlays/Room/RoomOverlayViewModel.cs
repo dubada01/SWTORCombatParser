@@ -32,6 +32,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         private Bitmap imagePath;
         private bool _isTriggered;
         private bool viewExtraInfo;
+        private double _imageRotation;
         public override bool ShouldBeVisible => _isTriggered;
         public RoomOverlayViewModel(string overlayName) : base(overlayName)
         {
@@ -102,11 +103,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/PlayerLocation.png")));
         public Bitmap ImagePath
         {
-            get => imagePath; set
-            {
-                this.RaiseAndSetIfChanged(ref imagePath, value);
-            }
+            get => imagePath; set => this.RaiseAndSetIfChanged(ref imagePath, value);
         }
+
+        public double ImageRotation
+        {
+            get => _imageRotation;
+            set => this.RaiseAndSetIfChanged(ref _imageRotation, value);
+        }
+
         private void NewInCombatLogs(CombatStatusUpdate obj)
         {
             if (!Active)

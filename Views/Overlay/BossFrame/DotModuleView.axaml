@@ -9,7 +9,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <ItemsControl ItemsSource="{Binding ActiveDOTS}">
+        <ItemsControl IsVisible="{Binding PersonalDOTSAreEnabled}" ItemsSource="{Binding ActiveDOTS}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <local:RaidDotInstance Height="{Binding BarHeight}"/>

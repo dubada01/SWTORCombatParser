@@ -24,140 +24,153 @@ namespace SWTORCombatParser.Model.CombatParsing
     /// </summary>
     internal static class ShieldingProcessor
     {
-        public static void AddShieldLogsByTarget(
-            IReadOnlyDictionary<Entity, List<ParsedLogEntry>> participantShieldLogs,
-            Combat combat)
+       public static void AddShieldLogsByTarget(
+    IReadOnlyDictionary<Entity, List<ParsedLogEntry>> participantShieldLogs,
+    Combat combat)
+{
+    // ---------------------------------------------------------------------
+    // 1. Pre-computation look-ups
+    // ---------------------------------------------------------------------
+    var absorbNames = AbilityLoader.AbsorbAbilities.Values
+                                      .Select(a => a.name)
+                                      .ToHashSet(StringComparer.Ordinal);
+
+    var state = CombatLogStateBuilder.CurrentState;
+
+    var modifiersByTarget = state.Modifiers
+        .SelectMany(bag => bag.Value)
+        .Select(kvp => kvp.Value)
+        .Where(m => absorbNames.Contains(m.EffectName))
+        .GroupBy(m => m.Target)
+        .ToDictionary(g => g.Key, g => g.ToList());
+
+    var logsByTarget = participantShieldLogs.Values
+                                           .SelectMany(l => l)
+                                           .GroupBy(l => l.Target);
+
+    // Start with participants, but allow new sources to be added on demand.
+    var shieldEventsBySource = participantShieldLogs.Keys
+        .ToDictionary(k => k, _ => new List<ShieldingEvent>(32));
+
+    // ---------------------------------------------------------------------
+    // 2. Main sweep – mirrors original index-based algorithm
+    // ---------------------------------------------------------------------
+    foreach (var targetGroup in logsByTarget)
+    {
+        var target = targetGroup.Key;
+        if (!modifiersByTarget.TryGetValue(target, out var mods))
+            continue;
+
+        mods.Sort(static (a, b) => a.StartTime.CompareTo(b.StartTime));
+
+        foreach (var log in targetGroup)
         {
-            // ---------------------------------------------------------------------
-            // 1. Pre‑computation look‑ups
-            // ---------------------------------------------------------------------
-            var absorbNames = AbilityLoader.AbsorbAbilities.Values
-                                              .Select(a => a.name)
-                                              .ToHashSet(StringComparer.Ordinal);
-
-            var state = CombatLogStateBuilder.CurrentState;
-
-            var modifiersByTarget = state.Modifiers
-                .SelectMany(bag => bag.Value)
-                .Select(kvp => kvp.Value)
-                .Where(m => absorbNames.Contains(m.EffectName))
-                .GroupBy(m => m.Target)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            var logsByTarget = participantShieldLogs.Values
-                                                   .SelectMany(l => l)
-                                                   .GroupBy(l => l.Target);
-
-            var shieldEventsBySource = participantShieldLogs.Keys
-                                                            .ToDictionary(k => k, _ => new List<ShieldingEvent>(32));
-
-            // ---------------------------------------------------------------------
-            // 2. Main sweep – mirrors original index‑based algorithm
-            // ---------------------------------------------------------------------
-            foreach (var targetGroup in logsByTarget)
-            {
-                var target = targetGroup.Key;
-                if (!modifiersByTarget.TryGetValue(target, out var mods))
-                    continue;
-
-                mods.Sort(static (a, b) => a.StartTime.CompareTo(b.StartTime));
-
-                foreach (var log in targetGroup)
-                {
-                    var activeAbsorbs = mods.Where(m => IsModifierActive(m, log))
-                                             .OrderBy(a => a.StartTime)
-                                             .ToList();
-                    if (activeAbsorbs.Count == 0) continue;
-
-                    for (var i = 0; i < activeAbsorbs.Count; i++)
-                    {
-                        var absorb = activeAbsorbs[i];
-                        var amount = GetAbsorbAmount(log, activeAbsorbs, i);
-                        if (amount <= 0) continue;
-
-                        var source = absorb.Source;
-                        var list   = shieldEventsBySource[source];
-
-                        var evt = list.FirstOrDefault(se =>
-                            se.ShieldingTime == absorb.StopTime &&
-                            se.ShieldName    == absorb.Name      &&
-                            se.Target        == target);
-
-                        if (evt is null)
-                        {
-                            list.Add(new ShieldingEvent
-                            {
-                                ShieldName    = absorb.Name,
-                                ShieldingTime = absorb.StopTime,
-                                ShieldValue   = amount,
-                                Source        = source,
-                                Target        = target
-                            });
-                        }
-                        else
-                        {
-                            evt.ShieldValue += amount;
-                        }
-                    }
-                }
-            }
-
-            // ------------------------------------------------------------------
-            // 3. Inject synthetic "Processed Absorb" logs & totals
-            // ------------------------------------------------------------------
-            var nextLineNo = combat.AllLogs.Count == 0 ? 1 : combat.AllLogs.Keys.Max() + 1;
-
-            foreach (var (source, events) in shieldEventsBySource)
-            {
-                events.Sort(static (a, b) => a.ShieldingTime.CompareTo(b.ShieldingTime));
-
-                var srcLogs = combat.GetLogsInvolvingEntity(source)
-                                     .Where(l => l.Effect.EffectType != EffectType.AbsorbShield)
-                                     .OrderBy(l => l.TimeStamp)
+            var activeAbsorbs = mods.Where(m => IsModifierActive(m, log))
+                                     .OrderBy(a => a.StartTime)
                                      .ToList();
+            if (activeAbsorbs.Count == 0) continue;
 
-                var idx = 0;
-                combat.ShieldingProvidedLogs[source]   = new ConcurrentQueue<ParsedLogEntry>();
-                combat.TotalProvidedSheilding[source] = 0;
+            for (var i = 0; i < activeAbsorbs.Count; i++)
+            {
+                var absorb = activeAbsorbs[i];
+                var amount = GetAbsorbAmount(log, activeAbsorbs, i);
+                if (amount <= 0) continue;
 
-                foreach (var ev in events)
+                var source = absorb.Source;
+
+                // 🔒 SAFETY: ensure we have a list for this source.
+                if (!shieldEventsBySource.TryGetValue(source, out var list))
                 {
-                    while (idx < srcLogs.Count && srcLogs[idx].TimeStamp <= ev.ShieldingTime)
-                        idx++;
-                    if (idx == srcLogs.Count) break;
+                    // Option A: track *all* sources (including NPCs, pets, etc.)
+                    list = new List<ShieldingEvent>(32);
+                    shieldEventsBySource[source] = list;
 
-                    var p = new ParsedLogEntry
+                    // If you *only* want participants, use this instead:
+                    // if (!participantShieldLogs.ContainsKey(source))
+                    //     continue;
+                }
+
+                var evt = list.FirstOrDefault(se =>
+                    se.ShieldingTime == absorb.StopTime &&
+                    se.ShieldName    == absorb.Name    &&
+                    se.Target        == target);
+
+                if (evt is null)
+                {
+                    list.Add(new ShieldingEvent
                     {
-                        TimeStamp     = ev.ShieldingTime,
-                        LogLineNumber = nextLineNo++,
-                        Ability       = ev.ShieldName,
-                        Effect        = new Effect
-                        {
-                            EffectType = EffectType.AbsorbShield,
-                            EffectId   = _7_0LogParsing._healEffectId,
-                            EffectName = "Processed Absorb"
-                        },
-                        SourceInfo    = new EntityInfo { Entity = ev.Source },
-                        TargetInfo    = new EntityInfo { Entity = ev.Target },
-                        Value         = new Value
-                        {
-                            EffectiveDblValue = ev.ShieldValue,
-                            DisplayValue      = ev.ShieldValue.ToString("N2"),
-                            ValueType         = DamageType.heal
-                        }
-                    };
-
-                    combat.AllLogs[p.LogLineNumber] = p;
-                    combat.ShieldingProvidedLogs[source].Enqueue(p);
-                    combat.TotalProvidedSheilding[source] += ev.ShieldValue;
+                        ShieldName    = absorb.Name,
+                        ShieldingTime = absorb.StopTime,
+                        ShieldValue   = amount,
+                        Source        = source,
+                        Target        = target
+                    });
+                }
+                else
+                {
+                    evt.ShieldValue += amount;
                 }
             }
-
-            // reset flags for next pass
-            foreach (var bag in state.Modifiers.Values)
-                foreach (var mod in bag.Values)
-                    mod.HasAbsorbBeenCounted = false;
         }
+    }
+
+    // ------------------------------------------------------------------
+    // 3. Inject synthetic "Processed Absorb" logs & totals
+    // ------------------------------------------------------------------
+    var nextLineNo = combat.AllLogs.Count == 0 ? 1 : combat.AllLogs.Keys.Max() + 1;
+
+    foreach (var (source, events) in shieldEventsBySource)
+    {
+        events.Sort(static (a, b) => a.ShieldingTime.CompareTo(b.ShieldingTime));
+
+        var srcLogs = combat.GetLogsInvolvingEntity(source)
+                             .Where(l => l.Effect.EffectType != EffectType.AbsorbShield)
+                             .OrderBy(l => l.TimeStamp)
+                             .ToList();
+
+        var idx = 0;
+        combat.ShieldingProvidedLogs[source]   = new ConcurrentQueue<ParsedLogEntry>();
+        combat.TotalProvidedSheilding[source] = 0;
+
+        foreach (var ev in events)
+        {
+            while (idx < srcLogs.Count && srcLogs[idx].TimeStamp <= ev.ShieldingTime)
+                idx++;
+            if (idx == srcLogs.Count) break;
+
+            var p = new ParsedLogEntry
+            {
+                TimeStamp     = ev.ShieldingTime,
+                LogLineNumber = nextLineNo++,
+                Ability       = ev.ShieldName,
+                Effect        = new Effect
+                {
+                    EffectType = EffectType.AbsorbShield,
+                    EffectId   = _7_0LogParsing._healEffectId,
+                    EffectName = "Processed Absorb"
+                },
+                SourceInfo    = new EntityInfo { Entity = ev.Source },
+                TargetInfo    = new EntityInfo { Entity = ev.Target },
+                Value         = new Value
+                {
+                    EffectiveDblValue = ev.ShieldValue,
+                    DisplayValue      = ev.ShieldValue.ToString("N2"),
+                    ValueType         = DamageType.heal
+                }
+            };
+
+            combat.AllLogs[p.LogLineNumber] = p;
+            combat.ShieldingProvidedLogs[source].Enqueue(p);
+            combat.TotalProvidedSheilding[source] += ev.ShieldValue;
+        }
+    }
+
+    // reset flags for next pass
+    foreach (var bag in state.Modifiers.Values)
+        foreach (var mod in bag.Values)
+            mod.HasAbsorbBeenCounted = false;
+}
+
 
         // ------------------------------------------------------------------
         // Original helper logic (ported verbatim except for inlining attribute)

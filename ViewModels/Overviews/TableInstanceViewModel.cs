@@ -29,7 +29,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public double CritPercent { get; set; }
         public double MaxCrit { get; set; }
         public double Max { get; set; }
-        public string Type { get; set; }
+        public string Type { get; set; } = "N/A";
         public Bitmap Icon { get; set; }
     }
     public enum OverviewDataType
@@ -277,10 +277,20 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
         }
         private async Task PoppulateRows(KeyValuePair<string, ConcurrentQueue<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
         {
+            static bool IsAllowed(DamageType t) =>
+                t is DamageType.intern or DamageType.energy or DamageType.kinetic or DamageType.heal or DamageType.elemental;
             list.Add(new CombatInfoInstance
             {
                 SortItem = orderedKey.Key,
                 SumTotal = _sumTotal,
+                Type = orderedKey.Value
+                    .Select(v => v.Value.ValueType)
+                    .Where(IsAllowed)
+                    .Distinct()
+                    .Skip(1)
+                    .Any()
+                    ? "Various"
+                    : orderedKey.Value.Select(v => v.Value.ValueType).FirstOrDefault(IsAllowed).ToString(),
                 Total = (int)orderedKey.Value.Sum(v => v.Value.EffectiveDblValue),
                 RateDouble = orderedKey.Value.Sum(v => v.Value.EffectiveDblValue) / SelectedCombat.DurationSeconds,
                 Average = (int)orderedKey.Value.Average(v => v.Value.EffectiveDblValue),

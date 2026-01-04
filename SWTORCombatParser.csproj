@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.1.17.2</VersionPrefix>
+    <VersionPrefix>2.2.0.1</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -11,7 +11,7 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
-
+  
   <!-- macOS Debug -->
   <PropertyGroup Condition="'$(OS)' == 'Unix'">
     <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>

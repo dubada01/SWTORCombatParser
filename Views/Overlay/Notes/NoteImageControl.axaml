@@ -1,0 +1,41 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SWTORCombatParser.Views.Overlay.Notes.NoteImageControl"
+             Focusable="False">
+
+    <Border x:Name="RootBorder"
+            BorderThickness="1"
+            BorderBrush="#55FFFFFF"
+            CornerRadius="4">
+
+        <Grid>
+            <!-- Image -->
+            <Image x:Name="ImageHost"
+                   Stretch="Uniform"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   IsHitTestVisible="True"
+                   Cursor="Hand"/>
+            <Button x:Name="DeleteButton"
+                    Content="✕"
+                    Width="22"
+                    Height="22"
+                    Padding="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Margin="4"
+                    FontSize="12"
+                    Background="#570600"
+                    Foreground="White"
+                    BorderThickness="0"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"/>
+            <Rectangle x:Name="ResizeThumb"
+                   Width="10"
+                   Height="10"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   Fill="#AA000000"/>
+        </Grid>
+    </Border>
+</UserControl>

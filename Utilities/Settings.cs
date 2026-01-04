@@ -36,7 +36,7 @@ public static class Settings
             }
         }
     }
-    public static event Action SettingsUpdated = delegate { };
+    public static event Action<string> SettingsUpdated = delegate { };
 
     public static List<T> GetListSetting<T>(string settingName)
     {
@@ -63,6 +63,14 @@ public static class Settings
         if (!settingList.ContainsKey(settingName) && settingName == "stub_logs")
             settingList[settingName] = false;
         // options are: data_grid, details, plot, log
+        if (!settingList.ContainsKey(settingName) && settingName == BossFrameDOTVisibilitySetting)
+            settingList[settingName] = true;
+        if (!settingList.ContainsKey(settingName) && settingName == BossFrameTargetSetting)
+            settingList[settingName] = true;
+        if (!settingList.ContainsKey(settingName) && settingName == BossFrameDurationVisibilitySetting)
+            settingList[settingName] = true;
+        if (!settingList.ContainsKey(settingName) && settingName == RaidFrameBossTargetVisibilitySetting)
+            settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "current_tab")
             settingList[settingName] = "data_grid";
         if (!settingList.ContainsKey(settingName) && settingName == "grid_sort")
@@ -136,7 +144,7 @@ public static class Settings
         }
 
         File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settingList));
-        SettingsUpdated();
+        SettingsUpdated(settingName);
     }
 
 }
