@@ -1,0 +1,85 @@
+[
+  {
+    "EncounterType": 6,
+    "MedalType": 0,
+    "MedalLogic": 0,
+    "MedalName": "Destroyer",
+    "ThresholdUnit": "Damage",
+    "MedalThreshold": 1000000
+  },
+  {
+    "EncounterType": 6,
+    "MedalType": 3,
+    "MedalLogic": 5,
+    "MedalName": "Soldier",
+    "ThresholdUnit": "Kills",
+    "MedalThreshold": 4
+  },
+  {
+    "EncounterType": 6,
+    "MedalType": 3,
+    "MedalLogic": 5,
+    "MedalName": "Commando",
+    "ThresholdUnit": "Kills",
+    "MedalThreshold": 8
+  },
+  {
+    "EncounterType": 4,
+    "MedalType": 0,
+    "MedalLogic": 3,
+    "MedalName": "Demolisher",
+    "ThresholdUnit": "Damage",
+    "MedalThreshold": 30000
+  }
+,
+  {
+    "EncounterType": 4,
+    "MedalType": 0,
+    "MedalLogic": 3,
+    "MedalName": "Annihilator",
+    "ThresholdUnit": "Damage",
+    "MedalThreshold": 60000
+  }
+,
+  {
+    "EncounterType": 4,
+    "MedalType": 2,
+    "MedalLogic": 4,
+    "MedalName": "Paladin",
+    "ThresholdUnit": "Protection",
+    "MedalThreshold": 150000
+  }
+,
+  {
+    "EncounterType": 4,
+    "MedalType": 2,
+    "MedalLogic": 4,
+    "MedalName": "Protector",
+    "ThresholdUnit": "Protection",
+    "MedalThreshold": 350000
+  },
+  {
+    "EncounterType": 4,
+    "MedalType": 1,
+    "MedalLogic": 4,
+    "MedalName": "Medic",
+    "ThresholdUnit": "Heal",
+    "MedalThreshold": 30000
+  },
+  {
+    "EncounterType": 4,
+    "MedalType": 1,
+    "MedalLogic": 4,
+    "MedalName": "Medic",
+    "ThresholdUnit": "Heal",
+    "MedalThreshold": 60000
+  },
+  {
+    "EncounterType": 4,
+    "MedalType": 1,
+    "MedalLogic": 1,
+    "MedalName": "Healer",
+    "ThresholdUnit": "Healing",
+    "MedalThreshold": 1500000
+  }
+]

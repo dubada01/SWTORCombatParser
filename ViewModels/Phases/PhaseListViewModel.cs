@@ -17,7 +17,7 @@ using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseListViewModel :ReactiveObject, INotifyPropertyChanged
+    public class PhaseListViewModel :ReactiveObject
     {
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private string selectedTimerSource;
@@ -47,9 +47,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             get => selectedTimerSource; set
             {
-                selectedTimerSource = value;
-
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref selectedTimerSource, value);
                 UpdatePhaseRows();
             }
         }
@@ -104,7 +102,7 @@ namespace SWTORCombatParser.ViewModels.Phases
             Dispatcher.UIThread.Invoke(() =>
             {
                 PhaseRows = new ObservableCollection<PhaseRowViewModel>(phaseObjects);
-                OnPropertyChanged("PhaseRows");
+                this.RaisePropertyChanged(nameof(PhaseRows));
                 UpdateRowColors();
             });
 
@@ -153,10 +151,6 @@ namespace SWTORCombatParser.ViewModels.Phases
                     PhaseRows[i].RowBackground = new SolidColorBrush(Brushes.Transparent.Color);
                 }
             }
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

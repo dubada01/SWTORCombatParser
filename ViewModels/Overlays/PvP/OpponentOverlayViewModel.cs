@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
 using ReactiveUI;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -34,10 +35,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             _dTimer = new DispatcherTimer();
             _opponentHPView = new OpponentHpOverlay(this);
             MainContent = _opponentHPView;
-            EncounterTimerTrigger.NonPvpEncounterEntered += OnPvpCombatEnded;
-            EncounterTimerTrigger.PvPEncounterEntered += OnPvpCombatStarted;
+            EncounterTimerTrigger.NonPvpEncounterEntered += OnPvPEncounterLeft;
+            EncounterTimerTrigger.PvPEncounterEntered += OnPvPEncounterEntered;
             CombatLogStreamer.NewLineStreamed += NewLineStreamed;
-            CombatSelectionMonitor.CombatSelected += NewCombatInfo;
+            CombatSelectionMonitor.OnInProgressCombatSelected += NewCombatInfo;
         }
 
 
@@ -49,7 +50,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             set => this.RaiseAndSetIfChanged(ref _opponentHpBars, value);
         }
 
-        private void OnPvpCombatStarted()
+        private void OnPvPEncounterEntered(DateTime changedTime, EncounterInfo encounterInfo)
         {
             
             if (!OverlayEnabled || _isTriggered)
@@ -70,7 +71,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             }
         }
 
-        private void OnPvpCombatEnded()
+        private void OnPvPEncounterLeft(DateTime changedTime, EncounterInfo encounterInfo)
         {
             if (!OverlayEnabled)
                 return;
@@ -132,6 +133,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         private void NewCombatInfo(Combat currentCombat)
         {
+            if (!_isTriggered)
+                return;
             lock (_combatUpdateLock)
                 _mostRecentCombat = currentCombat;
         }
@@ -141,10 +144,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             {
                 if (newLine.Effect.EffectType == EffectType.AreaEntered && !EncounterTimerTrigger.CurrentEncounterIsPVP)
                 {
-                    OnPvpCombatEnded();
+                    OnPvPEncounterLeft(newLine.TimeStamp, null);
                     return;
                 }
-                if (_mostRecentCombat == null)
+                if (_mostRecentCombat == null || !_isTriggered)
                     return;
                 _lastUpdate = newLine.TimeStamp;
 

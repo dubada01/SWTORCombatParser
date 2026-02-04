@@ -28,8 +28,9 @@ namespace SWTORCombatParser.Views.Phases
             DataContext = viewModel;
             viewModel.PhaseInstancesUpdated += UpdatePhases;
             PhaseManager.SelectedPhasesUpdated += UpdateButtonStates;
-            CombatSelectionMonitor.OnInProgressCombatSelected += UpdatePhaseBar;
 
+            Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.OnInProgressCombatSelected += manager,
+                manager => CombatSelectionMonitor.OnInProgressCombatSelected -= manager).Subscribe(UpdatePhaseBar);
             Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.CombatSelected += manager,
                 manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdatePhaseBar);
         }

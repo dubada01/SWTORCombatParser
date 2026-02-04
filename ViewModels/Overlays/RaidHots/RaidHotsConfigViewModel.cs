@@ -38,10 +38,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             {
                 if (!b || CombatLogStateBuilder.CurrentState?.LocalPlayer == null)
                     return;
-                var playerName = CombatLogStateBuilder.CurrentState.LocalPlayer.Name;
+                var player = CombatLogStateBuilder.CurrentState.LocalPlayer;
                 var classInfo = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(t);
-                _currentCharacter = playerName + "/" + classInfo.Discipline;
-                UpdateVisualsBasedOnRole(classInfo);
+                SetClass(player, classInfo);
             };
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
 

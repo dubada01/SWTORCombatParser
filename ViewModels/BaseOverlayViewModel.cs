@@ -194,8 +194,13 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     {
         if(SettingsType == OverlaySettingsType.Global)
             DefaultGlobalOverlays.SetDefault(_overlayName, position, size);
-        if(SettingsType == OverlaySettingsType.Character)
+        if (SettingsType == OverlaySettingsType.Character)
+        {
             DefaultCharacterOverlays.SetCharacterDefaults(_overlayName, position, size,_currentRole);
+            if(_overlayName == "RaidFrame")
+                RaidFrameOverlayManager.SetDefaults(position,size, _currentRole);
+        }
+
         
     }
     public void UpdateWindowSizeWithScale(Point position, Point size)

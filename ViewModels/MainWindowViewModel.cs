@@ -44,6 +44,7 @@ using Avalonia.Threading;
 using MsBox.Avalonia;
 using ReactiveUI;
 using SWTORCombatParser.DataStructures.Phases;
+using SWTORCombatParser.DataStructures.PvP;
 using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Death_Review;
 using SWTORCombatParser.Views.Timers;
@@ -147,6 +148,7 @@ namespace SWTORCombatParser.ViewModels
             DefaultPhaseLoader.LoadBuiltinPhases();
             ClassIdentifier.InitializeAvailableClasses();
             EncounterLoader.LoadAllEncounters();
+            PvPMedalLoader.Init();
             MetricColorLoader.Init();
             MetricColorLoader.SetCurrentBrushDict();
             TimerController.TimersInitialized += OrbsVariableManager.RefreshVariables;

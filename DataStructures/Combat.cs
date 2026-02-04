@@ -50,6 +50,7 @@ namespace SWTORCombatParser.DataStructures
         public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.Value.IsLocalPlayer).Value;
         public ConcurrentDictionary<long,Entity> CharacterParticipants = new();
         public Dictionary<Entity, SWTORClass> CharacterClases = new();
+        public List<Entity> PvPOpponents => IsPvPCombat ? CharacterClases.Where(kvp=> string.IsNullOrEmpty(kvp.Value.Discipline)).Select(kvp=>kvp.Key).ToList() : new List<Entity>();
         public ConcurrentDictionary<long,Entity> Targets = new();
         public ConcurrentDictionary<long, Entity> AllEntities =>
             new(Targets.Concat(CharacterParticipants)
@@ -130,6 +131,7 @@ namespace SWTORCombatParser.DataStructures
         {
             return GetLogsInvolvingEntity(player).Any(l => l.Target == player && l.Effect.EffectId == _7_0LogParsing.DeathCombatId);
         }
+        
         public ConcurrentDictionary<Entity, ConcurrentQueue<ParsedLogEntry>> OutgoingDamageLogs = new();
         public ConcurrentDictionary<Entity, ConcurrentQueue<ParsedLogEntry>> IncomingDamageLogs = new();
         public ConcurrentDictionary<Entity, ConcurrentQueue<ParsedLogEntry>> IncomingDamageMitigatedLogs = new();
@@ -318,14 +320,29 @@ namespace SWTORCombatParser.DataStructures
         }
         public Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>> GetByTarget(IEnumerable<ParsedLogEntry> logsToCheck)
         {
-                var returnDict = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>();
-                var distinctTargets = logsToCheck.Select(l => l.Target).Where(v => v.Name != null).DistinctBy(e => e.LogId);
-                foreach (var target in distinctTargets)
+            // Group by LogId so we don't depend on Entity reference equality.
+            var temp = new Dictionary<long, (Entity entity, ConcurrentQueue<ParsedLogEntry> q)>();
+
+            foreach (var log in logsToCheck)
+            {
+                var t = log.Target;
+                if (t?.Name == null) continue;
+
+                if (!temp.TryGetValue(t.LogId, out var entry))
                 {
-                    returnDict[target] = new ConcurrentQueue<ParsedLogEntry>(logsToCheck.Where(l => l.Target.LogId == target.LogId));
+                    entry = (t, new ConcurrentQueue<ParsedLogEntry>());
+                    temp[t.LogId] = entry;
                 }
-                return returnDict;
-            
+
+                entry.q.Enqueue(log);
+            }
+
+            // Convert to your original return type
+            var result = new Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>>(temp.Count);
+            foreach (var v in temp.Values)
+                result[v.entity] = v.q;
+
+            return result;
         }
         public Dictionary<Entity, ConcurrentQueue<ParsedLogEntry>> GetBySource(IEnumerable<ParsedLogEntry> logsToCheck)
         {

@@ -3,16 +3,16 @@ using SWTORCombatParser.Model.Overlays;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
-    public class AllPvPOverlaysViewModel : INotifyPropertyChanged
+    public class AllPvPOverlaysViewModel : ReactiveObject
     {
         private OpponentOverlayViewModel _opponentOverlayViewModel;
-        private MiniMapViewModel _miniMapViewModel;
+        private MedalTrackingViewModel _medalTrackingViewModel;
         private bool opponentHPEnabled;
-        private bool miniMapEnabled;
-        private int miniMapRangeBuffer;
+        private bool medalTrackingEnabled;
         public event Action MapClosed = delegate { };
         public event Action OpponentClosed = delegate { };
 
@@ -24,32 +24,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             opponentHPEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP").Acive;
             _opponentOverlayViewModel.OverlayEnabled = opponentHPEnabled;
             
-            _miniMapViewModel = new MiniMapViewModel("PvP_MiniMap");
-            _miniMapViewModel.CloseRequested += () => MapClosed();
-            _miniMapViewModel.OverlayStateChanged += UpdateOverlay;
-            miniMapEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MiniMap").Acive;
-            _miniMapViewModel.OverlayEnabled = miniMapEnabled;
-            MiniMapRangeBuffer = 15;
-
-
+            _medalTrackingViewModel = new MedalTrackingViewModel("PvP_MedalTracking");
+            _medalTrackingViewModel.CloseRequested += () => MapClosed();
+            _medalTrackingViewModel.OverlayStateChanged += UpdateOverlay;
+            medalTrackingEnabled = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_MedalTracking").Acive;
+            _medalTrackingViewModel.OverlayEnabled = medalTrackingEnabled;
         }
-
-        public int MiniMapRangeBuffer
+        public bool MedalTrackingEnabled
         {
-            get => miniMapRangeBuffer; set
-            {
-                miniMapRangeBuffer = value;
-                _miniMapViewModel.Buffer = miniMapRangeBuffer;
-            }
-        }
-        public bool MiniMapEnabled
-        {
-            get => miniMapEnabled;
+            get => medalTrackingEnabled;
             set
             {
-                miniMapEnabled = value;
-                DefaultGlobalOverlays.SetActive("PvP_MiniMap", miniMapEnabled);
-                _miniMapViewModel.OverlayEnabled = miniMapEnabled;
+                medalTrackingEnabled = value;
+                DefaultGlobalOverlays.SetActive("PvP_MedalTracking", medalTrackingEnabled);
+                _medalTrackingViewModel.OverlayEnabled = medalTrackingEnabled;
             }
         }
         public bool OpponentHPEnabled
@@ -64,43 +52,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private void UpdateOverlay(string overlayType, bool state)
         {
-            if (overlayType == "MiniMap")
+            if (overlayType == "MedalTracking")
             {
-                miniMapEnabled = state;
-                OnPropertyChanged("MiniMapEnabled");
-
+                medalTrackingEnabled = state;
+                this.RaisePropertyChanged(nameof(MedalTrackingEnabled));
             }
             else
             {
                 opponentHPEnabled = state;
-                OnPropertyChanged("OpponentHPEnabled");
+                this.RaisePropertyChanged(nameof(OpponentHPEnabled));
             }
         }
         internal void LockOverlays()
         {
             _opponentOverlayViewModel.LockOverlays();
-            _miniMapViewModel.LockOverlays();
+            _medalTrackingViewModel.LockOverlays();
         }
 
         internal void UnlockOverlays()
         {
             _opponentOverlayViewModel.UnlockOverlays();
-            _miniMapViewModel.UnlockOverlays();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            return true;
+            _medalTrackingViewModel.UnlockOverlays();
         }
     }
 }

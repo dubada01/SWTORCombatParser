@@ -25,7 +25,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && l.Target.IsCharacter);
             combat.Initiator = combat.AllLogs.OrderBy(kvp=>kvp.Key).FirstOrDefault(l =>
                 l.Value.Effect.EffectType == EffectType.TargetChanged && !l.Value.Source.IsCharacter).Value?.Target;
-            //Parallel.ForEach(combatToPopulate.AllEntities, entitiy =>
+
             foreach (var entity in combatToPopulate.AllEntities.Values)
             {
                 var logsInScope = combat.GetLogsInvolvingEntity(entity);
@@ -98,7 +98,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 );
 
                 var totalHealing = combat.OutgoingHealingLogs[entity].Sum(l => l.Value.DblValue);
-                var totalEffectiveHealing = combat.OutgoingHealingLogs[entity].Sum(l => l.Value.EffectiveDblValue);
+                var totalEffectiveHealing = combat.OutgoingHealingLogs[entity].Where(l=>l.AbilityId != 813707324030976 && l.AbilityId != 3289210509328384).Sum(l => l.Value.EffectiveDblValue);
 
                 var totalDamage = combat.OutgoingDamageLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveDamage = combat.OutgoingDamageLogs[entity].Sum(l => l.Value.EffectiveDblValue);
@@ -196,12 +196,12 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 combat.MaxEffectiveDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0
                     ? 0
                     : combat.OutgoingDamageLogs[entity].Max(l => l.Value.EffectiveDblValue);
-                combat.MaxHeal[entity] = combat.OutgoingHealingLogs[entity].Count == 0
+                combat.MaxHeal[entity] = !combat.OutgoingHealingLogs[entity].Any(v => v.AbilityId != 813707324030976 && v.AbilityId != 3289210509328384 && v.AbilityId != 864164599824384)
                     ? 0
-                    : combat.OutgoingHealingLogs[entity].Max(l => l.Value.DblValue);
-                combat.MaxEffectiveHeal[entity] = combat.OutgoingHealingLogs[entity].Count == 0
+                    : combat.OutgoingHealingLogs[entity].Where(v=>v.AbilityId != 813707324030976 && v.AbilityId != 3289210509328384 && v.AbilityId != 864164599824384).Max(l => l.Value.DblValue);
+                combat.MaxEffectiveHeal[entity] = !combat.OutgoingHealingLogs[entity].Any(v => v.AbilityId != 813707324030976 && v.AbilityId != 3289210509328384 && v.AbilityId != 864164599824384)
                     ? 0
-                    : combat.OutgoingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
+                    : combat.OutgoingHealingLogs[entity].Where(v=>v.AbilityId != 813707324030976 && v.AbilityId != 3289210509328384 && v.AbilityId != 864164599824384).Max(l => l.Value.EffectiveDblValue);
                 combat.TotalFluffDamage[entity] = totalDamage;
                 combat.TotalEffectiveFluffDamage[entity] = totalEffectiveDamage;
                 combat.TotalTankSheilding[entity] = totalSheildingDone;
