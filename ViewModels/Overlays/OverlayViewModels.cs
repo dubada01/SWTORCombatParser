@@ -177,7 +177,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new() { Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
                 new() { Name = "Timeline", Type = UtilityOverlayType.Timeline},
                 new() { Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
-                new() { Name = "PvP Mini-map", Type = UtilityOverlayType.PvPMap},
+                new() { Name = "PvP Medal Tracking", Type = UtilityOverlayType.PvPMedalTracking},
                 new() { Name = "Ability List", Type = UtilityOverlayType.AbilityList},
                 new() {Name= "Raid Notes", Type=UtilityOverlayType.RaidNotes},
             };
@@ -210,7 +210,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.ThreatTable).IsSelected = false;
             };
             _otherOverlayViewModel._PvpOverlaysConfigViewModel.MapClosed += () => {
-                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = false;
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMedalTracking).IsSelected = false;
             };
             _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentClosed += () => {
                 AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = false;
@@ -235,7 +235,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.Active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Timeline).IsSelected = AvaloniaTimelineBuilder.TimelineEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
-            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMap).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMedalTracking).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.MedalTrackingEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AbilityList).IsSelected = _abilityListSetup.AbilityListEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RaidNotes).IsSelected = _raidNotesSetup.RaidNotesEnabled;
             _personalOverlayViewModel = new PersonalOverlayViewModel("Personal");
@@ -421,8 +421,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case UtilityOverlayType.PvPHP:
                     _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled = !_otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
                     break;
-                case UtilityOverlayType.PvPMap:
-                    _otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled = !_otherOverlayViewModel._PvpOverlaysConfigViewModel.MiniMapEnabled;
+                case UtilityOverlayType.PvPMedalTracking:
+                    _otherOverlayViewModel._PvpOverlaysConfigViewModel.MedalTrackingEnabled = !_otherOverlayViewModel._PvpOverlaysConfigViewModel.MedalTrackingEnabled;
                     break;
                 case UtilityOverlayType.RaidChallenge:
                     _challengesViewModel.ChallengesEnabled = !_challengesViewModel.ChallengesEnabled;

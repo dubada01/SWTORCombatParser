@@ -170,6 +170,15 @@ public class TimelineElement
                 UpdateBossKillElements();
             }
         }
+
+        public void RemoveInProgressBosses()
+        {
+            lock (lockObj)
+            {
+                _instanceInfo.CurrentBossKills.RemoveAll(b => !b.IsKilled);
+                UpdateBossKillElements();
+            }
+        }
         public void RemoveBoss(string bossName)
         {
             lock (lockObj)
@@ -192,6 +201,13 @@ public class TimelineElement
             }
         }
 
+        public void CombatEnded()
+        {
+            lock (lockObj)
+            {
+                RemoveInProgressBosses();
+            }
+        }
         public void BossKilled(string bossName, TimeSpan startTime, TimeSpan killTime)
         {
             lock (lockObj)

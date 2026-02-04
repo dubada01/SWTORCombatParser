@@ -12,7 +12,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         DisciplineTimer,
         Personal,
         PvPHP,
-        PvPMap, 
+        PvPMedalTracking, 
         RoomHazard,
         AbilityList,
         RaidNotes,

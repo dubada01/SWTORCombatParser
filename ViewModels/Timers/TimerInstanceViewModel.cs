@@ -469,7 +469,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void Dispose()
         {
             isActive = false;
-            _tickTimer.Stop();
+            _tickTimer?.Stop();
             TimerValue = 0;
         }
     }

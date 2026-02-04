@@ -67,9 +67,9 @@ namespace SWTORCombatParser.Model.LogParsing
                 {
                     AreaEntered.InvokeSafely(raidOfInterest);
                     if (raidOfInterest.IsPvpEncounter)
-                        EncounterTimerTrigger.FirePvpEncounterDetected();
+                        EncounterTimerTrigger.FirePvpEncounterDetected(log.TimeStamp,raidOfInterest);
                     else
-                        EncounterTimerTrigger.FireNonPvpEncounterDetected();
+                        EncounterTimerTrigger.FireNonPvpEncounterDetected(log.TimeStamp,raidOfInterest);
                 }
 
 
@@ -83,7 +83,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (liveLog)
                 {
                     AreaEntered.InvokeSafely(openWorldEncounter);
-                    EncounterTimerTrigger.FireNonPvpEncounterDetected();
+                    EncounterTimerTrigger.FireNonPvpEncounterDetected(log.TimeStamp, openWorldEncounter);
                 }
 
             }

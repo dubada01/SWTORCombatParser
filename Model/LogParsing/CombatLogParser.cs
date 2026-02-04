@@ -71,6 +71,10 @@ namespace SWTORCombatParser.Model.LogParsing
             var areaEnteredId = "836045448953664";
             var areaEnteredLog = "";
 
+            var combatStartId = "836045448945489";
+            var combatStartLog = "";
+            var combatStartIndex = 0;
+
             var validLines = new List<string>();
             for (int i = startLog; i >= 0; i--)
             {
@@ -81,9 +85,19 @@ namespace SWTORCombatParser.Model.LogParsing
                 }
             }
             validLines.Add(areaEnteredLog);
-            for (int i = startLog; i < endLog; i++)
+            for (int i = startLog; i >= 0; i--)
             {
-                if(logLines.Count < i)
+                if (logLines[i].Contains(combatStartId))
+                {
+                    combatStartLog = logLines[i];
+                    combatStartIndex = i;
+                    break;
+                }
+            }
+            validLines.Add(combatStartLog);
+            for (int i = combatStartIndex + 1; i < endLog; i++)
+            {
+                if(logLines.Count > i)
                     validLines.Add(logLines[i]);
             }
             return validLines;

@@ -55,6 +55,7 @@ public static class AvaloniaTimelineBuilder
 
     private static void CombatFinished(Combat obj)
     {
+        _timelineWindowViewModel.CombatEnded();
         if(_currentEncounter == null)
             return;
         if (!_inBossInstance || !obj.IsCombatWithBoss || !_currentEncounter.BossInfos.Any(bi=>bi.EncounterName == obj.EncounterBossDifficultyParts.Item1) || _lastEncounterStartTime > obj.StartTime || !_timeTrackingLive)

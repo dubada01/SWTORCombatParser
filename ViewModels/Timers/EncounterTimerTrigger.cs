@@ -1,4 +1,5 @@
 ﻿using System;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
@@ -9,9 +10,9 @@ namespace SWTORCombatParser.ViewModels.Timers
     {
         public static (string, string, string) CurrentEncounter { get; set; } = ("", "", "");
         public static event Action<string, string, string> BossCombatDetected = delegate { };
-        public static event Action PvPEncounterEntered = delegate { };
+        public static event Action<DateTime, EncounterInfo> PvPEncounterEntered = delegate { };
         public static bool CurrentEncounterIsPVP = false;
-        public static event Action NonPvpEncounterEntered = delegate { };
+        public static event Action<DateTime, EncounterInfo> NonPvpEncounterEntered = delegate { };
         public static void FireBossCombatDetected(string encounterName, string bossName, string difficulty, bool isRealtime)
         {
             if (CurrentEncounter.Item1 == encounterName && CurrentEncounter.Item2 == bossName && CurrentEncounter.Item3 == difficulty)
@@ -20,14 +21,14 @@ namespace SWTORCombatParser.ViewModels.Timers
             if(isRealtime)
                 BossCombatDetected.InvokeSafely(encounterName, bossName, difficulty);
         }
-        public static void FirePvpEncounterDetected()
+        public static void FirePvpEncounterDetected(DateTime changedTime, EncounterInfo encounterInfo)
         {
-            PvPEncounterEntered.InvokeSafely();
+            PvPEncounterEntered.InvokeSafely(changedTime, encounterInfo);
             CurrentEncounterIsPVP = true;
         }
-        public static void FireNonPvpEncounterDetected()
+        public static void FireNonPvpEncounterDetected(DateTime changedTime, EncounterInfo encounterInfo)
         {
-            NonPvpEncounterEntered.InvokeSafely();
+            NonPvpEncounterEntered.InvokeSafely(changedTime,encounterInfo);
             CurrentEncounterIsPVP = false;
         }
 
@@ -35,9 +36,9 @@ namespace SWTORCombatParser.ViewModels.Timers
         {
             var currentEncounter = CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(timeAfterHistory);
             if(currentEncounter.IsPvpEncounter)
-                FirePvpEncounterDetected();
+                FirePvpEncounterDetected(timeAfterHistory,currentEncounter);
             else
-                FireNonPvpEncounterDetected();
+                FireNonPvpEncounterDetected(timeAfterHistory,currentEncounter);
         }
     }
 }

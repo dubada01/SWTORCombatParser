@@ -478,9 +478,9 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             //Run these in a task so that the UI can update first
             Task.Run(() =>
             {
+                EncounterMonitor.SetCurrentEncounter(selectedCombat.ParentEncounter);
                 CombatSelectionMonitor.SelectCompleteCombat(selectedCombat.Combat);
                 CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(selectedCombat.Combat);
-                EncounterMonitor.SetCurrentEncounter(selectedCombat.ParentEncounter);
             });
 
 

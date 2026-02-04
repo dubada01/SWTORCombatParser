@@ -12,7 +12,9 @@ namespace SWTORCombatParser.Model.CombatParsing
     public class ShieldingEvent
     {
         public Entity Source;
+        public EntityInfo SourceInfo;
         public Entity Target;
+        public EntityInfo TargetInfo;
         public string ShieldName;
         public double ShieldValue;
         public DateTime ShieldingTime;
@@ -103,7 +105,9 @@ namespace SWTORCombatParser.Model.CombatParsing
                         ShieldingTime = absorb.StopTime,
                         ShieldValue   = amount,
                         Source        = source,
-                        Target        = target
+                        SourceInfo = log.SourceInfo,
+                        Target        = target,
+                        TargetInfo = log.TargetInfo
                     });
                 }
                 else
@@ -149,8 +153,8 @@ namespace SWTORCombatParser.Model.CombatParsing
                     EffectId   = _7_0LogParsing._healEffectId,
                     EffectName = "Processed Absorb"
                 },
-                SourceInfo    = new EntityInfo { Entity = ev.Source },
-                TargetInfo    = new EntityInfo { Entity = ev.Target },
+                SourceInfo    = ev.SourceInfo,
+                TargetInfo    = ev.TargetInfo,
                 Value         = new Value
                 {
                     EffectiveDblValue = ev.ShieldValue,

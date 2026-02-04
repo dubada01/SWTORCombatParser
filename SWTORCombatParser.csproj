@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.2.0.1</VersionPrefix>
+    <VersionPrefix>2.2.1.1</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -132,6 +132,10 @@
   </Content>
   <None Remove="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json" />
   <Content Include="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <None Remove="DataStructures\PvP\pvp_medals.json" />
+  <Content Include="DataStructures\PvP\pvp_medals.json">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
   </Content>
 </ItemGroup>

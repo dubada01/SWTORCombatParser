@@ -4,6 +4,7 @@ using SWTORCombatParser.Model.CombatParsing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -93,14 +94,14 @@ namespace SWTORCombatParser.Model.LogParsing
             if (logEntryInfos.Count < 5)
                 return new ParsedLogEntry() { LogBytes = _fileEncoding.GetByteCount(logEntry), Error = ErrorType.IncompleteLine };
             
-            var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat[0].Value, previousLogTime);
+            var parsedLine = ExtractInfo(logEntryInfos.ToArray(), value.Value, threat.Count == 0 ? "" : threat[0].Value, previousLogTime, realTime);
             parsedLine.LogBytes = _fileEncoding.GetByteCount(logEntry);
             parsedLine.LogLineNumber = lineIndex;
             if (realTime)
                 CombatLogStateBuilder.UpdateCurrentStateWithSingleLog(parsedLine, true);
             return parsedLine;
         }
-        private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat, DateTime previousLogTime)
+        private static ParsedLogEntry ExtractInfo(string[] entryInfo, string value, string threat, DateTime previousLogTime, bool isRealTime)
         {
             var newEntry = new ParsedLogEntry();
 
@@ -134,7 +135,7 @@ namespace SWTORCombatParser.Model.LogParsing
             {
                 newEntry.SourceInfo.Class = GetClassFromDicipline(newEntry.Effect.EffectName);
             }
-            newEntry.Value = ParseValues(value, newEntry.Effect);
+            newEntry.Value = ParseValues(value, newEntry.Effect, newEntry.Target);
 
             if(newEntry.Effect.EffectType != EffectType.AreaEntered)
                 newEntry.Threat = string.IsNullOrEmpty(threat) ? 0 : double.Parse(threat.Replace("<", "").Replace(">", ""), CultureInfo.InvariantCulture); 
@@ -174,11 +175,11 @@ namespace SWTORCombatParser.Model.LogParsing
             return ClassIdentifier.IdentifyClassById(specId.ToString());
         }
 
-        private static Value ParseValues(string valueString, Effect currentEffect)
+        private static Value ParseValues(string valueString, Effect currentEffect, Entity target)
         {
             var cleanValueString = _interner.Intern(valueString.Replace("(", "").Replace(")", ""));
             if (currentEffect.EffectType == EffectType.Apply && (currentEffect.EffectId == _damageEffectId || currentEffect.EffectId == _healEffectId))
-                return ParseValueNumber(valueString, currentEffect.EffectId);
+                return ParseValueNumber(valueString, currentEffect.EffectId, target);
             if (currentEffect.EffectType == EffectType.Restore || currentEffect.EffectType == EffectType.Spend)
                 return ParseResourceEventValue(valueString);
             if (currentEffect.EffectType == EffectType.Event)
@@ -237,7 +238,7 @@ namespace SWTORCombatParser.Model.LogParsing
 
             return result;
         }
-        private static Value ParseValueNumber(string damageValueString, ulong effectId)
+        private static Value ParseValueNumber(string damageValueString, ulong effectId, Entity target)
         {
             try
             {
@@ -400,7 +401,7 @@ namespace SWTORCombatParser.Model.LogParsing
                             ? valId
                             : 0;
                     newValue.ValueType = GetValueTypeById(newValue.ValueTypeId);
-                    if (modifier.ValueType == DamageType.absorbed)
+                    if (modifier.ValueType == DamageType.absorbed && !target.IsCharacter)
                         newValue.EffectiveDblValue = newValue.DblValue;
                     else
                         newValue.EffectiveDblValue = newValue.MitigatedDblValue;

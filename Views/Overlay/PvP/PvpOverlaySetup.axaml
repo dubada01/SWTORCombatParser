@@ -25,16 +25,10 @@
                     <CheckBox HorizontalAlignment="Center" IsChecked="{Binding OpponentHPEnabled}"></CheckBox>
                 </StackPanel>
             </Viewbox>
-            <!--<Viewbox MaxHeight="40" Grid.Row="2">
-                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Foreground="WhiteSmoke" Text="Group Metrics" FontFamily="{StaticResource MainFont}"/>
-                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding GroupMetricsEnabled}"></CheckBox>
-                </StackPanel>
-            </Viewbox>-->
             <Viewbox MaxHeight="40" Grid.Row="3">
                 <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <TextBlock Foreground="WhiteSmoke" HorizontalAlignment="Center" Text="Mini Map"  FontFamily="{StaticResource MainFont}"/>
-                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding MiniMapEnabled}"></CheckBox>
+                    <TextBlock Foreground="WhiteSmoke" HorizontalAlignment="Center" Text="Medal Tracking"  FontFamily="{StaticResource MainFont}"/>
+                    <CheckBox HorizontalAlignment="Center" IsChecked="{Binding MedalTrackingEnabled}"></CheckBox>
                 </StackPanel>
             </Viewbox>
         </Grid>

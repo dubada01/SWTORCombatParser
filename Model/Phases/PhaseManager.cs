@@ -67,6 +67,8 @@ namespace SWTORCombatParser.Model.Phases
     }
     public static class PhaseManager
     {
+
+
         // Define a dictionary to map PhaseTrigger to delegate
         private static readonly Dictionary<PhaseTrigger, Action<ParsedLogEntry, Phase, bool>> triggerHandlers = new Dictionary<PhaseTrigger, Action<ParsedLogEntry, Phase, bool>>
 {
@@ -85,21 +87,13 @@ namespace SWTORCombatParser.Model.Phases
         private static string _currentBossName;
         private static DateTime _combatStartTime;
         private static bool _combatStartToggled;
+        private static DateTime _combatStopTime;
         private static Dictionary<Guid, bool> _hpPhasesTriggered = new Dictionary<Guid, bool>();
         private static double phaseDuration;
 
         private static IEnumerable<Phase> _loadedPhases { get; set; }
-        public static ObservableCollection<PhaseInstance> ActivePhases
-        {
-            get
-            {
-                return activePhases;
-            }
-            set
-            {
-                activePhases = value;
-            }
-        }
+        public static List<PhaseInstance> ActivePhases { get; set; } = new List<PhaseInstance>();
+
         public static List<PhaseInstance> SelectedPhases { get; set; } = new List<PhaseInstance>();
         public static double PhaseDuration => phaseDuration * 1000f;
 
@@ -116,8 +110,6 @@ namespace SWTORCombatParser.Model.Phases
 
         public static event Action<List<PhaseInstance>> PhaseInstancesUpdated = delegate { };
         public static event Action<List<PhaseInstance>> SelectedPhasesUpdated = delegate { };
-        
-        private static ObservableCollection<PhaseInstance> activePhases = new ObservableCollection<PhaseInstance>();
 
         public static void Init()
         {
@@ -146,12 +138,14 @@ namespace SWTORCombatParser.Model.Phases
                 _loadedPhases = DefaultPhaseManager.GetExisitingPhases();
                 ResetPhases();
                 _combatStartTime = combat.StartTime;
+                _combatStopTime = combat.EndTime;
                 _currentBossName = combat.EncounterBossDifficultyParts.Item1;
                 foreach (var line in combat.AllLogs.ToArray().OrderBy(l=>l.Key))
                 {
                     HandleNewLine(line.Value);
                 }
-                PhaseInstancesUpdated.InvokeSafely(ActivePhases.ToList());
+                var cleanPhases = CleanPhases();
+                PhaseInstancesUpdated.InvokeSafely(cleanPhases);
             }
         }
         private static void UpdatePhases(CombatStatusUpdate update)
@@ -170,9 +164,82 @@ namespace SWTORCombatParser.Model.Phases
                         HandleNewLine(line);
                     }
                 }
-                PhaseInstancesUpdated.InvokeSafely(ActivePhases.ToList());
+                var cleanPhases = CleanPhases();
+                PhaseInstancesUpdated.InvokeSafely(cleanPhases);
             }
         }
+
+        private static List<PhaseInstance> CleanPhases()
+        {
+            // 1) Sort (work on a local list; we will mutate PhaseStart/End on the instances themselves)
+            var phases = ActivePhases
+                .OrderBy(p => p.PhaseStart)
+                .ToList();
+
+            if (phases.Count == 0)
+                return phases;
+
+            // Helper: treat MinValue as "unassigned"
+            static bool EndUnassigned(PhaseInstance p) => p.PhaseEnd == DateTime.MinValue;
+
+            // 2) Normalize ends (do not mutate neighbors)
+            for (int i = 0; i < phases.Count; i++)
+            {
+                var p = phases[i];
+                var nextStart = (i + 1 < phases.Count) ? phases[i + 1].PhaseStart : _combatStopTime;
+
+                // If unassigned or invalid, clamp to nextStart (or combat stop time if last)
+                if (EndUnassigned(p) || p.PhaseEnd < p.PhaseStart)
+                {
+                    p.PhaseEnd = nextStart;
+                }
+
+                // If for any reason nextStart is before this start (bad data), ensure non-negative duration
+                if (p.PhaseEnd < p.PhaseStart)
+                    p.PhaseEnd = p.PhaseStart;
+            }
+
+            // 3) Merge neighboring phases with same SourcePhase
+            //    After step (2), phases are guaranteed End >= Start and no "missing ends".
+            var merged = new List<PhaseInstance>(phases.Count);
+            merged.Add(phases[0]);
+
+            for (int i = 1; i < phases.Count; i++)
+            {
+                var cur = phases[i];
+                var prev = merged[^1];
+
+                if (prev.SourcePhase == cur.SourcePhase)
+                {
+                    // Merge: expand prev to include cur.
+                    // Since ends were normalized, this also handles overlaps or adjacency cleanly.
+                    if (cur.PhaseStart < prev.PhaseStart)
+                        prev.PhaseStart = cur.PhaseStart;
+
+                    if (cur.PhaseEnd > prev.PhaseEnd)
+                        prev.PhaseEnd = cur.PhaseEnd;
+
+                    // Optional: if you have other fields (name, metadata, etc.), decide how to combine them here.
+                    continue;
+                }
+
+                merged.Add(cur);
+            }
+
+            // 4) Final safety: ensure monotonic & clamp any weirdness (optional but cheap)
+            //    This ensures End never goes beyond combat stop time.
+            foreach (var p in merged)
+            {
+                if (p.PhaseEnd > _combatStopTime)
+                    p.PhaseEnd = _combatStopTime;
+
+                if (p.PhaseEnd < p.PhaseStart)
+                    p.PhaseEnd = p.PhaseStart;
+            }
+
+            return merged;
+        }
+
         private static void UpdateActiveEntities(ParsedLogEntry entry)
         {
             _detectedEntities.Add(entry.Source);
