@@ -90,30 +90,59 @@ namespace SWTORCombatParser
 
         private async Task ExtractIconsIfNecessaryAsync()
         {
-            string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
-            var iconsPath = Path.Combine(appDataPath, "resources/icons");
+            var appDataPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "DubaTech", "SWTORCombatParser");
 
-            // Check if the icons directory already exists
-            if (!Directory.Exists(iconsPath) || Directory.GetDirectories(iconsPath).Length > 0)
-            {
-                var zipFilePath = Path.Combine(Environment.CurrentDirectory, "resources", "packagedIcons.zip");
-                if(!File.Exists(zipFilePath))
-                    throw new FileNotFoundException("Could not find the packaged icons zip file");
+            var iconsPath = Path.Combine(appDataPath, "resources", "icons");
 
-                // Check if the directory exists and has subdirectories
-                if (Directory.Exists(iconsPath))
-                {
-                    // Delete the directory and all its contents
-                    Directory.Delete(iconsPath, true); // true indicates recursive deletion
-                }
+            // Extract only if missing or empty
+            var needsExtraction =
+                !Directory.Exists(iconsPath) ||
+                !Directory.EnumerateFileSystemEntries(iconsPath).Any();
 
-                Directory.CreateDirectory(iconsPath);
+            if (!needsExtraction)
+                return;
 
-                // Use System.IO.Compression to extract the files
-                ZipFile.ExtractToDirectory(zipFilePath, iconsPath);
-            }
+            var zipFilePath = Path.Combine(AppContext.BaseDirectory, "resources", "packagedIcons.zip");
+            if (!File.Exists(zipFilePath))
+                throw new FileNotFoundException("Could not find the packaged icons zip file", zipFilePath);
+
+            if (Directory.Exists(iconsPath))
+                Directory.Delete(iconsPath, true);
+
+            Directory.CreateDirectory(iconsPath);
+
+            await Task.Run(() => ZipFile.ExtractToDirectory(zipFilePath, iconsPath));
+
+#if LINUX
+            NormalizeIconFilenamesToLower(iconsPath);
+#endif
         }
 
+        private static void NormalizeIconFilenamesToLower(string root)
+        {
+            foreach (var file in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
+            {
+                var dir = Path.GetDirectoryName(file)!;
+
+                var name = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
+                var ext  = Path.GetExtension(file).ToLowerInvariant();
+                var lowerPath = Path.Combine(dir, name + ext);
+
+                if (string.Equals(file, lowerPath, StringComparison.Ordinal))
+                    continue;
+
+                // If a lowercased version already exists, keep it and delete the duplicate
+                if (File.Exists(lowerPath))
+                {
+                    File.Delete(file);
+                    continue;
+                }
+
+                File.Move(file, lowerPath);
+            }
+        }
         private static void CheckForAppVersion()
         {
             Task.Run(VersionChecker.CheckForMostRecentVersion);

@@ -36,10 +36,20 @@ namespace SWTORCombatParser.Utilities
 
         public static string GetIconPathForId(ulong id)
         {
-            string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
-            if (_abilityToIconDict.TryGetValue(id, out var path))
-                return Path.Combine(appDataPath, "resources", "icons", $"{path}.png");
-            return Path.Combine(appDataPath, "resources", "icons", ".png");
+            var appDataPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "DubaTech", "SWTORCombatParser");
+
+            var iconsDir = Path.Combine(appDataPath, "resources", "icons");
+
+            if (_abilityToIconDict.TryGetValue(id, out var key) && !string.IsNullOrWhiteSpace(key))
+            {
+                var file = key.Trim().ToLowerInvariant() + ".png";
+                return Path.Combine(iconsDir, file);
+            }
+
+            // Pick an actual known placeholder filename if you have one:
+            return Path.Combine(iconsDir, ".png");
         }
 
         public static async Task<Bitmap> InitIcon(ulong id)
@@ -71,6 +81,7 @@ namespace SWTORCombatParser.Utilities
                     }
                 });
             }
+
             catch
             {
                 string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");

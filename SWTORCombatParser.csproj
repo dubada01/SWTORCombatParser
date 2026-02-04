@@ -11,15 +11,39 @@
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
-  
-  <!-- macOS Debug -->
-  <PropertyGroup Condition="'$(OS)' == 'Unix'">
+
+  <!-- macOS -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
     <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
+    <!-- Only set this if you truly always want arm64 when building on macOS -->
     <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
-  <!-- Windows OS detection -->
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+  <!-- Linux -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <DefineConstants>LINUX;$(DefineConstants)</DefineConstants>
+    <!-- Don't hardcode if you sometimes publish linux-arm64; otherwise this is fine -->
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <Target Name="ForceSkiaNative119" AfterTargets="Build"
+          Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+
+    <!-- NuGetPackageRoot is usually ~/.nuget/packages/ -->
+    <PropertyGroup>
+      <_SkiaWanted>$(NuGetPackageRoot)skiasharp.nativeassets.linux.nodependencies/3.119.1/runtimes/linux-x64/native/libSkiaSharp.so</_SkiaWanted>
+    </PropertyGroup>
+
+    <Message Importance="High" Text="Forcing Skia native: $(_SkiaWanted)" />
+    <Copy SourceFiles="$(_SkiaWanted)"
+          DestinationFiles="$(OutputPath)libSkiaSharp.so"
+          SkipUnchangedFiles="false"
+          Condition="Exists('$(_SkiaWanted)')" />
+  </Target>
+
+
+  <!-- Windows -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <DefineConstants>WINDOWS;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
@@ -29,11 +53,13 @@
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(OS)' == 'Unix'">
-    <None Include="libbass.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+  <!-- macOS -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <None Include="runtimes/osx/native/libbass.dylib" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <!-- Linux -->
+  
   <ItemGroup>
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />

@@ -47,19 +47,29 @@ public partial class BaseOverlayWindow : Window
     
     
     
-    // P/Invoke for Ubuntu X11 library
-    [DllImport("libX11.so")]
+// X11
+    [DllImport("libX11.so.6")]
     private static extern IntPtr XOpenDisplay(IntPtr display);
 
-    [DllImport("libX11.so")]
+    [DllImport("libX11.so.6")]
     private static extern int XCloseDisplay(IntPtr display);
 
-    [DllImport("libX11.so")]
-    private static extern IntPtr XInternAtom(IntPtr display, string atomName, bool onlyIfExists);
+    [DllImport("libX11.so.6")]
+    private static extern int XFlush(IntPtr display);
 
-    [DllImport("libX11.so")]
-    private static extern void XChangeProperty(IntPtr display, IntPtr w, IntPtr property, int type, int format,
-        int mode, ref IntPtr data, int nelements);
+// XFixes
+    [DllImport("libXfixes.so.3")]
+    private static extern IntPtr XFixesCreateRegion(IntPtr dpy, IntPtr rectangles, int nrectangles);
+
+    [DllImport("libXfixes.so.3")]
+    private static extern void XFixesDestroyRegion(IntPtr dpy, IntPtr region);
+
+    [DllImport("libXfixes.so.3")]
+    private static extern void XFixesSetWindowShapeRegion(
+        IntPtr dpy, IntPtr win, int shapeKind, int xOff, int yOff, IntPtr region);
+
+// shapeKind values (from X11 Shape extension)
+    private const int ShapeInput = 2;
 
     private const int PropModeReplace = 0;
     
@@ -159,6 +169,9 @@ public partial class BaseOverlayWindow : Window
         var renderScaling = RenderScaling;
         #endif
         #if MACOS
+        var renderScaling = 1;
+        #endif
+        #if LINUX
         var renderScaling = 1;
         #endif
         _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78 * renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78 ) * renderScaling));
@@ -284,34 +297,47 @@ public partial class BaseOverlayWindow : Window
         });
 
     }
-    // Platform-specific method for Ubuntu
     private void MakeWindowClickThroughUbuntu(bool isClickThrough)
     {
         Dispatcher.UIThread.Invoke(() =>
         {
-            // Get the native window handle using Avalonia's GetPlatformHandle method
-            var platformHandle = this.TryGetPlatformHandle();
-            if (platformHandle == null)
+            var ph = TryGetPlatformHandle();
+            if (ph is null) return;
+
+            // You already confirmed this is XID on your system, but keep the guard.
+            if (!string.Equals(ph.HandleDescriptor, "XID", StringComparison.OrdinalIgnoreCase))
             {
+                Debug.WriteLine($"Not X11/XWayland: {ph.HandleDescriptor}");
                 return;
             }
 
-            IntPtr x11WindowHandle = platformHandle.Handle;
+            IntPtr win = ph.Handle;
 
-            IntPtr display = XOpenDisplay(IntPtr.Zero);
-            if (display == IntPtr.Zero)
+            IntPtr dpy = XOpenDisplay(IntPtr.Zero);
+            if (dpy == IntPtr.Zero)
+                throw new Exception("Unable to open X11 display (DISPLAY not set / no XWayland).");
+
+            try
             {
-                throw new Exception("Unable to open X11 display.");
+                if (isClickThrough)
+                {
+                    // Empty region => no input => clicks pass through to whatever is behind
+                    IntPtr empty = XFixesCreateRegion(dpy, IntPtr.Zero, 0);
+                    XFixesSetWindowShapeRegion(dpy, win, ShapeInput, 0, 0, empty);
+                    XFixesDestroyRegion(dpy, empty);
+                }
+                else
+                {
+                    // Reset to default input region (normal clickable)
+                    XFixesSetWindowShapeRegion(dpy, win, ShapeInput, 0, 0, IntPtr.Zero);
+                }
+
+                XFlush(dpy);
             }
-
-            // Set the window to be click-through
-            var prop = XInternAtom(display, "_NET_WM_WINDOW_TYPE", false);
-            var type = isClickThrough
-                ? XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", false)
-                : XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", false);
-
-            XChangeProperty(display, x11WindowHandle, prop, 4, 32, PropModeReplace, ref type, 1);
-            XCloseDisplay(display);
+            finally
+            {
+                XCloseDisplay(dpy);
+            }
         });
     }
 
@@ -336,6 +362,9 @@ public partial class BaseOverlayWindow : Window
         var renderScaling = RenderScaling;
 #endif
 #if MACOS
+        var renderScaling = 1;
+#endif
+#if LINUX
         var renderScaling = 1;
 #endif
         _viewModel.UpdateWindowSizeWithScale(new Point(Position.X + (50 * renderScaling), Position.Y + (78* renderScaling)), new Point((Width - 100) * renderScaling, (Height - 78 ) * renderScaling));
