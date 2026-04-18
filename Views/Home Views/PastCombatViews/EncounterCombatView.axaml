@@ -58,6 +58,9 @@
                     <Viewbox IsVisible="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,0,5,0" MaxHeight="13" Grid.Row="1" HorizontalAlignment="Center">
                         <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Foreground="Gray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Difficulty"></TextBlock>
                     </Viewbox>
+                    <Viewbox IsVisible="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5, 30,5,0" MaxHeight="13" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Foreground="WhiteSmoke" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding EncounterDurationText}"></TextBlock>
+                    </Viewbox>
                     <Viewbox IsVisible="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,0,5,0" MaxHeight="13" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
                         <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Foreground="Gray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Players"></TextBlock>
                     </Viewbox>
