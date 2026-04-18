@@ -41,6 +41,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private double currentLogOffsetMs;
         private double currentTotalOffsetMs;
+        private PastCombat _loadedHistoricalCombat;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
@@ -408,8 +409,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             if (_allEncounters.Any())
             {
                 _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle();
-                var combatSelected = _allEncounters.Last().EncounterCombats.First().Combat;
-                CombatIdentifier.CurrentCombat = combatSelected;
                 EncounterMonitor.FireEncounterUpdated();
             }
         }
@@ -466,10 +465,17 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             _numberOfSelectedCombats--;
             _numberOfSelectedCombats = Math.Max(_numberOfSelectedCombats, 0);
-            if (unslectedCombat.Combat == null)
+            var combat = unslectedCombat.Combat;
+            if (combat == null)
                 return;
             OnNewLog("Removing combat: " + unslectedCombat.CombatLabel + " from plot.");
-            CombatSelectionMonitor.DeselectCombat(unslectedCombat.Combat);
+            CombatSelectionMonitor.DeselectCombat(combat);
+            if (!unslectedCombat.IsCurrentCombat)
+            {
+                unslectedCombat.UnloadCombat();
+                if (_loadedHistoricalCombat == unslectedCombat)
+                    _loadedHistoricalCombat = null;
+            }
         }
         private void SelectCombat(PastCombat selectedCombat)
         {
@@ -478,9 +484,19 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             //Run these in a task so that the UI can update first
             Task.Run(() =>
             {
+                if (_loadedHistoricalCombat != null && _loadedHistoricalCombat != selectedCombat)
+                    _loadedHistoricalCombat.UnloadCombat();
+
+                var loadedCombat = selectedCombat.GetCombat();
+                if (loadedCombat.StartTime == DateTime.MinValue)
+                    return;
+
+                if (!selectedCombat.IsCurrentCombat)
+                    _loadedHistoricalCombat = selectedCombat;
+
                 EncounterMonitor.SetCurrentEncounter(selectedCombat.ParentEncounter);
-                CombatSelectionMonitor.SelectCompleteCombat(selectedCombat.Combat);
-                CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(selectedCombat.Combat);
+                CombatSelectionMonitor.SelectCompleteCombat(loadedCombat);
+                CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(loadedCombat);
             });
 
 

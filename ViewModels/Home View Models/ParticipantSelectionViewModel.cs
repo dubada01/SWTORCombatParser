@@ -103,17 +103,17 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         }
         private void SetSelection(Entity obj)
         {
-            if (!AvailableParticipants.Any(part => part.Entity == obj))
+            var currentSelection = AvailableParticipants.FirstOrDefault(part => IsSameEntity(part.Entity, obj));
+            if (currentSelection == null)
                 return;
-            SelectedParticipant = obj;
-            var previouslySelected = AvailableParticipants.Where(p => p.Entity.Id != obj.Id).FirstOrDefault(p => p.IsSelected);
+            SelectedParticipant = currentSelection.Entity;
+            var previouslySelected = AvailableParticipants.FirstOrDefault(p => p.IsSelected && !IsSameEntity(p.Entity, currentSelection.Entity));
             if (previouslySelected != null)
                 previouslySelected.ToggleSelection();
-            var currentSelection = AvailableParticipants.First(p => p.Entity.Id == obj.Id);
             if (!currentSelection.IsSelected)
                 currentSelection.ToggleSelection();
-            ParticipantSelected(obj);
-            ParticipantSelectionHandler.UpdateSelection(obj);
+            ParticipantSelected(currentSelection.Entity);
+            ParticipantSelectionHandler.UpdateSelection(currentSelection.Entity);
         }
         private ParticipantViewModel GenerateInstance(Entity e)
         {
@@ -152,11 +152,22 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             }
             AvailableParticipants = new ObservableCollection<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
             UpdateLayout();
-            if (ParticipantSelectionHandler.CurrentlySelectedParticpant == null)
+            if (!AvailableParticipants.Any(p => p.IsSelected))
             {
                 SelectLocalPlayer();
             }
             return entitiesToView;
+        }
+
+        private static bool IsSameEntity(Entity left, Entity right)
+        {
+            if (left == null || right == null)
+                return false;
+            if (left.LogId != 0 && right.LogId != 0)
+                return left.LogId == right.LogId;
+            if (left.Id != 0 && right.Id != 0)
+                return left.Id == right.Id;
+            return left.Name == right.Name;
         }
 
         private Bitmap GetRoleImage(SWTORClass sWTORClass)

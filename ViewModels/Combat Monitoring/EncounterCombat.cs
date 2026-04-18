@@ -1,5 +1,6 @@
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatCaching;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
@@ -144,8 +145,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             if (currentcombat == null)
                 return new PastCombat();
 
-            currentcombat.CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss");
-            currentcombat.Combat = combat;
+            currentcombat.SetCombat(combat);
             CalculateEncounterLength();
             return currentcombat;
         }
@@ -154,13 +154,12 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             lock (combatAddLock)
             {
-                Combats.Add(combat);
+                Combats.Add(CombatDiskCacheManager.CreateCombatShell(combat));
 
                 var pastCombatDisplay = new PastCombat
                 {
                     ParentEncounter = this,
                     IsSelected = isReplacingOngoing,
-                    Combat = combat,
                     IsVisible = combatsAreVisible,
                     CombatStartTime = combat.StartTime,
                     CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss"),
@@ -170,6 +169,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                             ? GetPVPCombatText(combat)
                             : string.Join(',', combat.Targets.Values.Select(t => t.Name).Distinct())
                 };
+                pastCombatDisplay.CacheCombat(combat, keepLoaded: isReplacingOngoing);
                 pastCombatDisplay.PastCombatSelected += SelectCombat;
                 pastCombatDisplay.PastCombatUnSelected += UnselectCombat;
                 pastCombatDisplay.UnselectAll += UnselectAllCombats;
@@ -212,17 +212,21 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
         public Task<Combat> GetOverallCombat()
         {
+            List<PastCombat> combatsToLoad;
+            int totalDuration;
+
             lock (combatAddLock)
             {
-                var overallCombat = CombatIdentifier.GenerateOverallCombat(
-                    Combats.SelectMany(c => c.AllLogs.Values.OrderBy(l => l.TimeStamp)),
-                    true,
-                    false,
-                    Combats.Sum(c => c.DurationSeconds));
-                if (overallCombat.StartTime != DateTime.MinValue)
-                    overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);
-                return Task.FromResult(overallCombat);
+                combatsToLoad = EncounterCombats.Where(c => !c.IsCurrentCombat).OrderBy(c => c.CombatStartTime).ToList();
+                totalDuration = Combats.Sum(c => c.DurationSeconds);
             }
+
+            var overallLogs = combatsToLoad.SelectMany(c => c.LoadLogs().OrderBy(l => l.TimeStamp)).ToList();
+            CombatDiskCacheManager.NormalizeLogEntities(overallLogs);
+            var overallCombat = CombatIdentifier.GenerateOverallCombat(overallLogs, true, false, totalDuration);
+            if (overallCombat.StartTime != DateTime.MinValue)
+                overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);
+            return Task.FromResult(overallCombat);
         }
 
         private void OpenOrbsLeaderboard()

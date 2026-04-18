@@ -290,112 +290,152 @@ public static class MetricGetter
     public static double GetValueForMetric(OverlayType type, Combat combat, Entity participant)
     {
         double value = 0;
-        if (participant == null || !combat.CharacterParticipants.ContainsKey(participant.LogId))
+        participant = ResolveCombatParticipant(combat, participant);
+        if (participant == null)
             return value;
         switch (type)
         {
             case OverlayType.APM:
-                value = combat.APM[participant];
+                value = GetMetricValue(combat.APM, participant);
                 break;
             case OverlayType.DPS:
-                value = combat.EDPS[participant];
+                value = GetMetricValue(combat.EDPS, participant);
                 break;
             case OverlayType.InstantaneousDPS:
-                value = combat.InstantaneousEffectiveDPS[participant];
+                value = GetMetricValue(combat.InstantaneousEffectiveDPS, participant);
                 break;
             case OverlayType.Damage:
-                value = combat.TotalEffectiveDamage[participant];
+                value = GetMetricValue(combat.TotalEffectiveDamage, participant);
                 break;
             case OverlayType.NonEDPS:
-                value = combat.DPS[participant];
+                value = GetMetricValue(combat.DPS, participant);
                 break;
             case OverlayType.RawDamage:
-                value = combat.TotalDamage[participant];
+                value = GetMetricValue(combat.TotalDamage, participant);
                 break;
             case OverlayType.EHPS:
-                value = combat.EHPS[participant] + combat.PSPS[participant];
+                value = GetMetricValue(combat.EHPS, participant) + GetMetricValue(combat.PSPS, participant);
                 break;
             case OverlayType.InstantaneousEHPS:
-                value = combat.InstantaneousEffectiveHPS[participant];
+                value = GetMetricValue(combat.InstantaneousEffectiveHPS, participant);
                 break;
             case OverlayType.EffectiveHealing:
-                value = combat.TotalEffectiveHealing[participant];
+                value = GetMetricValue(combat.TotalEffectiveHealing, participant);
                 break;
             case OverlayType.HPS:
-                value = combat.HPS[participant];
+                value = GetMetricValue(combat.HPS, participant);
                 break;
             case OverlayType.RawHealing:
-                value = combat.TotalHealing[participant];
+                value = GetMetricValue(combat.TotalHealing, participant);
                 break;
             case OverlayType.ProvidedAbsorb:
-                value = combat.PSPS[participant];
+                value = GetMetricValue(combat.PSPS, participant);
                 break;
             case OverlayType.FocusDPS:
-                value = combat.EFocusDPS[participant];
+                value = GetMetricValue(combat.EFocusDPS, participant);
                 break;
             case OverlayType.ThreatPerSecond:
-                value = combat.TPS[participant];
+                value = GetMetricValue(combat.TPS, participant);
                 break;
             case OverlayType.Threat:
-                value = combat.TotalThreat[participant];
+                value = GetMetricValue(combat.TotalThreat, participant);
                 break;
             case OverlayType.DamageTaken:
-                value = combat.EDTPS[participant];
+                value = GetMetricValue(combat.EDTPS, participant);
                 break;
             case OverlayType.Mitigation:
-                value = combat.MPS[participant];
+                value = GetMetricValue(combat.MPS, participant);
                 break;
             case OverlayType.DamageSavedDuringCD:
-                value = combat.DamageSavedFromCDPerSecond[participant];
+                value = GetMetricValue(combat.DamageSavedFromCDPerSecond, participant);
                 break;
             case OverlayType.DamageAvoided:
-                value = combat.DAPS[participant];
+                value = GetMetricValue(combat.DAPS, participant);
                 break;
             case OverlayType.ShieldAbsorb:
-                value = combat.SAPS[participant];
+                value = GetMetricValue(combat.SAPS, participant);
                 break;
             case OverlayType.BurstDPS:
-                value = combat.MaxBurstDamage[participant];
+                value = GetMetricValue(combat.MaxBurstDamage, participant);
                 break;
             case OverlayType.BurstEHPS:
-                value = combat.MaxBurstHeal[participant];
+                value = GetMetricValue(combat.MaxBurstHeal, participant);
                 break;
             case OverlayType.BurstDamageTaken:
-                value = combat.MaxBurstDamageTaken[participant];
+                value = GetMetricValue(combat.MaxBurstDamageTaken, participant);
                 break;
             case OverlayType.HealReactionTime:
-                value = combat.NumberOfHighSpeedReactions[participant];
+                value = GetMetricValue(combat.NumberOfHighSpeedReactions, participant);
                 break;
             case OverlayType.HealReactionTimeRatio:
-                value = combat.NumberOfHighSpeedReactions[participant] / combat.AbilitiesActivated[participant].Count;
+                var abilitiesActivated = combat.AbilitiesActivated.TryGetValue(participant, out var activatedAbilities)
+                    ? activatedAbilities.Count
+                    : 0;
+                value = abilitiesActivated == 0
+                    ? 0
+                    : GetMetricValue(combat.NumberOfHighSpeedReactions, participant) / abilitiesActivated;
                 break;
             case OverlayType.TankHealReactionTime:
-                value = combat.AverageTankDamageRecoveryTimeTotal[participant];
+                value = GetMetricValue(combat.AverageTankDamageRecoveryTimeTotal, participant);
                 break;
             case OverlayType.InterruptCount:
-                value = combat.TotalInterrupts[participant];
+                value = GetMetricValue(combat.TotalInterrupts, participant);
                 break;
             case OverlayType.SingleTargetDPS:
-                value = combat.STDPS[participant];
+                value = GetMetricValue(combat.STDPS, participant);
                 break;
             case OverlayType.SingleTargetEHPS:
-                value = combat.STEHPS[participant];
+                value = GetMetricValue(combat.STEHPS, participant);
                 break;
             case OverlayType.CleanseCount:
-                value = combat.TotalCleanses[participant];
+                value = GetMetricValue(combat.TotalCleanses, participant);
                 break;
             case OverlayType.CleanseSpeed:
-                value = combat.AverageCleanseSpeed[participant];
+                value = GetMetricValue(combat.AverageCleanseSpeed, participant);
                 break;
             case OverlayType.FluffDPS:
-                value = combat.ERegDPS[participant];
+                value = GetMetricValue(combat.ERegDPS, participant);
                 break;
             case OverlayType.EHPSNoShielding:
-                value = combat.EHPS[participant];
+                value = GetMetricValue(combat.EHPS, participant);
                 break;
             
         }
 
         return value;
+    }
+
+    private static Entity ResolveCombatParticipant(Combat combat, Entity participant)
+    {
+        if (combat == null || participant == null)
+            return null;
+
+        if (participant.LogId != 0 && combat.CharacterParticipants.TryGetValue(participant.LogId, out var matchingParticipant))
+            return matchingParticipant;
+
+        if (participant.Id != 0)
+        {
+            matchingParticipant = combat.CharacterParticipants.Values.FirstOrDefault(p => p.Id == participant.Id);
+            if (matchingParticipant != null)
+                return matchingParticipant;
+        }
+
+        if (participant.IsLocalPlayer && combat.LocalPlayer != null)
+            return combat.LocalPlayer;
+
+        if (!string.IsNullOrEmpty(participant.Name))
+        {
+            matchingParticipant = combat.CharacterParticipants.Values.FirstOrDefault(p =>
+                p.Name == participant.Name && (participant.IsLocalPlayer == p.IsLocalPlayer || participant.IsLocalPlayer));
+            if (matchingParticipant != null)
+                return matchingParticipant;
+        }
+
+        return combat.CharacterParticipants.Values.FirstOrDefault(p => ReferenceEquals(p, participant));
+    }
+
+    private static double GetMetricValue(IReadOnlyDictionary<Entity, double> metrics, Entity participant)
+    {
+        return metrics != null && participant != null && metrics.TryGetValue(participant, out var value) ? value : 0;
     }
 }
