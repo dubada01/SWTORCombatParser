@@ -1,87 +1,49 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Views.Overlay.BossFrame;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
+using System.Reactive;
+using System.Threading;
+using Avalonia.Threading;
+using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class BossFrameConfigViewModel : INotifyPropertyChanged
+    public class BossFrameConfigViewModel : BaseOverlayViewModel
     {
-        private bool overlaysMoveable = false;
         private bool bossFrameEnabled;
-        private bool dotTrackingEnabled;
-        private bool mechPredictionsEnabled;
         private string combatDuration;
         private System.Timers.Timer _timer;
         private bool _inCombat;
-
-        public BrossFrameView View { get; set; }
-        public bool OverlaysMoveable
-        {
-            get => overlaysMoveable; set
-            {
-                overlaysMoveable = value;
-                OnPropertyChanged("ShowFrame");
-            }
-        }
+        public override bool ShouldBeVisible => ShowFrame;
+        public BrossFrameView _bossFrame { get; set; }
+        public static event Action<bool> InCombatWithBoss = delegate { };
         public bool BossFrameEnabled
         {
             get => bossFrameEnabled; set
             {
-                bossFrameEnabled = value;
+                Active = value;
+                this.RaiseAndSetIfChanged(ref bossFrameEnabled, value);
                 if (!bossFrameEnabled)
-                    View.Hide();
+                    HideOverlayWindow();
                 if (bossFrameEnabled)
-                    View.Show();
+                    ShowOverlayWindow();
                 DefaultBossFrameManager.SetActiveState(bossFrameEnabled);
-                OnPropertyChanged();
             }
         }
-        public bool DotTrackingEnabled
-        {
-            get => dotTrackingEnabled; set
-            {
-                dotTrackingEnabled = value;
-                DefaultBossFrameManager.SetDotTracking(dotTrackingEnabled);
-                UpdateBossFrameStates();
-                OnPropertyChanged();
-            }
-        }
-        public bool MechPredictionsEnabled
-        {
-            get => mechPredictionsEnabled; set
-            {
-                mechPredictionsEnabled = value;
-                DefaultBossFrameManager.SetPredictMechs(mechPredictionsEnabled);
-                UpdateBossFrameStates();
-                OnPropertyChanged();
-            }
-        }
-        public bool RaidChallengesEnabled
-        {
-            get => raidChallengesEnabled; set
-            {
-                raidChallengesEnabled = value;
-                DefaultBossFrameManager.SetRaidChallenges(raidChallengesEnabled);
-                UpdateBossFrameStates();
-                OnPropertyChanged();
-            }
-        }
-        public ICommand IncreaseCommand => new DelegateCommand(Increase);
+        public ReactiveCommand<Unit,Unit> IncreaseCommand => ReactiveCommand.Create(Increase);
 
         private void Increase()
         {
             CurrentScale += 0.1;
         }
-        public ICommand DecreaseCommand => new DelegateCommand(Decrease);
+        public ReactiveCommand<Unit,Unit> DecreaseCommand => ReactiveCommand.Create(Decrease);
 
         private void Decrease()
         {
@@ -91,73 +53,78 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             get => currentScale; set
             {
-                currentScale = Math.Round(value, 1);
+                this.RaiseAndSetIfChanged(ref currentScale, Math.Round(value, 1));
                 DefaultBossFrameManager.SetScale(currentScale);
                 UpdateBossFrameScale();
-                OnPropertyChanged();
             }
         }
         public bool ShowFrame => BossesDetected.Any() || OverlaysMoveable;
-        public event Action<bool> OnLocking = delegate { };
         public ObservableCollection<BossFrameViewModel> BossesDetected { get; set; } = new ObservableCollection<BossFrameViewModel>();
+
+        public bool CombatDurationVisible
+        {
+            get => _combatDurationVisible;
+            set => this.RaiseAndSetIfChanged(ref _combatDurationVisible, value);
+        }
+
         public string CombatDuration
         {
-            get => combatDuration; set
-            {
-                combatDuration = value;
-                OnPropertyChanged();
-            }
+            get => combatDuration; set => this.RaiseAndSetIfChanged(ref combatDuration, value);
         }
         private DateTime _lastUpdateTime;
         private double _accurateDuration;
         private double currentScale = 1;
-        private bool raidChallengesEnabled;
+        private bool _combatDurationVisible;
 
-        public BossFrameConfigViewModel()
+        public BossFrameConfigViewModel(string overlayName) : base(overlayName)
         {
             _timer = new System.Timers.Timer();
             _timer.Interval = TimeSpan.FromSeconds(1).TotalMilliseconds;
             _timer.Elapsed += (e, r) =>
             {
                 _accurateDuration += (DateTime.Now - _lastUpdateTime).TotalSeconds;
-                CombatDuration = TimeSpan.FromSeconds(_accurateDuration).ToString(@"mm\:ss");
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    CombatDuration = TimeSpan.FromSeconds(_accurateDuration).ToString(@"mm\:ss");
+                });
                 _lastUpdateTime = DateTime.Now;
             };
-
-            CombatLogStreamer.CombatUpdated += OnNewLog;
+            this.CloseRequested += () =>
+            {
+                BossFrameEnabled = false;
+            };
+            CombatLogStreamer.CombatUpdated += OnCombatStateChanged;
             CombatLogStreamer.NewLineStreamed += HandleNewLog;
-            View = new BrossFrameView(this);
+            _bossFrame = new BrossFrameView(this);
+            MainContent = _bossFrame;
+            SetAutoScaleWithMinHeight();
             var currentDefaults = DefaultBossFrameManager.GetDefaults();
             CurrentScale = currentDefaults.Scale == 0 ? 1 : currentDefaults.Scale;
-            View.Left = currentDefaults.Position.X;
-            View.Top = currentDefaults.Position.Y;
-            View.Width = currentDefaults.WidtHHeight.X;
-            View.MainArea.MinHeight = currentDefaults.WidtHHeight.Y;
-
-            bossFrameEnabled = currentDefaults.Acive;
-            DotTrackingEnabled = currentDefaults.TrackDOTS;
-            MechPredictionsEnabled = currentDefaults.PredictMechs;
-            RaidChallengesEnabled = currentDefaults.RaidChallenges;
-
+            var bossFrameDefaults = DefaultGlobalOverlays.GetOverlayInfoForType("BossFrame");
+            bossFrameEnabled = bossFrameDefaults.Acive;
+            this.WhenAnyValue(x => x.OverlaysMoveable).Subscribe(_ => this.RaisePropertyChanged(nameof(ShowFrame)));
             if (currentDefaults.Acive)
-                View.Show();
+                ShowOverlayWindow();
+
+            Settings.SettingsUpdated += UpdateConfiguration;
+            CombatDurationVisible = Settings.ReadSettingOfType<bool>(Settings.BossFrameDurationVisibilitySetting);
         }
 
+        private void UpdateConfiguration(string settingName)
+        {
+            if(settingName != Settings.BossFrameDurationVisibilitySetting)
+                return;
+            CombatDurationVisible = Settings.ReadSettingOfType<bool>(Settings.BossFrameDurationVisibilitySetting);
+        }
 
 
         public void LockOverlays()
         {
-            OnLocking(true);
             OverlaysMoveable = false;
-            OnPropertyChanged("OverlaysMoveable");
-            OnPropertyChanged("ShowFrame");
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
             OverlaysMoveable = true;
-            OnPropertyChanged("OverlaysMoveable");
-            OnPropertyChanged("ShowFrame");
         }
         private void UpdateBossFrameScale()
         {
@@ -166,14 +133,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 boss.UpdateBossFrameScale(CurrentScale);
             }
         }
-        private void UpdateBossFrameStates()
-        {
-            foreach (var boss in BossesDetected)
-            {
-                boss.UpdateBossFrameState(DotTrackingEnabled, MechPredictionsEnabled);
-            }
-        }
-        public void OnNewLog(CombatStatusUpdate update)
+        public void OnCombatStateChanged(CombatStatusUpdate update)
         {
             if (update.Type == UpdateType.Start)
             {
@@ -197,17 +157,21 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             if (encounterInfo.BossNames.Count == 0)
                 return;
             var currentEncounterBossTargets = encounterInfo.BossInfos.SelectMany(b => b.TargetIds).ToList();
-            if (currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) || currentEncounterBossTargets.Contains(log.Target.LogId.ToString()))
+            if (currentEncounterBossTargets.Contains(log.Source.LogId) || currentEncounterBossTargets.Contains(log.Target.LogId))
             {
-                EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId.ToString()) ? log.SourceInfo : log.TargetInfo;
+                EntityInfo boss = currentEncounterBossTargets.Contains(log.Source.LogId) ? log.SourceInfo : log.TargetInfo;
 
                 if (BossesDetected.All(b => b.CurrentBoss.LogId != boss.Entity.LogId) && boss.CurrentHP > 0)
                 {
                     bool isDuplicate = BossesDetected.Any(b => b.CurrentBoss.Name == boss.Entity.Name);
-                    App.Current.Dispatcher.Invoke(() =>
+                    Dispatcher.UIThread.Invoke(() =>
                     {
-                        BossesDetected.Add(new BossFrameViewModel(boss, DotTrackingEnabled, MechPredictionsEnabled, isDuplicate, CurrentScale));
-                        OnPropertyChanged("ShowFrame");
+                        var bossInfo = new BossFrameViewModel(boss, isDuplicate, CurrentScale);
+                        BossesDetected.Add(bossInfo);
+                        this.RaisePropertyChanged(nameof(ShowFrame));
+                        this.RaisePropertyChanged(nameof(BossesDetected));
+                        InCombatWithBoss.InvokeSafely(true);
+                        UpdateVisibility();
                     });
                 }
                 else
@@ -217,15 +181,18 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                         return;
                     if (boss.CurrentHP == 0 || (log.Effect.EffectId == _7_0LogParsing.DeathCombatId && log.Target.LogId == activeBoss.CurrentBoss.LogId))
                     {
-                        App.Current.Dispatcher.Invoke(() =>
+                        Dispatcher.UIThread.Invoke(() =>
                         {
                             BossesDetected.Remove(activeBoss);
-                            OnPropertyChanged("ShowFrame");
+                            this.RaisePropertyChanged(nameof(ShowFrame));
+                            this.RaisePropertyChanged(nameof(BossesDetected));
+                            InCombatWithBoss.InvokeSafely(BossesDetected.Count > 0);
+                            UpdateVisibility();
                         });
 
                     }
                     else
-                        activeBoss.LogWithBoss(boss);
+                        activeBoss.LogWithBoss(boss,log.TimeStamp);
                 }
             }
         }
@@ -238,6 +205,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
         private void StartTimer(DateTime startTime)
         {
+            BossesDetected = new ObservableCollection<BossFrameViewModel>();
+            this.RaisePropertyChanged(nameof(BossesDetected));
             _lastUpdateTime = startTime;
             _accurateDuration = 0;
             CombatDuration = "0:00";
@@ -246,16 +215,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
         private void HideFrames()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 BossesDetected.Clear();
-                OnPropertyChanged("ShowFrame");
+                this.RaisePropertyChanged(nameof(BossesDetected));
+                InCombatWithBoss.InvokeSafely(false);
+                this.RaisePropertyChanged(nameof(ShowFrame));
+                UpdateVisibility();
             });
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

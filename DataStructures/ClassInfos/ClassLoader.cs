@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 
@@ -12,7 +13,7 @@ namespace SWTORCombatParser.DataStructures.ClassInfos
     {
         public static List<SWTORClass> LoadAllClasses()
         {
-            var allClasses = File.ReadAllText("DataStructures/ClassInfos/Classes.json");
+            var allClasses = File.ReadAllText(Path.Combine(Environment.CurrentDirectory, @"DataStructures/ClassInfos/Classes.json"));
             return JsonConvert.DeserializeObject<AllSWTORClasses>(allClasses).AllClasses;
         }
     }

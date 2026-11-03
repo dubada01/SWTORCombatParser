@@ -3,93 +3,116 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Notes;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
+using ReactiveUI;
+using SWTORCombatParser.Views.Overlay.Notes;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Notes
 {
-    public class RaidNotesViewModel:INotifyPropertyChanged
+    public class RaidNotesViewModel : BaseOverlayViewModel
     {
         private string raidNote = string.Empty;
-        private Dictionary<string, string> _savedRaidNotes = new Dictionary<string, string>();
-        private Timer _uploadTimer;
+        private Timer _saveTimer;
+
+        private bool _notesDirty;
+        private bool _imagesDirty;
 
         public event Action<bool> OnInInstanceChanged = delegate { };
         public event Action OnClosing = delegate { };
-        public event Action OnHiding = delegate { };
-        public event Action<bool> OnLocking  = delegate { };
-        internal event Action OnShowing = delegate { };
-        internal event Action CloseRequested = delegate { };
-        private string selectedRaid = string.Empty;
-        private bool isEnabled;
+        public override bool ShouldBeVisible => InInstance;
 
-        public List<string> AvailableRaids { get; internal set; } = new List<string>();
+        private string selectedRaid = string.Empty;
+        private bool _inInstance = false;
+
+        public List<string> AvailableRaids { get; internal set; } = new();
+        public Dictionary<string, string> RaidNotes { get; internal set; } = new();
+        public Dictionary<string, List<RaidNoteImage>> RaidImages { get; internal set; } = new();
+        public string Test { get; set; }
         public string SelectedRaid
         {
-            get => selectedRaid; set
+            get => selectedRaid;
+            set
             {
-                selectedRaid = value;
+                this.RaiseAndSetIfChanged(ref selectedRaid, value);
+                EnsureRaidEntryExists(selectedRaid);
                 UpdateNotes();
-                OnPropertyChanged();
             }
         }
-        public bool OverlaysMoveable { get; internal set; }
-        public Dictionary<string, string> RaidNotes { get; internal set; } = new Dictionary<string, string>();
 
         public string RaidNote
         {
-            get => raidNote; set
+            get => raidNote;
+            set
             {
-                raidNote = value;
+                this.RaiseAndSetIfChanged(ref raidNote, value);
+                EnsureRaidEntryExists(SelectedRaid);
                 RaidNotes[SelectedRaid] = raidNote;
-                OnPropertyChanged();
+                _notesDirty = true;
             }
         }
-        public bool InInstance { get; set; } = false;
-        public bool IsEnabled
+        public bool IsEnabled { get; set; }
+        public bool InInstance
         {
-            get => isEnabled; internal set
+            get => _inInstance;
+            set
             {
-                isEnabled = value;
-                if (isEnabled)
-                    StartUploadTimer();
+                _inInstance = value;
+                UpdateVisibility();
             }
         }
 
-        public RaidNotesViewModel()
+        public RaidNotesViewModel(string overlayName) : base(overlayName)
         {
+            RaidNotesReader.Init();
+
+            MainContent = new RaidNotesView(this);
+
             CombatLogStateBuilder.AreaEntered += CheckAreaForRaid;
             CombatLogStreamer.HistoricalLogsFinished += CheckForRaidAfterParseStart;
+
             var raids = EncounterLoader.SupportedEncounters.Where(e => e.EncounterType == EncounterType.Operation).Select(r => r.Name);
             var lair = EncounterLoader.SupportedEncounters.Where(e => e.EncounterType == EncounterType.Lair).Select(r => r.Name);
             var flashpoints = EncounterLoader.SupportedEncounters.Where(e => e.EncounterType == EncounterType.Flashpoint).Select(r => r.Name).Order();
+
             AvailableRaids.AddRange(raids);
             AvailableRaids.AddRange(lair);
             AvailableRaids.AddRange(flashpoints);
-            RaidNotes = RaidNotesReader.GetAllRaidNotes();
-            SelectedRaid = AvailableRaids.First();
-            _savedRaidNotes = RaidNotes.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-        }
 
+            RaidNotes = RaidNotesReader.GetAllRaidNotes();
+            RaidImages = RaidNotesReader.GetAllRaidImages();
+
+            SelectedRaid = AvailableRaids.FirstOrDefault() ?? "";
+            EnsureRaidEntryExists(SelectedRaid);
+            UpdateNotes();
+
+            // Start immediately
+            _saveTimer = new Timer
+            {
+                Interval = 2000,
+                AutoReset = true,
+                Enabled = true
+            };
+            _saveTimer.Elapsed += (_, __) =>
+            {
+                if (_notesDirty)
+                {
+                    _notesDirty = false;
+                    RaidNotesReader.SetNotes(RaidNotes);
+                }
+
+                if (_imagesDirty)
+                {
+                    _imagesDirty = false;
+                    RaidNotesReader.SetImages(RaidImages);
+                }
+            };
+            _saveTimer.Start();
+        }
 
         private void CheckForRaidAfterParseStart(DateTime time, bool arg2)
         {
             CheckAreaForRaid(CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(time));
-        }
-
-        public void StartUploadTimer()
-        {
-            _uploadTimer = new Timer();
-            _uploadTimer.Interval = 5000;
-            _uploadTimer.Elapsed += TrySaveRaidNotes;
-            _uploadTimer.AutoReset = true;
-            _uploadTimer.Enabled = true;
-            _uploadTimer.Start();
         }
 
         private void CheckAreaForRaid(EncounterInfo info)
@@ -106,71 +129,67 @@ namespace SWTORCombatParser.ViewModels.Overlays.Notes
                 OnInInstanceChanged(false);
             }
         }
-        private void UpdateNotes()
+
+        private void EnsureRaidEntryExists(string raid)
         {
-            if(!RaidNotes.ContainsKey(SelectedRaid))
-            {
-                RaidNotes[SelectedRaid] = "";
-            }
-            raidNote = RaidNotes[SelectedRaid];
-            OnPropertyChanged("RaidNote");
+            if (string.IsNullOrWhiteSpace(raid))
+                return;
+
+            if (!RaidNotes.ContainsKey(raid))
+                RaidNotes[raid] = "";
+
+            if (!RaidImages.ContainsKey(raid))
+                RaidImages[raid] = new List<RaidNoteImage>();
         }
 
-        private void TrySaveRaidNotes(object sender, ElapsedEventArgs e)
+        private void UpdateNotes()
         {
-            if(!AreDictionariesEqual(_savedRaidNotes, RaidNotes))
-            {
-                RaidNotesReader.SetNotes(RaidNotes);
-                _savedRaidNotes = RaidNotes.ToDictionary(kvp=>kvp.Key, kvp=>kvp.Value);
-            }
+            EnsureRaidEntryExists(SelectedRaid);
+            raidNote = RaidNotes[SelectedRaid] ?? "";
+            this.RaisePropertyChanged(nameof(RaidNote));
         }
+
+        // --- image API for the view ---
+        public IReadOnlyList<RaidNoteImage> GetImagesForSelectedRaid()
+        {
+            EnsureRaidEntryExists(SelectedRaid);
+            return RaidImages[SelectedRaid];
+        }
+
+        public void UpsertImageForSelectedRaid(RaidNoteImage img)
+        {
+            EnsureRaidEntryExists(SelectedRaid);
+
+            var list = RaidImages[SelectedRaid];
+            var idx = list.FindIndex(x => x.Id == img.Id);
+            if (idx >= 0) list[idx] = img;
+            else list.Add(img);
+
+            _imagesDirty = true;
+        }
+
+        public void RemoveImageForSelectedRaid(Guid id)
+        {
+            EnsureRaidEntryExists(SelectedRaid);
+            var list = RaidImages[SelectedRaid];
+            list.RemoveAll(x => x.Id == id);
+            _imagesDirty = true;
+        }
+
         internal void OverlayDisabled()
         {
             OnClosing();
-            _uploadTimer?.Stop();
-        }
-        public static bool AreDictionariesEqual(Dictionary<string, string> dict1, Dictionary<string, string> dict2)
-        {
-            // Check if both dictionaries are null or the same instance
-            if (ReferenceEquals(dict1, dict2))
-                return true;
+            _saveTimer?.Stop();
 
-            // Check if either dictionary is null (but not both)
-            if (dict1 == null || dict2 == null)
-                return false;
+            // final flush
+            if (_notesDirty) RaidNotesReader.SetNotes(RaidNotes);
+            if (_imagesDirty) RaidNotesReader.SetImages(RaidImages);
 
-            // Check if dictionaries have the same count
-            if (dict1.Count != dict2.Count)
-                return false;
-
-            // Check if dictionaries have the same keys and values
-            foreach (var kvp in dict1)
-            {
-                if (!dict2.TryGetValue(kvp.Key, out string value) || kvp.Value != value)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            _notesDirty = false;
+            _imagesDirty = false;
         }
 
-        public void LockOverlays()
-        {
-            OnLocking(true);
-            OverlaysMoveable = false;
-            OnPropertyChanged("OverlaysMoveable");
-        }
-        public void UnlockOverlays()
-        {
-            OnLocking(false);
-            OverlaysMoveable = true;
-            OnPropertyChanged("OverlaysMoveable");
-        }
+        public void LockOverlays() => OverlaysMoveable = false;
+        public void UnlockOverlays() => OverlaysMoveable = true;
     }
 }

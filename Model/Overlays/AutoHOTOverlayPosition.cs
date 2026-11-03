@@ -4,11 +4,14 @@ using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media.Imaging;
 
 namespace SWTORCombatParser.Model.Overlays
 {
@@ -146,16 +149,17 @@ namespace SWTORCombatParser.Model.Overlays
 
         private static double ConvertCoordWithCompressionFactor(double value)
         {
-            return value / RaidFrameScreenGrab.CurrentCompressionFactor;
-        }
-
-        private static byte[] ImageToByte2(Image img)
-        {
-            using (var stream = new MemoryStream())
+            #if MACOS
+            var scalingFactor = 1d;
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                img.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                return stream.ToArray();
+
+                scalingFactor = desktop.MainWindow.RenderScaling;
+                return value/scalingFactor;
+
             }
+            #endif
+            return value / RaidFrameScreenGrab.CurrentCompressionFactor;
         }
     }
 }

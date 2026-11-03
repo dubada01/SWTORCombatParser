@@ -2,6 +2,7 @@
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace SWTORCombatParser.Model.Plotting
 
         public static double[] GetHPPercentages(List<ParsedLogEntry> logs, Entity sourcePlayer)
         {
-            return logs.Where(l => l.Target == sourcePlayer && l.Effect.EffectType != EffectType.AbsorbShield).Select(l => (l.TargetInfo.CurrentHP / l.TargetInfo.MaxHP)).ToArray();
+            return logs.Where(l => l.Target == sourcePlayer && l.Effect.EffectType != EffectType.AbsorbShield).Select(l => ((double)l.TargetInfo.CurrentHP / (double)l.TargetInfo.MaxHP)).ToArray();
         }
         internal static double[] GetPlotHPXVals(List<ParsedLogEntry> totalLogsDuringCombat, DateTime startPoint, Entity sourcePlayer)
         {
@@ -20,13 +21,13 @@ namespace SWTORCombatParser.Model.Plotting
             var logsToUse = totalLogsDuringCombat.Where(l => l.Target == sourcePlayer && l.Effect.EffectType != EffectType.AbsorbShield);
             return logsToUse.Select(l => (l.TimeStamp - startTime).TotalSeconds).ToArray();
         }
-        internal static double[] GetPlotXVals(List<ParsedLogEntry> totalLogsDuringCombat, DateTime startPoint)
+        internal static double[] GetPlotXVals(IEnumerable<ParsedLogEntry> totalLogsDuringCombat, DateTime startPoint)
         {
             var startTime = startPoint;
             return totalLogsDuringCombat.Select(l => (l.TimeStamp - startTime).TotalSeconds).ToArray();
         }
 
-        internal static double[] GetPlotYVals(List<ParsedLogEntry> totalLogsDuringCombat, bool checkEffective)
+        internal static double[] GetPlotYVals(IEnumerable<ParsedLogEntry> totalLogsDuringCombat, bool checkEffective)
         {
             if (!checkEffective)
                 return totalLogsDuringCombat.Select(l => l.Value.DblValue).ToArray();

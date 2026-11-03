@@ -9,6 +9,16 @@ namespace SWTORCombatParser.Utilities;
 
 public static class Settings
 {
+    public static string RaidFrameBossTargetVisibilitySetting = "overlay_show_targeted";
+    
+    public static string BossFrameDurationVisibilitySetting = "overlay_show_boss_frame_duration";
+    public static string BossFrameTargetSetting = "overlay_show_boss_frame_target";
+    public static string BossFrameDOTVisibilitySetting = "overlay_show_boss_frame_dots";
+    
+    
+    
+    
+    
     private static string _appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
     private static string _settingsPath = Path.Combine(_appDataPath, "general_settings.json");
 
@@ -26,6 +36,7 @@ public static class Settings
             }
         }
     }
+    public static event Action<string> SettingsUpdated = delegate { };
 
     public static List<T> GetListSetting<T>(string settingName)
     {
@@ -51,16 +62,31 @@ public static class Settings
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName) && settingName == "stub_logs")
             settingList[settingName] = false;
+        // options are: data_grid, details, plot, log
+        if (!settingList.ContainsKey(settingName) && settingName == BossFrameDOTVisibilitySetting)
+            settingList[settingName] = true;
+        if (!settingList.ContainsKey(settingName) && settingName == BossFrameTargetSetting)
+            settingList[settingName] = true;
+        if (!settingList.ContainsKey(settingName) && settingName == BossFrameDurationVisibilitySetting)
+            settingList[settingName] = true;
+        if (!settingList.ContainsKey(settingName) && settingName == RaidFrameBossTargetVisibilitySetting)
+            settingList[settingName] = false;
+        if (!settingList.ContainsKey(settingName) && settingName == "current_tab")
+            settingList[settingName] = "data_grid";
+        if (!settingList.ContainsKey(settingName) && settingName == "grid_sort")
+            settingList[settingName] = "Damage_+_1";
         if (!settingList.ContainsKey(settingName) && settingName == "offline_mode")
             settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "DynamicLayout")
             settingList[settingName] = false;
         if (!settingList.ContainsKey(settingName) && settingName == "force_log_updates")
             settingList[settingName] = false;
+        if (!settingList.ContainsKey(settingName) && settingName == "threat_table_ids")
+            settingList[settingName] = JToken.FromObject(new List<long>());
         if (!settingList.ContainsKey(settingName) && settingName == "combat_logs_path")
-            settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic\CombatLogs");
+            settingList[settingName] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Star Wars - The Old Republic/CombatLogs");
         if (!settingList.ContainsKey(settingName) && settingName == "Hotkeys")
-            settingList[settingName] =JToken.FromObject(new HotkeySettings {
+            settingList[settingName] = JToken.FromObject(new HotkeySettings {
                 HOTRefreshEnabled = true, HOTRefreshHotkeyMod1 = 2,  HOTRefreshHotkeyMod2 = 1, HOTRefreshHotkeyStroke = 0x52,
                 UILockEnabled = true, UILockHotkeyMod1 = 2, UILockHotkeyMod2 = 1, UILockHotkeyStroke = 0x4c});
         if (settingList.TryGetValue(settingName, out var settingValue))
@@ -87,7 +113,7 @@ public static class Settings
             catch (JsonException ex)
             {
                 // Log or handle the error appropriately
-                Console.WriteLine($"Error deserializing setting '{settingName}' to type {typeof(T).Name}: {ex.Message}");
+                Logging.LogError($"Error deserializing setting '{settingName}' to type {typeof(T).Name}: {ex.Message}");
             }
         }
 
@@ -104,7 +130,21 @@ public static class Settings
     {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
-        settingList[settingName] = JsonConvert.SerializeObject(value);
+
+        // Check if the value is a string
+        if (value is string stringValue)
+        {
+            // Directly assign the string without serializing again
+            settingList[settingName] = stringValue;
+        }
+        else
+        {
+            // Serialize if it's not a string
+            settingList[settingName] = JsonConvert.SerializeObject(value);
+        }
+
         File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settingList));
+        SettingsUpdated(settingName);
     }
+
 }

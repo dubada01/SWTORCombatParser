@@ -16,5 +16,6 @@ namespace SWTORCombatParser.Model.CombatParsing
         public List<ParsedLogEntry> Logs { get; set; }
         public string CombatLocation { get; set; }
         public DateTime CombatStartTime { get; set; }
+        public bool IsRealtime { get; set; }
     }
 }

@@ -1,0 +1,41 @@
+﻿<Window x:Class="SWTORCombatParser.Views.FeatureUpdateInfoWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Update"
+        x:DataType="vm:FeatureUpdatesViewModel"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views" xmlns:update_views="clr-namespace:SWTORCombatParser.Views.Update_Views"
+        mc:Ignorable="d"
+        Title="FeatureUpdateInfoWindow" Height="600" Width="600"         
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome" Background="Transparent" WindowStartupLocation="Manual">
+    <Border BorderBrush="{StaticResource BrightGreenColorBrush}" BorderThickness="7,3,7,7"  Background="{StaticResource Gray3Brush}" CornerRadius="15,15,20,20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.ColumnSpan="2" Background="{StaticResource Gray9Brush}" CornerRadius="10,10,0,0">
+                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                    <Rectangle Margin="35,3,35,3" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                </StackPanel>
+            </Border>
+            <Button Width="20"  Height="20" HorizontalAlignment="Right"  VerticalAlignment="Top" Grid.Column="1" Margin="0,5,10,0" Classes="RoundedCorner" Click="Close" Background="{StaticResource RedColorBrush}" Content="X" FontWeight="Bold"></Button>
+            <ScrollViewer Grid.Row="1">
+                <ItemsControl ItemsSource="{Binding CurrentUpdateMessages}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <update_views:UdateInstance/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+
+</Window>

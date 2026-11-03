@@ -1,62 +1,82 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures.ClassInfos;
+﻿using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.DataStructures
 {
-    public class DisplayableLogEntry
+    public class DisplayableLogEntry:ReactiveObject
     {
-        private string _sourceId;
-        private string _targetId;
-        private string _abilityId;
-        private string _effectId;
-        public DisplayableLogEntry(string sec, string source, string sourceId, string target, string targetId, string ability, string abilityId, string effectName, string effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat)
+        private long _sourceId;
+        private long _targetId;
+        private ulong _abilityId;
+        private ulong _effectId;
+        private readonly static SolidColorBrush _transparentBackground = new(Brushes.Transparent.Color);
+        private readonly static SolidColorBrush _deathBackground = new(Brushes.IndianRed.Color);
+        private readonly static SolidColorBrush _deathBackgroundWithSource = new(Brushes.Crimson.Color);
+        private readonly static SolidColorBrush _revivedBackground = new(Brushes.CornflowerBlue.Color);
+        private readonly static SolidColorBrush _damageBackground = new (Color.Parse("#613b3b"));
+        private readonly string _logPath;
+        private readonly long _lineNumber;
+        public DisplayableLogEntry(string sec, string source, long sourceId, string target, long targetId, string ability, ulong abilityId, string effectName, ulong effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat,string logPath, long lineNumber)
         {
             _sourceId = sourceId;
             _targetId = targetId;
             _abilityId = abilityId;
             _effectId = effectId;
 
-            SecondsSinceCombatStart = sec;
+            _logPath = logPath;
+            _lineNumber = lineNumber + 1;
+
+            var doubleSeconds = double.Parse(sec, CultureInfo.InvariantCulture);
+            SecondsSinceCombatStart = TimeSpan.FromSeconds(doubleSeconds).ToString(@"mm\:ss\.fff");
             Source = source;
             Target = target;
             Ability = ability;
 
             EffectName = effectName;
 
-            EffectBackground = Brushes.Transparent;
-            ValueBackground = Brushes.Transparent;
-            AbilityTextMargin = !string.IsNullOrEmpty(_abilityId) && IconGetter.HasIcon(_abilityId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
-            EffectTextMargin = !string.IsNullOrEmpty(_effectId) && IconGetter.HasIcon(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
+            EffectBackground = _transparentBackground;
+            ValueBackground = _transparentBackground;
+
+            AbilityTextMargin = _abilityId != 0 && IconGetter.HasIcon(_abilityId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
+            EffectTextMargin = _effectId != 0 && IconGetter.HasIcon(_effectId) ? new Thickness(18, 0, 0, 0) : new Thickness(5, 0, 0, 0);
             if (effectId == _7_0LogParsing.DeathCombatId)
             {
-                EffectBackground = Brushes.IndianRed;
+                EffectBackground = _deathBackground;
             }
             if (effectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(source))
             {
-                EffectBackground = Brushes.Crimson;
+                EffectBackground = _deathBackgroundWithSource;
             }
             if (effectId == _7_0LogParsing.RevivedCombatId)
             {
-                EffectBackground = Brushes.CornflowerBlue;
+                EffectBackground = _revivedBackground;
             }
             if (effectId == _7_0LogParsing._damageEffectId)
             {
-                EffectBackground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#613b3b"));
+                EffectBackground = _damageBackground;
+
             }
+
             if (double.TryParse(value, out var r))
             {
                 ValueBackground = new SolidColorBrush(GetColorForValue(logValue / maxValue));
             }
+
             Value = value;
             Threat = threat.ToString();
             WasValueCrit = wasValueCrit;
@@ -66,8 +86,8 @@ namespace SWTORCombatParser.DataStructures
         }
         public async Task AddIcons()
         {
-            AbilityIcon = !string.IsNullOrEmpty(_abilityId) && IconGetter.HasIcon(_abilityId) ? await IconGetter.GetIconForId(_abilityId) : null;
-            EffectIcon = !string.IsNullOrEmpty(_effectId) && IconGetter.HasIcon(_effectId) ? await IconGetter.GetIconForId(_effectId) : null;
+            AbilityIcon = _abilityId != 0 && IconGetter.HasIcon(_abilityId) ? await IconGetter.GetIconForId(_abilityId) : null;
+            EffectIcon = _effectId != 0 && IconGetter.HasIcon(_effectId) ? await IconGetter.GetIconForId(_effectId) : null;
         }
         public SolidColorBrush EffectBackground { get; set; }
         public SolidColorBrush ValueBackground { get; set; }
@@ -75,9 +95,9 @@ namespace SWTORCombatParser.DataStructures
         public string Source { get; }
         public string Target { get; }
         public string Ability { get; }
-        public BitmapImage AbilityIcon { get; set; }
+        public Bitmap AbilityIcon { get; set; }
         public string EffectName { get; }
-        public BitmapImage EffectIcon { get; set; }
+        public Bitmap EffectIcon { get; set; }
         public Thickness EffectTextMargin { get; set; }
         public Thickness AbilityTextMargin { get; set; }
         public string Value { get; }
@@ -86,27 +106,72 @@ namespace SWTORCombatParser.DataStructures
         public string ValueType { get; }
         public string ModifierType { get; }
         public string ModifierValue { get; }
-        public ICommand CellClickedCommand => new DelegateCommand<string>(CellClicked);
+        public ReactiveCommand<string, Unit> CellClickedCommand => ReactiveCommand.Create<string>(CellClicked);
 
         private void CellClicked(string obj)
         {
+            //use the cross platform clipboard class to copy the data to the clipboard
             switch (obj)
             {
                 case "Source":
-                    Clipboard.SetDataObject(_sourceId);
+                    CrossPlatformClipboard.SetText(_sourceId.ToString());
                     break;
                 case "Target":
-                    Clipboard.SetDataObject(_targetId);
+                    CrossPlatformClipboard.SetText(_targetId.ToString());
                     break;
                 case "Ability":
-                    Clipboard.SetDataObject(_abilityId);
+                    CrossPlatformClipboard.SetText(_abilityId.ToString());
                     break;
                 case "Effect":
-                    Clipboard.SetDataObject(_effectId);
+                    CrossPlatformClipboard.SetText(_effectId.ToString());
                     break;
 
             }
         }
+        public ReactiveCommand<Unit, Unit> OpenLogCommand => ReactiveCommand.Create(OpenLog);
+
+        private void OpenLog()
+        {
+            if (string.IsNullOrEmpty(_logPath))
+            {
+                return;
+            }
+
+            try
+            {
+                var logsDirectory = Settings.ReadSettingOfType<string>("combat_logs_path");
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var logPathWithDirectory = Path.Combine(logsDirectory, _logPath);
+
+                    // Check if Notepad++ is available
+                    var notepadPlusPlusPath = @"C:\Program Files\Notepad++\notepad++.exe";
+                    if (File.Exists(notepadPlusPlusPath))
+                    {
+                        Process.Start(notepadPlusPlusPath, $"-n{_lineNumber} \"{logPathWithDirectory}\"");
+                    }
+                    else
+                    {
+                        // Fall back to regular Notepad if Notepad++ is not available
+                        Process.Start("notepad.exe", logPathWithDirectory);
+                    }
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    // Open the file in TextEdit on macOS
+                    Process.Start("open", $"-a TextEdit \"{Path.Combine(logsDirectory,_logPath)}\"");
+                }
+                else
+                {
+                    Logging.LogError("Unsupported operating system.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError($"Failed to open log: {ex.Message}");
+            }
+        }
+
         private Color GetColorForValue(double fraction)
         {
             Color startColor = Colors.Transparent;
@@ -132,8 +197,8 @@ namespace SWTORCombatParser.DataStructures
         public int LogBytes;
         public long LogLineNumber { get; set; }
         public string LogLocation { get; set; }
-        public string LogLocationId { get; set; }
-        public string LogDifficultyId { get; set; }
+        public ulong LogLocationId { get; set; }
+        public ulong LogDifficultyId { get; set; }
         public DateTime TimeStamp { get; set; }
         public double SecondsSinceCombatStart { get; set; }
         public Entity Source => SourceInfo.Entity;
@@ -141,7 +206,7 @@ namespace SWTORCombatParser.DataStructures
         public Entity Target => TargetInfo.Entity;
         public EntityInfo TargetInfo { get; set; }
         public string Ability { get; set; }
-        public string AbilityId { get; set; }
+        public ulong AbilityId { get; set; }
         public Effect Effect { get; set; }
         public string ModifierEffectName => string.Intern(Ability + AddSecondHalf(Ability, Effect.EffectName));
         public Value Value { get; set; }
@@ -158,9 +223,9 @@ namespace SWTORCombatParser.DataStructures
         public List<string> Strings() {
             return [
                 Effect.EffectName,
-                Effect.EffectId,
+                Effect.EffectId.ToString(),
                 Ability,
-                AbilityId,
+                AbilityId.ToString(),
                 Source.Name,
                 Source.LogId.ToString(),
                 Target.Name,
@@ -170,17 +235,17 @@ namespace SWTORCombatParser.DataStructures
     }
     public class PositionData
     {
-        public double X;
-        public double Y;
-        public double Facing;
-        public double Z;
+        public float X;
+        public float Y;
+        public float Facing;
+        public float Z;
     }
     public enum ErrorType
     {
         None,
         IncompleteLine
     }
-    public class Entity
+    public class Entity:IEquatable<Entity>
     {
         public static Entity EmptyEntity = new Entity();
         public string Name { get; set; }
@@ -190,22 +255,26 @@ namespace SWTORCombatParser.DataStructures
         public bool IsLocalPlayer;
         public bool IsCompanion;
         public bool IsBoss;
+        public bool Equals(Entity? other)
+        {
+            return LogId == other.LogId;
+        }
     }
     public class EntityInfo
     {
         public SWTORClass Class { get; set; }
         public Entity Entity { get; set; } = Entity.EmptyEntity;
         public PositionData Position { get; set; } = new PositionData();
-        public double MaxHP { get; set; }
-        public double CurrentHP { get; set; } = -500;
+        public uint MaxHP { get; set; }
+        public uint CurrentHP { get; set; } = 0;
         public bool IsAlive { get; set; }
     }
     public class Effect
     {
         public EffectType EffectType { get; set; }
         public string EffectName { get; set; }
-        public string EffectId { get; set; }
-        public string SecondEffectId { get; set; }
+        public ulong EffectId { get; set; }
+        public ulong SecondEffectId { get; set; }
     }
     public class Value
     {
@@ -216,13 +285,8 @@ namespace SWTORCombatParser.DataStructures
         public string DisplayValue { get; set; }
         public string ModifierDisplayValue { get; set; }
         public string ModifierType { get; set; }
-        public string AllBuffs => string.Join(',', Buffs.Select(b => b.Name));
-        public List<CombatModifier> Buffs { get; set; } = new List<CombatModifier>();
-        public List<CombatModifier> DefensiveBuffs { get; set; } = new List<CombatModifier>();
-        public string AllDefensiveBuffs => string.Join(',', DefensiveBuffs.Select(db => db.Name));
-
         public DamageType ValueType { get; set; }
-        public string ValueTypeId { get; set; }
+        public long ValueTypeId { get; set; }
 
         public Value Modifier;
         public bool WasCrit { get; set; }

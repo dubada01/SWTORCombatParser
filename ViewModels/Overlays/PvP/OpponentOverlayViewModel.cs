@@ -6,14 +6,15 @@ using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.PvP;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows.Threading;
+using Avalonia.Threading;
+using ReactiveUI;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
-    public class OpponentOverlayViewModel : INotifyPropertyChanged
+    public class OpponentOverlayViewModel : BaseOverlayViewModel
     {
         private bool _isActive = false;
         private readonly OpponentHpOverlay _opponentHPView;
@@ -25,34 +26,43 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private Dictionary<string, double> _currentHps = new Dictionary<string, double>();
         private Dictionary<string, DateTime> _lastUpdatedPlayer = new Dictionary<string, DateTime>();
         private object _combatUpdateLock = new object();
-        public OpponentOverlayViewModel()
+        private bool _showFrame;
+        private ObservableCollection<OpponentHPBarViewModel> _opponentHpBars = new ObservableCollection<OpponentHPBarViewModel>();
+        public override bool ShouldBeVisible => _showFrame;
+
+        public OpponentOverlayViewModel(string overlayName) : base(overlayName)
         {
             _dTimer = new DispatcherTimer();
             _opponentHPView = new OpponentHpOverlay(this);
-            _opponentHPView.Show();
-            EncounterTimerTrigger.NonPvpEncounterEntered += OnPvpCombatEnded;
-            EncounterTimerTrigger.PvPEncounterEntered += OnPvpCombatStarted;
+            MainContent = _opponentHPView;
+            EncounterTimerTrigger.NonPvpEncounterEntered += OnPvPEncounterLeft;
+            EncounterTimerTrigger.PvPEncounterEntered += OnPvPEncounterEntered;
             CombatLogStreamer.NewLineStreamed += NewLineStreamed;
-            CombatSelectionMonitor.CombatSelected += NewCombatInfo;
-            SetInitialPosition();
+            CombatSelectionMonitor.OnInProgressCombatSelected += NewCombatInfo;
         }
 
 
         public event Action<string, bool> OverlayStateChanged = delegate { };
-        public List<OpponentHPBarViewModel> OpponentHpBars { get; set; } = new List<OpponentHPBarViewModel>();
-        private void OnPvpCombatStarted()
+
+        public ObservableCollection<OpponentHPBarViewModel> OpponentHpBars
         {
+            get => _opponentHpBars;
+            set => this.RaiseAndSetIfChanged(ref _opponentHpBars, value);
+        }
+
+        private void OnPvPEncounterEntered(DateTime changedTime, EncounterInfo encounterInfo)
+        {
+            
             if (!OverlayEnabled || _isTriggered)
                 return;
             _isTriggered = true;
             if (GetCurrentActive())
             {
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
+                    ResetUI();
                     ShowFrame = true;
                     _mostRecentCombat = null;
-                    ResetUI();
-                    OnPropertyChanged("ShowFrame");
                     _dTimer.Start();
                     _dTimer.Interval = TimeSpan.FromSeconds(0.1);
                     _dTimer.Tick += CheckForNewState;
@@ -61,7 +71,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             }
         }
 
-        private void OnPvpCombatEnded()
+        private void OnPvPEncounterLeft(DateTime changedTime, EncounterInfo encounterInfo)
         {
             if (!OverlayEnabled)
                 return;
@@ -71,13 +81,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 _mostRecentCombat = null;
             }
 
-            ResetUI();
-            App.Current.Dispatcher.Invoke(() =>
-            {
+
+            Dispatcher.UIThread.Invoke(() =>
+            {           
+                ResetUI();
                 ShowFrame = false;
                 _dTimer.Stop();
                 _dTimer.Tick -= CheckForNewState;
-                OnPropertyChanged("ShowFrame");
             });
 
         }
@@ -90,53 +100,41 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         public bool OverlayEnabled
         {
-            get { return _isActive; }
+            get => _isActive;
             set
             {
-                DefaultGlobalOverlays.SetActive("PvP_HP", value);
-                _isActive = value;
-                if (!_isActive)
-                {
-                    _opponentHPView.Hide();
-                }
-                else
-                {
-                    _opponentHPView.Show();
-                    if (OverlaysMoveable || _isTriggered)
-                    {
-                        ShowFrame = true;
-                        OnPropertyChanged("ShowFrame");
-                    }
-
-                }
-
+                this.RaiseAndSetIfChanged(ref _isActive, value);
+                Active = _isActive;
                 OverlayStateChanged("OpponentHP", _isActive);
-                OnPropertyChanged();
             }
         }
-        public event Action<bool> OnLocking = delegate { };
-        public bool OverlaysMoveable { get; set; }
-        public bool ShowFrame { get; set; }
+
+        public bool ShowFrame
+        {
+            get => _showFrame;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _showFrame, value);
+                UpdateVisibility();
+            }
+        }
+
         public void LockOverlays()
         {
-            OnLocking(true);
             OverlaysMoveable = false;
             if (!GetCurrentActive() || !_isTriggered)
                 ShowFrame = false;
-            OnPropertyChanged("ShowFrame");
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
             OverlaysMoveable = true;
             if (GetCurrentActive())
                 ShowFrame = true;
-            OnPropertyChanged("ShowFrame");
-            OnPropertyChanged("OverlaysMoveable");
         }
         private void NewCombatInfo(Combat currentCombat)
         {
+            if (!_isTriggered)
+                return;
             lock (_combatUpdateLock)
                 _mostRecentCombat = currentCombat;
         }
@@ -144,7 +142,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             lock (_combatUpdateLock)
             {
-                if (_mostRecentCombat == null)
+                if (newLine.Effect.EffectType == EffectType.AreaEntered && !EncounterTimerTrigger.CurrentEncounterIsPVP)
+                {
+                    OnPvPEncounterLeft(newLine.TimeStamp, null);
+                    return;
+                }
+                if (_mostRecentCombat == null || !_isTriggered)
                     return;
                 _lastUpdate = newLine.TimeStamp;
 
@@ -152,21 +155,21 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 if (newLine.Source == newLine.Target && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
-                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / newLine.SourceInfo.MaxHP;
+                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / (double)newLine.SourceInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
                 if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.Name != null && newLine.Source.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
-                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / newLine.SourceInfo.MaxHP;
+                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / (double)newLine.SourceInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
                 if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Target, newLine.TimeStamp) && newLine.Target.Name != null && newLine.Target.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Target.Name] = _lastUpdate;
-                    _currentHps[newLine.Target.Name] = newLine.TargetInfo.CurrentHP / newLine.TargetInfo.MaxHP;
+                    _currentHps[newLine.Target.Name] = newLine.TargetInfo.CurrentHP / (double)newLine.TargetInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
@@ -183,14 +186,30 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private void CheckForNewState(object sender, EventArgs e)
         {
             var sorted = (from entry in _currentHps orderby entry.Key ascending select entry).ToList();
-            var bars = new List<OpponentHPBarViewModel>();
             foreach (var opponent in sorted)
             {
-                var newBar = new OpponentHPBarViewModel(opponent.Key) { Value = opponent.Value, InRange = IsInRangeOfLocalPlayer(opponent.Key), IsCurrentInfo = IsCurrentInfo(opponent.Key), IsTargeted = IsCurrentTarget(opponent.Key), Menace = GetMenaceType(opponent.Key) };
-                bars.Add(newBar);
+                var opponentToUpdate = OpponentHpBars.FirstOrDefault(x => x.PlayerName == opponent.Key);
+                if (opponentToUpdate == null)
+                {
+                    var newOpponent = new OpponentHPBarViewModel(opponent.Key)
+                    {
+                        Value = opponent.Value,
+                        InRange = IsInRangeOfLocalPlayer(opponent.Key),
+                        IsCurrentInfo = IsCurrentInfo(opponent.Key),
+                        IsTargeted = IsCurrentTarget(opponent.Key),
+                        Menace = GetMenaceType(opponent.Key)
+                    };
+                    OpponentHpBars.Add(newOpponent);
+                }
+                else
+                {
+                    opponentToUpdate.Value = opponent.Value;
+                    opponentToUpdate.InRange = IsInRangeOfLocalPlayer(opponent.Key);
+                    opponentToUpdate.IsCurrentInfo = IsCurrentInfo(opponent.Key);
+                    opponentToUpdate.IsTargeted = IsCurrentTarget(opponent.Key);
+                    opponentToUpdate.Menace = GetMenaceType(opponent.Key);
+                }
             }
-            OpponentHpBars = bars;
-            OnPropertyChanged("OpponentHpBars");
         }
 
         private bool IsCurrentInfo(string opponentKey)
@@ -242,22 +261,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool GetCurrentActive()
         {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP");
+            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
             return defaults.Acive;
-        }
-        private void SetInitialPosition()
-        {
-            var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("PvP_HP");
-            OverlayEnabled = defaults.Acive;
-            _opponentHPView.Top = defaults.Position.Y;
-            _opponentHPView.Left = defaults.Position.X;
-            _opponentHPView.Width = defaults.WidtHHeight.X;
-            _opponentHPView.Height = defaults.WidtHHeight.Y;
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

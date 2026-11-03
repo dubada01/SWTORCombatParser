@@ -1,0 +1,102 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Death_Review"
+                x:DataType="vm:TenSecondRecapViewModel"
+             x:Class="SWTORCombatParser.Views.Death_Review.TenSecondRecapView">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="55"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+            <ComboBox VerticalAlignment="Center" ItemsSource="{Binding AvailablePlayers}" SelectedItem="{Binding SelectedPlayer}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock FontSize="{StaticResource NormalFontSize}" FontFamily="{StaticResource MainFont}" Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Grid HorizontalAlignment="Left" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock HorizontalAlignment="Left" Text="Debuffs" FontSize="{StaticResource LargeFontSize}" FontFamily="{StaticResource MainFont}"/>
+                <ItemsControl HorizontalAlignment="Left" Grid.Row="1" ItemsSource="{Binding SelectedPlayerDebuffs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="17"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Image Source="{Binding Icon}" Height="15" Margin="2,0,0,0"></Image>
+                                <TextBlock Grid.Column="1" Margin="3,0,3,0" FontSize="{StaticResource SmallFontSize}" Text="{Binding EffectName}"></TextBlock>
+                                <TextBlock Grid.Column="2" Margin="3,0,3,0" FontSize="{StaticResource SmallFontSize}" Text="{Binding EffectStacks}"></TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+
+            <ComboBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding AvailableBosses}" SelectedItem="{Binding SelectedBoss}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock FontSize="{StaticResource NormalFontSize}" FontFamily="{StaticResource MainFont}"  Text="{Binding Name}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock HorizontalAlignment="Left"  Text="Buffs" FontSize="{StaticResource LargeFontSize}" FontFamily="{StaticResource MainFont}"/>
+                <ItemsControl HorizontalAlignment="Left" Grid.Row="1" ItemsSource="{Binding SelectedBossBuffs}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid VerticalAlignment="Center" HorizontalAlignment="Right">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="17"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Image Source="{Binding Icon}" Height="15" Margin="2,0,0,0"></Image>
+                                <TextBlock Grid.Column="1" Margin="3,0,3,0" FontSize="{StaticResource SmallFontSize}" Text="{Binding EffectName}"></TextBlock>
+                                <TextBlock Grid.Column="2" Margin="3,0,3,0" FontSize="{StaticResource SmallFontSize}" Text="{Binding EffectStacks}"></TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+        </Grid>
+        <ContentPresenter Content="{Binding DeathLogsView}"  Grid.Row="1"/>
+        <Slider VerticalAlignment="Top" Maximum="1" Grid.Row="2" HorizontalAlignment="Stretch" Margin="20,5,20,5" Value="{Binding CurrentSliderValue}"></Slider>
+        <TextBlock Grid.Row="2" HorizontalAlignment="Left" FontSize="{StaticResource SmallFontSize}" VerticalAlignment="Center" Text="-30s"></TextBlock>
+        <TextBlock Grid.Row="2" HorizontalAlignment="Right" FontSize="{StaticResource SmallFontSize}" VerticalAlignment="Center" Text="End"></TextBlock>
+        <TextBlock Grid.Row="2" HorizontalAlignment="Center" FontSize="{StaticResource NormalFontSize}" VerticalAlignment="Bottom" Text="{Binding CurrentTimeOffset}"></TextBlock>
+    </Grid>
+</UserControl>

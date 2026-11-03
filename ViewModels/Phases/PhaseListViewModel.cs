@@ -1,6 +1,5 @@
 ﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Phases;
-using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
 using SWTORCombatParser.Views.Phases;
 using System;
@@ -8,13 +7,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
+using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseListViewModel : INotifyPropertyChanged
+    public class PhaseListViewModel :ReactiveObject
     {
         private EncounterSelectionViewModel _enounterSelectionViewModel;
         private string selectedTimerSource;
@@ -44,22 +47,23 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             get => selectedTimerSource; set
             {
-                selectedTimerSource = value;
-
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref selectedTimerSource, value);
                 UpdatePhaseRows();
             }
         }
 
         public ObservableCollection<PhaseRowViewModel> PhaseRows { get; private set; }
-        public ICommand AddPhaseCommand => new CommandHandler(CreateNewPhase);
+        public ReactiveCommand<object,Unit> AddPhaseCommand => ReactiveCommand.Create<object>(CreateNewPhase);
 
         private void CreateNewPhase(object obj)
         {
             var vm = new PhaseModificationViewModel(SelectedSource);
             vm.OnNewPhase += NewPhase;
-            var t = new PhaseModificationView(vm);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var t = new PhaseModificationView(vm);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
 
         private void CancelEdit(Phase editedChallenge)
@@ -95,10 +99,10 @@ namespace SWTORCombatParser.ViewModels.Phases
 
             phaseObjects.ForEach(t => t.EditRequested += Edit);
             phaseObjects.ForEach(t => t.DeleteRequested += Delete);
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 PhaseRows = new ObservableCollection<PhaseRowViewModel>(phaseObjects);
-                OnPropertyChanged("PhaseRows");
+                this.RaisePropertyChanged(nameof(PhaseRows));
                 UpdateRowColors();
             });
 
@@ -127,9 +131,12 @@ namespace SWTORCombatParser.ViewModels.Phases
             var vm = new PhaseModificationViewModel(SelectedSource);
             vm.OnNewPhase += NewPhase;
             vm.OnCancelEdit += CancelEdit;
-            var t = new PhaseModificationView(vm);
-            vm.Edit(_phaseEdited);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var t = new PhaseModificationView(vm);
+                vm.Edit(_phaseEdited);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
         private void UpdateRowColors()
         {
@@ -137,17 +144,13 @@ namespace SWTORCombatParser.ViewModels.Phases
             {
                 if (i % 2 == 1)
                 {
-                    PhaseRows[i].RowBackground = Brushes.Gray;
+                    PhaseRows[i].RowBackground = new SolidColorBrush(Brushes.Gray.Color);
                 }
                 else
                 {
-                    PhaseRows[i].RowBackground = Brushes.Transparent;
+                    PhaseRows[i].RowBackground = new SolidColorBrush(Brushes.Transparent.Color);
                 }
             }
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

@@ -1,0 +1,151 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views"
+        mc:Ignorable="d"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels"
+        x:DataType="vm:MainWindowViewModel"
+        x:Class="SWTORCombatParser.Views.MainWindow"
+        Title="{Binding Title}" MinWidth="500" Height="1080" Width="1920"
+        Closing="Window_Closing"
+        PointerExited="Window_PointerLeave"
+        CanResize="True">
+
+    <Grid Background="{StaticResource Gray2Brush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="175"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="0.95*"/>
+            <RowDefinition Height="1.5"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Menu Grid.ColumnSpan="2" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Load Previous Log..." Command="{Binding OpenPastCombatsCommand}"/>
+                <MenuItem Header="_Preferences" Command="{Binding OpenSettingsWindowCommand}">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="avares://Orbs/resources/setting.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="_Parsely">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="avares://Orbs/resources/ParselyIcon.ico"></Image>
+                    </MenuItem.Icon>
+                    <MenuItem Header="_Upload to Parsely" Command="{Binding UploadToParselyCommand}">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16" Source="avares://Orbs/resources/uploadToParselyIcon.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Open Parsely" Command="{Binding OpenParselyCommand}">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16" Source="avares://Orbs/resources/openParselyIcon.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="_Configure Parsely" Command="{Binding OpenParselyConfigCommand}">
+                        <MenuItem.Icon>
+                            <Image Width="16" Height="16" Source="avares://Orbs/resources/setting.png"></Image>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="_Orbs Stats" Command="{Binding OpenOrbsStatsCommand}">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="avares://Orbs/resources/OrbsIcon.ico"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="_Support Orbs" Command="{Binding OpenBuyMeACoffeeCommand}">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="avares://Orbs/resources/bmac_icon.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Timers">
+                <MenuItem Header="Timers" Command="{Binding ShowTimerWindowCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/timer-icon.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Challenges" Command="{Binding ShowChallengeWindowCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/challenge-icon.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Phases" Command="{Binding OpenPhaseConfigCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/setting.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Overlays">
+                <MenuItem Header="_Toggle Lock" Command="{Binding ToggleOverlayLockCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="{Binding OverlayLockIcon}"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Layout/Interface" Command="{Binding OpenOverlaySettingsCommand}">
+                    <MenuItem.Icon>
+                        <Image Source="avares://Orbs/resources/grid.png"></Image>
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <!-- PhasesBar Content -->
+        <ContentPresenter Grid.Row="3" Grid.Column="1" Content="{Binding PhasesBar}"/>
+        <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+                    <!-- TabControl -->
+        <TabStrip Height="50" SelectedIndex="{Binding SelectedTabIndex}" 
+                    ItemsSource="{Binding ContentTabs}" HorizontalAlignment="Center">
+            <TabStrip.Styles>
+                <Style Selector="TabStripItem:pointerover /template/ Border">
+                    <Setter Property="Background" Value="{StaticResource Gray3Brush}"></Setter>
+                </Style>
+                <Style Selector="TabStripItem /template/ Border">
+                    <Setter Property="CornerRadius" Value="4"></Setter>
+                </Style>
+            </TabStrip.Styles>
+            <TabStrip.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="35"></RowDefinition>
+                            <RowDefinition Height="3"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.85*"/>
+                                <ColumnDefinition Width="0.85*"/>
+                                <ColumnDefinition Width="0.15*"/>
+                            </Grid.ColumnDefinitions>
+                            <Image IsVisible="{Binding IsNotOverlaysTab}" 
+                                   Margin="0,1,2,1" Height="18" Source="{Binding TabIcon}" Grid.Column="0"/>
+                            <TextBlock Grid.Column="1" FontSize="11" VerticalAlignment="Center" 
+                                       Foreground="WhiteSmoke" 
+                                       Text="{Binding HeaderText}"/>
+                            <Button Grid.Column="2" Background="{StaticResource Gray10Brush}" 
+                                    Command="{Binding ToggleLockedCommand}" 
+                                    IsVisible="{Binding IsOverlaysTab}">
+                                <Image Margin="2,1,0,1" Height="18" Width="18" Source="{Binding OverlayLockIcon}"/>
+                            </Button>
+                        </Grid>
+
+                    </Grid>
+
+                </DataTemplate>
+            </TabStrip.ItemTemplate>
+        </TabStrip>
+        <ContentPresenter Grid.Row="1" Content="{Binding SelectedTab.TabContent}"></ContentPresenter>
+        </Grid>
+
+        <!-- PastCombatsView -->
+        <ContentPresenter Grid.Column="0" Grid.Row="1" Grid.RowSpan="3" Content="{Binding PastCombatsView}"/>
+
+    </Grid>
+</Window>

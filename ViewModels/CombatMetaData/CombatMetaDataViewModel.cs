@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
+using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.CombatMetaData
 {
-    public class CombatEfffectViewModel : INotifyPropertyChanged
+    public class CombatEfffectViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private Entity characterName = new Entity();
         private Combat _currentCombat;
@@ -62,7 +64,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
         {
             if (_currentCombat == null)
                 return;
-            AvailableOthers = _currentCombat.AllEntities.Where(e => e != SelectedParticipant).Select(e => e.Name).ToList();
+            AvailableOthers = _currentCombat.AllEntities.Values.Where(e => e != SelectedParticipant).Select(e => e.Name).ToList();
             AvailableOthers.Insert(0, "Enemies");
             AvailableOthers.Insert(0, "Friends");
             AvailableOthers.Insert(0, "All");
@@ -87,9 +89,9 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                 OnPropertyChanged();
             }
         }
-        public ICommand ClearCombatEffectsCommand => new CommandHandler(ClearCombatEffects);
+        public ReactiveCommand<Unit,Unit> ClearCombatEffectsCommand => ReactiveCommand.Create(ClearCombatEffects);
 
-        private void ClearCombatEffects(object test)
+        private void ClearCombatEffects()
         {
             foreach (var effect in CombatEffects)
             {
@@ -138,8 +140,8 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
 
             if (_currentCombat == null)
                 return;
-            var minX = newAxisLimits.XMin;
-            var maxX = newAxisLimits.XMax;
+            var minX = newAxisLimits.Left;
+            var maxX = newAxisLimits.Right;
             var combatLogs = _currentCombat.GetLogsInvolvingEntity(SelectedParticipant);
 
             var startTime = _currentCombat.StartTime;
@@ -170,7 +172,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
                     Duration = durations.Sum(),
                     Count = durations.Count()
                 }).OrderByDescending(effect => effect.Duration).ToList();
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 CombatEffects.Clear();
                 effectsList.ForEach(ef => CombatEffects.Add(ef));
@@ -193,16 +195,16 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             if (SelectedOther == "Enemies")
             {
                 if (SelectedEffectType.Split("->")[0].Trim() == "Other")
-                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Contains(m.Source)).ToList();
+                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Values.Contains(m.Source)).ToList();
                 if (SelectedEffectType.Split("->")[0].Trim() != "Other")
-                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Contains(m.Target)).ToList();
+                    return releventMods.Where(m => !_currentCombat.CharacterParticipants.Values.Contains(m.Target)).ToList();
             }
             if (SelectedOther == "Friends")
             {
                 if (SelectedEffectType.Split("->")[0].Trim() == "Other")
-                    return releventMods.Where(m => _currentCombat.CharacterParticipants.Contains(m.Source)).ToList();
+                    return releventMods.Where(m => _currentCombat.CharacterParticipants.Values.Contains(m.Source)).ToList();
                 if (SelectedEffectType.Split("->")[0].Trim() != "Other")
-                    return releventMods.Where(m => _currentCombat.CharacterParticipants.Contains(m.Target)).ToList();
+                    return releventMods.Where(m => _currentCombat.CharacterParticipants.Values.Contains(m.Target)).ToList();
             }
             if (SelectedEffectType.Split("->")[0].Trim() == "Other")
                 return releventMods.Where(m => m.Source.Name == SelectedOther).ToList();

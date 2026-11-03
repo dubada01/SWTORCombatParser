@@ -1,0 +1,38 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Death_Review"
+        x:DataType="vm:RaidwideBattleReviewViewModel"
+        x:Class="SWTORCombatParser.Views.Death_Review.RaidwideBattleReviewWindow"
+        Height="600" Width="800"
+        Title="Battle Review">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="2"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" FontWeight="DemiBold" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Left" FontSize="{StaticResource TitleFontSize}" Text="{Binding EncounterName}"></TextBlock>
+            <TextBlock VerticalAlignment="Center" Margin="10,0,10,0" Grid.Column="1" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Left" FontSize="{StaticResource LargeFontSize}" Text="{Binding CompletionText}"></TextBlock>
+        </Grid>
+        <Rectangle Fill="{StaticResource Gray4}" Margin="5,0,5,0" Grid.Row="1"></Rectangle>
+        <TabStrip Margin="0,10,0,0" Grid.Row="2" SelectedIndex="{Binding SelectedTabIndex}">
+            <TabStripItem FontSize="{StaticResource LargeFontSize}" Content="Damage Taken"></TabStripItem>
+            <TabStripItem FontSize="{StaticResource LargeFontSize}" Content="30s Recap"></TabStripItem>
+            <TabStripItem FontSize="{StaticResource LargeFontSize}" Content="Death Review"></TabStripItem>
+        </TabStrip>
+        <Border BorderBrush="{StaticResource Gray4}" BorderThickness="2" CornerRadius="5" Grid.Row="3" Padding="4" Margin="5">
+            <ContentPresenter Content="{Binding CurrentReviewContent}"></ContentPresenter>
+        </Border>
+        
+    </Grid>
+
+</Window>

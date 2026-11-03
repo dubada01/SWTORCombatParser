@@ -1,5 +1,4 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace SWTORCombatParser.ViewModels.Overlays
@@ -13,11 +12,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         DisciplineTimer,
         Personal,
         PvPHP,
-        PvPMap, 
+        PvPMedalTracking, 
         RoomHazard,
         AbilityList,
         RaidNotes,
         Timeline,
+        AlertTimer,
+        ThreatTable,
         Other
     }
     public class UtilityOverlayOptionViewModel : INotifyPropertyChanged

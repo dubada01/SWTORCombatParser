@@ -1,0 +1,54 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+
+    <!-- Base CheckBox Style -->
+    <Style Selector="CheckBox">
+        <!-- Base setters and ControlTemplate as above -->
+    </Style>
+
+    <!-- PointerOver State -->
+    <Style Selector="CheckBox:pointerover#Border">
+        <Setter Property="Background" Value="{StaticResource Gray4}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray8}" />
+    </Style>
+
+    <!-- Pressed State -->
+    <Style Selector="CheckBox:pressed#Border">
+        <Setter Property="Background" Value="{StaticResource Gray4}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray8}" />
+    </Style>
+
+    <!-- Disabled State -->
+    <Style Selector="CheckBox:disabled#Border">
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+    <Style Selector="CheckBox:disabled /template/ ContentPresenter">
+        <Setter Property="Opacity" Value="0.5" />
+    </Style>
+
+    <!-- Checked State -->
+    <Style Selector="CheckBox:checked#Border">
+        <Setter Property="Background" Value="{StaticResource GreenColorBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray8}" />
+    </Style>
+    <Style Selector="CheckBox:checked#CheckMark">
+        <Setter Property="IsVisible" Value="True" />
+    </Style>
+
+    <!-- Unchecked State -->
+    <Style Selector="CheckBox:unchecked#CheckMark">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <!-- Indeterminate State -->
+    <Style Selector="CheckBox:indeterminate#Border">
+        <Setter Property="Background" Value="{StaticResource Gray1}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Gray6}" />
+    </Style>
+    <Style Selector="CheckBox:indeterminate#CheckMark">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+</Styles>

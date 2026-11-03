@@ -1,12 +1,12 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Timers;
+using SWTORCombatParser.Utilities;
 using Timer = System.Timers.Timer;
 
 namespace SWTORCombatParser.Model.CombatParsing
@@ -21,40 +21,40 @@ namespace SWTORCombatParser.Model.CombatParsing
         OutOfCombat,
         ExitedByEntering,
     }
-    public static class CombatDetector
+    public class CombatDetector
     {
-        private static List<string> _bossesKilledThisCombat = new List<string>();
-        private static List<string> _bossesSeenThisCombat = new List<string>();
-        private static List<string> _combatResNames = new List<string> { "812826855735296", "808287075303424", "807217628446720", "814875555135488", "2940764107571200", "2940854301884416" };
-        private static string _boonOfSpiritId = "3502674678906880";
-        private static bool _bossCombat;
-        private static BossInfo _currentBossInfo;
-        public static bool InCombat;
-        private static bool _justRevived;
-        private static List<Entity> revivedPlayers = new List<Entity>();
-        private static DateTime _inCombatStartTime;
+        private List<long> _bossesKilledThisCombat = new List<long>();
+        private List<long> _bossesSeenThisCombat = new List<long>();
+        private List<ulong> _combatResNames = new List<ulong> { 812826855735296, 808287075303424, 807217628446720, 814875555135488, 2940764107571200, 2940854301884416};
+        private ulong _boonOfSpiritId = 3502674678906880;
+        private bool _bossCombat;
+        private BossInfo _currentBossInfo;
+        public bool InCombat;
+        private bool _justRevived;
+        private List<Entity> revivedPlayers = new List<Entity>();
+        private DateTime _inCombatStartTime;
 
-        private static Timer _timeoutTimer = new Timer();
-        private static DateTime _exitCombatDetectedTime;
-        private static bool _checkLogsForTimtout;
-        private static EncounterInfo _currentEncounter;
+        private Timer _timeoutTimer = new Timer();
+        private DateTime _exitCombatDetectedTime;
+        private bool _checkLogsForTimtout;
+        private EncounterInfo _currentEncounter;
 
-        public static event Action<CombatState> AlertExitCombatTimedOut = delegate { };
+        public event Action<CombatState, bool> AlertExitCombatTimedOut = delegate { };
 
-        public static void Reset()
+        public void Reset()
         {
             _inCombatStartTime = DateTime.MinValue;
             _exitCombatDetectedTime = DateTime.MinValue;
             _bossCombat = false;
-            _bossesKilledThisCombat = new List<string>();
-            _bossesSeenThisCombat = new List<string>();
+            _bossesKilledThisCombat = new List<long>();
+            _bossesSeenThisCombat = new List<long>();
             InCombat = false;
             _checkLogsForTimtout = false;
             _justRevived = false;
             _timeoutTimer.Stop();
             revivedPlayers = new List<Entity>();
         }
-        public static CombatState CheckForCombatState(ParsedLogEntry line, bool isRealTime = false)
+        public CombatState CheckForCombatState(ParsedLogEntry line, bool isRealTime = false)
         {
             if (_checkLogsForTimtout)
             {
@@ -62,7 +62,6 @@ namespace SWTORCombatParser.Model.CombatParsing
                 {
                     if (isRealTime)
                     {
-                        Debug.WriteLine($"Restarting at: {(_inCombatStartTime - line.TimeStamp).TotalSeconds}");
                         RestartTimer();
                     }
                     else
@@ -70,12 +69,12 @@ namespace SWTORCombatParser.Model.CombatParsing
                 }
                 if ((line.TimeStamp - _exitCombatDetectedTime).TotalSeconds >= (_bossCombat ? 3 : 0.5) && !isRealTime)
                 {
-                    ExitCombatTimedOut(null, null);
+                    ExitCombatTimedOut(isRealTime);
                 }
             }
             if (line.Effect.EffectId == _7_0LogParsing.EnterCombatId)
             {
-                if (!_justRevived)
+                if (!_justRevived || _currentEncounter.IsOpenWorld)
                 {
                     if (InCombat)
                     {
@@ -110,27 +109,27 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             if (_currentEncounter.BossInfos != null && line.Effect.EffectId == _7_0LogParsing._damageEffectId)
             {
-                if (_currentEncounter.BossInfos.Any(b => b.TargetIds.Contains(line.Target.LogId.ToString())))
+                if (_currentEncounter.BossInfos.Any(b => b.TargetIds.Contains(line.Target.LogId)))
                 {
-                    if (!_bossesSeenThisCombat.Contains(line.Target.LogId.ToString()))
-                        _bossesSeenThisCombat.Add(line.Target.LogId.ToString());
+                    if (!_bossesSeenThisCombat.Contains(line.Target.LogId))
+                        _bossesSeenThisCombat.Add(line.Target.LogId);
                 }
-                if (_currentEncounter.BossInfos.Any(b => b.TargetIds.Contains(line.Source.LogId.ToString())))
+                if (_currentEncounter.BossInfos.Any(b => b.TargetIds.Contains(line.Source.LogId)))
                 {
-                    if (!_bossesSeenThisCombat.Contains(line.Source.LogId.ToString()))
-                        _bossesSeenThisCombat.Add(line.Source.LogId.ToString());
+                    if (!_bossesSeenThisCombat.Contains(line.Source.LogId))
+                        _bossesSeenThisCombat.Add(line.Source.LogId);
                 }
             }
             if (line.Effect.EffectId == _7_0LogParsing._damageEffectId && line.Target.LogId == 2857785339412480)
             {
-                if (!_bossesSeenThisCombat.Contains(line.Target.LogId.ToString()))
-                    _bossesSeenThisCombat.Add(line.Target.LogId.ToString());
+                if (!_bossesSeenThisCombat.Contains(line.Target.LogId))
+                    _bossesSeenThisCombat.Add(line.Target.LogId);
             }
             if (_bossesSeenThisCombat.Count > 0)
             {
-                if (_bossesSeenThisCombat.Any(b => b == "2857785339412480"))
+                if (_bossesSeenThisCombat.Any(b => b == 2857785339412480))
                 {
-                    _currentBossInfo = new BossInfo() { EncounterName = "Parsing", TargetIds = new List<string> { _bossesSeenThisCombat.First() } };
+                    _currentBossInfo = new BossInfo() { EncounterName = "Parsing", TargetIds = new List<long> { _bossesSeenThisCombat.First() } };
                     _bossCombat = true;
                 }
                 var encounterInfo = _currentEncounter.BossInfos?.FirstOrDefault(b => _bossesSeenThisCombat.All(sb => b.TargetIds.Contains(sb)));
@@ -171,11 +170,11 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             if (line.Effect.EffectId == _7_0LogParsing.DeathCombatId && !line.Target.IsCharacter && _currentBossInfo != null && InCombat)
             {
-                var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.LogId.ToString());
+                var bossKilled = _currentBossInfo.TargetsRequiredForKill.Contains(line.Target.LogId);
                 if (bossKilled)
                 {
-                    _bossesKilledThisCombat.Add(line.Target.LogId.ToString());
-                    if (_currentBossInfo.TargetsRequiredForKill.All(n => _bossesKilledThisCombat.Contains(n)) || (_currentBossInfo.IsOpenWorld && _currentBossInfo.TargetIds.Any(t=>t == line.Target.LogId.ToString())))
+                    _bossesKilledThisCombat.Add(line.Target.LogId);
+                    if (_currentBossInfo.TargetsRequiredForKill.All(n => _bossesKilledThisCombat.Contains(n)) || (_currentBossInfo.IsOpenWorld && _currentBossInfo.TargetIds.Any(t=>t == line.Target.LogId)))
                     {
                         return EndCombat();
                     }
@@ -201,13 +200,13 @@ namespace SWTORCombatParser.Model.CombatParsing
                 return CombatState.OutOfCombat;
 
         }
-        private static CombatState ExitCombatDetected(ParsedLogEntry log, bool isRealTime, double timeOutSec)
+        private CombatState ExitCombatDetected(ParsedLogEntry log, bool isRealTime, double timeOutSec)
         {
             if (isRealTime)
             {
                 _checkLogsForTimtout = true;
                 _timeoutTimer.Interval = TimeSpan.FromSeconds(timeOutSec).TotalMilliseconds;
-                _timeoutTimer.Elapsed += ExitCombatTimedOut;
+                _timeoutTimer.Elapsed += (s,a) => ExitCombatTimedOut(isRealTime);
                 _timeoutTimer.AutoReset = false;
                 _timeoutTimer.Start();
             }
@@ -218,7 +217,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             return CombatState.ExitCombatDetected;
         }
-        private static void RestartTimer()
+        private void RestartTimer()
         {
             if (_timeoutTimer.Enabled)
             {
@@ -226,17 +225,17 @@ namespace SWTORCombatParser.Model.CombatParsing
             }
             _timeoutTimer.Start(); // Start or restart the timer
         }
-        private static void ExitCombatTimedOut(object sender, ElapsedEventArgs args)
+        private void ExitCombatTimedOut(bool realtime)
         {
             _checkLogsForTimtout = false;
             _justRevived = false;
             _timeoutTimer.Stop();
             InCombat = false;
             Reset();
-            AlertExitCombatTimedOut(CombatState.ExitCombatDelayTimedOut);
+            AlertExitCombatTimedOut.InvokeSafely(CombatState.ExitCombatDelayTimedOut,realtime);
         }
 
-        private static CombatState EndCombat()
+        private CombatState EndCombat()
         {
             _checkLogsForTimtout = false;
             _justRevived = false;

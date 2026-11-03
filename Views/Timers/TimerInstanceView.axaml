@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Timers.TimerInstanceView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers"
+             x:DataType="vm:TimerInstanceViewModel"
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="0,2,0,2" Height="{Binding BarHeight}" IsVisible="{Binding DisplayTimer}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="70"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch">
+            <Border IsVisible="{Binding SourceTimer.TriggerType, Converter={StaticResource AbsorbTimerBarVisibilityConverter}, ConverterParameter=inverted}" Background="{StaticResource Gray4Brush}" CornerRadius="3" BorderThickness="0.75" BorderBrush="{StaticResource Gray9Brush}">
+                <Border x:Name="TimerBar"  FlowDirection="RightToLeft"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0.5" BorderBrush="DimGray" RenderTransformOrigin="1,0" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
+                    <Border.RenderTransform>
+                        <ScaleTransform ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
+                    </Border.RenderTransform>
+                </Border>
+            </Border>
+
+            <Border x:Name="AbsorbBar" IsVisible="{Binding SourceTimer.TriggerType, Converter={StaticResource AbsorbTimerBarVisibilityConverter}}" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
+                <Border.RenderTransform>
+                    <ScaleTransform ScaleX="{Binding CurrentRatio, UpdateSourceTrigger=PropertyChanged}" ScaleY="1"></ScaleTransform>
+                </Border.RenderTransform>
+            </Border>
+        </Grid>
+        <Viewbox Margin="0,0,10,0" Grid.Column="2" MaxHeight="20" HorizontalAlignment="Right">
+            <TextBlock x:Name="ValueText"  FontSize="18" IsVisible="{Binding DisplayTimerValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TimerValue, StringFormat=N1}"></TextBlock>
+        </Viewbox>
+        <Image Grid.Column="0" Margin="2,0,0,0" MaxHeight="23" VerticalAlignment="Center" HorizontalAlignment="Left" Source="{Binding InfoIcon}"></Image>
+        <Viewbox Grid.Column="1" MaxHeight="23" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,4">
+            <Grid>
+                <TextBlock x:Name="NameText" Margin="0,5,0,0" FontFamily="{StaticResource MainFont}" FontSize="16" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding TimerName}" ></TextBlock>
+            </Grid>
+        </Viewbox>
+
+    </Grid>
+</UserControl>

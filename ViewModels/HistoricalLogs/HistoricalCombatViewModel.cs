@@ -1,14 +1,12 @@
-﻿//using MoreLinq;
-using ScottPlot;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.HistoricalLogs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {
@@ -23,12 +21,6 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
 
         public HistoricalCombatViewModel(List<Combat> combats)
         {
-            HistoryPlot = new WpfPlot();
-            var titleAxis = HistoryPlot.Plot.XAxis2;
-            titleAxis.Label(label: "Battle History Metadata", size: 25, color: Color.WhiteSmoke);
-            HistoryPlot.Plot.YAxis.Label(label: "Value", size: 15);
-            HistoryPlot.Plot.XAxis.Label(label: "Date", size: 15);
-            HistoryPlot.Plot.Style(dataBackground: Color.FromArgb(150, 10, 10, 10), figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 40, 40, 40));
             CombatsDuringHistory = combats.Where(c => c.DurationSeconds > 60).ToList();
             //LocalPlayersDuringHistory = MetaDataExtractor.GetLocalEntities(CombatsDuringHistory);
             //OnPropertyChanged("LocalPlayersDuringHistory");
@@ -37,7 +29,6 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             OnPropertyChanged("AllEncounters");
             _allBossFightsDuringHisotry = MetaDataExtractor.GetAllBossesFromCombats(CombatsDuringHistory);
         }
-        public WpfPlot HistoryPlot { get; set; }
         public List<HistoricalLogEntry> DataToView { get; set; }
         public double MaxCombatLength
         {
@@ -45,7 +36,6 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             set
             {
                 maxCombatLength = value;
-                UpdatePlot();
             }
         }
         public List<Combat> CombatsDuringHistory { get; set; }
@@ -138,48 +128,12 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
             for (var i = 0; i < DataToView.Count; i++)
             {
                 if (i % 2 == 0)
-                    DataToView[i].RowBackground = System.Windows.Media.Brushes.DimGray;
+                    DataToView[i].RowBackground = new SolidColorBrush(Colors.DimGray);
             }
             OnPropertyChanged("DataToView");
-            UpdatePlot();
+
         }
 
-        private void UpdatePlot()
-        {
-            HistoryPlot.Plot.Clear();
-
-            foreach (var participant in DataToView.Select(d => d.Character).Distinct())
-            {
-                var characterValues = DataToView.Where(d => d.Character == participant);
-                var xValues = characterValues.Select(d => (double)d.Date.ToOADate()).ToArray();
-                var durations = characterValues.Select(d => d.Duration).ToList();
-                AddBubbleSeries(xValues, characterValues.Select(d => d.DPS).ToArray(), "DPS", Color.PaleVioletRed, durations);
-                AddBubbleSeries(xValues, characterValues.Select(d => d.HPS).ToArray(), "HPS", Color.Green, durations);
-                AddBubbleSeries(xValues, characterValues.Select(d => d.DTPS).ToArray(), "DTPS", Color.Peru, durations);
-                AddBubbleSeries(xValues, characterValues.Select(d => d.HTPS).ToArray(), "HTPS", Color.CornflowerBlue, durations);
-            }
-
-            HistoryPlot.Plot.Legend();
-            HistoryPlot.Plot.XAxis.DateTimeFormat(true);
-            HistoryPlot.Refresh();
-        }
-
-        public void AddBubbleSeries(double[] xValues, double[] yvalues, string label, Color color, List<int> durations)
-        {
-
-            var newBubblePlot = HistoryPlot.Plot.AddBubblePlot();
-            for (var i = 0; i < xValues.Length; i++)
-            {
-                newBubblePlot.Add(
-                    x: xValues[i],
-                    y: yvalues[i],
-                    fillColor: color,
-                    radius: Math.Max(2, 15 * (durations[i] / MaxCombatLength)),
-                    edgeColor: Color.DimGray,
-                    edgeWidth: 1
-                    );
-            }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.AbilityList.AbilityListView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.AbilityList"
+        x:DataType="vm:AbilityListViewModel"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.AbilityList"
+        mc:Ignorable="d"
+        Background="{x:Null}">
+    <Grid>
+        <Grid IsHitTestVisible="{Binding OverlaysMoveable}" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" Margin="5,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                <Grid>
+                    <ItemsControl Grid.Column="2" ItemsSource="{Binding AbilityInfoList, UpdateSourceTrigger=PropertyChanged}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:AbilityListInstance Margin="{Binding Path=$parent[ItemsControl].((vm:AbilityListViewModel)DataContext).BarMargin}" Height="{Binding Path=$parent[ItemsControl].((vm:AbilityListViewModel)DataContext).BarHeight}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

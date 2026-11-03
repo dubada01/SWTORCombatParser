@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using System;
+using SWTORCombatParser.DataStructures;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +10,7 @@ public static class MetricGetter
     public static double GetValueForMetric(OverlayType type, List<Combat> combats, Entity participant)
     {
         double value = 0;
-        if (!combats.Any(c => c.CharacterParticipants.Contains(participant)))
+        if (!combats.Any(c => c.CharacterParticipants.ContainsKey(participant.LogId)))
             return value;
         switch (type)
         {
@@ -18,6 +19,9 @@ public static class MetricGetter
                 break;
             case OverlayType.DPS:
                 value = combats.SelectMany(c => c.EDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                break;
+            case OverlayType.InstantaneousDPS:
+                value = combats.SelectMany(c => c.InstantaneousEffectiveDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
                 break;
             case OverlayType.Damage:
                 value = combats.SelectMany(c => c.TotalEffectiveDamage).Where(v => v.Key == participant)
@@ -35,6 +39,9 @@ public static class MetricGetter
                 value += combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value)
                     .Average();
                 break;
+            case OverlayType.InstantaneousEHPS:
+                value = combats.SelectMany(c => c.InstantaneousEffectiveHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                break;
             case OverlayType.EffectiveHealing:
                 value = combats.SelectMany(c => c.TotalEffectiveHealing).Where(v => v.Key == participant)
                     .Select(v => v.Value).Average();
@@ -43,6 +50,10 @@ public static class MetricGetter
                 break;
             case OverlayType.RawHealing:
                 value = combats.SelectMany(c => c.TotalHealing).Where(v => v.Key == participant).Select(v => v.Value)
+                    .Average();
+                break;
+            case OverlayType.HPS:
+                value = combats.SelectMany(c => c.HPS).Where(v => v.Key == participant).Select(v => v.Value)
                     .Average();
                 break;
             case OverlayType.ProvidedAbsorb:
@@ -121,134 +132,176 @@ public static class MetricGetter
 
         return value;
     }
-    public static double GetTotalforMetric(OverlayType type, List<Combat> combats)
+    public static double GetTotalforMetric(OverlayType type, Combat? combat)
     {
-        double value = 0;
-        if (combats.Count == 0)
-            return value;
-        switch (type)
+        try
         {
-            case OverlayType.APM:
-                value = combats.SelectMany(c => c.APM).Select(v => v.Value).Average();
-                break;
-            case OverlayType.DPS:
-                value = combats.SelectMany(c => c.EDPS).Select(v => v.Value).Sum();
-                break;
-            case OverlayType.Damage:
-                value = combats.SelectMany(c => c.TotalEffectiveDamage)
-                    .Select(v => v.Value).Sum();
-                break;
-            case OverlayType.RawDamage:
-                value = combats.SelectMany(c => c.TotalDamage).Select(v => v.Value)
-                    .Sum();
-                break;
-            case OverlayType.NonEDPS:
-                value = combats.SelectMany(c => c.DPS).Select(v => v.Value).Sum();
-                break;
-            case OverlayType.EHPS:
-                value = combats.SelectMany(c => c.EHPS).Select(v => v.Value).Sum();
-                value += combats.SelectMany(c => c.PSPS).Select(v => v.Value)
-                    .Sum();
-                break;
-            case OverlayType.EffectiveHealing:
-                value = combats.SelectMany(c => c.TotalEffectiveHealing)
-                    .Select(v => v.Value).Sum();
-                break;
-            case OverlayType.RawHealing:
-                value = combats.SelectMany(c => c.TotalHealing).Select(v => v.Value)
-                    .Sum();
-                break;
-            case OverlayType.ProvidedAbsorb:
-                value = combats.SelectMany(c => c.PSPS).Select(v => v.Value).Sum();
-                break;
-            case OverlayType.FocusDPS:
-                value = combats.SelectMany(c => c.EFocusDPS).Select(v => v.Value)
-                    .Sum();
-                break;
-            case OverlayType.ThreatPerSecond:
-                value = combats.SelectMany(c => c.TPS).Select(v => v.Value).Sum();
-                break;
-            case OverlayType.Threat:
-                value = combats.SelectMany(c => c.TotalThreat).Select(v => v.Value)
-                    .Sum();
-                break;
-            case OverlayType.DamageTaken:
-                value = combats.SelectMany(c => c.EDTPS).Select(v => v.Value)
-                    .Sum();
-                break;
-            case OverlayType.Mitigation:
-                value = combats.SelectMany(c => c.MPS).Select(v => v.Value).Sum();
-                break;
-            case OverlayType.DamageSavedDuringCD:
-                value = combats.SelectMany(c => c.DamageSavedFromCDPerSecond)
-                    .Select(v => v.Value).Sum();
-                break;
-            case OverlayType.DamageAvoided:
-                value = combats.SelectMany(c => c.DAPS).Select(v => v.Value).Sum();
-                break;
-            case OverlayType.ShieldAbsorb:
-                value = combats.SelectMany(c => c.SAPS).Select(v => v.Value).Sum();
-                break;
-            case OverlayType.BurstDPS:
-                value = combats.SelectMany(c => c.MaxBurstDamage).Select(v => v.Value)
-                    .Average();
-                break;
-            case OverlayType.BurstEHPS:
-                value = combats.SelectMany(c => c.MaxBurstHeal).Select(v => v.Value)
-                    .Average();
-                break;
-            case OverlayType.BurstDamageTaken:
-                value = combats.SelectMany(c => c.MaxBurstDamageTaken)
-                    .Select(v => v.Value).Average();
-                break;
-            case OverlayType.HealReactionTime:
-                value = combats.SelectMany(c => c.NumberOfHighSpeedReactions).Select(v => v.Value).Average();
-                break;
-            case OverlayType.TankHealReactionTime:
-                value = combats.SelectMany(c => c.AverageTankDamageRecoveryTimeTotal)
-                    .Select(v => v.Value).Average();
-                break;
-            case OverlayType.InterruptCount:
-                value = combats.SelectMany(c => c.TotalInterrupts).Select(v => v.Value)
-                    .Sum();
-                break;
-            case OverlayType.CritPercent:
-                value = combats.SelectMany(c => c.CritPercent).Select(v => v.Value).Average() * 100;
-                break;
-            case OverlayType.SingleTargetDPS:
-                value = combats.SelectMany(c => c.STDPS).Select(v => v.Value).Average();
-                break;
-            case OverlayType.SingleTargetEHPS:
-                value = combats.SelectMany(c => c.STEHPS).Select(v => v.Value).Average();
-                break;
-            case OverlayType.CleanseCount:
-                value = combats.SelectMany(c => c.TotalCleanses).Select(v => v.Value)
-                    .Sum();
-                break;
-            case OverlayType.CleanseSpeed:
-                var averageCleanseSpeed = combats
-    .SelectMany(c => c.AverageCleanseSpeed)
-    .Select(v => v.Value)
-    .Where(v => v != 0);
+            double value = 0;
+            if (combat == null)
+                return value;
+            switch (type)
+            {
+                case OverlayType.APM:
+                    value = combat.APM.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Average();
+                    break;
+                case OverlayType.DPS:
+                    value = combat.EDPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.InstantaneousDPS:
+                    value = combat.InstantaneousEffectiveDPS.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Sum();
+                    break;
+                case OverlayType.Damage:
+                    value = combat.TotalEffectiveDamage.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Sum();
+                    break;
+                case OverlayType.RawDamage:
+                    value = combat.TotalDamage.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.NonEDPS:
+                    value = combat.DPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value).Sum();
+                    break;
+                case OverlayType.EHPS:
+                    value = combat.EHPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    value += combat.PSPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.InstantaneousEHPS:
+                    value = combat.InstantaneousEffectiveHPS.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Sum();
+                    break;
+                case OverlayType.EffectiveHealing:
+                    value = combat.TotalEffectiveHealing.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Sum();
+                    break;
+                case OverlayType.RawHealing:
+                    value = combat.TotalHealing.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.HPS:
+                    value = combat.HPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.ProvidedAbsorb:
+                    value = combat.PSPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.FocusDPS:
+                    value = combat.EFocusDPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.ThreatPerSecond:
+                    value = combat.TPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value).Sum();
+                    break;
+                case OverlayType.Threat:
+                    value = combat.TotalThreat.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.DamageTaken:
+                    value = combat.EDTPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.Mitigation:
+                    value = combat.MPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value).Sum();
+                    break;
+                case OverlayType.DamageSavedDuringCD:
+                    value = combat.DamageSavedFromCDPerSecond.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Sum();
+                    break;
+                case OverlayType.DamageAvoided:
+                    value = combat.DAPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.ShieldAbsorb:
+                    value = combat.SAPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.BurstDPS:
+                    value = combat.MaxBurstDamage.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value)
+                        .Average();
+                    break;
+                case OverlayType.BurstEHPS:
+                    value = combat.MaxBurstHeal.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value)
+                        .Average();
+                    break;
+                case OverlayType.BurstDamageTaken:
+                    value = combat.MaxBurstDamageTaken.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Average();
+                    break;
+                case OverlayType.HealReactionTime:
+                    value = combat.NumberOfHighSpeedReactions.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Average();
+                    break;
+                case OverlayType.TankHealReactionTime:
+                    value = combat.AverageTankDamageRecoveryTimeTotal
+                        .Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Average();
+                    break;
+                case OverlayType.InterruptCount:
+                    value = combat.TotalInterrupts.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.CritPercent:
+                    value = combat.CritPercent.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value).Average() * 100;
+                    break;
+                case OverlayType.SingleTargetDPS:
+                    value = combat.STDPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Average();
+                    break;
+                case OverlayType.SingleTargetEHPS:
+                    value = combat.STEHPS.Where(kvp => kvp.Key.IsCharacter).Select(v => v.Value)
+                        .Average();
+                    break;
+                case OverlayType.CleanseCount:
+                    value = combat.TotalCleanses.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value)
+                        .Sum();
+                    break;
+                case OverlayType.CleanseSpeed:
+                    var averageCleanseSpeed = combat
+                        .AverageCleanseSpeed.Where(kvp => kvp.Key.IsCharacter)
+                        .Select(v => v.Value)
+                        .Where(v => v != 0);
 
-                value = averageCleanseSpeed.Any()
-                    ? averageCleanseSpeed.Average()
-                    : 0.0;
-                break;
+                    value = averageCleanseSpeed.Any()
+                        ? averageCleanseSpeed.Average()
+                        : 0.0;
+                    break;
+            }
+
+            return value;
         }
-
-        return value;
+        catch (Exception e)
+        {
+            return 0;
+        }
     }
     public static double GetValueForMetric(OverlayType type, Combat combat, Entity participant)
     {
         double value = 0;
+        if (participant == null || !combat.CharacterParticipants.ContainsKey(participant.LogId))
+            return value;
         switch (type)
         {
             case OverlayType.APM:
                 value = combat.APM[participant];
                 break;
             case OverlayType.DPS:
-                value = combat.ERegDPS[participant];
+                value = combat.EDPS[participant];
+                break;
+            case OverlayType.InstantaneousDPS:
+                value = combat.InstantaneousEffectiveDPS[participant];
                 break;
             case OverlayType.Damage:
                 value = combat.TotalEffectiveDamage[participant];
@@ -260,7 +313,10 @@ public static class MetricGetter
                 value = combat.TotalDamage[participant];
                 break;
             case OverlayType.EHPS:
-                value = combat.EHPS[participant];
+                value = combat.EHPS[participant] + combat.PSPS[participant];
+                break;
+            case OverlayType.InstantaneousEHPS:
+                value = combat.InstantaneousEffectiveHPS[participant];
                 break;
             case OverlayType.EffectiveHealing:
                 value = combat.TotalEffectiveHealing[participant];
@@ -331,6 +387,13 @@ public static class MetricGetter
             case OverlayType.CleanseSpeed:
                 value = combat.AverageCleanseSpeed[participant];
                 break;
+            case OverlayType.FluffDPS:
+                value = combat.ERegDPS[participant];
+                break;
+            case OverlayType.EHPSNoShielding:
+                value = combat.EHPS[participant];
+                break;
+            
         }
 
         return value;

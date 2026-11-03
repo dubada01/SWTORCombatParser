@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia.Threading;
 
 namespace SWTORCombatParser.ViewModels.SoftwareLogging
 {
@@ -8,7 +9,7 @@ namespace SWTORCombatParser.ViewModels.SoftwareLogging
 
         internal void AddNewLog(SoftwareLogInstance log)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 SoftwareLogs.Insert(0, log);
             });

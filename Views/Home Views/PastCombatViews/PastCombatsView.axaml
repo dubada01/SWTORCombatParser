@@ -1,0 +1,86 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.PastCombatViews.PastCombatsView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:pastCombatViews="clr-namespace:SWTORCombatParser.Views.Home_Views.PastCombatViews"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Combat_Monitoring"
+                x:DataType="vm:CombatMonitorViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Styles>
+        <!-- Style for the ContextMenu -->
+        <Style Selector="ContextMenu">
+            <Setter Property="Background" Value="#FF333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <!-- Style for the MenuItem -->
+        <Style Selector="MenuItem">
+            <Setter Property="Background" Value="#FF333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+        </Style>
+        <!-- PointerOver state -->
+        <Style Selector="MenuItem:pointerover">
+            <Setter Property="Background" Value="#FF555555"/>
+        </Style>
+    </UserControl.Styles>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}"
+                Classes="RoundedCorner"
+                Padding="8,5,8,8"
+                FontSize="18"
+                Background="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonColorConverter}}"
+                Content="{Binding LiveParseActive, Converter={StaticResource LiveParseActiveToButtonTextConverter}}"
+                Foreground="WhiteSmoke"
+                Command="{Binding  ToggleLiveParseCommand}" ToolTip.Tip="Right click to configure auto live parsing">
+            <Button.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="{Binding AutoLiveParseText}" Command="{Binding AutoLiveParseCommand}"/>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+
+        <Border Grid.Row="1" BorderThickness="0,1.5,1.5,0" CornerRadius="3" BorderBrush="{StaticResource Gray3}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="0" FontSize="{StaticResource TitleFontSize}" Margin="5,5,5,0" FontFamily="{StaticResource MainFont}" Foreground="LightGray" Text="Battles" FontWeight="Bold" ></TextBlock>
+                    <Viewbox Grid.Column="1" MaxHeight="60" MaxWidth="100" Margin="5,5,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding ShowTrash}" VerticalAlignment="Center" HorizontalAlignment="Right"></CheckBox>
+                            <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="1,0,0,0" Foreground="LightGray" Text="Show Trash" FontWeight="Bold" ></TextBlock>
+
+                        </StackPanel>
+                    </Viewbox>
+                </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl  Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding PastEncounters}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <pastCombatViews:EncounterCombatView/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+
+</UserControl>

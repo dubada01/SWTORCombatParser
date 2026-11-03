@@ -1,18 +1,23 @@
 ﻿using ScottPlot;
-using ScottPlot.Plottable;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Plotting;
 using SWTORCombatParser.ViewModels.Home_View_Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using Path = System.IO.Path;
+using Avalonia.Threading;
+using DynamicData;
+using ScottPlot.Avalonia;
+using ScottPlot.Plottables;
+using SkiaSharp;
+using SWTORCombatParser.Utilities;
+using Image = ScottPlot.Image;
+using Point = Avalonia.Point;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
@@ -21,41 +26,28 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         private Dictionary<string, int> pointSelected = new Dictionary<string, int>();
         private Dictionary<string, int> previousPointSelected = new Dictionary<string, int>();
         private List<CombatMetaDataSeries> _seriesToPlot = new List<CombatMetaDataSeries>();
-        private List<Entity> _currentPlayers = new List<Entity>();
+        private IEnumerable<Entity> _currentPlayers = new List<Entity>();
         private object graphLock = new object();
         private Crosshair _crossHair;
-        private Bitmap _skullImage;
+        private SKBitmap _skullImage;
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        public event Action<double> XValueSelected = delegate { };
 
         public DeathPlotViewModel()
         {
             _skullImage =
-                new Bitmap(Path.Combine(Environment.CurrentDirectory, "resources/skull_Icon.png"));
-            GraphView = new WpfPlot();
-            GraphView.Configuration.Pan = false;
-            GraphView.Configuration.Zoom = false;
-            GraphView.Plot.XAxis.Label(label: "Combat Duration (s)", size: 12);
-            GraphView.Plot.Title("Damage Taken", size: 13);
-            GraphView.Plot.YAxis.Label(label: "Value", size: 12);
-            GraphView.Plot.YAxis2.Label(label: "HP", size: 12);
-            GraphView.Plot.YAxis2.Ticks(true);
-            var legend = GraphView.Plot.Legend(location: Alignment.UpperRight);
-            legend.FillColor = Color.FromArgb(50, 50, 50, 50);
-            legend.FontColor = Color.WhiteSmoke;
-            legend.FontSize = 8;
-            InitCrosshair(0);
-            GraphView.Plot.Style(dataBackground: Color.FromArgb(100, 10, 10, 10),
-                figureBackground: Color.FromArgb(0, 10, 10, 10), grid: Color.FromArgb(100, 120, 120, 120), tick: Color.LightGray, axisLabel: Color.WhiteSmoke, titleLabel: Color.WhiteSmoke);
-            GraphView.Refresh();
+                SKBitmapFromFile.Load("avares://Orbs/resources/skull_Icon.png");
         }
 
-        public WpfPlot GraphView { get; set; }
+        public AvaPlot GraphView { get; set; }
 
+        public void SetPlot(AvaPlot plot)
+        {
+            GraphView = plot;
+        }
         public ObservableCollection<LegendItemViewModel> GetLegends()
         {
             return new ObservableCollection<LegendItemViewModel>(_seriesToPlot.Select(s => s.Legend));
@@ -65,56 +57,33 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             lock (graphLock)
             {
                 _seriesToPlot.Clear();
-                GraphView.Plot.RenderLock();
                 GraphView.Plot.Clear();
-                GraphView.Plot.RenderUnlock();
-                GraphView.Plot.AxisAuto();
+                GraphView.Plot.Axes.AutoScale();
             }
-            App.Current.Dispatcher.Invoke(() => { GraphView.Refresh(); });
+            Dispatcher.UIThread.Invoke(() => { GraphView.Refresh(); });
         }
-        public void MousePositionUpdated()
-        {
-            lock (graphLock)
-            {
-                var xVal = GetXValClosestToMouse();
-                SetAnnotationPosition(xVal, true);
-            }
-        }
-        public void SetAnnotationPosition(double position, bool fromMouse = false)
-        {
-            if (_crossHair.X == position) return;
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                _crossHair.X = position;
-                _crossHair.VerticalLine.LineStyle = LineStyle.Solid;
-                _crossHair.VerticalLine.Color = Color.WhiteSmoke;
-                _crossHair.VerticalLine.LineWidth = 1;
-                _crossHair.VerticalLine.PositionLabel = true;
-                _crossHair.IsVisible = true;
-                GraphView.Render();
-                if (fromMouse)
-                {
-                    XValueSelected(position);
-                }
-            });
-        }
-        public void PlotCombat(Combat combatToPlot, List<Entity> viewableEntities, DateTime minVal)
+        public void PlotCombat(Combat combatToPlot, IEnumerable<Entity> viewableEntities, string abilityName, Entity objSource)
         {
             _currentPlayers = viewableEntities;
-
-            foreach (var entity in _currentPlayers)
+            var pallete = new ScottPlot.Palettes.Nord();
+            var currentPlayers = _currentPlayers as Entity[] ?? _currentPlayers.ToArray();
+            foreach (var entity in currentPlayers)
             {
                 CombatMetaDataSeries series = new CombatMetaDataSeries
                 {
                     Name = entity.Name,
-                    Color = Palette.Category10.GetColor(_currentPlayers.IndexOf(entity)),
+                    Color = pallete.GetColor(currentPlayers.IndexOf(entity)),
                     Type = PlotType.DamageTaken
                 };
                 _seriesToPlot.Add(series);
-                List<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l => l.TimeStamp > minVal).OrderBy(l => l.TimeStamp).ToList();
-                List<ParsedLogEntry> hpData = GetCorrectData(PlotType.HPPercent, combatToPlot, entity).Where(l => l.TimeStamp > minVal).OrderBy(l => l.TimeStamp).ToList();
+                IOrderedEnumerable<ParsedLogEntry> applicableData = GetCorrectData(series.Type, combatToPlot, entity).Where(l => l.Ability == abilityName && (l.Source.LogId == objSource.LogId || objSource.IsCharacter)).OrderBy(l => l.TimeStamp);
+                if (applicableData == null || !applicableData.Any())
+                    continue;
+                var minTime = applicableData.MinBy(b=>b.TimeStamp).TimeStamp;
+                var maxTime = applicableData.MaxBy(b=>b.TimeStamp).TimeStamp;
+                List<ParsedLogEntry> hpData = GetCorrectData(PlotType.HPPercent, combatToPlot, entity).Where(l=>l.TimeStamp >= minTime.AddSeconds(-5) && l.TimeStamp <= maxTime.AddSeconds(5)).OrderBy(l => l.TimeStamp).ToList();
 
-                if (applicableData == null || applicableData.Count == 0)
+                if (applicableData == null || !applicableData.Any())
                     continue;
                 double[] plotXvals;
                 double[] plotYvals;
@@ -131,62 +100,40 @@ namespace SWTORCombatParser.ViewModels.Death_Review
 
                 var seriesName = entity.Name;
 
-                series.PointsByCharacter[entity.Name] = GraphView.Plot.AddScatter(
+                series.PointsByCharacter[entity.Name] = GraphView.Plot.Add.Scatter(
                     plotXvals,
                     plotYvals,
-                    lineStyle: LineStyle.None,
-                    markerShape: MarkerShape.filledCircle,
-                    label: seriesName,
-                    color: series.Color,
-                    markerSize: 3);
+                    color: series.Color);
+                series.PointsByCharacter[entity.Name].MarkerSize = 5;
+                series.PointsByCharacter[entity.Name].LineStyle = LineStyle.None;
+                series.PointsByCharacter[entity.Name].LegendText = seriesName;
+                series.PointsByCharacter[entity.Name].MarkerShape = MarkerShape.FilledCircle;
                 series.PointsByCharacter[entity.Name].IsVisible = true;
 
 
-                series.LineByCharacter[entity.Name] = GraphView.Plot.AddScatter(
+                series.LineByCharacter[entity.Name] = GraphView.Plot.Add.ScatterLine(
                     plotXValRates,
                     plotYvaRates,
-                    lineStyle: LineStyle.Solid,
-                    markerShape: MarkerShape.none,
-                    color: series.Color,
-                    lineWidth: 2);
-                series.LineByCharacter[entity.Name].YAxisIndex = 1;
+                    color: series.Color);
+                series.LineByCharacter[entity.Name].LineWidth = 1;
+                series.LineByCharacter[entity.Name].Axes.YAxis = GraphView.Plot.Axes.Right;
                 series.LineByCharacter[entity.Name].IsVisible = true;
-
+                GraphView.Plot.Axes.AutoScale();
                 if (deathMarkers.Any())
                 {
                     foreach (var marker in deathMarkers)
                     {
-
-                        GraphView.Plot.AddImage(new Bitmap(_skullImage, 15, 15)
-                            , marker,
-                            0, anchor: Alignment.LowerCenter);
+                        GraphView.Plot.Add.ImageMarker(new Coordinates(marker,GraphView.Plot.Axes.GetLimits().Top/5),new Image(_skullImage),0.03f);;
                     }
                 }
             }
-            GraphView.Plot.AxisAuto();
-            InitCrosshair(GraphView.Plot.GetAxisLimits(0).XMin);
-            GraphView.Plot.SetAxisLimits(yMin: 0, yAxisIndex: 1);
-            GraphView.Plot.SetAxisLimits(xMax: (combatToPlot.EndTime - combatToPlot.StartTime).TotalSeconds);
-            App.Current.Dispatcher.Invoke(GraphView.Refresh);
-            XValueSelected(GraphView.Plot.GetAxisLimits(0).XMin);
+            GraphView.Plot.Axes.AutoScale();
+            GraphView.Plot.Axes.SetLimits(bottom: 0);
+            GraphView.Plot.Axes.SetLimitsY(new AxisLimits(0,0,0,1),GraphView.Plot.Axes.Right);
+            Dispatcher.UIThread.Invoke(GraphView.Refresh);
         }
-        private double GetXValClosestToMouse()
-        {
-            (double mouseCoordX, double mouseCoordY) = GraphView.GetMouseCoordinates();
-            return mouseCoordX;
-        }
-        private void InitCrosshair(double xVal)
-        {
-            _crossHair = GraphView.Plot.AddCrosshair(xVal, 0);
-            _crossHair.VerticalLine.LineStyle = LineStyle.Solid;
-            _crossHair.VerticalLine.Color = Color.WhiteSmoke;
-            _crossHair.VerticalLine.LineWidth = 1;
-            _crossHair.VerticalLine.PositionLabel = true;
-            _crossHair.VerticalLine.PositionLabelBackground = Color.DimGray;
-            _crossHair.IsVisible = true;
-            _crossHair.HorizontalLine.IsVisible = false;
-        }
-        private List<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
+
+        private ConcurrentQueue<ParsedLogEntry> GetCorrectData(PlotType type, Combat combatToPlot, Entity selectedParticipant)
         {
             switch (type)
             {
@@ -201,7 +148,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
                 case PlotType.SheildedDamageTaken:
                     return combatToPlot.ShieldingProvidedLogs[selectedParticipant];
                 case PlotType.HPPercent:
-                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant).ToList();
+                    return combatToPlot.GetLogsInvolvingEntity(selectedParticipant);
 
             }
             return null;

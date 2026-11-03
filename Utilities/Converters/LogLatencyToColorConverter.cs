@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
-using System.Windows.Media;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -12,21 +12,21 @@ namespace SWTORCombatParser.Utilities.Converters
             var latency = (double)value;
             if (latency < 2)
             {
-                return Brushes.LightGreen;
+                return new SolidColorBrush(Colors.LightGreen);
             }
             if (latency < 3)
             {
-                return Brushes.YellowGreen;
+                return new SolidColorBrush(Colors.YellowGreen);
             }
             if (latency < 3.5)
             {
-                return Brushes.Orange;
+                return new SolidColorBrush(Colors.Orange);
             }
             if (latency >= 3.5)
             {
-                return Brushes.Tomato;
+                return new SolidColorBrush(Colors.Tomato);
             }
-            return Brushes.WhiteSmoke;
+            return new SolidColorBrush(Colors.WhiteSmoke);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

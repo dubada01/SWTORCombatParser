@@ -3,29 +3,39 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Home_View_Models
 {
-    public class ParticipantSelectionViewModel : INotifyPropertyChanged
+    public class ParticipantSelectionViewModel:ReactiveObject
     {
         private bool viewEnemies;
         private int rows;
         private int columns;
+        private ObservableCollection<ParticipantViewModel> _availableParticipants = new ObservableCollection<ParticipantViewModel>();
+        private Combat _selectedCombat;
+        private Entity _selectedParticipant;
 
         public event Action<Entity> ParticipantSelected = delegate { };
         public event Action<int> ViewEnemiesToggled = delegate { };
-        public List<ParticipantViewModel> AvailableParticipants { get; set; } = new List<ParticipantViewModel>();
+
+        public ObservableCollection<ParticipantViewModel> AvailableParticipants
+        {
+            get => _availableParticipants;
+            set => this.RaiseAndSetIfChanged(ref _availableParticipants, value);
+        }
+
         public int Rows
         {
             get => rows; set
             {
                 if (rows == value) return;
-                rows = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref rows, value);
             }
         }
         public int Columns
@@ -33,14 +43,22 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             get => columns; set
             {
                 if (columns == value) return;
-                columns = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref columns, value);
             }
         }
-        public Combat SelectedCombat { get; set; }
-        public Entity SelectedParticipant { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public Combat SelectedCombat
+        {
+            get => _selectedCombat;
+            set => _selectedCombat = value;
+        }
+
+        public Entity SelectedParticipant
+        {
+            get => _selectedParticipant;
+            set => _selectedParticipant = value;
+        }
+
         public ParticipantSelectionViewModel()
         {
             ParticipantSelectionHandler.SelectionUpdated += SetSelection;
@@ -51,7 +69,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 viewEnemies = value;
                 UpdateParticipantsData(SelectedCombat);
-                var entitiesToShow = ViewEnemies ? SelectedCombat.AllEntities.Where(e => e.IsBoss || e.IsCharacter).ToList() : SelectedCombat.CharacterParticipants;
+                var entitiesToShow = ViewEnemies ? SelectedCombat.AllEntities.Values.Where(e => e.IsBoss || e.IsCharacter).ToList() : SelectedCombat.CharacterParticipants.Values;
                 ViewEnemiesToggled(entitiesToShow.Count);
                 if (!viewEnemies && SelectedParticipant.IsBoss)
                     SetSelection(entitiesToShow.First(e => e.IsLocalPlayer));
@@ -103,16 +121,16 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             viewModel.Entity = e;
             viewModel.PlayerName = e.Name;
             viewModel.IsLocalPlayer = e.IsLocalPlayer;
-            viewModel.RoleImageSource = Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
+            viewModel.RoleImageSource = IconFactory._unknownIcon;
             viewModel.IsSelected = ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == 0 ?
                 ParticipantSelectionHandler.CurrentlySelectedParticpant?.Id == viewModel.Entity?.Id :
                 ParticipantSelectionHandler.CurrentlySelectedParticpant?.LogId == viewModel.Entity?.LogId;
             return viewModel;
         }
-        public List<Entity> UpdateParticipantsData(Combat info)
+        public IEnumerable<Entity> UpdateParticipantsData(Combat info)
         {
             SelectedCombat = info;
-            var entitiesToView = ViewEnemies ? info.AllEntities.Where(e => e.IsBoss || e.IsCharacter).ToList() : info.CharacterParticipants;
+            var entitiesToView = ViewEnemies ? info.AllEntities.Values.Where(e => e.IsBoss || e.IsCharacter).ToList() : info.CharacterParticipants.Values;
             var names = entitiesToView.Select(e => e.Name);
             if (AvailableParticipants.Count() == names.Count() && AvailableParticipants.All(ap => names.Contains(ap.PlayerName))) return entitiesToView;
             AvailableParticipants.Clear();
@@ -120,9 +138,9 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             {
                 ParticipantViewModel participantViewModel = GenerateInstance(participant);
                 participantViewModel.SelectionChanged += SelectParticipant;
-                var imagePath = Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
+                var imagePath = IconFactory._unknownIcon;
                 if (participant.IsCompanion)
-                    imagePath = Path.Combine(Environment.CurrentDirectory, "resources/LocalPlayerIcon.png");
+                    imagePath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/LocalPlayerIcon.png")));
                 if (info.CharacterClases.ContainsKey(participant))
                 {
                     var swtorClass = info.CharacterClases[participant];
@@ -132,36 +150,30 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 participantViewModel.SetValues(info.EDPS[participant], info.EHPS[participant], info.EDTPS[participant], imagePath);
                 AvailableParticipants.Add(participantViewModel);
             }
-            AvailableParticipants = new List<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
+            AvailableParticipants = new ObservableCollection<ParticipantViewModel>(AvailableParticipants.OrderBy(p => p.RoleOrdering));
             UpdateLayout();
             if (ParticipantSelectionHandler.CurrentlySelectedParticpant == null)
             {
                 SelectLocalPlayer();
             }
-            OnPropertyChanged("AvailableParticipants");
             return entitiesToView;
         }
 
-        private string GetRoleImage(SWTORClass sWTORClass)
+        private Bitmap GetRoleImage(SWTORClass sWTORClass)
         {
             if (sWTORClass == null)
-                return Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
+                return IconFactory._unknownIcon;
             switch (sWTORClass.Role)
             {
                 case Role.DPS:
-                    return Path.Combine(Environment.CurrentDirectory, "resources/dpsIcon.png");
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/dpsIcon.png")));
                 case Role.Healer:
-                    return Path.Combine(Environment.CurrentDirectory, "resources/healingIcon.png");
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/healingIcon.png")));
                 case Role.Tank:
-                    return Path.Combine(Environment.CurrentDirectory, "resources/tankIcon.png");
+                    return new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/tankIcon.png")));
                 default:
-                    return Path.Combine(Environment.CurrentDirectory, "resources/question-mark.png");
+                    return IconFactory._unknownIcon;
             }
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

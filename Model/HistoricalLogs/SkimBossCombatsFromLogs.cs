@@ -11,14 +11,15 @@ namespace SWTORCombatParser.Model.HistoricalLogs
     {
         public static List<Combat> GetBossCombats(List<ParsedLogEntry> allLogs)
         {
+            var combatDetector = new CombatDetector();
             List<List<ParsedLogEntry>> concurrentLogsForCombat = new List<List<ParsedLogEntry>>();
             List<ParsedLogEntry> currentCombatLogs = new List<ParsedLogEntry>();
 
-            CombatDetector.Reset();
+            combatDetector.Reset();
 
             foreach (var line in allLogs)
             {
-                var combatState = CombatDetector.CheckForCombatState(line);
+                var combatState = combatDetector.CheckForCombatState(line);
 
                 if (combatState == CombatState.ExitedByEntering)
                 {
@@ -51,7 +52,7 @@ namespace SWTORCombatParser.Model.HistoricalLogs
             ConcurrentBag<Combat> concurrentCombats = new ConcurrentBag<Combat>();
             Parallel.ForEach(logsSplitIntoCombats, logs =>
             {
-                var combatCreated = CombatIdentifier.GenerateNewCombatFromLogs(logs, false, true);
+                var combatCreated = CombatIdentifier.GenerateCombatSnapshotFromLogs(logs, false, true);
                 if (!string.IsNullOrEmpty(combatCreated.EncounterBossInfo))
                     concurrentCombats.Add(combatCreated);
             });

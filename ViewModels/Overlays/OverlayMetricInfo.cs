@@ -6,8 +6,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using SWTORCombatParser.Model.LogParsing;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -17,14 +21,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double _value;
         private double _secondaryValue;
         private int leaderboardRank;
-        private double defaultBarHeight = 35;
-        private double defaultFontSize = 18;
+        private double defaultBarHeight = 25;
+        private double defaultFontSize = 13;
         private double defaultValueWidth = 60;
 
         private string valueStringFormat = "#,##0";
         private double sizeScalar = 1;
-
-        public string MedalIconPath { get; set; } = "../../resources/redX.png";
+        public Bitmap ClassIcon { get; set; }
+        public Bitmap MedalIconPath { get; set; } = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/redX.png")));
         public string InfoText => $"{Type}: {(int)Value}" + (SecondaryType != OverlayType.None ? $"\n{SecondaryType}: {(int)SecondaryValue}" : "");
         public double SizeScalar
         {
@@ -49,15 +53,15 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
         public GridLength SecondaryBarWidth { get; set; }
-        public double BorderThickness => IsLeaderboardValue ? (3 * SizeScalar) : 0;
+        public Thickness BorderThickness => IsLeaderboardValue ? new Thickness(1.25 * SizeScalar) : new Thickness(0);
         public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
         public CornerRadius BarRadiusSecondary { get; set; } = new CornerRadius(3, 3, 3, 3);
-        public SolidColorBrush BarOutline => IsLeaderboardValue ? Brushes.WhiteSmoke : Brushes.Transparent;
+        public SolidColorBrush BarOutline => IsLeaderboardValue ? new SolidColorBrush(Brushes.WhiteSmoke.Color) : new SolidColorBrush(Brushes.Transparent.Color);
         public bool AddSecondayToValue { get; set; }
         public bool FlipSecondaryAndPrimaryBars { get; set; }
         public Entity Player { get; set; }
         public bool RankIsPersonalRecord { get; set; }
-        public double LeaderboardSeperationDistance => (SizeScalar * 5);
+        public double LeaderboardSeperationDistance => (SizeScalar * 2);
         public string LeaderboardRank
         {
             get => leaderboardRank == 0 ? "" : leaderboardRank.ToString();
@@ -69,6 +73,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public TextDecorationCollection RankDecoration => RankIsPersonalRecord ? new TextDecorationCollection(new List<TextDecoration> { new TextDecoration { Location = TextDecorationLocation.Underline } }) : new TextDecorationCollection();
         public string PlayerName => Player.Name;
+        public FontWeight PlayerTextWeight => Player.IsLocalPlayer ? FontWeight.DemiBold : FontWeight.Normal;
+        public TextDecorationCollection PlayerTextDecorations => Player.IsLocalPlayer ? new TextDecorationCollection(new List<TextDecoration> { new TextDecoration { Location = TextDecorationLocation.Underline } }) : new TextDecorationCollection();
         public bool IsLeaderboardValue { get; set; } = false;
 
         public OverlayMetricInfo()
@@ -185,6 +191,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 OnPropertyChanged("Type");
             if (type == SecondaryType)
                 OnPropertyChanged("SecondaryType");
+            OnPropertyChanged("DataContext");
         }
         public OverlayType Type { get; set; }
         public OverlayType SecondaryType { get; set; }

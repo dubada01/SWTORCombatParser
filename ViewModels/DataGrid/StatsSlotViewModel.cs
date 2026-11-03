@@ -1,77 +1,62 @@
-﻿using MvvmHelpers;
+﻿using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using ReactiveUI;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Converters;
-using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
-    public class StatsSlotViewModel : BaseViewModel
+    public class StatsSlotViewModel : ReactiveObject
     {
         private SolidColorBrush backgroundColor;
+        private Bitmap _roleIcon;
         public bool DisplayIcon { get; set; }
-        public BitmapSource RoleIcon { get; set; }
+        public string Header { get; set; }
+        public Bitmap RoleIcon
+        {
+            get => _roleIcon;
+            set => this.RaiseAndSetIfChanged(ref _roleIcon, value);
+        }
+
         public bool IsLocalPlayer { get; set; }
         public bool IsTotal { get; set; }
         public HorizontalAlignment ValueAlignment { get; set; }
-        private OverlayType OverlayType { get; set; }
-        public StatsSlotViewModel(OverlayType type, System.Windows.Media.Color iconColor, string name = "", string iconName = "", bool isLocalPlayer = false, Entity entity = null)
+        public OverlayType OverlayType { get; set; }
+        public StatsSlotViewModel(OverlayType type, string name = "", string iconName = "", bool isLocalPlayer = false, Entity entity = null)
         {
+            Header = new OverlayTypeToReadableNameConverter().Convert(type,null,null,System.Globalization.CultureInfo.InvariantCulture).ToString();
             OverlayType = type;
             IsTotal = entity == null || name == "Totals";
             if (!string.IsNullOrEmpty(name) && name != "Totals")
             {
+                Header = "Name";
                 IsLocalPlayer = isLocalPlayer;
-                if (isLocalPlayer)
-                    ForegroundColor = System.Windows.Media.Brushes.Goldenrod;
-                else
-                    ForegroundColor = System.Windows.Media.Brushes.WhiteSmoke;
-                Value = name;
                 DisplayIcon = true;
-                var coloredIcon = IconFactory.GetColoredBitmapImage(iconName, iconColor);
+                var coloredIcon = IconFactory.GetClassIcon(iconName);
                 RoleIcon = coloredIcon;
                 ValueAlignment = HorizontalAlignment.Center;
                 return;
             }
             if (name == "Totals")
             {
-                ForegroundColor = System.Windows.Media.Brushes.WhiteSmoke;
                 Value = name;
                 ValueAlignment = HorizontalAlignment.Center;
                 return;
             }
             ValueAlignment = HorizontalAlignment.Right;
             ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(OverlayType, null, null, System.Globalization.CultureInfo.InvariantCulture);
-            MetricColorLoader.OnOverlayTypeColorUpdated += TryUpdateColor;
         }
 
-        private void TryUpdateColor(OverlayType type)
+        public void UpdateIcon(string iconName)
         {
-            if(OverlayType == type && Value != "Totals" && DisplayIcon == false)
-            {
-                ForegroundColor = (SolidColorBrush)new OverlayMetricToColorConverter().Convert(OverlayType, null, null, System.Globalization.CultureInfo.InvariantCulture);
-                OnPropertyChanged("ForegroundColor");
-            }
+            var coloredIcon = IconFactory.GetClassIcon(iconName);
+            RoleIcon = coloredIcon;
         }
-
         public string Value { get; set; }
-        public SolidColorBrush BackgroundColor
-        {
-            get => backgroundColor; set
-            {
-                backgroundColor = value;
-                OnPropertyChanged();
-            }
-        }
-
 
         public SolidColorBrush ForegroundColor { get; set; }
     }

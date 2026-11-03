@@ -16,7 +16,12 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public static class CombatLogLoader
     {
-        public static string LoggingPath => Settings.ReadSettingOfType<string>("combat_logs_path");
+        public static string LoggingPath { get; set; }
+
+        public static void RefreshSWTORCombatLogsDirectory()
+        {
+            LoggingPath = Settings.ReadSettingOfType<string>("combat_logs_path");
+        }
         public static string GetLogDirectory()
         {
             return LoggingPath;
@@ -92,7 +97,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static string GetMostRecentCombatFile()
         {
-            var files = new DirectoryInfo(LoggingPath).EnumerateFiles();
+            var files = new DirectoryInfo(LoggingPath).EnumerateFiles().Where(l=>l.Extension == ".txt");
             return files.OrderByDescending(f => f.LastWriteTime).ToList()[0].FullName;
         }
         private static CombatLogFile LoadCombatLog(string path)

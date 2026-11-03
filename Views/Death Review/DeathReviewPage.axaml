@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.DeathReviewPage"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Death_Review"
+             x:DataType="vm:DeathReviewViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <Grid Background="{StaticResource Gray2Brush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="85"/>
+            <RowDefinition Height="{Binding ElementName=HideTab, Path=IsSelected, Converter={StaticResource HideToHeightConverter}}"/>
+            <RowDefinition Height="0.5*"/>
+        </Grid.RowDefinitions>
+
+        <TabControl Background="{StaticResource Gray4Brush}" Grid.Row="1">
+            <TabItem Header="Damage Plot" FontSize="13" FontWeight="DemiBold" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}">
+                <ContentPresenter Content="{Binding DeathPlotView}"/>
+            </TabItem>
+            <TabItem Header="Raid Challenges" FontSize="13" FontWeight="DemiBold" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}">
+                <ContentPresenter Content="{Binding DeathChallengeView}"/>
+            </TabItem>
+            <TabItem x:Name="HideTab" FontSize="13" Header="Hide" FontWeight="DemiBold" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}">
+            </TabItem>
+        </TabControl>
+        <ContentPresenter Content="{Binding DeathPlayerListView}" Grid.ColumnSpan="2"/>
+
+        <ContentPresenter Content="{Binding DeathLogsView}"  Grid.Row="2" Grid.Column="1"/>
+    </Grid>
+</UserControl>

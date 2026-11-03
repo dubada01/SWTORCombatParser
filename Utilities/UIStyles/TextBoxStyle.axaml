@@ -1,0 +1,36 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+   
+    <Style Selector="TextBox.RaidNotesTextBox">
+        <Setter Property="Padding" Value="5"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Background" Value="{StaticResource Gray1Brush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Gray1Brush}"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Border x:Name="border"
+                            CornerRadius="4"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="2"
+                            Background="{TemplateBinding Background}"
+                            Opacity="0.6">
+                    </Border>
+                    <ScrollViewer x:Name="PART_ContentHost"
+                                  Focusable="False"
+                                  HorizontalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Hidden">
+                        <!-- PART_TextPresenter is the key part to include for TextBox functionality -->
+                        <TextPresenter x:Name="PART_TextPresenter"
+                                       Margin="{TemplateBinding Padding}"
+                                       Text="{TemplateBinding Text}"
+                                       Background="{TemplateBinding Background}"/>
+                    </ScrollViewer>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

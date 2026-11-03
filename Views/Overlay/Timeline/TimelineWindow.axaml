@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avaloniaTemp="clr-namespace:SWTORCombatParser.ViewModels.Avalonia_TEMP"
+        xmlns:dataGridViews="clr-namespace:SWTORCombatParser.Views.DataGrid_Views"
+        x:Class="SWTORCombatParser.Views.Overlay.Timeline.TimelineWindow"
+        x:DataType="avaloniaTemp:TimelineWindowViewModel"
+        x:Name="RootWindow"
+        Background="{x:Null}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*"/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <TextBlock FontSize="{StaticResource FontSizeLarge}" x:Name="EncounterName" FontFamily="{StaticResource MainFont}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"  Margin="0,0,0,0"></TextBlock>
+        <ContentPresenter Content="{Binding MetricsView}" Grid.Row="1" />
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.1*"></ColumnDefinition>
+                <ColumnDefinition Width="0.8*"></ColumnDefinition>
+                <ColumnDefinition Width="0.1*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,2,0" Text="Entered"></TextBlock>
+            <Rectangle Grid.Column="1" Height="2"
+                   Fill="LightGray" HorizontalAlignment="Stretch" />
+            <Canvas Grid.Column="1"
+                    x:Name="TimelineCanvas"
+                    Height="100"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                <!-- Timeline Line -->
+            </Canvas>
+            <TextBlock Grid.Column="2" VerticalAlignment="Center" Margin="2,0,0,0" Text="Final Kill"></TextBlock>
+            <TextBlock Grid.Column="1" x:Name="DurationInfo" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="11" FontStyle="Italic" Margin="0,0,0,5"></TextBlock>
+        </Grid>
+
+        
+    </Grid>
+</UserControl>

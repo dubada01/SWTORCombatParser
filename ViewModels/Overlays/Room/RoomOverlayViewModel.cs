@@ -6,16 +6,17 @@ using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows.Shapes;
-using System.Windows.Threading;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Threading;
+using ReactiveUI;
+
 
 namespace SWTORCombatParser.ViewModels.Overlays.Room
 {
-    public class RoomOverlayViewModel : INotifyPropertyChanged
+    public class RoomOverlayViewModel : BaseOverlayViewModel
     {
         private DateTime _startTime;
 
@@ -28,26 +29,39 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
         private string _currentBossName;
 
         private RoomHazard _currentHazard;
-        private string imagePath;
+        private Bitmap imagePath;
         private bool _isTriggered;
         private bool viewExtraInfo;
-
-        public RoomOverlayViewModel()
+        private double _imageRotation;
+        public override bool ShouldBeVisible => _isTriggered;
+        public RoomOverlayViewModel(string overlayName) : base(overlayName)
         {
             _roomOverlay = new RoomOverlay(this);
-            _roomOverlay.Show();
+            MainContent = _roomOverlay;
             _settings = RoomOverlayLoader.GetRoomOverlaySettings();
             CombatLogStreamer.CombatUpdated += NewInCombatLogs;
-            EncounterTimerTrigger.EncounterDetected += OnBossEncounterDetected;
-            SetInitialPosition();
+            EncounterTimerTrigger.BossCombatDetected += OnBossBossCombatDetected;
+            
+            
+            ImagePath = new Bitmap(
+                AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/Empty.png")));
+            _isTriggered = true;
+            UpdateVisibility();
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                IsActive = true;
+            });
+            _isTriggered = false;
         }
 
-        private void OnBossEncounterDetected(string arg1, string arg2, string arg3)
+        private void OnBossBossCombatDetected(string arg1, string arg2, string arg3)
         {
-            if (!OverlayEnabled || _isTriggered)
+            if (!Active || _isTriggered)
                 return;
-            ImagePath = System.IO.Path.Combine("../../../resources/RoomOverlays/IP-CPT", "Empty.png"); ;
+            ImagePath = new Bitmap(
+                AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/Empty.png")));
             _isTriggered = true;
+            UpdateVisibility();
             _currentBossName = arg2;
 
             _startTime = DateTime.Now;
@@ -64,14 +78,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
                 }
                 if(_currentCombatOverlaySettings.EncounterName == "NAHUT")
                 {
-                    ImagePath = System.IO.Path.Combine("../../../resources/RoomOverlays/NAHUT", "NAHUT_Room.jpg"); ;
+                    ImagePath =new Bitmap(
+                        AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/NAHUT/NAHUT_Room.jpg")));
                     var hazard = new NAHUT_Hazard(_roomOverlay, _currentCombatOverlaySettings);
                     _currentHazard = hazard;
                 }
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     IsActive = true;
-                    OnPropertyChanged("IsActive");
                 });
                 _currentHazard?.Start();
             }
@@ -81,96 +95,45 @@ namespace SWTORCombatParser.ViewModels.Overlays.Room
             get => viewExtraInfo; set
             {
                 DefaultRoomOverlayManager.SetViewExtra(value);
-                viewExtraInfo = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref viewExtraInfo, value);
             }
         }
-        public bool OverlayEnabled
+        public bool IsActive { get => _isActive; set => this.RaiseAndSetIfChanged(ref _isActive, value); }
+        public Bitmap CharImagePath => new Bitmap(
+            AssetLoader.Open(new Uri("avares://Orbs/resources/RoomOverlays/PlayerLocation.png")));
+        public Bitmap ImagePath
         {
-            get { return _isActive; }
-            set
-            {
-                DefaultRoomOverlayManager.SetActiveState(value);
-                _isActive = value;
-                if (!_isActive)
-                {
-                    _roomOverlay.Hide();
-                }
-                else
-                {
-                    _roomOverlay.Show();
-                }
-                OnPropertyChanged();
-            }
+            get => imagePath; set => this.RaiseAndSetIfChanged(ref imagePath, value);
         }
-        public bool IsActive { get; set; }
-        public string CharImagePath => "../../../resources/RoomOverlays/PlayerLocation.png";
-        public string ImagePath
-        {
-            get => imagePath; set
-            {
-                imagePath = value;
-                OnPropertyChanged();
-            }
-        }
-        public event Action<bool> OnLocking = delegate { };
 
+        public double ImageRotation
+        {
+            get => _imageRotation;
+            set => this.RaiseAndSetIfChanged(ref _imageRotation, value);
+        }
 
-        public bool OverlaysMoveable { get; set; }
-        public void LockOverlays()
-        {
-            OnLocking(true);
-            OverlaysMoveable = false;
-            IsActive = false;
-            OnPropertyChanged("IsActive");
-            OnPropertyChanged("OverlaysMoveable");
-        }
-        public void UnlockOverlays()
-        {
-            OnLocking(false);
-            OverlaysMoveable = true;
-            IsActive = true;
-            OnPropertyChanged("IsActive");
-            OnPropertyChanged("OverlaysMoveable");
-        }
         private void NewInCombatLogs(CombatStatusUpdate obj)
         {
-            if (!OverlayEnabled)
+            if (!Active)
                 return;
             if (obj.Type == UpdateType.Stop)
             {
                 _isTriggered = false;
                 _currentBossName = "";
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     IsActive = false;
-                    OnPropertyChanged("IsActive");
                 });
                 _currentHazard?.Stop();
             }
         }
-        private void OnNewImageFromHazard(string newPath)
+        private void OnNewImageFromHazard(Uri newPath)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
-                ImagePath = newPath;
-                OnPropertyChanged("ImagePath");
+                ImagePath = new Bitmap(
+                    AssetLoader.Open(newPath));
             });
-        }
-        private void SetInitialPosition()
-        {
-            var defaults = DefaultRoomOverlayManager.GetDefaults();
-            OverlayEnabled = defaults.Acive;
-            ViewExtraInfo = defaults.ViewExtraData;
-            _roomOverlay.Top = defaults.Position.Y;
-            _roomOverlay.Left = defaults.Position.X;
-            _roomOverlay.Width = defaults.WidtHHeight.X;
-            _roomOverlay.Height = defaults.WidtHHeight.Y;
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

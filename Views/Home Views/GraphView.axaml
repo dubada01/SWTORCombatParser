@@ -1,0 +1,71 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.GraphView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser"
+             xmlns:ScottPlot="clr-namespace:ScottPlot.Avalonia;assembly=ScottPlot.Avalonia"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Home_View_Models"
+                x:DataType="vm:PlotViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="{Binding ParticipantSelectionHeight}" MaxHeight="{Binding MaxSeletionHeight}" MinHeight="{Binding MinSeletionHeight}"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.8*"/>
+            <ColumnDefinition Width="{Binding SecondColumnWidth}"/>
+        </Grid.ColumnDefinitions>
+        <ContentPresenter Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="0" Content="{Binding ParticipantSelectionContent}"></ContentPresenter>
+        <ScottPlot:AvaPlot Name="GridView" Grid.Row="1" Grid.Column="0" PointerMoved="GridView_MouseMove"/>
+        <Grid Grid.Row="2" HorizontalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="0.66*"/>
+                <ColumnDefinition Width="13"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="1" Background="{StaticResource Gray4Brush}" CornerRadius="5,5,0,0" HorizontalAlignment="Stretch" BorderBrush="LightGray" BorderThickness="0">
+                <Viewbox MaxHeight="35" MaxWidth="900" Margin="5,0,5,0">
+                    <ItemsControl BorderThickness="0" ItemsSource="{Binding LegendItems}" Background="Transparent">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"></StackPanel>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid VerticalAlignment="Center" Margin="5,0,5,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width=".25*"/>
+                                        <ColumnDefinition Width="0.75*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <CheckBox  Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding Checked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                    <TextBlock FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="{Binding Name}" Foreground="{Binding LegendColor}"></TextBlock>
+
+                                    <CheckBox IsVisible="{Binding ShowEffective}"  Grid.Row="1" Margin="5" VerticalAlignment="Center" Grid.Column="0" IsChecked="{Binding EffectiveChecked, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
+                                    <TextBlock FontFamily="{StaticResource MainFont}" IsVisible="{Binding ShowEffective}" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Grid.Column="1" FontSize="20" Text="raw" Foreground="WhiteSmoke"></TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Viewbox>
+            </Border>
+        </Grid>
+
+        <Viewbox MaxHeight="75" Margin="5,0,0,10" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="2">
+            <StackPanel  Orientation="Vertical">
+                <TextBox Classes="RoundedTextBox" Width="60" Text="{Binding AverageWindowDuration, UpdateSourceTrigger=PropertyChanged}" HorizontalContentAlignment="Center" FontSize="15" FontFamily="{StaticResource MainFont}"></TextBox>
+                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="Beige" FontSize="14" FontWeight="DemiBold" HorizontalAlignment="Center" Text="  Rolling Average&#x0a;Window Duration"></TextBlock>
+            </StackPanel>
+        </Viewbox>
+
+        <ContentPresenter Grid.Row="1" Grid.RowSpan="2" Content="{Binding EffectsView}" Margin="0,10,0,0" Grid.Column="1"></ContentPresenter>
+    </Grid>
+</UserControl>

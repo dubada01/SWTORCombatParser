@@ -1,20 +1,16 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.Model.Overlays;
+﻿using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.Views;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using ReactiveUI;
+
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class MetricColorPickerViewModel:INotifyPropertyChanged
+    public class MetricColorPickerViewModel:ReactiveObject, INotifyPropertyChanged
     {
 
         private Color metricColor;
@@ -46,7 +42,7 @@ namespace SWTORCombatParser.ViewModels
             OverlayType = type;
             MetricColor = MetricColorLoader.GetMetricCurrentColor(type);
         }
-        public ICommand SetDefaultCommand => new DelegateCommand(SetDefaultColor);
+        public ReactiveCommand<Unit,Unit> SetDefaultCommand => ReactiveCommand.Create(SetDefaultColor);
 
         private void SetDefaultColor()
         {
@@ -54,7 +50,7 @@ namespace SWTORCombatParser.ViewModels
             OnPropertyChanged("MetricColor");
         }
 
-        public ICommand CloseCommand => new DelegateCommand(CloseThis);
+        public ReactiveCommand<Unit,Unit> CloseCommand => ReactiveCommand.Create(CloseThis);
 
         private void CloseThis()
         {

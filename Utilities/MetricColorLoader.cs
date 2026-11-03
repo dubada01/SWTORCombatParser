@@ -1,14 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using Avalonia.Media;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.DataStructures;
-using System.Windows.Media;
+
 
 namespace SWTORCombatParser.Utilities
 {
@@ -50,22 +47,22 @@ namespace SWTORCombatParser.Utilities
         public static void SetCurrentBrushDict()
         {
             var currentSettings = GetAllColors();
-            CurrentMetricBrushDict = currentSettings.ToDictionary(kvp=>Enum.Parse<OverlayType>(kvp.Key), kvp => new SolidColorBrush((Color)ColorConverter.ConvertFromString(kvp.Value)));
+            CurrentMetricBrushDict = currentSettings.ToDictionary(kvp=>Enum.Parse<OverlayType>(kvp.Key), kvp => new SolidColorBrush(Color.Parse(kvp.Value)));
         }
         public static void SetColorForMetric(OverlayType type, string color)
         {
             var currentSettings = GetAllColors();
             currentSettings[type.ToString()] = color;
             WriteNewColors(currentSettings);
-            CurrentMetricBrushDict[type] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
-            OnOverlayTypeColorUpdated(type);
+            CurrentMetricBrushDict[type] = new SolidColorBrush(Color.Parse(color));
+            OnOverlayTypeColorUpdated.InvokeSafely(type);
         }
         public static Color GetDefaultColorForMetric(OverlayType type)
         {
             try
             {
                 var allColors = GetDefaultColors();
-                return (Color)ColorConverter.ConvertFromString(allColors[type.ToString()]);
+                return Color.Parse(allColors[type.ToString()]);
             }
             catch
             {
@@ -77,7 +74,7 @@ namespace SWTORCombatParser.Utilities
             try
             {
                 var allColors = GetAllColors();
-                return (Color)ColorConverter.ConvertFromString(allColors[type.ToString()]);
+                return Color.Parse(allColors[type.ToString()]);
             }
             catch
             {
@@ -88,7 +85,16 @@ namespace SWTORCombatParser.Utilities
         {
             lock(_fileLock)
             {
-                return JsonConvert.DeserializeObject<Dictionary<string,string>>(File.ReadAllText(infoPath));
+                var allColors = JsonConvert.DeserializeObject<Dictionary<string,string>>(File.ReadAllText(infoPath));
+                foreach (var color in Enum.GetValues<OverlayType>())
+                {
+                    if (!allColors.ContainsKey(color.ToString()))
+                    {
+                        allColors[color.ToString()] = GetMetricDefaultColor(color).ToString();
+                    }
+                }
+
+                return allColors;
             }
         }
         private static Dictionary<string, string> GetDefaultColors()
@@ -118,7 +124,7 @@ namespace SWTORCombatParser.Utilities
                     return Colors.IndianRed;
                 case OverlayType.NonEDPS:
                 case OverlayType.RawDamage:
-                    return (Color)ColorConverter.ConvertFromString("#d44c73");
+                    return Color.Parse("#d44c73");
                 case OverlayType.FocusDPS:
                     return Colors.OrangeRed;
                 case OverlayType.BurstEHPS:
@@ -150,9 +156,9 @@ namespace SWTORCombatParser.Utilities
                 case OverlayType.InterruptCount:
                     return Colors.SteelBlue;
                 case OverlayType.CleanseCount:
-                    return (Color)ColorConverter.ConvertFromString("#357fa1");
+                    return Color.Parse("#357fa1");
                 case OverlayType.CleanseSpeed:
-                    return (Color)ColorConverter.ConvertFromString("#5b8bd9");
+                    return Color.Parse("#5b8bd9");
                 case OverlayType.HealReactionTime:
                     return ResourceFinder.GetColorFromResourceName("YellowGrayColor");
                 case OverlayType.HealReactionTimeRatio:
@@ -160,11 +166,11 @@ namespace SWTORCombatParser.Utilities
                 case OverlayType.TankHealReactionTime:
                     return Colors.RosyBrown;
                 case OverlayType.CritPercent:
-                    return (Color)ColorConverter.ConvertFromString("#13ad7d");
+                    return Color.Parse("#13ad7d");
                 case OverlayType.SingleTargetDPS:
-                    return (Color)ColorConverter.ConvertFromString("#d834eb");
+                    return Color.Parse("#d834eb");
                 case OverlayType.SingleTargetEHPS:
-                    return (Color)ColorConverter.ConvertFromString("#00c497");
+                    return Color.Parse("#00c497");
                 default:
                     return Colors.Gray;
             }

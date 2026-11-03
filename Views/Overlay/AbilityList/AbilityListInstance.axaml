@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.AbilityList.AbilityListInstance"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.AbilityList"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.AbilityList"
+                x:DataType="vm:AbilityInfo"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40"/>
+            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition Width="0.7*"/>
+        </Grid.ColumnDefinitions>
+        <Image Margin="2,0,3,0" Grid.Column="0" Source="{Binding Icon}"></Image>
+        <TextBlock VerticalAlignment="Center" Margin="0,0,3,0" Grid.Column="1" Text="{Binding UseTime}" FontSize="{Binding FontSize}" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke"/>
+        <TextBlock VerticalAlignment="Center" Grid.Column="2" TextTrimming="CharacterEllipsis" Text="{Binding AbilityName}"  FontSize="{Binding FontSize}" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke"/>
+    </Grid>
+</UserControl>

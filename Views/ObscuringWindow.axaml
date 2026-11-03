@@ -1,0 +1,16 @@
+﻿<Window x:Class="SWTORCombatParser.Views.ObscuringWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views"
+        mc:Ignorable="d"
+        Title="ObscuringWindow"         
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome" Background="{x:Null}">
+    <Border CornerRadius="7" Background="Black" Opacity="0.75">
+        
+    </Border>
+</Window>

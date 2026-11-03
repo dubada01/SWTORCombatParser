@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
+using Avalonia.Data.Converters;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -11,9 +11,9 @@ namespace SWTORCombatParser.Utilities.Converters
             switch ((bool)value)
             {
                 case true:
-                    return "Stop";
+                    return "Stop Parsing";
                 case false:
-                    return "Start";
+                    return "Start Parsing";
             }
         }
 

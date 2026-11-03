@@ -1,27 +1,26 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using System;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Challenge;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
-using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Timers;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Windows.Media;
+using System.Reactive;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
+using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeSetupViewModel : INotifyPropertyChanged
+    public class ChallengeSetupViewModel : ReactiveObject
     {
         public static ChallengeWindowViewModel _challengeWindowViewModel;
         private EncounterSelectionViewModel _enounterSelectionViewModel;
@@ -31,9 +30,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private List<DefaultChallengeData> _savedChallengeData;
         private ObservableCollection<ChallengeRowViewModel> challengeRows = new ObservableCollection<ChallengeRowViewModel>();
         private bool challengesEnabled;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
+        public event Action ChallengesDisabled = delegate { };
         public EncounterSelectionView EncounterSelectionView { get; set; }
         public void UpdateSelectedEncounter(string encounterName, string bossName)
         {
@@ -43,29 +40,21 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             get => selectedTimerSource; set
             {
-                selectedTimerSource = value;
-
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref selectedTimerSource, value);
                 UpdateChallengeRows();
-                OnPropertyChanged("VisibleTimerSelected");
             }
         }
         public bool ChallengesEnabled
         {
             get => challengesEnabled; set
             {
-                challengesEnabled = value;
+                this.RaiseAndSetIfChanged(ref challengesEnabled, value);
                 DefaultBossFrameManager.SetRaidChallenges(challengesEnabled);
-                OnPropertyChanged();
             }
         }
         public ObservableCollection<ChallengeRowViewModel> ChallengeRows
         {
-            get => challengeRows; set
-            {
-                challengeRows = value;
-                OnPropertyChanged();
-            }
+            get => challengeRows; set => this.RaiseAndSetIfChanged(ref challengeRows, value);
         }
         public void CombatSelected(Combat selectedCombat)
         {
@@ -82,7 +71,12 @@ namespace SWTORCombatParser.ViewModels.Challenges
             EncounterSelectionView = EncounterSelectionFactory.GetEncounterSelectionView(false);
             _enounterSelectionViewModel = EncounterSelectionView.DataContext as EncounterSelectionViewModel;
             _enounterSelectionViewModel.SelectionUpdated += UpdateSelectedEncounter;
-            _challengeWindowViewModel = new ChallengeWindowViewModel();
+            _challengeWindowViewModel = new ChallengeWindowViewModel("Challenges");
+            _challengeWindowViewModel.CloseRequested += () =>
+            {
+                ChallengesEnabled = false;
+                ChallengesDisabled();
+            };
             RefreshEncounterSelection();
         }
 
@@ -101,7 +95,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             ChallengesEnabled = DefaultBossFrameManager.GetDefaults().RaidChallenges;
         }
         public string ImportId { get; set; }
-        public ICommand ImportCommand => new CommandHandler(Import);
+        public ReactiveCommand<object,Unit> ImportCommand => ReactiveCommand.Create<object>(Import);
 
         private async void Import(object obj)
         {
@@ -117,19 +111,25 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 id = AlphanumericsGenerator.RandomString(3);
             } while (currentIds.Contains(id));
             obj.SourceChallenge.ShareId = id;
-            var shareWindow = new TimerSharePopup(id);
-            shareWindow.ShowDialog();
-            DefaultChallengeManager.SetIdForChallenge(obj.SourceChallenge, SelectedSource, id);
-            await ChallengeDatabaseAccess.AddChallenge(obj.SourceChallenge);
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var shareWindow = new TimerSharePopup(id);
+                shareWindow.ShowDialog(desktop.MainWindow);
+                DefaultChallengeManager.SetIdForChallenge(obj.SourceChallenge, SelectedSource, id);
+                await ChallengeDatabaseAccess.AddChallenge(obj.SourceChallenge);
+            }
         }
-        public ICommand AllChallengeCommand => new CommandHandler(CreateNewChallenge);
+        public ReactiveCommand<Unit,Unit> AllChallengeCommand => ReactiveCommand.Create(CreateNewChallenge);
 
-        private void CreateNewChallenge(object obj)
+        private void CreateNewChallenge()
         {
-            var vm = new ChallengeModificationViewModel(SelectedSource);
-            vm.OnNewChallenge += NewChallenge;
-            var t = new ChallengeModificationView(vm);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var vm = new ChallengeModificationViewModel(SelectedSource);
+                vm.OnNewChallenge += NewChallenge;
+                var t = new ChallengeModificationView(vm);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
 
         private void CancelEdit(Challenge editedChallenge)
@@ -158,7 +158,6 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private void SaveNewTimer(Challenge timer)
         {
             DefaultChallengeManager.AddChallengesToSource(new List<Challenge>() { timer }, SelectedSource);
-
         }
         public void UpdateLock(bool state)
         {
@@ -181,7 +180,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             timerObjects.ForEach(t => t.DeleteRequested += Delete);
             timerObjects.ForEach(t => t.ShareRequested += Share);
             timerObjects.ForEach(t => t.ActiveChanged += ActiveChanged);
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 ChallengeRows = new ObservableCollection<ChallengeRowViewModel>(timerObjects);
                 UpdateRowColors();
@@ -212,9 +211,12 @@ namespace SWTORCombatParser.ViewModels.Challenges
             var vm = new ChallengeModificationViewModel(SelectedSource);
             vm.OnNewChallenge += NewChallenge;
             vm.OnCancelEdit += CancelEdit;
-            var t = new ChallengeModificationView(vm);
-            vm.Edit(_challengeEdited);
-            t.ShowDialog();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var t = new ChallengeModificationView(vm);
+                vm.Edit(_challengeEdited);
+                t.ShowDialog(desktop.MainWindow);
+            }
         }
         private void ActiveChanged(ChallengeRowViewModel timerRow)
         {
@@ -227,19 +229,14 @@ namespace SWTORCombatParser.ViewModels.Challenges
             {
                 if (i % 2 == 1)
                 {
-                    ChallengeRows[i].RowBackground = Brushes.DimGray;
+                    ChallengeRows[i].RowBackground = new SolidColorBrush(Brushes.DimGray.Color);
                 }
                 else
                 {
-                    ChallengeRows[i].RowBackground = Brushes.Transparent;
+                    ChallengeRows[i].RowBackground = new SolidColorBrush(Brushes.Transparent.Color);
                 }
             }
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
         internal void SetScalar(double sizeScalar)
         {
             _challengeWindowViewModel.SetScale(sizeScalar);

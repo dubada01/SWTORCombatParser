@@ -1,18 +1,22 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.Parsely;
 using System;
-using System.ComponentModel;
+using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using System.Reactive;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
+using MsBox.Avalonia;
+using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
-    public class PastCombat : INotifyPropertyChanged
+    public class PastCombat :ReactiveObject
     {
         private bool isSelected;
         private bool isVisible = false;
@@ -21,42 +25,64 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public event Action<PastCombat> PastCombatSelected = delegate { };
         public event Action UnselectAll = delegate { };
         public event Action<PastCombat> PastCombatUnSelected = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
         public bool IsCurrentCombat { get; set; }
         public bool IsMostRecentCombat { get; set; } = false;
         public bool IsVisible
         {
-            get => isVisible; set
-            {
-                isVisible = value;
-                OnPropertyChanged();
-            }
+            get => isVisible; set => this.RaiseAndSetIfChanged(ref isVisible, value);
         }
         public EncounterInfo EncounterInfo { get; set; }
+        public EncounterCombat ParentEncounter { get; set; }
         public Combat Combat { get; set; }
         public bool IsTrash => Combat != null && !Combat.IsCombatWithBoss && !IsCurrentCombat && !IsPvPCombat;
         public bool WasBossKilled => Combat?.WasBossKilled ?? false;
-
+        public bool ShouldShowDeathReview => Combat is { IsCombatWithBoss: true, WasBossKilled: false };
         public SolidColorBrush PvPBorderInidcator =>
-            !IsPvPCombat ? Brushes.WhiteSmoke : WasPlayerKilled ? Brushes.IndianRed : Brushes.MediumAquamarine;
+            !IsPvPCombat ? new SolidColorBrush(Colors.WhiteSmoke) : WasPlayerKilled ? new SolidColorBrush(Colors.IndianRed) : new SolidColorBrush(Colors.MediumAquamarine);
         public bool WasPlayerKilled => Combat?.WasPlayerKilled(Combat.LocalPlayer) ?? false;
         public bool IsPvPCombat => Combat?.IsPvPCombat ?? false;
         public (EncounterInfo, bool, SolidColorBrush) TextColorSetter => (EncounterInfo, WasBossKilled, PvPBorderInidcator);
         public string CombatLabel { get; set; }
         public string CombatDuration
         {
-            get => combatDuration; set
+            get => combatDuration; set => this.RaiseAndSetIfChanged(ref  combatDuration, value);
+        }
+        public ReactiveCommand<Unit,Unit> DisplayWipeReviewCommand => ReactiveCommand.Create(DisplayWipeReview);
+
+        private void DisplayWipeReview()
+        {
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                combatDuration = value;
-                OnPropertyChanged();
+                var mainViewModel = desktop.MainWindow.DataContext as MainWindowViewModel;
+                mainViewModel.ShowDeathReviewForCombat(Combat);
             }
         }
-        public ICommand UploadToParselyCommand => new DelegateCommand(UploadToParsely);
+
+        public ReactiveCommand<Unit,Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
 
         private async void UploadToParsely()
         {
-            var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Where(v=>v.LogLineNumber!=0).MinBy(v=>v.LogLineNumber).LogLineNumber, (int)Combat.AllLogs.MaxBy(v => v.LogLineNumber).LogLineNumber);
-            await ParselyUploader.TryUploadText(lines, Combat.LogFileName);
+            var lines = CombatExtractor.GetCombatLinesForCombat((int)Combat.AllLogs.Keys.Where(v=>v!=0).Min(), (int)Combat.AllLogs.Keys.Max(),Combat.LogFileName);
+            var response = await ParselyUploader.TryUploadText(lines, Path.Combine(Settings.ReadSettingOfType<string>("combat_logs_path"), Combat.LogFileName));
+            if (!response.WasSuccess)
+            {
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var box = MessageBoxManager.GetMessageBoxStandard("Error", response.ErrorMessage,windowStartupLocation: WindowStartupLocation.CenterOwner);
+                    await box.ShowWindowDialogAsync(desktop.MainWindow);
+
+                }
+            }
+            if (response.WasSuccess)
+            {
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var box = MessageBoxManager.GetMessageBoxStandard("Success",
+                        "Successfully uploaded to Parsely! Use the File->Parsely menu in Orbs to open and view your battle.",
+                        windowStartupLocation: WindowStartupLocation.CenterOwner);
+                    await box.ShowWindowDialogAsync(desktop.MainWindow);
+                }
+            }
         }
 
         public DateTime CombatStartTime { get; set; }
@@ -73,12 +99,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             get => isSelected; set
             {
-                isSelected = value;
+                this.RaiseAndSetIfChanged(ref isSelected, value);
                 if (value)
                     SelectCombat();
                 else
                     UnselectCombat();
-                OnPropertyChanged();
             }
         }
         public void UnselectCombat()
@@ -88,10 +113,6 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public void SelectCombat()
         {
             PastCombatSelected(this);
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

@@ -1,0 +1,39 @@
+﻿<Window x:Class="SWTORCombatParser.Views.InstanceAlreadyRunningWarning"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views"
+        mc:Ignorable="d"
+        Title="InstanceActiveNotice" Height="200" Width="400"         
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome" Background="Transparent" Topmost="True" WindowStartupLocation="CenterScreen">
+    <Border CornerRadius="10" BorderThickness="2" BorderBrush="LightGray">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.85*"/>
+                <RowDefinition Height="0.15*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Column="1" 
+                       x:Name="LoadingText" 
+                       FontFamily="{StaticResource MainFont}" 
+                       FontSize="16" 
+                       TextAlignment="Center" 
+                       FontWeight="DemiBold" 
+                       TextWrapping="Wrap" 
+                       Text="Orbs is currently minimized to the system tray.&#x0a;&#x0a;It is automatically recording combats while SWTOR is running and will display your overlays.&#x0a;&#x0a;You can exit/show Orbs by right clicking the icon in the system tray." 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center" Margin="20,0,20,0"></TextBlock>
+            <Button HorizontalAlignment="Center" x:Name="OkButton" Grid.Row="1" Classes="RoundedCorner"
+                    Content="Ok" Width="50" Height="25" 
+                    VerticalAlignment="Center"
+                    ></Button>
+            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Orientation="Horizontal" Grid.Row="1">
+                <CheckBox VerticalAlignment="Center" x:Name="ShowAgainCheck" ></CheckBox>
+                <TextBlock VerticalAlignment="Center" Text="Don't show again" FontFamily="{StaticResource MainFont}"></TextBlock>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

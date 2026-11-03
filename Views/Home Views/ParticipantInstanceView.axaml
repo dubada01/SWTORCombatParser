@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.ParticipantInstanceView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Home_Views"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Home_View_Models"
+                x:DataType="vm:ParticipantViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="45" d:DesignWidth="200">
+
+    <Border PointerPressed="Border_PreviewMouseDown" Margin="5" Padding="5,5,5,0"
+                Background="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBackgroundConverter}, UpdateSourceTrigger=PropertyChanged}" 
+                BorderBrush="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBoarderConverter}, UpdateSourceTrigger=PropertyChanged}" BorderThickness="2" CornerRadius="4">
+        <Grid>
+            <Image Opacity="0.75" Source="{Binding RoleImageSource}" HorizontalAlignment="Left" Margin="0,0,0,5"></Image>
+            <TextBlock Grid.Row="1" Margin="0,0,0,5" FontFamily="{StaticResource MainFont}" FontSize="15" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding PlayerName}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <Image MaxHeight="20" Source="avares://Orbs/resources/LocalPlayerIcon.png" IsVisible="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,5,0" VerticalAlignment="Top"></Image>
+            <Image MaxHeight="19" Source="avares://Orbs/resources/skull_Icon.png" IsVisible="{Binding DiedNatrually, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,0,3" VerticalAlignment="Bottom"></Image>
+        </Grid>
+    </Border>
+</UserControl>

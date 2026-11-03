@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Threading;
-using Orbs_Avalonia.Model;
-using Orbs_Avalonia.ViewModels;
-using Orbs_Avalonia.Views;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.DataStructures.Timeline;
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
@@ -22,45 +17,25 @@ namespace SWTORCombatParser.ViewModels.Avalonia_TEMP;
 public static class AvaloniaTimelineBuilder
 {
     private static bool _unlocked;
-    private static TimelineWindow _timelineWindow;
     private static TimelineWindowViewModel _timelineWindowViewModel;
     private static bool _inBossInstance = false;
     private static string _currentBossName = "";
     private static DateTime _lastEncounterStartTime;
     private static EncounterInfo _currentEncounter;
     private static bool _timelineEnabled;
+    private static bool _timeTrackingLive;
 
     public static void Init()
     {
-        // Initialize Avalonia once, if not already done
-        AppBuilder.Configure<Orbs_Avalonia.AvaloniaApp>()
-            .UsePlatformDetect() // This line detects the platform (Windows, Linux, etc.)
-            .WithInterFont() // If you need a specific font, keep this, otherwise remove it
-            .LogToTrace() // Logging
-            .SetupWithoutStarting(); // Don't start a full Avalonia lifecycle, just setup
-        // Create and show the Avalonia window
-        _timelineWindowViewModel = new TimelineWindowViewModel();
-        _timelineWindow = new TimelineWindow(_timelineWindowViewModel);
-        _timelineWindow.OnStateChanged += (position,size)=>
-        {
-            DefaultGlobalOverlays.SetDefault("TimelineOverlay", new System.Windows.Point() { X = position.X, Y = position.Y }, new System.Windows.Point() { X = size.X, Y = size.Y });
-        };
-        _timelineWindow.OnHideWindow += UserDisabled;
+        _timelineWindowViewModel = new TimelineWindowViewModel("Timeline");
 
         CombatLogStateBuilder.AreaEntered += TryBuildTimeline;
         CombatIdentifier.CombatFinished += CombatFinished;
         CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsParsed;
         CombatSelectionMonitor.CombatSelected += ShowTimelineNonLive;
 
-        var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("TimelineOverlay");
+        var defaults = DefaultGlobalOverlays.GetOverlayInfoForType("Timeline");
         TimelineEnabled = defaults.Acive;
-        _timelineWindow.Position = new Avalonia.PixelPoint((int)defaults.Position.X, (int)defaults.Position.Y);
-        _timelineWindow.SetSize(defaults.WidtHHeight.X, defaults.WidtHHeight.Y);
-    }
-
-    private static void UserDisabled()
-    {
-        TimelineEnabled = false;
     }
 
     private static void HistoricalLogsParsed(DateTime arg1, bool arg2)
@@ -80,7 +55,10 @@ public static class AvaloniaTimelineBuilder
 
     private static void CombatFinished(Combat obj)
     {
-        if (!_inBossInstance || !obj.IsCombatWithBoss || !_currentEncounter.BossInfos.Any(bi=>bi.EncounterName == obj.EncounterBossDifficultyParts.Item1) || _lastEncounterStartTime > obj.StartTime)
+        _timelineWindowViewModel.CombatEnded();
+        if(_currentEncounter == null)
+            return;
+        if (!_inBossInstance || !obj.IsCombatWithBoss || !_currentEncounter.BossInfos.Any(bi=>bi.EncounterName == obj.EncounterBossDifficultyParts.Item1) || _lastEncounterStartTime > obj.StartTime || !_timeTrackingLive)
             return;
 
         if (!obj.WasBossKilled)
@@ -99,25 +77,32 @@ public static class AvaloniaTimelineBuilder
             _timelineEnabled = value;
             if (value)
             {
-                DefaultGlobalOverlays.SetActive("TimelineOverlay", true);
+                if(CombatMonitorViewModel.IsLiveParseActive())
+                    HistoricalLogsParsed(DateTime.Now, false);
+                else
+                {
+                    if(CombatIdentifier.CurrentCombat!=null && CombatIdentifier.CurrentCombat.StartTime != DateTime.MinValue)
+                        ShowTimelineNonLive(CombatIdentifier.CurrentCombat);
+                }
+
                 if (_unlocked)
-                {                    
-                    _timelineWindow.Show();
+                {
+                    _timelineWindowViewModel.InBossInstance = true;
                     _timelineWindowViewModel.SetClickThrough(false);
                 }
-                if (_inBossInstance)
-                    _timelineWindow.Show();
             }
             else
             {
-                DefaultGlobalOverlays.SetActive("TimelineOverlay", false);
-                _timelineWindow.Hide();
+                _timelineWindowViewModel.InBossInstance = false;
             }
+            _timelineWindowViewModel.Active = value;
         }
     }
 
     public static async Task UploadBossKill(string encounterName, string flashpointOrRaidName, string difficulty, string playerCount, DateTime startTime, DateTime endTime)
     {
+        if(!_timeTrackingLive)
+            return;
         var timeTrialInfo = new TimeTrialLeaderboardEntry()
         {
             BossFight = encounterName,
@@ -142,13 +127,22 @@ public static class AvaloniaTimelineBuilder
     {
         if (_inBossInstance)
         {
+            if (_currentEncounter == null)
+                return;
+            if((_currentEncounter.BossInfos.First().EncounterName == bossName || _currentEncounter.NumberOfPlayer == "4") && !_timeTrackingLive)
+                _timeTrackingLive = true;
+            if(_currentEncounter.NumberOfPlayer != "4" && _currentEncounter.Difficutly != "Story")
+                _timeTrackingLive = false;
+            
+            if(!_timeTrackingLive)
+                return;
             _timelineWindowViewModel.StartNewBoss(bossName,DateTime.Now - _lastEncounterStartTime);
             _currentBossName = bossName;
         }
     }
     private static void ShowTimelineNonLive(Combat selectedCombat)
     {
-        if(CombatMonitorViewModel.IsLiveParseActive() || !TimelineEnabled)
+        if(CombatMonitorViewModel.IsLiveParseActive())
             return;
         var encounter = selectedCombat.ParentEncounter;
         if (encounter.IsBossEncounter)
@@ -160,15 +154,10 @@ public static class AvaloniaTimelineBuilder
 
             _currentEncounter = encounter;
             BuildTimelineFromEncounter(false);
-            if(selectedCombat.WasBossKilled)
-                _timelineWindowViewModel.BossKilled(selectedCombat.EncounterBossDifficultyParts.Item1,
+            
+            _timelineWindowViewModel.BossKilled(selectedCombat.EncounterBossDifficultyParts.Item1,
                 (selectedCombat.StartTime - _lastEncounterStartTime),
                 (selectedCombat.EndTime - _lastEncounterStartTime));
-            else
-                _timelineWindowViewModel.AddBossWipe(selectedCombat.EncounterBossDifficultyParts.Item1,
-                    (selectedCombat.StartTime - _lastEncounterStartTime),
-                    (selectedCombat.EndTime - _lastEncounterStartTime));
-
         }
         else
         {
@@ -177,10 +166,11 @@ public static class AvaloniaTimelineBuilder
     }
     private static void TryBuildTimeline(EncounterInfo obj)
     {
-        if(obj.IsBossEncounter)
+        if(obj.IsBossEncounter && (obj.Difficutly == "Story" || obj.NumberOfPlayer == "4"))
         {
             if (_currentEncounter != obj)
             {
+                _timeTrackingLive = false;
                 _timelineWindowViewModel.Reset();
             }
             _currentEncounter = obj;
@@ -188,9 +178,11 @@ public static class AvaloniaTimelineBuilder
         }
         else
         {
-            _inBossInstance = false;
-            HideTimelineOverlay();
+            _timeTrackingLive = false;
+            //HideTimelineOverlay();
         }
+        _inBossInstance = obj.IsBossEncounter;
+        _timelineWindowViewModel.InBossInstance = obj.IsBossEncounter;
     }
 
     private static void BuildTimelineFromEncounter(bool showLive = true)
@@ -226,9 +218,7 @@ public static class AvaloniaTimelineBuilder
         Dispatcher.UIThread.Invoke(() =>
         {        
             _timelineWindowViewModel.ConfigureTimeline(maxDuration,previousKills,_currentEncounter.Name, _currentEncounter.Difficutly, _currentEncounter.NumberOfPlayer);
-            if(TimelineEnabled)
-                _timelineWindow.Show();
-
+            _timelineWindowViewModel.ShowOverlayWindow();
             if (showLive)
                 StartEncounterTask();
         });
@@ -238,8 +228,7 @@ public static class AvaloniaTimelineBuilder
     {
         Dispatcher.UIThread.Invoke(() =>
         {
-            _timelineWindow.Hide();
-            Debug.WriteLine("Timeline hidden!");
+            _timelineWindowViewModel.HideOverlayWindow();
         });
     }
 
@@ -247,7 +236,7 @@ public static class AvaloniaTimelineBuilder
     {        
         _unlocked = true;
         if(_timelineEnabled)
-            _timelineWindow.Show();
+            _timelineWindowViewModel.ShowOverlayWindow();
         _timelineWindowViewModel.SetClickThrough(false);
 
     }
@@ -256,7 +245,7 @@ public static class AvaloniaTimelineBuilder
         _unlocked = false;
         _timelineWindowViewModel.SetClickThrough(true);
         if(!_inBossInstance)
-            _timelineWindow.Hide();
+            _timelineWindowViewModel.HideOverlayWindow();
     }
     
     private static void StartEncounterTask()

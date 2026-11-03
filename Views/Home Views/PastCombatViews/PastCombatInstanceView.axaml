@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.PastCombatViews.PastCombatInstanceView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Combat_Monitoring"
+                x:DataType="vm:PastCombat"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Border PointerPressed="Border_PreviewMouseLeftButtonDown" Margin="2,1,2,1" BorderBrush="{StaticResource Gray7Brush}" Background="{Binding IsSelected, Converter={StaticResource PastCombatSelectedToBackgroundConverter},UpdateSourceTrigger=PropertyChanged}" BorderThickness="1" CornerRadius="5" Padding="3" >
+            <Border.Styles>
+                <Style Selector="Border">
+                    <!-- Default Opacity -->
+                    <Setter Property="Opacity" Value="1"/>
+                </Style>
+                <!-- Hover effect for Border (IsMouseOver equivalent) -->
+                <Style Selector="Border:pointerover">
+                    <Setter Property="Opacity" Value="0.85"/>
+                </Style>
+            </Border.Styles>
+            <Border.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Upload Battle to Parsely" Command="{Binding UploadToParselyCommand}"/>
+                    <MenuItem Header="Open Wipe Review" Command="{Binding DisplayWipeReviewCommand}"/>
+                </ContextMenu>
+            </Border.ContextMenu>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock  MaxHeight="75" FontSize="{StaticResource LargeFontSize}" FontFamily="{StaticResource MainFont}" Foreground="{Binding TextColorSetter, Converter={StaticResource EncounterInfoToPastCombatColorConverter}}" FontWeight="DemiBold" Grid.Row="0" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" Text="{Binding CombatLabel}"></TextBlock>
+
+                <Viewbox MaxHeight="15" Margin="0,2,0,2" Grid.Row="1" HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" >
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="LightGray" Grid.Row="1" Text="{Binding CombatStartTime}"></TextBlock>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="LightGray" Grid.Row="1" HorizontalAlignment="Center" Text=" - "></TextBlock>
+                        <TextBlock FontFamily="{StaticResource MainFont}" Foreground="LightGray" Grid.Row="1" Text="{Binding CombatDuration}"></TextBlock>
+                    </StackPanel>
+                </Viewbox>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Width="55" IsVisible="{Binding ShouldShowDeathReview}" Margin="0,0,0,3" PointerPressed="DeathReviewBorder_PreviewMouseLeftButtonDown" CornerRadius="0,0,3,3" Height="16" Background="{StaticResource RedColorBrush}">
+            <Border.Styles>
+                <Style Selector="Border">
+                    <!-- Default Opacity -->
+                    <Setter Property="Opacity" Value="1"/>
+                </Style>
+                <!-- Hover effect for Border (IsMouseOver equivalent) -->
+                <Style Selector="Border:pointerover">
+                    <Setter Property="Opacity" Value="0.85"/>
+                </Style>
+            </Border.Styles>
+            <TextBlock Text="Review" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="9" FontFamily="{StaticResource MainFont}"></TextBlock>
+        </Border>
+    </Grid>
+
+</UserControl>

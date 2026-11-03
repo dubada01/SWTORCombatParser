@@ -1,0 +1,86 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.PastCombatViews.EncounterCombatView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:pastCombatViews="clr-namespace:SWTORCombatParser.Views.Home_Views.PastCombatViews"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Combat_Monitoring"
+                x:DataType="vm:EncounterCombat"
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="400">
+    <UserControl.Styles>
+        <!-- Style for the ToolTip -->
+        <Style Selector="ToolTip">
+            <Setter Property="IsVisible" 
+                    Value="{Binding Content, RelativeSource={RelativeSource Self}, ConverterParameter=False, FallbackValue=Collapsed}"/>
+        </Style>
+    </UserControl.Styles>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Border Margin="2,0,2,2" PointerPressed="Border_PreviewMouseLeftButtonDown" BorderBrush="{StaticResource Gray4Brush}" Background="{StaticResource Gray3Brush}" BorderThickness="2,2,2,2" CornerRadius="5" Padding="3" >
+            <Border.Styles>
+                <!-- Style for the Border -->
+                <Style Selector="Border">
+                    <Setter Property="Opacity" Value="1"/>
+                </Style>
+                <!-- Change opacity when the mouse is over (IsMouseOver equivalent) -->
+                <Style Selector="Border:pointerover">
+                    <Setter Property="Opacity" Value="0.85"/>
+                </Style>
+            </Border.Styles>
+            <Border.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Open Orbs Leaderboard" FontSize="{StaticResource LargeFontSize}" Command="{Binding OpenOrbsLeaderboardCommand}"/>
+                </ContextMenu>
+            </Border.ContextMenu>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="15"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" ToolTip.Tip="{Binding PPHInfo}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="{Binding DetailsHeight}"/>
+                        <RowDefinition Height="{Binding DetailsHeight}"/>
+                    </Grid.RowDefinitions>
+                    <Viewbox MaxHeight="18" Margin="0,5,0,5" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource LargeFontSize}" Foreground="{Binding Path=Info, Converter={StaticResource BooleanToEncounterColorConverter}}" FontWeight="DemiBold" Grid.Row="0" HorizontalAlignment="Center" Text="{Binding Path=Info.Name}"></TextBlock>
+                    </Viewbox>
+                    <Viewbox IsVisible="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,0,5,0" MaxHeight="13" Grid.Row="1" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Foreground="Gray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Difficulty"></TextBlock>
+                    </Viewbox>
+                    <Viewbox IsVisible="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="5,0,5,0" MaxHeight="13" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Foreground="Gray" FontWeight="DemiBold" Grid.Row="0"  HorizontalAlignment="Center" Text="Players"></TextBlock>
+                    </Viewbox>
+                    <Viewbox IsVisible="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}" MaxHeight="12" Grid.Row="2" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Foreground="LightGray" FontWeight="Normal" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding Path=Info.Difficutly}"></TextBlock>
+                    </Viewbox>
+                    <Viewbox IsVisible="{Binding Path=Info.IsBossEncounter, Converter={StaticResource BooleanToVisibiityConverter}}"  MaxHeight="12" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center">
+                        <TextBlock  FontFamily="{StaticResource MainFont}" FontSize="{StaticResource NormalFontSize}" Foreground="LightGray" FontWeight="Normal" Grid.Row="0"  HorizontalAlignment="Center" Text="{Binding Path=Info.NumberOfPlayer}"></TextBlock>
+                    </Viewbox>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,5,0,0">
+                    <Image Width="25" Opacity="0.5" Grid.Row="1" Grid.ColumnSpan="2" Source="{Binding ExpandIconSource}"></Image>
+                </Grid>
+            </Grid>
+        </Border>
+        <ItemsControl ItemsSource="{Binding EncounterCombats}" Grid.Row="1">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <pastCombatViews:PastCombatInstanceView IsVisible="{Binding IsVisible, Converter={StaticResource BooleanToVisibiityConverter}}"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+
+</UserControl>

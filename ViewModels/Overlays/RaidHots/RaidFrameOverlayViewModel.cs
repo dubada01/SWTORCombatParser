@@ -10,20 +10,27 @@ using SWTORCombatParser.ViewModels.Timers;
 using SWTORCombatParser.Views.Overlay.RaidHOTs;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Reactive;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using MoreLinq;
+using ReactiveUI;
+using SWTORCombatParser.Views;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
-    public class RaidFrameOverlayViewModel : INotifyPropertyChanged
+    public class RaidFrameOverlayViewModel : BaseOverlayViewModel
     {
         private Dictionary<DateTime, Point> _mostRecentlyClickedCell = new Dictionary<DateTime, Point>();
         private object _cellClickLock = new object();
@@ -32,56 +39,42 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         private int columns;
         private bool editable;
         private bool active;
-        private RaidFrameOverlay _view;
-        private bool _conversationActive;
         private bool _inCombat;
         private bool _usingDecreasedAccuracy;
         private List<long> _validBossIds = new List<long>();
         private object _cellUpdateLock = new object();
         private bool canDetect = true;
-
+        private bool tryingToRemoveUpdates = false;
+        private ObservableCollection<RaidHotCell> _raidHotCells = new ObservableCollection<RaidHotCell>();
+        public override bool ShouldBeVisible => true;
+        public bool DisplayGrid => Editable || _isManuallyModifiying;
+        private bool _isManuallyModifiying;
         public bool Editable
         {
             get => editable;
             set
             {
-                editable = value;
-                ToggleLocked(!editable);
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref editable, value);
+                this.RaisePropertyChanged(nameof(DisplayGrid));
+                OverlaysMoveable = editable;
             }
         }
         public bool CanDetect
         {
             get => canDetect; private set
             {
-                canDetect = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref canDetect, value);
             }
         }
-        public bool Active
-        {
-            get => active; set
-            {
-                active = value;
-            }
-        }
-        public System.Drawing.Point TopLeft { get; set; }
-        public int Width { get; set; }
-        public double ScreenWidth { get; set; }
-        public double ColumnWidth => ScreenWidth / Columns;
-        public int Height { get; set; }
-        public double ScreenHeight { get; set; }
-        public double RowHeight => ScreenHeight / Rows;
+        public double ColumnWidth => OverlayScaledSize.X / Columns;
+        public double RowHeight => OverlayScaledSize.Y / Rows;
 
         public List<PlacedName> CurrentNames = new List<PlacedName>();
         public bool SizeSet = false;
-        public event Action<bool> ToggleLocked = delegate { };
-        public event Action<string> PlayerChanged = delegate { };
-        public RaidFrameOverlayViewModel(RaidFrameOverlay view)
+        private readonly RaidFrameOverlay _raidFrameView;
+
+        public RaidFrameOverlayViewModel(string overlayName):base(overlayName)
         {
-            _view = view;
-            _view.AreaClicked += CellClicked;
-            _view.MouseInArea += MouseInArea;
             TimerController.TimerTriggered += CheckForRaidHOT;
             TimerController.TimerTriggered += CheckForDefensive;
             CombatLogStreamer.CombatUpdated += OnStartCombat;
@@ -89,24 +82,20 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CombatLogStreamer.HistoricalLogsFinished += SetCurrentEncounter;
             CombatLogStateBuilder.AreaEntered += NewEncounterEntered;
             HotkeyHandler.OnHideOverlaysHotkey += ToggleHide;
+            _raidFrameView = new RaidFrameOverlay(this);
+            _raidFrameView.MouseInArea += MouseInArea;
+            _raidFrameView.AreaClicked += CellClicked;
+            MainContent = _raidFrameView;
+            BackgroundLockedOpacity = 0;
+            BackgroundUnLockedOpacity = 0.05;
+            SettingsType = OverlaySettingsType.Character;
         }
-
-
-
+        
         private void OnStartCombat(CombatStatusUpdate update)
         {
             if (update.Type == UpdateType.Start)
             {
                 _inCombat = true;
-                if (_conversationActive)
-                {
-                    App.Current.Dispatcher.Invoke(() =>
-                    {
-                        _view.Show();
-                    });
-
-                    _conversationActive = false;
-                }
             }
             if (update.Type == UpdateType.Stop)
             {
@@ -114,7 +103,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             }
 
         }
-        public ICommand RefreshFramesCommand => new CommandHandler(_=>AutoDetection());
+        public ReactiveCommand<Unit,Unit> RefreshFramesCommand => ReactiveCommand.Create(AutoDetection);
         private void AutoDetection()
         {
             if (!CanDetect)
@@ -122,19 +111,82 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CanDetect = false;
             Task.Run(() =>
             {
-                var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(TopLeft,
-                    Width, Height, Rows);
-                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(TopLeft,
-                    raidFrameBitmap, Rows, Columns, Height, Width).Result;
-                raidFrameBitmap.Dispose();
-                Application.Current.Dispatcher.Invoke(() =>
+                try
                 {
-                    UpdateNames(names);
-                });
-                CanDetect = true;
+                    var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(OverlayPosition,
+                (int)OverlayScaledSize.X, (int)OverlayScaledSize.Y, Rows);
+                    var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(OverlayPosition,
+                        raidFrameBitmap, Rows, Columns, (int)OverlayScaledSize.Y, (int)OverlayScaledSize.X).Result;
+                    raidFrameBitmap.Dispose();
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        UpdateNames(names);
+                    });
+
+                }
+                catch (Exception ex)
+                {
+                    Logging.LogError("Failed to detect raid frame names: " + ex.Message);
+                }
+                finally
+                {
+                    CanDetect = true;
+                }
 
             });
         }
+        public ReactiveCommand<Button,Unit> SetFramesToManualCorrect => ReactiveCommand.Create<Button>(FramesToManualCorrect);
+
+        private void FramesToManualCorrect(Button clicked)
+        {
+            Editable = false;
+            _isManuallyModifiying = true;
+            _raidFrameView._manuallyEditing = true;
+            this.RaisePropertyChanged(nameof(DisplayGrid));
+            
+            // Create a new window
+            var window = new Window
+            {
+                SizeToContent = SizeToContent.WidthAndHeight,
+                CanResize = false,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                SystemDecorations = SystemDecorations.None,
+                Topmost = true
+            };
+            // Create a button
+            var button = new Button
+            {
+                Content = "Finished",
+                Classes = { "RoundedCorner" },
+                FontSize = 10,
+                Height = clicked.Height,
+                Width = clicked.Width,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Command = SetFramesToNormal
+            };
+
+            // Close the window when the button is clicked
+            button.Click += (sender, args) => window.Close();
+
+            // Add the button to the window
+            window.Content = button;
+
+            // Show the window
+            window.Show();
+            // Get the current cursor position
+            var cursorPosition = (_raidFrameView.GetVisualRoot() as Window).Position;
+            window.Position = new PixelPoint((int)cursorPosition.X + 7, (int)cursorPosition.Y + 45);
+        }
+        public ReactiveCommand<Unit,Unit> SetFramesToNormal => ReactiveCommand.Create(FramesToNormal);
+        private void FramesToNormal()
+        {
+            Editable = true;
+            _isManuallyModifiying = false;
+            _raidFrameView._manuallyEditing = false;
+            this.RaisePropertyChanged(nameof(DisplayGrid));
+        }
+        
         private void SetCurrentEncounter(DateTime arg1, bool arg2)
         {
             NewEncounterEntered(CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(arg1));
@@ -150,6 +202,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         public void CellClicked(double xFract, double yFract)
         {
+            if(!_isManuallyModifiying)
+                return;
             var cellX = (int)(xFract * columns);
             var cellY = (int)(yFract * rows);
             DateTime clickedTime = TimeUtility.CorrectedTime;
@@ -170,7 +224,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 
             }
         }
-        private bool tryingToRemoveUpdates = false;
         private void TryRemoveUpdatingNames()
         {
             if (tryingToRemoveUpdates)
@@ -219,7 +272,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     }
                 }
             }
-            CheckForConversation(obj);
             CorrectCellWhenTargeted(obj);
         }
         private void CorrectCellWhenTargeted(ParsedLogEntry obj)
@@ -239,7 +291,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     return;
                 oldestUnhandledCell = _mostRecentlyClickedCell.MinBy(d => d.Key).Value;
                 oldestClickedCellTime = _mostRecentlyClickedCell.MinBy(d => d.Key).Key;
-                Debug.WriteLine($"Clicked At: {oldestClickedCellTime}   with Target Change at: {obj.TimeStamp}");
                 if (oldestClickedCellTime.AddSeconds(-1) > obj.TimeStamp)
                     return;
                 _mostRecentlyClickedCell.Remove(_mostRecentlyClickedCell.MinBy(d => d.Key).Key);
@@ -262,50 +313,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 CurrentNames.Add(new PlacedName { Column = (int)oldestUnhandledCell.X, Row = (int)oldestUnhandledCell.Y, Name = obj.Target.Name });
             }
         }
-
-        private void CheckForConversation(ParsedLogEntry obj)
-        {
-            if (!obj.Source.IsLocalPlayer)
-                return;
-            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Apply && Active)
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    HideOverlay();
-                });
-            }
-            if (obj.Effect.EffectId == "806968520343876" && obj.Effect.EffectType == EffectType.Remove && Active)
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    UnhideOverlay();
-                });
-            }
-        }
         private void ToggleHide()
         {
-            if (_conversationActive)
-            {
-                if(Active)
-                    UnhideOverlay();
-            }
+            if(Active)
+                ShowOverlayWindow();
             else
             {
-                HideOverlay();
+                HideOverlayWindow();
             }
         }
-        private void UnhideOverlay()
-        {
-            _conversationActive = false;
-            _view.Show();
-        }
-
-        private void HideOverlay()
-        {
-            _conversationActive = true;
-            _view.Hide();
-        }
-
         private void CheckForRaidHOT(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
             if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null ||
@@ -414,9 +430,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             get => rows; set
             {
-                rows = value;
-                OnPropertyChanged();
-                OnPropertyChanged("RowHeight");
+                this.RaiseAndSetIfChanged(ref rows, value);
+                this.RaisePropertyChanged(nameof(RowHeight));
                 UpdateCells();
             }
         }
@@ -424,9 +439,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             get => columns; set
             {
-                columns = value;
-                OnPropertyChanged();
-                OnPropertyChanged("ColumnWidth");
+                this.RaiseAndSetIfChanged(ref columns, value);
+                this.RaisePropertyChanged(nameof(ColumnWidth));
                 UpdateCells();
             }
         }
@@ -435,11 +449,10 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             lock (_cellUpdateLock)
             {
-                if (!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns))
+                if ((!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns)) && Rows != 0 && Columns != 0)
                 {
                     InitRaidCells();
-                    RaidHotCells = RaidHotCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-                    OnPropertyChanged("RaidHotCells");
+                    RaidHotCells = new ObservableCollection<RaidHotCell>(RaidHotCells.OrderBy(c => c.Row * Columns + c.Column));
                 }
                 else
                 {
@@ -495,17 +508,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                     }
 
 
-                    var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.SourceTimer.IsHot && t.TargetAddendem != null).Select(t => t.TargetAddendem);
+                    var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.Value.SourceTimer.IsHot && t.Value.TargetAddendem != null).Select(t => t.Value.TargetAddendem);
                     foreach (var player in playersWithHotTimer)
                     {
                         var playerCell = GetCellThatMatchesName(player);
                         if (playerCell != null && !playerCell.HasHOT)
                         {
-                            var timer = TimerController.GetActiveTimers().First(t => t.TargetAddendem == player);
-                            if (timer.TimerValue > 0)
-                                playerCell.AddHOT(timer);
+                            var timer = TimerController.GetActiveTimers().First(t => t.Value.TargetAddendem == player);
+                            if (timer.Value.TimerValue > 0)
+                                playerCell.AddHOT(timer.Value);
                             else
-                                timer.Complete(false);
+                                timer.Value.Complete(false);
                         }
                     }
 
@@ -520,10 +533,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                             TimerController.TryTriggerTimer(hotInQuestion);
                         }
                     }
-                    RaidHotCells = currentCells.OrderBy(c => c.Row * Columns + c.Column).ToList();
-                    OnPropertyChanged("RaidHotCells");
-                    OnPropertyChanged("LeftColumnCells");
-                    OnPropertyChanged("RightColumnCells");
+                    RaidHotCells = new ObservableCollection<RaidHotCell>(currentCells.OrderBy(c => c.Row * Columns + c.Column));
+                    this.RaisePropertyChanged(nameof(LeftColumnCells));
+                    this.RaisePropertyChanged(nameof(RightColumnCells));
                 }
             }
         }
@@ -565,30 +577,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         public List<RaidHotCell> LeftColumnCells => RaidHotCells.Where(c => c.Column == 0).ToList();
         public List<RaidHotCell> RightColumnCells => RaidHotCells.Where(c => c.Column == Columns - 1).ToList();
-        public List<RaidHotCell> RaidHotCells { get; set; } = new List<RaidHotCell>();
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
 
-        internal void UpdatePositionAndSize(int actualHeight, int actualWidth, double screenHeight, double screenWidth, System.Drawing.Point topLeft)
+        public ObservableCollection<RaidHotCell> RaidHotCells
         {
-            TopLeft = topLeft;
-            Height = actualHeight;
-            Width = actualWidth;
-            ScreenHeight = screenHeight;
-            ScreenWidth = screenWidth;
-            OnPropertyChanged("RowHeight");
-            OnPropertyChanged("ColumnWidth");
-            SizeSet = true;
+            get => _raidHotCells;
+            set => this.RaiseAndSetIfChanged(ref _raidHotCells, value);
         }
-
+        
         internal void FirePlayerChanged(string name)
         {
             SizeSet = false;
-            PlayerChanged(name);
-
+            SetRole(name);
         }
     }
 }

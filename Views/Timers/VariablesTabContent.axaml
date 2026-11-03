@@ -1,0 +1,34 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:timers="clr-namespace:SWTORCombatParser.ViewModels.Timers"
+             x:DataType="timers:ModifyTimerViewModel"
+             x:Class="SWTORCombatParser.Views.Timers.VariablesTabContent">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height=".75*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="75" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Text="Variable:" TextWrapping="Wrap" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <ComboBox Width="150"  FontFamily="{StaticResource MainFont}" ItemsSource="{Binding AvailableVariables}" SelectedItem="{Binding SelectedModifyVariable}"></ComboBox>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button Margin="0,0,15,0" Width="60" HorizontalAlignment="Right" Classes="RoundedCorner" VerticalAlignment="Center" FontSize="16" Content="Add" FontFamily="{StaticResource MainFont}" Command="{Binding AddCustomVariableCommand}"></Button>
+                <TextBox Width="150" FontSize="15" FontFamily="{StaticResource MainFont}" Text="{Binding AddedVariable}"></TextBox>
+            </StackPanel>
+            <StackPanel Grid.Row="2" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="75" HorizontalAlignment="Right"  VerticalAlignment="Center" FontSize="16" Text="Action:" TextWrapping="Wrap" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <ComboBox Width="100"  FontFamily="{StaticResource MainFont}" ItemsSource="{Binding AvailableActions}" SelectedItem="{Binding SelectedAction}"></ComboBox>
+            </StackPanel>
+            <TextBox Grid.Row="3" FontFamily="{StaticResource MainFont}" Margin="80,0,0,0" FontSize="15" Width="50" VerticalAlignment="Center" HorizontalContentAlignment="Center" Text="{Binding VariableModificationValue}"></TextBox>
+            <StackPanel Grid.Row="3" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Vertical">
+                <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="120" HorizontalAlignment="Right"  VerticalAlignment="Center" FontSize="12" Text="Include Timer Visuals?" TextWrapping="Wrap" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <CheckBox HorizontalAlignment="Center" IsChecked="{Binding IncludeTimerVisuals}"></CheckBox>
+            </StackPanel>
+        </Grid>
+</UserControl>

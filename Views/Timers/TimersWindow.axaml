@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Timers.TimersWindow"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers"
+             x:DataType="vm:TimersWindowViewModel"
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers"
+             mc:Ignorable="d" 
+             Background="{x:Null}">
+    <Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}"  Margin="0,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl ItemsSource="{Binding SwtorTimers, UpdateSourceTrigger=PropertyChanged}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:TimerInstanceView />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+    </Grid>
+</UserControl>

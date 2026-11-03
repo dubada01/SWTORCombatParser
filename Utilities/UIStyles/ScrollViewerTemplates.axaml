@@ -1,0 +1,46 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- VerticalScrollBar ControlTemplate -->
+    <ControlTemplate x:Key="VerticalScrollBar">
+        <Grid>
+            <!-- Background Border -->
+            <Border CornerRadius="2" Background="{StaticResource Gray10Brush}" />
+            <!-- Track -->
+            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                <Track.DecreaseButton>
+                    <RepeatButton Classes="ScrollBarPageButton" />
+                </Track.DecreaseButton>
+                <Track.Thumb>
+                    <Thumb Classes="ScrollBarThumb"
+                           Margin="1,0,1,0"
+                           Background="{StaticResource Gray5Brush}" />
+                </Track.Thumb>
+                <Track.IncreaseButton>
+                    <RepeatButton Classes="ScrollBarPageButton" />
+                </Track.IncreaseButton>
+            </Track>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- HorizontalScrollBar ControlTemplate -->
+    <ControlTemplate x:Key="HorizontalScrollBar">
+        <Grid>
+            <!-- Background Border -->
+            <Border CornerRadius="2" Background="{StaticResource Gray10Brush}" />
+            <!-- Track -->
+            <Track x:Name="PART_Track" Orientation="Horizontal">
+                <Track.DecreaseButton>
+                    <RepeatButton Classes="ScrollBarPageButton" />
+                </Track.DecreaseButton>
+                <Track.Thumb>
+                    <Thumb Classes="ScrollBarThumb"
+                           Margin="0,1,0,1"
+                           Background="{StaticResource Gray5Brush}" />
+                </Track.Thumb>
+                <Track.IncreaseButton>
+                    <RepeatButton Classes="ScrollBarPageButton" />
+                </Track.IncreaseButton>
+            </Track>
+        </Grid>
+    </ControlTemplate>
+</ResourceDictionary>

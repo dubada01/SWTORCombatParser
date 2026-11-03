@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Challenges.ChallengeControl"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Challenges"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Challenges"
+             x:DataType="vm:ChallengeWindowViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding ActiveChallengeInstances}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <local:ChallengeWindowInstance/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="{Binding Path=$parent[ItemsControl].((vm:ChallengeWindowViewModel)DataContext).ActiveChallengeInstances.Count}" Rows="1"></UniformGrid>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </Grid>
+</UserControl>

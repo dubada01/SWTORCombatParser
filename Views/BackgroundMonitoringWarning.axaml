@@ -1,0 +1,47 @@
+﻿<Window x:Class="SWTORCombatParser.Views.BackgroundMonitoringWarning"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views"
+        mc:Ignorable="d"
+        Title="BackgroundMonitoringNotice" Height="200" Width="400"         
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome" Topmost="True">
+    <Border CornerRadius="10" BorderThickness="2">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.85*"/>
+                <RowDefinition Height="0.15*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Column="1" 
+                       x:Name="LoadingText" 
+                       FontFamily="{StaticResource MainFont}" 
+                       FontSize="16" 
+                       TextAlignment="Center" 
+                       FontWeight="DemiBold" 
+                       TextWrapping="Wrap" 
+                       Text="Orbs has been minimized to the system tray.&#x0a;&#x0a;It will automatically record combats while SWTOR is running and display your overlays.&#x0a;&#x0a;You can exit Orbs by right clicking the icon in the system tray." 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center" Margin="20,0,20,0"></TextBlock>
+            <Button x:Name="OkButton" Grid.Row="1" Classes="RoundedCorner"
+                    Content="Ok" Width="50" Height="25" 
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    ></Button>
+            <Button x:Name="ExitButton" Grid.Row="1" Margin="0,0,10,0" Classes="RoundedCorner"
+                    Content="Exit" Foreground="IndianRed" Width="50" Height="25" 
+                    VerticalAlignment="Center" HorizontalAlignment="Right"
+                    ></Button>
+            <StackPanel Margin="10,0,0,0" VerticalAlignment="Bottom" Orientation="Horizontal" Grid.Row="0">
+                <CheckBox x:Name="ShowAgainCheck" ></CheckBox>
+                <TextBlock Text="Don't show again" FontFamily="{StaticResource MainFont}"></TextBlock>
+            </StackPanel>
+            <StackPanel Margin="10,0,0,0" VerticalAlignment="Top" Orientation="Horizontal" Grid.Row="1">
+                <CheckBox x:Name="DisableCheck" ></CheckBox>
+                <TextBlock Text="Disable feature" FontFamily="{StaticResource MainFont}"></TextBlock>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

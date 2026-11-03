@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.ParticipantSelectionView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Home_Views"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Home_View_Models"
+             x:DataType="vm:ParticipantSelectionViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,5,0,0">
+            <TextBlock Text="View Enemies" FontFamily="{StaticResource MainFont}" FontSize="13" FontWeight="DemiBold" HorizontalAlignment="Center" Foreground="WhiteSmoke"></TextBlock>
+            <CheckBox HorizontalAlignment="Center" Margin="0,0,0,0" IsChecked="{Binding ViewEnemies}"></CheckBox>
+        </StackPanel>
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding AvailableParticipants}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="{Binding Rows}" Columns="{Binding Columns}"></UniformGrid>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:ParticipantInstanceView/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

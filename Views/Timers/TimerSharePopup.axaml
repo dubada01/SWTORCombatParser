@@ -1,0 +1,40 @@
+﻿<Window x:Class="SWTORCombatParser.Views.Timers.TimerSharePopup"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views"
+        mc:Ignorable="d"
+        Title="TimerShareWindow" Height="200" Width="400"         
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome" Background="Transparent" Topmost="True" WindowStartupLocation="CenterScreen">
+    <Border Background="WhiteSmoke" CornerRadius="10" BorderThickness="2" BorderBrush="LightGray">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.33*"/>
+                <RowDefinition Height="0.33*"/>
+                <RowDefinition Height="0.15*"/>
+            </Grid.RowDefinitions>
+
+                <TextBox x:Name="ShareCode" Classes="RoundedTextBox" HorizontalContentAlignment="Center" IsReadOnly="True" VerticalContentAlignment="Center" FontSize="25"  Width="100" Height="50"></TextBox>
+
+            <TextBlock Grid.Column="1" 
+                       Grid.Row="1"
+                       x:Name="LoadingText" 
+                       FontFamily="{StaticResource MainFont}" 
+                       FontSize="14" 
+                       TextAlignment="Center" 
+                       FontWeight="DemiBold" 
+                       TextWrapping="Wrap" 
+                       Text="Share this code with anyone to allow them to import this timer.&#x0a;&#x0a;It has been automatically copied to your clipboard." 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Bottom" Margin="20,0,20,10"></TextBlock>
+            <Button x:Name="OkButton" Grid.Row="2" Classes="RoundedCorner"
+                    Content="Ok" Width="50" Height="25" 
+                    VerticalAlignment="Center"
+                    ></Button>
+        </Grid>
+    </Border>
+</Window>

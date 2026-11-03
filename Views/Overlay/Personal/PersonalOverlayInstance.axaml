@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.Personal.PersonalOverlayInstance"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.Personal"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.Personal"
+                x:DataType="vm:PersonalOverlayInstanceViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Border Background="{StaticResource Gray2_75Brush}" BorderBrush="Gray" BorderThickness="2" CornerRadius="3" Margin="5,5,0,0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="{Binding Height}"/>
+                <RowDefinition Height="{Binding Height}"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Viewbox Grid.Column="1" MaxHeight="20" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0">
+                <Button FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Background="#c96161" IsVisible="{Binding ShowX, Converter={StaticResource BooleanToVisibiityConverter}}" FontWeight="Bold" Content="X"  FontSize="7"
+                  Width="15" Height="15" Padding="0" Command="{Binding RemoveCellCommand}"/>
+            </Viewbox>
+            <Viewbox Margin="10,5,10,5" MaxHeight="35">
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox IsVisible="{Binding ShowDropDown, Converter={StaticResource BooleanToVisibiityConverter}}" 
+                          ItemsSource="{Binding AvailableMetrics,Converter={StaticResource OverlayTypeToReadableNameConverter}}" 
+                          SelectedItem="{Binding SelectedMetric,Converter={StaticResource OverlayTypeToReadableNameConverter}}"></ComboBox>
+                    <ComboBox Margin="5,0,0,0" IsVisible="{Binding SelectingCustomVariables, Converter={StaticResource BooleanToVisibiityConverter}}" 
+                          ItemsSource="{Binding AvailableVariables}" 
+                          SelectedItem="{Binding SelectedVariable}"></ComboBox>
+                </StackPanel>
+
+            </Viewbox>
+            <Viewbox Margin="5,0,5,0" MaxHeight="35" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <Grid>
+                    <TextBlock IsVisible="{Binding ShowText, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" Text="{Binding SelectedMetric,Converter={StaticResource OverlayTypeToReadableNameConverter}}"></TextBlock>
+                    <TextBlock IsVisible="{Binding ShowVariable, Converter={StaticResource BooleanToVisibiityConverter}}" Foreground="WhiteSmoke" Text="{Binding SelectedVariable}"></TextBlock>
+                </Grid>
+            </Viewbox>
+
+            <Viewbox IsVisible="{Binding ShowAny, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="15,0,15,0" MaxHeight="40" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Foreground="{Binding SelectedMetric, Converter={StaticResource OverlayMetricTypeToColorConverter}}" Text="{Binding MetricValue}" ></TextBlock>
+            </Viewbox>
+
+        </Grid>
+    </Border>
+
+</UserControl>

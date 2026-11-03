@@ -442,7 +442,7 @@
     "SourcePt2": "IZAX",
     "PhaseSource": "The Gods from the Machine|IZAX",
     "Name": "Anchors",
-    "StartTrigger": 6,
+    "StartTrigger": 4,
     "EndTrigger": 0,
     "StartArgs": {
       "EntityIds": [],
@@ -2697,7 +2697,7 @@
     "PhaseSource": "The Gods from the Machine|SCYVA",
     "Name": "Omega Droid",
     "StartTrigger": 1,
-    "EndTrigger": 2,
+    "EndTrigger": 0,
     "StartArgs": {
       "EntityIds": [ 4126527268585472 ],
       "AbilityIds": [],

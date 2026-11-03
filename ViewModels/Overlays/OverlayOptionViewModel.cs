@@ -1,6 +1,5 @@
 ﻿using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
-using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 

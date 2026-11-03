@@ -1,0 +1,25 @@
+﻿<Window x:Class="SWTORCombatParser.Utilities.LoadingSplash"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Utilities"
+        xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
+        mc:Ignorable="d"
+        Title="LoadingSplash" Height="100" Width="300" TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome"
+        Topmost="True" Background="{x:Null}" ShowInTaskbar="False">
+    <Border CornerRadius="10" BorderThickness="2" BorderBrush="LightGray">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width=".33*"/>
+                <ColumnDefinition Width="0.66*"/>
+            </Grid.ColumnDefinitions>
+            <Image anim:ImageBehavior.AnimatedSource="avares://Orbs/resources/Loading.gif" Grid.Column="0" Width="50" HorizontalAlignment="Left" Margin="35,0,0,0"></Image>
+            <TextBlock Grid.Column="1" x:Name="LoadingText" FontFamily="{StaticResource MainFont}" FontSize="25" TextAlignment="Center" FontWeight="DemiBold" TextWrapping="Wrap" Text="Loading..." HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20,0,20,0"></TextBlock>
+        </Grid>
+    </Border>
+
+</Window>

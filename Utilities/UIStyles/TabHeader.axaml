@@ -1,0 +1,17 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="TabItem.RoundedTab">
+        <Setter Property="Template" Value="{StaticResource RoundedTab}" />
+    </Style>
+    <Style Selector="TabItem.RoundedTab:selected#Border">
+        <Setter Property="Background" Value="{StaticResource ParticipantHPSBrush}" />
+        <Setter Property="BorderThickness" Value="1,1,1,0" />
+        <Setter Property="Canvas.ZIndex" Value="100" />
+    </Style>
+    <Style Selector="TabItem.RoundedTab:disabled#Border">
+        <Setter Property="Opacity" Value="0.25" />
+    </Style>
+    <Style Selector="TabItem.RoundedTab:not(:disabled)#Border">
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+</Styles>

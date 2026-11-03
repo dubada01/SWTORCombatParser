@@ -3,8 +3,9 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
@@ -52,9 +53,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public double BarHeight => defaultBarHeight * SizeScalar;
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
-        public double BorderThickness => 0;
+        public Thickness BorderThickness => new Thickness(0d);
         public CornerRadius BarRadius { get; set; } = new CornerRadius(3, 3, 3, 3);
-        public SolidColorBrush BarOutline => Brushes.Transparent;
+        public SolidColorBrush BarOutline => new SolidColorBrush(Brushes.Transparent.Color);
         public Entity Player { get; set; }
         public string PlayerName => Player.Name;
 

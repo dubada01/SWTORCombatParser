@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
-using System.Windows.Media;
+using Avalonia.Controls;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.Utilities.Converters
 {

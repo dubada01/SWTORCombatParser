@@ -1,80 +1,93 @@
-﻿using Newtonsoft.Json;
+﻿using Avalonia.Media.Imaging;
 using SWTORCombatParser.DataStructures;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using System.Windows.Resources;
 
 namespace SWTORCombatParser.Utilities
 {
     public static class IconGetter
     {
-        public static ConcurrentDictionary<string, BitmapImage> IconDict = new ConcurrentDictionary<string, BitmapImage>();
-        public static Dictionary<string,string> _abilityToIconDict = new Dictionary<string, string>();
+        public static ConcurrentDictionary<ulong, Bitmap> IconDict = new ConcurrentDictionary<ulong, Bitmap>();
+        public static Dictionary<ulong, string> _abilityToIconDict = new Dictionary<ulong, string>();
+
         public static void Init()
         {
             var lines = File.ReadAllLines("DataStructures/ability_to_icon.csv");
-            _abilityToIconDict = lines.ToDictionary(kvp => kvp.Split(',')[0], kvp =>kvp.Split(',')[1]);
+            _abilityToIconDict = lines.Where(line=>!line.Contains("ability_id")).ToDictionary(kvp => ulong.Parse(kvp.Split(',')[0]), kvp => kvp.Split(',')[1]);
         }
-        public static bool HasIcon(string abilityId)
+
+        public static bool HasIcon(ulong abilityId)
         {
             return _abilityToIconDict.ContainsKey(abilityId);
         }
-        public static async Task<BitmapImage> GetIconPathForLog(ParsedLogEntry log)
+
+        public static async Task<Bitmap> GetIconPathForLog(ParsedLogEntry log)
         {
-            if (log == null || log.AbilityId == null) {
-                return await LoadImageAsync(GetIconPathForId(""),"");
+            if (log == null || log.AbilityId == null)
+            {
+                return await LoadImageAsync(GetIconPathForId(0), 0);
             }
             return await GetIconForId(log.AbilityId);
         }
-        public static string GetIconPathForId(string id)
+
+        public static string GetIconPathForId(ulong id)
         {
-            string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
-            if (_abilityToIconDict.TryGetValue(id,out var path))
-                return appDataPath + @$"\resources\icons\{path}.png";
-            return appDataPath + @$"\resources\icons\.png";
+            var appDataPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "DubaTech", "SWTORCombatParser");
+
+            var iconsDir = Path.Combine(appDataPath, "resources", "icons");
+
+            if (_abilityToIconDict.TryGetValue(id, out var key) && !string.IsNullOrWhiteSpace(key))
+            {
+                var file = key.Trim().ToLowerInvariant() + ".png";
+                return Path.Combine(iconsDir, file);
+            }
+
+            // Pick an actual known placeholder filename if you have one:
+            return Path.Combine(iconsDir, ".png");
         }
-        public static async Task<BitmapImage> InitIcon(string id)
+
+        public static async Task<Bitmap> InitIcon(ulong id)
         {
             var path = GetIconPathForId(id);
             if (File.Exists(path))
-                return await LoadImageAsync(path, id); 
-            return await LoadImageAsync(GetIconPathForId(""), id);
+                return await LoadImageAsync(path, id);
+            return await LoadImageAsync(GetIconPathForId(0), id);
         }
-        public static async Task<BitmapImage> GetIconForId(string id)
+
+        public static async Task<Bitmap> GetIconForId(ulong id)
         {
-            if(IconDict.TryGetValue(id, out var cachedImage)) 
+            if (IconDict.TryGetValue(id, out var cachedImage))
                 return cachedImage;
-            return await LoadImageAsync(GetIconPathForId(id),id);
+            return await LoadImageAsync(GetIconPathForId(id), id);
         }
-        public static async Task<BitmapImage> LoadImageAsync(string imagePath, string abilityId)
+
+        public static async Task<Bitmap> LoadImageAsync(string imagePath, ulong abilityId)
         {
             try
             {
                 return await Task.Run(() =>
                 {
-                    var image = new BitmapImage();
-                    image.BeginInit();
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.UriSource = new Uri(imagePath, UriKind.Absolute);
-                    image.EndInit();
-                    image.Freeze(); // Make it cross-thread accessible
-                    IconDict.TryAdd(abilityId, image);
-                    return image;
+                    using (var stream = File.OpenRead(imagePath))
+                    {
+                        var bitmap = new Bitmap(stream);
+                        IconDict.TryAdd(abilityId, bitmap);
+                        return bitmap;
+                    }
                 });
             }
+
             catch
             {
                 string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
-                return await LoadImageAsync(appDataPath + @$"\resources\icons\.png", abilityId);
+                var icon =  await LoadImageAsync(Path.Combine(appDataPath, "resources", "icons", ".png"), abilityId);
+                IconDict.TryAdd(abilityId, icon);
+                return icon;
             }
         }
     }
