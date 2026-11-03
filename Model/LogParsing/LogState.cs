@@ -159,9 +159,9 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (LocalPlayer == null)
                 return new SWTORClass();
-            if (PlayerClassChangeInfo.Keys.All(k => k.Id != LocalPlayer.Id))
+            var localPlayer = ResolveTrackedEntity(LocalPlayer, PlayerClassChangeInfo.Keys);
+            if (localPlayer == null || !PlayerClassChangeInfo.TryGetValue(localPlayer, out var classOfSource))
                 return new SWTORClass();
-            var classOfSource = PlayerClassChangeInfo[PlayerClassChangeInfo.Keys.First(k => k.Id == LocalPlayer.Id)];
             if (classOfSource == null)
                 return new SWTORClass();
             var mostRecentClassChangeTime = classOfSource.Keys.ToList().MinBy(l => Math.Abs((time - l).TotalSeconds));
@@ -170,7 +170,8 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public SWTORClass GetCharacterClassAtTime(Entity entity, DateTime time)
         {
-            if (entity == null || !PlayerClassChangeInfo.TryGetValue(entity, out var classOfSource))
+            var trackedEntity = ResolveTrackedEntity(entity, PlayerClassChangeInfo.Keys);
+            if (trackedEntity == null || !PlayerClassChangeInfo.TryGetValue(trackedEntity, out var classOfSource))
                 return new SWTORClass();
             if (classOfSource == null)
                 return new SWTORClass();
@@ -222,6 +223,7 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public EntityInfo GetPlayerTargetAtTime(Entity? player, DateTime time)
         {
+            player = ResolveTrackedEntity(player, PlayerTargetsInfo.Keys);
             if (player == null || !PlayerTargetsInfo.TryGetValue(player, out var targets))
                 return new EntityInfo();
             var targetKeys = targets.Keys;
@@ -229,10 +231,40 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public EntityInfo GetEnemyTargetAtTime(Entity enemy, DateTime time)
         {
-            if (!EnemyTargetsInfo.TryGetValue(enemy, out var targets))
+            enemy = ResolveTrackedEntity(enemy, EnemyTargetsInfo.Keys);
+            if (enemy == null || !EnemyTargetsInfo.TryGetValue(enemy, out var targets))
                 return new EntityInfo();
             var targetKeys = targets.Keys;
             return targetKeys.Any(v => v <= time) ? targets[targetKeys.Where(v => v <= time).MinBy(l => Math.Abs((time - l).TotalSeconds))] : new EntityInfo();
+        }
+
+        private static Entity ResolveTrackedEntity(Entity entity, IEnumerable<Entity> trackedEntities)
+        {
+            if (entity == null)
+                return null;
+
+            var trackedEntity = trackedEntities.FirstOrDefault(e => ReferenceEquals(e, entity));
+            if (trackedEntity != null)
+                return trackedEntity;
+
+            if (entity.LogId != 0)
+            {
+                trackedEntity = trackedEntities.FirstOrDefault(e => e.LogId == entity.LogId);
+                if (trackedEntity != null)
+                    return trackedEntity;
+            }
+
+            if (entity.Id != 0)
+            {
+                trackedEntity = trackedEntities.FirstOrDefault(e => e.Id == entity.Id);
+                if (trackedEntity != null)
+                    return trackedEntity;
+            }
+
+            if (!string.IsNullOrEmpty(entity.Name))
+                return trackedEntities.FirstOrDefault(e => e.Name == entity.Name);
+
+            return null;
         }
         public List<CombatModifier> GetEffectsWithSource(DateTime startTime, DateTime endTime, Entity owner)
         {

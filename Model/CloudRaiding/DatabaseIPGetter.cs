@@ -2,23 +2,17 @@
 {
     public static class DatabaseIPGetter
     {
-        private static string _debugLocalPort = "32771";
-        private static string _prodPort = "443";
-
-        private static string _debugLocalURL = "localhost";
+        private static bool _isDebug = false;
         private static string _prodURL = "api.orbs-stats.com/api";
 
-
-        private static string _apiURL = _prodURL;
-
-        private static string _currentAPIPort = _prodPort;
         public static string GetCurrentRemoteServerIP()
         {
-            return _apiURL;
+            return _prodURL;
         }
         public static string CurrentAPIURL()
         {
-            return $"https://{GetCurrentRemoteServerIP()}";
+            return _isDebug ? "http://localhost:5020" : $"https://{GetCurrentRemoteServerIP()}";
         }
+        
     }
 }

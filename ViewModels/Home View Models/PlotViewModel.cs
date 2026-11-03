@@ -89,13 +89,27 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             GraphView = plot;
         }
-        private Entity SelectedParticipant => _selectedParticipant != null && (_currentCombat != null && _currentCombat.AllEntities.Values.All(c => c.Id != _selectedParticipant.Id)) ? _currentCombat.CharacterParticipants.First().Value : _selectedParticipant;
+        private Entity SelectedParticipant
+        {
+            get
+            {
+                if (_currentCombat == null)
+                    return _selectedParticipant;
+
+                var resolvedParticipant = ResolveCombatEntity(_currentCombat, _selectedParticipant);
+                if (resolvedParticipant != null)
+                    return resolvedParticipant;
+
+                return _currentCombat.CharacterParticipants.FirstOrDefault().Value;
+            }
+        }
         private void SelectParticipant(Entity obj)
         {
-            if (_selectedParticipant == obj)
+            var resolvedParticipant = ResolveCombatEntity(_currentCombat, obj) ?? obj;
+            if (IsSameEntity(_selectedParticipant, resolvedParticipant))
                 return;
 
-            _selectedParticipant = obj;
+            _selectedParticipant = resolvedParticipant;
             _combatMetaDataViewModel.SelectedParticipant = _selectedParticipant;
             lock (graphLock)
             {
@@ -189,12 +203,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             if (_selectedParticipant != null && combat.AllEntities.Values.All(e => e.Id != _selectedParticipant.Id))
             {
-                if (combat.AllEntities.Values.Any(e => e.LogId == _selectedParticipant.LogId))
-                {
-                    _selectedParticipant = combat.AllEntities.Values.First(e => e.LogId == _selectedParticipant.LogId);
-                }
-                else
-                    _selectedParticipant = null;
+                _selectedParticipant = ResolveCombatEntity(combat, _selectedParticipant);
             }
 
             var setParticipants = _participantsViewModel.UpdateParticipantsData(combat);
@@ -453,6 +462,9 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             if (combatToPlot == null)
                 return new ConcurrentQueue<ParsedLogEntry>();
+            selectedParticipant = ResolveCombatEntity(combatToPlot, selectedParticipant);
+            if (selectedParticipant == null)
+                return new ConcurrentQueue<ParsedLogEntry>();
             switch (type)
             {
                 case PlotType.DamageOutput:
@@ -470,6 +482,42 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
 
             }
             return null;
+        }
+
+        private static Entity ResolveCombatEntity(Combat combat, Entity entity)
+        {
+            if (combat == null || entity == null)
+                return null;
+
+            if (entity.LogId != 0)
+            {
+                var matchingEntity = combat.AllEntities.Values.FirstOrDefault(e => e.LogId == entity.LogId);
+                if (matchingEntity != null)
+                    return matchingEntity;
+            }
+
+            if (entity.Id != 0)
+            {
+                var matchingEntity = combat.AllEntities.Values.FirstOrDefault(e => e.Id == entity.Id);
+                if (matchingEntity != null)
+                    return matchingEntity;
+            }
+
+            if (!string.IsNullOrEmpty(entity.Name))
+                return combat.AllEntities.Values.FirstOrDefault(e => e.Name == entity.Name);
+
+            return null;
+        }
+
+        private static bool IsSameEntity(Entity left, Entity right)
+        {
+            if (left == null || right == null)
+                return false;
+            if (left.LogId != 0 && right.LogId != 0)
+                return left.LogId == right.LogId;
+            if (left.Id != 0 && right.Id != 0)
+                return left.Id == right.Id;
+            return left.Name == right.Name;
         }
         private void ReInitializeTooltips(CombatMetaDataSeries series, DateTime startTime)
         {

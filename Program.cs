@@ -1,6 +1,9 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+#if WINDOWS
+using Avalonia.Win32;
+#endif
 
 namespace SWTORCombatParser;
 
@@ -17,9 +20,20 @@ internal sealed class Program
     }
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    {
+        var builder = AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
             .UseReactiveUI()
             .LogToTrace();
+
+#if WINDOWS
+        builder = builder.With(new Win32PlatformOptions
+        {
+            DpiAwareness = Win32DpiAwareness.PerMonitorDpiAware
+        });
+#endif
+
+        return builder;
+    }
 }

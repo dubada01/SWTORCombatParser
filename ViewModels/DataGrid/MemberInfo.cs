@@ -34,8 +34,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             if (_entity != null)
             {
                 IsLocalPlayer = e.IsLocalPlayer;
-                _playerClass =
-    CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, info.StartTime);
+                _playerClass = GetClassForEntity(info, _entity);
                 StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, _entity.Name, _playerClass.Discipline, IsLocalPlayer, _entity));
             }
             else
@@ -54,8 +53,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             {
                 IsTotalsRow = false;
                 IsLocalPlayer = _entity.IsLocalPlayer;
-                var currentClass =
-                    CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(_entity, newInfo.StartTime);
+                var currentClass = GetClassForEntity(newInfo, _entity);
                 var classChanged = false;
                 if (currentClass != _playerClass)
                 {
@@ -171,6 +169,22 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             if (_entity == null)
                 return MetricGetter.GetTotalforMetric(columnType, _info).ToString(formatToUse);
             return MetricGetter.GetValueForMetric(columnType, _info, _entity).ToString(formatToUse);
+        }
+
+        private static SWTORClass GetClassForEntity(Combat combat, Entity entity)
+        {
+            if (combat?.CharacterClases != null)
+            {
+                var classEntry = combat.CharacterClases.FirstOrDefault(kvp =>
+                    (entity.LogId != 0 && kvp.Key.LogId == entity.LogId) ||
+                    (entity.Id != 0 && kvp.Key.Id == entity.Id) ||
+                    kvp.Key == entity);
+
+                if (classEntry.Key != null)
+                    return classEntry.Value;
+            }
+
+            return CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(entity, combat?.StartTime ?? System.DateTime.MinValue);
         }
 
         public ObservableCollection<StatsSlotViewModel> StatsSlots { get; set; } = new();
