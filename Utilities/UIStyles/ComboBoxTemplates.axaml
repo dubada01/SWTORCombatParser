@@ -1,0 +1,34 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Add Resources Here -->
+    <!-- ComboBoxToggleButton ControlTemplate -->
+    <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <!-- Main Border -->
+            <Border x:Name="Border"
+                    Grid.ColumnSpan="2"
+                    CornerRadius="2"
+                    BorderThickness="1"
+                    BorderBrush="DimGray"
+                    Background="{StaticResource Gray3}">
+            </Border>
+            <!-- Left Side Border -->
+            <Border Grid.Column="0"
+                    CornerRadius="2,0,0,2"
+                    Margin="1"
+                    Background="{StaticResource Gray6}">
+            </Border>
+            <!-- Arrow Path -->
+            <Path x:Name="Arrow"
+                  Grid.Column="1"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Data="M 0 0 L 4 4 L 8 0 Z"
+                  Fill="WhiteSmoke" />
+        </Grid>
+    </ControlTemplate>
+</ResourceDictionary>

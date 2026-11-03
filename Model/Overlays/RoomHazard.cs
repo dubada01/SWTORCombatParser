@@ -5,13 +5,7 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Overlay.Room;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
-using System.Windows.Threading;
 using Timer = System.Timers.Timer;
 
 namespace SWTORCombatParser.Model.Overlays
@@ -25,7 +19,7 @@ namespace SWTORCombatParser.Model.Overlays
         private RoomOverlayUpdate _currentUpdate;
         private bool _viewExtraInfo;
 
-        public event Action<string> OnNewImagePath = delegate { };
+        public event Action<Uri> OnNewImagePath = delegate { };
         public IPCPT_Hazard(RoomOverlay roomView, RoomOverlaySettings settings, bool useExtraInfo = false) : base(roomView)
         {
             _viewExtraInfo = useExtraInfo;
@@ -53,7 +47,7 @@ namespace SWTORCombatParser.Model.Overlays
             {
                 _currentUpdate = triggerdUpdate;
                 var imageToUse = _viewExtraInfo && _currentUpdate.ImageOverlayPathExtra != "" ? _currentUpdate.ImageOverlayPathExtra : _currentUpdate.ImageOverlayPath;
-                OnNewImagePath(Path.Combine("../../../resources/RoomOverlays/IP-CPT", imageToUse));
+                OnNewImagePath(new Uri("avares://Orbs/resources/RoomOverlays/IP-CPT/" + imageToUse));
             }
             var roomTop = _overlaySettings.Top;
             var roomLeft = _overlaySettings.Left;
@@ -70,13 +64,13 @@ namespace SWTORCombatParser.Model.Overlays
     {
         private RoomOverlaySettings _settings;
         private RoomOverlay _roomOverlay;
-        private string _pinId = "4122782057103360";
-        private string _nailId = "4124985375326208";
-        private string _reseedId = "4182177159839744";
-        private string _pinDetonationId = "4124100612063621";
-        private string _nailDetonationId = "4125006850163036";
-        private string _prepareTheFieldEffectId = "4181979591344128";
-        private List<string> _currentHazards = new List<string>();
+        private long _pinId = 4122782057103360;
+        private long _nailId = 4124985375326208;
+        private ulong _reseedId = 4182177159839744;
+        private ulong _pinDetonationId = 4124100612063621;
+        private ulong _nailDetonationId = 4125006850163036;
+        private ulong _prepareTheFieldEffectId = 4181979591344128;
+        private List<long> _currentHazards = new List<long>();
         public NAHUT_Hazard(RoomOverlay roomView, RoomOverlaySettings settings): base(roomView)
         {
             _settings = settings;
@@ -89,15 +83,13 @@ namespace SWTORCombatParser.Model.Overlays
             {
                 UpdateCharacterPosition();
             }
-            if(entry.Source.LogId.ToString() == _pinId && 
-                !_currentHazards.Any(p=>p == entry.Source.Id.ToString()))
+            if(entry.Source.LogId == _pinId && _currentHazards.All(p => p != entry.Source.Id))
             {
-                DrawNewHazard(entry.SourceInfo.Position, "PIN", entry.Source.Id.ToString());
+                DrawNewHazard(entry.SourceInfo.Position, "PIN", entry.Source.Id);
             }
-            if (entry.Source.LogId.ToString() == _nailId &&
-                !_currentHazards.Any(p => p == entry.Source.Id.ToString()))
+            if (entry.Source.LogId == _nailId && _currentHazards.All(p => p != entry.Source.Id))
             {
-                DrawNewHazard(entry.SourceInfo.Position, "NAIL", entry.Source.Id.ToString());
+                DrawNewHazard(entry.SourceInfo.Position, "NAIL", entry.Source.Id);
             }
             if(entry.Effect.EffectId == _reseedId || (entry.Effect.EffectId == _prepareTheFieldEffectId && entry.Effect.EffectType == EffectType.Apply))
             {
@@ -105,11 +97,11 @@ namespace SWTORCombatParser.Model.Overlays
             }
             if(entry.Effect.EffectId == _pinDetonationId || entry.Effect.EffectId == _nailDetonationId)
             {
-                RemoveHazard(entry.Source.Id.ToString());
+                RemoveHazard(entry.Source.Id);
             }
         }
 
-        private void DrawNewHazard(PositionData position, string v, string hazardId)
+        private void DrawNewHazard(PositionData position, string v, long hazardId)
         {
             var roomTop = _settings.Top;
             var roomLeft = _settings.Left;
@@ -127,7 +119,7 @@ namespace SWTORCombatParser.Model.Overlays
             _currentHazards.Clear();
             _roomOverlay.ClearAllHazards();
         }
-        private void RemoveHazard(string hazardId)
+        private void RemoveHazard(long hazardId)
         {
             _currentHazards.RemoveAll(p=> p == hazardId);
             _roomOverlay.ClearSpecificHazard(hazardId);

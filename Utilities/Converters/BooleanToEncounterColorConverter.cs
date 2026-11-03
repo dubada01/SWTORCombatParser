@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
-using System.Windows.Media;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
+using SWTORCombatParser.DataStructures.EncounterInfo;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -9,11 +10,12 @@ namespace SWTORCombatParser.Utilities.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool boolVal = (bool)value;
-            if (boolVal)
-                return Brushes.DarkGoldenrod;
-            else
-                return Brushes.Gray;
+            EncounterInfo encounter = (EncounterInfo)value;
+            if (encounter.IsBossEncounter)
+                return new SolidColorBrush(Colors.DarkGoldenrod);
+            if(encounter.IsPvpEncounter)
+                return new SolidColorBrush(Colors.OrangeRed);
+            return new SolidColorBrush(Colors.Gray);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

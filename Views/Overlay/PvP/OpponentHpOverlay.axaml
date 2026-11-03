@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.PvP.OpponentHpOverlay"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.PvP"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.PvP"
+        x:DataType="vm:OpponentOverlayViewModel"
+        mc:Ignorable="d"
+        Background="{x:Null}">
+
+    <Grid x:Name="MainArea" IsVisible="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip.Tip="PvP Opponent HP">
+        <Viewbox>
+            <ItemsControl ItemsSource="{Binding OpponentHpBars}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:OpponentHPBar Width="300" Height="50" Margin="10,5,10,5"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="8"></UniformGrid>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Viewbox>
+
+    </Grid>
+</UserControl>

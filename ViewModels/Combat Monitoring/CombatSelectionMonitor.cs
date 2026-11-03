@@ -2,7 +2,6 @@
 using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.CombatParsing;
 using System;
-using Avalonia;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {

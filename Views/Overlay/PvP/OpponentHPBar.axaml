@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.PvP.OpponentHPBar"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.PvP"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.PvP"
+                x:DataType="vm:OpponentHPBarViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="200">
+
+    <Border Opacity="{Binding IsCurrentInfo, Converter={StaticResource OpponentInRangeToColorConverter}}"  BorderBrush="{Binding IsTargeted, Converter={StaticResource BooleanToHpBorderConverter}}" BorderThickness="3" CornerRadius="5" Background="DimGray">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
+                <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
+            </Grid.ColumnDefinitions>
+            <Border HorizontalAlignment="Stretch" Grid.Column="0" CornerRadius="0,5,5,0" Background="{Binding Menace, Converter={StaticResource MenaceTypeToBrushConverter}}"></Border>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="DemiBold" FontFamily="{StaticResource MainFont}" FontSize="30" Grid.ColumnSpan="2"  Foreground="WhiteSmoke" Text="{Binding PlayerName}"></TextBlock>
+        </Grid>
+    </Border>
+
+</UserControl>

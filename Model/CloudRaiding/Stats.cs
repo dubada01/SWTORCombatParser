@@ -2,12 +2,9 @@
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Text;
+using System.Reflection;
 using System.Threading.Tasks;
-using static System.Windows.Forms.AxHost;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -23,10 +20,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 Difficulty = combat.EncounterBossDifficultyParts.Item3,
                 NumberOfPlayers =  int.Parse(combat.EncounterBossDifficultyParts.Item2),
                 TimeToKill = combat.DurationSeconds,
-                PlayerClasses = combat.CharacterParticipants.Select(c=>GetClass(c,combat.StartTime)).ToList(),
-                PlayerNames = combat.CharacterParticipants.Select(c=>c.Name).ToList(),
+                PlayerClasses = combat.CharacterParticipants.Select(c=>GetClass(c.Value,combat.StartTime)).ToList(),
+                PlayerNames = combat.CharacterParticipants.Select(c=>c.Value.Name).ToList(),
                 EncounterName = combat.ParentEncounter.Name,
-                EncounterTimestamp = combat.StartTime.ToUniversalTime()
+                EncounterTimestamp = combat.StartTime.ToUniversalTime(),
+                Software_Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown Version"
             });
         }
 

@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.BossFrame.MechanicsTimersModule"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.BossFrame" xmlns:timers="clr-namespace:SWTORCombatParser.Views.Timers"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.BossFrame"
+                x:DataType="vm:MechanicsTimersModuleViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <ItemsControl ItemsSource="{Binding UpcomingMechanics}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <timers:HPTimerInstanceView Height="{Binding BarHeight}"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

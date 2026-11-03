@@ -1,30 +1,65 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.9.20</VersionPrefix>
+    <VersionPrefix>2.3.1.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AssemblyName>Orbs</AssemblyName>
-    <SignAssembly>false</SignAssembly>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Prefer32Bit>false</Prefer32Bit>
-	<PlatformTarget>AnyCPU</PlatformTarget>
-	<DebugType>full</DebugType>
+  <!-- macOS -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
+    <!-- Only set this if you truly always want arm64 when building on macOS -->
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
-    <DebugType>full</DebugType>
+  <!-- Linux -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <DefineConstants>LINUX;$(DefineConstants)</DefineConstants>
+    <!-- Don't hardcode if you sometimes publish linux-arm64; otherwise this is fine -->
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
   </PropertyGroup>
+
+  <Target Name="ForceSkiaNative119" AfterTargets="Build"
+          Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+
+    <!-- NuGetPackageRoot is usually ~/.nuget/packages/ -->
+    <PropertyGroup>
+      <_SkiaWanted>$(NuGetPackageRoot)skiasharp.nativeassets.linux.nodependencies/3.119.1/runtimes/linux-x64/native/libSkiaSharp.so</_SkiaWanted>
+    </PropertyGroup>
+
+    <Message Importance="High" Text="Forcing Skia native: $(_SkiaWanted)" />
+    <Copy SourceFiles="$(_SkiaWanted)"
+          DestinationFiles="$(OutputPath)libSkiaSharp.so"
+          SkipUnchangedFiles="false"
+          Condition="Exists('$(_SkiaWanted)')" />
+  </Target>
+
+
+  <!-- Windows -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <DefineConstants>WINDOWS;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PackageReference Include="System.Drawing.Common" Version="9.0.3" />
+    <PackageReference Include="SkiaSharp.Views.Desktop.Common" Version="3.116.1" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
+  </ItemGroup>
+
+  <!-- macOS -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <None Include="runtimes/osx/native/libbass.dylib" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Linux -->
+  
   <ItemGroup>
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
@@ -68,40 +103,68 @@
     <None Remove="publish\**" />
     <None Remove="SWTORCombatParser_Test\**" />
     <None Remove="UWP Images\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\EC\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\EV\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Gods\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\KP\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\Rav\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\SnV\**" />
-    <Page Remove="DataStructures\Timers\Boss Timers\Raids\TfB\**" />
-    <Page Remove="Installer Project\**" />
-    <Page Remove="Orbs Package Builder\**" />
-    <Page Remove="publish\**" />
-    <Page Remove="SWTORCombatParser_Test\**" />
-    <Page Remove="UWP Images\**" />
     <Compile Remove="ViewModels\BattleReview\MapViewModel.cs" />
     <Compile Remove="ViewModels\BattleReview\ReviewPlotViewModel.cs" />
     <Compile Remove="Views\Battle Review\MapView.xaml.cs" />
     <Page Update="Views\Timers\AlertInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\Timers\HPTimerInstanceView.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <XamlRuntime>Wpf</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Remove="Views\Leaderboard View\**" />
+    <EmbeddedResource Remove="Views\Leaderboard View\**" />
+    <None Remove="Views\Leaderboard View\**" />
+    <Compile Remove="ViewModels\Leaderboard\**" />
+    <EmbeddedResource Remove="ViewModels\Leaderboard\**" />
+    <None Remove="ViewModels\Leaderboard\**" />
+    <Compile Remove="Views\Overviews\HistogramInstanceView.axaml.cs" />
+    <Compile Remove="ViewModels\Overviews\HistogramViewModel.cs" />
+    <Compile Remove="ViewModels\Overviews\HistogramInstanceViewModel.cs" />
+    <Compile Remove="Views\Home Views\HistoricalRangeWiget.axaml.cs" />
+    <Compile Remove="Utilities\OutlinedTextBlock.cs" />
+    <Compile Remove="Utilities\CommandHandler.cs" />
+    <Compile Remove="Views\DataGrid Views\StatSlotView.axaml.cs" />
+    <Compile Remove="Views\DataGrid Views\DataGridRowView.axaml.cs" />
+    <Compile Remove="MacOSBuilds\**" />
+    <EmbeddedResource Remove="MacOSBuilds\**" />
+    <None Remove="MacOSBuilds\**" />
+    <Compile Remove="Orbs.dmgcanvas\**" />
+    <EmbeddedResource Remove="Orbs.dmgcanvas\**" />
+    <None Remove="Orbs.dmgcanvas\**" />
+    <Compile Remove="TestCombatLogs\**" />
+    <EmbeddedResource Remove="TestCombatLogs\**" />
+    <None Remove="TestCombatLogs\**" />
   </ItemGroup>
     <ItemGroup>
-        <Content Include="resources\**\*.*">
+        <AvaloniaResource Include="resources\**\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+        </AvaloniaResource>
+        <AvaloniaResource Remove="MacOSBuilds\**" />
+        <AvaloniaResource Remove="Orbs.dmgcanvas\**" />
+        <AvaloniaResource Remove="TestCombatLogs\**" />
     </ItemGroup>
-
+<ItemGroup>
+  <Content Include="resources\packagedIcons.zip">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <Content Include="resources\Audio\*.*">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <Content Include="resources\Audio\TimerAudio\*.*">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <None Remove="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json" />
+  <Content Include="DataStructures\Timers\Boss Timers\Raids\Propagator Core\Propagator Core.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <None Remove="DataStructures\PvP\pvp_medals.json" />
+  <Content Include="DataStructures\PvP\pvp_medals.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+</ItemGroup>
   <ItemGroup>
     <Content Include="BossMechanicSkimmerConfig.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -268,28 +331,37 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.1.3" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.1.3" />
-    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
-    <PackageReference Include="morelinq" Version="4.1.0" />
-    <PackageReference Include="MouseKeyHook" Version="5.7.1" />
+    <PackageReference Include="AnimatedImage.Avalonia" Version="2.0.0" />
+    <PackageReference Include="Avalonia" Version="11.3.1" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
+    <PackageReference Include="LibVLCSharp" Version="3.9.2" />
+    <PackageReference Include="ManagedBass" Version="3.1.1" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
+    <PackageReference Include="morelinq" Version="4.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Npgsql" Version="8.0.3" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.1" />
-    <PackageReference Include="Prism.Core" Version="8.1.97" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
     <PackageReference Include="Refractored.MvvmHelpers" Version="1.6.2" />
-    <PackageReference Include="ScottPlot" Version="4.1.71" />
-    <PackageReference Include="ScottPlot.WPF" Version="4.1.71" />
+    <PackageReference Include="ScottPlot" Version="5.0.55" />
+    <PackageReference Include="ScottPlot.Avalonia" Version="5.0.55" />
+    <PackageReference Include="SharpHook" Version="5.3.9" />
+    <PackageReference Include="SharpHook.Reactive" Version="5.3.9" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
     <PackageReference Include="System.Reactive" Version="6.0.1" />
     <PackageReference Include="System.Reactive.Linq" Version="6.0.1" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
-    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="OrbsIcon.ico">
+    <AvaloniaResource Include="OrbsIcon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </AvaloniaResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -332,34 +404,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Orbs_Avalonia\Orbs_Avalonia.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Update="Views\Overlay\BossFrame\RaidDotInstance.xaml.cs">
+    <Compile Update="Views\Overlay\BossFrame\RaidDotInstance.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Overlay\UtilityOverlayOptionView.xaml.cs">
+    <Compile Update="Views\Overlay\UtilityOverlayOptionView.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\Timers\TimerSharePopup.xaml.cs">
+    <Compile Update="Views\Timers\TimerSharePopup.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Update="Views\InsanceAlreadyRunningWarning.xaml.cs">
+    <Compile Update="Views\InsanceAlreadyRunningWarning.axaml.cs">
       <SubType>Code</SubType>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -381,9 +437,45 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Avalonia.Controls.DataGrid">
+      <HintPath>..\..\..\..\.nuget\packages\avalonia.controls.datagrid\11.1.0\lib\net8.0\Avalonia.Controls.DataGrid.dll</HintPath>
+    </Reference>
     <Reference Include="ReactiveUI">
       <HintPath>..\bin\Avalonia\net8.0\net8.0\ReactiveUI.dll</HintPath>
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <AvaloniaXaml Remove="Views\Leaderboard View\**" />
+    <AvaloniaXaml Remove="ViewModels\Leaderboard\**" />
+    <AvaloniaXaml Remove="Views\Overviews\HistogramInstanceView.axaml" />
+    <AvaloniaXaml Remove="Views\Battle Review\MapView.axaml" />
+    <AvaloniaXaml Remove="Views\Home Views\HistoricalRangeWiget.axaml" />
+    <AvaloniaXaml Remove="Views\DataGrid Views\StatSlotView.axaml" />
+    <AvaloniaXaml Remove="Views\DataGrid Views\DataGridRowView.axaml" />
+    <AvaloniaXaml Remove="MacOSBuilds\**" />
+    <AvaloniaXaml Remove="Orbs.dmgcanvas\**" />
+    <AvaloniaXaml Remove="TestCombatLogs\**" />
+    <AvaloniaXaml Remove="VLC\**" />
+    <AvaloniaXaml Remove="libvlc\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="Views\Leaderboard View\**" />
+    <AdditionalFiles Remove="ViewModels\Leaderboard\**" />
+    <AdditionalFiles Remove="MacOSBuilds\**" />
+    <AdditionalFiles Remove="Orbs.dmgcanvas\**" />
+    <AdditionalFiles Remove="TestCombatLogs\**" />
+    <AdditionalFiles Remove="VLC\**" />
+    <AdditionalFiles Remove="libvlc\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Remove="Views\Leaderboard View\**" />
+    <AvaloniaResource Remove="ViewModels\Leaderboard\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\HistoricalLogs\HistoricalCombatView.axaml" />
+  </ItemGroup>
 </Project>

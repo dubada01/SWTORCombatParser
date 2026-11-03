@@ -3,29 +3,52 @@ using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Avalonia.Threading;
+using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class DotModuleViewModel : INotifyPropertyChanged
+    public class DotModuleViewModel : ReactiveObject
     {
         private EntityInfo _bossInfo;
         private bool isActive;
         private double _currentScale;
+        private ObservableCollection<TimerInstanceViewModel> _activeDots = new ObservableCollection<TimerInstanceViewModel>();
+        private bool _personalDotsAreEnabled;
 
-        public ObservableCollection<TimerInstanceViewModel> ActiveDOTS { get; set; } = new ObservableCollection<TimerInstanceViewModel>();
+        public ObservableCollection<TimerInstanceViewModel> ActiveDOTS
+        {
+            get => _activeDots;
+            set => this.RaiseAndSetIfChanged(ref _activeDots, value);
+        }
 
-        public DotModuleViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, double scale)
+        public bool PersonalDOTSAreEnabled
+        {
+            get => _personalDotsAreEnabled;
+            set => this.RaiseAndSetIfChanged(ref  _personalDotsAreEnabled, value);
+        }
+
+        public DotModuleViewModel(EntityInfo bossInfo, double scale)
         {
             _currentScale = scale;
-            isActive = dotTrackingEnabled;
+            isActive = true;
             _bossInfo = bossInfo;
             TimerController.TimerExpired += RemoveTimer;
             TimerController.TimerTriggered += AddTimerVisual;
             TimerController.ReorderRequested += ReorderTimers;
+            Settings.SettingsUpdated += CheckForPersonalDotEnabled;
+            PersonalDOTSAreEnabled = Settings.ReadSettingOfType<bool>(Settings.BossFrameDOTVisibilitySetting);
         }
+
+        private void CheckForPersonalDotEnabled(string settingName)
+        {
+            if (settingName != Settings.BossFrameDOTVisibilitySetting)
+                return;
+            PersonalDOTSAreEnabled = Settings.ReadSettingOfType<bool>(Settings.BossFrameDOTVisibilitySetting);
+        }
+
         public void SetActive(bool state)
         {
             isActive = state;
@@ -33,7 +56,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         public void SetScale(double scale)
         {
             _currentScale = scale;
-            App.Current.Dispatcher?.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 foreach (var timer in ActiveDOTS)
                 {
@@ -43,7 +66,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         }
         private void RemoveTimer(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 ActiveDOTS.Remove(obj);
             });
@@ -56,7 +79,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
                 return;
             if (obj.TargetId == _bossInfo.Entity.Id && !obj.SourceTimer.IsMechanic && !obj.SourceTimer.IsSubTimer && obj.TimerValue > 0)
             {
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     obj.Scale = _currentScale;
                     ActiveDOTS.Add(obj);
@@ -65,16 +88,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             callback(obj);
         }
 
-        private void ReorderTimers()
+        private void ReorderTimers(string id)
         {
+            if(ActiveDOTS.All(t => t.SourceTimer.Id != id))
+                return;
             var currentTimers = ActiveDOTS.OrderBy(v => v.TimerValue);
             ActiveDOTS = new ObservableCollection<TimerInstanceViewModel>(currentTimers);
-            OnPropertyChanged("ActiveDOTS");
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

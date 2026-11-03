@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.RaidHOTs.RaidHotInstance"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers"
+                x:DataType="vm:TimerInstanceViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="150">
+    <Grid Margin="0,0,0,0">
+        <Grid HorizontalAlignment="Stretch">
+            <Border HorizontalAlignment="Stretch" Margin="0,2,0,2" BorderBrush="{Binding TimerBackground}" BorderThickness="1" Background="{StaticResource Gray3Brush}" CornerRadius="2" Opacity="1">
+                <Grid HorizontalAlignment="Stretch">
+                    <Border x:Name="TimerBar" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" RenderTransformOrigin="1,0" Margin="0,0,0,0" Grid.Column="0" CornerRadius="3" Background="{Binding TimerForeground}" >
+                        <Border.RenderTransform>
+                            <ScaleTransform ScaleX="{Binding CurrentRatio}" ScaleY="1"></ScaleTransform>
+                        </Border.RenderTransform>
+                    </Border>
+                </Grid>
+            </Border>
+
+        </Grid>
+
+
+        <Viewbox IsVisible="{Binding ShowCharges, Converter={StaticResource BooleanToVisibiityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,1,0,0">
+            <TextBlock x:Name="ChargesText" FontFamily="{StaticResource MainFont}" 
+                       TextWrapping="NoWrap" FontWeight="DemiBold" Foreground="WhiteSmoke" Text="{Binding Charges}" ></TextBlock>
+        </Viewbox>
+
+    </Grid>
+</UserControl>

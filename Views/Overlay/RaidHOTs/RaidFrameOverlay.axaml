@@ -1,0 +1,151 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.RaidHOTs.RaidFrameOverlay"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.RaidHots"
+        x:DataType="vm:RaidFrameOverlayViewModel"
+        mc:Ignorable="d"
+        Background="Transparent">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="50"/>
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" Grid.Row="0" Margin="5,0,0,0" IsVisible="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" Command="{Binding SetFramesToManualCorrect}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" Content="Manual Set" FontSize="{StaticResource NormalFontSize}" Classes="RoundedCorner" Background="{StaticResource Gray3Brush}" Padding="2" Height="35" Width="75">
+        </Button>
+        <StackPanel Grid.Row="0" HorizontalAlignment="Right" Grid.Column="1" Orientation="Horizontal" IsVisible="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}">
+            <Border Background="{StaticResource Gray3Brush}" CornerRadius="5" Height="25">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="5,0,2,0" VerticalAlignment="Center" Foreground="WhiteSmoke" FontSize="{StaticResource NormalFontSize}" Text="Columns"></TextBlock>
+                    <TextBox Text="{Binding Columns, UpdateSourceTrigger=PropertyChanged}" FontSize="10" FontFamily="{StaticResource MainFont}" HorizontalContentAlignment="Center" FontWeight="Normal" Width="25" Height="20" Margin="0,0,10,0"></TextBox>
+                    <TextBlock VerticalAlignment="Center" Foreground="WhiteSmoke" FontSize="{StaticResource NormalFontSize}" Text="Rows"></TextBlock>
+                    <TextBox Margin="1,0,2,0" Text="{Binding Rows, UpdateSourceTrigger=PropertyChanged}" FontSize="10" FontFamily="{StaticResource MainFont}" HorizontalContentAlignment="Center" FontWeight="Normal" Width="25" Height="20"></TextBox>
+                </StackPanel>
+            </Border>
+            <Button Margin="15,0,0,0" Command="{Binding RefreshFramesCommand}" IsEnabled="{Binding CanDetect}" Classes="RoundedCorner" Background="{StaticResource Gray3Brush}" Padding="2" Height="35" Width="35">
+                <Image Source="../../../resources/detect.png"></Image>
+            </Button>
+        </StackPanel>
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"  IsHitTestVisible="{Binding Editable}" IsVisible="{Binding DisplayGrid, Converter={StaticResource BooleanToVisibiityConverter}}"
+                 VerticalAlignment="Top" Background="{StaticResource Gray5Brush}" Height="20" Opacity="0.8" CornerRadius="3,3,3,3"></Border>
+        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" IsHitTestVisible="False" IsVisible="{Binding DisplayGrid, Converter={StaticResource BooleanToVisibiityConverter}}"
+                Background="Transparent" Opacity="0.8" BorderThickness="2" BorderBrush="DimGray" CornerRadius="3,3,3,3"></Border>
+        <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding LeftColumnCells}" IsHitTestVisible="{Binding Editable}" >
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch" IsHitTestVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).Editable}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="15"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Rectangle Opacity="0.5" Grid.Row="0" Fill="{StaticResource Gray3Brush}" IsVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).DisplayGrid}"  ></Rectangle>
+                        <TextBlock IsVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).DisplayGrid}" Foreground="WhiteSmoke" HorizontalAlignment="Center" Opacity="0.25" Text="DCDS" FontFamily="{StaticResource MainFont}" Grid.Column="{Binding DcdsColumn}"></TextBlock>
+                        <ItemsControl Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding DCDSOnPlayer}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <local:RaidDCDInstance Width="10" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="1"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        <ItemsControl Grid.Row="1" Grid.Column="2" ItemsSource="{Binding RightColumnCells}" IsHitTestVisible="{Binding Editable}" >
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid HorizontalAlignment="Stretch" IsHitTestVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).Editable}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="15"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Rectangle Opacity="0.5" Grid.Row="0" Fill="{StaticResource Gray3Brush}" IsVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).DisplayGrid}"></Rectangle>
+                        <TextBlock IsVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).DisplayGrid}" Foreground="WhiteSmoke" HorizontalAlignment="Center" Opacity="0.25" Text="DCDS" FontFamily="{StaticResource MainFont}" Grid.Column="{Binding DcdsColumn}"></TextBlock>
+                        <ItemsControl Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding DCDSOnPlayer}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <local:RaidDCDInstance Width="10"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="1"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        <ItemsControl x:Name="RaidGrid" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding RaidHotCells}" IsHitTestVisible="{Binding Editable}" >
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border IsHitTestVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).Editable}" 
+                            Background="Transparent" Opacity="1"
+                            BorderBrush="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).DisplayGrid, Converter={StaticResource BooleanToRaidBorderConverter}}"  BorderThickness="3">
+
+                        <Grid HorizontalAlignment="Stretch" IsHitTestVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).Editable}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="15"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <Rectangle Opacity="0.5" Grid.Column="{Binding HotsColumn}" Grid.Row="0" Fill="{StaticResource Gray5Brush}" IsVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).DisplayGrid}"  ></Rectangle>
+                            <TextBlock IsVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).DisplayGrid}" Foreground="WhiteSmoke" HorizontalAlignment="Center" Opacity="0.25" Text="HOTS" FontFamily="{StaticResource MainFont}" Grid.Column="{Binding HotsColumn}"></TextBlock>
+                            <TextBlock Grid.Column="0" Grid.ColumnSpan="2" IsVisible="{Binding $parent[ItemsControl].((vm:RaidFrameOverlayViewModel)DataContext).DisplayGrid}"
+                                       IsHitTestVisible="False" Text="{Binding Name}" Opacity="{Binding NameOpacity}" FontSize="12" FontWeight="Bold"  Foreground="WhiteSmoke"></TextBlock>
+                            <ItemsControl Grid.RowSpan="2" HorizontalAlignment="Left" Grid.Column="{Binding HotsColumn}" ItemsSource="{Binding RaidHotsOnPlayer}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <local:RaidHotInstance HorizontalAlignment="Left" Height="20" Width="30"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                            <Border Grid.RowSpan="2" Margin="0,0,0,0" Grid.Column="{Binding HotsColumn}" HorizontalAlignment="Stretch" IsHitTestVisible="False" BorderBrush="CornflowerBlue" Background="Transparent" BorderThickness="1.5" Padding="1" CornerRadius="2" IsVisible="{Binding IsTargeted, Converter={StaticResource BooleanToVisibiityConverter}}">
+                            </Border>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="{Binding Rows}" Columns="{Binding Columns}"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </Grid>
+
+</UserControl>

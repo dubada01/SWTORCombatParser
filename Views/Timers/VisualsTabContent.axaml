@@ -1,0 +1,91 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:timers="clr-namespace:SWTORCombatParser.ViewModels.Timers"
+             x:DataType="timers:ModifyTimerViewModel"
+             x:Class="SWTORCombatParser.Views.Timers.VisualsTabContent">
+<Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.75*"/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Viewbox  Grid.Row="0" Margin="0,0,25,0" IsVisible="{Binding ShowDurationOrAlert, Converter={StaticResource BooleanToVisibiityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.5*"/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="15" Text="Is Alert" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding IsAlert}"></CheckBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="20,0,0,0" IsVisible="{Binding ShowDuration, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="15" Text="Duration" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                        <TextBox FontWeight="Normal" Width="75" Text="{Binding DurationSec}"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Margin="20,0,0,0" IsVisible="{Binding ShowDuration, Converter={StaticResource BooleanToHiddenVisibilityConverter}, ConverterParameter=inverted}" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+                                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="15" Text="Alert Text" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                        <TextBox FontWeight="Normal" Width="150" Text="{Binding AlertText}"></TextBox>
+                                    </StackPanel>
+                                </Grid>
+                            </Viewbox>
+                            <Grid Grid.Row="1" Margin="0,0,25,0" IsVisible="{Binding ShowDurationOrAlert, Converter={StaticResource BooleanToVisibiityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.75*"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                                    <TextBlock Foreground="WhiteSmoke" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="15" Text="Use Audio" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding UseAudio}"></CheckBox>
+                                </StackPanel>
+
+                                <Grid Grid.Column="1" IsVisible="{Binding UseAudio, Converter={StaticResource BooleanToVisibiityConverter}}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="{Binding .}"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel  Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Foreground="WhiteSmoke" Margin="5,0,5,0" VerticalAlignment="Center" FontSize="15" Text="Audio" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                        <ComboBox VerticalAlignment="Center" Width="90" FontSize="15" ItemsSource="{Binding AudioTypes}" SelectedItem="{Binding SelectedAudioType}" ></ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
+                                        <Button Margin="10,0,5,0" Classes="RoundedCorner" FontSize="{StaticResource SmallFontSize}" Command="{Binding LoadAudioCommand}" Content="Load"></Button>
+                                        <TextBlock Foreground="WhiteSmoke" Margin="5,0,5,0" VerticalAlignment="Center" FontSize="15" Text="Play @" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                        <TextBox  FontWeight="Normal" Width="30" FontSize="15" HorizontalContentAlignment="Center" Text="{Binding CustomAudioPlayTime, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="2*"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Grid.Row="0" IsVisible="{Binding DisplayTargetToggle}" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Foreground="WhiteSmoke" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="15" Text="Show Target" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding ShowTargetOnTimerUI}"></CheckBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="1" IsVisible="{Binding ShowDurationOrAlert}" Margin="0,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Foreground="WhiteSmoke" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="15" Text="Hide Until" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                        <TextBox FontWeight="Normal" HorizontalAlignment="Stretch" FontSize="10" HorizontalContentAlignment="Center" Text="{Binding HideUntilTime, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Viewbox Grid.Column="1" IsVisible="{Binding ShowColor}">
+                                    <StackPanel Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Color" FontFamily="{StaticResource MainFont}"></TextBlock>
+                                        <ColorPicker Height="40" Width="100" Color="{Binding SelectedColor, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </Viewbox>
+                            </Grid>
+                        </Grid>
+</UserControl>

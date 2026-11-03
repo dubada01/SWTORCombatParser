@@ -1,0 +1,162 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.CombatMetricsConfigView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
+             x:DataType="vm:OverlayViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Grid.ColumnSpan="4" BorderBrush="Transparent" BorderThickness="0,2,2,2" CornerRadius="0,5,5,0" Margin="0,10,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="0.25*"/>
+                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="0.75*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="1.5*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox MaxHeight="15">
+                    <TextBlock Text="Damage" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox Grid.Row="0" MaxHeight="15" Grid.Column="1">
+                    <TextBlock Text="Healing"  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox Grid.Row="0" MaxHeight="15" Grid.Column="2">
+                    <TextBlock Text="Mitigation" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox Grid.Row="0" MaxHeight="15" Grid.Column="3">
+                    <TextBlock Text="General" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Rectangle Grid.Row="1" Grid.RowSpan="3" Grid.Column="4" Fill="Gray"></Rectangle>
+                <Viewbox Grid.Row="0" MaxHeight="15" Grid.Column="5">
+                    <TextBlock Text="Utility" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                
+                <ScrollViewer Grid.Row="1" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding MainDamageOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="1" Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding MainHealOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="1" Grid.Column="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding MainMitigationOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <Viewbox Grid.Column="0" Grid.Row="2" MaxHeight="15">
+                    <TextBlock Text="Advanced Damage" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox Grid.Row="2" MaxHeight="15" Grid.Column="1">
+                    <TextBlock Text="Advanced Healing"  FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <Viewbox Grid.Row="2" MaxHeight="15" Grid.Column="2">
+                    <TextBlock Text="Advanced Mitigation" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                </Viewbox>
+                <ScrollViewer Grid.Row="3" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AdvancedDamageOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="3" Grid.Column="1"  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AdvancedHealOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="3" Grid.Column="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AdvancedMitigationOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                
+                <ScrollViewer  Grid.Row="1" Grid.RowSpan="3" Grid.Column="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AvailableGeneralOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:OverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <ScrollViewer Grid.Row="1" Grid.Column="5" Grid.RowSpan="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AvailableUtilityOverlays}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:UtilityOverlayOptionView HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+        <Viewbox Margin="0,2,0,2" MaxHeight="40"  HorizontalAlignment="Center" Grid.Column="0" Grid.Row="1">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Foreground="WhiteSmoke" FontWeight="Medium" HorizontalAlignment="Center" FontSize="21" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlay Leaderboard"/>
+                <ComboBox HorizontalAlignment="Center" Height="45" Width="200" HorizontalContentAlignment="Center" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}"></ComboBox>
+            </StackPanel>
+        </Viewbox>
+        <Viewbox Margin="0,2,0,10" MaxHeight="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="1">
+            <StackPanel  Orientation="Horizontal">
+                <TextBlock Foreground="WhiteSmoke" FontSize="21" FontWeight="DemiBold" FontFamily="{StaticResource MainFont}" Text="Dynamic Layout: "/>
+                <Viewbox MaxHeight="20">
+                    <CheckBox IsChecked="{Binding UseDynamicLayout}"></CheckBox>
+                </Viewbox>
+            </StackPanel>
+        </Viewbox>
+        <Viewbox Margin="10,2,0,2" MaxHeight="40" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="1" IsVisible="{Binding UseDynamicLayout, Converter={StaticResource BooleanToVisibiityConverter}}">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="21" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Layout: "/>
+                <ComboBox  Height="45" Width="200" ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding SelectedType}"></ComboBox> 
+            </StackPanel>
+
+        </Viewbox>
+    </Grid>
+</UserControl>

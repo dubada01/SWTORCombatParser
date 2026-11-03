@@ -4,7 +4,6 @@ using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
-
 namespace SWTORCombatParser.DataStructures.Phases
 {
     public static class DefaultPhaseLoader

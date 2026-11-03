@@ -5,7 +5,9 @@ using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.LogParsing
 {
@@ -23,8 +25,6 @@ namespace SWTORCombatParser.Model.LogParsing
 
         public static LogState UpdateCurrentStateWithSingleLog(ParsedLogEntry log, bool liveLog)
         {
-
-            CurrentState.RawLogs.Add(log);
             if (log.Effect.EffectType == EffectType.AreaEntered)
             {
                 log.Source.IsLocalPlayer = true;
@@ -33,6 +33,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.LogVersion = LogVersion.NextGen;
             }
             UpdatePlayerDeathState(log);
+            UpdateEnemyDeathState(log);
             SetCharacterPositions(log);
 
             if (log.Effect.EffectType == EffectType.DisciplineChanged)
@@ -43,13 +44,12 @@ namespace SWTORCombatParser.Model.LogParsing
                 UpdateEncounterEntered(log, liveLog);
             UpdateCombatModifierState(log);
             return CurrentState;
-
         }
         private static void UpdateEncounterEntered(ParsedLogEntry log, bool liveLog)
         {
             var knownEncounters = EncounterLoader.SupportedEncounters.Select(EncounterInfo.GetCopy);
             var encounterInfos = knownEncounters.ToList();
-            if (encounterInfos.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)) || encounterInfos.Select(r => r.LogId).Any(ln => log.LogLocationId == ln && !string.IsNullOrEmpty(ln)))
+            if (encounterInfos.Select(r => r.LogName).Any(ln => log.LogLocation.Contains(ln)) || encounterInfos.Select(r => r.LogId).Any(ln => log.LogLocationId == ln && ln != 0))
             {
                 var raidOfInterest = encounterInfos.First(r => log.LogLocation.Contains(r.LogName) || log.LogLocationId == r.LogId);
                 if (!raidOfInterest.IsPvpEncounter)
@@ -65,11 +65,11 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.CacheEncounterEnterList();
                 if (liveLog)
                 {
-                    AreaEntered(raidOfInterest);
+                    AreaEntered.InvokeSafely(raidOfInterest);
                     if (raidOfInterest.IsPvpEncounter)
-                        EncounterTimerTrigger.FirePvpEncounterDetected();
+                        EncounterTimerTrigger.FirePvpEncounterDetected(log.TimeStamp,raidOfInterest);
                     else
-                        EncounterTimerTrigger.FireNonPvpEncounterDetected();
+                        EncounterTimerTrigger.FireNonPvpEncounterDetected(log.TimeStamp,raidOfInterest);
                 }
 
 
@@ -82,8 +82,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 CurrentState.CacheEncounterEnterList();
                 if (liveLog)
                 {
-                    AreaEntered(openWorldEncounter);
-                    EncounterTimerTrigger.FireNonPvpEncounterDetected();
+                    AreaEntered.InvokeSafely(openWorldEncounter);
+                    EncounterTimerTrigger.FireNonPvpEncounterDetected(log.TimeStamp, openWorldEncounter);
                 }
 
             }
@@ -95,7 +95,7 @@ namespace SWTORCombatParser.Model.LogParsing
             var player = log.Target;
             if (CurrentState.PlayerDeathChangeInfo.Keys.All(k => k.Id != player.Id))
             {
-                CurrentState.PlayerDeathChangeInfo[player] = new Dictionary<DateTime, bool>
+                CurrentState.PlayerDeathChangeInfo[player] = new ConcurrentDictionary<DateTime, bool>
                 {
                     [log.TimeStamp] = false
                 };
@@ -105,31 +105,54 @@ namespace SWTORCombatParser.Model.LogParsing
             if (log.Effect.EffectId == _7_0LogParsing.RevivedCombatId)
                 CurrentState.PlayerDeathChangeInfo[player][log.TimeStamp] = false;
         }
+        private static void UpdateEnemyDeathState(ParsedLogEntry log)
+        {
+            UpdateEnemyDeathStateForEntity(log.Target, log);
+            UpdateEnemyDeathStateForEntity(log.Source, log);
+        }
+
+        private static void UpdateEnemyDeathStateForEntity(Entity e, ParsedLogEntry log)
+        {
+            if (e.IsCharacter)
+                return;
+            if (CurrentState.EnemyDeathChangeInfo.Keys.All(k => k.Id != e.Id))
+            {
+                CurrentState.EnemyDeathChangeInfo[e] = new ConcurrentDictionary<DateTime, bool>
+                {
+                    [log.TimeStamp] = false
+                };
+            }
+            if (log.Effect.EffectId == _7_0LogParsing.DeathCombatId && log.Target == e)
+                CurrentState.EnemyDeathChangeInfo[e][log.TimeStamp] = true;
+        }
         private static void UpdatePlayerClassState(ParsedLogEntry parsedLine, bool realTime)
         {
             if (!parsedLine.Source.IsCharacter)
                 return;
             if (!CurrentState.PlayerClassChangeInfo.ContainsKey(parsedLine.Source))
-                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new Dictionary<DateTime, SWTORClass>();
+                CurrentState.PlayerClassChangeInfo[parsedLine.Source] = new ConcurrentDictionary<DateTime, SWTORClass>();
 
             if (parsedLine.Error == ErrorType.IncompleteLine)
                 return;
             CurrentState.PlayerClassChangeInfo[parsedLine.Source][parsedLine.TimeStamp] = parsedLine.SourceInfo.Class;
             if (parsedLine.Source.IsLocalPlayer && realTime)
-                PlayerDiciplineChanged(parsedLine.Source, parsedLine.SourceInfo.Class);
+                PlayerDiciplineChanged.InvokeSafely(parsedLine.Source, parsedLine.SourceInfo.Class);
         }
         private static void UpdatePlayerTargets(ParsedLogEntry log)
         {
+            var dictToUse = CurrentState.PlayerTargetsInfo;
             if (!log.Source.IsCharacter)
-                return;
-            if (!CurrentState.PlayerTargetsInfo.ContainsKey(log.Source))
-                CurrentState.PlayerTargetsInfo[log.Source] = new Dictionary<DateTime, EntityInfo>();
+            {
+                dictToUse = CurrentState.EnemyTargetsInfo;
+            }
+            if (!dictToUse.ContainsKey(log.Source))
+                dictToUse[log.Source] = new ConcurrentDictionary<DateTime, EntityInfo>();
             if (log.Error == ErrorType.IncompleteLine)
                 return;
             if (log.Effect.EffectId == _7_0LogParsing.TargetSetId)
-                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = log.TargetInfo;
+                dictToUse[log.Source][log.TimeStamp] = log.TargetInfo;
             if (log.Effect.EffectId == _7_0LogParsing.TargetClearedId)
-                CurrentState.PlayerTargetsInfo[log.Source][log.TimeStamp] = new EntityInfo();
+                dictToUse[log.Source][log.TimeStamp] = new EntityInfo();
         }
         private static void SetCharacterPositions(ParsedLogEntry log)
         {
@@ -188,9 +211,9 @@ namespace SWTORCombatParser.Model.LogParsing
                     modifierOfInterest.Complete = true;
                 }
 
-                string koltoShellsId = "985226842996736";
-                string traumaProbeId = "999516199190528";
-                List<string> longRunningHotIds = new List<string>() { koltoShellsId, traumaProbeId };
+                ulong koltoShellsId = 985226842996736;
+                ulong traumaProbeId = 999516199190528;
+                List<ulong> longRunningHotIds = new List<ulong>() { koltoShellsId, traumaProbeId };
                 int charges = longRunningHotIds.Contains(effectId) ? 7 : (int)parsedLine.Value.DblValue == 0 ? 1 : (int)parsedLine.Value.DblValue;
                 mods[Guid.NewGuid()] = new CombatModifier()
                 {

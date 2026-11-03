@@ -4,15 +4,14 @@ using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Reactive;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.HistoricalLogs
 {
-    public class HistoricalRangeSelectionViewModel : INotifyPropertyChanged
+    public class HistoricalRangeSelectionViewModel :ReactiveObject
     {
         private DateTime fromDate = DateTime.Today.AddDays(-1);
         private DateTime toDate = DateTime.Today;
@@ -54,15 +53,9 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
 
             }
         }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        public ReactiveCommand<Unit,Unit> FetchHistoryBetweenDatesCommand => ReactiveCommand.Create(FetchHistoryBetweenDates);
 
-        public ICommand FetchHistoryBetweenDatesCommand => new CommandHandler(FetchHistoryBetweenDates);
-
-        private void FetchHistoryBetweenDates(object obj)
+        private void FetchHistoryBetweenDates()
         {
             var window = LoadingWindowFactory.ShowLoading();
             Task.Run(() =>

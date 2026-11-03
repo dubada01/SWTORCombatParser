@@ -1,46 +1,84 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
+using SWTORCombatParser.Model.CombatCaching;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows;
+using System.Reactive;
+using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Threading;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 {
-    public class EncounterCombat : INotifyPropertyChanged
+    public class EncounterCombat : ReactiveObject
     {
         public event Action<PastCombat> PastCombatSelected = delegate { };
         public event Action<PastCombat> PastCombatUnselected = delegate { };
         public event Action UnselectAll = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private ObservableCollection<Combat> combats;
-        private bool combatsAreVisible = false;
-        private bool viewingTrash = false;
-        private object combatAddLock = new object();
+        private bool combatsAreVisible;
+        private bool viewingTrash;
+        private readonly object combatAddLock = new();
+        private ObservableCollection<PastCombat> _encounterCombats = new();
+        private Bitmap _expandIconSource = collapseIcon;
+        private string _encounterDurationText;
+
         public EncounterInfo Info { get; set; }
-        public string PPHInfo => Info.IsBossEncounter && combats.Count > 1 ? $"PPH {Combats.Count / (combats.Last().StartTime - combats.First().StartTime).TotalHours:N2}" : "";
+        public string PPHInfo =>
+            Info.IsBossEncounter && combats.Count > 1
+                ? $"PPH {Combats.Count / (combats.OrderBy(c => c.StartTime).Last().StartTime - combats.OrderBy(c => c.StartTime).First().StartTime).TotalHours:N2}"
+                : "";
+
         public int NumberOfBossBattles => EncounterCombats.Count(c => !c.IsTrash);
         public int NumberOfTrashBattles => EncounterCombats.Count(c => c.IsTrash);
         public GridLength DetailsHeight => Info.IsBossEncounter ? new GridLength(0.5, GridUnitType.Star) : new GridLength(0, GridUnitType.Star);
-        public string ExpandIconSource { get; set; } = "../../../resources/ExpandUp.png";
+
+        public string EncounterDurationText
+        {
+            get => _encounterDurationText;
+            set => this.RaiseAndSetIfChanged(ref _encounterDurationText, value);
+        }
+
+        public Bitmap ExpandIconSource
+        {
+            get => _expandIconSource;
+            set => this.RaiseAndSetIfChanged(ref _expandIconSource, value);
+        }
+
+        private static readonly Bitmap collapseIcon = new(AssetLoader.Open(new Uri("avares://Orbs/resources/ExpandUp.png")));
+        private static readonly Bitmap expandIcon = new(AssetLoader.Open(new Uri("avares://Orbs/resources/ExpandDown.png")));
+
+        public ObservableCollection<Combat> Combats
+        {
+            get => combats;
+            set => this.RaiseAndSetIfChanged(ref combats, value);
+        }
+
+        public ObservableCollection<PastCombat> EncounterCombats
+        {
+            get => _encounterCombats;
+            set => this.RaiseAndSetIfChanged(ref _encounterCombats, value);
+        }
+
         internal void ToggleCombatVisibility()
         {
             if (combatsAreVisible)
-            {
                 Collapse();
-            }
             else
-            {
                 Expand();
-            }
-            OnPropertyChanged("ExpandIconSource");
         }
+
+        public ReactiveCommand<Unit, Unit> OpenOrbsLeaderboardCommand => ReactiveCommand.Create(OpenOrbsLeaderboard);
 
         public void Collapse()
         {
@@ -48,9 +86,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             {
                 combat.IsVisible = false;
             }
+
             combatsAreVisible = false;
-            ExpandIconSource = "../../../resources/ExpandUp.png";
+            ExpandIconSource = collapseIcon;
         }
+
         public void Expand()
         {
             foreach (var combat in EncounterCombats)
@@ -60,94 +100,94 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 if (!combat.IsTrash)
                     combat.IsVisible = true;
             }
+
             combatsAreVisible = true;
-            ExpandIconSource = "../../../resources/ExpandDown.png";
+            ExpandIconSource = expandIcon;
         }
-        public Combat OverallCombat => GetOverallCombat();
-        public ObservableCollection<Combat> Combats
-        {
-            get => combats; set
-            {
-                combats = value;
-            }
-        }
-        public ObservableCollection<PastCombat> EncounterCombats { get; set; } = new ObservableCollection<PastCombat>();
+
         public void AddOngoingCombat(string location)
         {
-            //UnselectAll();
-            var ongoingCombatDisplay = new PastCombat()
+            var ongoingCombatDisplay = new PastCombat
             {
+                ParentEncounter = this,
                 CombatStartTime = TimeUtility.CorrectedTime,
                 IsCurrentCombat = true,
                 IsSelected = true,
                 IsVisible = true,
-                CombatLabel = location + " ongoing...",
+                CombatLabel = location + " ongoing..."
             };
             ongoingCombatDisplay.PastCombatSelected += SelectCombat;
             ongoingCombatDisplay.PastCombatUnSelected += UnselectCombat;
             ongoingCombatDisplay.UnselectAll += UnselectAllCombats;
-            App.Current.Dispatcher.Invoke(() =>
+
+            Dispatcher.UIThread.Invoke(() =>
             {
                 EncounterCombats.Add(ongoingCombatDisplay);
                 EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
-                OnPropertyChanged("EncounterCombats");
             });
-
+            CalculateEncounterLength();
         }
+
         public void RemoveOngoing()
         {
-            App.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 var currentcombat = EncounterCombats.FirstOrDefault(c => c.IsCurrentCombat);
                 if (currentcombat == null)
                     return;
                 EncounterCombats.Remove(currentcombat);
-                OnPropertyChanged("EncounterCombats");
             });
         }
+
         public PastCombat UpdateOngoing(Combat combat)
         {
             var currentcombat = EncounterCombats.FirstOrDefault(c => c.IsCurrentCombat);
             if (currentcombat == null)
                 return new PastCombat();
-            currentcombat.CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss");
-            currentcombat.Combat = combat;
+
+            currentcombat.SetCombat(combat);
+            CalculateEncounterLength();
             return currentcombat;
         }
+
         public void AddCombat(Combat combat, bool isReplacingOngoing)
         {
             lock (combatAddLock)
             {
-                Combats.Add(combat);
-                var pastCombatDisplay = new PastCombat()
+                Combats.Add(CombatDiskCacheManager.CreateCombatShell(combat));
+
+                var pastCombatDisplay = new PastCombat
                 {
+                    ParentEncounter = this,
                     IsSelected = isReplacingOngoing,
-                    Combat = combat,
                     IsVisible = combatsAreVisible,
                     CombatStartTime = combat.StartTime,
                     CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss"),
-                    CombatLabel = combat.IsCombatWithBoss ? combat.EncounterBossInfo : combat.IsPvPCombat ? GetPVPCombatText(combat) : string.Join(',', combat.Targets.Select(t => t.Name).Distinct()),
+                    CombatLabel = combat.IsCombatWithBoss
+                        ? combat.EncounterBossDifficultyParts.Item1
+                        : combat.IsPvPCombat
+                            ? GetPVPCombatText(combat)
+                            : string.Join(',', combat.Targets.Values.Select(t => t.Name).Distinct())
                 };
+                pastCombatDisplay.CacheCombat(combat, keepLoaded: isReplacingOngoing);
                 pastCombatDisplay.PastCombatSelected += SelectCombat;
                 pastCombatDisplay.PastCombatUnSelected += UnselectCombat;
                 pastCombatDisplay.UnselectAll += UnselectAllCombats;
-                App.Current.Dispatcher.Invoke(() =>
+
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     EncounterCombats.Add(pastCombatDisplay);
                     EncounterCombats = new ObservableCollection<PastCombat>(EncounterCombats.OrderByDescending(c => c.CombatStartTime));
-                    OnPropertyChanged("EncounterCombats");
                 });
             }
-            OnPropertyChanged("PPHInfo");
-            OnPropertyChanged("NumberOfBossBattles");
-            OnPropertyChanged("NumberOfTrashBattles");
-        }
 
-        private string GetPVPCombatText(Combat combat)
-        {
-            return
-                $"Team Kills: {combat.AllLogs.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}\r\n" +
-                $"Team Deaths: {combat.AllLogs.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}";
+            if (isReplacingOngoing)
+                EncounterMonitor.FireEncounterUpdated();
+
+            CalculateEncounterLength();
+            this.RaisePropertyChanged(nameof(PPHInfo));
+            this.RaisePropertyChanged(nameof(NumberOfBossBattles));
+            this.RaisePropertyChanged(nameof(NumberOfTrashBattles));
         }
 
         public void HideTrash()
@@ -159,6 +199,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     pastCombat.IsVisible = false;
             }
         }
+
         public void ShowTrash()
         {
             viewingTrash = true;
@@ -168,33 +209,69 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                     pastCombat.IsVisible = true;
             }
         }
-        private Combat GetOverallCombat()
+
+        public Task<Combat> GetOverallCombat()
         {
+            List<PastCombat> combatsToLoad;
+            int totalDuration;
+
             lock (combatAddLock)
             {
-                var overallCombat = CombatIdentifier.GenerateNewCombatFromLogs(Combats.SelectMany(c => c.AllLogs).ToList());
-                overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);
-                return overallCombat;
+                combatsToLoad = EncounterCombats.Where(c => !c.IsCurrentCombat).OrderBy(c => c.CombatStartTime).ToList();
+                totalDuration = Combats.Sum(c => c.DurationSeconds);
             }
 
+            var overallLogs = combatsToLoad.SelectMany(c => c.LoadLogs().OrderBy(l => l.TimeStamp)).ToList();
+            CombatDiskCacheManager.NormalizeLogEntities(overallLogs);
+            var overallCombat = CombatIdentifier.GenerateOverallCombat(overallLogs, true, false, totalDuration);
+            if (overallCombat.StartTime != DateTime.MinValue)
+                overallCombat.StartTime = overallCombat.StartTime.AddSeconds(-1);
+            return Task.FromResult(overallCombat);
         }
+
+        private void OpenOrbsLeaderboard()
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = $"https://orbs-stats.com/encounterView/{Uri.EscapeDataString(Info.Name)}",
+                UseShellExecute = true
+            });
+        }
+
+        private void CalculateEncounterLength()
+        {
+            if (Combats.Count < 1)
+                return;
+
+            var start = Combats.First().StartTime;
+            var end = Combats.Last().EndTime;
+            var duration = end - start;
+            EncounterDurationText =
+                duration.TotalHours >= 1
+                    ? $"{(int)duration.TotalHours}:{duration:mm\\:ss}"
+                    : duration.ToString(@"mm\:ss");
+        }
+
+        private string GetPVPCombatText(Combat combat)
+        {
+            return
+                $"Team Kills: {combat.AllLogs.Values.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}\r\n" +
+                $"Team Deaths: {combat.AllLogs.Values.Count(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(l.Target, l.TimeStamp))}";
+        }
+
         private void SelectCombat(PastCombat combat)
         {
             PastCombatSelected(combat);
         }
+
         private void UnselectCombat(PastCombat combat)
         {
             PastCombatUnselected(combat);
         }
+
         private void UnselectAllCombats()
         {
             UnselectAll();
         }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-
     }
 }

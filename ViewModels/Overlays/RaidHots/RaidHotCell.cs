@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Threading;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
@@ -72,7 +76,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public void Reset()
         {
             Name = "";
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 RaidHotsOnPlayer.Clear();
                 DCDSOnPlayer.Clear();
@@ -128,10 +132,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             return added.Concat(removed).ToList();
         }
         public long TargetedBy { get; set; }
+        //TODO make this configurable so that users can turn it off. Also, probably add different colors for when there's many bosses
         public bool IsTargeted
         {
             get => isTargeted; set
             {
+                var displayTargeted = Settings.ReadSettingOfType<bool>(Settings.RaidFrameBossTargetVisibilitySetting);
+                if (!displayTargeted && value)
+                    return;
                 isTargeted = value;
                 OnPropertyChanged();
             }
@@ -165,13 +173,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         public int Columns { get; internal set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public bool AlreadyHasTimer(string timerName) => Application.Current.Dispatcher.Invoke(() =>
+        public bool AlreadyHasTimer(string timerName) => Dispatcher.UIThread.Invoke(() =>
                                                                   {
                                                                       return RaidHotsOnPlayer.Any(t => t.TimerName == timerName);
                                                                   });
         private void RemoveFromList(TimerInstanceViewModel obj, bool endedNatrually)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 RaidHotsOnPlayer.Remove(obj);
                 DCDSOnPlayer.Remove(obj);
@@ -179,7 +187,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void RefreshList()
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 var currentHots = RaidHotsOnPlayer.OrderBy(t => t.TimerValue);
                 RaidHotsOnPlayer = new ObservableCollection<TimerInstanceViewModel>(currentHots.Where(h => h.TimerValue > 0));
@@ -191,17 +199,17 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         internal void AddHOT(TimerInstanceViewModel obj)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 RaidHotsOnPlayer.Add(obj);
             });
-
+            obj.FireTimerStarted();
             obj.TimerExpired += RemoveFromList;
             obj.TimerRefreshed += RefreshList;
         }
         internal void AddDCD(TimerInstanceViewModel obj)
         {
-            Application.Current.Dispatcher.Invoke(() =>
+            Dispatcher.UIThread.Invoke(() =>
             {
                 DCDSOnPlayer.Add(obj);
             });

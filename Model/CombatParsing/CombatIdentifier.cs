@@ -3,9 +3,13 @@ using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Newtonsoft.Json;
+using SWTORCombatParser.DataStructures.ClassInfos;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CombatParsing
 {
@@ -14,115 +18,205 @@ namespace SWTORCombatParser.Model.CombatParsing
         public static event Action<Combat> CombatFinished = delegate { };
         public static Combat CurrentCombat { get; set; }
 
-        private static object _modlock = new object();
-        public static Combat GenerateNewCombatFromLogs(List<ParsedLogEntry> ongoingLogs, bool isRealtime = false, bool quietOverlays = false, bool combatEndUpdate = false, bool isPhaseCombat = false)
+        /// <summary>
+        /// Completely resets the internal Combat state.
+        /// Call this at the start of a new fight.
+        /// </summary>
+        public static void ResetCombat()
         {
 
-            var state = CombatLogStateBuilder.CurrentState;
-            var orderedLogs = ongoingLogs.OrderBy(t => t.TimeStamp);
-            var firstTime = orderedLogs.First().TimeStamp;
-            var encounter = GetEncounterInfo(firstTime);
-            var currentPariticpants = orderedLogs.Where(l => l.Source.IsCharacter || l.Source.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Source).Distinct().ToList();
+            CurrentCombat = new Combat();
 
-            currentPariticpants.AddRange(orderedLogs.Where(l => l.Target.IsCharacter || l.Target.IsCompanion).Where(l => l.Effect.EffectType != EffectType.TargetChanged).Select(p => p.Target).Distinct().ToList());
-            var participants = currentPariticpants.GroupBy(p => p.Id).Select(x => x.FirstOrDefault()).ToList();
-            var participantInfos = orderedLogs.Select(p => p.SourceInfo).Distinct().ToList();
-            var classes = participantInfos.GroupBy(p => p.Entity.Id).Select(x => x.FirstOrDefault()).ToDictionary(k => k.Entity, k => state.GetCharacterClassAtTime(k.Entity, firstTime));
+        }
 
-            var orderedLogsList = orderedLogs.ToHashSet();
-            var targets = GetTargets(orderedLogsList);
-            var allEntities = new List<Entity>().Concat(targets).Concat(currentPariticpants).Distinct().ToList();
+        /// <summary>
+        /// Merges logs into the current Combat. If `reset` is true, calls ResetCombat() first.
+        /// Use this both for initial bootstrapping (reset=true) or incremental updates (reset=false).
+        /// </summary>
+        public static Combat GenerateCombatFromLogs(
+            IEnumerable<ParsedLogEntry> logs,
+            Combat? combatShell = null,
+            bool isRealtime = false,
+            bool combatEndUpdate = false,
+            bool isOverallCombat = false,int overallCombatDuration = 0)
+        {
+            var combatToUpdate = combatShell ?? CurrentCombat;
 
-            // Create the dictionary
-            Dictionary<Entity, List<ParsedLogEntry>> entityLogs = allEntities
-                .ToDictionary(
-                    p => p,
-                    p => ongoingLogs.AsParallel().WithDegreeOfParallelism(8)
-                        .Where(l => p.LogId == l.Target.LogId || p.LogId == l.Source.LogId).OrderBy(t => t.TimeStamp)
-                        .ToList()
-                );
+            var isFirstUpdate = false;
+            var parsedLogEntries = logs as ParsedLogEntry[] ?? logs.ToArray();
+            if ((!parsedLogEntries.Any() && !combatEndUpdate))
+                return combatToUpdate;
+            if (!parsedLogEntries.Any() && combatEndUpdate)
+                CombatFinished.InvokeSafely(combatToUpdate);
 
-            var newCombat = new Combat()
+
+            var orderedLogs = parsedLogEntries.OrderBy(l => l.TimeStamp).ToList();
+
+            // Determine encounter time from the very first valid timestamp
+            var firstTime = combatToUpdate.StartTime == default
+                ? orderedLogs.FirstOrDefault(l => l.TimeStamp != DateTime.MinValue)?.TimeStamp
+                : combatToUpdate.StartTime;
+            if (!firstTime.HasValue)
+                return combatToUpdate;
+            var encounter = GetEncounterInfo(firstTime.Value);
+
+            // If this was a reset bootstrap, set StartTime
+
+            if (combatToUpdate.StartTime == DateTime.MinValue)
             {
-                CharacterParticipants = participants,
-                CharacterClases = classes,
-                StartTime = orderedLogs.First().TimeStamp,
-                EndTime = orderedLogs.Last().TimeStamp,
-                Targets = targets,
-                AllLogs = orderedLogsList,
-                LogsInvolvingEntity = entityLogs
-            };
+                combatToUpdate.StartTime = firstTime.Value;
+                isFirstUpdate = true;
+            }
+
+            foreach (var log in orderedLogs)
+            {
+                combatToUpdate.AllLogs[log.LogLineNumber] = log;
+                MergeEntityLog(log.Source, log, combatToUpdate);
+                if (log.Source != log.Target)
+                    MergeEntityLog(log.Target, log, combatToUpdate);
+
+                if (log.Source.IsCharacter || log.Source.IsCompanion)
+                    AddParticipant(log.Source, log.TimeStamp, combatToUpdate);
+                if (log.Target.IsCharacter || log.Target.IsCompanion)
+                    AddParticipant(log.Target, log.TimeStamp, combatToUpdate);
+                AddTarget(log, combatToUpdate);
+
+                // Always update EndTime to the latest
+                if (!isOverallCombat)
+                    combatToUpdate.EndTime = log.TimeStamp;
+            }
+            
+            if (isOverallCombat)
+                combatToUpdate.EndTime = combatToUpdate.StartTime.AddSeconds(overallCombatDuration);
+
+            foreach (var entity in combatToUpdate.AllEntities.Values.Select(e => e.LogId))
+            {
+                if (!combatToUpdate.LogsInvolvingEntity.ContainsKey(entity))
+                    combatToUpdate.LogsInvolvingEntity = new Dictionary<long, ConcurrentQueue<ParsedLogEntry>>();
+            }
+
+            // Always refresh boss/encounter info
             if (encounter != null && encounter.BossInfos != null)
             {
-                newCombat.ParentEncounter = encounter;
-                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
-                newCombat.BossInfo = GetCurrentBossInfoObject(ongoingLogs, encounter);
-                UpdateBossEntities(ongoingLogs, encounter);
-                //newCombat.RequiredDeadTargetsForKill = GetTargetsRequiredForKill(ongoingLogs, encounter);
+                combatToUpdate.ParentEncounter = encounter;
+                combatToUpdate.EncounterBossDifficultyParts = GetCurrentBossInfo(combatToUpdate.AllLogs.Values, encounter);
+                combatToUpdate.BossInfo = GetCurrentBossInfoObject(combatToUpdate.AllLogs.Values, encounter);
+                UpdateBossEntities(combatToUpdate.AllLogs.Values, encounter);
             }
-            if (newCombat.IsCombatWithBoss)
-            {
-                var parts = newCombat.EncounterBossDifficultyParts;
-                if (isRealtime)
-                    EncounterTimerTrigger.FireEncounterDetected(newCombat.ParentEncounter.Name, parts.Item1, newCombat.ParentEncounter.Difficutly);
-            }
-            if (newCombat.Targets.Any(t => t.LogId == 2857785339412480))
-            {
-                newCombat.ParentEncounter = new EncounterInfo()
-                {
-                    Name = "Parsing",
-                    LogName = "Parsing",
-                    Difficutly = "Parsing",
-                    NumberOfPlayer = "1",
-                    EncounterType = EncounterType.Parsing,
-                    BossIds = new Dictionary<string, Dictionary<string, List<long>>>() { { "Training Dummy", new Dictionary<string, List<long>>() { { "Parsing 1", new List<long> { 2857785339412480 } } } } },
-                    RequiredIdsForKill = new Dictionary<string, Dictionary<string, List<long>>>() { { "Training Dummy", new Dictionary<string, List<long>>() { { "Parsing 1", new List<long> { 2857785339412480 } } } } },
-                };
-                newCombat.EncounterBossDifficultyParts = GetCurrentBossInfo(ongoingLogs, encounter);
-                newCombat.BossInfo = GetCurrentBossInfoObject(ongoingLogs, encounter);
-            }
-            lock (_modlock)
-            {
-                CombatMetaDataParse.PopulateMetaData(newCombat);
-                var absorbLogs = newCombat.IncomingDamageMitigatedLogs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.AsParallel().WithDegreeOfParallelism(8).Where(l => l.Value.Modifier.ValueType == DamageType.absorbed).OrderBy(l => l.TimeStamp).ToList());
-                AddSheildingToLogs.AddShieldLogsByTarget(absorbLogs, newCombat);
-                AddTankCooldown.AddDamageSavedDuringCooldown(newCombat);
-            }
-            if(combatEndUpdate)
-            {
-                CombatFinished(newCombat);
-            }
-            return newCombat;
+
+            PostMetadata(isRealtime, combatEndUpdate, orderedLogs, isFirstUpdate, combatToUpdate);
+            return combatToUpdate;
+
         }
 
-        private static List<Entity> GetTargets(HashSet<ParsedLogEntry> logs)
+        /// <summary>
+        /// One-call full build + snapshot: returns only the cloned Combat.
+        /// Avoids local double-assignment and extra GC pressure.
+        /// </summary>
+        public static Combat GenerateCombatSnapshotFromLogs(
+            IEnumerable<ParsedLogEntry> logs,
+            bool isRealtime = false,
+            bool combatEndUpdate = false)
         {
-            var combatStart = logs.First().TimeStamp;
-            HashSet<Entity> targets = new HashSet<Entity>();
+            var combatShell = new Combat();
+            // build into CurrentCombat without capturing its return
+            GenerateCombatFromLogs(logs, combatShell: combatShell, isRealtime, combatEndUpdate);
+            // return only the snapshot instance
+            return combatShell;
+        }
+        /// <summary>
+        /// One-call full build + snapshot: returns only the cloned Combat.
+        /// Avoids local double-assignment and extra GC pressure.
+        /// </summary>
+        public static Combat GenerateOverallCombat(
+            IEnumerable<ParsedLogEntry> logs,
+            bool isRealtime = false,
+            bool combatEndUpdate = false,
+            int overallCombatDuration = 0)
+        {
+            var combatShell = new Combat();
+            // build into CurrentCombat without capturing its return
+            GenerateCombatFromLogs(logs, combatShell: combatShell, isRealtime,  combatEndUpdate, true,overallCombatDuration);
+            // return only the snapshot instance
+            return combatShell;
+        }
+ /// <summary>
+        /// Shared post-merge logic: metadata, shields, cooldowns, events.
+        /// </summary>
+        private static void PostMetadata(bool isRealtime, bool combatEndUpdate, List<ParsedLogEntry> newLogs, bool isFirstUpdate, Combat combatToUpdate)
+        {
+            if(isFirstUpdate)
+                CombatMetaDataParse.PopulateMetaData(combatToUpdate);
+            else
+                CombatMetaDataParse.ApplyIncrementalMetaData(combatToUpdate, newLogs);
 
-            foreach (var log in logs)
+            var absorbLogs = combatToUpdate.IncomingDamageMitigatedLogs
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value
+                        .Where(e => e.Value.Modifier.ValueType == DamageType.absorbed)
+                        .OrderBy(e => e.TimeStamp)
+                        .ToList()
+                );
+            ShieldingProcessor.AddShieldLogsByTarget(absorbLogs, combatToUpdate);
+            TankCooldownProcessor.AddDamageSavedDuringCooldown(combatToUpdate);
+
+            if (combatToUpdate.IsCombatWithBoss)
             {
-                if (log.Effect.EffectType != EffectType.TargetChanged && log.Effect.EffectId == _7_0LogParsing._damageEffectId)
-                {
-                    if (log.Target != null && (!log.Target.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(log.Target, combatStart)) && !log.Target.IsCompanion && log.Target.Name != null)
-                    {
-                        targets.Add(log.Target);
-                    }
+                var parts = combatToUpdate.EncounterBossDifficultyParts;
+                EncounterTimerTrigger.FireBossCombatDetected(
+                    combatToUpdate.ParentEncounter.Name,
+                    parts.Item1,
+                    combatToUpdate.ParentEncounter.Difficutly, isRealtime);
+            }
 
-                    if (log.Source != null && (!log.Source.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(log.Source, combatStart)) && !log.Source.IsCompanion && log.Source.Name != null)
-                    {
-                        targets.Add(log.Source);
-                    }
+            if (combatEndUpdate)
+                CombatFinished.InvokeSafely(combatToUpdate);
+        }
+
+        private static void MergeEntityLog(Entity e, ParsedLogEntry log, Combat combatToUpdate)
+        {            
+            if (!combatToUpdate.LogsInvolvingEntity.TryGetValue(e.LogId, out var list))
+            {
+                list = new ConcurrentQueue<ParsedLogEntry>();
+                combatToUpdate.LogsInvolvingEntity[e.LogId] = list;
+            }
+            list.Enqueue(log);
+        }
+
+        private static void AddParticipant(Entity e, DateTime timestamp, Combat combatToUpdate)
+        {
+            if (combatToUpdate.CharacterParticipants.All(p => p.Value.LogId != e.LogId))
+            {
+                combatToUpdate.CharacterParticipants[e.LogId] = e;
+                combatToUpdate.CharacterClases[e] = CombatLogStateBuilder.CurrentState
+                    .GetCharacterClassAtTime(e, timestamp);
+            }
+        }
+
+        private static void AddTarget(ParsedLogEntry log, Combat combatToUpdate)
+        {
+            if (log.Effect.EffectType != EffectType.TargetChanged && log.Effect.EffectId == _7_0LogParsing._damageEffectId)
+            {
+                if (log.Target != null && (!log.Target.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(log.Target, combatToUpdate.StartTime)) && !log.Target.IsCompanion && log.Target.Name != null)
+                {
+                    if (combatToUpdate.Targets.All(t => t.Value.Id != log.Target.Id))
+                        combatToUpdate.Targets[log.Target.LogId] =  log.Target;
+                }
+
+                if (log.Source != null && (!log.Source.IsCharacter || CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(log.Source, combatToUpdate.StartTime)) && !log.Source.IsCompanion && log.Source.Name != null)
+                {
+                    if (combatToUpdate.Targets.All(t => t.Value.Id != log.Source.Id))
+                        combatToUpdate.Targets[log.Source.LogId] =  log.Source;
                 }
             }
-
-            return targets.ToList();
         }
+        
         private static EncounterInfo GetEncounterInfo(DateTime combatStartTime)
         {
             return CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(combatStartTime);
         }
-        public static (string, string, string) GetCurrentBossInfo(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        public static (string, string, string) GetCurrentBossInfo(IEnumerable<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
                 return ("", "", "");
@@ -142,7 +236,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                     }
                     else
                     {
-                        return (owb.BossName, "Open World", "");
+                        return (owb.BossName, "16", "Open World");
                     }
                 }
                 else
@@ -161,7 +255,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             return ("", "", "");
         }
-        public static BossInfo GetCurrentBossInfoObject(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        public static BossInfo GetCurrentBossInfoObject(IEnumerable<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
                 return new BossInfo();
@@ -179,52 +273,52 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             return new BossInfo();
         }
-        private static List<string> GetCurrentBossNames(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        private static List<long> GetCurrentBossNames(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null)
-                return new List<string>();
+                return new List<long>();
 
-            var bossIds = new HashSet<string>(currentEncounter.BossInfos.SelectMany(b => b.TargetIds));
+            var bossIds = new HashSet<long>(currentEncounter.BossInfos.SelectMany(b => b.TargetIds));
 
-            var bossNamesFound = new List<string>();
+            var bossNamesFound = new List<long>();
             foreach (var log in logs)
             {
-                if (bossIds.Contains(log.Source.LogId.ToString()))
+                if (bossIds.Contains(log.Source.LogId))
                 {
                     if (log.Effect.EffectType == EffectType.Remove)
                     {
                         continue;
                     }
                     log.Source.IsBoss = true;
-                    bossNamesFound.Add(log.Source.LogId.ToString());
+                    bossNamesFound.Add(log.Source.LogId);
                 }
-                if (bossIds.Contains(log.Target.LogId.ToString()))
+                if (bossIds.Contains(log.Target.LogId))
                 {
                     if (log.Effect.EffectType == EffectType.TargetChanged)
                     {
                         continue;
                     }
                     log.Target.IsBoss = true;
-                    bossNamesFound.Add(log.Target.LogId.ToString());
+                    bossNamesFound.Add(log.Target.LogId);
                 }
             }
 
             return bossNamesFound.Distinct().ToList();
         }
-        private static void UpdateBossEntities(List<ParsedLogEntry> logs, EncounterInfo currentEncounter)
+        private static void UpdateBossEntities(IEnumerable<ParsedLogEntry> logs, EncounterInfo currentEncounter)
         {
             if (currentEncounter == null || currentEncounter.Name.Contains("Open World"))
                 return;
 
-            var bossIds = new HashSet<string>(currentEncounter.BossInfos.SelectMany(b => b.TargetIds));
+            var bossIds = new HashSet<long>(currentEncounter.BossInfos.SelectMany(b => b.TargetIds));
 
             foreach (var log in logs)
             {
-                if (bossIds.Contains(log.Source.LogId.ToString()))
+                if (bossIds.Contains(log.Source.LogId))
                 {
                     log.Source.IsBoss = true;
                 }
-                if (bossIds.Contains(log.Target.LogId.ToString()))
+                if (bossIds.Contains(log.Target.LogId))
                 {
                     log.Target.IsBoss = true;
                 }

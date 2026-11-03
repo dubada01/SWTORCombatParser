@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.OverlayOptionView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
+             x:DataType="vm:OverlayOptionViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Width="140">
+    <Grid ToolTip.Tip="{Binding HelpText}" >
+        <Button Background="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter}}" 
+                Foreground="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBackgroundConverter},
+                ConverterParameter=inverted}" Grid.RowSpan="2" Classes="RoundedCorner" CommandParameter="{Binding .}" 
+                HorizontalAlignment="Stretch"
+                BorderBrush="{Binding IsSelected, Converter={StaticResource BooleanToMetricOptionBorderConverter}}"
+                BorderThickness="1.5"
+                Height="40" Margin="5,1,5,1" Command="{Binding $parent[ItemsControl].((vm:OverlayViewModel)DataContext).GenerateOverlay}"
+                PointerReleased="Button_PreviewMouseRightButtonUp">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <TextBlock  HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12" Text="{Binding Type, Converter={StaticResource OverlayTypeToReadableNameConverter}}" ></TextBlock>
+                <Viewbox MaxWidth="75" Grid.Row="1" Margin="0,0,0,0" >
+                    <Border HorizontalAlignment="Stretch" Width="250" Height="50" VerticalAlignment="Stretch" CornerRadius="5" Background="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}"></Border>
+                </Viewbox>
+            </Grid>
+        </Button>
+    </Grid>
+</UserControl>

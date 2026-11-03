@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.DataGrid_Views.StatSlotView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.DataGrid_Views"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.DataGrid"
+                x:DataType="vm:StatsSlotViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Height="25" >
+        <Rectangle Fill="{Binding BackgroundColor}"/>
+        <Image IsVisible="{Binding DisplayIcon, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Left" Margin="5,1,0,0" Source="{Binding RoleIcon}"></Image>
+        <Viewbox MaxHeight="20" HorizontalAlignment="{Binding ValueAlignment}">
+            <TextBlock FontFamily="{StaticResource MainFont}" Margin="5,2,8,2"  VerticalAlignment="Center" Foreground="{Binding ForegroundColor}" Text="{Binding Value}"></TextBlock>
+        </Viewbox>
+        <Rectangle Height="1" Fill="Gray" VerticalAlignment="Top" IsVisible="{Binding IsTotal, Converter={StaticResource  BooleanToHiddenVisibilityConverter}}"/>
+        <Rectangle Width="1" Fill="Gray" HorizontalAlignment="Right"></Rectangle>
+    </Grid>
+</UserControl>

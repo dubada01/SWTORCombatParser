@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Death_Review.DeathPlayerInstance"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Death_Review"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Home_View_Models"
+                x:DataType="vm:ParticipantViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="150" d:DesignWidth="300">
+    <Border PointerPressed="Border_PreviewMouseDown" Margin="5" Padding="5,5,5,0"
+                Background="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBackgroundConverter}, UpdateSourceTrigger=PropertyChanged}" 
+                BorderBrush="{Binding IsSelected, Converter={StaticResource ParticipantSelectedToBoarderConverter}, UpdateSourceTrigger=PropertyChanged}" BorderThickness="2" CornerRadius="4">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="0.33*"/>
+            </Grid.RowDefinitions>
+            <Image Opacity="0.75" Source="{Binding RoleImageSource}" HorizontalAlignment="Left" Margin="0,0,0,5"></Image>
+            <TextBlock Margin="0,0,0,5" FontFamily="{StaticResource MainFont}" FontSize="15" Foreground="WhiteSmoke" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding PlayerName}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            <Image MaxHeight="20" Source="../../resources/LocalPlayerIcon.png" IsVisible="{Binding IsLocalPlayer, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,5,0" VerticalAlignment="Top"></Image>
+            <Image MaxHeight="19" Source="../../resources/skull_Icon.png" IsVisible="{Binding DiedNatrually, Converter={StaticResource BooleanToVisibiityConverter}}" HorizontalAlignment="Right" Margin="0,0,0,3" VerticalAlignment="Bottom"></Image>
+            <Border Grid.Row="1" Margin="0,0,0,2" CornerRadius="2" Background="{StaticResource Gray3Brush}" FlowDirection="LeftToRight">
+                <Grid>
+                    <Border Background="Crimson"  RenderTransformOrigin="1,0" CornerRadius="2" HorizontalAlignment="Stretch">
+                        <Border.RenderTransform>
+                            <ScaleTransform ScaleX="{Binding HPPercent}"/>
+                        </Border.RenderTransform>
+                    </Border>
+                    <TextBlock Text="{Binding HPPercentText}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="WhiteSmoke" Margin="0,0,0,1" FontSize="10"></TextBlock>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

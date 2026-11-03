@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.HistoricalRangeWiget"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Home_View_Models"
+                x:DataType="vm:"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="300">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="0.3*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height=".5*"/>
+        </Grid.RowDefinitions>
+        <Rectangle Grid.Row="0" Grid.ColumnSpan="3" Fill="WhiteSmoke"></Rectangle>
+        <!--<TextBox Margin="10,0,0,0" Grid.Row="1" Text="{Binding FromDate}" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontWeight="Medium" Styles="{StaticResource RoundedTextBox}"></TextBox>
+        <TextBox Margin="0,0,10,0" Grid.Row="1" Text="{Binding ToDate}" FontSize="14" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Grid.Column="2" FontWeight="Medium" Styles="{StaticResource RoundedTextBox}"></TextBox>-->
+        <DatePicker Grid.Row="1" Grid.Column="0" Margin="0,10,0,0" Styles="{StaticResource CustomDatePicker}" TextBlock.FontFamily="{StaticResource MainFont}" SelectedDate="{Binding FromDate}"></DatePicker>
+        <DatePicker Grid.Row="1" Grid.Column="2" Margin="0,10,0,0" Styles="{StaticResource CustomDatePicker}" TextBlock.FontFamily="{StaticResource MainFont}" SelectedDate="{Binding ToDate}"></DatePicker>
+        <Image Height="25" Grid.Column="1" Grid.Row="1" Source="../../resources/DoubleArrowIcon.png"></Image>
+        <Button  MaxWidth="125" MaxHeight="30" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,1,0,3" Grid.Row="2" Styles="{StaticResource RoundCornerButton}" Command="{Binding FetchHistoryBetweenDatesCommand}" Background="{StaticResource Gray12Brush}" FontFamily="{StaticResource MainFont}" >
+            <Viewbox>
+                <TextBlock Text="View History" Margin="10,0,10,0"></TextBlock>
+            </Viewbox>
+        </Button>
+    </Grid>
+</UserControl>

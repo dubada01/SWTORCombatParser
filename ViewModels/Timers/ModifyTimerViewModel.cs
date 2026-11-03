@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Views.Timers;
@@ -8,9 +7,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Media;
+using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
@@ -27,7 +31,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         CurrentTarget,
         Custom
     }
-    public class ModifyTimerViewModel : INotifyPropertyChanged
+    public class ModifyTimerViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private TimerKeyType selectedTriggerType;
         private bool isAlert;
@@ -65,7 +69,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         public event PropertyChangedEventHandler PropertyChanged;
 
         public bool TimerNameInError;
-        public SolidColorBrush TimerNameHelpTextColor => TimerNameInError ? Brushes.Red : Brushes.LightGray;
+        public SolidColorBrush TimerNameHelpTextColor => TimerNameInError ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.LightGray);
         public string TriggerValueHelpText { get; set; }
 
         public bool ValueInError = false;
@@ -96,7 +100,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string selectedModifyVariable;
         private bool includeTimerVisuals = true;
 
-        public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? Brushes.Red : Brushes.LightGray;
+        public SolidColorBrush TriggerValueHelpTextColor => ValueInError ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.LightGray);
         public bool IsMechanicTimer { get; set; }
         public string ParentTimerId { get; set; }
         public bool UseAudio
@@ -118,21 +122,32 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ICommand LoadAudioCommand => new CommandHandler(LoadAudio);
+        public ReactiveCommand<Unit,Task> LoadAudioCommand => ReactiveCommand.Create(LoadAudio);
 
-        private void LoadAudio(object obj)
+        private async Task LoadAudio()
         {
-            var dialogue = new OpenFileDialog();
-            dialogue.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            dialogue.DefaultExt = "wav";
-            dialogue.Filter = "wav files (*.wav)|*.wav|mp3 files (*.mp3)|*.mp3|All files (*.*)|*.*";
-            dialogue.CheckFileExists = true;
-            dialogue.CheckPathExists = true;
-            if (dialogue.ShowDialog().Value)
+            var dialog = new OpenFileDialog
             {
-                AudioTypes.Add(dialogue.FileName);
-                SelectedAudioType = dialogue.FileName;
-                Settings.WriteSetting<List<string>>("custom_audio_paths", AudioTypes);
+                Title = "Select an audio file",
+                Directory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                AllowMultiple = false, // If you want to allow selecting multiple files, set this to true
+                Filters = new List<FileDialogFilter>
+                {
+                    new FileDialogFilter { Name = "Wav Files", Extensions = { "wav" } },
+                    new FileDialogFilter { Name = "Mp3 Files", Extensions = { "mp3" } },
+                    new FileDialogFilter { Name = "All Files", Extensions = { "*" } }
+                }
+            };
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var result = await dialog.ShowAsync(desktop.MainWindow); // Assuming 'obj' is a reference to the parent Window
+
+                if (result != null && result.Length > 0)
+                {
+                    AudioTypes.Add(result[0]); // Add the first selected file
+                    SelectedAudioType = result[0];
+                    Settings.WriteSetting<List<string>>("custom_audio_paths", AudioTypes);
+                }
             }
         }
         public int CustomAudioPlayTime { get; set; } = 4;
@@ -294,7 +309,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 customSource = value;
             }
         }
-        public ICommand SaveSourceCommand => new CommandHandler(SaveSource);
+        public ReactiveCommand<object,Unit> SaveSourceCommand => ReactiveCommand.Create<object>(SaveSource);
 
         internal void SaveSource(object obj = null)
         {
@@ -378,7 +393,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public bool DisplayTargetToggle => HasTarget;
 
-        public ICommand SaveTargetCommand => new CommandHandler(SaveTarget);
+        public ReactiveCommand<object,Unit> SaveTargetCommand => ReactiveCommand.Create<object>(SaveTarget);
 
         internal void SaveTarget(object obj = null)
         {
@@ -429,7 +444,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ICommand SaveRefreshOptionCommand => new CommandHandler(SaveRefreshCommand);
+        public ReactiveCommand<object,Unit> SaveRefreshOptionCommand => ReactiveCommand.Create<object>(SaveRefreshCommand);
 
         private void SaveRefreshCommand(object obj)
         {
@@ -458,14 +473,14 @@ namespace SWTORCombatParser.ViewModels.Timers
                 OnPropertyChanged();
             }
         }
-        public ICommand AddCustomVariableCommand => new CommandHandler(AddCustomVariable);
+        public ReactiveCommand<object,Unit> AddCustomVariableCommand => ReactiveCommand.Create<object>(AddCustomVariable);
 
         private void AddCustomVariable(object obj)
         {
             if (string.IsNullOrEmpty(AddedVariable) || AvailableVariables.Any(v => v.ToLower() == AddedVariable.ToLower()))
                 return;
-            VariableManager.SetVariable(AddedVariable, 0);
-            AvailableVariables = VariableManager.GetVariables();
+            OrbsVariableManager.SetVariable(AddedVariable, 0);
+            AvailableVariables = OrbsVariableManager.GetVariables();
             SelectedModifyVariable = AddedVariable;
             AddedVariable = "";
             OnPropertyChanged("AvailableVariables");
@@ -659,7 +674,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 currentColorHex = value;
                 try
                 {
-                    var newColor = (Color)ColorConverter.ConvertFromString(currentColorHex);
+                    var newColor = Color.Parse(currentColorHex);
                     if (newColor != SelectedColor)
                         SelectedColor = newColor;
                 }
@@ -669,7 +684,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
         public bool IsSubTrigger { get; set; }
-        public ICommand AddOrEditACommand => new CommandHandler(AddOrEditA);
+        public ReactiveCommand<object,Unit> AddOrEditACommand => ReactiveCommand.Create<object>(AddOrEditA);
 
         private void AddOrEditA(object obj)
         {
@@ -690,7 +705,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             var window = new TimerModificationWindow(vm);
             window.Show();
         }
-        public ICommand AddOrEditBCommand => new CommandHandler(AddOrEditB);
+        public ReactiveCommand<object,Unit> AddOrEditBCommand => ReactiveCommand.Create<object>(AddOrEditB);
 
         private void AddOrEditB(object obj)
         {
@@ -749,10 +764,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                 AudioTypes = AudioTypes.Distinct().ToList();
             }
 
-            AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
+            AvailableTimersForCharacter = DefaultOrbsTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
             AvailableTriggerTypes = Enum.GetValues<TimerKeyType>().OrderBy(v => v.ToString()).ToList();
             SelectedComparison = AvailableComparisons.First();
-            AvailableVariables = VariableManager.GetVariables();
+            AvailableVariables = OrbsVariableManager.GetVariables();
             if (AvailableVariables.Any())
             {
                 SelectedVariable = AvailableVariables.First();
@@ -952,7 +967,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             {
                 SelectedSource = timerToEdit.Source;
             }
-            AvailableTimersForCharacter = DefaultTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
+            AvailableTimersForCharacter = DefaultOrbsTimersManager.GetDefaults(_currentSelectedPlayer).Timers.Where(t => t.Id != Id).ToList();
             OnPropertyChanged("AvailableTimerNames");
             OnPropertyChanged("ShowTargetOnTimerUI");
             OnPropertyChanged("AvailableRefreshOptions");
@@ -987,10 +1002,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         public void Cancel()
         {
             if (isEditing)
-                OnCancelEdit(_editedTimer);
+                OnCancelEdit.InvokeSafely(_editedTimer);
         }
 
-        public ICommand SaveCommand => new CommandHandler(Save);
+        public ReactiveCommand<object,Unit> SaveCommand => ReactiveCommand.Create<object>(Save);
 
         private void Save(object obj)
         {
@@ -1061,7 +1076,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ChargesSetVariableName = ChargeVariable
             };
 
-            OnNewTimer(newTimer, isEditing, false);
+            OnNewTimer.InvokeSafely(newTimer, isEditing, false);
         }
         private bool Validate()
         {

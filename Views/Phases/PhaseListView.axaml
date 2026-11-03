@@ -1,0 +1,50 @@
+﻿<Window x:Class="SWTORCombatParser.Views.Phases.PhaseListView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Phases"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Phases"
+        x:DataType="vm:PhaseListViewModel"
+        mc:Ignorable="d"
+        Title="Phase Setup" Height="450" Width="525" Background="{StaticResource Gray5Brush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="0.7*"/>
+            <RowDefinition Height="0.15*"/>
+        </Grid.RowDefinitions>
+
+        <ContentPresenter Grid.ColumnSpan="2" Content="{Binding EncounterSelectionView}" Grid.Row="0" VerticalAlignment="Center"  HorizontalAlignment="Left" Margin="5,5,0,5"></ContentPresenter>
+
+        <Border Grid.ColumnSpan="2" BorderBrush="DimGray" BorderThickness="3,0,3,3" Margin="3,0,3,0" CornerRadius="0,0,5,5" Grid.Row="1" Background="Transparent">
+                <DataGrid ItemsSource="{Binding PhaseRows}" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="*" Header="Name" FontSize="{StaticResource NormalFontSize}" Binding="{Binding Name}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="*" Header="Type" FontSize="{StaticResource NormalFontSize}" Binding="{Binding Type}"></DataGridTextColumn>
+                        <DataGridTemplateColumn Width=".75*" Header="Edit">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button  HorizontalAlignment="Center" Command="{Binding EditCommand}">
+                                        <Image Height="15" Source="avares://Orbs/resources/editIcon.png"></Image>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Width=".75*" Header="Delete">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button  HorizontalAlignment="Center" Classes="RoundedCorner" Content="x" Background="{StaticResource RedColorBrush}" Foreground="Beige" Width="30" Command="{Binding DeleteCommand}">
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+        </Border>
+
+        <Grid Grid.Row="3" Grid.ColumnSpan="2">
+            <Button Grid.Column="1" HorizontalAlignment="Center" Background="Gray" Foreground="WhiteSmoke" Classes="RoundedCorner" Height="40" Width="100" FontFamily="{StaticResource MainFont}" VerticalContentAlignment="Center" Content="Add Phase" Command="{Binding AddPhaseCommand}"></Button>
+        </Grid>
+    </Grid>
+</Window>

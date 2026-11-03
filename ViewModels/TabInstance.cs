@@ -1,32 +1,30 @@
 ﻿using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Overlays;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Windows.Controls;
-using System.Windows.Input;
+using System.Reactive;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels
 {
-    public class TabInstance : INotifyPropertyChanged
+    public class TabInstance :ReactiveObject
     {
-        public TabInstance()
-        {
-
-        }
+        private Bitmap _overlayLockIcon = ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png");
+        private Bitmap _tabIcon;
+        private SolidColorBrush _tabSelectedColor = new SolidColorBrush(Colors.DarkGray);
         public event Action<TabInstance> RequestTabClose = delegate { };
-        public ICommand CloseTabCommand => new CommandHandler(CloseTab);
+        public ReactiveCommand<Unit,Unit> CloseTabCommand => ReactiveCommand.Create(CloseTab);
 
-        private void CloseTab(object obj)
+        private void CloseTab()
         {
             RequestTabClose(this);
         }
 
-        public ICommand ToggleLockedCommand => new CommandHandler(ToggleLocked);
+        public ReactiveCommand<Unit,Unit> ToggleLockedCommand => ReactiveCommand.Create(ToggleLocked);
 
-        private void ToggleLocked(object obj)
+        private void ToggleLocked()
         {
             var tabViewModel = TabContent.DataContext as OverlayViewModel;
             tabViewModel.OverlaysLocked = !tabViewModel.OverlaysLocked;
@@ -39,30 +37,45 @@ namespace SWTORCombatParser.ViewModels
                 return;
             var tabViewModel = TabContent.DataContext as OverlayViewModel;
             OverlayLockIcon = tabViewModel.OverlaysLocked
-                ? Path.Combine(Environment.CurrentDirectory, "resources/lockedIcon.png")
-                : Path.Combine(Environment.CurrentDirectory, "resources/unlockedIcon.png");
-            OnPropertyChanged("OverlayLockIcon");
+                ? ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png")
+                : ImageHelper.LoadFromResource("avares://Orbs/resources/unlockedIcon.png");
         }
+
+        public SolidColorBrush TabSelectedColor
+        {
+            get => _tabSelectedColor;
+            set => this.RaiseAndSetIfChanged(ref _tabSelectedColor, value);
+        }
+
         public Guid HistoryID { get; set; }
         public bool IsHistoricalTab { get; set; }
         public bool IsOverlaysTab { get; set; }
-        public string OverlayLockIcon { get; set; } = "../resources/lockedIcon.png";
-        public string TabIcon { get; set; }
-        public string HeaderText { get; set; }
-        public UserControl TabContent { get; set; }
-        public event PropertyChangedEventHandler PropertyChanged;
+        public bool IsNotOverlaysTab => !IsOverlaysTab;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public Bitmap OverlayLockIcon
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            get => _overlayLockIcon;
+            set => this.RaiseAndSetIfChanged(ref _overlayLockIcon, value);
         }
 
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        public Bitmap TabIcon
         {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            return true;
+            get => _tabIcon;
+            set => this.RaiseAndSetIfChanged(ref _tabIcon, value);
+        }
+        
+
+        public string HeaderText { get; set; }
+        public UserControl TabContent { get; set; }
+
+        public void Select()
+        {
+            TabSelectedColor = new SolidColorBrush(Colors.SeaGreen);
+        }
+
+        public void Unselect()
+        {
+            TabSelectedColor = new SolidColorBrush(Colors.DarkGray);
         }
     }
 }

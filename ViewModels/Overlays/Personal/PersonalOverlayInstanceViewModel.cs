@@ -1,5 +1,4 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.DataStructures;
+﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
@@ -10,12 +9,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
+using Avalonia.Controls;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.Personal
 {
-    public class PersonalOverlayInstanceViewModel : INotifyPropertyChanged
+    public class PersonalOverlayInstanceViewModel : ReactiveObject, INotifyPropertyChanged
     {
         private double metricValue;
         private Combat _currentcombat;
@@ -32,13 +33,13 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         public event Action CellChangedFromNone = delegate { };
         public event Action CellUpdated = delegate { };
 
-        public ICommand RemoveCellCommand => new DelegateCommand(RemoveCell);
+        public ReactiveCommand<Unit,Unit> RemoveCellCommand => ReactiveCommand.Create(RemoveCell);
 
         private void RemoveCell()
         {
             CellRemoved(this);
         }
-        public double Height => defaultHeight * currentScale;
+        public GridLength Height => new GridLength(defaultHeight * currentScale);
         public OverlayType SelectedMetric
         {
             get => selectedMetric; set
@@ -75,7 +76,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
         public bool ShowText => ShowAny && !OverlayUnlocked && !ShowVariable;
         public bool ShowVariable => SelectedMetric == OverlayType.CustomVariable && ShowAny && !OverlayUnlocked;
         public bool SelectingCustomVariables => SelectedMetric == OverlayType.CustomVariable && OverlayUnlocked;
-        public List<string> AvailableVariables => VariableManager.GetVariables();
+        public List<string> AvailableVariables => OrbsVariableManager.GetVariables();
         public string SelectedVariable
         {
             get => selectedVariable; set
@@ -175,7 +176,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
 
         private void UpdateMetricVariable()
         {
-            metricValue = VariableManager.GetValue(SelectedVariable);
+            metricValue = OrbsVariableManager.GetValue(SelectedVariable);
             OnPropertyChanged("MetricValue");
         }
 
@@ -185,7 +186,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.Personal
             {
                 return;
             }
-            metricValue = MetricGetter.GetValueForMetric(SelectedMetric, new List<Combat> { _currentcombat }, CombatLogStateBuilder.CurrentState.LocalPlayer);
+            var localPlayer = _currentcombat.LocalPlayer ?? CombatLogStateBuilder.CurrentState.LocalPlayer;
+            metricValue = MetricGetter.GetValueForMetric(SelectedMetric, _currentcombat, localPlayer);
             OnPropertyChanged("MetricValue");
         }
 

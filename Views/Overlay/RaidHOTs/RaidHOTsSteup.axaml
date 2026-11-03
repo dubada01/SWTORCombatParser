@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.RaidHOTs.RaidHOTsSteup"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.RaidHots"
+                x:DataType="vm:RaidHotsConfigViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="800">
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+
+            </Grid.RowDefinitions>
+            <Viewbox MaxHeight="35">
+                <TextBlock Foreground="{StaticResource ParticipantHPSBrush}" FontFamily="{StaticResource MainFont}" Text="Raid HOTs"/>
+            </Viewbox>
+
+            <Viewbox MaxHeight="40" Grid.Row="1">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Margin="0,0,0,0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Foreground="WhiteSmoke" Text="Increase Sensitivity"/>
+                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding DecreasedSpecificity}"></CheckBox>
+                    </StackPanel>
+                </StackPanel>
+
+            </Viewbox>
+            <Viewbox MaxHeight="60" Grid.Row="3">
+                <Button Margin="0,15,0,10" Classes="RoundedCorner" Height="75" Width="200" Content="Refresh Players" Background="CornflowerBlue" 
+                        Foreground="WhiteSmoke" FontSize="20" IsEnabled="{Binding CanDetect}" ToolTip.Tip="Hotkey: Ctrl+Alt+R" FontWeight="Bold" FontFamily="{StaticResource MainFont}" Command="{Binding ManuallyRefreshPlayersCommand}"></Button>
+            </Viewbox>
+        </Grid>
+    </Grid>
+</UserControl>

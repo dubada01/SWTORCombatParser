@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.ScaleControl"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.BossFrame"
+             x:DataType="vm:BossFrameConfigViewModel"
+             mc:Ignorable="d" 
+             Width="300" Height="100">
+    <Border Background="DimGray" CornerRadius="5" BorderThickness="2" BorderBrush="{StaticResource Gray2Brush}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition />
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button Background="{StaticResource Gray5Brush}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Classes="RoundedCorner" Command="{Binding IncreaseCommand}" Margin="5">
+                <Viewbox Margin="5">
+                    <Image Source="../../resources/PlusIcon.png" Width="100" Height="100"/>
+                </Viewbox>
+            </Button>
+            <Viewbox Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock  Foreground="WhiteSmoke" Text="{Binding CurrentScale}" ></TextBlock>
+            </Viewbox>
+            <Button Grid.Column="2" Background="{StaticResource Gray5Brush}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding DecreaseCommand}" Classes="RoundedCorner" Margin="5">
+                <Viewbox Margin="5">
+                    <Image Source="../../resources/MinusIcon.png" Width="100" Height="100"/>
+                </Viewbox>
+            </Button>
+        </Grid>
+    </Border>
+</UserControl>

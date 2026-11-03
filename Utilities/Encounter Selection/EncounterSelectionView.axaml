@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="SWTORCombatParser.Utilities.Encounter_Selection.EncounterSelectionView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SWTORCombatParser.Utilities.Encounter_Selection"
+             x:DataType="vm:EncounterSelectionViewModel"
+             >
+    <Grid>
+            <StackPanel Orientation="Horizontal">
+                <ComboBox ItemsSource="{Binding AvailableEncounters}" SelectedItem="{Binding SelectedEncounter}" Width="250" HorizontalAlignment="Left" Margin="5">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock FontSize="{StaticResource LargeFontSize}" Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <ComboBox FontSize="{StaticResource LargeFontSize}" ItemsSource="{Binding AvailableBosses}" SelectedItem="{Binding SelectedBoss}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+                <ComboBox FontSize="{StaticResource LargeFontSize}" IsVisible="{Binding ShowPlayerCount}" ItemsSource="{Binding AvailablePlayerCounts}" SelectedItem="{Binding SelectedPlayerCount}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
+            </StackPanel>
+    </Grid>
+</UserControl>

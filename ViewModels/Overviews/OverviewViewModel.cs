@@ -1,15 +1,17 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows;
+using Avalonia.Controls;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
-    public abstract class OverviewViewModel : INotifyPropertyChanged
+    public abstract class OverviewViewModel : ReactiveObject
     {
+        private Combat _currentCombat;
+        private ObservableCollection<Entity> _availableParticipants = new ObservableCollection<Entity>();
         private Entity selectedEntity;
 
         public OverviewInstanceViewModel DamageVM;
@@ -17,11 +19,18 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public OverviewInstanceViewModel DamageTakenVM;
         public OverviewInstanceViewModel HealingReceivedVM;
         public OverviewInstanceViewModel ThreatVM;
-        public abstract Visibility SortOptionVisibility { get; }
-        public List<Entity> AvailableParticipants { get; set; } = new List<Entity>();
-        private Combat _currentCombat;
+        private UserControl _selectedDataTypeContent;
+        private int _selectedTabIndex;
+        public abstract bool SortOptionVisibility { get; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public ObservableCollection<Entity> AvailableParticipants
+        {
+            get => _availableParticipants;
+            set => this.RaiseAndSetIfChanged(ref _availableParticipants, value);
+        }
+
+
+
         public OverviewViewModel()
         {
             ParticipantSelectionHandler.SelectionUpdated += UpdateSelectedEntity;
@@ -32,16 +41,22 @@ namespace SWTORCombatParser.ViewModels.Overviews
             SelectedEntity = obj;
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        public abstract int SelectedTabIndex { get; set; }
 
+        public UserControl SelectedDataTypeContent
+        {
+            get => _selectedDataTypeContent;
+            set => this.RaiseAndSetIfChanged(ref _selectedDataTypeContent, value);
+        }
         public Entity SelectedEntity
         {
             get => selectedEntity; set
             {
-                selectedEntity = value;
+                if(value == null)
+                    return;
+                if(AvailableParticipants.All(e => e.LogId != value.LogId))
+                    return;
+                this.RaiseAndSetIfChanged(ref selectedEntity, value);
                 if (selectedEntity == null)
                     return;
                 ParticipantSelectionHandler.UpdateSelection(SelectedEntity);
@@ -50,10 +65,9 @@ namespace SWTORCombatParser.ViewModels.Overviews
                 DamageTakenVM.UpdateEntity(selectedEntity);
                 HealingReceivedVM.UpdateEntity(selectedEntity);
                 ThreatVM.UpdateEntity(selectedEntity);
-                OnPropertyChanged();
-
             }
         }
+
         public void AddCombat(Combat combat)
         {
             _currentCombat = combat;
@@ -68,11 +82,11 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             if (_currentCombat == null)
             {
-                AvailableParticipants = new List<Entity>();
+                AvailableParticipants = new ObservableCollection<Entity>();
             }
             else
             {
-                AvailableParticipants = _currentCombat.AllEntities.Distinct().ToList();
+                AvailableParticipants = new ObservableCollection<Entity>(_currentCombat.AllEntities.Values);
                 if (!AvailableParticipants.Any(p => p.IsLocalPlayer))
                 {
                     SelectedEntity = AvailableParticipants.FirstOrDefault();
@@ -82,24 +96,23 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     if (SelectedEntity != null && AvailableParticipants.Any(p => p.LogId == SelectedEntity.LogId))
                     {
                         SelectedEntity = AvailableParticipants.First(p => p.LogId == SelectedEntity.LogId);
+                        this.RaisePropertyChanged(nameof(SelectedEntity));
                     }
                     else
                         SelectedEntity = AvailableParticipants.First(p => p.IsLocalPlayer);
                 }
-                OnPropertyChanged("AvailableParticipants");
             }
 
         }
         public void Reset()
         {
             _currentCombat = null;
-            AvailableParticipants.Clear();
+            AvailableParticipants = new ObservableCollection<Entity>();
             DamageVM.Reset();
             DamageTakenVM.Reset();
             HealingVM.Reset();
             HealingReceivedVM.Reset();
             ThreatVM.Reset();
-            OnPropertyChanged("AvailableParticipants");
         }
     }
 }

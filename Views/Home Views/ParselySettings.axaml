@@ -1,0 +1,47 @@
+﻿<Window x:Class="SWTORCombatParser.Views.Home_Views.ParselySettings"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Home_Views"
+        mc:Ignorable="d"
+        Title="Parsely Settings" Height="250" Width="400" Background="Transparent"        
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome" WindowStartupLocation="Manual">
+    <Border BorderBrush="{StaticResource GreenColorBrush}" BorderThickness="7,3,7,7"  Background="{StaticResource Gray3Brush}" CornerRadius="15,15,20,20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.33*"/>
+                <ColumnDefinition Width="0.66*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.ColumnSpan="2" Background="{StaticResource Gray7Brush}"  PointerPressed="StartDragWindow" PointerMoved="DragWindow" PointerReleased="StopDragWindow" CornerRadius="10,10,0,0">
+                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                    <Rectangle Margin="35,3,35,3" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                </StackPanel>
+            </Border>
+            <TextBlock Foreground="WhiteSmoke" Grid.Row="1" HorizontalAlignment="Right" FontSize="18" Margin="0,0,20,0" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Username:"></TextBlock>
+            <TextBox x:Name="UserNameBox" Grid.Row="1" Grid.Column="1" Height="40" Margin="5,0,10,0"></TextBox>
+            <TextBlock Foreground="WhiteSmoke" Grid.Row="2" HorizontalAlignment="Right" FontSize="18" Margin="0,0,20,0" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Password:"></TextBlock>
+            <TextBox x:Name="PasswordBox" PasswordChar="•" Grid.Row="2" Grid.Column="1" Height="40" Margin="5,0,10,0"></TextBox>
+            <TextBlock Foreground="WhiteSmoke" Grid.Row="3" HorizontalAlignment="Right" FontSize="18" Margin="0,0,20,0" FontFamily="{StaticResource MainFont}" VerticalAlignment="Center" Text="Guild:"></TextBlock>
+            <TextBox x:Name="GuildNameBox" Grid.Row="3" Grid.Column="1"  Height="40" Margin="5,0,10,0"></TextBox>
+            <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button x:Name="SaveButton" Classes="RoundedCorner" Margin="0,0,10,0" Background="{StaticResource GreenColorBrush}" Content="Save" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="20" Height="40" Width="100"></Button>
+                <Button x:Name="CancelButton"  Classes="RoundedCorner" Margin="10,0,0,0" Background="{StaticResource RedColorBrush}" Content="Cancel" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="20" Height="40" Width="100"></Button>
+            </StackPanel>
+
+        </Grid>
+
+    </Border>
+</Window>

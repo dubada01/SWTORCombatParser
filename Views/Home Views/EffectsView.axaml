@@ -1,0 +1,70 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Home_Views.EffectsView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser" xmlns:views="clr-namespace:SWTORCombatParser.Views"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.CombatMetaData"
+                x:DataType="vm:CombatEfffectViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.25*"/>
+            <RowDefinition Height="0.75*"/>
+            <RowDefinition Height="0.075*"/>
+        </Grid.RowDefinitions>
+        <Viewbox MaxHeight="100" Grid.Row="0" VerticalAlignment="Top">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock FontFamily="{StaticResource MainFont}"  Foreground="CadetBlue" HorizontalAlignment="Left" Text="Effect Type" FontWeight="DemiBold" FontSize="{StaticResource TitleFontSize}" Grid.Row="0" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
+                <ComboBox Grid.Row="1" ItemsSource="{Binding AvailableEffectTypes}" SelectedItem="{Binding SelectedEffectType}"></ComboBox>
+                <StackPanel Grid.Row="2" IsVisible="{Binding OtherSelectionVisible, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <TextBlock FontFamily="{StaticResource MainFont}"  Foreground="Gray" HorizontalAlignment="Left" Text="Other"  FontSize="16" Grid.Row="1" Margin="10,5,0,0" VerticalAlignment="Top"></TextBlock>
+                    <ComboBox Margin="10,0,10,0" ItemsSource="{Binding AvailableOthers}" SelectedItem="{Binding SelectedOther}"></ComboBox>
+                </StackPanel>
+                <Rectangle Grid.Row="2" Height="50"></Rectangle>
+            </Grid>
+
+        </Viewbox>
+
+        
+        <Border Grid.Row="1" BorderBrush="DimGray" BorderThickness="2" Padding="2,15,2,2" CornerRadius="4" Margin="0,15,5,0">
+            <ListBox SelectionMode="Single" BorderThickness="0" Background="Transparent"  ScrollViewer.HorizontalScrollBarVisibility="Disabled"  ItemsSource="{Binding CombatEffects}" SelectedItem="{Binding SelectedEffect}">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Padding" Value="0" />
+                    </Style>
+                </ListBox.Styles>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="5,0,0,3" HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width=".2*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width=".66*"/>
+                            </Grid.ColumnDefinitions>
+                            <Viewbox MaxHeight="15" Margin="0,0,2,0">
+                                <TextBlock FontFamily="{StaticResource MainFont}" Foreground="CadetBlue" Text="{Binding Selected, Converter={StaticResource EffectSelectedToTextConverter}}"></TextBlock>
+                            </Viewbox>
+                            <TextBlock Margin="0,0,5,0" HorizontalAlignment="Left" Grid.Column="1" FontSize="{StaticResource NormalFontSize}" TextTrimming="CharacterEllipsis" Foreground="LightGray" FontFamily="{StaticResource MainFont}" Text="{Binding Name}"></TextBlock>
+                            <Viewbox MaxHeight="15" HorizontalAlignment="Right" Grid.Column="2" >
+                                <TextBlock Foreground="LightGray" FontFamily="{StaticResource MainFont}" Text="{Binding Duration, StringFormat={}{0:0.#} sec}"></TextBlock>
+                            </Viewbox>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+        <TextBlock FontFamily="{StaticResource MainFont}" Background="{StaticResource Gray2Brush}" Foreground="CadetBlue" Width="71" HorizontalAlignment="Left" Text="Effects" FontWeight="DemiBold" FontSize="23" Grid.Row="1" Margin="10,0,0,0" VerticalAlignment="Top"></TextBlock>
+        <Viewbox VerticalAlignment="Center" MaxHeight="30" Margin="0,5,0,5" Grid.Row="2">
+            <Button FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Width="75" FontSize="10" Padding="5" Content="Clear" Command="{Binding ClearCombatEffectsCommand}"/>
+        </Viewbox>
+        
+    </Grid>
+
+</UserControl>

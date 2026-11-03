@@ -1,58 +1,53 @@
-﻿using SWTORCombatParser.DataStructures;
+﻿using System;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Views.Overlay.BossFrame;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using Avalonia.Threading;
+using ReactiveUI;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
-    public class BossFrameViewModel : INotifyPropertyChanged
+    public class BossFrameViewModel:ReactiveObject
     {
         private DotModuleViewModel dotModuleViewModel;
         private HPModuleViewModel _hpVM;
         private MechanicsTimersModuleViewModel _mechsVM;
         private double _scale;
+        private HPModule _hpContent;
+        private DotModuleView _dotsContent;
+        private MechanicsTimersModule _mechanicsModule;
         public Entity CurrentBoss { get; set; }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        public BossFrameViewModel(EntityInfo bossInfo, bool dotTrackingEnabled, bool mechTrackingEnabled, bool isDuplicate, double scale)
+        public BossFrameViewModel(EntityInfo bossInfo, bool isDuplicate, double scale)
         {
             _scale = scale;
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                CurrentBoss = bossInfo.Entity;
 
-                HPContent = new HPModule();
-                _hpVM = new HPModuleViewModel(bossInfo, isDuplicate, _scale);
-                HPContent.DataContext = _hpVM;
+            CurrentBoss = bossInfo.Entity;
 
-                DOTSContent = new DotModuleView();
-                dotModuleViewModel = new DotModuleViewModel(bossInfo, dotTrackingEnabled, _scale);
-                DOTSContent.DataContext = dotModuleViewModel;
+            HPContent = new HPModule();
+            _hpVM = new HPModuleViewModel(bossInfo, isDuplicate, _scale);
+            HPContent.DataContext = _hpVM;
 
-                MechanicsModule = new MechanicsTimersModule();
-                _mechsVM = new MechanicsTimersModuleViewModel(bossInfo, mechTrackingEnabled, _scale);
-                MechanicsModule.DataContext = _mechsVM;
-            });
+            DOTSContent = new DotModuleView();
+            dotModuleViewModel = new DotModuleViewModel(bossInfo, _scale);
+            DOTSContent.DataContext = dotModuleViewModel;
+
+            MechanicsModule = new MechanicsTimersModule();
+            _mechsVM = new MechanicsTimersModuleViewModel(bossInfo, _scale);
+            MechanicsModule.DataContext = _mechsVM;
         }
-        public void UpdateBossFrameState(bool showDots, bool showMechs)
+
+        public void LogWithBoss(EntityInfo bossInfo, DateTime timeStamp)
         {
-            dotModuleViewModel.SetActive(showDots);
-            _mechsVM.SetActive(showMechs);
-        }
-        public void LogWithBoss(EntityInfo bossInfo)
-        {
-            UpdateUI(bossInfo);
+            UpdateUI(bossInfo,timeStamp);
         }
 
-        private void UpdateUI(EntityInfo bossInfo)
+        private void UpdateUI(EntityInfo bossInfo, DateTime timeStamp)
         {
             _hpVM.UpdateHP(bossInfo.CurrentHP);
+            _hpVM.UpdateTarget(CombatLogStateBuilder.CurrentState.GetEnemyTargetAtTime(bossInfo.Entity, timeStamp).Entity.Name);
         }
-
+    
         internal void UpdateBossFrameScale(double currentScale)
         {
             _scale = currentScale;
@@ -61,8 +56,22 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             dotModuleViewModel.SetScale(_scale);
         }
 
-        public HPModule HPContent { get; set; }
-        public DotModuleView DOTSContent { get; set; }
-        public MechanicsTimersModule MechanicsModule { get; set; }
+        public HPModule HPContent
+        {
+            get => _hpContent;
+            set => this.RaiseAndSetIfChanged(ref _hpContent, value);
+        }
+
+        public DotModuleView DOTSContent
+        {
+            get => _dotsContent;
+            set => this.RaiseAndSetIfChanged(ref _dotsContent, value);
+        }
+
+        public MechanicsTimersModule MechanicsModule
+        {
+            get => _mechanicsModule;
+            set => this.RaiseAndSetIfChanged(ref _mechanicsModule, value);
+        }
     }
 }

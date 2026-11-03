@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows.Data;
-using System.Windows.Media;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
 
 namespace SWTORCombatParser.Utilities.Converters
 {
@@ -12,7 +12,7 @@ namespace SWTORCombatParser.Utilities.Converters
             switch ((bool)value)
             {
                 case true:
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFa53434"));
+                    return new SolidColorBrush(Color.Parse("#FFa53434"));
                 case false:
                     return new SolidColorBrush((Color)ResourceFinder.GetColorFromResourceName("ParticipantHPSColor"));
             }

@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.Personal.PersonalOverlayWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.Personal"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.Personal"
+        x:DataType="vm:PersonalOverlayViewModel"
+        mc:Ignorable="d"
+        MinHeight="75" Background="{x:Null}">
+
+    <Grid>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding PersonalOverlayInstances}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <local:PersonalOverlayInstance/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="2" Rows="{Binding Rows}"></UniformGrid>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </Grid>
+</UserControl>

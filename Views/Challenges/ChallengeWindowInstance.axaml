@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Challenges.ChallengeWindowInstance"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Challenges"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Challenges"
+                x:DataType="vm:ChallengeInstanceViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <TextBlock HorizontalAlignment="Center" FontSize="15" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Text="{Binding ChallengeName}" Foreground="Beige" FontFamily="{StaticResource MainFont}"></TextBlock>
+        <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView"  Margin="10,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding MetricBars, UpdateSourceTrigger=PropertyChanged}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ToolTip.Tip="{Binding InfoText}"  Margin="0,2,2,2" MaxHeight="{Binding BarHeight}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="{Binding ValueWidth}"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
+                                    <ColumnDefinition Width="{Binding RemainderWidth, Mode=TwoWay}"/>
+                                </Grid.ColumnDefinitions>
+                                <Border BorderThickness="{Binding BorderThickness}" BorderBrush="{Binding BarOutline}" Margin="0,0,0,0" Grid.Column="0" CornerRadius="{Binding BarRadius}" Background="{Binding ChallengeColor}" ></Border>
+                            </Grid>
+
+                            <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="{Binding FontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TotalValue}"></TextBlock>
+
+                            <Grid VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,2,3">
+                                <TextBlock Margin="0,3,0,0" FontFamily="{StaticResource MainFont}" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" Foreground="Beige" Text="{Binding PlayerName}" ></TextBlock>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <Grid Grid.Row="2" VerticalAlignment="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.33*"/>
+                <ColumnDefinition Width="0.66*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Margin="10,0,0,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="PaleGoldenrod" Text="Total"></TextBlock>
+            <TextBlock Margin="0,0,10,0" Grid.Column="1" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="PaleGoldenrod" Text="{Binding MetricTotal}"></TextBlock>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -8,73 +8,85 @@ using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows;
+using Avalonia.Controls;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Threading;
+using ReactiveUI;
+using SWTORCombatParser.Views;
+using SWTORCombatParser.Views.Overlay;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
-    public class OverlayInstanceViewModel : INotifyPropertyChanged
+    public class OverlayInstanceViewModel : BaseOverlayViewModel
     {
         private object _refreshLock = new object();
         private double sizeScalar = 1d;
         private string metricTotal;
+        public override bool ShouldBeVisible => true;
 
-        public bool OverlaysMoveable { get; set; }
-        public string OverlayTypeImage { get; set; } = "../../resources/SwtorLogo_opaque.png";
-        public bool UsingLeaderboard { get; set; }
+        public Bitmap OverlayTypeImage
+        {
+            get => _overlayTypeImage;
+            set => this.RaiseAndSetIfChanged(ref _overlayTypeImage, value);
+        }
+
+        public bool UsingLeaderboard
+        {
+            get => _usingLeaderboard;
+            set => this.RaiseAndSetIfChanged(ref _usingLeaderboard, value);
+        }
+
         public double SizeScalar
         {
             get => sizeScalar; set
             {
-                sizeScalar = value;
+                this.RaiseAndSetIfChanged(ref sizeScalar, value);
                 foreach (var bar in _metricBarsDict)
                 {
                     bar.Value.SizeScalar = sizeScalar;
                 }
-                OnPropertyChanged("LeaderboardSeperationDistance");
-                OnPropertyChanged("TotalRowHeight");
-                OnPropertyChanged("TotalFontSize");
-                OnPropertyChanged();
             }
         }
         public ConcurrentDictionary<(string, bool), OverlayMetricInfo> _metricBarsDict { get; set; } = new ConcurrentDictionary<(string, bool), OverlayMetricInfo>();
-        public List<OverlayMetricInfo> MetricBars { get; set; } = new List<OverlayMetricInfo>();
+
+        public ObservableCollection<OverlayMetricInfo> MetricBars
+        {
+            get => _metricBars;
+            set => this.RaiseAndSetIfChanged(ref _metricBars, value);
+        }
+
         public OverlayType CreatedType { get; set; }
-        public OverlayType Type { get; set; }
+
+        public OverlayType Type
+        {
+            get => _type;
+            set => this.RaiseAndSetIfChanged(ref _type, value);
+        }
+
         public OverlayType SecondaryType { get; set; }
         public string MetricTotal
         {
-            get => metricTotal; set
+            get => metricTotal == "0" ? "" : metricTotal; set
             {
-                metricTotal = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref metricTotal, value);
             }
         }
         public bool HasLeaderboard => (Type == OverlayType.DPS || Type == OverlayType.EHPS || (Type == OverlayType.ShieldAbsorb && SecondaryType == OverlayType.DamageAvoided) || Type == OverlayType.HPS || Type == OverlayType.FocusDPS) && UsingLeaderboard;
         public GridLength LeaderboardRowHeight => HasLeaderboard ? new GridLength(20) : new GridLength(0);
         public GridLength TotalRowHeight => new GridLength(20);
-        public double TotalFontSize => Math.Max(9, 18 * SizeScalar);
+        public double TotalFontSize => Math.Max(9, 12 * SizeScalar);
         public bool AddSecondaryToValue { get; set; } = false;
         public bool FlipSecondaryAndPrimaryBars { get; set; } = false;
         public event Action<OverlayInstanceViewModel> OverlayClosed = delegate { };
-        public event Action CloseRequested = delegate { };
-        public event Action<bool> OnLocking = delegate { };
-        public event Action OnHiding = delegate { };
-        public event Action OnShowing = delegate { };
-        public event Action<string> OnCharacterDetected = delegate { };
         public void OverlayClosing()
         {
             Dispose();
             OverlayClosed(this);
-        }
-        public void RequestClose()
-        {
-            Dispose();
-            CloseRequested();
         }
         private void Dispose()
         {
@@ -84,11 +96,17 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Leaderboards.LeaderboardStandingsAvailable -= UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable -= UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged -= UpdateLeaderboardType;
-            CombatLogStreamer.NewLineStreamed -= CheckForConversation;
             _updateSub.Dispose();
         }
-        public OverlayInstanceViewModel(OverlayType type)
+        public OverlayInstanceViewModel(OverlayType type) : base(type.ToString())
         {
+            SettingsType = OverlaySettingsType.Character;
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                MainContent = new InfoOverlay(this);
+            });
+
+            CloseRequested += OverlayClosing;
             CreatedType = type;
             Type = type;
             if (type == OverlayType.EHPS)
@@ -130,36 +148,24 @@ namespace SWTORCombatParser.ViewModels.Overlays
             Leaderboards.LeaderboardStandingsAvailable += UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable += UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged += UpdateLeaderboardType;
-            CombatLogStreamer.NewLineStreamed += CheckForConversation;
             MetricColorLoader.OnOverlayTypeColorUpdated += UpdateColor;
             UpdateLeaderboardType(LeaderboardSettings.ReadLeaderboardSettings());
+            this.WhenAnyValue(x => x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(TotalFontSize)));
         }
+
+
         private void UpdateColor(OverlayType type)
         {
             if (type == Type)
-                OnPropertyChanged("Type");
+                this.RaisePropertyChanged(nameof(Type));
             if(type == SecondaryType)
-                OnPropertyChanged("SecondaryType");
+                this.RaisePropertyChanged(nameof(SecondaryType));
         }
-        private bool _conversationActive;
         private IDisposable _updateSub;
-
-        private void CheckForConversation(ParsedLogEntry obj)
-        {
-            if (!obj.Source.IsLocalPlayer)
-                return;
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply)
-            {
-                _conversationActive = true;
-                OnHiding();
-            }
-
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove)
-            {
-                _conversationActive = false;
-                OnShowing();
-            }
-        }
+        private bool _usingLeaderboard;
+        private Bitmap _overlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/SwtorLogo_opaque.png")));
+        private ObservableCollection<OverlayMetricInfo> _metricBars = new ObservableCollection<OverlayMetricInfo>();
+        private OverlayType _type;
 
         private void UpdateLeaderboardType(LeaderboardType obj)
         {
@@ -172,13 +178,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 UsingLeaderboard = true;
             }
             if (obj == LeaderboardType.AllDiciplines)
-                OverlayTypeImage = "../../resources/SwtorLogo_opaque.png";
+                OverlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/SwtorLogo_opaque.png")));
             else
             {
-                OverlayTypeImage = "../../resources/LocalPlayerIcon.png";
+                OverlayTypeImage = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/LocalPlayerIcon.png")));
             }
-            OnPropertyChanged("OverlayTypeImage");
-            OnPropertyChanged("HasLeaderboard");
         }
 
         private void UpdateTopEntries(Dictionary<LeaderboardEntryType, (string, double)> obj)
@@ -218,18 +222,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
             }
         }
 
-        internal void CharacterDetected(string name)
+        internal void RoleChanged(string role)
         {
-            OnCharacterDetected(name);
+            SetRole(role);
         }
 
         public void Reset()
         {
-            if (_conversationActive)
-            {
-                OnShowing();
-                _conversationActive = false;
-            }
             ResetMetrics();
         }
         public void Refresh(Combat comb)
@@ -244,15 +243,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public void LockOverlays()
         {
-            OnLocking(true);
             OverlaysMoveable = false;
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
             OverlaysMoveable = true;
-            OnPropertyChanged("OverlaysMoveable");
         }
         private void AddLeaderboardBar(string characterName, double value)
         {
@@ -271,9 +266,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 IsLeaderboardValue = true,
                 RelativeLength = 1,
                 SizeScalar = SizeScalar,
-                MedalIconPath = "../../resources/crownIcon.png"
+                MedalIconPath = new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/crownIcon.png")))
             };
-            Debug.WriteLine("Leaderboard " + CreatedType.ToString() + " set for overlay");
             _metricBarsDict.TryAdd((characterName, true), metricbar);
             OrderMetricBars();
         }
@@ -324,10 +318,13 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private void RefreshBarViews(Combat combatToDisplay)
         {
             OverlayMetricInfo metricToUpdate;
+            
             if (combatToDisplay.CharacterParticipants.Count == 0)
                 return;
-            foreach (var participant in combatToDisplay.CharacterParticipants)
+            foreach (var participant in combatToDisplay.CharacterParticipants.Values)
             {
+                var swtorClass =
+                    CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(participant, combatToDisplay.StartTime);
                 if (_metricBarsDict.Where(b => !b.Key.Item2).Any(m => m.Key.Item1 == participant.Name))
                 {
                     metricToUpdate = _metricBarsDict.FirstOrDefault(mb => mb.Key.Item1 == participant.Name && !mb.Key.Item2).Value;
@@ -336,7 +333,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 }
                 else
                 {
-                    metricToUpdate = new OverlayMetricInfo() { Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
+                    metricToUpdate = new OverlayMetricInfo() { ClassIcon =  IconFactory.GetClassIcon(swtorClass.Discipline),Player = participant, Type = Type, AddSecondayToValue = AddSecondaryToValue, FlipSecondaryAndPrimaryBars = FlipSecondaryAndPrimaryBars, SizeScalar = SizeScalar };
                     _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
                 }
                 var primaryType = Type;
@@ -375,10 +372,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                         listOfBars.Add(bar);
                 }
 
-                MetricBars = new List<OverlayMetricInfo>(listOfBars.OrderByDescending(mb => mb.TrueValue));
-
-                OnPropertyChanged("MetricBars");
-
+                MetricBars = new ObservableCollection<OverlayMetricInfo>(listOfBars.OrderByDescending(mb => mb.TrueValue));
             }
             catch (Exception ex)
             {
@@ -413,18 +407,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void UpdateMetric(OverlayType type, OverlayMetricInfo metricToUpdate, Combat obj, Entity participant)
         {
+            var originalType = type;
+            if (type == OverlayType.DPS)
+                type = OverlayType.FluffDPS;
+            if(type == OverlayType.EHPS)
+                type = OverlayType.EHPSNoShielding;
             var value = MetricGetter.GetValueForMetric(type, obj, participant);
             metricToUpdate.Value = value;
-            metricToUpdate.Type = type;
-        }
-
-
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            metricToUpdate.Type = originalType;
         }
     }
 }

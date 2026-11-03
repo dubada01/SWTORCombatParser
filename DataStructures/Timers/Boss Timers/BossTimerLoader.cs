@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SWTORCombatParser.Model.Timers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -12,7 +14,7 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
         public static void TryLoadBossTimers()
         {
             List<DefaultTimersData> bossTimerData = new List<DefaultTimersData>();
-            foreach (var file in Directory.EnumerateFiles(@".\DataStructures\Timers\Boss Timers\Raids", "*", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFiles(Path.Combine(Environment.CurrentDirectory, @"DataStructures/Timers/Boss Timers/Raids"), "*", SearchOption.AllDirectories))
             {
                 var bossTimers = JsonConvert.DeserializeObject<JArray>(File.ReadAllText(file));
                 if (bossTimers == null)
@@ -21,10 +23,14 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
                 bossTimerData.AddRange(bossTimerDeserialized);
             }
 
-            var currentRev = bossTimerData.Any() ? bossTimerData.First().Timers.First().TimerRev : 0;
+            var currentRev = bossTimerData
+                .Where(b => b.Timers.Any())
+                .Select(b => b.Timers.Max(t => t.TimerRev))
+                .DefaultIfEmpty(0)
+                .Max();
 
-            DefaultTimersManager.ClearBuiltinMechanics(currentRev);
-            var currentBossTimers = DefaultTimersManager.GetAllDefaults();
+            DefaultOrbsTimersManager.ClearBuiltinMechanics(currentRev);
+            var currentBossTimers = DefaultOrbsTimersManager.GetAllDefaults();
             currentBossTimers.ToList().RemoveAll(t => t.Timers.Any(timer => timer.SpecificBoss == "Operations Training Dummy"));
 
             var sourcesToAdd = new List<DefaultTimersData>();
@@ -41,11 +47,14 @@ namespace SWTORCombatParser.DataStructures.Timers.Boss_Timers
                         timer.Source = "Any";
                         timer.SourceIsLocal = false;
                     }
+
+                    timer.ShowIconIfPossible = true;
                     timer.IsMechanic = true;
+                    timer.TimerRev = currentRev;
                 }
                 sourcesToAdd.Add(source);
             }
-            DefaultTimersManager.AddSources(sourcesToAdd);
+            DefaultOrbsTimersManager.AddSources(sourcesToAdd);
         }
     }
 }

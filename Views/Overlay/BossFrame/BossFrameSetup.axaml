@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.BossFrame.BossFrameSetup"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
+                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.BossFrame"
+                x:DataType="vm:BossFrameConfigViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="800">
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Viewbox MaxHeight="35" Grid.ColumnSpan="2">
+                <TextBlock Foreground="{StaticResource ParticipantHPSBrush}" FontFamily="{StaticResource MainFont}" Text="Boss Frame"/>
+            </Viewbox>
+            <Viewbox MaxHeight="40" Grid.Row="1" Grid.Column="0">
+                <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Foreground="WhiteSmoke" Text="Track DOTS"/>
+                    <CheckBox HorizontalAlignment="Center"></CheckBox>
+                </StackPanel>
+            </Viewbox>
+        </Grid>
+    </Grid>
+</UserControl>

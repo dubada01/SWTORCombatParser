@@ -46,15 +46,28 @@ namespace SWTORCombatParser.Utilities
                 }
             }
         }
+
+        public static void LogStartup()
+        {
+            LoadLoggingConfig();
+            if (!_useVerboseLogging)
+                return;
+            lock (_logLock)
+            {
+                if (!Settings.ReadSettingOfType<bool>("offline_mode"))
+                    CloudLogging.UploadLogAsync("User Started Orbs", "startup");
+            }
+        }
         public static void LoadLoggingConfig()
         {
             try
             {
                 _useVerboseLogging = JsonConvert.DeserializeObject<LoggingConfig>(File.ReadAllText(@"LoggingConfig.json")).verbose;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                LogError("Failed to determine logging configuration. Please close and save LoggingConfig.json");
+                LogError("ERROR: Could not load logging config.\r\n"+ exception.Message);
+                //LogError("Failed to determine logging configuration. Please close and save LoggingConfig.json");
             }
 
         }

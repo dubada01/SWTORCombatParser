@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Windows;
+using System.Threading;
+using Avalonia;
 
 namespace SWTORCombatParser.Model.Overlays
 {
@@ -42,75 +44,178 @@ namespace SWTORCombatParser.Model.Overlays
         SingleTargetEHPS,
         CleanseCount,
         CleanseSpeed,
-        CombatTimer
+        CombatTimer,
+        InstantaneousDPS,
+        InstantaneousEHPS,
+        InstantaneousDPTS,
+        FluffDPS,
+        EHPSNoShielding
     }
+
+    public class AvaloniaPointConverter : JsonConverter<Point>
+    {
+        public override void WriteJson(JsonWriter writer, Point value, JsonSerializer serializer)
+        {
+            writer.WriteValue($"{value.X.ToString(CultureInfo.InvariantCulture)}, {value.Y.ToString(CultureInfo.InvariantCulture)}");
+        }
+
+        public override Point ReadJson(JsonReader reader, Type objectType, Point existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            var value = ((string)reader.Value).Trim();
+            var parts = value.Contains(" ")
+                ? value.Split(new[] { ", " }, StringSplitOptions.None)
+                : value.Split(new[] { "," }, StringSplitOptions.None);
+
+            if (parts.Length == 2 &&
+                double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var x) &&
+                double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var y))
+            {
+                return new Point(x, y);
+            }
+
+            throw new JsonSerializationException("Invalid format for Avalonia Point");
+        }
+    }
+
+    public class AvaloniaPixelPointConverter : JsonConverter<PixelPoint>
+    {
+        public override void WriteJson(JsonWriter writer, PixelPoint value, JsonSerializer serializer)
+        {
+            writer.WriteValue($"{value.X}, {value.Y}");
+        }
+
+        public override PixelPoint ReadJson(JsonReader reader, Type objectType, PixelPoint existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            var value = ((string)reader.Value);
+            var parts = value.Split(',');
+
+            if (parts.Length == 2 && int.TryParse(parts[0], out var x) && int.TryParse(parts[1], out var y))
+            {
+                return new PixelPoint(x, y);
+            }
+
+            throw new JsonSerializationException("Invalid format for Avalonia Pixel Point");
+        }
+    }
+
     public class OverlayInfo
     {
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point Position;
+        [JsonConverter(typeof(AvaloniaPointConverter))]
         public Point WidtHHeight;
         public bool Acive;
         public bool Locked;
         public bool UseAsWindow;
     }
+
     public static class DefaultCharacterOverlays
     {
+        private static readonly object _fileLock = new object();
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "character_overlay_info.json");
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings
+        {
+            Culture = CultureInfo.InvariantCulture
+        };
+
         public static void Init()
         {
-            if (!Directory.Exists(appDataPath))
-                Directory.CreateDirectory(appDataPath);
-
-            if (!File.Exists(infoPath))
+            lock (_fileLock)
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, OverlayInfo>>()));
+                if (!Directory.Exists(appDataPath))
+                    Directory.CreateDirectory(appDataPath);
+
+                if (!File.Exists(infoPath))
+                {
+                    File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, Dictionary<string, OverlayInfo>>(), _settings));
+                }
             }
         }
+
         public static void SetCharacterDefaults(string type, Point position, Point widtHHeight, string characterName)
         {
             var currentDefaults = GetCharacterDefaults(characterName);
-            currentDefaults[type] = new OverlayInfo() { UseAsWindow = currentDefaults[type].UseAsWindow, Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults[type].Acive };
+            var useAsWindow = type == "RaidFrame";
+            var active = true;
+
+            if (currentDefaults.ContainsKey(type))
+            {
+                useAsWindow = currentDefaults[type].UseAsWindow;
+                active = currentDefaults[type].Acive;
+            }
+
+            currentDefaults[type] = new OverlayInfo { UseAsWindow = useAsWindow, Position = position, WidtHHeight = widtHHeight, Acive = active };
             SaveCharacterDefaults(characterName, currentDefaults);
         }
+
         public static void SetCharacterWindowState(string type, bool useAsWindow, string characterName)
         {
             var currentDefaults = GetCharacterDefaults(characterName);
-            currentDefaults[type] = new OverlayInfo() { UseAsWindow = useAsWindow, Position = currentDefaults[type].Position, WidtHHeight = currentDefaults[type].WidtHHeight, Acive = currentDefaults[type].Acive };
+            currentDefaults[type] = new OverlayInfo
+            {
+                UseAsWindow = useAsWindow,
+                Position = currentDefaults[type].Position,
+                WidtHHeight = currentDefaults[type].WidtHHeight,
+                Acive = currentDefaults[type].Acive
+            };
             SaveCharacterDefaults(characterName, currentDefaults);
         }
+
         public static void SetLockedStateCharacter(bool state, string characterName)
         {
             var currentDefaults = GetCharacterDefaults(characterName);
-            foreach (var overlay in currentDefaults.Keys)
+            foreach (var overlay in currentDefaults.Keys.ToList())
             {
-                currentDefaults[overlay] = new OverlayInfo() { UseAsWindow = currentDefaults[overlay].UseAsWindow, Position = currentDefaults[overlay].Position, WidtHHeight = currentDefaults[overlay].WidtHHeight, Locked = state, Acive = currentDefaults[overlay].Acive };
+                var info = currentDefaults[overlay];
+                currentDefaults[overlay] = new OverlayInfo
+                {
+                    UseAsWindow = info.UseAsWindow,
+                    Position = info.Position,
+                    WidtHHeight = info.WidtHHeight,
+                    Locked = state,
+                    Acive = info.Acive
+                };
             }
             SaveCharacterDefaults(characterName, currentDefaults);
         }
+
         public static void SetActiveStateCharacter(string type, bool state, string characterName)
         {
             var currentDefaults = GetCharacterDefaults(characterName);
             if (!currentDefaults.ContainsKey(type))
             {
-                currentDefaults[type] = new OverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive = state };
+                currentDefaults[type] = new OverlayInfo { Position = new Point(0, 0), WidtHHeight = new Point(100, 200), Acive = state };
             }
+
             var defaultModified = currentDefaults[type];
-            currentDefaults[type] = new OverlayInfo() { UseAsWindow = defaultModified.UseAsWindow, Position = defaultModified.Position, WidtHHeight = defaultModified.WidtHHeight, Acive = state, Locked = defaultModified.Locked };
+            currentDefaults[type] = new OverlayInfo
+            {
+                UseAsWindow = defaultModified.UseAsWindow,
+                Position = defaultModified.Position,
+                WidtHHeight = defaultModified.WidtHHeight,
+                Acive = state,
+                Locked = defaultModified.Locked
+            };
             SaveCharacterDefaults(characterName, currentDefaults);
         }
+
         public static bool DoesKeyExist(string key)
         {
             var currentDefaults = GetCurrentCharacterDefaults();
             return currentDefaults.ContainsKey(key);
         }
+
         public static string GetMostUsedLayout()
         {
             var currentDefaults = GetCurrentCharacterDefaults();
             if (!currentDefaults.Any())
-                return "";
-            return currentDefaults.MaxBy(v => v.Value.Values.Count(o => o.Acive)).Key;
-        }
+                return string.Empty;
 
+            return currentDefaults
+                .MaxBy(v => v.Value.Values.Count(o => o.Acive))
+                .Key;
+        }
 
         public static Dictionary<string, OverlayInfo> GetCharacterDefaults(string characterName)
         {
@@ -131,85 +236,109 @@ namespace SWTORCombatParser.Model.Overlays
                         currentDefaults = GetCurrentCharacterDefaults();
                     }
                 }
+
                 var defaultsForToon = currentDefaults[characterName];
-                var enumVals = EnumUtil.GetValues<OverlayType>();
-                foreach (var overlayType in enumVals)
+                foreach (var overlayType in EnumUtil.GetValues<OverlayType>())
                 {
                     if (!defaultsForToon.ContainsKey(overlayType.ToString()))
-                        defaultsForToon[overlayType.ToString()] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 300 } };
+                    {
+                        defaultsForToon[overlayType.ToString()] = new OverlayInfo { Position = new Point(), WidtHHeight = new Point(250, 300) };
+                    }
                 }
+
                 return defaultsForToon;
             }
-            catch (Exception)
+            catch
             {
                 InitializeCharacterDefaults(characterName);
                 return GetCurrentCharacterDefaults()[characterName];
             }
-
         }
+
         private static void SaveCharacterDefaults(string character, Dictionary<string, OverlayInfo> data)
         {
-            var currentDefaults = GetCurrentCharacterDefaults();
-            currentDefaults[character] = data;
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+            lock (_fileLock)
+            {
+                var currentDefaults = GetCurrentCharacterDefaults();
+                currentDefaults[character] = data;
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults, _settings));
+            }
         }
+
         public static void CopyFromKey(string from, string to)
         {
-            var currentDefaults = GetCurrentCharacterDefaults();
-            var fromDefaults = currentDefaults[from];
-            if (fromDefaults == null)
+            lock (_fileLock)
             {
-                InitializeCharacterDefaults(to);
-            }
-            else
-            {
-                currentDefaults[to] = currentDefaults[from];
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
+                var currentDefaults = GetCurrentCharacterDefaults();
+                if (currentDefaults.TryGetValue(from, out var fromDefaults) && fromDefaults != null)
+                {
+                    currentDefaults[to] = new Dictionary<string, OverlayInfo>(fromDefaults);
+                }
+                else
+                {
+                    InitializeCharacterDefaults(to);
+                    currentDefaults = GetCurrentCharacterDefaults();
+                }
+
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults, _settings));
             }
         }
+
         public static void InitializeCharacterDefaults(string characterName)
         {
-            var currentDefaults = GetCurrentCharacterDefaults();
-            var defaults = new Dictionary<string, OverlayInfo>();
-            if (characterName != "All")
+            lock (_fileLock)
             {
-                var enumVals = EnumUtil.GetValues<OverlayType>();
-                foreach (var overlayType in enumVals)
+                var currentDefaults = GetCurrentCharacterDefaults();
+                var defaults = new Dictionary<string, OverlayInfo>();
+
+                if (characterName != "All")
                 {
-                    defaults[overlayType.ToString()] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
+                    foreach (var overlayType in EnumUtil.GetValues<OverlayType>())
+                    {
+                        defaults[overlayType.ToString()] = new OverlayInfo { Position = new Point(), WidtHHeight = new Point(250, 100) };
+                    }
                 }
+                else
+                {
+                    defaults["Alerts"] = new OverlayInfo { Position = new Point(), WidtHHeight = new Point(250, 100) };
+                }
+
+                currentDefaults[characterName] = defaults;
+                File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults, _settings));
             }
-            else
-            {
-                defaults["Alerts"] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 } };
-            }
-            currentDefaults[characterName] = defaults;
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
         }
+
         private static Dictionary<string, Dictionary<string, OverlayInfo>> GetCurrentCharacterDefaults()
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            var typedDefaults = new Dictionary<string, Dictionary<string, OverlayInfo>>();
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, OverlayInfo>>>(stringInfo);
-            foreach (var player in currentDefaults.Keys)
+            lock (_fileLock)
             {
-                var playerDefaults = currentDefaults[player];
-                var playerTypedDefaults = typedDefaults[player] = new Dictionary<string, OverlayInfo>();
-                foreach (var overlayType in playerDefaults.Keys)
+                var stringInfo = File.ReadAllText(infoPath);
+                var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, OverlayInfo>>>(stringInfo) 
+                    ?? new Dictionary<string, Dictionary<string, OverlayInfo>>();
+
+                var typedDefaults = new Dictionary<string, Dictionary<string, OverlayInfo>>();
+                foreach (var player in currentDefaults.Keys)
                 {
-                    OverlayType typedResult;
-                    var typeIsValid = Enum.TryParse(overlayType, out typedResult);
-                    if (typeIsValid)
+                    var playerDefaults = currentDefaults[player];
+                    var playerTypedDefaults = new Dictionary<string, OverlayInfo>();
+
+                    foreach (var overlayType in playerDefaults.Keys)
                     {
-                        playerTypedDefaults[typedResult.ToString()] = playerDefaults[overlayType];
+                        if (Enum.TryParse<OverlayType>(overlayType, out var typed))
+                        {
+                            playerTypedDefaults[typed.ToString()] = playerDefaults[overlayType];
+                        }
+                        else
+                        {
+                            playerTypedDefaults[overlayType] = playerDefaults[overlayType];
+                        }
                     }
-                    else
-                    {
-                        playerTypedDefaults[overlayType] = playerDefaults[overlayType];
-                    }
+
+                    typedDefaults[player] = playerTypedDefaults;
                 }
+
+                return typedDefaults;
             }
-            return typedDefaults;
         }
     }
 

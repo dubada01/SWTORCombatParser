@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using System.Windows;
+using Avalonia;
 
 namespace SWTORCombatParser.Model.Overlays
 {
@@ -10,6 +11,11 @@ namespace SWTORCombatParser.Model.Overlays
     {
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "global_overlay_info.json");
+        // Serialize with invariant culture
+        private static JsonSerializerSettings _settings = new JsonSerializerSettings
+        {
+            Culture = CultureInfo.InvariantCulture
+        };
         public static void Init()
         {
             if (!Directory.Exists(appDataPath))
@@ -52,12 +58,12 @@ namespace SWTORCombatParser.Model.Overlays
         }
         private static void SaveDefaults(Dictionary<string, OverlayInfo> data)
         {
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(data));
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(data,_settings));
         }
         private static void InitDefaults(string type)
         {
             var currentDefaults = ReadDefaultsFromFile();
-            currentDefaults[type] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point() { X = 250, Y = 100 }, Acive = false };
+            currentDefaults[type] = new OverlayInfo() { Position = new Point(), WidtHHeight = new Point(250,100), Acive = false };
             SaveDefaults(currentDefaults);
         }
         private static Dictionary<string, OverlayInfo> ReadDefaultsFromFile()

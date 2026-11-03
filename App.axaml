@@ -1,0 +1,108 @@
+﻿<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SWTORCombatParser.App"
+             xmlns:local="using:SWTORCombatParser"
+             RequestedThemeVariant="Dark"
+             xmlns:converters="clr-namespace:SWTORCombatParser.Utilities.Converters"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="OrbsIcon.ico" 
+                      ToolTipText="Orbs">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Options">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Show" Click="ShowClicked"/>
+                                <NativeMenuItem Header="Exit" Click="ExitClicked"/>
+                            </NativeMenu>
+                        </NativeMenuItem>
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Utilities/UIStyles/Colors.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Utilities/UIStyles/SliderTemplates.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Utilities/UIStyles/TabTemplates.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="Utilities/UIStyles/ScrollViewerTemplates.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Utilities/UIStyles/DatePickerStyle.axaml"></MergeResourceInclude>
+                <MergeResourceInclude Source="/Utilities/UIStyles/ComboBoxTemplates.axaml"></MergeResourceInclude>
+            </ResourceDictionary.MergedDictionaries>
+            <FontFamily x:Key="MainFont">Dotum</FontFamily>
+            <system:Double x:Key="SmallFontSize">8</system:Double>
+            <system:Double x:Key="NormalFontSize">10</system:Double>
+            <system:Double x:Key="LargeFontSize">13</system:Double>
+            <system:Double x:Key="LargerFontSize">16</system:Double>
+            <system:Double x:Key="TitleFontSize">23</system:Double>
+            <converters:PastCombatSelectedToBackgroundConverter x:Key="PastCombatSelectedToBackgroundConverter"/>
+            <converters:LiveParseActiveToButtonTextConverter x:Key="LiveParseActiveToButtonTextConverter"/>
+            <converters:RaidGroupToVisibilityConverter x:Key="RaidGroupToVisibilityConverter"/>
+            <converters:RoleToImageSourceConverter x:Key="RoleToImageSourceConverter"/>
+            <converters:LiveParseActiveToBrushConverter x:Key="LiveParseToBrushConverter"/>
+            <converters:OverlayMetricToColorConverter x:Key="OverlayMetricTypeToColorConverter"/>
+            <converters:FullOverlayMetricToColorConverter x:Key="FullOverlayMetricTypeToColorConverter"/>
+            <converters:OverlayMoveableToVisibilityConverter x:Key="OverlayMoveableToVisibilityConverter"/>
+            <converters:OverlyTypeToVisibilityConverter x:Key="OverlayTypeToVisibilityConverter"/>
+            <converters:EncounterInfoToPastCombatColorConverter x:Key="EncounterInfoToPastCombatColorConverter"/>
+            <converters:EffectSelectedToTextConverter x:Key="EffectSelectedToTextConverter"/>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibiityConverter"/>
+            <converters:LiveParseActiveToButtonColorConverter x:Key="LiveParseActiveToButtonColorConverter"/>
+            <converters:BooleanToFontStyleConverter x:Key="BooleanToFontStyleConverter"/>
+            <converters:ParticipantSelectedToBackgroundConverter x:Key="ParticipantSelectedToBackgroundConverter"/>
+            <converters:ParticipantSelectedToBorderConverter x:Key="ParticipantSelectedToBoarderConverter"/>
+            <converters:IndexToRowColorConverter x:Key="IndexToRowColorConverter"/>
+            <converters:BooleanToVisibilityHiddenConverter x:Key="BooleanToHiddenVisibilityConverter"/>
+            <converters:BooleanToRaidBackgroundConverter x:Key="BooleanToRaidBackgroundConverter"/>
+            <converters:BooleanToRaidBorderConverter x:Key="BooleanToRaidBorderConverter"/>
+            <converters:ValueToPixelGridLengthConverter x:Key="ValueToPixelGridLengthConverter"/>
+            <converters:OverlayTypeToShowTotalConverter x:Key="OverlayTypeToShowTotalConverter"/>
+            <converters:OverlayScalarToFontSize x:Key="OverlayScalarToFontSize"/>
+            <converters:OverlayTypeToReadableNameConverter x:Key="OverlayTypeToReadableNameConverter"/>
+            <converters:OpponentInRangeToColorConverter x:Key="OpponentInRangeToColorConverter"/>
+            <converters:BooleanToHpBorderConverter x:Key="BooleanToHpBorderConverter"/>
+            <converters:MenaceTypeToBrushConverter x:Key="MenaceTypeToBrushConverter"/>
+            <converters:LogLatencyToColorConverter x:Key="LogLatencyToColorConverter"/>
+            <converters:AbsorbTimerBarVisibilityConverter x:Key="AbsorbTimerBarVisibilityConverter"/>
+            <converters:TimerTriggerTypeToNameConverter x:Key="TimerTriggerTypeToNameConverter"/>
+            <converters:BooleanToMetricOptionBackgroundConverter x:Key="BooleanToMetricOptionBackgroundConverter"/>
+            <converters:BooleanToMetricOptionBorderConverter x:Key="BooleanToMetricOptionBorderConverter"/>
+            <converters:HideToHeightConverter x:Key="HideToHeightConverter"/>
+            <converters:BooleanToEncounterColorConverter x:Key="BooleanToEncounterColorConverter"/>
+            <converters:BooleanToInverseBooleanConverter x:Key="BooleanToInverseConverter"/>
+            <converters:WidthToVisiblityConverter x:Key="WidthToVisiblityConverter"/>
+            <converters:ContentNullOrEmptyConverter x:Key="ContentNullOrEmptyConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+        
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+    <Application.Styles>
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <!-- Palette for Light theme variant -->
+                <ColorPaletteResources x:Key="Light" Accent="SeaGreen" RegionColor="White" ErrorText="Red" />
+                <!-- Palette for Dark theme variant -->
+                <ColorPaletteResources x:Key="Dark" Accent="SeaGreen" RegionColor="{StaticResource Gray3}" ErrorText="Yellow" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+
+    </Application.Styles>
+    <Application.Styles>
+        <StyleInclude Source="/Utilities/UIStyles/Buttons.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/CheckBoxStyle.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/ComboBox.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/ScrollViewerStyles.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/SliderStyles.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/TabHeader.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/TextBoxStyle.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/ThumbStyle.axaml"></StyleInclude>
+    </Application.Styles>
+</Application>

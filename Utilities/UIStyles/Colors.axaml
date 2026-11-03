@@ -1,0 +1,125 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--Control colors.-->
+    <Color x:Key="WindowColor">#FFE8EDF9</Color>
+    <Color x:Key="ContentAreaColorLight">#FFC5CBF9</Color>
+    <Color x:Key="ContentAreaColorDark">#FF7381F9</Color>
+
+    <Color x:Key="DisabledControlLightColor">#FFE8EDF9</Color>
+    <Color x:Key="DisabledControlDarkColor">#FFC5CBF9</Color>
+    <Color x:Key="DisabledForegroundColor">#FF888888</Color>
+
+    <Color x:Key="SelectedBackgroundColor">#FFC5CBF9</Color>
+    <Color x:Key="SelectedUnfocusedColor">#FFDDDDDD</Color>
+
+    <Color x:Key="ControlLightColor">White</Color>
+    <Color x:Key="ControlMediumColor">#959c8e</Color>
+    <Color x:Key="ControlDarkColor">#FF211AA9</Color>
+    <Color x:Key="Gray1">#111</Color>
+    <Color x:Key="Gray1_5">#191919</Color>
+    <Color x:Key="Gray2">#222</Color>
+    <Color x:Key="Gray2_75">#aa222222</Color>
+    <Color x:Key="Gray3">#333</Color>
+    <Color x:Key="Gray4">#444</Color>
+    <Color x:Key="Gray5">#555</Color>
+    <Color x:Key="Gray6">#666</Color>
+    <Color x:Key="Gray7">#777</Color>
+    <Color x:Key="Gray8">#888</Color>
+    <Color x:Key="Gray9">#999</Color>
+    <Color x:Key="Gray10">#aaa</Color>
+    <Color x:Key="Gray11">#bbb</Color>
+    <Color x:Key="Gray12">#ccc</Color>
+    <Color x:Key="ControlMouseOverColor">#6b7065</Color>
+    <Color x:Key="ControlPressedColor">#6c8256</Color>
+    <Color x:Key="GreenColor">#FF34A547</Color>
+    <Color x:Key="DarkGreenColor">#386e4d</Color>
+    <Color x:Key="VeryDarkGreenColor">#323833</Color>
+    <Color x:Key="DarkGrayGreenColor">#424843</Color>
+    <Color x:Key="LightGrayGreenColor">#4f5951</Color>
+    <Color x:Key="BrightGreenColor">#386e4d</Color>
+    <Color x:Key="YellowGrayColor">#b59700</Color>
+    <Color x:Key="DarkYellowGrayColor">#6e5e31</Color>
+    <Color x:Key="GrayGreenColor">#bbc4bd</Color>
+    <Color x:Key="RedColor">#FFa53434</Color>
+    <Color x:Key="GlyphColor">#FF444444</Color>
+    <Color x:Key="GlyphMouseOver">#FFa53434</Color>
+
+    <Color x:Key="ParticipantDPSColor">#a35656</Color>
+    <Color x:Key="ParticipantHPSColor">#3c7d67</Color>
+    <Color x:Key="ParticipantDTPSColor">#7d5125</Color>
+
+    <Color x:Key="ParticipantNotSelectedBackground">#9e9e9e</Color>
+    <!--Border colors-->
+    <Color x:Key="BorderLightColor">#FFCCCCCC</Color>
+    <Color x:Key="BorderMediumColor">#FF888888</Color>
+    <Color x:Key="BorderDarkColor">#FF444444</Color>
+
+    <Color x:Key="EHPSColor">#02bf61</Color>
+    
+    <Color x:Key="PressedBorderLightColor">#FF888888</Color>
+    <Color x:Key="PressedBorderDarkColor">#FF444444</Color>
+
+    <Color x:Key="DisabledBorderLightColor">#FFAAAAAA</Color>
+    <Color x:Key="DisabledBorderDarkColor">#FF888888</Color>
+
+    <Color x:Key="DefaultBorderBrushDarkColor">Black</Color>
+
+    <!--Control-specific resources.-->
+    <Color x:Key="HeaderTopColor">#FFC5CBF9</Color>
+    <Color x:Key="DatagridCurrentCellBorderColor">Black</Color>
+    <Color x:Key="SliderTrackDarkColor">#FFC5CBF9</Color>
+
+    <Color x:Key="NavButtonFrameColor">#FF3843C4</Color>
+
+    <SolidColorBrush x:Key="Gray1Brush" Color="{StaticResource Gray1}"/>
+    <SolidColorBrush x:Key="Gray2Brush" Color="{StaticResource Gray2}"/>
+    <SolidColorBrush x:Key="Gray2_75Brush" Color="{StaticResource Gray2_75}"/>
+    <SolidColorBrush x:Key="Gray3Brush" Color="{StaticResource Gray3}"/>
+    <SolidColorBrush x:Key="Gray4Brush" Color="{StaticResource Gray4}"/>
+    <SolidColorBrush x:Key="Gray5Brush" Color="{StaticResource Gray5}"/>
+    <SolidColorBrush x:Key="Gray6Brush" Color="{StaticResource Gray6}"/>
+    <SolidColorBrush x:Key="Gray7Brush" Color="{StaticResource Gray7}"/>
+    <SolidColorBrush x:Key="Gray8Brush" Color="{StaticResource Gray8}"/>
+    <SolidColorBrush x:Key="Gray9Brush" Color="{StaticResource Gray9}"/>
+    <SolidColorBrush x:Key="Gray10Brush" Color="{StaticResource Gray10}"/>
+    <SolidColorBrush x:Key="Gray11Brush" Color="{StaticResource Gray11}"/>
+    <SolidColorBrush x:Key="Gray12Brush" Color="{StaticResource Gray12}"/>
+    <SolidColorBrush x:Key="TransparentGrayBrush" Color="{StaticResource Gray10}" Opacity="0.25"/>
+
+    <SolidColorBrush x:Key="ParticipantDPSBrush" Color="{StaticResource ParticipantDPSColor}"/>
+    <SolidColorBrush x:Key="ParticipantHPSBrush" Color="{StaticResource ParticipantHPSColor}"/>
+    <SolidColorBrush x:Key="VeryDarkGreenBrush" Color="{StaticResource VeryDarkGreenColor}"/>
+    <SolidColorBrush x:Key="ParticipantDTPSBrush" Color="{StaticResource ParticipantDTPSColor}"/>
+    <SolidColorBrush x:Key="HeaderTextBrush" Color="{StaticResource DarkYellowGrayColor}"/>
+    <SolidColorBrush x:Key="GreenColorBrush" Color="{StaticResource DarkGreenColor}"></SolidColorBrush>
+    <SolidColorBrush x:Key="BrightGreenColorBrush" Color="{StaticResource GreenColor}"></SolidColorBrush>
+    <SolidColorBrush x:Key="GrayGreenColorBrush" Color="{StaticResource LightGrayGreenColor}"></SolidColorBrush>
+    <SolidColorBrush x:Key="RedColorBrush" Color="{StaticResource RedColor}"></SolidColorBrush>
+    
+    <LinearGradientBrush x:Key="MenuPopupBrush"
+                     EndPoint="0.5,1"
+                     StartPoint="0.5,0">
+        <GradientStop Color="{DynamicResource ControlLightColor}"
+                Offset="0" />
+        <GradientStop Color="{DynamicResource ControlMediumColor}"
+                Offset="0.5" />
+        <GradientStop Color="{DynamicResource ControlLightColor}"
+                Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFill"
+                     StartPoint="0,0"
+                     EndPoint="1,0">
+        <LinearGradientBrush.GradientStops>
+                <GradientStop Color="#000000FF"
+                    Offset="0" />
+                <GradientStop Color="#600000FF"
+                    Offset="0.4" />
+                <GradientStop Color="#600000FF"
+                    Offset="0.6" />
+                <GradientStop Color="#000000FF"
+                    Offset="1" />
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+</ResourceDictionary>

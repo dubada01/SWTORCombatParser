@@ -31,7 +31,7 @@ namespace SWTORCombatParser.DataStructures.RoomOverlay
             }
             if (!settings.Any(s => s.EncounterName == "NAHUT"))
             {
-                var nahut = JsonConvert.DeserializeObject<RoomOverlaySettings>(File.ReadAllText("DataStructures/RoomOverlay/NAHUT.json"));
+                var nahut = JsonConvert.DeserializeObject<RoomOverlaySettings>(File.ReadAllText("DataStructures/RoomOverlay/Nahut.json"));
                 settings.Add(nahut);
                 modified = true;
             }

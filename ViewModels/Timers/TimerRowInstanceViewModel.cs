@@ -1,16 +1,20 @@
 ﻿using SWTORCombatParser.Model.Timers;
-using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reactive;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Media.Immutable;
+using Avalonia.Platform;
+using Avalonia.Threading;
+using ReactiveUI;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.ViewModels.Timers
 {
-    public class TimerRowInstanceViewModel : INotifyPropertyChanged
+    public class TimerRowInstanceViewModel :ReactiveObject, INotifyPropertyChanged
     {
         private bool _isEnabled;
         private SolidColorBrush _rowBackground;
@@ -32,8 +36,12 @@ namespace SWTORCombatParser.ViewModels.Timers
                 ActiveChanged(this);
             }
         }
-        public string AudioImageSource => SourceTimer.UseAudio ? Environment.CurrentDirectory + "/resources/audioIcon.png" : Environment.CurrentDirectory + "/resources/mutedIcon.png";
-        public string VisibilityImageSource => !SourceTimer.IsSubTimer ? Environment.CurrentDirectory + "/resources/view.png" : Environment.CurrentDirectory + "/resources/hidden.png";
+
+        public IImmutableSolidColorBrush AudioButtonBorderColor => !string.IsNullOrEmpty(SourceTimer.CustomAudioPath)
+            ? Brushes.SeaGreen
+            : Brushes.Transparent;
+        public Bitmap AudioImageSource => SourceTimer.UseAudio ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/audioIcon.png"))) : new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/mutedIcon.png")));
+        public Bitmap VisibilityImageSource => !SourceTimer.IsSubTimer ? new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/view.png"))) :new Bitmap(AssetLoader.Open(new Uri("avares://Orbs/resources/hidden.png")));
         public string Name => SourceTimer.Name;
         public string Type => SourceTimer.TriggerType.ToString();
         public string DurationSec => SourceTimer.IsAlert ? "Alert" : SourceTimer.DurationSec.ToString();
@@ -49,42 +57,46 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
 
         public SolidColorBrush TimerForeground => new SolidColorBrush(SourceTimer.TimerColor);
-        public ICommand ToggleAudioCommand => new CommandHandler(ToggleAudio);
+        public ReactiveCommand<object,Unit> ToggleAudioCommand => ReactiveCommand.Create<object>(ToggleAudio);
 
         private void ToggleAudio(object obj)
         {
-            SourceTimer.UseAudio = !SourceTimer.UseAudio;
-            DefaultTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
-            TimerController.RefreshAvailableTimers();
-            OnPropertyChanged("AudioImageSource");
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                SourceTimer.UseAudio = !SourceTimer.UseAudio;
+                DefaultOrbsTimersManager.SetTimerAudio(SourceTimer.UseAudio, SourceTimer);
+                TimerController.RefreshAvailableTimers();
+                OnPropertyChanged("AudioImageSource");
+            });
+
         }
-        public ICommand ToggleVisibilityCommand => new CommandHandler(ToggleVisiblity);
+        public ReactiveCommand<object,Unit> ToggleVisibilityCommand => ReactiveCommand.Create<object>(ToggleVisiblity);
 
         private void ToggleVisiblity(object obj)
         {
             SourceTimer.IsSubTimer = !SourceTimer.IsSubTimer;
-            DefaultTimersManager.SetTimerVisibility(SourceTimer.IsSubTimer, SourceTimer);
+            DefaultOrbsTimersManager.SetTimerVisibility(SourceTimer.IsSubTimer, SourceTimer);
             TimerController.RefreshAvailableTimers();
             OnPropertyChanged("VisibilityImageSource");
         }
 
-        public ICommand EditCommand => new CommandHandler(Edit);
+        public ReactiveCommand<object,Unit> EditCommand => ReactiveCommand.Create<object>(Edit);
         private void Edit(object t)
         {
             EditRequested(this);
         }
-        public ICommand ShareCommand => new CommandHandler(Share);
+        public ReactiveCommand<object,Unit> ShareCommand =>ReactiveCommand.Create<object>(Share);
         private void Share(object t)
         {
             ShareRequested(this);
         }
-        public ICommand CopyCommand => new CommandHandler(Copy);
+        public ReactiveCommand<object,Unit> CopyCommand => ReactiveCommand.Create<object>(Copy);
 
         private void Copy(object obj)
         {
             CopyRequested(this);
         }
-        public ICommand DeleteCommand => new CommandHandler(Delete);
+        public ReactiveCommand<object,Unit> DeleteCommand => ReactiveCommand.Create<object>(Delete);
         private void Delete(object t)
         {
             DeleteRequested(this);

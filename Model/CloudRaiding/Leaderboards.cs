@@ -1,16 +1,12 @@
 ﻿using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
-using SWTORCombatParser.ViewModels.Leaderboard;
-using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
 namespace SWTORCombatParser.Model.CloudRaiding
@@ -19,7 +15,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
     {
         Off,
         AllDiciplines,
-        LocalDicipline
+        LocalDicipline,
+        LocalRole
     }
     public class StandingsUpdateInfo
     {
@@ -52,7 +49,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
             LeaderboardSettings.SaveLeaderboardSettings(type);
             CurrentLeaderboardType = type;
             TopLeaderboards.Clear();
-            LeaderboardTypeChanged(CurrentLeaderboardType);
+            LeaderboardPercentiles.Clear();
+            LeaderboardTypeChanged.InvokeSafely(CurrentLeaderboardType);
             if (CurrentCombat == null)
                 return;
             Task.Run(() =>
@@ -83,7 +81,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 if (CurrentLeaderboardType == LeaderboardType.Off)
                 {
                     TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
-                    TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
+                    TopLeaderboardEntriesAvailable.InvokeSafely(TopLeaderboards.ToDictionary());
                     return;
                 }
 
@@ -91,7 +89,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 CurrentCombat = newCombat;
                 if (TopLeaderboards.Count > 0)
                 {
-                    TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
+                    TopLeaderboardEntriesAvailable.InvokeSafely(TopLeaderboards.ToDictionary());
                     return;
                 }
 
@@ -107,7 +105,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 });
             }
 
-            TopLeaderboardEntriesAvailable(TopLeaderboards.ToDictionary());
+            TopLeaderboardEntriesAvailable.InvokeSafely(TopLeaderboards.ToDictionary());
 
         }
         private static int percentileUpdates = 0;
@@ -115,10 +113,10 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             lock (_updateLock)
             {
+                LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
                 if (CurrentLeaderboardType == LeaderboardType.Off)
                 {
-                    LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
-                    LeaderboardStandingsAvailable(LeaderboardStandings);
+                    LeaderboardStandingsAvailable.InvokeSafely(LeaderboardStandings);
                     return;
                 }
                 var state = CombatLogStateBuilder.CurrentState;
@@ -130,7 +128,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 }
                 var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
                 var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
-                foreach (var participant in newCombat.CharacterParticipants)
+                foreach (var participant in newCombat.CharacterParticipants.Values)
                 {
                     if (!LeaderboardStandings.ContainsKey(participant))
                     {
@@ -141,6 +139,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     if (CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                     {
                         if (participantClassInfo != className)
+                        {
+                            LeaderboardStandings[participant] = null;
+                            continue;
+                        }
+                    }
+                    if (CurrentLeaderboardType == LeaderboardType.LocalRole)
+                    {
+                        if (participantClass == null || localPlayerClass == null || participantClass.Role != localPlayerClass.Role)
                         {
                             LeaderboardStandings[participant] = null;
                             continue;
@@ -164,7 +170,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                         LeaderboardStandings[participant][enumVal] =(percentileForValue, false);            
                     });
                 }
-                LeaderboardStandingsAvailable(LeaderboardStandings);
+                LeaderboardStandingsAvailable.InvokeSafely(LeaderboardStandings);
             }
         }
         private static LeaderboardTop GetTop(Combat newCombat, LeaderboardEntryType type, bool useClass = false)
@@ -185,9 +191,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
             if (string.IsNullOrEmpty(bossName))
                 return;
             var encounterName = newCombat.ParentEncounter.Name;
+            var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
+            var playerClass = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
             Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), type =>
             {
-                LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentiles(bossName, encounterName, type).Result;
+                if(CurrentLeaderboardType == LeaderboardType.AllDiciplines || localPlayerClass == null)
+                    LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentiles(bossName, encounterName, type).Result;
+                if(CurrentLeaderboardType == LeaderboardType.LocalRole)
+                    LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentilesForRole(bossName, encounterName, type, localPlayerClass.Role.ToString()).Result;
+                if(CurrentLeaderboardType == LeaderboardType.LocalDicipline)
+                    LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentilesForDiscipline(bossName, encounterName, type, playerClass).Result;
             });
         }
         public static void Reset()
@@ -206,7 +219,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             List<LeaderboardEntry> boardEntries = new List<LeaderboardEntry>();
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
             {
-                foreach (var player in combat.CharacterParticipants)
+                foreach (var player in combat.CharacterParticipants.Values)
                 {
                     var newValue = GetValueForLeaderboardEntry(enumVal, combat, player);
 

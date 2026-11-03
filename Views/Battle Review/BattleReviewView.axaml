@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Battle_Review.BattleReviewView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.BattleReview"
+             x:DataType="vm:BattleReviewViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="{StaticResource Gray2Brush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.45*"/>
+            <!--<RowDefinition Height="0.45*"/>-->
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.1*" MinWidth="150"/>
+                <ColumnDefinition Width="0.35*"/>
+                <ColumnDefinition Width="0.15*"/>
+            </Grid.ColumnDefinitions>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.75*"/>
+                    <RowDefinition Height="0.33*"/>
+                    <RowDefinition Height="0.15*"/>
+                    <RowDefinition Height="0.15*"/>
+                </Grid.RowDefinitions>
+
+                    <Grid Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,5,5,0" Grid.Row="0" >
+                    <TextBlock Foreground="WhiteSmoke" FontSize="{StaticResource LargeFontSize}" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Text="Available Entities" HorizontalAlignment="Center" Margin="0,23,0,2"></TextBlock>
+                    <ListBox Padding="0" Background="{StaticResource Gray3Brush}" Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableEntities}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="5,0,5,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock FontSize="{StaticResource NormalFontSize}" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" TextTrimming="CharacterEllipsis" Foreground="WhiteSmoke" Text="{Binding Entity.Name}"></TextBlock>
+                                    <CheckBox Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" IsChecked="{Binding Selected}"></CheckBox>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Padding" Value="0" />
+                                </Style>
+                            </ListBox.Styles>
+
+                    </ListBox>
+                </Grid>
+                <StackPanel Orientation="Vertical" Grid.Row="1" MaxHeight="50" Margin="5,0,5,0">
+                    <TextBlock FontSize="{StaticResource LargeFontSize}" Foreground="WhiteSmoke"  FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" TextAlignment="Center" Text="Log Filter: "></TextBlock>
+                    <TextBox HorizontalAlignment="Stretch" FontSize="{StaticResource NormalFontSize}" Text="{Binding LogFilter, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                </StackPanel>
+                <Viewbox  Grid.Row="2" VerticalAlignment="Bottom" MaxHeight="20" Margin="5,0,5,5">
+                    <TextBlock Foreground="WhiteSmoke" FontSize="{StaticResource LargeFontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" TextAlignment="Center" Text="Data Type To Display: "></TextBlock>
+                </Viewbox>
+                
+                <Viewbox Grid.Row="4" Grid.Column="1" Margin="10,0,10,0" MaxHeight="30" HorizontalAlignment="Center" VerticalAlignment="Top">
+                    <ComboBox HorizontalContentAlignment="Center"  ItemsSource="{Binding AvailableDisplayTypes}" SelectedValue="{Binding SelectedDisplayType}" FontSize="{StaticResource LargeFontSize}" Height="35"></ComboBox>
+                </Viewbox>
+            </Grid>
+            <ContentPresenter Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding EventViewContent}"></ContentPresenter>
+        </Grid>
+    </Grid>
+</UserControl>

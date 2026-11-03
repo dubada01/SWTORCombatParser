@@ -1,84 +1,70 @@
 ﻿using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.ClassInfos;
-using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using Avalonia;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using ReactiveUI;
+using SWTORCombatParser.Views.Overlay.AbilityList;
 
 namespace SWTORCombatParser.ViewModels.Overlays.AbilityList
 {
-    public class AbilityInfo:INotifyPropertyChanged
+    public class AbilityInfo:ReactiveObject
     {
         private double fontSize;
-        private ImageSource icon;
+        private Bitmap icon;
 
-        public ImageSource Icon { get => icon; set 
+        public Bitmap Icon { get => icon; set
             {
-                icon = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref icon, value);
             } 
         }
         public string UseTime { get; set; }
         public string AbilityName { get; set; }
         public double FontSize { get => fontSize; set 
             { 
-                fontSize = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref fontSize, value);
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
     }
-    public class AbilityListViewModel:INotifyPropertyChanged
+    public class AbilityListViewModel:BaseOverlayViewModel
     {
         private double defaultBarHeight = 35;
         private double defaultFontSize = 18;
         private double sizeScalar = 1;
         private IDisposable _updateSub;
         private ObservableCollection<AbilityInfo> abilityInfoList = new ObservableCollection<AbilityInfo>();
+        public override bool ShouldBeVisible => true;
 
-        public event Action<AbilityListViewModel> OverlayClosed = delegate { };
-        public Action<bool> OnLocking = delegate { };
-        public Action OnHiding = delegate { };
-        public Action OnShowing = delegate { };
-        public Action CloseRequested = delegate { };
         public ObservableCollection<AbilityInfo> AbilityInfoList
         {
             get => abilityInfoList; set
             {
-                abilityInfoList = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref abilityInfoList, value);
             }
         }
-        public AbilityListViewModel()
+        public AbilityListViewModel(string overlayName):base(overlayName)
         {
-            CombatLogStreamer.NewLineStreamed += CheckForConversation;
+            MainContent = new AbilityListView(this);
             CombatLogStreamer.CombatStarted += Reset;
             CombatSelectionMonitor.OnInProgressCombatSelected += UpdateList;
             CombatSelectionMonitor.PhaseSelected += UpdateList;
             _updateSub = Observable.FromEvent<Combat>(manager => CombatSelectionMonitor.CombatSelected += manager,
 manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateList);
+            this.WhenAnyValue(x=>x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(BarHeight)));
+            this.WhenAnyValue(x=>x.SizeScalar).Subscribe(_ => this.RaisePropertyChanged(nameof(FontSize)));
         }
         private void Reset()
         {
-            App.Current.Dispatcher.Invoke(() => {
+            Dispatcher.UIThread.Invoke(() => {
                 AbilityInfoList.Clear();
             });
 
@@ -87,7 +73,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         {
             if (CombatLogStateBuilder.CurrentState.LocalPlayer == null)
                 return;
-            var abilities = new List<ParsedLogEntry>();
+            var abilities = new ConcurrentQueue<ParsedLogEntry>();
             if(combat.AbilitiesActivated.TryGetValue(CombatLogStateBuilder.CurrentState.LocalPlayer, out abilities))
             {
                 var abilitiesUsedlist = abilities.AsEnumerable().Reverse().ToList();
@@ -102,7 +88,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
                         AbilityName = newAbility.Ability,
                         UseTime = $"{((int)(newAbility.TimeStamp - combat.StartTime).TotalMinutes > 0 ? (int)(newAbility.TimeStamp - combat.StartTime).TotalMinutes + "m " : "")}{(newAbility.TimeStamp - combat.StartTime).Seconds}s"
                     };
-                    BitmapImage icon;
+                    Bitmap icon;
                     if (IconGetter.IconDict.TryGetValue(newAbility.AbilityId, out icon))
                     {
                         newAbilityInfo.Icon = icon;
@@ -118,7 +104,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
                     }
                     newAbilityInfos.Insert(0,newAbilityInfo);
                 }
-                App.Current.Dispatcher.Invoke(() =>
+                Dispatcher.UIThread.Invoke(() =>
                 {
                     foreach(var newAbility in newAbilityInfos)
                     {
@@ -129,7 +115,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
 
         }
 
-        private async Task<BitmapImage> GetIconFromId(string abilityId)
+        private async Task<Bitmap> GetIconFromId(ulong abilityId)
         {
             //TODO Get actual icons
             return await IconGetter.GetIconForId(abilityId);
@@ -140,19 +126,15 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         public double FontSize => Math.Max(8, defaultFontSize * SizeScalar);
         public double BarHeight => defaultBarHeight * SizeScalar;
         public Thickness BarMargin => new Thickness(0,BarHeight/4,0,0);
-        public bool OverlaysMoveable { get; internal set; } = false;
         public double SizeScalar
         {
             get => sizeScalar; set
             {
-                sizeScalar = value;
+                this.RaiseAndSetIfChanged(ref sizeScalar, value);
                 foreach(var ability in AbilityInfoList)
                 {
                     ability.FontSize = FontSize;
                 }
-                OnPropertyChanged("BarHeight");
-                OnPropertyChanged("FontSize");
-                OnPropertyChanged();
             }
         }
 
@@ -160,57 +142,18 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
 
         public void LockOverlays()
         {
-            OnLocking(true);
             OverlaysMoveable = false;
-            OnPropertyChanged("OverlaysMoveable");
         }
         public void UnlockOverlays()
         {
-            OnLocking(false);
             OverlaysMoveable = true;
-            OnPropertyChanged("OverlaysMoveable");
-        }
-        public void OverlayClosing()
-        {
-            Dispose();
-            OverlayClosed(this);
-        }
-        public void OverlayDisabled()
-        {
-            IsEnabled = false;
-            OverlayClosed(this);
-        }
-        public void RequestClose()
-        {
-            Dispose();
-            CloseRequested();
-        }
-        private void CheckForConversation(ParsedLogEntry obj)
-        {
-            if (!obj.Source.IsLocalPlayer)
-                return;
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Apply && obj.Source.IsLocalPlayer)
-            {
-                OnHiding();
-            }
-
-            if (obj.Effect.EffectId == _7_0LogParsing.InConversationEffectId && obj.Effect.EffectType == EffectType.Remove && IsEnabled && obj.Source.IsLocalPlayer)
-            {
-                OnShowing();
-            }
         }
         private void Dispose()
         {
             CombatLogStreamer.CombatStarted -= Reset;
             CombatSelectionMonitor.CombatSelected -= UpdateList;
             CombatSelectionMonitor.PhaseSelected -= UpdateList;
-            CombatLogStreamer.NewLineStreamed -= CheckForConversation;
             _updateSub.Dispose();
-        }
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

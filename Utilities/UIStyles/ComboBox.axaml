@@ -1,0 +1,64 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Style for ToggleButton with the ComboBoxToggleButton Template -->
+    <Style Selector="ToggleButton">
+        <Setter Property="Template" Value="{StaticResource ComboBoxToggleButton}" />
+    </Style>
+
+    <!-- Style for PointerOver state -->
+    <Style Selector="ToggleButton:pointerover">
+        <Setter Property="Background" Value="Gray" />
+    </Style>
+
+    <!-- Style for Pressed state -->
+    <Style Selector="ToggleButton:pressed">
+        <Setter Property="Background" Value="DarkGray" />
+    </Style>
+
+    <!-- Style for Checked state -->
+    <Style Selector="ToggleButton:checked">
+        <Setter Property="Background" Value="DimGray" />
+    </Style>
+
+    <!-- ComboBox Style -->
+    <Style Selector="ComboBox">
+        <Setter Property="Foreground" Value="WhiteSmoke" />
+        <Setter Property="MinWidth" Value="80" />
+        <Setter Property="MinHeight" Value="20" />
+        <Setter Property="FontSize" Value="20" />
+    </Style>
+
+    <!-- Style for Disabled ComboBox -->
+    <Style Selector="ComboBox:disabled">
+        <Setter Property="Foreground" Value="{StaticResource DisabledForegroundColor}" />
+    </Style>
+
+    <!-- Style for Opened ComboBox -->
+    <Style Selector="ComboBox[IsDropDownOpen=True]">
+        <Setter Property="BorderBrush" Value="{StaticResource Gray11}" />
+        <Setter Property="Background" Value="{StaticResource Gray5}" />
+    </Style>
+
+    <!-- ComboBoxItem Style -->
+    <Style Selector="ComboBoxItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="2" />
+    </Style>
+
+    <!-- Style for PointerOver state -->
+    <Style Selector="ComboBoxItem:pointerover">
+        <Setter Property="Background" Value="{StaticResource Gray9}" />
+    </Style>
+
+    <!-- Style for Selected state -->
+    <Style Selector="ComboBoxItem:selected">
+        <Setter Property="Background" Value="{StaticResource Gray9}" />
+    </Style>
+
+    <!-- Style for Selected Unfocused state -->
+    <Style Selector="ComboBoxItem:selected:unfocused">
+        <Setter Property="Background" Value="{StaticResource Gray6}" />
+    </Style>
+
+</Styles>

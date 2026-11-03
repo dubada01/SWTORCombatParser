@@ -1,18 +1,21 @@
-﻿using Prism.Commands;
-using SWTORCombatParser.Model.Phases;
+﻿using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Views.Phases;
 using System;
 using System.Collections.Generic;
-using System.Windows.Input;
+using System.Reactive;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using ReactiveUI;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Phases
 {
-    public class PhaseBarViewModel
+    public class PhaseBarViewModel:ReactiveObject
     {
         public event Action<List<PhaseInstance>> PhaseInstancesUpdated = delegate { };
-        public ICommand ConfigurePhasesCommand => new DelegateCommand(ConfigurePhases);
+        public ReactiveCommand<Unit,Unit> ConfigurePhasesCommand { get; }
 
-        public ICommand PhaseSelectionToggled => new DelegateCommand<PhaseInstance>(TogglePhaseSelection);
+        public ReactiveCommand<PhaseInstance,Unit> PhaseSelectionToggled { get; }
 
         private void TogglePhaseSelection(PhaseInstance instance)
         {
@@ -22,17 +25,23 @@ namespace SWTORCombatParser.ViewModels.Phases
         public PhaseBarViewModel()
         {
             PhaseManager.PhaseInstancesUpdated += UpdatePhases;
+            ConfigurePhasesCommand = ReactiveCommand.Create(ConfigurePhases);
+            PhaseSelectionToggled = ReactiveCommand.Create<PhaseInstance>(TogglePhaseSelection);
         }
         private void UpdatePhases(List<PhaseInstance> phases)
         {
-            PhaseInstancesUpdated(phases);
+            PhaseInstancesUpdated.InvokeSafely(phases);
         }
 
         private void ConfigurePhases()
         {
-            var vm = new PhaseListViewModel();
-            var window = new PhaseListView(vm);
-            window.Show();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                var vm = new PhaseListViewModel();
+                var window = new PhaseListView(vm);
+                window.WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterOwner;
+                window.Show(desktop.MainWindow);
+            }
         }
     }
 }

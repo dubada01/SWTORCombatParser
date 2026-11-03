@@ -8,30 +8,29 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows.Media;
+using Avalonia.Media;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
 {
-    public class ChallengeInstanceViewModel : INotifyPropertyChanged
+    public class ChallengeInstanceViewModel : ReactiveObject
     {
         private string metricTotal;
 
         private SolidColorBrush challengeColor;
         private double scale = 1;
-        private List<PhaseInstance> _phaseOfInterest = new List<PhaseInstance>();
+        private ConcurrentDictionary<Guid,PhaseInstance> _phaseOfInterest = new ConcurrentDictionary<Guid,PhaseInstance>();
                 private double defaultValueWidth = 60;
         public double Scale
         {
             get => scale; set
             {
-                scale = value;
+                this.RaiseAndSetIfChanged(ref scale, value);
                 foreach (var bar in MetricBars)
                 {
                     bar.SizeScalar = scale;
                 }
-                OnPropertyChanged();
             }
         }
         public Challenge SourceChallenge { get; set; }
@@ -44,8 +43,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             get => metricTotal; set
             {
-                metricTotal = value;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref metricTotal, value);
             }
         }
         public string ChallengeName { get; set; }
@@ -56,13 +54,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
             Type = sourceChallenge.ChallengeType;
             challengeColor = SourceChallenge.BackgroundBrush;
         }
-        public void UpdatePhase(List<PhaseInstance> phases)
+        public void UpdatePhase(ConcurrentDictionary<Guid,PhaseInstance> phases)
         {
             _phaseOfInterest = phases;
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         private void UpdateMetric(ChallengeType type, ChallengeOverlayMetricInfo metricToUpdate, Combat obj, Entity participant, Challenge sourceChallenge, Combat phaseCombat)
         {
@@ -85,7 +79,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             if (_phaseOfInterest != null && _phaseOfInterest.Any())
                 phaseCombat = combatToDisplay.GetPhaseCopy(_phaseOfInterest);
             List<Task> metricUpdateTasks = new List<Task>();
-            foreach (var participant in combatToDisplay.AllEntities)
+            foreach (var participant in combatToDisplay.AllEntities.Values)
             {
                 ChallengeOverlayMetricInfo metricToUpdate;
                 if (_metricBarsDict.Any(m => m.Key.Item1 == participant.Name))
@@ -135,7 +129,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
                 MetricBars = new List<ChallengeOverlayMetricInfo>(listOfBars.Where(b => b.Value != 0).OrderByDescending(mb => mb.RelativeLength));
 
-                OnPropertyChanged("MetricBars");
+                this.RaisePropertyChanged(nameof(MetricBars));
 
             }
             catch (Exception ex)

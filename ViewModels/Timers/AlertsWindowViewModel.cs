@@ -1,122 +1,76 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Model.Timers;
-using SWTORCombatParser.Views.Timers;
+﻿using SWTORCombatParser.Model.Timers;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using ReactiveUI;
+using SWTORCombatParser.Views.Timers;
 
 namespace SWTORCombatParser.ViewModels.Timers;
 
-public class AlertsWindowViewModel : INotifyPropertyChanged
+public class AlertsWindowViewModel : TimersWindowViewModel
 {
-    private ITimerWindow _timerWindow;
-    private bool active;
 
-    public event Action CloseRequested = delegate { };
-    public event Action<bool> OnLocking = delegate { };
-    public event Action<string> OnCharacterDetected = delegate { };
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    public bool OverlaysMoveable { get; set; }
     private List<TimerInstanceViewModel> _currentTimers = new List<TimerInstanceViewModel>();
-    public List<TimerInstanceViewModel> SwtorTimers { get; set; } =
-        new List<TimerInstanceViewModel>();
-
-    public bool Active
+    public override bool ShouldBeVisible => _alertPlaying;
+    public List<TimerInstanceViewModel> SwtorTimers
     {
-        get => active;
-        set
-        {
-            active = value;
-            if (!active)
-            {
-                HideTimers();
-            }
-            else
-            {
-                if (OverlaysMoveable)
-                {
-                    _timerWindow.Show();
-                }
-            }
-
-        }
+        get => _swtorTimers;
+        set => this.RaiseAndSetIfChanged(ref _swtorTimers, value);
     }
 
-    public AlertsWindowViewModel()
+    public AlertsWindowViewModel(string overlayName) : base(overlayName)
     {
-        _timerWindow = new AlertView(this);
-        TimerController.TimerExpired += RefreshTimerVisuals;
+        TimerController.TimerExpired += RemoveTimer;
         TimerController.TimerTriggered += AddTimerVisual;
-        App.Current.Dispatcher.Invoke(() =>
-        {
-            var defaultTimersInfo = DefaultGlobalOverlays.GetOverlayInfoForType("Alerts");
-            active = defaultTimersInfo.Acive;
-            _timerWindow.Top = defaultTimersInfo.Position.Y;
-            _timerWindow.Left = defaultTimersInfo.Position.X;
-            _timerWindow.Width = defaultTimersInfo.WidtHHeight.X;
-            _timerWindow.Height = defaultTimersInfo.WidtHHeight.Y;
-        });
+        MainContent = new AlertView(this);
     }
-
-    public void ShowTimers()
-    {
-        if (!Active)
-            return;
-        App.Current.Dispatcher.Invoke(() =>
-        {
-            _timerWindow.Show();
-        });
-    }
-
-    public void HideTimers()
-    {
-        App.Current.Dispatcher.Invoke(() => { _timerWindow.Hide(); });
-    }
+    
     private object _timerChangeLock = new object();
-    private void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
+    private List<TimerInstanceViewModel> _swtorTimers = new List<TimerInstanceViewModel>();
+    private bool _alertPlaying;
+
+    protected override void AddTimerVisual(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
     {
         if (obj.SourceTimer.IsHot || !Active || !obj.SourceTimer.IsAlert || obj.SourceTimer.IsSubTimer)
         {
             callback(obj);
             return;
         }
-        ShowTimers();
+
+        _alertPlaying = true;
+        ShowOverlayWindow();
 
         lock (_timerChangeLock)
         {
+            if(_currentTimers.Any(t => t.SourceTimer.Id == obj.SourceTimer.Id))
+            {
+                callback(obj);
+                return;
+            }
             _currentTimers.Add(obj);
-            SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
-            callback(obj);
         }
-        OnPropertyChanged("SwtorTimers");
+        SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
+        callback(obj);
     }
 
-    private void RefreshTimerVisuals(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
+    protected override void RemoveTimer(TimerInstanceViewModel removedTimer, Action<TimerInstanceViewModel> callback)
     {
         lock (_timerChangeLock)
         {
             _currentTimers.Remove(removedTimer);
-            SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t.TimerValue));
-            callback(removedTimer);
         }
+        SwtorTimers = new List<TimerInstanceViewModel>(_currentTimers.OrderBy(t => t?.TimerValue ?? 0));
+        callback(removedTimer);
         if (SwtorTimers.Count == 0)
-            HideTimers();
-        OnPropertyChanged("SwtorTimers");
+        {
+            HideOverlayWindow();
+            _alertPlaying = false;
+            UpdateVisibility();
+        }
     }
 
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
+    protected override void ReorderTimers(string id)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        
     }
-
-    internal void UpdateLock(bool value)
-    {
-        OverlaysMoveable = !value;
-        OnPropertyChanged("OverlaysMoveable");
-        OnLocking(value);
-    }
-
 }

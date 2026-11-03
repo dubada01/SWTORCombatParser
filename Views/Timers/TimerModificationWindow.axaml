@@ -1,0 +1,341 @@
+﻿<Window x:Class="SWTORCombatParser.Views.Timers.TimerModificationWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers" 
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers"
+        x:DataType="vm:ModifyTimerViewModel"
+        mc:Ignorable="d"
+        Title="TimerModificationWindow" Height="600" Width="600" Background="Transparent"         
+        TransparencyLevelHint="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        ExtendClientAreaChromeHints="NoChrome" WindowStartupLocation="Manual">
+    <Border BorderBrush="{StaticResource GreenColorBrush}" BorderThickness="7,3,7,7"  Background="{StaticResource Gray3Brush}" CornerRadius="15,15,20,20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.ColumnSpan="2" Background="{StaticResource Gray9Brush}" PointerPressed="StartDrag" PointerMoved="DragWindow" PointerReleased="StopDrag" CornerRadius="10,10,0,0">
+                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
+                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                    <Rectangle Margin="35,3,35,3" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
+                </StackPanel>
+            </Border>
+            <Button Width="22" Padding="0" Height="22" HorizontalAlignment="Right"  VerticalAlignment="Top" Grid.Column="1" Margin="0,5,10,0" Classes="RoundedCorner" Click="Cancel" Background="{StaticResource RedColorBrush}" Content="X" FontWeight="Bold"></Button>
+            <Grid Grid.Column="1" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="3.5*"/>
+                    <RowDefinition Height=".75*"/>
+                </Grid.RowDefinitions>
+
+                <Viewbox IsVisible="{Binding ShowAbilityOption}" Grid.Row="1" Margin="30,0,25,0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Margin="0,0,10,0" VerticalAlignment="Center" Foreground="WhiteSmoke" FontSize="18" Text="Ability" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <TextBox x:Name="AbilityName" Foreground="WhiteSmoke" FontWeight="Normal" Width="200" Classes="RoundedTextBox" Text="{Binding Ability}"></TextBox>
+                    </StackPanel>
+                </Viewbox>
+                <Viewbox IsVisible="{Binding ShowEffectOption}" Grid.Row="1" Margin="30,0,25,0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Effect" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <TextBox x:Name="EffectName" Foreground="WhiteSmoke" FontWeight="Normal" Width="200" Classes="RoundedTextBox" Text="{Binding Effect}"></TextBox>
+                    </StackPanel>
+                </Viewbox >
+                <Viewbox Grid.Row="1"  IsVisible="{Binding ShowHPOption, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="0.25*"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.5*"/>
+                            <ColumnDefinition Width="0.5*"/>
+                            <ColumnDefinition Width="0.5*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Foreground="WhiteSmoke" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" TextWrapping="Wrap" Width="120" FontSize="18" Text="{Binding HPTriggerText}" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <TextBox Grid.Row="0" HorizontalAlignment="Left" Grid.Column="1" x:Name="HPValue" HorizontalContentAlignment="Center" FontWeight="Normal" Width="60" Classes="RoundedTextBox" Text="{Binding HPPercentage}"></TextBox>
+                        <TextBlock Grid.Row="0" Foreground="WhiteSmoke" Grid.Column="2" Margin="0,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Right"  FontSize="20" Text="%" FontFamily="{StaticResource MainFont}"></TextBlock>
+
+                        <TextBlock Grid.Row="2" Foreground="WhiteSmoke" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="18" TextWrapping="Wrap" Width="120" Text="Upper Bound" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <TextBox Grid.Row="2" HorizontalAlignment="Left" HorizontalContentAlignment="Center" Grid.Column="1" FontWeight="Normal" Width="60" Classes="RoundedTextBox" Text="{Binding HPPercentageUpper}"></TextBox>
+                        <TextBlock Grid.Row="2" Foreground="WhiteSmoke" Grid.Column="2" Margin="0,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20" Text="%" FontFamily="{StaticResource MainFont}"></TextBlock>
+                    </Grid>
+                </Viewbox>
+                <Viewbox IsVisible="{Binding ShowCombatDurationOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Margin="30,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="After Seconds" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <TextBox x:Name="CombatDurationValue" FontWeight="Normal" Width="200" Classes="RoundedTextBox" Text="{Binding CombatDuration}"></TextBox>
+                    </StackPanel>
+                </Viewbox>
+                <Viewbox IsVisible="{Binding ShowExternalTriggerOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Margin="30,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <StackPanel  Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="When expires" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <ComboBox FontWeight="Normal" Width="200"  ItemsSource="{Binding AvailableTimerNames}" SelectedItem="{Binding SelectedExternalTimerName}"></ComboBox>
+                    </StackPanel>
+                </Viewbox>
+                <Viewbox MaxHeight="30" Margin="10,0,30,0" HorizontalAlignment="Right" Grid.Row="1"  VerticalAlignment="Center" IsVisible="{Binding MultiClauseTrigger, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Margin="0,0,10,0" VerticalAlignment="Center" Padding="5" FontSize="13" Content="Condition A" FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Command="{Binding AddOrEditACommand}"></Button>
+                        <Button Margin="0,0,10,0" VerticalAlignment="Center" Padding="5" FontSize="13" Content="Condition B" FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Command="{Binding AddOrEditBCommand}"></Button>
+                    </StackPanel>
+                </Viewbox>
+                <!--<TextBlock x:Name="ValueHelpText" IsHitTestVisible="False" Grid.Row="2" Text="{Binding TriggerValueHelpText}" Foreground="{Binding TriggerValueHelpTextColor}" FontSize="16" FontFamily="{StaticResource MainFont}" FontWeight="Light" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="155,0,0,0"></TextBlock>-->
+                <Viewbox Grid.Row="2" Margin="0,0,10,0">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel IsVisible="{Binding HasSource, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="0" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Text="{Binding SourceText}" TextWrapping="Wrap" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <ComboBox Width="200"  ItemsSource="{Binding AvailableSources}" SelectedItem="{Binding SelectedSource}"></ComboBox>
+                        </StackPanel>
+                        <StackPanel IsVisible="{Binding HasCustomSource, Converter={StaticResource BooleanToVisibiityConverter}}" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right"  Margin="0,0,30,0">
+                            <Button Width="60" Height="25" Margin="0,0,15,0" Classes="RoundedCorner" Command="{Binding SaveSourceCommand}" Content="Enter"></Button>
+                            <TextBox KeyDown="SourceEntered" FontSize="15" FontWeight="Normal" Width="200" Classes="RoundedTextBox" Text="{Binding CustomSource, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </Viewbox>
+                <Viewbox Grid.Row="2" Margin="0,0,10,0" IsVisible="{Binding IsCheckingVariable, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock  Foreground="WhiteSmoke" Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="16" Text="Variable:" TextWrapping="Wrap" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <ComboBox Width="200"  ItemsSource="{Binding AvailableVariables}" SelectedItem="{Binding SelectedVariable}"></ComboBox>
+                        </StackPanel>
+                    </Grid>
+                </Viewbox>
+                <Viewbox Grid.Row="3" Margin="0,0,10,0">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel IsVisible="{Binding HasTarget, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="16" Text="{Binding TargetText}" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <ComboBox Width="200"  ItemsSource="{Binding AvailableTargets}" SelectedItem="{Binding SelectedTarget}"></ComboBox>
+                        </StackPanel>
+                        <StackPanel IsVisible="{Binding HasCustomTarget, Converter={StaticResource BooleanToVisibiityConverter}}" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right"  Margin="0,0,30,0">
+                            <Button Width="60" Height="25" Margin="0,0,15,0" Classes="RoundedCorner" Command="{Binding SaveTargetCommand}" Content="Enter"></Button>
+                            <TextBox  KeyDown="TargetEntered" FontWeight="Normal" Width="200" Classes="RoundedTextBox" Text="{Binding CustomTarget, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </Viewbox>
+                <Viewbox Grid.Row="4"  Margin="0,0,10,0" IsVisible="{Binding ShowValueComparisons, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid IsVisible="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                    </Grid>
+                </Viewbox>
+
+                <Grid Grid.Row="4" Margin="0,0,10,0" IsVisible="{Binding ShowStackVariableOptions, Converter={StaticResource BooleanToVisibiityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="50,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Vertical">
+                        <CheckBox Content="Set Variable" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" IsChecked="{Binding SetVariableWithCharge}"/>
+                        <CheckBox Content="Trigger on Compare" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke" IsChecked="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToInverseConverter}}"/>
+                    </StackPanel>
+                    <ComboBox IsVisible="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}}"  Grid.Row="1" Height="40" Width="200"  ItemsSource="{Binding AvailableVariables}" SelectedItem="{Binding ChargeVariable}"></ComboBox>
+                    <StackPanel IsVisible="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="2" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <Button Margin="0,0,15,0" Width="60" HorizontalAlignment="Right" Classes="RoundedCorner" VerticalAlignment="Center" FontSize="16" Content="Add" FontFamily="{StaticResource MainFont}" Command="{Binding AddCustomVariableCommand}"></Button>
+                        <TextBox Width="150" Classes="RoundedTextBox" FontSize="15" FontFamily="{StaticResource MainFont}" Text="{Binding AddedVariable}"></TextBox>
+                    </StackPanel>
+                    <StackPanel IsVisible="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Grid.Row="1" Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="16" Text="Comparison:" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <ComboBox  ItemsSource="{Binding AvailableComparisons}" SelectedItem="{Binding SelectedComparison}"></ComboBox>
+                    </StackPanel>
+                    <Grid Grid.Row="2" IsVisible="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}">
+                        <TextBox Margin="0,5,0,0" Grid.Row="2" HorizontalContentAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding IsCheckingSingleValue, Converter={StaticResource BooleanToVisibiityConverter}}" FontWeight="Normal" Width="50" Height="40"  Classes="RoundedTextBox" Text="{Binding VariableComparisonVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        <StackPanel Margin="0,5,0,0" IsVisible="{Binding IsCheckingSingleValue, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
+                            <TextBox Margin="0,0,3,0" FontWeight="Normal" Width="50" Height="40" Classes="RoundedTextBox" HorizontalContentAlignment="Center" Text="{Binding VariableMinVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                            <TextBox Margin="3,0,0,0" FontWeight="Normal" Width="50" Height="40" Classes="RoundedTextBox" HorizontalContentAlignment="Center" Text="{Binding VariableMaxVal, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
+                <Viewbox IsVisible="{Binding ShowAbsorbOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="3" Margin="0,0,10,0">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Margin="38,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" Width="100" HorizontalAlignment="Right" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="16" Text="Absorb Amount" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <TextBox Width="200" Classes="RoundedTextBox" Text="{Binding AbsorbValue}"></TextBox>
+                        </StackPanel>
+                    </Grid>
+                </Viewbox>
+                <Viewbox Grid.Row="4" IsVisible="{Binding ShowEffectRefreshOption, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Column="0" HorizontalAlignment="Stretch"  Margin="10,15,0,0">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="4*"/>
+                            <RowDefinition Height=".75*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Margin="12,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Foreground="WhiteSmoke" Margin="10,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Advanced Refresh" TextWrapping="Wrap" Width="80" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <CheckBox ToolTip.Tip="Can this effect be refreshed by re-applying or via some other abilitiy?" VerticalAlignment="Center" IsChecked="{Binding CanBeRefreshed}"></CheckBox>
+                        </StackPanel>
+                        <StackPanel Margin="12,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Foreground="WhiteSmoke" Margin="10,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Reset on effect loss" TextWrapping="Wrap" Width="80" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <CheckBox ToolTip.Tip="Should this timer be cancelled when the effect falls off?" VerticalAlignment="Center" IsChecked="{Binding ResetOnEffectLoss}"></CheckBox>
+                        </StackPanel>
+                        <StackPanel IsVisible="{Binding CanBeRefreshed, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical">
+                            <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Text="Is refreshed by" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <Border Padding="3" Grid.Row="1" Width="280" Height="180" BorderBrush="DimGray" BorderThickness="2" CornerRadius="5" Margin="25,0,0,0" Background="{StaticResource Gray4Brush}">
+                                <ListBox Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding AvailableRefreshOptions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="255" Margin="2" CornerRadius="4" Padding="5" Background="{StaticResource Gray3Brush}">
+                                                <Grid>
+                                                    <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="16" Margin="10,0,0,0" Text="{Binding Name}"></TextBlock>
+                                                    <Button Classes="RoundedCorner" Width="20" Height="20" HorizontalAlignment="Right" FontFamily="{StaticResource MainFont}" Content="X" Background="{StaticResource RedColorBrush}" Command="{Binding RemoveCommand}"></Button>
+                                                </Grid>
+                                            </Border>
+
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ListBox>
+                            </Border>
+                        </StackPanel>
+                        <StackPanel IsVisible="{Binding CanBeRefreshed, Converter={StaticResource BooleanToVisibiityConverter}}" Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right"  Margin="0,0,30,0">
+                            <Button Width="60" Height="25" Margin="0,0,15,0" Classes="RoundedCorner" Command="{Binding SaveRefreshOptionCommand}" Content="Enter"></Button>
+                            <TextBox KeyDown="SourceEntered" FontSize="15" FontWeight="Normal" Width="200" Classes="RoundedTextBox" Text="{Binding CustomRefreshOption, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                        <Rectangle Fill="Transparent" IsHitTestVisible="False" IsVisible="{Binding CanBeRefreshed, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Height="205" Width="280" Grid.Row="1" Margin="0,0,10,0" HorizontalAlignment="Center" VerticalAlignment="Center"></Rectangle>
+                    </Grid>
+                </Viewbox>
+
+                <Viewbox Grid.Row="5" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="15,9,0,5">
+                    <Button x:Name="CancelButton" Background="{StaticResource RedColorBrush}" Foreground="WhiteSmoke" Classes="RoundedCorner" Width="100" Height="40" Content="Cancel" FontFamily="{StaticResource MainFont}" FontSize="18" ></Button>
+                </Viewbox>
+                
+            </Grid>
+            <Grid Grid.Column="0" Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height=".75*"/>
+                    <RowDefinition Height=".75*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height=".79*"/>
+                </Grid.RowDefinitions>
+                <Viewbox Margin="10,10,30,0" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsSubTrigger, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}">
+                    <Grid>
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Name" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <TextBox x:Name="TimerName" FontWeight="Normal" Width="200" Classes="RoundedTextBox" Text="{Binding Name}"></TextBox>
+                        </StackPanel>
+                        <!--<TextBlock x:Name="TimerHelpText" IsHitTestVisible="False" Text="Timer Name" Foreground="{Binding TimerNameHelpTextColor}" 
+                                   FontSize="18" FontFamily="{StaticResource MainFont}" FontWeight="Normal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="75,0,0,0"></TextBlock>-->
+                    </Grid>
+                </Viewbox>
+
+                <Border IsVisible="{Binding IsMechanicTimer, Converter={StaticResource BooleanToVisibiityConverter}}" Grid.Row="1" BorderThickness="2" BorderBrush="DimGray" Margin="10,15,10,10" Padding="0,10,0,0" CornerRadius="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width=".33*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Foreground="WhiteSmoke" Text="Encounter:" HorizontalAlignment="Right" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="13"></TextBlock>
+                        <TextBlock Foreground="WhiteSmoke" Grid.Row="1" Text="Boss:" HorizontalAlignment="Right" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="13"></TextBlock>
+                        
+                        <Viewbox Grid.Column="1" Grid.Row="0">
+                            <ComboBox  ItemsSource="{Binding AvailableEncounters}" SelectedItem="{Binding SelectedEncounter}"  Margin="0,0,10,5"></ComboBox>
+                        </Viewbox>
+                        <Viewbox Grid.Column="1" Grid.Row="1">
+                            <ComboBox  ItemsSource="{Binding AvailableBosses}" SelectedItem="{Binding SelectedBoss}" Margin="0,0,10,5"></ComboBox>
+                        </Viewbox>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+                                <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Text="Story"/>
+                                <CheckBox Margin="3,0,0,0" IsChecked="{Binding ActiveForStory}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,10,0">
+                                <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Text="Veteran"/>
+                                <CheckBox Margin="3,0,0,0" IsChecked="{Binding ActiveForVeteran}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" Text="Master"/>
+                                <CheckBox Margin="3,0,0,0" IsChecked="{Binding ActiveForMaster}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                    </Grid>
+                </Border>
+                <TextBlock Foreground="WhiteSmoke" IsVisible="{Binding IsMechanicTimer, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="50,6,0,0" Background="{StaticResource Gray3Brush}" Width="104" Grid.Row="1" Height="18" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="16" Text=" Active During" FontFamily="{StaticResource MainFont}"></TextBlock>
+                
+                <Viewbox Margin="10,0,30,0" HorizontalAlignment="Left" Grid.Row="2"  VerticalAlignment="Center" >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Trigger On" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <ComboBox Width="200"  ItemsSource="{Binding AvailableTriggerTypes}" SelectedItem="{Binding SelectedTriggerType}"></ComboBox>
+                    </StackPanel>
+                </Viewbox>
+                <Viewbox Margin="10,0,30,0" HorizontalAlignment="Left" Grid.Row="3"  VerticalAlignment="Center" >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Foreground="WhiteSmoke" Margin="0,0,10,0" VerticalAlignment="Center" FontSize="18" Text="Cancel On" FontFamily="{StaticResource MainFont}"></TextBlock>
+                        <ComboBox Width="200"  ItemsSource="{Binding AvailableTimerNames}" SelectedItem="{Binding SelectedCancelTimer}"></ComboBox>
+                        <StackPanel Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,0"  VerticalAlignment="Center" FontSize="16" Text="Dont refresh" TextWrapping="Wrap" Width="55" FontFamily="{StaticResource MainFont}"></TextBlock>
+                            <CheckBox ToolTip.Tip="Dont refresh this timer even if the tigger happens while active" VerticalAlignment="Center" IsChecked="{Binding DontRefresh}"></CheckBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Viewbox>
+
+                <TabStrip IsVisible="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" 
+                          x:Name="EffectsTabStrip" 
+                          Grid.Row="4" 
+                          Background="Transparent" 
+                          BorderThickness="0" 
+                          Padding="0"
+                          SelectionChanged="EffectsTabStrip_OnSelectionChanged">
+
+                    <TabStripItem Content="Visuals" IsVisible="{Binding IncludeTimerVisuals}"/>
+                    <TabStripItem Content="Variables" IsVisible="{Binding IsModifyingVariables}"/>
+                </TabStrip>
+                <ContentControl Grid.Row="5" Grid.RowSpan="2" x:Name="TabContent"></ContentControl>
+                
+
+                <Viewbox Grid.Row="7" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,6,15,5">
+                    <Button Classes="RoundedCorner" Foreground="WhiteSmoke" Background="{StaticResource GreenColorBrush}" Command="{Binding SaveCommand}" Width="100" Height="40" Content="Save" FontFamily="{StaticResource MainFont}" FontSize="18" ></Button>
+                </Viewbox>
+            </Grid>
+            <StackPanel Grid.Row="1" IsVisible="{Binding CanChangeCombatTracking}" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal">
+                <TextBlock Foreground="WhiteSmoke" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="18" Text="Track outside of combat" TextWrapping="Wrap" Width="120" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <CheckBox VerticalAlignment="Center" IsChecked="{Binding TrackOutsideOfCombat}"></CheckBox>
+            </StackPanel>
+            <StackPanel IsVisible="{Binding SetVariableWithCharge, Converter={StaticResource BooleanToVisibiityConverter}, ConverterParameter=inverted}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
+                <TextBlock Foreground="WhiteSmoke" Margin="0,0,0,7" VerticalAlignment="Center" FontSize="15" Text="Modify Variables" TextWrapping="Wrap" Width="120" FontFamily="{StaticResource MainFont}"></TextBlock>
+                <CheckBox x:Name="VariableCheck" Margin="0,0,10,10" VerticalAlignment="Center" IsChecked="{Binding IsModifyingVariables}"></CheckBox>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

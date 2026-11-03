@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="SWTORCombatParser.Views.Update_Views.UdateInstance"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SWTORCombatParser.Views.Update_Views"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Update"
+             x:DataType="vm:UpdateInstanceViewModel"
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="800">
+    <Grid>
+        <Border Margin="15,15,15,0" Padding="15" BorderBrush="{StaticResource Gray8Brush}" Background="{StaticResource Gray2Brush}" BorderThickness="3" CornerRadius="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="0.9*"/>
+                    <RowDefinition Height="0.1*"/>
+                </Grid.RowDefinitions>
+                <StackPanel>
+                    <TextBlock Text="{Binding HeaderText}" FontWeight="Medium" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="15"></TextBlock>
+                    <TextBlock Text="{Binding ContentText}" Margin="15,15,0,0" TextWrapping="Wrap" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"></TextBlock>
+                </StackPanel>
+                <StackPanel Margin="0,15,0,0" Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal">
+                    <Button Classes="RoundedCorner" Command="{Binding ClearCommand}" Width="75" Content="Clear"></Button>
+                    <Button Margin="15,0,0,0" Grid.Row="1" IsVisible="{Binding HasAction}" Classes="RoundedCorner" Command="{Binding ActionCommand}" Width="75" Content="{Binding ActionText}"></Button>
+                </StackPanel>
+                
+            </Grid>
+
+        </Border>
+    </Grid>
+</UserControl>
