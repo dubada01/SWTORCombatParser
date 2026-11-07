@@ -351,3 +351,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Reproducible Store/local package build artifacts and public test certificates
+.store-packages/

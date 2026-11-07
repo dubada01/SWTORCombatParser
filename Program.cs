@@ -13,6 +13,8 @@ internal sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        // MSIX activates this executable directly (without a PSF launcher). Set the
+        // working directory before loading relative resources or native libraries.
         string executablePath = AppContext.BaseDirectory;
         Environment.CurrentDirectory = executablePath;
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

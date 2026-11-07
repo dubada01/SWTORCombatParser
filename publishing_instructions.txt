@@ -1,19 +1,88 @@
-Steps To Publish Package To Windows Store: 
-1. associate app with store
-2. modify the packaging project to remove any lingering keys that will conflict with  signing
-3. publish the package without signing
-4. on my PC, navigate to "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64"
-5. open powershell at this location
-6. Run this command: $AppPath = "<msix file path>"
-7. Run this command: $StagingFolder = "<unpacked files target path>"
-8. Run this command: .\makeappx.exe unpack /p "$AppPath" /d "$StagingFolder"
-9. Navigate to your newly unpacked files
-10. Copy/paste the files from this path: C:\Users\duban\source\GameDevRepos\SWTORCombatParser\Orbs Package Builder\PathFixingCode
-11. Modify the AppManifest.xml to have these: Executable="PSFLauncher32.exe" EntryPoint="Windows.FullTrustApplication"
-12. Run this command: .\makeappx.exe pack /p "$AppPath" /d "$StagingFolder"
--------- if debugging and need to sign ----------
-13. Run this command: $CodeSigningCert = "C:\Users\duban\source\GameDevRepos\SWTORCombatParser\TestCert.pfx" (or whatever path your cert you want to sign is)
-14. Run this command: $CodeSigningPass = "<password>"
-15. Run this command: .\signtool.exe sign /v /fd sha256 /f $CodeSigningCert /p $CodeSigningPass $AppPath
+ORBS STORE PACKAGING
 
-The package is now signed and if the certificate is in the correct location you should be good to install it. 
+Orbs remains a full-trust desktop application in an AppX/MSIX package. It is not
+being converted into a UWP application. Windows activates Orbs.exe directly;
+Program.Main sets the working directory before loading assets/native libraries.
+The old PathFixingCode/PSF launcher and manual unpack/edit/repack steps are unused.
+
+Prerequisites: Windows, Visual Studio 2022 with the Windows Application Packaging
+Project/Desktop Bridge tools, .NET 8 SDK, and Windows SDK 10.0.22621.0.
+Run these commands in PowerShell from the repository root.
+If Windows PowerShell blocks local scripts, use a process-only override:
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\build\Build-StorePackage.ps1 -Channel Store
+This does not change your saved execution policy. The same invocation pattern
+works for Install-LocalTestPackage.ps1 with its -BuildDirectory argument.
+
+BUILD FOR THE STORE
+
+  .\build\Build-StorePackage.ps1 -Channel Store
+
+This produces a complete x64, Release, self-contained package (including .NET).
+The default version comes from SWTORCombatParser.csproj's VersionPrefix. Increase
+it before the next release; the fourth component must be 0 for Store submissions.
+Use -Version 2.3.2.0 to override it for both the app and package.
+
+Upload the printed .appxupload file to Microsoft Partner Center. Do not unpack,
+edit, repack, or sign it. The Store signs accepted packages. Existing Store name,
+publisher, and application ID are preserved so this remains an update to Orbs.
+
+LOCAL TEST WITHOUT A PUBLIC RELEASE
+
+  Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert |
+    Select-Object Subject, Thumbprint, NotAfter, HasPrivateKey
+
+Choose a valid code-signing certificate with a private key and this subject:
+  CN=BA3DD863-3798-48E1-9914-1F93B78F55BD
+
+  .\build\Build-StorePackage.ps1 -Channel LocalTest -CertificateThumbprint <thumbprint>
+  .\build\Install-LocalTestPackage.ps1 -BuildDirectory '<printed build directory>'
+
+The installer validates the signature and test identity, backs up existing Orbs
+settings/caches under DataBackup-* in the build directory, and installs the app
+as "Orbs (Packaging Test)". If the test certificate is not already trusted,
+Windows requests administrator approval to import its PUBLIC certificate into
+LocalMachine\TrustedPeople. Private keys are never exported. Trusting this leaf
+certificate allows packages signed by that certificate to be installed locally.
+
+Close regular Orbs, then launch "Orbs (Packaging Test)" from Start. The original
+Store application remains installed. Orbs allows only one running instance and
+shares some local settings between installations: do not run both at once, and
+use the backup if you want to undo preferences changed while testing. Restore
+the contents of DesktopAppData into %LOCALAPPDATA%\DubaTech\SWTORCombatParser
+while Orbs is closed. StoreLocalCache backs up the installed Store package's
+LocalCache separately. The test identity MUST NOT be uploaded to the Store.
+
+Smoke-test checklist:
+  - Launch from Start (not bin\Release\Orbs.exe), close, and relaunch.
+  - Load a known combat log; inspect Raid Data, Plot, Details, and ability icons.
+  - Open encounter timers and check your custom settings.
+  - Before public release, check live SWTOR parsing, hotkeys, overlays, and timer
+    audio in a real play session. Offline log review cannot exercise these fully.
+
+BUILD OUTPUT AND VERIFICATION
+
+Default output is .store-packages\<channel>-<version>-<timestamp> (git-ignored).
+-OutputDirectory accepts an empty destination. Each build includes build.log,
+verification.json (identity, entry point, package SHA256, all app payload hashes),
+and its generated source manifest. The build validates direct full-trust launch,
+the self-contained runtime, required assets/native libraries, and absence of PSF.
+Store and LocalTest builds from unchanged source have identical app payloads;
+their package identity, Start-menu name, and signature differ.
+
+Local installation tests the actual packaged desktop environment, including
+WindowsApps paths and bundled dependencies, without a full Store release. It
+does not test the Store's update delivery or replace Microsoft's certification.
+For Store delivery/upgrade testing, create a Partner Center package flight for a
+known tester group, add your Microsoft account, and upload the Store artifact.
+Only that group receives the flight; existing users keep the public version.
+Flights still go through certification.
+https://learn.microsoft.com/en-us/windows/apps/publish/package-flights
+
+For private flight setup and API-driven flight/production submissions, see
+STORE-AUTOMATION.txt and build\Publish-StorePackage.ps1. The publisher defaults
+to an offline Plan; it requires a connected Partner Center Entra application
+before it can submit anything.
+
+If you stop using local test builds, uninstall "Orbs (Packaging Test)" through
+Windows Installed Apps. The public test certificate can be removed separately
+from LocalMachine\TrustedPeople when no other local test packages need it.

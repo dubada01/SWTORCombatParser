@@ -60,11 +60,12 @@
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-    <PackageCertificateThumbprint>05BAC36E90D03B79A70D40432FCEB7BD4412569C</PackageCertificateThumbprint>
+    <!-- The Store signs submissions. Local test builds supply a certificate explicitly. -->
+    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+    <GenerateTemporaryStoreCertificate>False</GenerateTemporaryStoreCertificate>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+    <OrbsPackageManifest Condition="'$(OrbsPackageManifest)' == ''">Package.appxmanifest</OrbsPackageManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AppxBundle>Never</AppxBundle>
@@ -97,7 +98,7 @@
     <AppxBundle>Never</AppxBundle>
   </PropertyGroup>
   <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest">
+    <AppxManifest Include="$(OrbsPackageManifest)">
       <SubType>Designer</SubType>
     </AppxManifest>
   </ItemGroup>
@@ -158,11 +159,7 @@
     <Content Include="Images\Wide310x150Logo.scale-150.png" />
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
     <Content Include="Images\Wide310x150Logo.scale-400.png" />
-    <None Include="Orbs Package Builder_TemporaryKey.pfx" />
-    <None Include="Package.StoreAssociation.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="2.88.8" />
+    <None Include="Package.StoreAssociation.xml" Condition="'$(OrbsLocalTest)' != 'true'" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\Microsoft.DesktopBridge.targets" />
 </Project>
