@@ -78,8 +78,8 @@ Only that group receives the flight; existing users keep the public version.
 Flights still go through certification.
 https://learn.microsoft.com/en-us/windows/apps/publish/package-flights
 
-For private flight setup and API-driven flight/production submissions, see
-STORE-AUTOMATION.txt and build\Publish-StorePackage.ps1. The publisher defaults
+For API-driven flight/production submissions, see
+build\Publish-StorePackage.ps1. The publisher defaults
 to an offline Plan; it requires a connected Partner Center Entra application
 before it can submit anything.
 

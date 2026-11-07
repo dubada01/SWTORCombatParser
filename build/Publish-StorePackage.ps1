@@ -8,7 +8,8 @@ Flights publish after certification by default; production defaults to a manual
 Partner Center release. Set -PublishMode Immediate for an automatic public release.
 Credentials are read from PARTNER_CENTER_TENANT_ID, PARTNER_CENTER_CLIENT_ID
 and PARTNER_CENTER_CLIENT_SECRET, or the Windows-encrypted local credential
-file documented in STORE-AUTOMATION.txt when all three variables are absent.
+file at %LOCALAPPDATA%/DubaTech/StorePublishing/credentials.clixml when all
+three variables are absent. Credentials must never be committed.
 #>
 [CmdletBinding()]
 param(

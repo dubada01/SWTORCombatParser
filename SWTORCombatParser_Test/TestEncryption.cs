@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser_Test
@@ -9,11 +9,11 @@ namespace SWTORCombatParser_Test
         [Test]
         public void TextEncryption()
         {
-            var secret = "obscureButNotSecure";
-            var input = "Host=swtorparse-free.cagglk8w6mwm.us-west-2.rds.amazonaws.com;Port=5432;Username=leaderboard_user;Password=d5525endLbu!;Database=swtor-parse";
+            const string secret = "test-key";
+            const string input = "A representative connection string";
             var encryptedOutput = Crypto.EncryptStringAES(input, secret);
             var output = Crypto.DecryptStringAES(encryptedOutput, secret);
-
+            Assert.That(output, Is.EqualTo(input));
         }
     }
 }

@@ -354,3 +354,20 @@ healthchecksdb
 
 # Reproducible Store/local package build artifacts and public test certificates
 .store-packages/
+
+# Local credentials, agent notes, and generated diagnostics must stay private.
+.env
+.env.*
+*.clixml
+*.pfx
+*.p12
+*.pem
+*.key
+*publisher*keys*.txt
+*.md
+/STORE-AUTOMATION.txt
+/*-REVIEW.txt
+/.codex-build-temp/
+/output/
+*.gcdump
+*.nettrace
