@@ -240,6 +240,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 ResetMetrics();
                 UpdateMetrics(comb);
             }
+            Leaderboards.UpdateOverlaysWithNewLeaderboard(comb, false);
         }
         public void LockOverlays()
         {
@@ -273,7 +274,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void AddLeaderboardStanding(OverlayMetricInfo metricToUpdate, ConcurrentDictionary<LeaderboardEntryType, (double, bool)> standings)
         {
-            (double, bool) leaderboardRanking = (0, false);
+            (double, bool) leaderboardRanking = (double.NaN, false);
             if (Type == OverlayType.DPS && standings.ContainsKey(LeaderboardEntryType.Damage))
             {
                 leaderboardRanking = standings[LeaderboardEntryType.Damage];
@@ -295,7 +296,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             {
                 leaderboardRanking = standings[LeaderboardEntryType.Mitigation];
             }
-            metricToUpdate.LeaderboardRank = leaderboardRanking.Item1.ToString();
+            metricToUpdate.LeaderboardRank = double.IsNaN(leaderboardRanking.Item1) ? "" : leaderboardRanking.Item1.ToString();
             metricToUpdate.RankIsPersonalRecord = leaderboardRanking.Item2;
         }
         private void DisplayFinalMetrics(Combat combat)
@@ -384,7 +385,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             foreach (var metricBar in _metricBarsDict)
             {
-                metricBar.Value.LeaderboardRank = "0";
+                metricBar.Value.LeaderboardRank = "";
                 metricBar.Value.RankIsPersonalRecord = false;
                 var participant = metricBar.Value.Player;
                 if (leaderboardInfo.Count == 0)

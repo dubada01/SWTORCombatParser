@@ -93,8 +93,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     return;
                 }
 
-                if (newCombat.LocalPlayer == null ||
-                    !CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
+                // Cached combats recreate entities; class lookup resolves their stable IDs.
+                if (newCombat.LocalPlayer == null)
                     return;
 
                 Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), enumVal =>
@@ -120,7 +120,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     return;
                 }
                 var state = CombatLogStateBuilder.CurrentState;
-                if (newCombat.LocalPlayer == null || !state.PlayerClassChangeInfo.ContainsKey(newCombat.LocalPlayer))
+                if (newCombat.LocalPlayer == null)
                     return;
                 if (LeaderboardPercentiles.IsEmpty)
                 {

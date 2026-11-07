@@ -20,7 +20,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private double relativeLength;
         private double _value;
         private double _secondaryValue;
-        private int leaderboardRank;
+        private int? leaderboardRank;
         private double defaultBarHeight = 25;
         private double defaultFontSize = 13;
         private double defaultValueWidth = 60;
@@ -64,10 +64,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
         public double LeaderboardSeperationDistance => (SizeScalar * 2);
         public string LeaderboardRank
         {
-            get => leaderboardRank == 0 ? "" : leaderboardRank.ToString();
+            get => leaderboardRank?.ToString() ?? "";
             set
             {
-                leaderboardRank = int.Parse(value);
+                leaderboardRank = int.TryParse(value, out var rank) ? rank : null;
                 OnPropertyChanged();
             }
         }
