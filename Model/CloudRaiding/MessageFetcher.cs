@@ -1,4 +1,4 @@
-﻿using SWTORCombatParser.DataStructures.Updates;
+using SWTORCombatParser.DataStructures.Updates;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -13,20 +13,19 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class MessageFetcher
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
+        private static readonly HttpClient _client = new HttpClient();
         public static async Task<List<UpdateMessage>> GetMessages()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
                 return new List<UpdateMessage>();
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/messages/getActive");
-                    var response = await connection.GetAsync(uri);
-                    var body = await response.Content.ReadFromJsonAsync<List<UpdateMessage>>();
-                    var filteredMessages = body.Where(m => m.ValidForBuild == Assembly.GetExecutingAssembly().GetName().Version.ToString()).ToList();
-                    return filteredMessages;
-                }
+                Uri uri = new Uri($"{_apiPath}/messages/getActive");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<List<UpdateMessage>>();
+                var filteredMessages = (body ?? new List<UpdateMessage>()).Where(m => m.ValidForBuild == Assembly.GetExecutingAssembly().GetName().Version.ToString()).ToList();
+                return filteredMessages;
             }
             catch (Exception e)
             {

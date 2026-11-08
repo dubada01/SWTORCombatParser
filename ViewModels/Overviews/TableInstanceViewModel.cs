@@ -1,4 +1,4 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Utilities;
 using System;
@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -22,8 +23,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public double Rate => Math.Round(RateDouble);
         public double RateDouble { get; set; }
         public double Total { get; set; }
-        public double PercentOfTotal => (Total / SumTotal)*100;
-        public string PercentOfTotalStr => Math.Round((PercentOfTotal * 100)).ToString() + "%";
+        public double PercentOfTotal => SumTotal == 0 ? 0 : (Total / SumTotal) * 100;
+        public string PercentOfTotalStr => Math.Round(PercentOfTotal).ToString() + "%";
         public double Average { get; set; }
         public int Count { get; set; }
         public double CritPercent { get; set; }
@@ -50,6 +51,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
     {
         private SortingOption sortingOption;
         private double _sumTotal = 0;
+        private int _updateVersion;
+        private readonly SemaphoreSlim _updateGate = new SemaphoreSlim(1, 1);
         private ObservableCollection<CombatInfoInstance> _dataToView;
         private ObservableCollection<CombatInfoInstance> _totals;
 
@@ -86,6 +89,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         public override void Reset()
         {
+            Interlocked.Increment(ref _updateVersion);
             _selectedEntity = null;
             SelectedCombat = null;
             DataToView = new ObservableCollection<CombatInfoInstance>();
@@ -97,35 +101,40 @@ namespace SWTORCombatParser.ViewModels.Overviews
         }
         internal override async void Update()
         {
-            if (_selectedEntity == null || SelectedCombat == null)
-                return;
-            DataToView = new ObservableCollection<CombatInfoInstance>();
-            var list = new List<CombatInfoInstance>();
-            switch (_type)
+            var version = Interlocked.Increment(ref _updateVersion);
+            await _updateGate.WaitAsync();
+            try
             {
+                if (version != Volatile.Read(ref _updateVersion) || _selectedEntity == null || SelectedCombat == null)
+                    return;
+                var combat = SelectedCombat;
+                var list = new List<CombatInfoInstance>();
+                switch (_type)
+                {
                 case OverviewDataType.Damage:
-                    await DisplayDamageData(SelectedCombat, list);
+                    await DisplayDamageData(combat, list);
                     break;
                 case OverviewDataType.Healing:
-                    await DisplayHealingData(SelectedCombat, list);
+                    await DisplayHealingData(combat, list);
                     break;
                 case OverviewDataType.DamageTaken:
-                    await DisplayDamageTakenData(SelectedCombat, list);
+                    await DisplayDamageTakenData(combat, list);
                     break;
                 case OverviewDataType.HealingReceived:
-                    await DisplayHealingReceived(SelectedCombat, list);
+                    await DisplayHealingReceived(combat, list);
                     break;
                 case OverviewDataType.Threat:
-                    await DisplayThreat(SelectedCombat, list);
+                    await DisplayThreat(combat, list);
                     break;
-            }
-            list = list.OrderByDescending(v => v.PercentOfTotal).ToList();
-            if (list.Any())
-            {
-                Totals = new ObservableCollection<CombatInfoInstance>();
-                Totals.Add(new CombatInfoInstance
+                }
+                if (version != Volatile.Read(ref _updateVersion))
+                    return;
+                list = list.OrderByDescending(v => v.PercentOfTotal).ToList();
+                var totals = new ObservableCollection<CombatInfoInstance>();
+                if (list.Any())
                 {
-
+                    totals.Add(new CombatInfoInstance
+                    {
                     SumTotal = _sumTotal,
                     Total = list.Sum(v => v.Total),
                     RateDouble = list.Sum(v => v.RateDouble),
@@ -134,12 +143,24 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     MaxCrit = list.Max(v => v.MaxCrit),
                     Count = list.Sum(v => v.Count),
                     CritPercent = list.Average(v => v.CritPercent)
+                    });
+                }
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (version != Volatile.Read(ref _updateVersion))
+                        return;
+                    Totals = totals;
+                    DataToView = new ObservableCollection<CombatInfoInstance>(list);
                 });
             }
-            Dispatcher.UIThread.Invoke(() => {
-                DataToView = new ObservableCollection<CombatInfoInstance>(list);
-            });
-            
+            catch (Exception ex)
+            {
+                Logging.LogError("Failed to update overview: " + ex.Message);
+            }
+            finally
+            {
+                _updateGate.Release();
+            }
         }
         private string GetSortNameFromEnum(SortingOption enumValue)
         {
@@ -159,7 +180,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             // Filter entities with matching LogId
             var selectedLogId = _selectedEntity.LogId;
-            var matchingEntities = combat.OutgoingDamageLogs
+            var matchingEntities = combat.IncomingDamageLogs
                 .Where(kvp => kvp.Key.LogId == selectedLogId)
                 .Select(kvp => kvp.Key);
 
@@ -178,7 +199,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
             // Populate rows asynchronously
             foreach (var orderedKey in splitOutData)
             {
-                await PoppulateRows(orderedKey, list);
+                await PoppulateRows(orderedKey, list, combat);
             }
         }
 
@@ -192,15 +213,16 @@ namespace SWTORCombatParser.ViewModels.Overviews
             var healing = matchingEntities
                 .SelectMany(entity => combat.OutgoingHealingLogs.ContainsKey(entity) ? combat.OutgoingHealingLogs[entity] : new ConcurrentQueue<ParsedLogEntry>());
 
-            var shielding = matchingEntities
-                .SelectMany(entity => combat.ShieldingProvidedLogs.ContainsKey(entity) ? combat.ShieldingProvidedLogs[entity] : new ConcurrentQueue<ParsedLogEntry>());
+            var shielding = combat.ShieldingProvidedLogs
+                .Where(kvp => kvp.Key.LogId == selectedLogId)
+                .SelectMany(kvp => kvp.Value);
 
             var both = healing.Concat(shielding);
             var splitOutdata = GetDataSplitOut(combat, both.ToList());
             _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
             foreach (var orderedKey in splitOutdata)
             {
-                await PoppulateRows(orderedKey, list);
+                await PoppulateRows(orderedKey, list, combat);
             }
         }
 
@@ -218,7 +240,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
     _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
     foreach (var orderedKey in splitOutdata)
     {
-        await PoppulateRows(orderedKey, list);
+        await PoppulateRows(orderedKey, list, combat);
     }
 }
 
@@ -236,7 +258,7 @@ private async Task DisplayHealingReceived(Combat combat, List<CombatInfoInstance
     _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Sum(v => v.Value.EffectiveDblValue));
     foreach (var orderedKey in splitOutdata)
     {
-        await PoppulateRows(orderedKey, list);
+        await PoppulateRows(orderedKey, list, combat);
     }
 }
 
@@ -256,17 +278,17 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
     _sumTotal = splitOutdata.Sum(kvp => kvp.Value.Where(v => v.Threat >= 0).Sum(v => v.Threat));
     foreach (var orderedKey in splitOutdata)
     {
-        await PoppulateRowsThreat(orderedKey, list);
+        await PoppulateRowsThreat(orderedKey, list, combat);
     }
 }
-        private async Task PoppulateRowsThreat(KeyValuePair<string, ConcurrentQueue<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
+        private async Task PoppulateRowsThreat(KeyValuePair<string, ConcurrentQueue<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list, Combat combat)
         {
             list.Add(new CombatInfoInstance
             {
                 SortItem =string.IsNullOrEmpty(orderedKey.Key) ? "Taunt":orderedKey.Key,
                 SumTotal = _sumTotal,
                 Total = (int)orderedKey.Value.Sum(v => v.Threat),
-                RateDouble = orderedKey.Value.Sum(v => v.Threat) / SelectedCombat.DurationSeconds,
+                RateDouble = combat.DurationSeconds > 0 ? orderedKey.Value.Sum(v => v.Threat) / combat.DurationSeconds : 0,
                 Average = (int)orderedKey.Value.Average(v => v.Threat),
                 Max = orderedKey.Value.Any(a => !a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => !v.Value.WasCrit).Max(v => v.Threat) : 0,
                 MaxCrit = orderedKey.Value.Any(a => a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Threat) : 0,
@@ -275,7 +297,7 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
                 Icon = await GetIconForRow(orderedKey.Value.FirstOrDefault())
             });
         }
-        private async Task PoppulateRows(KeyValuePair<string, ConcurrentQueue<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list)
+        private async Task PoppulateRows(KeyValuePair<string, ConcurrentQueue<ParsedLogEntry>> orderedKey, List<CombatInfoInstance> list, Combat combat)
         {
             static bool IsAllowed(DamageType t) =>
                 t is DamageType.intern or DamageType.energy or DamageType.kinetic or DamageType.heal or DamageType.elemental;
@@ -292,7 +314,7 @@ private async Task DisplayThreat(Combat combat, List<CombatInfoInstance> list)
                     ? "Various"
                     : orderedKey.Value.Select(v => v.Value.ValueType).FirstOrDefault(IsAllowed).ToString(),
                 Total = (int)orderedKey.Value.Sum(v => v.Value.EffectiveDblValue),
-                RateDouble = orderedKey.Value.Sum(v => v.Value.EffectiveDblValue) / SelectedCombat.DurationSeconds,
+                RateDouble = combat.DurationSeconds > 0 ? orderedKey.Value.Sum(v => v.Value.EffectiveDblValue) / combat.DurationSeconds : 0,
                 Average = (int)orderedKey.Value.Average(v => v.Value.EffectiveDblValue),
                 Max = orderedKey.Value.Any(a => !a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => !v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue) : 0,
                 MaxCrit = orderedKey.Value.Any(a => a.Value.WasCrit) ? (int)orderedKey.Value.Where(v => v.Value.WasCrit).Max(v => v.Value.EffectiveDblValue) : 0,

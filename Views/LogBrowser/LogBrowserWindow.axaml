@@ -1,0 +1,188 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.LogBrowser"
+        x:Class="SWTORCombatParser.Views.LogBrowser.LogBrowserWindow"
+        x:DataType="vm:LogBrowserViewModel"
+        Title="Log Library · Orbs" Width="1160" Height="820" MinWidth="880" MinHeight="620"
+        WindowStartupLocation="CenterOwner" Background="{StaticResource Gray2Brush}">
+    <Window.Styles>
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#B9C2BE"/>
+            <Setter Property="Margin" Value="0,12,0,5"/>
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="Padding" Value="14,6"/>
+        </Style>
+        <Style Selector="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="#284538"/>
+        </Style>
+    </Window.Styles>
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Padding="24,20,24,16" BorderBrush="{StaticResource Gray4Brush}" BorderThickness="0,0,0,1">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Log Library" FontSize="25" FontWeight="SemiBold"/>
+                    <TextBlock Text="Find a session by its encounters, players, or date." Foreground="#B9C2BE" FontSize="13"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="Refresh library" Command="{Binding RefreshCommand}"/>
+                    <Button Content="Browse file…" Click="BrowseFile_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="250,*">
+            <Border Background="#1C211E" BorderBrush="{StaticResource Gray4Brush}" BorderThickness="0,0,1,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="20,10,20,20">
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,6">
+                            <TextBlock Text="FILTERS" FontSize="11" FontWeight="SemiBold" Foreground="#B9C2BE" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="Clear" Command="{Binding ClearFiltersCommand}" Padding="8,2" MinHeight="26"/>
+                        </Grid>
+                        <TextBlock Classes="label" Text="Content type"/>
+                        <ComboBox ItemsSource="{Binding ActivityTypes}" SelectedItem="{Binding ActivityType}"/>
+                        <TextBlock Classes="label" Text="Operation / flashpoint / warzone"/>
+                        <ComboBox ItemsSource="{Binding Encounters}" SelectedItem="{Binding EncounterName}" MaxDropDownHeight="320"/>
+                        <TextBlock Classes="label" Text="Boss"/>
+                        <ComboBox ItemsSource="{Binding Bosses}" SelectedItem="{Binding BossName}" MaxDropDownHeight="320"/>
+                        <Grid ColumnDefinitions="*,12,*">
+                            <StackPanel>
+                                <TextBlock Classes="label" Text="Difficulty"/>
+                                <ComboBox ItemsSource="{Binding Difficulties}" SelectedItem="{Binding Difficulty}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Classes="label" Text="Players"/>
+                                <ComboBox ItemsSource="{Binding GroupSizes}" SelectedItem="{Binding GroupSize}"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Classes="label" Text="Player name"/>
+                        <TextBox Text="{Binding PlayerName, UpdateSourceTrigger=PropertyChanged}" Watermark="Search characters…" FontSize="13"/>
+                        <TextBlock Classes="label" Text="From date"/>
+                        <CalendarDatePicker SelectedDate="{Binding FromDate}" Watermark="Any date" HorizontalAlignment="Stretch"/>
+                        <TextBlock Classes="label" Text="Through date"/>
+                        <CalendarDatePicker SelectedDate="{Binding ToDate}" Watermark="Any date" HorizontalAlignment="Stretch"/>
+                        <TextBlock Text="Dates include the entire selected day. Encounter filters match a single combat within a file."
+                                   FontSize="11" Foreground="#8F9A94" TextWrapping="Wrap" Margin="0,14,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto" Margin="20,16,20,16">
+                <StackPanel Spacing="8" Margin="0,0,0,12">
+                    <TextBlock Text="{Binding ResultSummary}" FontSize="14" FontWeight="SemiBold"/>
+                    <ProgressBar IsVisible="{Binding IsIndexing}" IsIndeterminate="True" Height="3"/>
+                    <TextBlock Text="{Binding Error}" IsVisible="{Binding HasError}" Foreground="#F5BA83" TextWrapping="Wrap" FontSize="12"/>
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <ListBox ItemsSource="{Binding Results}" SelectedItem="{Binding SelectedLog}" Background="Transparent"
+                             BorderThickness="0" DoubleTapped="Results_DoubleTapped" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LogFileCardViewModel">
+                                <Border Padding="16,13" CornerRadius="6" BorderBrush="#3E4A43" BorderThickness="1">
+                                    <StackPanel Spacing="6">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="{Binding DateLabel}" FontSize="13" Foreground="#A6D8BB"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Metadata}" FontSize="11" Foreground="#A5ADA8" Margin="12,0,0,0"/>
+                                        </Grid>
+                                        <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding FileName}" FontSize="11" Foreground="#A5ADA8" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding FilePath}"/>
+                                        <ItemsControl ItemsSource="{Binding Preview}" Margin="0,4,0,0">
+                                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:LogCombatChipViewModel">
+                                                    <Border Background="#282E2A" CornerRadius="4" Margin="0,0,6,6" Padding="7,5" ToolTip.Tip="{Binding Tooltip}">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <TextBlock Text="{Binding Number}" FontSize="11" Foreground="#8F9A94"/>
+                                                            <TextBlock Text="{Binding Name}" FontSize="11"/>
+                                                            <TextBlock Text="{Binding Outcome}" FontSize="10" Foreground="{Binding OutcomeBrush}"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Text="{Binding MoreLabel}" IsVisible="{Binding HasMore}" FontSize="11" Foreground="#A5ADA8"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel IsVisible="{Binding IsEmpty}" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="390" Spacing="8">
+                        <TextBlock Text="No logs match these filters" FontSize="19" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Try a wider date range or clear the filters. You can also browse to a log anywhere on your computer."
+                                   TextWrapping="Wrap" TextAlignment="Center" Foreground="#A5ADA8" FontSize="13"/>
+                        <Button Content="Clear filters" Command="{Binding ClearFiltersCommand}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <Border Grid.Row="2" IsVisible="{Binding HasSelection}" BorderBrush="#45554A" BorderThickness="0,1,0,0" Padding="0,12,0,0" Margin="0,12,0,0">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding SelectedSequenceTitle}" FontWeight="SemiBold" FontSize="13"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" MaxHeight="110">
+                            <ItemsControl ItemsSource="{Binding SelectedSequence}">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:LogCombatChipViewModel">
+                                        <Border Background="#282E2A" CornerRadius="4" Margin="0,0,8,8" Padding="10,8" ToolTip.Tip="{Binding Tooltip}">
+                                            <StackPanel Spacing="4">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="{Binding Number}" Foreground="{Binding OutcomeBrush}" FontSize="12"/>
+                                                    <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                                <TextBlock Text="{Binding Detail}" FontSize="11" Foreground="#A5ADA8"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                        <TextBlock Text="{Binding SelectedPlayers}" FontSize="11" Foreground="#A5ADA8" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding SelectedPlayers}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="2" Padding="20,12" BorderBrush="{StaticResource Gray4Brush}" BorderThickness="0,1,0,0">
+            <StackPanel Spacing="12">
+            <Border IsVisible="{Binding ReplayAvailable}" Background="#202B34" CornerRadius="5" Padding="12">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="6">
+                    <TextBlock Text="DEBUG PLAYBACK · 1× real time" Foreground="#9BCFE8" FontSize="11" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Row="1" Text="Replays use temporary logs. Uploads and personal-best saving are disabled." Foreground="#A5ADA8" FontSize="11" TextWrapping="Wrap"/>
+                    <StackPanel Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal" Spacing="10">
+                        <StackPanel Spacing="4">
+                            <ComboBox ItemsSource="{Binding ReplayChoices}" SelectedItem="{Binding SelectedReplay}" Width="320" IsEnabled="{Binding CanOpen}" MaxDropDownHeight="280">
+                                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:LogReplayChoice"><TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis"/></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <CheckBox Content="Test a partial line write" IsChecked="{Binding SimulatePartialWrite}" FontSize="11" MinHeight="20"/>
+                        </StackPanel>
+                        <Button Content="Replay" Click="ReplaySelected_Click" IsEnabled="{Binding CanOpen}" VerticalAlignment="Top"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="3" VerticalAlignment="Center" Margin="0,0,20,0">
+                    <TextBlock Text="{Binding Status}" FontSize="12" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding DirectoryPath}" FontSize="10" Foreground="#8F9A94" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding DirectoryPath}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="Cancel" Click="Cancel_Click"/>
+                    <Button Content="Open selected log" IsEnabled="{Binding CanOpen}" Background="#386E4D" Click="OpenSelected_Click"/>
+                </StackPanel>
+            </Grid>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

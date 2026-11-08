@@ -26,6 +26,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     public Point OverlayPosition { get; set; }
     public OverlaySettingsType SettingsType { get; set; } = OverlaySettingsType.Global;
     internal readonly string _overlayName;
+    public virtual string OverlayDisplayName => _overlayName;
     private UserControl _mainContent;
     private bool _inConversation;
     private static double _defaultLockedOpacity = 0.066;
@@ -82,6 +83,11 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     {
         _overlayName = overlayName;
         CombatLogStreamer.NewLineStreamed += ToggleVisibilityFromConversation;
+    }
+
+    protected void UnsubscribeFromLogEvents()
+    {
+        CombatLogStreamer.NewLineStreamed -= ToggleVisibilityFromConversation;
     }
 
     private void ToggleVisibilityFromConversation(ParsedLogEntry obj)

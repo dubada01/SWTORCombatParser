@@ -305,19 +305,21 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         private void RefreshAvaialbleTriggerOwners()
         {
+            var sharedTimers = DefaultOrbsTimersManager.GetDefaults("Shared");
             _savedTimersData = DefaultOrbsTimersManager.GetAllDefaults();
             if (_savedTimersData.All(t => t.TimerSource != "Shared"))
-            {
-                _savedTimersData.Add(new DefaultTimersData() { TimerSource = "Shared" });
-                DefaultOrbsTimersManager.SetSavedTimers(new List<Timer>(), "Shared");
-            }
-            var savedTimerSources = new List<string>(_savedTimersData.Where(t => t.TimerSource != null && !t.TimerSource.Contains('|')).Select(t => t.TimerSource));
-            savedTimerSources = savedTimerSources.OrderBy(s => s).ToList();
-            savedTimerSources.SwapItems(0, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "Shared")));
-            savedTimerSources.SwapItems(1, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "HOTS")));
-            savedTimerSources.SwapItems(2, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "DOTS")));
-            savedTimerSources.SwapItems(3, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "DCD")));
-            savedTimerSources.SwapItems(4, savedTimerSources.IndexOf(savedTimerSources.First(t => t == "OCD")));
+                _savedTimersData.Add(sharedTimers);
+            var preferredSources = new[] { "Shared", "HOTS", "DOTS", "DCD", "OCD" };
+            var savedTimerSources = _savedTimersData
+                .Where(t => t.TimerSource != null && !t.TimerSource.Contains('|'))
+                .Select(t => t.TimerSource)
+                .OrderBy(source =>
+                {
+                    var index = Array.IndexOf(preferredSources, source);
+                    return index >= 0 ? index : preferredSources.Length;
+                })
+                .ThenBy(source => source)
+                .ToList();
 
             DisciplineTimersList = savedTimerSources;
         }

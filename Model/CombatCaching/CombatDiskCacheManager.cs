@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
+using System.Globalization;
 
 namespace SWTORCombatParser.Model.CombatCaching
 {
@@ -85,7 +86,8 @@ namespace SWTORCombatParser.Model.CombatCaching
                 BossInfo = combat.BossInfo,
                 EncounterBossDifficultyParts = combat.EncounterBossDifficultyParts,
                 BossKillOverride = combat.BossKillOverride,
-                DurationOverride = combat.DurationOverride
+                DurationOverride = combat.DurationOverride,
+                IsReplay = combat.IsReplay
             };
         }
 
@@ -100,7 +102,7 @@ namespace SWTORCombatParser.Model.CombatCaching
                     return;
 
                 Directory.CreateDirectory(CacheRootDirectory);
-                CleanupStaleCacheDirectories();
+                CleanupStaleCacheDirectories(CacheRootDirectory);
 
                 _sessionCacheDirectory = Path.Combine(CacheRootDirectory,
                     $"session_{Process.GetCurrentProcess().Id}_{DateTime.UtcNow:yyyyMMddHHmmss}");
@@ -108,24 +110,48 @@ namespace SWTORCombatParser.Model.CombatCaching
             }
         }
 
-        private static void CleanupStaleCacheDirectories()
+        private static void CleanupStaleCacheDirectories(string cacheRoot)
         {
-            try
+            foreach (var directory in Directory.EnumerateDirectories(cacheRoot, "session_*") )
             {
-                foreach (var directory in Directory.GetDirectories(CacheRootDirectory))
+                // Do not delete unrelated folders or a cache belonging to a live process.
+                var parts = Path.GetFileName(directory).Split('_');
+                if (parts.Length != 3 || parts[0] != "session" ||
+                    !int.TryParse(parts[1], out var processId) || processId <= 0 ||
+                    !DateTime.TryParseExact(parts[2], "yyyyMMddHHmmss", CultureInfo.InvariantCulture,
+                        DateTimeStyles.None, out _))
+                    continue;
+
+                try
+                {
+                    using var process = Process.GetProcessById(processId);
+                    if (!process.HasExited)
+                        continue;
+                }
+                catch (ArgumentException)
+                {
+                    // No process with this ID remains.
+                }
+                catch (Exception)
+                {
+                    // If process status cannot be established, keep its cache.
+                    continue;
+                }
+
+                try
                 {
                     Directory.Delete(directory, true);
                 }
-            }
-            catch (Exception e)
-            {
-                Logging.LogError("Failed to clean old combat cache directories: " + e.Message);
+                catch (Exception e)
+                {
+                    Logging.LogError("Failed to clean old combat cache directory: " + e.Message);
+                }
             }
         }
 
         public static List<ParsedLogEntry> NormalizeLogEntities(List<ParsedLogEntry> logs)
         {
-            var entitiesById = new Dictionary<long, Entity>();
+            var entitiesById = new Dictionary<(bool HasInstanceId, long Id), Entity>();
 
             foreach (var log in logs)
             {
@@ -136,14 +162,17 @@ namespace SWTORCombatParser.Model.CombatCaching
             return logs;
         }
 
-        private static Entity GetCanonicalEntity(Entity entity, Dictionary<long, Entity> entitiesById)
+        private static Entity GetCanonicalEntity(Entity entity, Dictionary<(bool HasInstanceId, long Id), Entity> entitiesById)
         {
             if (entity == null)
                 return Entity.EmptyEntity;
 
-            var key = entity.LogId != 0 ? entity.LogId : entity.Id;
-            if (key == 0)
+            // NPCs can share a LogId (the NPC type) while having distinct Ids
+            // (instances). Match the parser's instance identity where available.
+            var id = entity.Id != 0 ? entity.Id : entity.LogId;
+            if (id == 0)
                 return entity;
+            var key = (entity.Id != 0, id);
 
             if (!entitiesById.TryGetValue(key, out var canonical))
             {

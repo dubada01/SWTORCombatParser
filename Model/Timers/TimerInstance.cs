@@ -121,6 +121,15 @@ namespace SWTORCombatParser.Model.Timers
             CombatLogStreamer.HistoricalLogsStarted += StartedHistoricalLogs;
         }
 
+        // Timer definitions are replaced on refresh. Static event subscriptions
+        // must not keep the old definitions alive for the rest of the session.
+        public void DetachFromLogStream()
+        {
+            CombatLogStreamer.CombatUpdated -= UpdateCombatState;
+            CombatLogStreamer.HistoricalLogsFinished -= FinishedHistoricalLogs;
+            CombatLogStreamer.HistoricalLogsStarted -= StartedHistoricalLogs;
+        }
+
 
         private void StartedHistoricalLogs()
         {

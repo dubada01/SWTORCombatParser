@@ -33,6 +33,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         public OpponentOverlayViewModel(string overlayName) : base(overlayName)
         {
             _dTimer = new DispatcherTimer();
+            _dTimer.Interval = TimeSpan.FromSeconds(0.1);
+            _dTimer.Tick += CheckForNewState;
             _opponentHPView = new OpponentHpOverlay(this);
             MainContent = _opponentHPView;
             EncounterTimerTrigger.NonPvpEncounterEntered += OnPvPEncounterLeft;
@@ -64,8 +66,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     ShowFrame = true;
                     _mostRecentCombat = null;
                     _dTimer.Start();
-                    _dTimer.Interval = TimeSpan.FromSeconds(0.1);
-                    _dTimer.Tick += CheckForNewState;
                 });
 
             }
@@ -73,8 +73,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private void OnPvPEncounterLeft(DateTime changedTime, EncounterInfo encounterInfo)
         {
-            if (!OverlayEnabled)
-                return;
             lock (_combatUpdateLock)
             {
                 _isTriggered = false;
@@ -87,7 +85,6 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                 ResetUI();
                 ShowFrame = false;
                 _dTimer.Stop();
-                _dTimer.Tick -= CheckForNewState;
             });
 
         }
@@ -95,8 +92,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         private void ResetUI()
         {
             OpponentHpBars.Clear();
-            _currentHps.Clear();
-            _lastUpdatedPlayer.Clear();
+            lock (_combatUpdateLock)
+            {
+                _currentHps.Clear();
+                _lastUpdatedPlayer.Clear();
+            }
         }
         public bool OverlayEnabled
         {
@@ -105,6 +105,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             {
                 this.RaiseAndSetIfChanged(ref _isActive, value);
                 Active = _isActive;
+                if (!value)
+                    OnPvPEncounterLeft(DateTime.MinValue, null);
                 OverlayStateChanged("OpponentHP", _isActive);
             }
         }
@@ -140,36 +142,39 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         }
         private void NewLineStreamed(ParsedLogEntry newLine)
         {
+            if (newLine.Effect.EffectType == EffectType.AreaEntered && !EncounterTimerTrigger.CurrentEncounterIsPVP)
+            {
+                OnPvPEncounterLeft(newLine.TimeStamp, null);
+                return;
+            }
             lock (_combatUpdateLock)
             {
-                if (newLine.Effect.EffectType == EffectType.AreaEntered && !EncounterTimerTrigger.CurrentEncounterIsPVP)
-                {
-                    OnPvPEncounterLeft(newLine.TimeStamp, null);
-                    return;
-                }
                 if (_mostRecentCombat == null || !_isTriggered)
                     return;
                 _lastUpdate = newLine.TimeStamp;
 
 
-                if (newLine.Source == newLine.Target && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.IsCharacter)
+                if (newLine.Source == newLine.Target && !string.IsNullOrEmpty(newLine.Source.Name) && CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
-                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / (double)newLine.SourceInfo.MaxHP;
+                    if (newLine.SourceInfo.MaxHP > 0)
+                        _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / (double)newLine.SourceInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
                 if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Source, newLine.TimeStamp) && newLine.Source.Name != null && newLine.Source.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Source.Name] = _lastUpdate;
-                    _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / (double)newLine.SourceInfo.MaxHP;
+                    if (newLine.SourceInfo.MaxHP > 0)
+                        _currentHps[newLine.Source.Name] = newLine.SourceInfo.CurrentHP / (double)newLine.SourceInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
                 if (CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(newLine.Target, newLine.TimeStamp) && newLine.Target.Name != null && newLine.Target.IsCharacter)
                 {
                     _lastUpdatedPlayer[newLine.Target.Name] = _lastUpdate;
-                    _currentHps[newLine.Target.Name] = newLine.TargetInfo.CurrentHP / (double)newLine.TargetInfo.MaxHP;
+                    if (newLine.TargetInfo.MaxHP > 0)
+                        _currentHps[newLine.Target.Name] = newLine.TargetInfo.CurrentHP / (double)newLine.TargetInfo.MaxHP;
                     RemoveOldPlayers();
                     return;
                 }
@@ -185,7 +190,12 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private void CheckForNewState(object sender, EventArgs e)
         {
-            var sorted = (from entry in _currentHps orderby entry.Key ascending select entry).ToList();
+            List<KeyValuePair<string, double>> sorted;
+            lock (_combatUpdateLock)
+                sorted = _currentHps.OrderBy(entry => entry.Key).ToList();
+            var currentNames = sorted.Select(entry => entry.Key).ToHashSet();
+            foreach (var stale in OpponentHpBars.Where(bar => !currentNames.Contains(bar.PlayerName)).ToList())
+                OpponentHpBars.Remove(stale);
             foreach (var opponent in sorted)
             {
                 var opponentToUpdate = OpponentHpBars.FirstOrDefault(x => x.PlayerName == opponent.Key);
@@ -214,10 +224,9 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
 
         private bool IsCurrentInfo(string opponentKey)
         {
-            if (!_lastUpdatedPlayer.ContainsKey(opponentKey))
-                return false;
-            var lastInfoTime = _lastUpdatedPlayer[opponentKey];
-            return (DateTime.Now - lastInfoTime).TotalSeconds < 5;
+            lock (_combatUpdateLock)
+                return _lastUpdatedPlayer.TryGetValue(opponentKey, out var lastInfoTime) &&
+                       (DateTime.Now - lastInfoTime).TotalSeconds < 5;
         }
 
         private MenaceTypes GetMenaceType(string key)
@@ -231,7 +240,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
                     return MenaceTypes.Dps;
                 //Doesn't seem like the logs have information about healing done by opponents. Can't know who is the healing menace.
                 var maxEHPS = _mostRecentCombat.EHPS.Where(kvp => CombatLogStateBuilder.CurrentState.IsPvpOpponentAtTime(kvp.Key, _mostRecentCombat.StartTime)).MaxBy(d => d.Value);
-                if (maxEHPS.Key.Name == key)
+                if (maxEHPS.Key != null && maxEHPS.Key.Name == key)
                     return MenaceTypes.None;
                 return MenaceTypes.None;
             }
@@ -254,7 +263,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
             }
             var targetPositionInfo = CombatLogStateBuilder.CurrentState.CurrentCharacterPositions.First(c => c.Key.Name == key).Value;
             var localClass = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(_lastUpdate);
-            var requiredRange = localClass.IsRanged ? 30 : 5;
+            var requiredRange = localClass?.IsRanged == true ? 30 : 5;
             var distanceBeween = Math.Sqrt(Math.Pow(targetPositionInfo.X - characterPosition.X, 2) + Math.Pow(targetPositionInfo.Y - characterPosition.Y, 2));
             return distanceBeween <= requiredRange;
         }

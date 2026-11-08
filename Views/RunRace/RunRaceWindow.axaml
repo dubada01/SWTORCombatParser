@@ -1,0 +1,87 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.RunRace"
+        xmlns:model="clr-namespace:SWTORCombatParser.Model.RunRace"
+        xmlns:race="clr-namespace:SWTORCombatParser.Views.RunRace"
+        x:Class="SWTORCombatParser.Views.RunRace.RunRaceWindow"
+        x:DataType="vm:RunRaceViewModel"
+        Title="Run Race · Orbs" Width="960" Height="860" MinWidth="740" MinHeight="680"
+        Background="{StaticResource Gray2Brush}" WindowStartupLocation="CenterOwner">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="24">
+        <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="5">
+                <TextBlock Text="RUN RACE" FontSize="11" Foreground="#9FCAB3" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Title}" FontSize="26" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,14,0"/>
+                <TextBlock Text="{Binding Details}" FontSize="13" Foreground="#B5BEB8"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="Compare with" FontSize="12" Foreground="#B5BEB8" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Content="Refresh" Command="{Binding RefreshReferenceCommand}" FontSize="10" Padding="7,2" MinHeight="22"/>
+                </Grid>
+                <ComboBox ItemsSource="{Binding GhostModes}" SelectedItem="{Binding GhostMode}" FontSize="13" Width="260"/>
+                <TextBlock Text="Route" FontSize="12" Foreground="#B5BEB8"/>
+                <ComboBox ItemsSource="{Binding AvailableRoutes}" SelectedItem="{Binding SelectedRoute}" IsEnabled="{Binding CanChooseRoute}" FontSize="12" Width="260">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="model:RaceRouteOption">
+                            <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" MaxWidth="470" ToolTip.Tip="{Binding Label}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+        <Border Grid.Row="1" Background="#14231C" BorderBrush="#3E5748" BorderThickness="1" CornerRadius="8" Padding="18,14" Margin="0,18,0,18">
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,154,Auto">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="YOUR RUN" FontSize="11" Foreground="#A5ADA8"/>
+                    <TextBlock Text="{Binding Elapsed}" FontSize="34" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding ProgressLabel}" FontSize="13" Foreground="#B5BEB8"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding GhostDescription}" FontSize="12" TextWrapping="Wrap" Foreground="#D9BB7B"/>
+                    <TextBlock Text="{Binding DeltaHeadline}" FontSize="20" Foreground="{Binding DeltaBrush}" TextWrapping="Wrap"/>
+                    <TextBlock Text="Last comparable checkpoint" FontSize="10" Foreground="#879C96"/>
+                </StackPanel>
+                <race:RunRaceTimelineControl Grid.Row="1" Grid.ColumnSpan="2" Snapshot="{Binding TimelineSnapshot}" Margin="0,8,0,0"/>
+                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="4" Margin="0,5,0,0">
+                    <TextBlock Text="{Binding PaceHeadline}" FontSize="13" Foreground="{Binding PaceBrush}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding ReferenceHint}" FontSize="10" Foreground="#879C96" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="2" RowDefinitions="Auto,*">
+            <Grid ColumnDefinitions="40,*,90,90,150" Margin="8,0,8,10">
+                <TextBlock Grid.Column="1" Text="BOSS CHECKPOINT" FontSize="11" Foreground="#A5ADA8"/>
+                <TextBlock Grid.Column="2" Text="YOU" FontSize="11" Foreground="#A5ADA8"/>
+                <TextBlock Grid.Column="3" Text="REFERENCE" FontSize="11" Foreground="#A5ADA8"/>
+                <TextBlock Grid.Column="4" Text="SPLIT" FontSize="11" Foreground="#A5ADA8"/>
+            </Grid>
+            <ScrollViewer Grid.Row="1">
+                <ItemsControl ItemsSource="{Binding Rows}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:RunRaceRowViewModel">
+                            <Border BorderBrush="#37443B" BorderThickness="0,1,0,0" Padding="8,12">
+                                <Grid ColumnDefinitions="40,*,90,90,150">
+                                    <TextBlock Text="{Binding Number}" Foreground="#81988A" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" Spacing="3">
+                                        <TextBlock Text="{Binding Boss}" FontSize="14" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding Attempts}" FontSize="11" Foreground="#A5ADA8"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding LiveTime}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding GhostTime}" VerticalAlignment="Center" Foreground="#D9BB7B"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding Delta}" VerticalAlignment="Center" Foreground="{Binding Color}" FontSize="12"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+        <StackPanel Grid.Row="3" Spacing="8" Margin="0,16,0,0">
+            <TextBlock Text="{Binding Status}" TextWrapping="Wrap" FontSize="13" Foreground="#B5BEB8"/>
+            <Button Content="Load a previous log for a local ghost…" IsVisible="{Binding NeedsGhost}" Click="LoadLog_Click" FontSize="13" Padding="12,7"/>
+            <TextBlock Text="Boss checkpoints save automatically. Defeating the final boss completes your observed route, including optional-boss skips. Personal best and latest runs match your character, difficulty, group size, and boss order. Wipes and travel time count."
+                       FontSize="11" Foreground="#8E9C93" TextWrapping="Wrap"/>
+        </StackPanel>
+    </Grid>
+</Window>

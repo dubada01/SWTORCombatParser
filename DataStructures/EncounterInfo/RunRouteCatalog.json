@@ -1,0 +1,572 @@
+[
+  {
+    "Encounter": "Eternity Vault",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Soa",
+    "Bosses": [
+      "Annihilation Droid XRR-3",
+      "Gharj",
+      "Ancient Pylons",
+      "Infernal Council",
+      "Soa"
+    ]
+  },
+  {
+    "Encounter": "Karagga's Palace",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Karagga the Unyielding",
+    "Bosses": [
+      "Bonethrasher",
+      "Jarg & Sorno",
+      "Foreman Crusher",
+      "G4-B3 Heavy Fabricator",
+      "Karagga the Unyielding"
+    ]
+  },
+  {
+    "Encounter": "Explosive Conflict",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Warlord Kephess",
+    "Bosses": [
+      "Zorn & Toth",
+      "Firebrand & Stormcaller",
+      "Colonel Vorgath",
+      "Warlord Kephess"
+    ]
+  },
+  {
+    "Encounter": "Terror From Beyond",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "The Terror From Beyond",
+    "Bosses": [
+      "The Writhing Horror",
+      "The Dread Guard",
+      "Dreadful Entity",
+      "Operator IX",
+      "Kephess the Undying",
+      "The Terror From Beyond"
+    ]
+  },
+  {
+    "Encounter": "Scum and Villainy",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Dread Master Styrak",
+    "Bosses": [
+      "Dash'Roode",
+      "Titan 6",
+      "Hateful Entity",
+      "Thrasher",
+      "Operations Chief",
+      "Olok the Shadow",
+      "Cartel Warlords",
+      "Dread Master Styrak"
+    ]
+  },
+  {
+    "Encounter": "The Dread Fortress",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Dread Master Brontes",
+    "Bosses": [
+      "Nefra, Who Bars the Way",
+      "Gate Commander Draxus",
+      "Grob'thok, Who Feeds the Forge",
+      "Corruptor Zero",
+      "Dread Master Brontes"
+    ]
+  },
+  {
+    "Encounter": "The Dread Palace",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Dread Council",
+    "Bosses": [
+      "Dread Master Bestia",
+      "Dread Master Tyrans",
+      "Dread Master Calphayus",
+      "Dread Master Raptus",
+      "Dread Council"
+    ]
+  },
+  {
+    "Encounter": "The Ravagers",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Coratanni",
+    "Bosses": [
+      "Sparky",
+      "Quartermaster Bulo",
+      "Torque",
+      "Master & Blaster",
+      "Coratanni"
+    ]
+  },
+  {
+    "Encounter": "Temple of Sacrifice",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Revan",
+    "Bosses": [
+      "Malaphar the Savage",
+      "Sword Squadron",
+      "The Underlurker",
+      "Revanite Commanders",
+      "Revan"
+    ]
+  },
+  {
+    "Encounter": "Toborro's Palace",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Golden Fury",
+    "Bosses": [
+      "Golden Fury"
+    ]
+  },
+  {
+    "Encounter": "Xeno",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Xenoanalyst II",
+    "Bosses": [
+      "Xenoanalyst II"
+    ]
+  },
+  {
+    "Encounter": "Eyeless",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "The Eyeless",
+    "Bosses": [
+      "The Eyeless"
+    ]
+  },
+  {
+    "Encounter": "Queen's Hive",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Mutated Geonosian Queen",
+    "Bosses": [
+      "Mutated Geonosian Queen"
+    ]
+  },
+  {
+    "Encounter": "Colossal Monolith",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Colossal Monolith",
+    "Bosses": [
+      "Colossal Monolith"
+    ]
+  },
+  {
+    "Encounter": "Propagator Core",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Propagator Core XR-53",
+    "Bosses": [
+      "Propagator Core XR-53"
+    ]
+  },
+  {
+    "Encounter": "The Gods from the Machine",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "IZAX",
+    "Bosses": [
+      "TYTH",
+      "Aivela and Esne",
+      "NAHUT",
+      "SCYVA",
+      "IZAX"
+    ]
+  },
+  {
+    "Encounter": "Dxun",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Apex Vanguard",
+    "Bosses": [
+      "Red",
+      "Holding Pens I",
+      "Holding Pens II",
+      "Trandosians",
+      "Huntmaster",
+      "Apex Vanguard"
+    ]
+  },
+  {
+    "Encounter": "R4",
+    "RequireFirstBoss": true,
+    "CompletionBoss": "Lady Dominique",
+    "Bosses": [
+      "IP-CPT",
+      "Watchdog",
+      "Lord Kanoth",
+      "Lady Dominique"
+    ]
+  },
+  {
+    "Encounter": "The Black Talon",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Yadira Ban",
+    "Bosses": [
+      "Sergeant Boran",
+      "GXR-5 Sabotage Droid",
+      "GXR-7 Command Droid",
+      "Commander Ghulil",
+      "Yadira Ban"
+    ]
+  },
+  {
+    "Encounter": "The Esseles",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Vokk",
+    "Bosses": [
+      "Ironfist",
+      "Lieutenant Isric",
+      "ISS-7 Guardian Battledroid",
+      "ISS-944 Power Droid",
+      "Vokk"
+    ]
+  },
+  {
+    "Encounter": "Boarding Party",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Officer Trio",
+    "Bosses": [
+      "HXI-54 Juggernaut",
+      "Sakan Do'nair",
+      "Chief Engineer Kels",
+      "Officer Trio"
+    ]
+  },
+  {
+    "Encounter": "Hammer Station",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Battlelord Kreshan",
+    "Bosses": [
+      "DN-314 Tunneler",
+      "Asteroid Beast",
+      "Vorgan the Volcano",
+      "Battlelord Kreshan"
+    ]
+  },
+  {
+    "Encounter": "Athiss",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Prophet of Vodal",
+    "Bosses": [
+      "Professor Ley'arsha",
+      "The Beast of Vodal Kressh",
+      "Ancient Abomination",
+      "Prophet of Vodal"
+    ]
+  },
+  {
+    "Encounter": "Mandalorian Raiders",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Mavrix Varad",
+    "Bosses": [
+      "Braxx the Bloodhound",
+      "Republic Boarding Party",
+      "Imperial Boarding Party",
+      "Gil",
+      "Mavrix Varad"
+    ]
+  },
+  {
+    "Encounter": "Cademimu",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "General Ortol",
+    "Bosses": [
+      "Officer Xander",
+      "Captain Grimyk",
+      "Garold the Dark One",
+      "General Ortol"
+    ]
+  },
+  {
+    "Encounter": "The Red Reaper",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Darth Ikoral",
+    "Bosses": [
+      "Lord Kherus",
+      "SV-3 Eradicator",
+      "Darth Ikoral"
+    ]
+  },
+  {
+    "Encounter": "The Foundry",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Revan",
+    "Bosses": [
+      "Foundry Guardian",
+      "HK-47",
+      "N4-10 Exterminator",
+      "Burrorwer Matriarch",
+      "Revan"
+    ]
+  },
+  {
+    "Encounter": "Taral V",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "General Edikar",
+    "Bosses": [
+      "Captain Shivanek & Ripper",
+      "General Edikar"
+    ]
+  },
+  {
+    "Encounter": "Directive 7",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Mentor",
+    "Bosses": [
+      "Detector",
+      "Mentor Assasin Droids",
+      "Interrogator",
+      "Bulwark",
+      "Assembler",
+      "Replicator",
+      "Mentor"
+    ]
+  },
+  {
+    "Encounter": "The Battle of Ilum",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Darth Serevin",
+    "Bosses": [
+      "Gark the Indomitable",
+      "Velasu Graege & Drinda-Zel",
+      "Krel Thak",
+      "Darth Serevin"
+    ]
+  },
+  {
+    "Encounter": "The False Emperor",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Darth Malgus",
+    "Bosses": [
+      "Tregg the Destroyer",
+      "Jindo Krey",
+      "Prototype A-14 & Prototype B-16",
+      "HK-47",
+      "Sith Entity",
+      "Darth Malgus"
+    ]
+  },
+  {
+    "Encounter": "Kaon Under Siege",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Commander Lk�graagth",
+    "Bosses": [
+      "Rakghoul Behemoth",
+      "KR-82 Expulser",
+      "Commander Lk�graagth"
+    ]
+  },
+  {
+    "Encounter": "Lost Island",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Doctor Lorrick",
+    "Bosses": [
+      "Putrid Shaclaw",
+      "LR-5 Sentinel Droid",
+      "Transgenic Sample Seven",
+      "Project Sav-Rak",
+      "Transgenic Sample Eleven",
+      "Doctor Lorrick"
+    ]
+  },
+  {
+    "Encounter": "Czerka Corporate Labs",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Rasmus Blys",
+    "Bosses": [
+      "CZ-8X Eradicator Droid",
+      "Chief Zokar",
+      "Rasmus Blys"
+    ]
+  },
+  {
+    "Encounter": "Czerka Core Meltdown",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "The Vigilant",
+    "Bosses": [
+      "Enhanced Duneclaw",
+      "Enhanced Vrblther",
+      "The Vigilant"
+    ]
+  },
+  {
+    "Encounter": "Assault on Tython",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Lord Goh",
+    "Bosses": [
+      "Major Imos",
+      "Major Travik",
+      "Master Liam Dentiri",
+      "Republic Commander",
+      "Imperial Commander",
+      "Lieutenant Kreshin",
+      "Master Oric Traless",
+      "Lord Goh"
+    ]
+  },
+  {
+    "Encounter": "Korriban Incursion",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Darth Soverus",
+    "Bosses": [
+      "Master Riilna",
+      "Lord Renning",
+      "Republic Commander",
+      "Imperial Commander",
+      "R-9XR",
+      "I5-T1",
+      "Commander Jensyn",
+      "Darth Soverus"
+    ]
+  },
+  {
+    "Encounter": "Depths of Manaan",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Stivastin",
+    "Bosses": [
+      "Sairisi",
+      "Ortuno",
+      "M2-AUX Foreman",
+      "Stivastin"
+    ]
+  },
+  {
+    "Encounter": "Legacy of the Rakata",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Darth Arkous and Colonel Darok",
+    "Bosses": [
+      "Savage War Beast and War Chief Rehkta",
+      "Infinite Army Prototype",
+      "Commander Rand",
+      "Darth Arkous and Colonel Darok"
+    ]
+  },
+  {
+    "Encounter": "Blood Hunt",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Shae Vizla",
+    "Bosses": [
+      "Kyramla Gemas'rugam",
+      "Valk & Jos",
+      "Shae Vizla"
+    ]
+  },
+  {
+    "Encounter": "Battle of Rishi",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Shield Squadron Unit 1",
+    "Bosses": [
+      "Rarrook and Marko Ka",
+      "Master Obai and Lord Vodd",
+      "Commander Mokan",
+      "Shield Squadron Unit 1"
+    ]
+  },
+  {
+    "Encounter": "Crisis on Umbara",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Umbaran Spider Tank",
+    "Bosses": [
+      "Technician Canni & Elli-Vaa",
+      "Alpha Slybex",
+      "Vixian Mauler",
+      "Umbaran Spider Tank"
+    ]
+  },
+  {
+    "Encounter": "A Traitor Among The Chiss",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Valss",
+    "Bosses": [
+      "Guardian Droid",
+      "Syndic Zenta",
+      "Strike Team Walker",
+      "Valss"
+    ]
+  },
+  {
+    "Encounter": "The Nathema Conspiracy",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Vinn Atrius & Zildrog",
+    "Bosses": [
+      "Voreclaw",
+      "Hands of Zildrog",
+      "Ancient Guardian Droid",
+      "Gemini 16",
+      "Vinn Atrius & Zildrog"
+    ]
+  },
+  {
+    "Encounter": "Objective Meridian",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Darth Malgus",
+    "Bosses": [
+      "R10-X6",
+      "Vulture Squad",
+      "Commander Rasha",
+      "Lord Feng & Darth Yun",
+      "Master Jakir & Seldin",
+      "Commander Aster",
+      "Tau Idair",
+      "Darth Malgus"
+    ]
+  },
+  {
+    "Encounter": "Spirit of Vengeance",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Heta Kol",
+    "Bosses": [
+      "Gorga Brak",
+      "Goldie",
+      "Bask Sunn",
+      "Troya Ajak",
+      "Heta Kol"
+    ]
+  },
+  {
+    "Encounter": "Secrets of the Enclave",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Colonel Barden Golah",
+    "Bosses": [
+      "Graul",
+      "Republic Squad",
+      "Imperial Squad",
+      "Monstrous Terentatek",
+      "Master Leeha Narezz",
+      "Colonel Barden Golah"
+    ]
+  },
+  {
+    "Encounter": "Ruins of Nul",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Darth Malgus",
+    "Bosses": [
+      "Apex Ranphyx",
+      "Regnant",
+      "Droid Squad",
+      "Darth Malgus"
+    ]
+  },
+  {
+    "Encounter": "Maelstrom Prison",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "Grand Moff Kilran",
+    "Bosses": [
+      "Colonel Daksh",
+      "Lord Kancras",
+      "Ancient Maelstrom Flayer",
+      "Lord Vanithrast",
+      "Grand Moff Kilran"
+    ]
+  },
+  {
+    "Encounter": "Shrine of Silence",
+    "RequireFirstBoss": false,
+    "CompletionBoss": "The Curse",
+    "Bosses": [
+      "Corrupted Vorantikus",
+      "Voss Mystics",
+      "Kirba, the Forgotten",
+      "Nil-Uu",
+      "Soul Coil",
+      "The Curse"
+    ]
+  }
+]

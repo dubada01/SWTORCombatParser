@@ -63,6 +63,8 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                 var combatFiles = CombatLogLoader.LoadCombatsBetweenTimes(FromDate, ToDate.AddDays(1));
                 var combatsWithinRange = combatFiles.Where(c => c.Time > FromDate && c.Time <= ToDate.AddDays(1));
                 var allCombats = new List<Combat>();
+                try
+                {
                 foreach (var combatLog in combatsWithinRange)
                 {
                     var combatLines = CombatLogParser.ParseAllLines(combatLog);
@@ -88,9 +90,16 @@ namespace SWTORCombatParser.ViewModels.HistoricalLogs
                     window.SetString($"Cached {uploadedCombats.ToString("#,0")} boss combats");
                 }
                 HistoricalCombatsParsed(allCombats);
+                }
+                finally
+                {
+                    foreach (var combatFile in combatFiles)
+                        combatFile.Data.Dispose();
                 LoadingWindowFactory.HideLoading();
+                }
             });
 
         }
+
     }
 }

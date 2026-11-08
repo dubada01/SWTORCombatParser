@@ -33,8 +33,8 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -48,6 +48,11 @@ using SWTORCombatParser.DataStructures.PvP;
 using SWTORCombatParser.Views.Challenges;
 using SWTORCombatParser.Views.Death_Review;
 using SWTORCombatParser.Views.Timers;
+using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.SessionReview;
+using SWTORCombatParser.Views.SessionReview;
+using SWTORCombatParser.Model.RunRace;
+using SWTORCombatParser.Views.RunRace;
 
 namespace SWTORCombatParser.ViewModels
 {
@@ -57,6 +62,10 @@ namespace SWTORCombatParser.ViewModels
         private readonly BattleReviewViewModel _reviewViewModel;
         private readonly CombatMonitorViewModel _combatMonitorViewModel;
         private readonly OverlayViewModel _overlayViewModel;
+        private readonly SessionReviewService _sessionReviewService;
+        private SessionReviewWindow? _sessionReviewWindow;
+        private readonly RunRaceService _runRaceService;
+        private RunRaceWindow? _runRaceWindow;
         private readonly OverviewViewModel _tableViewModel;
         private readonly DataGridViewModel _dataGridViewModel;
         private readonly RaidwideBattleReviewViewModel _deathViewModel;
@@ -161,7 +170,7 @@ namespace SWTORCombatParser.ViewModels
 
             MainWindowClosing.Hiding += () =>
             {
-                if (!SwtorDetector.SwtorRunning)
+                if (!SwtorDetector.SwtorRunning && !_combatMonitorViewModel.IsReplaying)
                     _overlayViewModel!.HideOverlays();
                 if (SwtorDetector.SwtorRunning && !_combatMonitorViewModel!.LiveParseActive)
                     _combatMonitorViewModel.EnableLiveParse();
@@ -169,6 +178,10 @@ namespace SWTORCombatParser.ViewModels
                     _overlayViewModel!.OverlaysLocked = true;
             };
             _combatMonitorViewModel = new CombatMonitorViewModel();
+            _runRaceService = new RunRaceService();
+            _combatMonitorViewModel.OnHistoricalCombatsParsed += _runRaceService.ImportHistoricalCombats;
+            _combatMonitorViewModel.OnMonitoringStateChanged += _runRaceService.SetMonitoringState;
+            _runRaceService.Start();
             CombatSelectionMonitor.CombatSelected += SelectCombat;
             Observable.FromEvent<double>(
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs += manager,
@@ -206,7 +219,8 @@ namespace SWTORCombatParser.ViewModels
             });
             
             
-            _overlayViewModel = new OverlayViewModel();
+            _sessionReviewService = new SessionReviewService(_combatMonitorViewModel);
+            _overlayViewModel = new OverlayViewModel(_sessionReviewService, _runRaceService);
             _overlayViewModel.OverlayLockStateChanged += () => this.RaisePropertyChanged(nameof(OverlayLockIcon));
             _timersView = new TimersCreationView();
             _timersView.DataContext = _overlayViewModel._timersViewModel;
@@ -243,7 +257,20 @@ namespace SWTORCombatParser.ViewModels
             };
             ParselyUploader.UploadCompleted += HandleParselyUploadComplete;
             ParselyUploader.UploadStarted += HandleParselyUploadStart;
+            MainWindowClosing.Closing += DisposeSessionFeatures;
 
+        }
+
+        private void DisposeSessionFeatures()
+        {
+            _combatMonitorViewModel.CancelReplay();
+            MainWindowClosing.Closing -= DisposeSessionFeatures;
+            _sessionReviewWindow?.Close();
+            _runRaceWindow?.Close();
+            _combatMonitorViewModel.OnHistoricalCombatsParsed -= _runRaceService.ImportHistoricalCombats;
+            _combatMonitorViewModel.OnMonitoringStateChanged -= _runRaceService.SetMonitoringState;
+            _runRaceService.Dispose();
+            _sessionReviewService.Dispose();
         }
         private void FilterForPhase(List<PhaseInstance> list)
         {
@@ -347,7 +374,40 @@ namespace SWTORCombatParser.ViewModels
         public Bitmap OverlayLockIcon => _overlayViewModel.OverlaysLocked
             ? ImageHelper.LoadFromResource("avares://Orbs/resources/lockedIcon.png")
             : ImageHelper.LoadFromResource("avares://Orbs/resources/unlockedIcon.png");
-        public ReactiveCommand<Unit, Task> OpenPastCombatsCommand => _combatMonitorViewModel.LoadSpecificLogCommand;
+        public ReactiveCommand<Unit, Unit> OpenPastCombatsCommand => _combatMonitorViewModel.LoadSpecificLogCommand;
+        public ReactiveCommand<Unit, Unit> OpenSessionReviewCommand => ReactiveCommand.Create(OpenSessionReview);
+        public ReactiveCommand<Unit, Unit> OpenRunRaceCommand => ReactiveCommand.Create(OpenRunRace);
+
+        private void OpenRunRace()
+        {
+            if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop ||
+                desktop.MainWindow == null)
+                return;
+            if (_runRaceWindow != null)
+            {
+                _runRaceWindow.Activate();
+                return;
+            }
+            _runRaceWindow = new RunRaceWindow(_runRaceService);
+            _runRaceWindow.LoadPreviousLogRequested += () => OpenPastCombatsCommand.Execute().Subscribe();
+            _runRaceWindow.Closed += (_, _) => _runRaceWindow = null;
+            _runRaceWindow.Show(desktop.MainWindow);
+        }
+
+        private void OpenSessionReview()
+        {
+            if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop ||
+                desktop.MainWindow == null)
+                return;
+            if (_sessionReviewWindow != null)
+            {
+                _sessionReviewWindow.Activate();
+                return;
+            }
+            _sessionReviewWindow = new SessionReviewWindow(_sessionReviewService);
+            _sessionReviewWindow.Closed += (_, _) => _sessionReviewWindow = null;
+            _sessionReviewWindow.Show(desktop.MainWindow);
+        }
         public ReactiveCommand<Unit,Unit> OpenParselyCommand => ReactiveCommand.Create(OpenParsely);
 
         public ReactiveCommand<Unit, Unit> OpenOrbsStatsCommand => ReactiveCommand.Create(OpenOrbsStats);
@@ -445,8 +505,9 @@ namespace SWTORCombatParser.ViewModels
                 SelectCombat(CurrentlyDisplayedCombat);
         }
 
-        private void ProcessChanged(bool obj)
+        private async void ProcessChanged(bool obj)
         {
+            if (_combatMonitorViewModel.IsReplaying) return;
             if (obj)
             {
                 if (LoadingWindowFactory.MainWindowHidden)
@@ -457,7 +518,7 @@ namespace SWTORCombatParser.ViewModels
             }
             else
             {
-                _combatMonitorViewModel.DisableLiveParse();
+                await _combatMonitorViewModel.DisableLiveParse();
                 if (LoadingWindowFactory.MainWindowHidden)
                     _overlayViewModel.HideOverlays();
             }

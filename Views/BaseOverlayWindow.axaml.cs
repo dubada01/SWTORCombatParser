@@ -164,7 +164,7 @@ public partial class BaseOverlayWindow : Window
     private void InitOverlay(object? sender, RoutedEventArgs e)
     {
         ToggleClickThrough(!_viewModel.OverlaysMoveable);
-        IdentifierText.Text = _viewModel._overlayName;
+        IdentifierText.Text = _viewModel.OverlayDisplayName;
         #if WINDOWS
         var renderScaling = RenderScaling;
         #endif

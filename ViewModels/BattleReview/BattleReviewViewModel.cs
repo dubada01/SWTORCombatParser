@@ -1,10 +1,10 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Views.Battle_Review;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading;
+using Avalonia.Threading;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.BattleReview
@@ -57,9 +57,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         private EventHistoryViewModel _eventViewModel;
         private DisplayType selectedDisplayType;
         private string logFilter;
-        private System.Threading.Timer timer;
-        private bool updatePending = false;
-        private object lockObject = new object();
+        private readonly DispatcherTimer _filterTimer;
         private List<AvailableEntity> _availableEntities = new List<AvailableEntity>();
         private EventHistoryView _eventViewContent;
 
@@ -69,34 +67,11 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             {
                 if (value == logFilter)
                     return;
-                logFilter = value;
-                System.Threading.Tasks.Task.Run(() => {
-                    lock (lockObject)
-                    {
-                        if (!updatePending)
-                        {
-                            
-                            // Start or reset the timer
-                            timer.Change(500, Timeout.Infinite);
-                            updatePending = true;
-                        }
-                        _eventViewModel.SetFilter(logFilter);
-                    }
-
-                });
-
+                this.RaiseAndSetIfChanged(ref logFilter, value);
+                _eventViewModel.SetFilterText(value);
+                _filterTimer.Stop();
+                _filterTimer.Start();
             }
-        }
-        private void TimerCallback(object state)
-        {
-
-            // Perform the filter update on the appropriate thread if required
-            _eventViewModel.SetFilter(logFilter);
-            lock (lockObject)
-            {
-                updatePending = false;
-            }
-
         }
 
         public EventHistoryView EventViewContent
@@ -126,8 +101,12 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         {
             _eventViewModel = new EventHistoryViewModel();
             EventViewContent = new EventHistoryView(_eventViewModel);
-            // Initialize the timer but don't start it yet
-            timer = new System.Threading.Timer(TimerCallback, null, Timeout.Infinite, Timeout.Infinite);
+            _filterTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+            _filterTimer.Tick += (_, _) =>
+            {
+                _filterTimer.Stop();
+                _ = _eventViewModel.UpdateLogs();
+            };
         }
         public void CombatSelected(Combat combat)
         {
@@ -158,6 +137,14 @@ namespace SWTORCombatParser.ViewModels.BattleReview
             {
                 AvailableEntities.Add(entitiy);
             }
+            // The comparer retains rows by name. Rebind their entities when a new
+            // combat contains the same name with a different instance/log ID.
+            foreach (var existing in AvailableEntities)
+            {
+                var replacement = newEntities.FirstOrDefault(e => e.Entity.Name == existing.Entity.Name);
+                if (replacement != null)
+                    existing.Entity = replacement.Entity;
+            }
             AvailableEntities = AvailableEntities.OrderBy(e => e.Entity.Name).ToList();
             if (!AvailableEntities.Any(e => e.Entity.Name == "All"))
             {
@@ -165,8 +152,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
                 allEntity.EntitiySelectionUpdated += UpdateSelectedEntities;
                 AvailableEntities.Insert(0, allEntity);
                 allEntity.DefaultSeleted();
-                _eventViewModel.SetViewableEntities(AvailableEntities.Where(e => e.Selected).Select(e => e.Entity).ToList());
             }
+            _eventViewModel.SetViewableEntities(AvailableEntities.Where(e => e.Selected).Select(e => e.Entity).ToList());
         }
         private void UpdateSelectedEntities(Entity entity, bool selection)
         {
@@ -183,7 +170,8 @@ namespace SWTORCombatParser.ViewModels.BattleReview
         }
         private void UpdateVisuals()
         {
-            _eventViewModel.SelectCombat(_currentlySelectedCombats);
+            if (_currentlySelectedCombats != null)
+                _ = _eventViewModel.SelectCombat(_currentlySelectedCombats);
         }
 
     }
@@ -197,7 +185,7 @@ namespace SWTORCombatParser.ViewModels.BattleReview
 
         public int GetHashCode([DisallowNull] AvailableEntity obj)
         {
-            return obj.Entity.GetHashCode();
+            return obj.Entity.Name == null ? 0 : StringComparer.Ordinal.GetHashCode(obj.Entity.Name);
         }
     }
 }

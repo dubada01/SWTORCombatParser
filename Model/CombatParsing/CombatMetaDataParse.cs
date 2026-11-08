@@ -16,7 +16,7 @@ namespace SWTORCombatParser.Model.CombatParsing
         private static HashSet<ulong> stunAbilityIds = new HashSet<ulong> { 814214130171904, 814802540691456,3908961405239296, 1962284658196480, 808244125630464, 807754499358720, 958439131971584, 807178973741056, 1679250608357376, 1261925816074240 };
         
         private static readonly HashSet<ulong> _cleanseAbilityIds = new HashSet<ulong> { 985007799664640, 3413249164836864, 992541172301824, 981455861710848, 3412806783205376, 952181364621312, 992541172302291, 985007799664916,981455861711254};
-        private static HashSet<ulong> abilityIdsThatCanInterrupt => new HashSet<ulong>(_interruptAbilityIds.Concat(stunAbilityIds));
+        private static readonly HashSet<ulong> abilityIdsThatCanInterrupt = new HashSet<ulong>(_interruptAbilityIds.Concat(stunAbilityIds));
         public static void PopulateMetaData(Combat combatToPopulate)
         {
             var combat = combatToPopulate;
@@ -82,13 +82,14 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 );
 
 // 6) big-hit timestamps (still a List<DateTime>)
-                var bigDamageTimestamps = GetTimestampOfBigHits(incomingList
+                var damageWindow = new DamageWindow();
+                var bigDamageTimestamps = new List<DateTime>();
+                damageWindow.Append(incomingList
                     .Where(l =>
                         l.Effect.EffectType == EffectType.Apply &&
                         l.Effect.EffectId   == _7_0LogParsing._damageEffectId
-                    )
-                    .ToList()
-                );
+                    ), bigDamageTimestamps);
+                combat.DamageWindows[entity] = damageWindow;
                 combat.BigDamageTimestamps[entity] = bigDamageTimestamps;
 
 // 7) mitigated-damage
@@ -172,24 +173,6 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     }
                 }
 
-// Step 2: Later — after all enemies processed — rebuild TotalThreat[player]
-                
-                foreach (var enemyKvp in combat.PlayerThreatPerEnemy)
-                {
-                    foreach (var playerKvp in enemyKvp.Value)
-                    {
-                        if (playerKvp.Key != entity)
-                            continue;
-                        var player = playerKvp.Key;
-                        var threat = playerKvp.Value;
-
-                        if (!combat.TotalThreat.ContainsKey(player))
-                            combat.TotalThreat[player] = 0;
-
-                        combat.TotalThreat[player] += threat;
-                    }
-                }
-                
                 combat.MaxDamage[entity] = combat.OutgoingDamageLogs[entity].Count == 0
                     ? 0
                     : combat.OutgoingDamageLogs[entity].Max(l => l.Value.DblValue);
@@ -230,6 +213,11 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     : combat.IncomingHealingLogs[entity].Max(l => l.Value.EffectiveDblValue);
             }
 
+            // All enemy buckets must be populated before totals are aggregated.
+            foreach (var enemy in combat.PlayerThreatPerEnemy.Values)
+            foreach (var (player, threat) in enemy)
+                combat.TotalThreat[player] = combat.TotalThreat.GetValueOrDefault(player) + threat;
+
             if ((combat.DurationSeconds % 50) == 0 || !combat.HasBurstValues() || combat.AllBurstDamages.Keys.Count != combat.CharacterParticipants.Count)
                 combat.SetBurstValues();
 
@@ -248,11 +236,10 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 
         public static void ApplyIncrementalMetaData(Combat combat, IEnumerable<ParsedLogEntry> newLogs)
         {
+            var newLogList = newLogs.ToList();
 // lazy‐init every dictionary/list for brand‐new entities
             void EnsureEntity(Entity e)
             {
-                combat.AllEntities.TryAdd(e.LogId, e);
-
                 // per‐entity buckets of parsed logs
                 if (!combat.TotalAbilites.ContainsKey(e))
                 {
@@ -271,8 +258,6 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     combat.TotalFocusDamage[e] = 0;
                     combat.TotalEffectiveFocusDamage[e] = 0;
                     combat.TotalCompanionDamage[e] = 0;
-                    combat.TotalDamage[e] = 0;
-                    combat.TotalEffectiveDamage[e] = 0;
                     combat.MaxDamage[e] = 0;
                     combat.MaxEffectiveDamage[e] = 0;
 
@@ -306,6 +291,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     combat.TimeSpentBelowFullHealth[e] = 0;
 
                     combat.BigDamageTimestamps[e] = new List<DateTime>();
+                    combat.DamageWindows[e] = new DamageWindow();
 
                     // phase‐/burst‐related (if you reference them before first SetBurstValues)
                     if (!combat.AllBurstDamages.ContainsKey(e)) combat.AllBurstDamages[e] = new List<Point>();
@@ -333,7 +319,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
             }
 
             // 2) Fold in each new log entry
-            foreach (var log in newLogs)
+            foreach (var log in newLogList)
             {
                 var src = log.Source;
                 var tgt = log.Target;
@@ -345,21 +331,19 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 EnsureEntity(src);
                 EnsureEntity(tgt);
                 
-                // any log with a positive threat value, regardless of effect type:
+                // Threat changes can be negative (for example, threat drops).
                 var thr = log.Threat;
-                if (thr > 0)
+                if (thr != 0)
                 {
                     if (!log.Target.IsCharacter)
                     {
                         // enemy = log.Target, player = log.Source
                         var threatDict = combat.PlayerThreatPerEnemy[log.Target];
                         // increment the per‐enemy, per‐player bucket
-                        threatDict[log.Source] = threatDict.TryGetValue(log.Source, out var soFar)
-                            ? soFar + thr
-                            : thr;
-
-                        // and increment the running total for that player
-                        combat.TotalThreat[log.Source] += thr;
+                        var previousThreat = threatDict.TryGetValue(log.Source, out var soFar) ? soFar : 0;
+                        var updatedThreat = Math.Max(0, previousThreat + thr);
+                        threatDict[log.Source] = updatedThreat;
+                        combat.TotalThreat[log.Source] += updatedThreat - previousThreat;
                     }
 
                 }
@@ -367,7 +351,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 // ─── OUTGOING DAMAGE ─────────────────────────────────────────────────────
                 if (et == EffectType.Apply
                     && eid == _7_0LogParsing._damageEffectId
-                    && src != tgt)
+                    && src.Name != tgt.Name)
                 {
                     combat.OutgoingDamageLogs[src].Enqueue(log);
 
@@ -379,8 +363,6 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     combat.TotalFocusDamage[src] += bossIds.Contains(tgt.LogId) ? dmg : 0;
                     combat.TotalEffectiveFocusDamage[src] += bossIds.Contains(tgt.LogId) ? edmg : 0;
 
-                    combat.TotalDamage[src] += dmg;
-                    combat.TotalEffectiveDamage[src] += edmg;
                     combat.MaxDamage[src] = Math.Max(combat.MaxDamage[src], dmg);
                     combat.MaxEffectiveDamage[src] = Math.Max(combat.MaxEffectiveDamage[src], edmg);
                 }
@@ -394,7 +376,7 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     double taken = val.DblValue;
                     double mitigated = val.MitigatedDblValue;
                     combat.TotalDamageTaken[tgt] += taken;
-                    combat.TotalEffectiveDamageTaken[tgt] += val.EffectiveDblValue;
+                    combat.TotalEffectiveDamageTaken[tgt] += mitigated;
                     combat.MaxIncomingDamage[tgt] = Math.Max(combat.MaxIncomingDamage[tgt], taken);
                     combat.MaxEffectiveIncomingDamage[tgt] =
                         Math.Max(combat.MaxEffectiveIncomingDamage[tgt], mitigated);
@@ -411,10 +393,6 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                         combat.ShieldingProvidedLogs[tgt].Enqueue(log);
                         combat.TotalTankSheilding[tgt] += val.Modifier.DblValue;
                     }
-                    // big hits (5% thresholds)
-                    var bigs = GetTimestampOfBigHits([log]);
-                    if (bigs.Count > 0)
-                        combat.BigDamageTimestamps[tgt].AddRange(bigs);
                 }
 
                 // ─── OUTGOING HEALING ────────────────────────────────────────────────────
@@ -426,9 +404,13 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     double heal = val.DblValue;
                     double eheal = val.EffectiveDblValue;
                     combat.TotalHealing[src] += heal;
-                    combat.TotalEffectiveHealing[src] += eheal;
-                    combat.MaxHeal[src] = Math.Max(combat.MaxHeal[src], heal);
-                    combat.MaxEffectiveHeal[src] = Math.Max(combat.MaxEffectiveHeal[src], eheal);
+                    if (log.AbilityId != 813707324030976 && log.AbilityId != 3289210509328384)
+                        combat.TotalEffectiveHealing[src] += eheal;
+                    if (log.AbilityId != 813707324030976 && log.AbilityId != 3289210509328384 && log.AbilityId != 864164599824384)
+                    {
+                        combat.MaxHeal[src] = Math.Max(combat.MaxHeal[src], heal);
+                        combat.MaxEffectiveHeal[src] = Math.Max(combat.MaxEffectiveHeal[src], eheal);
+                    }
                 }
 
                 // ─── INCOMING HEALING ───────────────────────────────────────────────────
@@ -480,6 +462,31 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                 }
             }
 
+            // Carry the unfinished one-second window across frames instead of
+            // rescanning each target's entire combat history every 250 ms.
+            var damageByTarget = newLogList
+                .Where(l => l.Effect.EffectType == EffectType.Apply && l.Effect.EffectId == _7_0LogParsing._damageEffectId)
+                .GroupBy(l => l.Target)
+                .ToList();
+            var damagedEntities = damageByTarget.Select(group => group.Key).ToList();
+            foreach (var group in damageByTarget)
+            {
+                if (!combat.DamageWindows.TryGetValue(group.Key, out var window))
+                {
+                    // A combat populated outside the normal snapshot path needs
+                    // a one-time bootstrap, including this frame's queued logs.
+                    window = new DamageWindow();
+                    combat.DamageWindows[group.Key] = window;
+                    var timestamps = new List<DateTime>();
+                    window.Append(combat.IncomingDamageLogs[group.Key], timestamps);
+                    combat.BigDamageTimestamps[group.Key] = timestamps;
+                }
+                else
+                {
+                    window.Append(group, combat.BigDamageTimestamps[group.Key]);
+                }
+            }
+
             // 3) Burst values (every ~50s or if missing)
             if ((combat.DurationSeconds % 50) == 0
                 || !combat.HasBurstValues()
@@ -522,12 +529,6 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
             // ─── 5) **Recompute “avoided damage”** ─────────────────────────────────────
             // for each target that got new damage logs, recalc the full avoidance sum,
             // take the delta vs. the old value, and apply it here.
-            var damagedEntities = newLogs
-                .Where(l => l.Effect.EffectType == EffectType.Apply
-                            && l.Effect.EffectId   == _7_0LogParsing._damageEffectId)
-                .Select(l => l.Target)
-                .Distinct();
-
             foreach (var entity in damagedEntities)
             {
                 // new full sum of all avoided (parry/deflect/dodge/resist)
@@ -596,34 +597,35 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
 
             return null;
         }
-        private static List<DateTime> GetTimestampOfBigHits(List<ParsedLogEntry> incomingDamage)
+        internal sealed class DamageWindow
         {
-            var timestamps = new List<DateTime>();
-            if (incomingDamage.Count == 0)
-                return timestamps;
+            private readonly Queue<(DateTime Time, double Damage)> _pending = new();
+            private double? _threshold;
+            private double _total;
 
-            var threshold = incomingDamage.First().TargetInfo.MaxHP * 0.05;
-            List<(DateTime, double)> oneSecondOfDamage = new List<(DateTime, double)>();
-            foreach (var damage in incomingDamage)
+            public void Append(IEnumerable<ParsedLogEntry> incomingDamage, List<DateTime> timestamps)
             {
-                if (damage.Value.EffectiveDblValue >= threshold)
+                foreach (var damage in incomingDamage)
                 {
-                    timestamps.Add(damage.TimeStamp);
-                    oneSecondOfDamage.Clear();
-                }
-                else
-                {
-                    oneSecondOfDamage.Add((damage.TimeStamp, damage.Value.EffectiveDblValue));
-                    oneSecondOfDamage.RemoveAll(v => (damage.TimeStamp - v.Item1) > TimeSpan.FromSeconds(1));
-                    var totalDamageOverLastSecond = oneSecondOfDamage.Select(v => v.Item2).Sum();
-                    if (totalDamageOverLastSecond >= threshold)
+                    _threshold ??= damage.TargetInfo.MaxHP * 0.05;
+                    var value = damage.Value.EffectiveDblValue;
+                    if (value < _threshold.Value)
+                    {
+                        while (_pending.Count > 0 && damage.TimeStamp - _pending.Peek().Time > TimeSpan.FromSeconds(1))
+                            _total -= _pending.Dequeue().Damage;
+                        if (_pending.Count == 0)
+                            _total = 0;
+                        _pending.Enqueue((damage.TimeStamp, value));
+                        _total += value;
+                    }
+                    if (value >= _threshold.Value || _total >= _threshold.Value)
                     {
                         timestamps.Add(damage.TimeStamp);
-                        oneSecondOfDamage.Clear();
+                        _pending.Clear();
+                        _total = 0;
                     }
                 }
             }
-            return timestamps;
         }
         private static Dictionary<Entity, List<DateTime>> GetTimestampsOfAbilitiesOnPlayers(ConcurrentQueue<ParsedLogEntry> abilityActivateLogs)
         {

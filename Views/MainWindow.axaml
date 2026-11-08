@@ -63,6 +63,10 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
+            <MenuItem Header="_Sessions">
+                <MenuItem Header="_Session Review..." Command="{Binding OpenSessionReviewCommand}"/>
+                <MenuItem Header="_Run Race..." Command="{Binding OpenRunRaceCommand}"/>
+            </MenuItem>
             <MenuItem Header="_Timers">
                 <MenuItem Header="Timers" Command="{Binding ShowTimerWindowCommand}">
                     <MenuItem.Icon>

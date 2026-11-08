@@ -18,36 +18,46 @@ namespace SWTORCombatParser.Model.CloudRaiding
     }
     public static class ParselyUploader
     {
-        private static string parselyURL = "https://parsely.io/api/upload2";
+        private static readonly string parselyURL = "https://parsely.io/api/upload2";
+        private static readonly HttpClient client = CreateClient();
         internal static event Action<bool, string> UploadCompleted = delegate { };
         internal static event Action UploadStarted = delegate { };  
         internal static async Task<string> UploadCurrentCombat(string currentlySelectedLogName)
         {
+            if (Model.LogParsing.LogReplayContext.IsReplayFile(currentlySelectedLogName))
+                return "Debug replays cannot be uploaded. Open the original combat log to upload it.";
             if (string.IsNullOrEmpty(currentlySelectedLogName) || !File.Exists(currentlySelectedLogName))
             {
                 UploadCompleted(false, "");
                 return "Error: No log file selected";
             }
-            var logText = ReadAllText(currentlySelectedLogName);
-            var response = await TryUploadText(logText, currentlySelectedLogName);
-            return response.WasSuccess ? "" : $"Error: Failed to upload log\r\n {response.ErrorMessage}";
+            try
+            {
+                var logText = ReadAllText(currentlySelectedLogName);
+                var response = await TryUploadText(logText, currentlySelectedLogName);
+                return response.WasSuccess ? "" : $"Error: Failed to upload log\r\n {response.ErrorMessage}";
+            }
+            catch (Exception ex)
+            {
+                UploadCompleted(false, "");
+                return $"Error: Failed to read log\r\n {ex.Message}";
+            }
         }
         public static async Task<LogUploadResponse> TryUploadText(string logText, string logFileName)
         {
+            if (Model.LogParsing.LogReplayContext.IsReplayFile(logFileName))
+                return new LogUploadResponse { WasSuccess = false, ErrorMessage = "Debug replays cannot be uploaded. Open the original combat log to upload it." };
             UploadStarted();
-            var zippedData = Zip(logText);
-            var parselyLink = "";
-            using (var client = new HttpClient())
+            try
             {
-                client.Timeout = TimeSpan.FromSeconds(300);
-                client.DefaultRequestHeaders.Add("User-Agent", "Orbs v" + Assembly.GetExecutingAssembly().GetName().Version);
+                var zippedData = Zip(logText);
                 using (var content = new MultipartFormDataContent())
                 {
                     var test = new ByteArrayContent(zippedData);
                     test.Headers.Add("Content-Type", "text/html");
                     test.Headers.Add("Content-Transfer-Encoding", "binary");
 
-                    content.Add(test, "file", logFileName);
+                    content.Add(test, "file", Path.GetFileName(logFileName));
                     if (Settings.HasSetting("username"))
                     {
                         content.Add(new StringContent(Settings.ReadSettingOfType<string>("username").Trim('"')), "username");
@@ -56,30 +66,36 @@ namespace SWTORCombatParser.Model.CloudRaiding
                             content.Add(new StringContent(Settings.ReadSettingOfType<string>("guild").Trim('"')), "guild");
                     }
                     content.Add(new StringContent("1"), "public");
-                    try
+                    using (var message = await client.PostAsync(parselyURL, content))
                     {
-                        using (var message = await client.PostAsync(parselyURL, content))
+                        var response = await message.Content.ReadAsStringAsync();
+                        if (!message.IsSuccessStatusCode || response.Contains("NOT OK", StringComparison.OrdinalIgnoreCase) || response.Contains("error", StringComparison.OrdinalIgnoreCase))
                         {
-                            var response = await message.Content.ReadAsStringAsync();
-                            if (response.Contains("NOT OK") || response.Contains("error"))
-                            {
-                                UploadCompleted(false, "");
-                                return new LogUploadResponse { WasSuccess = false, ErrorMessage = response};
-                            }
-                            XmlDocument xdoc = new XmlDocument();
-                            xdoc.LoadXml(response);
-                            parselyLink = xdoc.GetElementsByTagName("file")[0].InnerText;
-                            UploadCompleted(true, parselyLink);
-                            return new LogUploadResponse { WasSuccess = true, ParselyLink = parselyLink };
+                            UploadCompleted(false, "");
+                            return new LogUploadResponse { WasSuccess = false, ErrorMessage = $"HTTP {(int)message.StatusCode}: {response}" };
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        UploadCompleted(false, "");
-                        return new LogUploadResponse { WasSuccess = false, ErrorMessage = ex.Message };
+                        XmlDocument xdoc = new XmlDocument { XmlResolver = null };
+                        using var xmlReader = XmlReader.Create(new StringReader(response), new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null });
+                        xdoc.Load(xmlReader);
+                        var parselyLink = xdoc.GetElementsByTagName("file")[0]?.InnerText;
+                        if (!Uri.TryCreate(parselyLink, UriKind.Absolute, out var link) || link.Scheme != Uri.UriSchemeHttps)
+                            throw new InvalidDataException("Parsely returned an invalid upload link.");
+                        UploadCompleted(true, parselyLink);
+                        return new LogUploadResponse { WasSuccess = true, ParselyLink = parselyLink };
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                UploadCompleted(false, "");
+                return new LogUploadResponse { WasSuccess = false, ErrorMessage = ex.Message };
+            }
+        }
+        private static HttpClient CreateClient()
+        {
+            var connection = new HttpClient { Timeout = TimeSpan.FromSeconds(300) };
+            connection.DefaultRequestHeaders.Add("User-Agent", "Orbs v" + Assembly.GetExecutingAssembly().GetName().Version);
+            return connection;
         }
         static string ReadAllText(string file)
         {

@@ -12,6 +12,7 @@ namespace SWTORCombatParser.Model.CloudLogging
     public static class CloudLogging
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
+        private static readonly HttpClient _client = new HttpClient();
         private static Guid _appStartupId;
         public static async Task UploadLogAsync(string logMessage, string logCategory)
         {
@@ -22,12 +23,9 @@ namespace SWTORCombatParser.Model.CloudLogging
                 var pcName = Dns.GetHostName();
                 var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 var Ip = GetLocalIPAddress();
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/logging/add?message={logMessage}&category={logCategory}&hostName={pcName}&ipAddress={Ip}&version={version}");
-                    var response = await connection.GetAsync(uri);
-                    return;
-                }
+                Uri uri = new Uri($"{_apiPath}/logging/add?message={Uri.EscapeDataString(logMessage ?? string.Empty)}&category={Uri.EscapeDataString(logCategory ?? string.Empty)}&hostName={Uri.EscapeDataString(pcName)}&ipAddress={Uri.EscapeDataString(Ip)}&version={Uri.EscapeDataString(version)}");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
             {
@@ -45,12 +43,9 @@ namespace SWTORCombatParser.Model.CloudLogging
                 
                 var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                 _appStartupId = Guid.NewGuid();
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/logging/startup?id={_appStartupId}&version={version}");
-                    var response = await connection.GetAsync(uri);
-                    return;
-                }
+                Uri uri = new Uri($"{_apiPath}/logging/startup?id={_appStartupId}&version={Uri.EscapeDataString(version)}");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
             {
@@ -66,12 +61,9 @@ namespace SWTORCombatParser.Model.CloudLogging
             try
             {
                 var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/logging/shutdown?id={_appStartupId}&version={version}");
-                    var response = await connection.GetAsync(uri);
-                    return;
-                }
+                Uri uri = new Uri($"{_apiPath}/logging/shutdown?id={_appStartupId}&version={Uri.EscapeDataString(version)}");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
             {

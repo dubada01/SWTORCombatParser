@@ -100,6 +100,8 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private async void Import(object obj)
         {
             var challenge = await ChallengeDatabaseAccess.GetChallengeFromId(ImportId);
+            if (challenge == null)
+                return;
             NewChallenge(challenge, false);
         }
         private async void Share(ChallengeRowViewModel obj)

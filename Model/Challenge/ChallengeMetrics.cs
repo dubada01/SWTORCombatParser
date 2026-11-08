@@ -12,25 +12,28 @@ namespace SWTORCombatParser.Model.Challenge
         {
 
             double value = 0;
+            var divisor = activeChallenge.UseRawValues ? 1 : combat.DurationSeconds;
             switch (type)
             {
                 case ChallengeType.DamageIn:
                     value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value.ToLower() == "any" ?
 
-                         combat.GetDamageFromEntityByPlayer(activeChallenge.ChallengeSource, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds)
+                         combat.GetDamageFromEntityByPlayer(activeChallenge.ChallengeSource, participant)
                          :
-                        string.IsNullOrEmpty(activeChallenge.ChallengeSource) || activeChallenge.ChallengeSource.ToLower() == "any" ? combat.GetDamageIncomingByAbilityForPlayer(activeChallenge.Value, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
-                        combat.GetDamageFromEntityByAbilityForPlayer(activeChallenge.Value, activeChallenge.ChallengeSource, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds);
+                        string.IsNullOrEmpty(activeChallenge.ChallengeSource) || activeChallenge.ChallengeSource.ToLower() == "any" ? combat.GetDamageIncomingByAbilityForPlayer(activeChallenge.Value, participant) :
+                        combat.GetDamageFromEntityByAbilityForPlayer(activeChallenge.Value, activeChallenge.ChallengeSource, participant);
+                    value = divisor > 0 ? value / divisor : 0;
                     break;
                 case ChallengeType.DamageOut:
                     value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value.ToLower() == "any" ?
-                        combat.GetDamageToEntityByPlayer(activeChallenge.ChallengeTarget, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
+                        combat.GetDamageToEntityByPlayer(activeChallenge.ChallengeTarget, participant) :
                         string.IsNullOrEmpty(activeChallenge.ChallengeTarget) || activeChallenge.ChallengeTarget.ToLower() == "any" ?
-                        combat.GetDamageOutgoingByAbilityForPlayer(activeChallenge.Value, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds) :
-                        combat.GetDamageToEntityByAbilityForPlayer(activeChallenge.Value, activeChallenge.ChallengeTarget, participant) / (activeChallenge.UseRawValues ? 1 : combat.DurationSeconds);
+                        combat.GetDamageOutgoingByAbilityForPlayer(activeChallenge.Value, participant) :
+                        combat.GetDamageToEntityByAbilityForPlayer(activeChallenge.Value, activeChallenge.ChallengeTarget, participant);
+                    value = divisor > 0 ? value / divisor : 0;
                     break;
                 case ChallengeType.InterruptCount:
-                    value = combat.TotalInterrupts[participant];
+                    combat.TotalInterrupts.TryGetValue(participant, out value);
                     break;
                 case ChallengeType.AbilityCount:
                     value = combat.GetLogsInvolvingEntity(participant).Count(l => l.Effect.EffectId == _7_0LogParsing.AbilityActivateId && (l.Ability == activeChallenge.Value || (long.TryParse(activeChallenge.Value, out var _) && l.AbilityId == ulong.Parse(activeChallenge.Value))));

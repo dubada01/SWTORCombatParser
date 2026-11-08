@@ -1,8 +1,9 @@
-﻿//using MoreLinq;
+//using MoreLinq;
 using Newtonsoft.Json;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -11,22 +12,24 @@ using System.Web;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
-    public static class API_Connection
+    public static partial class API_Connection
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
+        private static readonly HttpClient _client = new HttpClient(new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
+        });
         public static async Task<int> GetCurrentLeaderboardVersion()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
                 return 0;
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/version");
-                    var response = await connection.GetAsync(uri);
-                    var body = await response.Content.ReadFromJsonAsync<int>();
-                    return body;
-                }
+                Uri uri = new Uri($"{_apiPath}/leaderboard/version");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<int>();
+                return body;
             }
             catch (Exception e)
             {
@@ -40,13 +43,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return false;
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/addMany");
-                    var response = await connection.PostAsJsonAsync(uri, newEntry);
-                    var body = await response.Content.ReadFromJsonAsync<bool>();
-                    return body;
-                }
+                Uri uri = new Uri($"{_apiPath}/leaderboard/addMany");
+                using var response = await _client.PostAsJsonAsync(uri, newEntry);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<bool>();
+                return body;
             }
             catch (Exception e)
             {
@@ -60,13 +61,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return false;
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/stats/encounter/add");
-                    var response = await connection.PostAsJsonAsync(uri, gameEncounter);
-                    var body = await response.Content.ReadFromJsonAsync<bool>();
-                    return body;
-                }
+                Uri uri = new Uri($"{_apiPath}/stats/encounter/add");
+                using var response = await _client.PostAsJsonAsync(uri, gameEncounter);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<bool>();
+                return body;
             }
             catch (Exception e)
             {
@@ -80,13 +79,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new Version();
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/SoftwareVersion");
-                    var response = await connection.GetAsync(uri);
-                    var body = await response.Content.ReadFromJsonAsync<Version>();
-                    return body;
-                }
+                Uri uri = new Uri($"{_apiPath}/SoftwareVersion");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<Version>();
+                return body ?? new Version();
             }
             catch (Exception e)
             {
@@ -100,16 +97,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new LeaderboardTop();
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
 
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getTopEntryForLeaderboard");
-                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), className, filterClass.ToString() });
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    var response = await connection.PostAsync(uri, content);
-                    var body = await response.Content.ReadFromJsonAsync<LeaderboardTop>();
-                    return body;
-                }
+                Uri uri = new Uri($"{_apiPath}/leaderboard/getTopEntryForLeaderboard");
+                var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), className, filterClass.ToString() });
+                using var content = new StringContent(str, Encoding.UTF8, "application/json");
+                using var response = await _client.PostAsync(uri, content);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<LeaderboardTop>();
+                return body ?? new LeaderboardTop();
             }
             catch (Exception e)
             {
@@ -120,70 +115,64 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static async Task<int[]> GetLeaderboardPercentiles(string bossName, string encounter, LeaderboardEntryType entryType)
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
-                return new int[100];
+                return Array.Empty<int>();
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
 
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBoss");
-                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString()});
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    var response = await connection.PostAsync(uri, content);
-                    var body = await response.Content.ReadFromJsonAsync<int[]>();
-                    return body;
-                }
+                Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBoss");
+                var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString()});
+                using var content = new StringContent(str, Encoding.UTF8, "application/json");
+                using var response = await _client.PostAsync(uri, content);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<int[]>();
+                return body ?? Array.Empty<int>();
             }
             catch (Exception e)
             {
                 Logging.LogError(e.Message);
-                return new int[100];
+                return Array.Empty<int>();
             }
         }
         public static async Task<int[]> GetLeaderboardPercentilesForRole(string bossName, string encounter, LeaderboardEntryType entryType, string role)
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
-                return new int[100];
+                return Array.Empty<int>();
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
 
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBossForRole");
-                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), role });
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    var response = await connection.PostAsync(uri, content);
-                    var body = await response.Content.ReadFromJsonAsync<int[]>();
-                    return body;
-                }
+                Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBossForRole");
+                var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), role });
+                using var content = new StringContent(str, Encoding.UTF8, "application/json");
+                using var response = await _client.PostAsync(uri, content);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<int[]>();
+                return body ?? Array.Empty<int>();
             }
             catch (Exception e)
             {
                 Logging.LogError(e.Message);
-                return new int[100];
+                return Array.Empty<int>();
             }
         }
         public static async Task<int[]> GetLeaderboardPercentilesForDiscipline(string bossName, string encounter, LeaderboardEntryType entryType, string discipline)
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode") || string.IsNullOrEmpty(bossName))
-                return new int[100];
+                return Array.Empty<int>();
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
 
-                    Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBossForDiscipline");
-                    var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), discipline });
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    var response = await connection.PostAsync(uri, content);
-                    var body = await response.Content.ReadFromJsonAsync<int[]>();
-                    return body;
-                }
+                Uri uri = new Uri($"{_apiPath}/leaderboard/getAllPercentileForBossForDiscipline");
+                var str = JsonConvert.SerializeObject(new List<string> { bossName, encounter, entryType.ToString(), discipline });
+                using var content = new StringContent(str, Encoding.UTF8, "application/json");
+                using var response = await _client.PostAsync(uri, content);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<int[]>();
+                return body ?? Array.Empty<int>();
             }
             catch (Exception e)
             {
                 Logging.LogError(e.Message);
-                return new int[100];
+                return Array.Empty<int>();
             }
         }
         public static async Task<List<TimeTrialLeaderboardEntry>> GetTimeTrialEntriesForBoss(
@@ -198,35 +187,33 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
             try
             {
-                using (HttpClient connection = new HttpClient())
+                Uri uri = new Uri($"{_apiPath}/trial_leaderboard/getEntriesForBossFull" +
+                                  $"?bossfightName={HttpUtility.UrlEncode(bossName)}" +
+                                  $"&encounter={HttpUtility.UrlEncode(encounterName)}" +
+                                  $"&difficulty={HttpUtility.UrlEncode(difficulty)}" +
+                                  $"&playerCount={HttpUtility.UrlEncode(playerCount)}");
+
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+
+                // Check CloudFront cache status
+                if (response.Headers.TryGetValues("X-Cache", out var values))
                 {
-                    Uri uri = new Uri($"{_apiPath}/trial_leaderboard/getEntriesForBoss" +
-                                      $"?bossfightName={HttpUtility.UrlEncode(bossName)}" +
-                                      $"&encounter={HttpUtility.UrlEncode(encounterName)}" +
-                                      $"&difficulty={HttpUtility.UrlEncode(difficulty)}" +
-                                      $"&playerCount={HttpUtility.UrlEncode(playerCount)}");
-
-                    var response = await connection.GetAsync(uri);
-
-                    // Check CloudFront cache status
-                    if (response.Headers.TryGetValues("X-Cache", out var values))
-                    {
-                        string xCache = string.Join(",", values);
-                        if (xCache.Contains("Hit", StringComparison.OrdinalIgnoreCase))
-                            Logging.LogInfo($"CloudFront cache HIT: {xCache}");
-                        else if (xCache.Contains("Miss", StringComparison.OrdinalIgnoreCase))
-                            Logging.LogInfo($"CloudFront cache MISS: {xCache}");
-                        else
-                            Logging.LogInfo($"CloudFront cache status: {xCache}");
-                    }
+                    string xCache = string.Join(",", values);
+                    if (xCache.Contains("Hit", StringComparison.OrdinalIgnoreCase))
+                        Logging.LogInfo($"CloudFront cache HIT: {xCache}");
+                    else if (xCache.Contains("Miss", StringComparison.OrdinalIgnoreCase))
+                        Logging.LogInfo($"CloudFront cache MISS: {xCache}");
                     else
-                    {
-                        Logging.LogInfo("CloudFront cache header not present.");
-                    }
-
-                    var body = await response.Content.ReadFromJsonAsync<List<TimeTrialLeaderboardEntry>>();
-                    return body ?? entriesFound;
+                        Logging.LogInfo($"CloudFront cache status: {xCache}");
                 }
+                else
+                {
+                    Logging.LogInfo("CloudFront cache header not present.");
+                }
+
+                var body = await response.Content.ReadFromJsonAsync<List<TimeTrialLeaderboardEntry>>();
+                return body ?? entriesFound;
             }
             catch (Exception e)
             {
@@ -240,13 +227,11 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return;
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/trial_leaderboard/add");
-                    var str = JsonConvert.SerializeObject(entry);
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    await connection.PostAsync(uri, content);
-                }
+                Uri uri = new Uri($"{_apiPath}/trial_leaderboard/add");
+                var str = JsonConvert.SerializeObject(entry);
+                using var content = new StringContent(str, Encoding.UTF8, "application/json");
+                using var response = await _client.PostAsync(uri, content);
+                response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
             {

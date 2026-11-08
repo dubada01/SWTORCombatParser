@@ -57,11 +57,8 @@ namespace SWTORCombatParser
                 ConvertToAppData.ConvertFromProgramDataToAppData();
                 CombatLogLoader.RefreshSWTORCombatLogsDirectory();
                 var task = TimeUtility.StartUpdateTask();
-                Task.Run(async () =>
-                {
-                    await ExtractIconsIfNecessaryAsync();
-                    IconGetter.Init();
-                });
+                IconGetter.Init();
+                IconGetter.SetIconsReadyTask(ExtractIconsIfNecessaryAsync());
                 var mainWindow = new MainWindow();
                 var mainWindowVM = new MainWindowViewModel(mainWindow.HotkeyHandler);
                 mainWindow.DataContext = mainWindowVM;
@@ -96,10 +93,9 @@ namespace SWTORCombatParser
 
             var iconsPath = Path.Combine(appDataPath, "resources", "icons");
 
-            // Extract only if missing or empty
-            var needsExtraction =
-                !Directory.Exists(iconsPath) ||
-                !Directory.EnumerateFileSystemEntries(iconsPath).Any();
+            // Write the marker only after extraction finishes so an interrupted run is retried.
+            var markerPath = Path.Combine(iconsPath, ".extraction-complete");
+            var needsExtraction = !File.Exists(markerPath) || !File.Exists(Path.Combine(iconsPath, ".png"));
 
             if (!needsExtraction)
                 return;
@@ -108,16 +104,14 @@ namespace SWTORCombatParser
             if (!File.Exists(zipFilePath))
                 throw new FileNotFoundException("Could not find the packaged icons zip file", zipFilePath);
 
-            if (Directory.Exists(iconsPath))
-                Directory.Delete(iconsPath, true);
-
             Directory.CreateDirectory(iconsPath);
 
-            await Task.Run(() => ZipFile.ExtractToDirectory(zipFilePath, iconsPath));
+            await Task.Run(() => ZipFile.ExtractToDirectory(zipFilePath, iconsPath, overwriteFiles: true));
 
 #if LINUX
             NormalizeIconFilenamesToLower(iconsPath);
 #endif
+            await File.WriteAllTextAsync(markerPath, string.Empty);
         }
 
         private static void NormalizeIconFilenamesToLower(string root)

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -17,18 +17,17 @@ namespace SWTORCombatParser.Model.CloudRaiding
             Culture = CultureInfo.InvariantCulture
         };
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
+        private static readonly HttpClient _client = new HttpClient();
         public static async Task<List<string>> GetAllChallengeIds()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
                 return new List<string>();
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/challenges/getAll");
-                    var response = await connection.GetAsync(uri);
-                    return await response.Content.ReadFromJsonAsync<List<string>>();
-                }
+                Uri uri = new Uri($"{_apiPath}/challenges/getAll");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<List<string>>() ?? new List<string>();
             }
             catch (Exception e)
             {
@@ -44,15 +43,12 @@ namespace SWTORCombatParser.Model.CloudRaiding
             }
                 try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/challenges/add");
-                    var str = JsonConvert.SerializeObject(newTimer, _settings);
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    var response = await connection.PostAsync(uri, content);
-                    response.EnsureSuccessStatusCode();
-                    return;
-                }
+                Uri uri = new Uri($"{_apiPath}/challenges/add");
+                var str = JsonConvert.SerializeObject(newTimer, _settings);
+                using var content = new StringContent(str, Encoding.UTF8, "application/json");
+                using var response = await _client.PostAsync(uri, content);
+                response.EnsureSuccessStatusCode();
+                return;
             }
             catch (Exception e)
             {
@@ -64,16 +60,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
             {
-                return new DataStructures.Challenge();
+                return null;
             }
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/challenges/get?challengeId={timerId}");
-                    var response = await connection.GetAsync(uri);
-                    return await response.Content.ReadFromJsonAsync<DataStructures.Challenge> ();
-                }
+                Uri uri = new Uri($"{_apiPath}/challenges/get?challengeId={Uri.EscapeDataString(timerId)}");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<DataStructures.Challenge> ();
             }
             catch (Exception e)
             {

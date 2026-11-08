@@ -151,7 +151,7 @@ manager => CombatSelectionMonitor.CombatSelected -= manager).Subscribe(UpdateLis
         private void Dispose()
         {
             CombatLogStreamer.CombatStarted -= Reset;
-            CombatSelectionMonitor.CombatSelected -= UpdateList;
+            CombatSelectionMonitor.OnInProgressCombatSelected -= UpdateList;
             CombatSelectionMonitor.PhaseSelected -= UpdateList;
             _updateSub.Dispose();
         }

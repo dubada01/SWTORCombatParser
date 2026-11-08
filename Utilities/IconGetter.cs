@@ -3,6 +3,7 @@ using SWTORCombatParser.DataStructures;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,11 +14,27 @@ namespace SWTORCombatParser.Utilities
     {
         public static ConcurrentDictionary<ulong, Bitmap> IconDict = new ConcurrentDictionary<ulong, Bitmap>();
         public static Dictionary<ulong, string> _abilityToIconDict = new Dictionary<ulong, string>();
+        private static Task _iconsReady = Task.CompletedTask;
+
+        public static void SetIconsReadyTask(Task task) => _iconsReady = task;
 
         public static void Init()
         {
-            var lines = File.ReadAllLines("DataStructures/ability_to_icon.csv");
-            _abilityToIconDict = lines.Where(line=>!line.Contains("ability_id")).ToDictionary(kvp => ulong.Parse(kvp.Split(',')[0]), kvp => kvp.Split(',')[1]);
+            var mappings = new Dictionary<ulong, string>();
+            try
+            {
+                foreach (var line in File.ReadLines(Path.Combine(AppContext.BaseDirectory, "DataStructures", "ability_to_icon.csv")))
+                {
+                    var fields = line.Split(',');
+                    if (fields.Length >= 2 && ulong.TryParse(fields[0], out var id))
+                        mappings[id] = fields[1];
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Debug.WriteLine("Could not load icon mappings: " + ex.Message);
+            }
+            _abilityToIconDict = mappings;
         }
 
         public static bool HasIcon(ulong abilityId)
@@ -25,7 +42,7 @@ namespace SWTORCombatParser.Utilities
             return _abilityToIconDict.ContainsKey(abilityId);
         }
 
-        public static async Task<Bitmap> GetIconPathForLog(ParsedLogEntry log)
+        public static async Task<Bitmap?> GetIconPathForLog(ParsedLogEntry log)
         {
             if (log == null || log.AbilityId == null)
             {
@@ -52,43 +69,53 @@ namespace SWTORCombatParser.Utilities
             return Path.Combine(iconsDir, ".png");
         }
 
-        public static async Task<Bitmap> InitIcon(ulong id)
+        public static async Task<Bitmap?> InitIcon(ulong id)
         {
-            var path = GetIconPathForId(id);
-            if (File.Exists(path))
-                return await LoadImageAsync(path, id);
-            return await LoadImageAsync(GetIconPathForId(0), id);
+            return await GetIconForId(id);
         }
 
-        public static async Task<Bitmap> GetIconForId(ulong id)
+        public static async Task<Bitmap?> GetIconForId(ulong id)
         {
             if (IconDict.TryGetValue(id, out var cachedImage))
                 return cachedImage;
             return await LoadImageAsync(GetIconPathForId(id), id);
         }
 
-        public static async Task<Bitmap> LoadImageAsync(string imagePath, ulong abilityId)
+        public static async Task<Bitmap?> LoadImageAsync(string imagePath, ulong abilityId)
         {
             try
             {
-                return await Task.Run(() =>
-                {
-                    using (var stream = File.OpenRead(imagePath))
-                    {
-                        var bitmap = new Bitmap(stream);
-                        IconDict.TryAdd(abilityId, bitmap);
-                        return bitmap;
-                    }
-                });
+                await _iconsReady;
             }
-
-            catch
+            catch (Exception ex)
             {
-                string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
-                var icon =  await LoadImageAsync(Path.Combine(appDataPath, "resources", "icons", ".png"), abilityId);
-                IconDict.TryAdd(abilityId, icon);
-                return icon;
+                // Some existing icons may still be usable after extraction fails.
+                Debug.WriteLine("Could not finish extracting icons: " + ex.Message);
             }
+            return await Task.Run<Bitmap?>(() =>
+            {
+                if (IconDict.TryGetValue(abilityId, out var cached))
+                    return cached;
+                foreach (var path in new[] { imagePath, GetIconPathForId(0) }.Distinct(StringComparer.Ordinal))
+                {
+                    try
+                    {
+                        using var stream = File.OpenRead(path);
+                        var bitmap = new Bitmap(stream);
+                        var result = IconDict.GetOrAdd(abilityId, bitmap);
+                        if (!ReferenceEquals(result, bitmap))
+                            bitmap.Dispose();
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("Could not load icon: " + ex.Message);
+                    }
+                }
+                // Images are optional. A missing/corrupt placeholder must not
+                // fault the async UI operation that requested an icon.
+                return null;
+            });
         }
     }
 }

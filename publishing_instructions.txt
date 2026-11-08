@@ -20,7 +20,7 @@ BUILD FOR THE STORE
 This produces a complete x64, Release, self-contained package (including .NET).
 The default version comes from SWTORCombatParser.csproj's VersionPrefix. Increase
 it before the next release; the fourth component must be 0 for Store submissions.
-Use -Version 2.3.2.0 to override it for both the app and package.
+Use -Version 2.4.0.0 to override it for both the app and package.
 
 Upload the printed .appxupload file to Microsoft Partner Center. Do not unpack,
 edit, repack, or sign it. The Store signs accepted packages. Existing Store name,

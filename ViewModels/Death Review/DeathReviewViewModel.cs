@@ -1,4 +1,4 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.ViewModels.BattleReview;
 using SWTORCombatParser.ViewModels.Challenges;
@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
@@ -27,6 +28,8 @@ namespace SWTORCombatParser.ViewModels.Death_Review
 
         public event PropertyChangedEventHandler PropertyChanged;
         private Combat _currentCombat;
+        private bool _initializingCombat;
+        private int _selectionVersion;
 
         public DeathReviewViewModel()
         {
@@ -62,15 +65,23 @@ namespace SWTORCombatParser.ViewModels.Death_Review
 
         private async Task UpdateSelectedPlayers(List<Entity> obj)
         {
+            if (_initializingCombat || _currentCombat == null)
+                return;
+            var version = Interlocked.Increment(ref _selectionVersion);
+            var combat = _currentCombat;
             _deathLogsViewModel.SetViewableEntities(obj);
-            var startTime = await _deathLogsViewModel.UpdateLogs(true);
+            var startTime = await _deathLogsViewModel.SelectCombat(combat, true);
+
+            if (version != Volatile.Read(ref _selectionVersion))
+                return;
 
             _plotViewModel.Reset();
-            _plotViewModel.PlotCombat(_currentCombat, obj, startTime);
+            _plotViewModel.PlotCombat(combat, obj, startTime);
         }
 
         internal void Reset()
         {
+            Interlocked.Increment(ref _selectionVersion);
             _playerListViewModel.Reset();
             _plotViewModel.Reset();
         }
@@ -78,17 +89,21 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         internal void AddCombat(Combat selectedCombat)
         {
             _currentCombat = selectedCombat;
-            _deathLogsViewModel.SelectCombat(selectedCombat, true);
             Reset();
             var playersThatDidNotStuck = selectedCombat.AllLogs.Values.Where(l => l.Effect.EffectId == _7_0LogParsing.DeathCombatId && !string.IsNullOrEmpty(l.Source.Name) && l.Target.IsCharacter).Select(l => l.Target).DistinctBy(p => p.LogId).ToList();
-            var selectedParticipants = _playerListViewModel.UpdateParticipantsData(selectedCombat, playersThatDidNotStuck);
-            if (playersThatDidNotStuck.Any())
+            List<Entity> selectedParticipants;
+            _initializingCombat = true;
+            try
             {
-                _deathLogsViewModel.SetViewableEntities(selectedParticipants.ToList());
+                // Selecting the initial player raises ParticipantSelected. Wait until
+                // the new combat and its player list are both ready before updating.
+                selectedParticipants = _playerListViewModel.UpdateParticipantsData(selectedCombat, playersThatDidNotStuck).ToList();
             }
-            
-            //_plotViewModel.Reset();
-            //_plotViewModel.PlotCombat(_currentCombat, selectedParticipants, startTime);
+            finally
+            {
+                _initializingCombat = false;
+            }
+            _ = UpdateSelectedPlayers(selectedParticipants);
         }
 
         internal void RemoveCombat(Combat obj)

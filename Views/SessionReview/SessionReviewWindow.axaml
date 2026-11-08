@@ -1,0 +1,129 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.SessionReview"
+        xmlns:views="clr-namespace:SWTORCombatParser.Views.SessionReview"
+        x:Class="SWTORCombatParser.Views.SessionReview.SessionReviewWindow"
+        x:DataType="vm:SessionReviewViewModel"
+        Title="Session Review · Orbs" Width="1220" Height="940" MinWidth="980" MinHeight="740"
+        CanResize="True" WindowStartupLocation="CenterOwner" Background="{StaticResource Gray2Brush}">
+    <Window.Styles>
+        <Style Selector="TextBlock.caption"><Setter Property="Foreground" Value="#A9B9B0"/><Setter Property="FontSize" Value="11"/></Style>
+        <Style Selector="TextBlock.value"><Setter Property="FontSize" Value="24"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+        <Style Selector="Border.card"><Setter Property="Background" Value="{StaticResource VeryDarkGreenBrush}"/><Setter Property="CornerRadius" Value="5"/><Setter Property="Padding" Value="14,10"/></Style>
+    </Window.Styles>
+    <ScrollViewer x:Name="ReviewScroll" Margin="24,20" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <Grid MinHeight="840" Height="{Binding Bounds.Height, ElementName=ReviewScroll}" RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="15">
+        <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="4">
+                <TextBlock Text="SESSION REVIEW" FontSize="11" FontWeight="SemiBold" Foreground="#9FCAB3"/>
+                <TextBlock Text="{Binding Summary.Title}" FontSize="26" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Summary.Range}" Classes="caption"/>
+                <TextBlock Text="{Binding SessionTiming}" Classes="caption" TextWrapping="Wrap"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="7" VerticalAlignment="Center">
+                <Button Content="Refresh" Command="{Binding RefreshCommand}" HorizontalAlignment="Right" Padding="15,6"/>
+                <TextBlock Text="{Binding Summary.Progress}" Classes="caption"/>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="18">
+            <ComboBox ItemsSource="{Binding Sessions}" SelectedItem="{Binding SelectedSession}" HorizontalAlignment="Stretch">
+                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:SessionChoice"><TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis"/></DataTemplate></ComboBox.ItemTemplate>
+            </ComboBox>
+            <CheckBox Grid.Column="1" Content="Bosses only" IsChecked="{Binding BossesOnly}" VerticalAlignment="Center"
+                      ToolTip.Tip="Show boss kills, wipes and live boss attempts. Excluded combats remain gaps on the time axis."/>
+        </Grid>
+        <StackPanel Grid.Row="2" Spacing="8">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <TextBlock Text="Player summary" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="{Binding SummaryScope}" Classes="caption" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <ComboBox Grid.Column="2" ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" MinWidth="190" MaxWidth="260">
+                    <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:SessionPlayerChoice"><StackPanel Orientation="Horizontal" Spacing="8"><Image Source="{Binding RoleIcon}" Width="18" Height="18" ToolTip.Tip="{Binding RoleDescription}"/><TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis"/></StackPanel></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+            <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="9">
+                <Border Classes="card"><StackPanel Spacing="3"><TextBlock Text="DPS" Classes="caption"/><TextBlock Text="{Binding Summary.CombatDps}" Classes="value"/><TextBlock Text="Effective damage" Classes="caption" TextWrapping="Wrap"/></StackPanel></Border>
+                <Border Grid.Column="1" Classes="card"><StackPanel Spacing="3"><TextBlock Text="Direct EHPS" Classes="caption"/><TextBlock Text="{Binding Summary.CombatEhps}" Classes="value"/><TextBlock Text="Excludes absorbs" Classes="caption" TextWrapping="Wrap"/></StackPanel></Border>
+                <Border Grid.Column="2" Classes="card"><StackPanel Spacing="3"><TextBlock Text="DTPS" Classes="caption"/><TextBlock Text="{Binding Summary.CombatDtps}" Classes="value"/><TextBlock Text="After mitigation" Classes="caption" TextWrapping="Wrap"/></StackPanel></Border>
+                <Border Grid.Column="3" Classes="card"><StackPanel Spacing="3"><TextBlock Text="Deaths" Classes="caption"/><TextBlock Text="{Binding Summary.Deaths}" Classes="value"/><TextBlock Text="Across shown combats" Classes="caption" TextWrapping="Wrap"/></StackPanel></Border>
+                <Border Grid.Column="4" Classes="card"><StackPanel Spacing="3"><TextBlock Text="Player combat time" Classes="caption"/><TextBlock Text="{Binding Summary.PlayerCombatTime}" Classes="value"/><TextBlock Text="Includes failed attempts" Classes="caption" TextWrapping="Wrap"/></StackPanel></Border>
+            </Grid>
+        </StackPanel>
+        <Grid Grid.Row="3" RowDefinitions="300,Auto,*" RowSpacing="14">
+            <Border BorderBrush="#3B4B40" BorderThickness="1" CornerRadius="7" Padding="14">
+                <Grid ColumnDefinitions="*,220" ColumnSpacing="16">
+                    <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="7">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <StackPanel><TextBlock Text="Performance over time" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="Compare players on the same metric" Classes="caption"/></StackPanel>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding Metrics}" SelectedItem="{Binding SelectedMetric}" MinWidth="135">
+                                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:SessionGraphChoice"><TextBlock Text="{Binding Label}"/></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
+                            <TextBlock Text="Graph range" Classes="caption" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="1" ItemsSource="{Binding GraphRanges}" SelectedItem="{Binding SelectedRange}" HorizontalAlignment="Stretch" MaxHeight="32" FontSize="11">
+                                <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:SessionRangeChoice"><TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis"/></DataTemplate></ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBlock Grid.Column="2" Text="Average (s)" Classes="caption" IsVisible="{Binding IsRateMetric}" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="3" ItemsSource="{Binding BucketSizes}" SelectedItem="{Binding BucketSeconds}" IsVisible="{Binding IsRateMetric}" MinWidth="62" MaxHeight="32"/>
+                        </Grid>
+                        <views:SessionPerformanceGraph Grid.Row="2" Graph="{Binding Graph}" MinHeight="135"/>
+                        <TextBlock Grid.Row="3" Text="{Binding GraphNote}" Classes="caption" TextWrapping="Wrap"/>
+                    </Grid>
+                    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*" RowSpacing="6">
+                        <StackPanel><TextBlock Text="Compare players" FontWeight="SemiBold"/><TextBlock Text="{Binding ComparisonLabel}" Classes="caption"/></StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="5">
+                            <Button Content="You" Command="{Binding CompareSelfCommand}" Padding="9,3" FontSize="11" MinHeight="25"/>
+                            <Button Content="All" Command="{Binding CompareAllCommand}" Padding="9,3" FontSize="11" MinHeight="25"/>
+                            <Button Content="None" Command="{Binding CompareNoneCommand}" Padding="9,3" FontSize="11" MinHeight="25"/>
+                        </StackPanel>
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                            <ItemsControl ItemsSource="{Binding Players}">
+                                <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:SessionPlayerChoice">
+                                    <CheckBox IsChecked="{Binding IsCompared}" HorizontalAlignment="Stretch" Padding="0" Margin="0,2" ToolTip.Tip="{Binding RoleDescription}">
+                                        <Grid ColumnDefinitions="18,8,*" ColumnSpacing="6">
+                                            <Image Source="{Binding RoleIcon}" Width="18" Height="18"/>
+                                            <Ellipse Grid.Column="1" Fill="{Binding Color}" Width="6" Height="6" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding DisplayName}" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        </Grid>
+                                    </CheckBox>
+                                </DataTemplate></ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </Border>
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                <TextBlock Text="Combat breakdown" FontSize="16" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="1" Text="Selected player · full combat rates · — = player not recorded" Classes="caption" VerticalAlignment="Center"/>
+            </Grid>
+            <Grid Grid.Row="2" RowDefinitions="Auto,*">
+                <Grid ColumnDefinitions="34,*,68,75,85,105,85,55" Margin="10,0,10,8">
+                    <TextBlock Text="#" Classes="caption"/><TextBlock Grid.Column="1" Text="Combat / session offset" Classes="caption"/><TextBlock Grid.Column="2" Text="Result" Classes="caption"/>
+                    <TextBlock Grid.Column="3" Text="Duration" Classes="caption"/><TextBlock Grid.Column="4" Text="DPS" Classes="caption"/><TextBlock Grid.Column="5" Text="Direct EHPS" Classes="caption"/>
+                    <TextBlock Grid.Column="6" Text="DTPS" Classes="caption"/><TextBlock Grid.Column="7" Text="Deaths" Classes="caption"/>
+                </Grid>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Combats}">
+                        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:SessionCombatRow">
+                            <Border BorderBrush="#3B4B40" BorderThickness="0,0,0,1" Padding="10,9">
+                                <Grid ColumnDefinitions="34,*,68,75,85,105,85,55">
+                                    <TextBlock Text="{Binding Number}" Classes="caption" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" Spacing="2" Margin="0,0,8,0"><TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Name}"/><TextBlock Text="{Binding Offset}" Classes="caption"/></StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding Outcome}" Foreground="{Binding OutcomeBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding Duration}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding Dps}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="{Binding Ehps}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="6" Text="{Binding Dtps}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="7" Text="{Binding Deaths}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate></ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <TextBlock Grid.Row="1" IsVisible="{Binding IsEmpty}" Text="{Binding EmptyMessage}" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#A9B9B0"/>
+            </Grid>
+        </Grid>
+        <TextBlock Grid.Row="4" Text="{Binding Status}" Classes="caption" TextWrapping="Wrap"/>
+    </Grid>
+    </ScrollViewer>
+</Window>

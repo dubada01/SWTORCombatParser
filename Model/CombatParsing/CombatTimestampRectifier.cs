@@ -1,4 +1,5 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
+using System;
 using System.Collections.Generic;
 
 namespace SWTORCombatParser.Model.CombatParsing
@@ -7,11 +8,23 @@ namespace SWTORCombatParser.Model.CombatParsing
     {
         public static void RectifyTimeStamps(List<ParsedLogEntry> parsedLog)
         {
-            var ndx = parsedLog.FindIndex(l => l.Error == ErrorType.None && l.LogLineNumber + 1 < parsedLog.Count && l.TimeStamp > parsedLog[(int)l.LogLineNumber + 1].TimeStamp);
-            if (ndx != -1)
+            // Parsed timestamps initially share the file's start date. A large
+            // backwards jump in the time of day marks a transition at midnight;
+            // small out-of-order timestamps should not advance the date.
+            TimeSpan? previousTime = null;
+            var dayOffset = 0;
+            foreach (var entry in parsedLog)
             {
-                var previousDaysLogs = parsedLog.GetRange(ndx, (parsedLog.Count - ndx));
-                previousDaysLogs.ForEach(l => l.TimeStamp = l.TimeStamp.AddDays(1));
+                if (entry == null || entry.Error != ErrorType.None || entry.TimeStamp == DateTime.MinValue)
+                    continue;
+
+                var time = entry.TimeStamp.TimeOfDay;
+                if (previousTime.HasValue && previousTime.Value - time > TimeSpan.FromHours(12))
+                    dayOffset++;
+
+                previousTime = time;
+                if (dayOffset != 0)
+                    entry.TimeStamp = entry.TimeStamp.AddDays(dayOffset);
             }
         }
     }

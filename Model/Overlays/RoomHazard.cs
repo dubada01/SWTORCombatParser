@@ -26,18 +26,19 @@ namespace SWTORCombatParser.Model.Overlays
             _roomOverlay = roomView;
             _overlaySettings = settings;
             _timer = new Timer();
+            _timer.Interval = 100;
+            _timer.Elapsed += CheckForNewState;
         }
 
         public override void Start()
         {
             _startTime = TimeUtility.CorrectedTime;
+            _currentUpdate = null;
             _timer.Start();
-            _timer.Interval = 100;
-            _timer.Elapsed += CheckForNewState;
         }
         public override void Stop()
         {
-            _timer.Start();
+            _timer.Stop();
         }
         private void CheckForNewState(object sender, EventArgs e)
         {

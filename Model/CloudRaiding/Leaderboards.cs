@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SWTORCombatParser.Utilities;
-using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
@@ -37,6 +36,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
         public static ConcurrentDictionary<LeaderboardEntryType, (string, double)> TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
         public static Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>> LeaderboardStandings = new Dictionary<Entity, ConcurrentDictionary<LeaderboardEntryType, (double, bool)>>();
         public static Combat CurrentCombat;
+        private static BenchmarkBundle? _benchmarkBundle;
+        private static DateTime _nextBenchmarkCheck;
+        private static (string Boss, string Encounter, LeaderboardType Type, string Class, string Version)? _benchmarkContext;
 
         private static double _maxParseValue = 500000;
         public static async void Init()
@@ -50,6 +52,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
             CurrentLeaderboardType = type;
             TopLeaderboards.Clear();
             LeaderboardPercentiles.Clear();
+            _benchmarkBundle = null;
+            _nextBenchmarkCheck = DateTime.MinValue;
             LeaderboardTypeChanged.InvokeSafely(CurrentLeaderboardType);
             if (CurrentCombat == null)
                 return;
@@ -122,12 +126,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 var state = CombatLogStateBuilder.CurrentState;
                 if (newCombat.LocalPlayer == null)
                     return;
-                if (LeaderboardPercentiles.IsEmpty)
-                {
-                    SetPercentiles(newCombat);
-                }
                 var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
                 var className = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
+                var context = (newCombat.EncounterBossInfo, newCombat.ParentEncounter.Name, CurrentLeaderboardType, className, _leaderboardVersion);
+                if (_benchmarkContext != context || DateTime.UtcNow >= _nextBenchmarkCheck)
+                {
+                    SetPercentiles(newCombat);
+                    _benchmarkContext = context;
+                }
                 foreach (var participant in newCombat.CharacterParticipants.Values)
                 {
                     if (!LeaderboardStandings.ContainsKey(participant))
@@ -155,7 +161,17 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), enumVal =>
                     {
                         var currentValue = GetValueForLeaderboardEntry(enumVal, newCombat, participant);
-                        var percentiles = LeaderboardPercentiles[enumVal].ToList();
+                        if (_benchmarkBundle != null)
+                        {
+                            if (_benchmarkBundle.Metrics.TryGetValue(enumVal.ToString(), out var benchmark) && benchmark.Rank(currentValue) is int rank)
+                                LeaderboardStandings[participant][enumVal] = (rank, false);
+                            return;
+                        }
+                        if (!LeaderboardPercentiles.TryGetValue(enumVal, out var percentileValues) || percentileValues == null || percentileValues.Length < 100)
+                            return;
+                        if (percentileValues.All(v => v == 0) || percentileValues.All(v => v == int.MaxValue))
+                            return;
+                        var percentiles = percentileValues.ToList();
                         var percentileForValue = 0;
                         if (percentiles[0] > currentValue || percentiles[99] <= currentValue)
                         {
@@ -193,13 +209,20 @@ namespace SWTORCombatParser.Model.CloudRaiding
             var encounterName = newCombat.ParentEncounter.Name;
             var localPlayerClass = state.GetLocalPlayerClassAtTime(newCombat.StartTime);
             var playerClass = localPlayerClass == null ? "Unknown" : localPlayerClass.Name + "/" + localPlayerClass.Discipline;
+            var variant = CurrentLeaderboardType == LeaderboardType.LocalDicipline && localPlayerClass != null ? "discipline" :
+                CurrentLeaderboardType == LeaderboardType.LocalRole && localPlayerClass != null ? "role" : "all";
+            var filter = variant == "discipline" ? playerClass : variant == "role" ? localPlayerClass!.Role.ToString() : "";
+            _benchmarkBundle = API_Connection.GetBenchmarkBundle(bossName, encounterName, variant, filter).GetAwaiter().GetResult();
+            _nextBenchmarkCheck = DateTime.UtcNow.AddSeconds(_benchmarkBundle != null &&
+                (_benchmarkBundle.Metrics.Count == 0 || _benchmarkBundle.Metrics.Values.Any(m => m.Status == "pending")) ? 3 : 300);
+            if (_benchmarkBundle != null) return;
             Parallel.ForEach(Enum.GetValues(typeof(LeaderboardEntryType)).Cast<LeaderboardEntryType>(), type =>
             {
                 if(CurrentLeaderboardType == LeaderboardType.AllDiciplines || localPlayerClass == null)
                     LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentiles(bossName, encounterName, type).Result;
-                if(CurrentLeaderboardType == LeaderboardType.LocalRole)
+                else if(CurrentLeaderboardType == LeaderboardType.LocalRole)
                     LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentilesForRole(bossName, encounterName, type, localPlayerClass.Role.ToString()).Result;
-                if(CurrentLeaderboardType == LeaderboardType.LocalDicipline)
+                else if(CurrentLeaderboardType == LeaderboardType.LocalDicipline)
                     LeaderboardPercentiles[type] = API_Connection.GetLeaderboardPercentilesForDiscipline(bossName, encounterName, type, playerClass).Result;
             });
         }
@@ -207,6 +230,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             lock (_updateLock)
             {
+                _benchmarkBundle = null;
+                _nextBenchmarkCheck = DateTime.MinValue;
+                _benchmarkContext = null;
                 LeaderboardPercentiles = new ConcurrentDictionary<LeaderboardEntryType, int[]>();
                 TopLeaderboards = new ConcurrentDictionary<LeaderboardEntryType, (string, double)>();
                 LeaderboardStandings = new Dictionary<Entity,ConcurrentDictionary<LeaderboardEntryType,(double, bool)>>();
@@ -215,6 +241,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
         public static async void TryAddLeaderboardEntry(Combat combat)
         {
+            if (combat.IsReplay) return;
             var state = CombatLogStateBuilder.CurrentState;
             List<LeaderboardEntry> boardEntries = new List<LeaderboardEntry>();
             foreach (LeaderboardEntryType enumVal in Enum.GetValues(typeof(LeaderboardEntryType)))
@@ -255,9 +282,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                     }
                 }
             }
-            //todo refactor this to be more efficient when the avalonia code is integrated
-            if(combat.WasBossKilled && !combat.ParentEncounter.IsOpenWorld)
-                AvaloniaTimelineBuilder.UploadBossKill(combat.EncounterBossDifficultyParts.Item1, combat.ParentEncounter.Name, combat.ParentEncounter.Difficutly, combat.ParentEncounter.NumberOfPlayer, combat.StartTime, combat.EndTime);
+            _ = EncounterTimeTrialRecorder.Shared.RecordAsync(combat);
             
             bool updatedAny = boardEntries.Count == 0 ? false : await API_Connection.TryAddLeaderboardEntries(boardEntries);
             UpdateOverlaysWithNewLeaderboard(combat, updatedAny);
@@ -282,21 +307,23 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private static double GetValueForLeaderboardEntry(LeaderboardEntryType role, Combat combat, Entity player)
         {
-            switch (role)
+            var duration = combat.DurationSeconds;
+            if (duration == 0)
+                return 0;
+
+            // Read just the selected participant instead of rebuilding entire metric
+            // dictionaries for every player and leaderboard type.
+            static double Value(ConcurrentDictionary<Entity, double> values, Entity entity) =>
+                values.TryGetValue(entity, out var value) ? value : 0;
+            return role switch
             {
-                case LeaderboardEntryType.Damage:
-                    return combat.EDPS[player];
-                case LeaderboardEntryType.FocusDPS:
-                    return combat.EFocusDPS[player];
-                case LeaderboardEntryType.Healing:
-                    return combat.HPS[player] + combat.PSPS[player];
-                case LeaderboardEntryType.EffectiveHealing:
-                    return combat.EHPS[player] + combat.PSPS[player];
-                case LeaderboardEntryType.Mitigation:
-                    return combat.MPS[player];
-                default:
-                    return 0;
-            }
+                LeaderboardEntryType.Damage => (Value(combat.TotalEffectiveFluffDamage, player) + Value(combat.TotalEffectiveFocusDamage, player)) / duration,
+                LeaderboardEntryType.FocusDPS => Value(combat.TotalEffectiveFocusDamage, player) / duration,
+                LeaderboardEntryType.Healing => (Value(combat.TotalHealing, player) + Value(combat.TotalProvidedSheilding, player)) / duration,
+                LeaderboardEntryType.EffectiveHealing => (Value(combat.TotalEffectiveHealing, player) + Value(combat.TotalProvidedSheilding, player)) / duration,
+                LeaderboardEntryType.Mitigation => (Value(combat.TotalSheildAndAbsorb, player) + Value(combat.TotalEstimatedAvoidedDamage, player)) / duration,
+                _ => 0
+            };
         }
     }
     public class PercentileInfo

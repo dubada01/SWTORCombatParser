@@ -12,6 +12,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     {
         public static async Task RecordCombatState(Combat combat)
         {
+            if (combat.IsReplay) return;
             if(!combat.WasBossKilled)
             { return; }
             await API_Connection.TryAddBossEncounter(new GameEncounter

@@ -257,7 +257,7 @@ namespace SWTORCombatParser.DataStructures
         public bool IsBoss;
         public bool Equals(Entity? other)
         {
-            return LogId == other.LogId;
+            return other != null && LogId == other.LogId;
         }
     }
     public class EntityInfo

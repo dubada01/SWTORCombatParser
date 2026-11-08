@@ -51,6 +51,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
 
     public class TimeTrialLeaderboardEntry
     {
+        public string? RunId { get; set; }
+        public DateTime? EnteredAt { get; set; }
         public int Id { get; set; }
         public string BossFight { get; set; }
         public string PlayerName { get; set; }

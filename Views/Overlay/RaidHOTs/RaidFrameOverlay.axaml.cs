@@ -154,8 +154,15 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
                 throw new InvalidOperationException("Failed to create CGEvent.");
             }
 
-            CGPoint mousePosition = CGEventGetLocation(cgEvent);
-            return new Point(mousePosition.X, mousePosition.Y);
+            try
+            {
+                CGPoint mousePosition = CGEventGetLocation(cgEvent);
+                return new Point(mousePosition.X, mousePosition.Y);
+            }
+            finally
+            {
+                CFRelease(cgEvent);
+            }
         }
         // Structs for Windows and MacOS
         [StructLayout(LayoutKind.Sequential)]
@@ -181,6 +188,8 @@ namespace SWTORCombatParser.Views.Overlay.RaidHOTs
 
         [DllImport("/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices")]
         private static extern CGPoint CGEventGetLocation(IntPtr cgEvent);
+        [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
+        private static extern void CFRelease(IntPtr value);
         private int GetHeight()
         {
             var parentWindow = VisualRoot as BaseOverlayWindow;

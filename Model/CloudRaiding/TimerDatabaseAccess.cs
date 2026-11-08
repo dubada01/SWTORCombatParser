@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -13,18 +13,17 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class TimerDatabaseAccess
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
+        private static readonly HttpClient _client = new HttpClient();
         public static async Task<List<string>> GetAllTimerIds()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
                 return new List<string>();
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/timers/getAll");
-                    var response = await connection.GetAsync(uri);
-                    return await response.Content.ReadFromJsonAsync<List<string>>();
-                }
+                Uri uri = new Uri($"{_apiPath}/timers/getAll");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<List<string>>() ?? new List<string>();
             }
             catch (Exception e)
             {
@@ -34,17 +33,16 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task AddTimer(Timer newTimer)
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return;
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/timers/add");
-                    var str = JsonConvert.SerializeObject(newTimer);
-                    var content = new StringContent(str, Encoding.UTF8, "application/json");
-                    var response = await connection.PostAsync(uri, content);
-                    response.EnsureSuccessStatusCode();
-                    return;
-                }
+                Uri uri = new Uri($"{_apiPath}/timers/add");
+                var str = JsonConvert.SerializeObject(newTimer);
+                using var content = new StringContent(str, Encoding.UTF8, "application/json");
+                using var response = await _client.PostAsync(uri, content);
+                response.EnsureSuccessStatusCode();
+                return;
             }
             catch (Exception e)
             {
@@ -54,14 +52,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task<Timer> GetTimerFromId(string timerId)
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return null;
             try
             {
-                using (HttpClient connection = new HttpClient())
-                {
-                    Uri uri = new Uri($"{_apiPath}/timers/get?timerId={timerId}");
-                    var response = await connection.GetAsync(uri);
-                    return await response.Content.ReadFromJsonAsync<Timer>();
-                }
+                Uri uri = new Uri($"{_apiPath}/timers/get?timerId={Uri.EscapeDataString(timerId)}");
+                using var response = await _client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<Timer>();
             }
             catch (Exception e)
             {

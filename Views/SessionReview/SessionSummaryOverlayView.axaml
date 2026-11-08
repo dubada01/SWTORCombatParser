@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.SessionReview"
+             xmlns:views="clr-namespace:SWTORCombatParser.Views.SessionReview"
+             x:Class="SWTORCombatParser.Views.SessionReview.SessionSummaryOverlayView"
+             x:DataType="vm:SessionSummaryOverlayViewModel">
+    <Viewbox Stretch="Uniform">
+        <Border Width="470" Padding="14,11" Background="#D0111D18" BorderBrush="#4C6D5D" BorderThickness="1" CornerRadius="8">
+            <StackPanel Spacing="9">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="SESSION SUMMARY · YOU" Foreground="#A9C7B7" FontSize="10" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Summary.PlayerCombatTime}" Foreground="#A9C7B7" FontSize="10" ToolTip.Tip="Player combat time"/>
+                </Grid>
+                <TextBlock Text="{Binding Summary.Title}" Foreground="#E4F0E8" FontSize="18" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                <Grid ColumnDefinitions="*,*,*,*">
+                    <StackPanel><TextBlock Text="DPS" FontSize="9" Foreground="#94ADA0"/><TextBlock Text="{Binding Summary.CombatDps}" FontSize="22" Foreground="#E4F0E8"/></StackPanel>
+                    <StackPanel Grid.Column="1"><TextBlock Text="DIRECT EHPS" FontSize="9" Foreground="#94ADA0"/><TextBlock Text="{Binding Summary.CombatEhps}" FontSize="22" Foreground="#7DE0AE"/></StackPanel>
+                    <StackPanel Grid.Column="2"><TextBlock Text="DTPS" FontSize="9" Foreground="#94ADA0"/><TextBlock Text="{Binding Summary.CombatDtps}" FontSize="22" Foreground="#E5B482"/></StackPanel>
+                    <StackPanel Grid.Column="3"><TextBlock Text="DEATHS" FontSize="9" Foreground="#94ADA0"/><TextBlock Text="{Binding Summary.Deaths}" FontSize="22" Foreground="#F28C93"/></StackPanel>
+                </Grid>
+                <views:SessionTimelineControl Snapshot="{Binding Summary.Snapshot}" Height="13"/>
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="{Binding Summary.Progress}" Foreground="#94ADA0" FontSize="10"/>
+                    <TextBlock Grid.Column="1" Text="Combat averages · healing excludes absorbs" Foreground="#94ADA0" FontSize="9"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </Viewbox>
+</UserControl>

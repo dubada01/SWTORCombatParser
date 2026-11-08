@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -81,9 +82,25 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             if (combat == null || IsCurrentCombat)
                 return;
 
-            CombatCachePath = CombatDiskCacheManager.CacheCombat(combat);
-            if (!keepLoaded)
-                Combat = null;
+            try
+            {
+                CombatCachePath = CombatDiskCacheManager.CacheCombat(combat);
+                if (!keepLoaded)
+                    Combat = null;
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)
+            {
+                // Keep the combat usable in memory if the optional cache is unavailable.
+                CombatCachePath = null;
+                try
+                {
+                    Logging.LogError("Could not cache combat: " + e.Message, tryCloudLogs: false);
+                }
+                catch (Exception logError) when (logError is IOException or UnauthorizedAccessException)
+                {
+                    System.Diagnostics.Debug.WriteLine("Could not record cache error: " + logError.Message);
+                }
+            }
         }
 
         public void SetCombat(Combat combat)
@@ -170,6 +187,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private async void UploadToParsely()
         {
             var combat = GetCombat();
+            if (combat.IsReplay) return;
             if (combat.StartTime == DateTime.MinValue || !combat.AllLogs.Any())
                 return;
 

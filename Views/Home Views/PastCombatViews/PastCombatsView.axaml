@@ -33,6 +33,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Button VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource MainFont}"
@@ -50,7 +51,14 @@
             </Button.ContextMenu>
         </Button>
 
-        <Border Grid.Row="1" BorderThickness="0,1.5,1.5,0" CornerRadius="3" BorderBrush="{StaticResource Gray3}">
+        <Border Grid.Row="1" IsVisible="{Binding HasReplayStatus}" Background="#203343" Padding="8" Margin="4" CornerRadius="4">
+            <StackPanel Spacing="6">
+                <TextBlock Text="DEBUG PLAYBACK" Foreground="#9BCFE8" FontSize="10" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding ReplayStatus}" TextWrapping="Wrap" FontSize="11"/>
+                <Button Content="Stop replay" Command="{Binding StopReplayCommand}" IsVisible="{Binding IsReplaying}" FontSize="12" HorizontalAlignment="Stretch"/>
+            </StackPanel>
+        </Border>
+        <Border Grid.Row="2" BorderThickness="0,1.5,1.5,0" CornerRadius="3" BorderBrush="{StaticResource Gray3}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="50"/>

@@ -9,6 +9,7 @@ namespace SWTORCombatParser.Model.Parsely
         public static string GetCombatLinesForCombat(int startLine, int endLine, string combatLogFile)
         {
             var recentLog = CombatLogLoader.LoadSpecificLog(Path.Combine(Settings.ReadSettingOfType<string>("combat_logs_path"), combatLogFile));
+            using var reader = recentLog.Data;
             var combatLines = CombatLogParser.ExtractSpecificLines(recentLog, startLine, endLine);
             return string.Join("\r\n", combatLines);
         }

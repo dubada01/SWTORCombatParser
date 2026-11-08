@@ -26,7 +26,6 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
         MainContent = _threatTableView;
         CombatSelectionMonitor.OnInProgressCombatSelected += HandleNewCombatInfo;
         CombatSelectionMonitor.CombatSelected += HandleNewCombatInfo;
-        CombatSelectionMonitor.CombatSelected += HandleNewCombatInfo;
         CombatSelectionMonitor.PhaseSelected += HandleNewCombatInfo;
         _userAddedIds = Settings.ReadSettingOfType<List<long>>("threat_table_ids");
     }
@@ -70,7 +69,7 @@ public class ThreatTableOverlayViewModel :BaseOverlayViewModel
                         return;
                     }
 
-                    if (ThreatEntries.Count() > 3 || CombatLogStateBuilder.CurrentState.WasEnemyDeadAtTime(key, combat.EndTime))
+                    if (ThreatEntries.Count >= 3 || CombatLogStateBuilder.CurrentState.WasEnemyDeadAtTime(key, combat.EndTime))
                         return;
                     var newEntry = new ThreatTableEntryViewModel(key.Id);
                     newEntry.UpdateEntry(combat, entityIndexById, logIdCountByEntity);

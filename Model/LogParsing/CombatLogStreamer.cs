@@ -4,6 +4,7 @@ using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Timers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -41,9 +42,18 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private int numberOfProcessedLines = 0;
         private string _logToMonitor;
-        private bool _monitorLog;
+        private readonly object _monitoringLock = new();
+        private Task _monitoringTask = Task.CompletedTask;
+        private int _monitoringVersion;
+        private bool _followNewestLog = true;
         private long _numberOfProcessedBytes = 0;
+        private string? _pendingMalformedLine;
+        private long _pendingMalformedOffset;
+        private long _pendingMalformedSince;
+        private static readonly TimeSpan MalformedTailRetryWindow = TimeSpan.FromSeconds(3);
         private List<ParsedLogEntry> _currentCombatLogs = new List<ParsedLogEntry>();
+        private readonly List<ParsedLogEntry> _pendingLiveLogs = new List<ParsedLogEntry>();
+        private readonly object _combatLock = new object();
         private List<ParsedLogEntry> _waitingForExitCombatTimeout = new List<ParsedLogEntry>();
         private DateTime _currentCombatStartTime;
         private DateTime _lastUpdateTime;
@@ -69,60 +79,102 @@ namespace SWTORCombatParser.Model.LogParsing
         public void MonitorLog(string logToMonitor)
         {
             Logging.LogInfo("Starting live monitor of log - " + logToMonitor);
-            Task.Run(() =>
+            StartParsing(logToMonitor, true);
+        }
+
+        public Task MonitorReplayAsync(string log, DateTime parseDate, CancellationToken cancellationToken)
+        {
+            if (!DebugFeatures.LogReplayEnabled) throw new InvalidOperationException("Log replay is available only in Debug builds.");
+            var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            StartParsing(log, true, false, ready, parseDate);
+            return ready.Task.WaitAsync(cancellationToken);
+        }
+
+        private void StartParsing(string log, bool monitor, bool followNewestLog = true,
+            TaskCompletionSource? ready = null, DateTime? parseDate = null)
+        {
+            lock (_monitoringLock)
             {
-                try
+                var version = Interlocked.Increment(ref _monitoringVersion);
+                _monitoringTask = _monitoringTask.ContinueWith(previous =>
                 {
-                    ResetMonitoring();
-                    _logToMonitor = logToMonitor;
-                    ParseExisitingLogs();
-                    LoadingWindowFactory.HideLoading();
-                    _monitorLog = true;
-                    PollForUpdates();
-                }
-                catch (Exception e)
-                {
-                    LoadingWindowFactory.HideLoading();
-                    Logging.LogError("Error during log monitoring: " + e.Message);
-                    _monitorLog = false;
-                    _currentCombatLogs.Clear();
-                    ErrorParsingLogs.InvokeSafely(JsonConvert.SerializeObject(e));
-                }
-            });
+                    _ = previous.Exception;
+                    if (version != Volatile.Read(ref _monitoringVersion))
+                    {
+                        ready?.TrySetCanceled();
+                        return;
+                    }
+                    try
+                    {
+                        ResetMonitoring();
+                        _logToMonitor = log;
+                        _followNewestLog = followNewestLog;
+                        ParseExisitingLogs(monitor, parseDate);
+                        LoadingWindowFactory.HideLoading();
+                        ready?.TrySetResult();
+                        if (monitor)
+                            PollForUpdates(version);
+                    }
+                    catch (Exception e)
+                    {
+                        ready?.TrySetException(e);
+                        LoadingWindowFactory.HideLoading();
+                        Logging.LogError("Error during log monitoring: " + e.Message);
+                        _currentCombatLogs.Clear();
+                        ErrorParsingLogs.InvokeSafely(JsonConvert.SerializeObject(e));
+                    }
+                }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+            }
         }
 
         public void ParseCompleteLog(string log)
         {
             Logging.LogInfo("Loading existing log - " + log);
-            ResetMonitoring();
-            _logToMonitor = log;
-            Task.Run(ParseExisitingLogs);
+            StartParsing(log, false);
         }
 
-        private void ParseExisitingLogs()
+        private void ParseExisitingLogs(bool deferIncompleteTail, DateTime? parseDate = null)
         {
             HistoricalLogsStarted.InvokeSafely();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
-            CombatLogParser.SetParseDate(file.Time);
-            var currentLogs = CombatLogParser.ParseAllLines(file, true);
-            numberOfProcessedLines = currentLogs.Count;
+            CombatLogParser.SetParseDate(parseDate ?? file.Time);
+            List<ParsedLogEntry> currentLogs;
+            using (file.Data)
+            {
+                currentLogs = CombatLogParser.ParseAllLines(file, true, out _numberOfProcessedBytes, out numberOfProcessedLines, deferIncompleteTail);
+                _fileEncoding = file.Data.CurrentEncoding;
+            }
             Logging.LogInfo("Found " + currentLogs.Count + " log entries in " + _logToMonitor);
-            // Single-pass, no extra array
-            long total = 0;
-            foreach (var log in currentLogs)
-                total += log.LogBytes + 2;
-            _numberOfProcessedBytes = total;
             Logging.LogInfo("Processed " + _numberOfProcessedBytes + " bytes of data in " + _logToMonitor);
             ParseHistoricalLog(currentLogs);
-            if(currentLogs.Count > 0)
-                EncounterTimerTrigger.SetPvpStateAfterHistorical(currentLogs.Last().TimeStamp);
+            _mostRecentLogTime = currentLogs.Where(l => l.Error != ErrorType.IncompleteLine).Select(l => l.TimeStamp).DefaultIfEmpty(DateTime.MinValue).Max();
+            if (_mostRecentLogTime != DateTime.MinValue)
+            {
+                _7_0LogParsing.SetStartDate(_mostRecentLogTime);
+                EncounterTimerTrigger.SetPvpStateAfterHistorical(_mostRecentLogTime);
+            }
         }
 
-        public void StopMonitoring()
+        public Task StopMonitoring(bool readFinalFrame = false)
         {
-            _monitorLog = false;
-            EndCombat(true);
-            _currentCombatLogs.Clear();
+            // Log callbacks can synchronously dispatch to the UI. Never make the
+            // UI wait synchronously for the lock held while those callbacks run.
+            lock (_monitoringLock)
+            {
+                Interlocked.Increment(ref _monitoringVersion);
+                _monitoringTask = _monitoringTask.ContinueWith(previous =>
+                {
+                    _ = previous.Exception;
+                    lock (_combatLock)
+                    {
+                        if (readFinalFrame && File.Exists(_logToMonitor)) ParseLogFile();
+                        EndCombat(true);
+                        _combatDetector.Reset();
+                        _currentCombatLogs.Clear();
+                    }
+                }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+                return _monitoringTask;
+            }
         }
 
         private void ResetMonitoring()
@@ -130,24 +182,27 @@ namespace SWTORCombatParser.Model.LogParsing
             CombatLogLoader.RefreshSWTORCombatLogsDirectory();
             _numberOfProcessedBytes = 0;
             numberOfProcessedLines = 0;
+            _pendingMalformedLine = null;
             _currentCombatStartTime = DateTime.MinValue;
             _lastUpdateTime = DateTime.MinValue;
         }
 
-        private void PollForUpdates()
+        private void PollForUpdates(int version)
         {
-            Task.Run(() =>
+            while (version == Volatile.Read(ref _monitoringVersion))
             {
-                while (_monitorLog)
-                {
-                    GenerateNewFrame();
-                    Thread.Sleep(250);
-                }
-            });
+                GenerateNewFrame();
+                Thread.Sleep(250);
+            }
         }
 
         private void GenerateNewFrame()
         {
+            if (!_followNewestLog)
+            {
+                ParseLogFile();
+                return;
+            }
             if (_forceUpdateOfLogs)
             {
                 ConfirmUsingMostRecentLog();
@@ -164,68 +219,86 @@ namespace SWTORCombatParser.Model.LogParsing
             }
         }
 
-private void ParseLogFile()
-{
-    var logUpdateTime = TimeUtility.CorrectedTime;
-    long originalCursor = _numberOfProcessedBytes;
-
-    // 1) Read all new lines since last cursor
-    var lines        = new List<string>();
-    var startOffsets = new List<long>();
-    using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-    using (var sr = new StreamReader(fs, _fileEncoding))
-    {
-        GetNewlines2(sr, lines, startOffsets);
-    }
-
-    if (lines.Count == 0)
-        return;
-
-    // 2) Parse each, collect only those in‐combat this frame
-    var newLogs         = new List<ParsedLogEntry>();
-    int successfulLines = 0;
-
-    for (int i = 0; i < lines.Count; i++)
-    {
-        numberOfProcessedLines++;
-
-        var result = ProcessNewLine(
-            lines[i],
-            numberOfProcessedLines,
-            /*logFilePath*/ _logToMonitor,
-            logUpdateTime,
-            out var parsed);
-
-        if (result == ProcessedLineResult.Incomplete)
+        private void ParseLogFile()
         {
-            // rollback to the byte offset of the bad line
-            numberOfProcessedLines -= (lines.Count - i);
-            _numberOfProcessedBytes = startOffsets[i];
-            Logging.LogError($"Incomplete parse on line #{i}, rolling back to byte offset {_numberOfProcessedBytes}");
-            break;
+            lock (_combatLock)
+            {
+                var logUpdateTime = TimeUtility.CorrectedTime;
+                long originalCursor = _numberOfProcessedBytes;
+                long consumedBytes = 0;
+                var lines = new List<string>();
+                using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var sr = new StreamReader(fs, _fileEncoding))
+                    GetNewlines2(sr, lines);
+
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    var line = lines[i];
+                    var lineBytes = _fileEncoding.GetByteCount(line);
+                    var lineOffset = originalCursor + consumedBytes;
+                    var isLastLine = i == lines.Count - 1;
+
+                    if (_pendingMalformedLine == line && _pendingMalformedOffset == lineOffset)
+                    {
+                        // A writer can temporarily terminate a partial record and
+                        // replace that terminator when the rest arrives. Wait briefly
+                        // for a change, but do not block later records indefinitely.
+                        if (isLastLine && Stopwatch.GetElapsedTime(_pendingMalformedSince) < MalformedTailRetryWindow)
+                            break;
+
+                        _pendingMalformedLine = null;
+                        Logging.LogError($"Skipping malformed log line #{numberOfProcessedLines}");
+                        numberOfProcessedLines++;
+                        consumedBytes += lineBytes;
+                        continue;
+                    }
+
+                    _pendingMalformedLine = null;
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        numberOfProcessedLines++;
+                        consumedBytes += lineBytes;
+                        continue;
+                    }
+
+                    var result = ProcessNewLine(line, numberOfProcessedLines, _logToMonitor, logUpdateTime, out var parsed);
+                    if (result == ProcessedLineResult.Incomplete)
+                    {
+                        if (isLastLine)
+                        {
+                            _pendingMalformedLine = line;
+                            _pendingMalformedOffset = lineOffset;
+                            _pendingMalformedSince = Stopwatch.GetTimestamp();
+                            break;
+                        }
+
+                        Logging.LogError($"Skipping malformed log line #{numberOfProcessedLines}");
+                    }
+                    else if (_isInCombat)
+                    {
+                        _pendingLiveLogs.Add(parsed);
+                    }
+
+                    numberOfProcessedLines++;
+                    consumedBytes += lineBytes;
+                }
+
+                _numberOfProcessedBytes = originalCursor + consumedBytes;
+                FlushPendingLiveLogs();
+            }
         }
 
-        successfulLines++;
-        if (_isInCombat)
-            newLogs.Add(parsed);
-    }
-
-    // 3) Advance cursor if everything succeeded
-    if (successfulLines == lines.Count)
-    {
-        long consumedBytes = lines.Sum(l => _fileEncoding.GetByteCount(l));
-        _numberOfProcessedBytes = originalCursor + consumedBytes;
-    }
-
-    // 4) Fire one Update with only this frame’s logs
-    if (_isInCombat && newLogs.Count > 0)
+private void FlushPendingLiveLogs()
+{
+    if (_pendingLiveLogs.Count > 0)
     {
         var updateMsg = new CombatStatusUpdate
         {
             Type            = UpdateType.Update,
-            Logs            = newLogs,
+            Logs            = new List<ParsedLogEntry>(_pendingLiveLogs),
             CombatStartTime = _currentCombatStartTime
         };
+        _pendingLiveLogs.Clear();
         CombatUpdated.InvokeSafely(updateMsg);
     }
 }
@@ -233,14 +306,12 @@ private void ParseLogFile()
 
         private void GetNewlines2(
             StreamReader sr,
-            List<string> lines,
-            List<long> lineStartOffsets)
+            List<string> lines)
         {
             // 0) Reposition the reader to where we left off last time
             sr.DiscardBufferedData();
             sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
 
-            long localOffset = _numberOfProcessedBytes; // snapshot, never write back directly
             bool seenCR = false;
             var newLine = new StringBuilder();
             char[] buffer = new char[2500];
@@ -263,16 +334,10 @@ private void ParseLogFile()
                         continue;
                     }
 
-                    if (c == '\n' && seenCR)
+                    if (c == '\n')
                     {
-                        // complete line (including CRLF)
-                        var complete = newLine.ToString() + "\r\n";
+                        var complete = newLine.ToString() + (seenCR ? "\r\n" : "\n");
                         lines.Add(complete);
-                        lineStartOffsets.Add(localOffset);
-
-                        // advance our local offset by the byte‐count of that line
-                        int bc = _fileEncoding.GetByteCount(complete);
-                        localOffset += bc;
 
                         newLine.Clear();
                         seenCR = false;
@@ -439,9 +504,13 @@ private void ParseLogFile()
 
         private void EndCombat(bool isRealTime, ParsedLogEntry parsedLine = null)
         {
+            lock (_combatLock)
+            {
             Logging.LogInfo("Parsing... Ending combat");
             if (!_isInCombat)
                 return;
+            if (isRealTime)
+                FlushPendingLiveLogs();
             var logsToSend = isRealTime ? new List<ParsedLogEntry>() : _currentCombatLogs;
             if (parsedLine != null)
                 logsToSend.Add(parsedLine);
@@ -460,6 +529,7 @@ private void ParseLogFile()
             };
             Logging.LogInfo($"Sending combat state change notification: {stopMsg.Type} at {stopMsg.CombatStartTime} with location {stopMsg.CombatLocation}");
             CombatUpdated.InvokeSafely(stopMsg);
+            }
         }
 
     }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.3.2.0</VersionPrefix>
+    <VersionPrefix>2.4.0.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -181,6 +181,7 @@
     <Content Include="DataStructures\ClassInfos\Classes.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="DataStructures\EncounterInfo\RunRouteCatalog.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="DataStructures\EncounterInfo\FlashpointInfo.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

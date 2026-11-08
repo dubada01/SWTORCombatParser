@@ -81,7 +81,7 @@ namespace SWTORCombatParser.Utilities
                 return;
             _currentOffset = offsetInMilliseconds;
         }
-        public static DateTime CorrectedTime => DateTime.Now.AddMilliseconds(_currentOffset);
+        public static DateTime CorrectedTime => Model.LogParsing.LogReplayContext.CurrentTime ?? DateTime.Now.AddMilliseconds(_currentOffset);
     }
 
 }

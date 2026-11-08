@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SWTORCombatParser.DataStructures;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,123 +10,123 @@ public static class MetricGetter
     public static double GetValueForMetric(OverlayType type, List<Combat> combats, Entity participant)
     {
         double value = 0;
-        if (!combats.Any(c => c.CharacterParticipants.ContainsKey(participant.LogId)))
+        if (participant == null || !combats.Any(c => c.CharacterParticipants.ContainsKey(participant.LogId)))
             return value;
         switch (type)
         {
             case OverlayType.APM:
-                value = combats.SelectMany(c => c.APM).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.APM).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.DPS:
-                value = combats.SelectMany(c => c.EDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.EDPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.InstantaneousDPS:
-                value = combats.SelectMany(c => c.InstantaneousEffectiveDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.InstantaneousEffectiveDPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.Damage:
                 value = combats.SelectMany(c => c.TotalEffectiveDamage).Where(v => v.Key == participant)
-                    .Select(v => v.Value).Average();
+                    .Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.RawDamage:
                 value = combats.SelectMany(c => c.TotalDamage).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.NonEDPS:
-                value = combats.SelectMany(c => c.DPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.DPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.EHPS:
-                value = combats.SelectMany(c => c.EHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.EHPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 value += combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.InstantaneousEHPS:
-                value = combats.SelectMany(c => c.InstantaneousEffectiveHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.InstantaneousEffectiveHPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.EffectiveHealing:
                 value = combats.SelectMany(c => c.TotalEffectiveHealing).Where(v => v.Key == participant)
-                    .Select(v => v.Value).Average();
+                    .Select(v => v.Value).DefaultIfEmpty().Average();
                 value += combats.SelectMany(c => c.TotalProvidedSheilding).Where(v => v.Key == participant).Select(v => v.Value)
-    .Average();
+    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.RawHealing:
                 value = combats.SelectMany(c => c.TotalHealing).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.HPS:
                 value = combats.SelectMany(c => c.HPS).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.ProvidedAbsorb:
-                value = combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.PSPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.FocusDPS:
                 value = combats.SelectMany(c => c.EFocusDPS).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.ThreatPerSecond:
-                value = combats.SelectMany(c => c.TPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.TPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.Threat:
                 value = combats.SelectMany(c => c.TotalThreat).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.DamageTaken:
                 value = combats.SelectMany(c => c.EDTPS).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.Mitigation:
-                value = combats.SelectMany(c => c.MPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.MPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.DamageSavedDuringCD:
                 value = combats.SelectMany(c => c.DamageSavedFromCDPerSecond).Where(v => v.Key == participant)
-                    .Select(v => v.Value).Average();
+                    .Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.DamageAvoided:
-                value = combats.SelectMany(c => c.DAPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.DAPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.ShieldAbsorb:
-                value = combats.SelectMany(c => c.SAPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.SAPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.BurstDPS:
                 value = combats.SelectMany(c => c.MaxBurstDamage).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.BurstEHPS:
                 value = combats.SelectMany(c => c.MaxBurstHeal).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.BurstDamageTaken:
                 value = combats.SelectMany(c => c.MaxBurstDamageTaken).Where(v => v.Key == participant)
-                    .Select(v => v.Value).Average();
+                    .Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.HealReactionTime:
                 value = combats.SelectMany(c => c.NumberOfHighSpeedReactions).Where(v => v.Key == participant)
-                    .Select(v => v.Value).Average();
+                    .Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.TankHealReactionTime:
                 value = combats.SelectMany(c => c.AverageTankDamageRecoveryTimeTotal).Where(v => v.Key == participant)
-                    .Select(v => v.Value).Average();
+                    .Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.InterruptCount:
                 value = combats.SelectMany(c => c.TotalInterrupts).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.CritPercent:
-                value = combats.SelectMany(c => c.CritPercent).Where(c => c.Key == participant).Select(v => v.Value).Average() * 100;
+                value = combats.SelectMany(c => c.CritPercent).Where(c => c.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average() * 100;
                 break;
             case OverlayType.SingleTargetDPS:
-                value = combats.SelectMany(c => c.STDPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.STDPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.SingleTargetEHPS:
-                value = combats.SelectMany(c => c.STEHPS).Where(v => v.Key == participant).Select(v => v.Value).Average();
+                value = combats.SelectMany(c => c.STEHPS).Where(v => v.Key == participant).Select(v => v.Value).DefaultIfEmpty().Average();
                 break;
             case OverlayType.CleanseCount:
                 value = combats.SelectMany(c => c.TotalCleanses).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
             case OverlayType.CleanseSpeed:
                 value = combats.SelectMany(c => c.AverageCleanseSpeed).Where(v => v.Key == participant).Select(v => v.Value)
-                    .Average();
+                    .DefaultIfEmpty().Average();
                 break;
         }
 

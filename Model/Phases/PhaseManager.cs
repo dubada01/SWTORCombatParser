@@ -86,7 +86,7 @@ namespace SWTORCombatParser.Model.Phases
 
         private static string _currentBossName;
         private static DateTime _combatStartTime;
-        private static bool _combatStartToggled;
+        private static readonly HashSet<(Guid, bool)> _combatStartToggled = new();
         private static DateTime _combatStopTime;
         private static Dictionary<Guid, bool> _hpPhasesTriggered = new Dictionary<Guid, bool>();
         private static double phaseDuration;
@@ -156,11 +156,14 @@ namespace SWTORCombatParser.Model.Phases
                 {
                     ResetPhases();
                     _combatStartTime = update.CombatStartTime;
+                    _combatStopTime = update.CombatStartTime;
                 }
                 if (update.Logs != null && update.Logs.Count > 0)
                 {
                     foreach (var line in update.Logs.OrderBy(l=>l.LogLineNumber))
                     {
+                        if (line.TimeStamp > _combatStopTime)
+                            _combatStopTime = line.TimeStamp;
                         HandleNewLine(line);
                     }
                 }
@@ -173,6 +176,11 @@ namespace SWTORCombatParser.Model.Phases
         {
             // 1) Sort (work on a local list; we will mutate PhaseStart/End on the instances themselves)
             var phases = ActivePhases
+                .Select(p => new PhaseInstance
+                {
+                    Id = p.Id, SourcePhase = p.SourcePhase, PhaseStart = p.PhaseStart,
+                    PhaseEnd = p.PhaseEnd, ArtificallyEnded = p.ArtificallyEnded
+                })
                 .OrderBy(p => p.PhaseStart)
                 .ToList();
 
@@ -251,7 +259,7 @@ namespace SWTORCombatParser.Model.Phases
 
         private static void ResetPhases()
         {
-            _combatStartToggled = false;
+            _combatStartToggled.Clear();
             _detectedEntities.Clear();
             ActivePhases.Clear();
             SelectedPhases.Clear();
@@ -277,9 +285,8 @@ namespace SWTORCombatParser.Model.Phases
         }
         private static void HandleCombatStart(ParsedLogEntry entry, Phase phase, bool starting)
         {
-            if (!_combatStartToggled)
+            if (_combatStartToggled.Add((phase.Id, starting)))
             {
-                _combatStartToggled = true;
                 if (starting)
                     StartPhase(entry, phase);
                 else
@@ -321,7 +328,7 @@ namespace SWTORCombatParser.Model.Phases
 
         private static void HandleEntityHP(ParsedLogEntry entry, Phase phase, bool starting)
         {
-            if (_hpPhasesTriggered.TryGetValue(phase.Id, out var val) && val)
+            if (starting && _hpPhasesTriggered.TryGetValue(phase.Id, out var val) && val)
             {
                 return;
             }

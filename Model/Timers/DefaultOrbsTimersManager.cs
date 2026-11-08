@@ -33,21 +33,27 @@ namespace SWTORCombatParser.Model.Timers
 
         public static void UpdateTimersActive(bool timersActive, string timerSource)
         {
-            var currentActives = GetAllTimersActiveInfo();
-            if (currentActives != null)
+            lock (fileModLock)
             {
-                currentActives[timerSource] = timersActive;
-                SaveActiveTimersInfo(currentActives);
+                var currentActives = GetAllTimersActiveInfo();
+                if (currentActives != null)
+                {
+                    currentActives[timerSource] = timersActive;
+                    SaveActiveTimersInfo(currentActives);
+                }
             }
         }
         public static bool GetTimersActive(string currentCharacter)
         {
-            var activeInfo = GetAllTimersActiveInfo();
-            if (activeInfo != null && activeInfo.TryAdd(currentCharacter, false))
+            lock (fileModLock)
             {
-                SaveActiveTimersInfo(activeInfo);
+                var activeInfo = GetAllTimersActiveInfo();
+                if (activeInfo != null && activeInfo.TryAdd(currentCharacter, false))
+                {
+                    SaveActiveTimersInfo(activeInfo);
+                }
+                return activeInfo != null && activeInfo[currentCharacter];
             }
-            return activeInfo != null && activeInfo[currentCharacter];
         }
         private static void SaveActiveTimersInfo(Dictionary<string, bool> activesInfo)
         {
@@ -59,65 +65,57 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static void Init()
         {
-            if (!Directory.Exists(appDataPath))
-                Directory.CreateDirectory(appDataPath);
-            if (!File.Exists(infoPath))
+            lock (fileModLock)
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new List<DefaultTimersData>()));
-            }
-            if (!File.Exists(activePath))
-            {
-                File.WriteAllText(activePath, JsonConvert.SerializeObject(new Dictionary<string, bool>()));
+                if (!Directory.Exists(appDataPath))
+                    Directory.CreateDirectory(appDataPath);
+                if (!File.Exists(infoPath))
+                {
+                    File.WriteAllText(infoPath, JsonConvert.SerializeObject(new List<DefaultTimersData>()));
+                }
+                if (!File.Exists(activePath))
+                {
+                    File.WriteAllText(activePath, JsonConvert.SerializeObject(new Dictionary<string, bool>()));
+                }
             }
         }
 
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)
         {
-            var currentDefaults = GetDefaults(characterName);
-            currentDefaults.WidtHHeight = widtHHeight;
-            currentDefaults.Position = position;
-            SaveResults(characterName, currentDefaults);
+            lock (fileModLock)
+            {
+                var currentDefaults = GetDefaults(characterName);
+                currentDefaults.WidtHHeight = widtHHeight;
+                currentDefaults.Position = position;
+                SaveResults(characterName, currentDefaults);
+            }
         }
         public static void SetIdForTimer(Timer timer, string character, string id)
         {
-            var currentDefaults = GetDefaults(character);
-            var valueToUpdate = currentDefaults.Timers.First(t => TimerEquality.Equals(timer, t));
-            valueToUpdate.ShareId = id;
-            SaveResults(character, currentDefaults);
+            lock (fileModLock)
+            {
+                var currentDefaults = GetDefaults(character);
+                var valueToUpdate = currentDefaults.Timers.First(t => TimerEquality.Equals(timer, t));
+                valueToUpdate.ShareId = id;
+                SaveResults(character, currentDefaults);
+            }
         }
         public static void SetSavedTimers(List<Timer> currentTimers, string character)
         {
-            var currentDefaults = GetDefaults(character);
-            currentDefaults.Timers = currentTimers;
-            SaveResults(character, currentDefaults);
+            lock (fileModLock)
+            {
+                var currentDefaults = GetDefaults(character);
+                currentDefaults.Timers = currentTimers;
+                SaveResults(character, currentDefaults);
+            }
         }
         public static void AddSource(DefaultTimersData source)
         {
-            if (source.TimerSource == "")
-                return;
-            var defaults = GetAllDefaults();
-            if (defaults.Any(t => t.TimerSource == source.TimerSource))
-            {
-                var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
-                foreach (var timer in source.Timers)
-                {
-                    if (sourceToUpdate.Timers.Any(t => t.Id == timer.Id) || timer.Id == "")
-                        continue;
-                    sourceToUpdate.Timers.Add(timer);
-                }
-            }
-            else
-                defaults.Add(source);
-            UpdateConfig(JsonConvert.SerializeObject(defaults));
-        }
-        public static void AddSources(List<DefaultTimersData> sources)
-        {
-            var defaults = GetAllDefaults();
-            foreach(var source in sources)
+            lock (fileModLock)
             {
                 if (source.TimerSource == "")
                     return;
-
+                var defaults = GetAllDefaults();
                 if (defaults.Any(t => t.TimerSource == source.TimerSource))
                 {
                     var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
@@ -130,123 +128,182 @@ namespace SWTORCombatParser.Model.Timers
                 }
                 else
                     defaults.Add(source);
+                UpdateConfig(JsonConvert.SerializeObject(defaults));
             }
-            UpdateConfig(JsonConvert.SerializeObject(defaults));
+        }
+        public static void AddSources(List<DefaultTimersData> sources)
+        {
+            lock (fileModLock)
+            {
+                var defaults = GetAllDefaults();
+                foreach(var source in sources)
+                {
+                    if (source.TimerSource == "")
+                        continue;
+
+                    if (defaults.Any(t => t.TimerSource == source.TimerSource))
+                    {
+                        var sourceToUpdate = defaults.First(t => t.TimerSource == source.TimerSource);
+                        foreach (var timer in source.Timers)
+                        {
+                            if (sourceToUpdate.Timers.Any(t => t.Id == timer.Id) || timer.Id == "")
+                                continue;
+                            sourceToUpdate.Timers.Add(timer);
+                        }
+                    }
+                    else
+                        defaults.Add(source);
+                }
+                UpdateConfig(JsonConvert.SerializeObject(defaults));
+            }
         }
         public static void ClearBuiltinMechanics(int currentrev)
         {
-            var allTimers = GetAllDefaults();
-            foreach (var source in allTimers)
+            lock (fileModLock)
             {
-                source.Timers.RemoveAll(t => t.IsMechanic && t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot && !t.IsImportedFromSP);
+                var allTimers = GetAllDefaults();
+                foreach (var source in allTimers)
+                {
+                    source.Timers.RemoveAll(t => t.IsMechanic && t.TimerRev < currentrev && (!t.IsUserAddedTimer || t.TimerRev != 0) && !t.IsHot && !t.IsBuiltInDot && !t.IsBuiltInDefensive && !t.IsBuiltInDot && !t.IsImportedFromSP);
+                }
+                UpdateConfig(JsonConvert.SerializeObject(allTimers));
             }
-            UpdateConfig(JsonConvert.SerializeObject(allTimers));
         }
         public static void ResetTimersForSource(string source)
         {
-            var currentDefaults = GetDefaults(source);
-            currentDefaults.Timers.Clear();
-            SaveResults(source, currentDefaults);
+            lock (fileModLock)
+            {
+                var currentDefaults = GetDefaults(source);
+                currentDefaults.Timers.Clear();
+                SaveResults(source, currentDefaults);
+            }
         }
         public static void AddTimersForSource(List<Timer> timers, string source)
         {
-            var currentDefaults = GetDefaults(source);
-            foreach (var timer in timers)
+            lock (fileModLock)
             {
-                if (currentDefaults.Timers.Any(t => t.Id == timer.Id))
+                var currentDefaults = GetDefaults(source);
+                foreach (var timer in timers)
                 {
-                    continue;
+                    if (currentDefaults.Timers.Any(t => t.Id == timer.Id))
+                    {
+                        continue;
+                    }
+                    currentDefaults.Timers.Add(timer);
                 }
-                currentDefaults.Timers.Add(timer);
-            }
 
-            SaveResults(source, currentDefaults);
+                SaveResults(source, currentDefaults);
+            }
         }
         public static void RemoveTimerForCharacter(Timer timer, string character)
         {
-            var currentDefaults = GetAllDefaults();
-            var valueToRemove = currentDefaults.SelectMany(s => s.Timers).FirstOrDefault(t => TimerEquality.Equals(timer, t));
-            if (valueToRemove == null)
-                return;
-            foreach (var source in currentDefaults)
+            lock (fileModLock)
             {
-                source.Timers.Remove(valueToRemove);
+                var currentDefaults = GetAllDefaults();
+                var valueToRemove = currentDefaults.SelectMany(s => s.Timers).FirstOrDefault(t => TimerEquality.Equals(timer, t));
+                if (valueToRemove == null)
+                    return;
+                foreach (var source in currentDefaults)
+                {
+                    source.Timers.Remove(valueToRemove);
+                }
+                UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
             }
-            UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
         }
         public static void SetTimerEnabled(bool state, Timer timer)
         {
-            var currentDefaults = GetDefaults(timer.TimerSource);
-            var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
-            timerToModify.IsEnabled = state;
-            SaveResults(timerToModify.TimerSource, currentDefaults);
+            lock (fileModLock)
+            {
+                var currentDefaults = GetDefaults(timer.TimerSource);
+                var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+                timerToModify.IsEnabled = state;
+                SaveResults(timerToModify.TimerSource, currentDefaults);
+            }
         }
         public static void SetTimerVisibility(bool state, Timer timer)
         {
-            var currentDefaults = GetDefaults(timer.TimerSource);
-            var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
-            timerToModify.IsSubTimer = state;
-            SaveResults(timerToModify.TimerSource, currentDefaults);
+            lock (fileModLock)
+            {
+                var currentDefaults = GetDefaults(timer.TimerSource);
+                var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+                timerToModify.IsSubTimer = state;
+                SaveResults(timerToModify.TimerSource, currentDefaults);
+            }
         }
         public static void SetTimerAudio(bool state, Timer timer)
         {
-            var currentDefaults = GetDefaults(timer.TimerSource);
-            var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
-            timerToModify.UseAudio = state;
-            SaveResults(timerToModify.TimerSource, currentDefaults);
+            lock (fileModLock)
+            {
+                var currentDefaults = GetDefaults(timer.TimerSource);
+                var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+                timerToModify.UseAudio = state;
+                SaveResults(timerToModify.TimerSource, currentDefaults);
+            }
         }
         public static void SetTimersAudioForSource(List<Timer> timers, string source)
         {
-            var currentDefaults = GetDefaults(source);
-            foreach (var timer in currentDefaults.Timers)
+            lock (fileModLock)
             {
-                timer.UseAudio = timers.First(t => t.Id == timer.Id).UseAudio;
+                var currentDefaults = GetDefaults(source);
+                foreach (var timer in currentDefaults.Timers)
+                {
+                    timer.UseAudio = timers.First(t => t.Id == timer.Id).UseAudio;
+                }
+                //var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+                //timerToModify.UseAudio = state;
+                SaveResults(source, currentDefaults);
             }
-            //var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
-            //timerToModify.UseAudio = state;
-            SaveResults(source, currentDefaults);
         }
         public static void SetTimersVisibilityForSource(List<Timer> timers, string source)
         {
-            var currentDefaults = GetDefaults(source);
-            foreach (var timer in currentDefaults.Timers)
+            lock (fileModLock)
             {
-                timer.IsSubTimer = timers.First(t => t.Id == timer.Id).IsSubTimer;
+                var currentDefaults = GetDefaults(source);
+                foreach (var timer in currentDefaults.Timers)
+                {
+                    timer.IsSubTimer = timers.First(t => t.Id == timer.Id).IsSubTimer;
+                }
+                //var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
+                //timerToModify.UseAudio = state;
+                SaveResults(source, currentDefaults);
             }
-            //var timerToModify = currentDefaults.Timers.First(t => t.Id == timer.Id);
-            //timerToModify.UseAudio = state;
-            SaveResults(source, currentDefaults);
         }
         public static void SetTimersEnabledForSource(List<Timer> timers, string source)
         {
-            var currentDefaults = GetDefaults(source);
-            foreach (var timer in currentDefaults.Timers)
+            lock (fileModLock)
             {
-                timer.IsEnabled = timers.First(t => t.Id == timer.Id).IsEnabled;
+                var currentDefaults = GetDefaults(source);
+                foreach (var timer in currentDefaults.Timers)
+                {
+                    timer.IsEnabled = timers.First(t => t.Id == timer.Id).IsEnabled;
+                }
+                SaveResults(source, currentDefaults);
             }
-            SaveResults(source, currentDefaults);
         }
         public static DefaultTimersData GetDefaults(string timerSource)
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            try
+            lock (fileModLock)
             {
-                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
-                if (!currentDefaults.Any(c => c.TimerSource == timerSource))
+                var stringInfo = File.ReadAllText(infoPath);
+                try
+                {
+                    var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
+                    if (!currentDefaults.Any(c => c.TimerSource == timerSource))
+                    {
+                        InitializeDefaults(timerSource);
+                    }
+
+
+                    var initializedInfo = File.ReadAllText(infoPath);
+                    currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
+                    return currentDefaults.First(t => t.TimerSource == timerSource);
+                }
+                catch (Exception)
                 {
                     InitializeDefaults(timerSource);
+                    var resetDefaults = File.ReadAllText(infoPath);
+                    return JsonConvert.DeserializeObject<List<DefaultTimersData>>(resetDefaults).First(t => t.TimerSource == timerSource);
                 }
-
-
-                var initializedInfo = File.ReadAllText(infoPath);
-                currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(initializedInfo);
-                return currentDefaults.First(t => t.TimerSource == timerSource);
-            }
-            catch (Exception)
-            {
-                InitializeDefaults(timerSource);
-                var resetDefaults = File.ReadAllText(infoPath);
-                return JsonConvert.DeserializeObject<List<DefaultTimersData>>(resetDefaults).First(t => t.TimerSource == timerSource);
             }
         }
         public static List<DefaultTimersData> GetAllMechanicsDefaults()
@@ -255,47 +312,43 @@ namespace SWTORCombatParser.Model.Timers
         }
         public static List<DefaultTimersData> GetAllDefaults()
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            if (_currentDefaults == stringInfo)
+            lock (fileModLock)
             {
-                return _defaults;
-            }
-            else
-            {
-                _currentDefaults = stringInfo;
-            }
-            if (string.IsNullOrEmpty(stringInfo))
-            {
-                return new List<DefaultTimersData>();
-            }
-            try
-            {
-                var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
-                var classes = ClassLoader.LoadAllClasses();
-                var validSources = classes.Select(c => c.Discipline);
-                var validDefaults = currentDefaults.Where(c => c != null && c.TimerSource != null && validSources.Contains(c.TimerSource) ||
-                c.TimerSource == "Shared" ||
-                c.TimerSource == "HOTS" ||
-                c.TimerSource == "DOTS" ||
-                c.TimerSource == "DCD" ||
-                c.TimerSource == "OCD" ||
-                c.IsBossSource ||
-            c.TimerSource == "StarParse Import").ToList();
-                _defaults = validDefaults;
-                return validDefaults;
-            }
-            catch (JsonSerializationException)
-            {
-                //File.WriteAllText(infoPath, "");
-                return new List<DefaultTimersData>();
+                var stringInfo = File.ReadAllText(infoPath);
+                if (_currentDefaults == stringInfo && _defaults != null)
+                {
+                    return _defaults.ToList();
+                }
+                if (string.IsNullOrEmpty(stringInfo))
+                {
+                    return new List<DefaultTimersData>();
+                }
+                try
+                {
+                    var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo) ?? new List<DefaultTimersData>();
+                    var classes = ClassLoader.LoadAllClasses();
+                    var validSources = classes.Select(c => c.Discipline);
+                    var validDefaults = currentDefaults.Where(c => c != null && c.TimerSource != null &&
+                        (validSources.Contains(c.TimerSource) || c.TimerSource == "Shared" ||
+                         c.TimerSource == "HOTS" || c.TimerSource == "DOTS" || c.TimerSource == "DCD" ||
+                         c.TimerSource == "OCD" || c.IsBossSource || c.TimerSource == "StarParse Import")).ToList();
+                    _defaults = validDefaults;
+                    _currentDefaults = stringInfo;
+                    return validDefaults.ToList();
+                }
+                catch (JsonException)
+                {
+                    //File.WriteAllText(infoPath, "");
+                    return new List<DefaultTimersData>();
+                }
             }
         }
         private static void SaveResults(string timerSource, DefaultTimersData data)
         {
             var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo);
+            var currentDefaults = JsonConvert.DeserializeObject<List<DefaultTimersData>>(stringInfo) ?? new List<DefaultTimersData>();
 
-            currentDefaults.Remove(currentDefaults.First(cd => cd.TimerSource == timerSource));
+            currentDefaults.RemoveAll(cd => cd != null && cd.TimerSource == timerSource);
             currentDefaults.Add(data);
             var classes = ClassLoader.LoadAllClasses();
             var validSources = classes.Select(c => c.Discipline);
@@ -335,7 +388,8 @@ namespace SWTORCombatParser.Model.Timers
             c.TimerSource == "StarParse Import");
             UpdateConfig(JsonConvert.SerializeObject(validDefaults));
         }
-        private static object fileModLock = new object();
+        // Timer defaults are read and modified from both startup and live-log threads.
+        private static readonly object fileModLock = new object();
         private static void UpdateConfig(string textToWrite)
         {
             string tempFileName = infoPath + ".temp";

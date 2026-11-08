@@ -31,7 +31,7 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!Directory.Exists(LoggingPath))
                 return new CombatLogFile[0];
             var info = new DirectoryInfo(LoggingPath);
-            var filePaths = info.GetFiles();
+            var filePaths = info.GetFiles().Where(f => IsCombatLogFile(f.FullName));
             var filesToUse = filePaths.Where(f => f.LastWriteTime > from && f.LastWriteTime <= to).ToList();
             CombatLogFile[] combatLogsData = new CombatLogFile[filesToUse.Count];
             Parallel.For(0, filesToUse.Count, i =>
@@ -46,7 +46,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (!Directory.Exists(LoggingPath))
                 return new CombatLogFile[0];
-            var filePaths = Directory.GetFiles(LoggingPath);
+            var filePaths = Directory.GetFiles(LoggingPath).Where(IsCombatLogFile).ToArray();
             CombatLogFile[] combatLogsData = new CombatLogFile[filePaths.Length];
             Parallel.For(0, filePaths.Length, i =>
             {
@@ -68,10 +68,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (CheckIfCombatLoggingPresent())
             {
-                var files = new DirectoryInfo(LoggingPath).EnumerateFiles();
-                if (files.Count() > 0)
-                    return true;
-                return false;
+                return Directory.EnumerateFiles(LoggingPath).Any(IsCombatLogFile);
             }
             return false;
         }
@@ -97,9 +94,12 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         private static string GetMostRecentCombatFile()
         {
-            var files = new DirectoryInfo(LoggingPath).EnumerateFiles().Where(l=>l.Extension == ".txt");
+            var files = new DirectoryInfo(LoggingPath).EnumerateFiles().Where(l => IsCombatLogFile(l.FullName));
             return files.OrderByDescending(f => f.LastWriteTime).ToList()[0].FullName;
         }
+
+        private static bool IsCombatLogFile(string path) =>
+            string.Equals(Path.GetExtension(path), ".txt", StringComparison.OrdinalIgnoreCase);
         private static CombatLogFile LoadCombatLog(string path)
         {
             Logging.LogInfo("Loading log - " + path);

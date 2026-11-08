@@ -28,7 +28,11 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using MoreLinq;
 using ReactiveUI;
-using SWTORCombatParser.ViewModels.Avalonia_TEMP;
+using SWTORCombatParser.Model.SessionReview;
+using SWTORCombatParser.ViewModels.SessionReview;
+using SWTORCombatParser.Views;
+using SWTORCombatParser.Model.RunRace;
+using SWTORCombatParser.ViewModels.RunRace;
 
 namespace SWTORCombatParser.ViewModels.Overlays
 {
@@ -52,6 +56,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         private bool historicalParseFinished = false;
         private bool usePersonalOverlay;
         private PersonalOverlayViewModel _personalOverlayViewModel;
+        private readonly SessionSummaryOverlayViewModel _sessionSummaryOverlay;
+        private readonly RunRaceOverlayViewModel _runRaceOverlay;
         private string selectedType = "Damage";
         private bool useDynamicLayout;
 
@@ -130,7 +136,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
             _challengesViewModel.CombatUpdated(combat);
         }
 
-        public OverlayViewModel()
+        public OverlayViewModel(SessionReviewService sessionReviewService, RunRaceService runRaceService)
         {
             CombatLogStateBuilder.PlayerDiciplineChanged += UpdateOverlaysForClass;
             CombatLogStreamer.HistoricalLogsFinished += FinishHistoricalParse;
@@ -144,7 +150,10 @@ namespace SWTORCombatParser.ViewModels.Overlays
             DefaultGlobalOverlays.Init();
             DefaultPersonalOverlaysManager.Init();
             DefaultChallengeManager.Init();
-            AvaloniaTimelineBuilder.Init();
+            _sessionSummaryOverlay = new SessionSummaryOverlayViewModel(sessionReviewService);
+            MainWindowClosing.Closing += _sessionSummaryOverlay.Dispose;
+            _runRaceOverlay = new RunRaceOverlayViewModel(runRaceService);
+            MainWindowClosing.Closing += _runRaceOverlay.Dispose;
             var enumVals = EnumUtil.GetValues<OverlayType>().OrderBy(d => d.ToString());
             foreach (var enumVal in enumVals.Where(e => e != OverlayType.None))
             {
@@ -175,7 +184,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 new() { Name = "Discipline Timers", Type = UtilityOverlayType.DisciplineTimer},
                 new() { Name = "Alert Timers", Type = UtilityOverlayType.AlertTimer},
                 new() { Name = "Room Hazards", Type = UtilityOverlayType.RoomHazard},
-                new() { Name = "Timeline", Type = UtilityOverlayType.Timeline},
+                new() { Name = "Session Summary", Type = UtilityOverlayType.SessionSummary},
+                new() { Name = "Run Race", Type = UtilityOverlayType.RunRace},
                 new() { Name = "PvP Opponent HP", Type = UtilityOverlayType.PvPHP},
                 new() { Name = "PvP Medal Tracking", Type = UtilityOverlayType.PvPMedalTracking},
                 new() { Name = "Ability List", Type = UtilityOverlayType.AbilityList},
@@ -233,7 +243,12 @@ namespace SWTORCombatParser.ViewModels.Overlays
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AlertTimer).IsSelected = _timersViewModel.AlertsActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.DisciplineTimer).IsSelected = _timersViewModel.DisciplineTimersActive;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RoomHazard).IsSelected = _otherOverlayViewModel._roomOverlayViewModel.Active;
-            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.Timeline).IsSelected = AvaloniaTimelineBuilder.TimelineEnabled;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.SessionSummary).IsSelected = _sessionSummaryOverlay.Active;
+            _sessionSummaryOverlay.ActiveChanged += active =>
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.SessionSummary).IsSelected = active;
+            AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RunRace).IsSelected = _runRaceOverlay.Active;
+            _runRaceOverlay.ActiveChanged += active =>
+                AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.RunRace).IsSelected = active;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPHP).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.OpponentHPEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.PvPMedalTracking).IsSelected = _otherOverlayViewModel._PvpOverlaysConfigViewModel.MedalTrackingEnabled;
             AvailableUtilityOverlays.First(v => v.Type == UtilityOverlayType.AbilityList).IsSelected = _abilityListSetup.AbilityListEnabled;
@@ -433,8 +448,11 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 case UtilityOverlayType.RaidNotes:
                     _raidNotesSetup.RaidNotesEnabled = !_raidNotesSetup.RaidNotesEnabled;
                     break;
-                case UtilityOverlayType.Timeline:
-                    AvaloniaTimelineBuilder.TimelineEnabled = !AvaloniaTimelineBuilder.TimelineEnabled;
+                case UtilityOverlayType.SessionSummary:
+                    _sessionSummaryOverlay.Active = !_sessionSummaryOverlay.Active;
+                    break;
+                case UtilityOverlayType.RunRace:
+                    _runRaceOverlay.Active = !_runRaceOverlay.Active;
                     break;
                 case UtilityOverlayType.ThreatTable:
                     _otherOverlayViewModel._threatTableOverlayViewModel.Active = !_otherOverlayViewModel._threatTableOverlayViewModel.Active;
@@ -485,6 +503,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
         {
             ResetOverlays();
             _otherOverlayViewModel.HideAll();
+            _sessionSummaryOverlay.HideOverlayWindow();
+            _runRaceOverlay.HideOverlayWindow();
         }
         public void ResetOverlays()
         {
@@ -511,14 +531,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
                 _raidNotesSetup.UpdateLock(overlaysLocked);
                 ToggleOverlayLock();
                 OverlayLockStateChanged();
-                if (value)
-                {
-                    AvaloniaTimelineBuilder.LockOverlay();
-                }         
-                else
-                {
-                    AvaloniaTimelineBuilder.UnlockOverlay();
-                }
+                _sessionSummaryOverlay.OverlaysMoveable = !value;
+                _runRaceOverlay.OverlaysMoveable = !value;
             }
         }
         private void UpdatePersonalOverlayActive(bool obj)

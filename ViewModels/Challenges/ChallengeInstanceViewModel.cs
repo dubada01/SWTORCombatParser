@@ -8,8 +8,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media;
+using Avalonia.Threading;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Challenges
@@ -17,6 +19,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
     public class ChallengeInstanceViewModel : ReactiveObject
     {
         private string metricTotal;
+        private int _updateVersion;
+        private readonly object _refreshLock = new();
+        private bool _refreshRunning;
+        private MetricRequest? _pendingRefresh;
+        private Combat? _requestedCombat;
+        private sealed record MetricRequest(Combat Combat, Challenge Challenge,
+            ConcurrentDictionary<Guid, PhaseInstance> Phases, int Version);
 
         private SolidColorBrush challengeColor;
         private double scale = 1;
@@ -58,49 +67,76 @@ namespace SWTORCombatParser.ViewModels.Challenges
         {
             _phaseOfInterest = phases;
         }
-        private void UpdateMetric(ChallengeType type, ChallengeOverlayMetricInfo metricToUpdate, Combat obj, Entity participant, Challenge sourceChallenge, Combat phaseCombat)
-        {
-            var value = ChallengeMetrics.GetValueForChallenege(type, obj, participant, sourceChallenge, phaseCombat);
-            metricToUpdate.Value = value;
-        }
         public void UpdateMetrics(Combat obj, Challenge sourceChallenge)
         {
-            SourceChallenge = sourceChallenge;
-            RefreshBarViews(obj, sourceChallenge);
-            double sum = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value);
-            MetricTotal = sum.ToString("N0");
+            lock (_refreshLock)
+            {
+                if (!ReferenceEquals(_requestedCombat, obj))
+                {
+                    _requestedCombat = obj;
+                    Interlocked.Increment(ref _updateVersion);
+                }
+                _pendingRefresh = new MetricRequest(obj, sourceChallenge, _phaseOfInterest, _updateVersion);
+                if (_refreshRunning)
+                    return;
+                _refreshRunning = true;
+            }
+            _ = ProcessPendingUpdates();
         }
 
-        private async void RefreshBarViews(Combat combatToDisplay, Challenge sourceChallenge)
+        private async Task ProcessPendingUpdates()
         {
-            if (combatToDisplay.AllEntities.Count == 0)
-                return;
-            Combat phaseCombat = new Combat();
-            if (_phaseOfInterest != null && _phaseOfInterest.Any())
-                phaseCombat = combatToDisplay.GetPhaseCopy(_phaseOfInterest);
-            List<Task> metricUpdateTasks = new List<Task>();
-            foreach (var participant in combatToDisplay.AllEntities.Values)
+            while (true)
             {
-                ChallengeOverlayMetricInfo metricToUpdate;
-                if (_metricBarsDict.Any(m => m.Key.Item1 == participant.Name))
+                MetricRequest? request;
+                lock (_refreshLock)
                 {
-                    metricToUpdate = _metricBarsDict.FirstOrDefault(mb => mb.Key.Item1 == participant.Name && !mb.Key.Item2).Value;
-                    if (metricToUpdate == null)
-                        continue;
+                    request = _pendingRefresh;
+                    _pendingRefresh = null;
+                    if (request == null)
+                    {
+                        _refreshRunning = false;
+                        return;
+                    }
                 }
-                else
-                {
-                    metricToUpdate = new ChallengeOverlayMetricInfo(challengeColor) { Player = participant, Type = Type, SizeScalar = Scale };
-                    _metricBarsDict.TryAdd((participant.Name, false), metricToUpdate);
-                }
-                metricUpdateTasks.Add(Task.Run(() =>
-                {
-                    UpdateMetric(Type, metricToUpdate, combatToDisplay, participant, sourceChallenge, phaseCombat);
-                }));
-
+                // Only one calculation runs at a time. New frames replace the
+                // pending request, without invalidating every in-flight result.
+                await RefreshBarViews(request.Combat, request.Challenge, request.Phases, request.Version);
             }
-            await Task.WhenAll(metricUpdateTasks);
-            OrderMetricBars();
+        }
+
+        private async Task RefreshBarViews(Combat combatToDisplay, Challenge sourceChallenge, ConcurrentDictionary<Guid, PhaseInstance> phases, int version)
+        {
+            try
+            {
+                var values = await Task.Run(() =>
+                {
+                    var phaseCombat = phases != null && !phases.IsEmpty ? combatToDisplay.GetPhaseCopy(phases) : new Combat();
+                    return combatToDisplay.AllEntities.Values
+                        .Where(participant => participant.Name != null)
+                        .Select(participant => (participant, value: ChallengeMetrics.GetValueForChallenege(sourceChallenge.ChallengeType, combatToDisplay, participant, sourceChallenge, phaseCombat)))
+                        .ToList();
+                });
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (version != Volatile.Read(ref _updateVersion))
+                        return;
+                    SourceChallenge = sourceChallenge;
+                    foreach (var (participant, value) in values)
+                    {
+                        var metric = _metricBarsDict.GetOrAdd((participant.Name, false), _ =>
+                            new ChallengeOverlayMetricInfo(challengeColor) { Player = participant, Type = Type, SizeScalar = Scale });
+                        metric.Player = participant;
+                        metric.Value = value;
+                    }
+                    MetricTotal = _metricBarsDict.Where(b => !b.Key.Item2).Sum(b => b.Value.Value).ToString("N0");
+                    OrderMetricBars();
+                });
+            }
+            catch (Exception ex)
+            {
+                Logging.LogError("Failed to update challenge metrics: " + ex.Message);
+            }
         }
         private void OrderMetricBars()
         {
@@ -108,13 +144,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 return;
             try
             {
-                var maxValue = _metricBarsDict.MaxBy(m => double.Parse(m.Value.TotalValue, CultureInfo.InvariantCulture)).Value.TotalValue;
+                var maxValue = _metricBarsDict.Values.Where(m => double.IsFinite(m.Value)).Select(m => Math.Max(0, m.Value)).DefaultIfEmpty().Max();
                 foreach (var metric in _metricBarsDict)
                 {
-                    if (double.Parse(metric.Value.TotalValue, CultureInfo.InvariantCulture) == 0 || double.IsInfinity(metric.Value.Value) || double.IsNaN(metric.Value.Value))
+                    if (metric.Value.Value <= 0 || !double.IsFinite(metric.Value.Value) || maxValue == 0)
                         metric.Value.RelativeLength = 0;
                     else
-                        metric.Value.RelativeLength = double.Parse(maxValue, CultureInfo.InvariantCulture) == 0 ? 0 : (double.Parse(metric.Value.TotalValue, CultureInfo.InvariantCulture) / double.Parse(maxValue, CultureInfo.InvariantCulture));
+                        metric.Value.RelativeLength = metric.Value.Value / maxValue;
                 }
 
                 var listOfBars = new List<ChallengeOverlayMetricInfo>();
@@ -140,7 +176,14 @@ namespace SWTORCombatParser.ViewModels.Challenges
         }
         internal void Reset()
         {
+            lock (_refreshLock)
+            {
+                Interlocked.Increment(ref _updateVersion);
+                _pendingRefresh = null;
+                _requestedCombat = null;
+            }
             MetricBars.ForEach(mb => mb.Reset());
+            MetricTotal = 0d.ToString("N0");
             _phaseOfInterest = null;
         }
     }

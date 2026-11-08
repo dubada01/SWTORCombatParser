@@ -90,12 +90,14 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         private void Dispose()
         {
+            UnsubscribeFromLogEvents();
             CombatLogStreamer.CombatStarted -= Reset;
-            CombatSelectionMonitor.CombatSelected -= UpdateMetrics;
+            CombatSelectionMonitor.OnInProgressCombatSelected -= UpdateMetrics;
             CombatSelectionMonitor.PhaseSelected -= UpdateMetrics;
             Leaderboards.LeaderboardStandingsAvailable -= UpdateStandings;
             Leaderboards.TopLeaderboardEntriesAvailable -= UpdateTopEntries;
             Leaderboards.LeaderboardTypeChanged -= UpdateLeaderboardType;
+            MetricColorLoader.OnOverlayTypeColorUpdated -= UpdateColor;
             _updateSub.Dispose();
         }
         public OverlayInstanceViewModel(OverlayType type) : base(type.ToString())

@@ -64,12 +64,12 @@ namespace SWTORCombatParser.ViewModels.Challenges
             get => double.IsNaN(relativeLength) ? 0 : relativeLength;
             set
             {
-                if (double.IsNaN(relativeLength) || double.IsInfinity(relativeLength) || Value == 0 || TotalValue == "0" || TotalValue.Contains('-'))
+                if (!double.IsFinite(value) || value <= 0 || Value <= 0)
                 {
                     SetBarToZero();
                     return;
                 }
-                relativeLength = value;
+                relativeLength = Math.Min(value, 1);
 
                 BarWidth = new GridLength(relativeLength, GridUnitType.Star);
                 RemainderWidth = new GridLength(1 - relativeLength, GridUnitType.Star);
@@ -102,6 +102,8 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 if (value > 10000000)
                     defaultValueWidth = 100;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(TotalValue));
+                OnPropertyChanged(nameof(InfoText));
             }
         }
         public string TotalValue => Math.Max(0, Value).ToString(valueStringFormat, CultureInfo.InvariantCulture);

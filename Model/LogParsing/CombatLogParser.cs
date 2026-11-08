@@ -104,14 +104,15 @@ namespace SWTORCombatParser.Model.LogParsing
         }
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog, bool includeIncomplete = false)
         {
+            return ParseAllLines(combatLog, includeIncomplete, out _, out _);
+        }
+
+        public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog, bool includeIncomplete, out long completedBytes, out int physicalLines, bool deferIncompleteTail = false)
+        {
             CombatLogStateBuilder.ClearState();
 
-            var logLines = new List<string>();
-            var worked = GetAllLines(combatLog.Data, logLines);
-            if (!worked)
-            {
-                logLines = logLines.Take(logLines.Count - 1).ToList();
-            }
+            var logLines = ReadCompletedLines(combatLog.Data, out completedBytes, out var lastLineStart);
+            physicalLines = logLines.Count;
             var numberOfLines = logLines.Count;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
             ConcurrentBag<ParsedLogEntry> incompleteLines = new ConcurrentBag<ParsedLogEntry>();
@@ -132,6 +133,15 @@ namespace SWTORCombatParser.Model.LogParsing
 
             });
 
+            // A live writer may temporarily terminate an unfinished last record.
+            // Leave it for the live reader, which can retry it if it is repaired.
+            if (deferIncompleteTail && numberOfLines > 0 &&
+                !string.IsNullOrWhiteSpace(logLines[numberOfLines - 1]) && parsedLog[numberOfLines - 1] == null)
+            {
+                completedBytes = lastLineStart;
+                physicalLines--;
+            }
+
             var cleanedLogs = parsedLog.Where(l => l != null);
             CombatTimestampRectifier.RectifyTimeStamps(cleanedLogs.ToList());
             var orderdedLog = cleanedLogs.OrderBy(l => l.TimeStamp);
@@ -144,6 +154,49 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return orderdedLog.ToList();
         }
+        private static List<string> ReadCompletedLines(StreamReader reader, out long completedBytes, out long lastLineStart)
+        {
+            var lines = new List<string>();
+            var line = new StringBuilder();
+            var buffer = new char[4096];
+            completedBytes = 0;
+            lastLineStart = 0;
+            // Peek initializes encoding detection even for a file containing only a BOM.
+            reader.Peek();
+            var preamble = reader.CurrentEncoding.GetPreamble();
+            if (preamble.Length > 0 && reader.BaseStream.CanSeek)
+            {
+                long position = reader.BaseStream.Position;
+                reader.BaseStream.Seek(0, SeekOrigin.Begin);
+                var bytes = new byte[preamble.Length];
+                int read = reader.BaseStream.Read(bytes, 0, bytes.Length);
+                reader.BaseStream.Seek(position, SeekOrigin.Begin);
+                if (read == preamble.Length && bytes.SequenceEqual(preamble))
+                    completedBytes = preamble.Length;
+            }
+            int count;
+            while ((count = reader.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    char c = buffer[i];
+                    if (c != '\n')
+                    {
+                        line.Append(c);
+                        continue;
+                    }
+
+                    lastLineStart = completedBytes;
+                    completedBytes += reader.CurrentEncoding.GetByteCount(line.ToString()) + reader.CurrentEncoding.GetByteCount("\n");
+                    if (line.Length > 0 && line[line.Length - 1] == '\r')
+                        line.Length--;
+                    lines.Add(line.ToString());
+                    line.Clear();
+                }
+            }
+            return lines;
+        }
+
         private static List<string> GetInfoComponents(ReadOnlySpan<char> span)
         {
             var results = new List<string>();

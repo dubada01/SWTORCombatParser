@@ -44,6 +44,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
             var isFirstUpdate = false;
             var parsedLogEntries = logs as ParsedLogEntry[] ?? logs.ToArray();
+            combatToUpdate.IsReplay |= parsedLogEntries.Any(log => LogReplayContext.IsReplayFile(log.LogName));
             if ((!parsedLogEntries.Any() && !combatEndUpdate))
                 return combatToUpdate;
             if (!parsedLogEntries.Any() && combatEndUpdate)
@@ -88,12 +89,6 @@ namespace SWTORCombatParser.Model.CombatParsing
             
             if (isOverallCombat)
                 combatToUpdate.EndTime = combatToUpdate.StartTime.AddSeconds(overallCombatDuration);
-
-            foreach (var entity in combatToUpdate.AllEntities.Values.Select(e => e.LogId))
-            {
-                if (!combatToUpdate.LogsInvolvingEntity.ContainsKey(entity))
-                    combatToUpdate.LogsInvolvingEntity = new Dictionary<long, ConcurrentQueue<ParsedLogEntry>>();
-            }
 
             // Always refresh boss/encounter info
             if (encounter != null && encounter.BossInfos != null)

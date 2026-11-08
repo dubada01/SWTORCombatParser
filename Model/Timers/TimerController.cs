@@ -13,7 +13,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SWTORCombatParser.ViewModels.Avalonia_TEMP;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers;
@@ -68,15 +67,14 @@ public static class TimerController
         {
             _currentBoss = bossinfo;
             
-            //todo DELETE THIS. Using it to test the avalonia UI and trigger a new combat with a boss starting;
-            AvaloniaTimelineBuilder.StartBoss(_currentBoss.Item1);
-            
             FilterTimers();
         }
     }
     private static bool CheckEncounterAndBoss(TimerInstance t)
     {
         var timerEncounter = t.SourceTimer.SpecificEncounter;
+        if (timerEncounter == "All")
+            return true;
         if (_currentEncounter.Name != timerEncounter)
             return false;
         var supportedDifficulties = new List<string>();
@@ -87,8 +85,6 @@ public static class TimerController
         if (t.SourceTimer.ActiveForMaster)
             supportedDifficulties.Add("Master");
         var timerBoss = t.SourceTimer.SpecificBoss;
-        if (timerEncounter == "All")
-            return true;
         if (string.IsNullOrEmpty(_currentBoss.Item1))
         {
             return false;
@@ -136,10 +132,13 @@ public static class TimerController
     {
         Task.Run(() =>
         {
+            lock (_timerLock)
+            {
             _expirationTimers.Clear();
             _hideTimerSubs.ForEach(s => s.Dispose());
             _showTimerSubs.ForEach(s => s.Dispose());
             _reorderSubs.ForEach(s => s.Dispose());
+            _availableTimers.ForEach(t => t.DetachFromLogStream());
             var allDefaults = DefaultOrbsTimersManager.GetAllDefaults();
             var timers = allDefaults.SelectMany(t => t.Timers);
 
@@ -219,6 +218,7 @@ public static class TimerController
             FilterTimers();
             if(initializing)
                 TimersInitialized();
+            }
         });
 
     }

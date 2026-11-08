@@ -40,24 +40,32 @@ public static class Settings
 
     public static List<T> GetListSetting<T>(string settingName)
     {
+        lock (_initLock)
+        {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName))
             settingList[settingName] = JsonConvert.SerializeObject(new List<string>());
         var stringsetting = settingList[settingName].ToString();
         return JsonConvert.DeserializeObject<List<T>>(stringsetting);
+        }
     }
     public static Dictionary<T, T2> GetDictionarySetting<T, T2>(string settingName)
     {
+        lock (_initLock)
+        {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName))
             settingList[settingName] = JsonConvert.SerializeObject(new Dictionary<string, int>());
         var stringsetting = settingList[settingName].ToString();
         return JsonConvert.DeserializeObject<Dictionary<T, T2>>(stringsetting);
+        }
     }
     public static T ReadSettingOfType<T>(string settingName)
     {
+        lock (_initLock)
+        {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         if (!settingList.ContainsKey(settingName) && settingName == "stub_logs")
@@ -113,21 +121,28 @@ public static class Settings
             catch (JsonException ex)
             {
                 // Log or handle the error appropriately
-                Logging.LogError($"Error deserializing setting '{settingName}' to type {typeof(T).Name}: {ex.Message}");
+                // Logging reads the offline_mode setting, so logging a bad setting here
+                // can recursively re-enter this method when offline_mode is malformed.
+                System.Diagnostics.Debug.WriteLine($"Error deserializing setting '{settingName}' to type {typeof(T).Name}: {ex.Message}");
             }
         }
 
         return default(T);
-
+        }
     }
     public static bool HasSetting(string settingName)
     {
+        lock (_initLock)
+        {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
         return settingList.ContainsKey(settingName);
+        }
     }
     public static void WriteSetting<T>(string settingName, T value)
     {
+        lock (_initLock)
+        {
         Init();
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
 
@@ -143,7 +158,20 @@ public static class Settings
             settingList[settingName] = JsonConvert.SerializeObject(value);
         }
 
-        File.WriteAllText(_settingsPath, JsonConvert.SerializeObject(settingList));
+        // Publish only a completely written document. This also leaves the old
+        // settings intact if serialization or writing the temporary file fails.
+        var tempPath = _settingsPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(tempPath, JsonConvert.SerializeObject(settingList));
+            File.Move(tempPath, _settingsPath, true);
+        }
+        finally
+        {
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
+        }
+        }
         SettingsUpdated(settingName);
     }
 
