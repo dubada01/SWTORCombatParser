@@ -20,10 +20,24 @@ assert not hidden.exists()
 
 x = c.CDLL('libX11.so.6')
 xt = c.CDLL('libXtst.so.6')
+
+
+class WindowAttributes(c.Structure):
+    _fields_ = [(name, kind) for names, kind in [
+        ('x y width height border_width depth', c.c_int), ('visual', c.c_void_p),
+        ('root', c.c_ulong), ('window_class bit_gravity win_gravity backing_store', c.c_int),
+        ('backing_planes backing_pixel', c.c_ulong), ('save_under', c.c_int),
+        ('colormap', c.c_ulong), ('map_installed map_state', c.c_int),
+        ('all_event_masks your_event_mask do_not_propagate_mask', c.c_long),
+        ('override_redirect', c.c_int), ('screen', c.c_void_p)
+    ] for name in names.split()]
+
+
 x.XOpenDisplay.argtypes, x.XOpenDisplay.restype = [c.c_char_p], c.c_void_p
 x.XDefaultRootWindow.argtypes, x.XDefaultRootWindow.restype = [c.c_void_p], c.c_ulong
 x.XQueryTree.argtypes = [c.c_void_p, c.c_ulong, c.POINTER(c.c_ulong), c.POINTER(c.c_ulong), c.POINTER(c.POINTER(c.c_ulong)), c.POINTER(c.c_uint)]
 x.XFetchName.argtypes = [c.c_void_p, c.c_ulong, c.POINTER(c.c_void_p)]
+x.XGetWindowAttributes.argtypes = [c.c_void_p, c.c_ulong, c.POINTER(WindowAttributes)]
 x.XFree.argtypes = [c.c_void_p]
 x.XSetInputFocus.argtypes = [c.c_void_p, c.c_ulong, c.c_int, c.c_ulong]
 x.XKeysymToKeycode.argtypes, x.XKeysymToKeycode.restype = [c.c_void_p, c.c_ulong], c.c_uint
@@ -54,7 +68,10 @@ def wait_for_window(process, predicate, logfile):
     while time.monotonic() < deadline:
         assert process.poll() is None, logfile.read_text(errors='replace')
         for window, title in windows():
-            if predicate(title):
+            attributes = WindowAttributes()
+            # A title can appear before XMapWindow; focusing an unmapped window
+            # produces BadMatch even though the application is still starting.
+            if predicate(title) and x.XGetWindowAttributes(display, window, c.byref(attributes)) and attributes.map_state == 2:
                 return window
         time.sleep(.2)
     raise AssertionError(f'Window missing: {windows()}\n{logfile.read_text(errors="replace")}')

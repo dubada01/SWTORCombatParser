@@ -1,13 +1,14 @@
 #!/bin/bash
+set -euo pipefail
 
-# Check if a version argument is provided
-if [ -z "$1" ]; then
-  echo "No version provided. Exiting."
+# Use the project-selected macOS version unless the caller supplies one.
+VERSION="${1:-$(dotnet msbuild ./SWTORCombatParser.csproj -nologo -getProperty:Version -p:RuntimeIdentifier=osx-arm64)}"
+if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.1$ ]]; then
+  echo "macOS versions must end in .1 (for example 2.4.1.1). Received: $VERSION"
   exit 1
 fi
 
 # Define variables
-VERSION=$1  # Get version from the argument
 PUBLISH_DIR="./bin/Release/net8.0/osx-arm64/publish" # Adjust this if your publish directory is different
 APP_NAME="Orbs"
 MACOS_BUILD_DIR="./MacOSBuilds"

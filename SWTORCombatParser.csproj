@@ -27,7 +27,23 @@
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'Linux'">$(DefineConstants);LINUX</DefineConstants>
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'macOS'">$(DefineConstants);MACOS</DefineConstants>
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'Windows'">$(DefineConstants);WINDOWS</DefineConstants>
+    <!-- The fourth component identifies the platform, never a hotfix counter. -->
+    <OrbsReleaseVersion>$([System.Version]::Parse('$(VersionPrefix)').ToString(3))</OrbsReleaseVersion>
+    <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'Windows'">0</OrbsPlatformRevision>
+    <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'macOS'">1</OrbsPlatformRevision>
+    <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'Linux'">2</OrbsPlatformRevision>
+    <VersionPrefix>$(OrbsReleaseVersion).$(OrbsPlatformRevision)</VersionPrefix>
+    <Version>$(VersionPrefix)</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
   </PropertyGroup>
+
+  <Target Name="ValidateOrbsPlatformVersion" BeforeTargets="GenerateAssemblyInfo;Publish;Pack">
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '^\d+\.\d+\.\d+\.$(OrbsPlatformRevision)$'))"
+           Text="$(OrbsTargetPlatform) versions must end in .$(OrbsPlatformRevision) (Windows .0, macOS .1, Linux .2). Requested: $(Version)." />
+    <Error Condition="'$(AssemblyVersion)' != '$(Version)' or '$(FileVersion)' != '$(Version)'"
+           Text="Version, AssemblyVersion and FileVersion must match the platform-specific version $(Version)." />
+  </Target>
 
   <ItemGroup Condition="'$(OrbsTargetPlatform)' == 'Windows'">
     <PackageReference Include="System.Drawing.Common" Version="9.0.3" />
